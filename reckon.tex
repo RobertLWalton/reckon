@@ -87,10 +87,9 @@
 
 \newcommand{\opt}{$^!$}
 
-\newcommand{\secref}[1]{\ref{#1}{ p\pageref{#1}}}
-\newcommand{\Secref}[1]{\ref{#1}{(p\pageref{#1})}}
-\newcommand{\stepref}[1]{\ref{#1}{(p\pageref{#1})}}
-\newcommand{\appref}[1]{\ref{#1}{ p\pageref{#1}}}
+\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -189,7 +188,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 27, 2005}
+\date{April 2, 2005}
  
 \maketitle
 
@@ -887,11 +886,13 @@ that is input for expression parsing.
 
 For example, the input `{\tt x = 7' 5.5";}' contains the pre-lexeme
 `{\tt 5.5";}', which is split into 3 lexemes `{\tt 5.5 " ;}', and
-then during lexical parsing numbers and units are grouped
-using parentheses to produce from the input the following string of 9 lexemes:
+then during lexical parsing `{\tt *}' operators are inserted before
+or after units and `{\tt +}' operators with parentheses are inserted
+between consecutive numbers, to produce from the input the
+following string of 12 lexemes:
 
 \begin{center}
-\tt x = ( 7 ' 5.5 " ) ;
+\tt x = ( 7 * ' + 5.5 * " ) ;
 \end{center}
 
 \subsection{Pre-Lexemes}
@@ -1283,7 +1284,7 @@ ends of {\em pre-words}.  A {\em word} is what is left of
 a {\em pre-word} after any {\em post-separators}
 are removed from its end.
 {\em Words} and {\em post-separators} are defined
-below in \Secref{POST-SEPARATORS}.
+below in \secref{POST-SEPARATORS}.
 
 
 The {\em indentation-lexemes} are lexemes implied by indentation, and
@@ -3450,7 +3451,7 @@ is just the standard labeled graph unification
 algorithm, and is specified in this section.  The other form, which
 has a special merge operation for nodes representing calls on
 functions or builtin PCASL operations, is called `call unification',
-and is described in \Secref{CALL-UNIFICATION}.
+and is described in \secref{CALL-UNIFICATION}.
 
 Unification of two expression graph nodes
 either succeeds and produces a unique expression
@@ -3908,7 +3909,7 @@ of its qualifiers are the same node.
 
 Note that raw expressions cannot represent call nodes that have
 qualifiers which in turn have qualifiers, but the conversions
-of \Secref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
+of \secref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
 Because of the difficulty of representing them, such call nodes are
 of mostly theoretical interest.
 
@@ -4028,7 +4029,7 @@ when two nodes M and N are merged, arrows sourced at M are matched
 with arrows sourced at N by arrow label.  If this match cannot be done,
 step \stepref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
 causes unification to fail.  In order to merge qualifier nodes,
-we need to avoid this failure, and we do this in \Secref{CALL-UNIFICATION}
+we need to avoid this failure, and we do this in \secref{CALL-UNIFICATION}
 by using some of the
 the 1-witnesses of the qualifier nodes to make the match.
 The 1-witnesses we use include the qualifier head, if that
@@ -4230,7 +4231,7 @@ After the expression tree is created, its root node becomes the root
 of the expression graph resulting from conversion.
 
 Then pure unification is performed as
-described in \Secref{PURE-UNIFICATION}, except that the merge set is initialized
+described in \secref{PURE-UNIFICATION}, except that the merge set is initialized
 to merge pairs that merge the values of each variable and the
 defaults of each variable.  It is a conversion error if this
 unification fails or if any variable has an empty set of values
