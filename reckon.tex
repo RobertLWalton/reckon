@@ -167,7 +167,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 17, 2004}
+\date{March 18, 2004}
  
 \maketitle
 
@@ -1637,13 +1637,13 @@ The rules for creating indentation records are such that the pre-lexical
 contexts in such records are either pre-lexical contexts of some \verb|{ }|
 bracket pair, or are the outermost pre-lexical context, which therefore behaves
 like the context of a \verb|{ }| bracket pair as far as indentation is
-concerned.
+concerned.  A line beginning is said to be in a particular pre-lexical
+context if the first lexeme on the line, were it not a {\em closing-mark},
+would be in that pre-lexical context.
 
 {\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
 If the first non-{\em white-space} pre-lexeme of a line is not \verb|}|,
-if the beginning of the line is in the current indentation context
-(the first pre-lexeme of the line would be in the current indentation
-context if it did not end a sub-context),
+if the beginning of the line is in the current indentation context,
 if the indentation of the line is the current indentation,
 and if the last lexeme output was not
 a \verb|;| {\em separator} lexeme or a \verb|{| {\em opening-mark}
@@ -1672,11 +1672,13 @@ record is the indentation of the next line, the implicit bracket flag
 of the record is on, and the
 pre-lexical context of the record is that of the \verb|:|.
 The pushed record is popped (1) just before the first line such that
-the line beginning pre-lexeme is in the record's pre-lexical context
+the line beginning in the record's pre-lexical context
 and the line's indentation is less than the record's indentation,
 or (2) at the end of the input pre-lexeme stream.
 When the record is popped, a \verb|}| implied {\em closing-mark}
-lexeme is output.
+lexeme is output.  It is an error if this implied {\em closing-mark}
+does not match the implied {\em opening-mark} associated with the popped
+record.
 
 In order to avoid subtle errors created by indentation, there
 is a {\tt minimum-indentation} parameter and the following rule.
@@ -1768,7 +1770,6 @@ The scan that performs the above actions is called
 because it does initial parse steps
 at the level of individual lexemes and short sequences of lexemes, and
 because it is controlled by definitions in the parsing stack
-
 (\pagref{PARSING-STACK}).
 
 \subsubsection{Spelling Regularization}
