@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 15, 2003}
+\date{November 21, 2003}
  
 \maketitle
 
@@ -1506,8 +1506,8 @@ Expression structure is affected by three special marks.
 The \key{reorder mark} (\ttkey{<:>}) separates arguments that can be
 reordered, as in \verb|element LIST <:> INDEX|, and is used in
 expression definitions.
-The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in a
-definition that represents the list of remainding arguments in a use
+The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in an
+expression definition that represents the list of remainding arguments in a use
 of the definition, as in \verb|max ::> ARGS| where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
 The \key{qualifier mark} (\ttkey{@@@}) signals that the following
@@ -1527,13 +1527,13 @@ qualifiers (e.g.,
 or certain matching lexemes.  A \key{raw expression}
 (\ref{RAW-EXPRESSIONS})
 is a particular kind of expression that will not be
-restructured.  The only special marks in a raw expression
-are the reorder mark (\verb|<:>|)
+restructured.  The only special marks that may be in a raw expression
+are the reorder mark (\verb|<:>|), the remainder mark (\verb|::>|),
 and the qualifier mark (\verb|@@@|).
 Translating
 an expression into a raw expression is called \key{parsing}.
 
-Subexpression bracketing matching lexemes may affect parsing.
+Matching lexemes may affect parsing.
 An informal summary of some of these is:
 
 \begin{center}
@@ -1556,7 +1556,7 @@ Brackets   & Turns Off			& Turns On \\[1ex]
 \end{center}
 
 Other matching lexemes may be made to affect parsing by introducing
-operator definitions with controls (\ref{OPERATOR-CONTROL}).
+operator definitions (\ref{OPERATOR-DEFINITIONS}).
 
 Parsing is controlled by the \key{parsing context}, which consists
 of a \key{parsing mode stack} and a \key{parsing definition stack}.
@@ -1584,8 +1584,8 @@ operators cannot be a subexpression or qualifier,
 by inserting the word \verb|-EMPTY-| at the
 beginning of the expression if necessary, as when
 \verb|((integral x) from 0)| is restructured as
-\verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators can cause
-major restructuring of an expression (\ref{OPERATORS}),
+\verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators (\ref{OPERATORS})
+can cause major restructuring of an expression,
 as when \verb|x + y - 5 * z| is restructured as \verb|[- [+ x y] [* 5 z]]|,
 and qualifiers
 can cause qualifier marks (\verb|@@@|) to be inserted, as when
@@ -1624,7 +1624,7 @@ A raw expression is an expression that contains no operators,
 qualifiers, or text parsing contexts that induce restructuring.
 Also, all raw expressions must begin with a word or separator.
 Raw expressions can be directly represented using the \verb|[]|
-matching lexemes and the verb|<:>| reorder, \verb|::>| remainder, and 
+matching lexemes and the \verb|<:>| reorder, \verb|::>| remainder, and 
 \verb|@@@| qualifier marks.
 
 When an expression is parsed, the output is a raw expression.
@@ -1704,11 +1704,15 @@ Fixity \\
 Name \\
 Precedence \\
 Associativity \\
-Control
+Control Flags \\
+Wrapper \\
+Definitions \\
+Parser
 \end{indpar}
 
 
-\subsubsubsection{Fixity}\ttmindex{fixity}{of operator}
+\subsubsubsection{Operator Fixity}\ttmindex{fixity}{of operator}
+\label{OPERATOR-FIXITY}
 An operator has one of the following fixities:
 
 \begin{indpar}
@@ -1720,20 +1724,22 @@ An operator has one of the following fixities:
 \end{tabular}
 \end{indpar}
 
-An \verb|infix| operator is placed between its two operands;
-a \verb|prefix| operator is placed before its one operand;
-a \verb|postfix| operator is placed after its one operand;
-and a \verb|matchfix| operator surrounds its one operand.
-Operands of \verb|prefix|, \verb|infix|, and \verb|postfix|
-operators may not be empty.
-An \verb|infix| operator may not begin or end an expression;
-a \verb|prefix| operator must begin an expression;
-a \verb|postfix| operator must end an expression;
-and a \verb|matchfix| operator has two parts: an opening operator
+An infix operator is placed between its two operands;
+a prefix operator is placed before its one operand;
+a postfix operator is placed after its one operand;
+and a matchfix operator surrounds its one operand.
+Operands of prefix, infix, and postfix
+operators may not be empty; but the operand of a matchfix operator
+may be empty.
+An infix operator may not begin or end an expression;
+a prefix operator must begin an expression;
+a postfix operator must end an expression;
+and a matchfix operator has two parts: an opening operator
 that must begin an expression and a closing operator that must end
 the same expression.
 
-\subsubsubsection{Name}\ttmindex{name}{of operator}
+\subsubsubsection{Operator Name}\ttmindex{name}{of operator}
+\label{OPERATOR-NAME}
 An operator definition has a sequence of lexemes that is the
 {\em name} of the operator.  The operator
 inside a subexpression is just this sequence of lexemes, except for
@@ -1756,8 +1762,12 @@ matchfix operator named `\verb/[ | ... | ]/' permits subexpressions
 like `\verb/[| x - 5 |]/'.  Here the opening operator name
 is `\verb/[|/' and the closing operator name is `\verb/|]/'.
 
+Opening and closing marks cannot be part of an operator name
+unless the operator is a matchfix operator.
 If opening and closing marks are part of a matchfix operator
-name, they must begin and end the name.  When a subexpression is tested
+name, they must begin and end the name.
+
+When a subexpression is tested
 for matchfix operators, any opening and closing marks that begin and
 end the subexpression are included in the subexpression, unless they are
 parentheses \verb|()|, which are always removed (recursively) when they
@@ -1769,110 +1779,38 @@ are erroneous.
 Generally, including extra pairs of parentheses
 \verb|()| has no affect on expression parsing or expression meaning,
 though the explicit parentheses in `\verb/[(|x|)]/' will prevent 
-the matchfix operator `\verb/[| ... |]/' from being recognized.
+a matchfix operator named `\verb/[| ... |]/' from being recognized.
 
-When an expression is checked for operators,
-only infix operators in the expression that have lowest precedence
-among all the infix operators in the expression are considered, and
-other infix operators are suppressed.
-All prefix operators that begin the expression are considered,
-all postfix operators that end the expression are considered,
-and all matchfix operators that begin and end the expression are
-considered.  Ambiguity is possible, and, unless resolved by one of the
-following rules, is an error.
-
-{\bf Matchfix Rule.}\index{Matchfix Rule}
-If two different matchfix operators surround an expression, but the
-first has longer opening and closing names, then the second is suppressed.
-If a matchfix operator and a prefix operator apply, but the opening operator
-name of the matchfix operator is longer than the name of the prefix operator,
-then the prefix operator is suppressed.
-If a matchfix operator and a postfix operator apply, but the closing operator
-name of the matchfix operator is longer than the name of the postfix operator,
-then the prefix operator is suppressed.
-If a matchfix operator and in infix operator apply, the infix operator is
-suppressed.
-
-Thus if `\verb/[| ... |]/' and `\verb/[ ... ]/' are two matchfix operators
-that both apply to an expression, the second will be suppressed.  If
-`\verb|- < ... > -|' is a matchfix operator and `\verb|-|' is a prefix
-operator, and both apply to an expression, the prefix operator will be
-suppressed.
-However, if `\verb|-< ... >-|' is a matchfix operator and `\verb|-<|'
-is a prefix operator, and both apply to an expression, neither will be
-suppressed, and their ambiguity will cause an error.
-
-{\bf Prefix/Postfix Rule.}\index{Prefix/Postfix Rule}
-If an expression begins with a consecutive sequence of prefix operators,
-any infix operator overlapping this sequence is suppressed.
-If an expression ends with a consecutive sequence of postfix operators,
-any infix operator overlapping this sequence is suppressed.
-
-Thus if `\verb|+|' is both a prefix and infix operator,
-the expression `\verb|+ + y|' is equivalent to `\verb|+ (+ y)|'.
-
-{\bf Infix Precedence Rule.}\index{Infix Precedence Rule}
-If an expression contains any infix operators that are not be suppressed by the
-previous rules (Matchfix and Prefix/Postfix), then any prefix operators
-beginning the expression are suppressed, and any postfix operators
-ending the expression are suppressed.
-
-{\bf Consecutive Infix Rule.}\index{Consecutive Infix Rule}
-Any consecutive sequence infix operators not suppressed by the
-Matchfix or Prefix/Postfix Rules must permit all operators in
-the sequence but one to be suppressed so that the sequence of
-suppressed infix operators before the unsuppressed operator can be
-interpreted as a sequence of postfix operators,
-and the sequence of suppressed infix operators after the
-unsuppressed operator can be interpreted as a sequence of prefix operators.
-If there is not a single unique way of doing this, it is an error.
-
-Thus if `\verb|+|' is both a prefix and infix operator,
-the expression `\verb|x + + y|' is equivalent to `\verb|x + (+ y)|'.
-But if `\verb|+|' were a prefix, infix, and postfix operator, this
-expression would have erroneous ambiguity.
-
-The rules just given produce a result that is often the same as the
-more common context free grammar rules for parsing expressions.  However,
-there is a difference: in PCASL an operator can change the parsing context
-used to parse its operand subexpressions.  See the section on operator
-control below (\ref{OPERATOR-CONTROL}).
-
-\subsubsubsection{Precedence}\ttmindex{precedence}{of operator}
+\subsubsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
+\label{OPERATOR-PRECEDENCE}
 The precedence of an operator is an integer.  Precedence is used in
-selecting which infix operators in an expression to consider.
+selecting which infix operators in an expression to consider
+(\ref{OPERATOR-SELECTION}).
 Only infix operators have precedence.
 
-If no matchfix operators apply to an expression, but there
-are infix operators in the expression, the lowest
-precedence $P$ of any infix operator in the expression is determined, and
-only infix operators of precedence $P$ are considered when parsing the
-expression.  In this case prefix and postfix operators are not considered
-in parsing the expression.  However, after implied parentheses
-are inserted, higher precedence infix operators, prefix operators, and
-postfix operators will be recognized when
-the resulting subexpressions are parsed recursively.
-
-\subsubsubsection{Associativity}\ttmindex{associativity}{of operator}
+\subsubsubsection{Operator Associativity}\ttmindex{associativity}{of operator}
+\label{OPERATOR-ASSOCIATIVITY}
 An infix operator has an {\em associativity} that
 a sequence of lexemes.
 Three associativities, {\tt left}, {\tt right}, and
 {\tt none}, have special meaning.  If an infix operator has some
 other associativity, it is said to have \key{named associativity}.
 
-If more than one infix operator with lowest precedence appears in an expression,
-all the operators that appear must have the same associativity, and this
+If more than one infix operator is selected in an expression by the operator
+selection algorithm\EOL (\ref{OPERATOR-SELECTION}),
+all the infix operators that are selected
+must have the same associativity, and this
 associativity must not be {\tt none}\ttmindex{none}{associativity}.
 
 If all operators are {\tt left} associative%
 \index{left associative@{\tt left} associative},
-all the infix operators but the rightmost are suppressed,
+all the infix operators but the rightmost are deselected,
 so it is as if operators to the left had
 higher precedence than those to the right.
 
 If all operators are {\tt right} associative,
 \index{right associative@{\tt right} associative},
-all the infix operators but the leftmost are suppressed,
+all the infix operators but the leftmost are deselected,
 so it is as if operators to the right had
 higher precedence than those to the left.
 
@@ -1885,8 +1823,8 @@ Thus if the infix operators \verb|<| and \verb|<=| have associativity
 \verb|-COMPARE-|, the expression \verb|0 < x - 3 <= 5| will
 be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
 
-\subsubsubsection{Control}\ttmindex{control}{of operator}
-\label{OPERATOR-CONTROL}
+\subsubsubsection{Operator Control Flags}\ttmindex{control flag}{of operator}
+\label{OPERATOR-CONTROL-FLAGS}
 Operators can be associated with \skey{operator control flag}s that
 affect parsing of subexpressions of the operator.
 
@@ -1926,40 +1864,211 @@ parsed, and then the definition is popped off the parsing definitions stack.
 
 \end{indpar}
 
-\subsubsection{Implicit Parenthesis Insertion}
-\label{IMPLICIT-PARENTHESIS-INSERTION}
+\subsubsubsection{Operator Wrapper}\ttmindex{wrapper}{of operator}
+\label{OPERATOR-WRAPPER}
 
-If an expression begins and ends with a matchfix operator, that operator
-will be used to insert implied parentheses.  Otherwise, if there are
-any infix operators in the expression, these will be used to insert
-implied parentheses.  Otherwise if the expression begins with a prefix
-operator or ends with a postfix operator, that operator will be used
-to insert implied parentheses.
+An operator wrapper is an expression containing the lexeme `\verb|...|'.
+If operator selection for an expression selects an operator with a
+wrapper, the expression is restructured to be a copy of the wrapper
+with its `\verb|...|' lexeme replaced by the parenthesized expression
+being restructured.
 
-An expression is in error if it begins and ends with more than one
-matchfix operator.
-When a matchfix operator is used to insert implicit parentheses
-into an expression, the part of the expression that is not part of the
-operator is the subexpression that is implicitly parenthesized.
-This subexpression may be empty.
+For example, if the matchfix operator `\verb|<< ... >>|' has the
+wrapper `\verb|-EVAL-ON- ...|', then the expression `\verb|<<x>>|'
+will be restructured to be `\verb|-EVAL-ON- (x)|'.
 
-When infix operators are used to insert implicit parentheses
-in an expression, the parts of the expression between operators and
-the ends of the expression are the subexpressions that are implicitly
-parenthesized.  These subexpressions can be empty.
+If operator sepelction for an expression selects several infix operators,
+and one has a wrapper, all must have that same wrapper, else it is an error.
 
-An expression is in error if it has not matchfix or infix operators,
-and it both begins with a prefix operator and ends with a postfix operator.
-When a prefix or postfix operator is used to insert implied parentheses
-into an expression, the part of the expression that is not part of the
-operator is the subexpression that is implicitly parenthesized.
-This subexpression may be empty.
+\subsubsubsection{Operator Subdefinitions}\ttmindex{definition}{of operator}
+\label{OPERATOR-SUBDEFINITIONS}
 
-\subsubsection{Operator Context}
-\label{OPERATOR-CONTEXT}
+An operator definition can contain a list of definitions
+that are pushed into the parsing definition stack before the subexpressions
+of the operator are parsed, and are popped from the stack after the
+subexpressions are parsed.  To avoid name confusion, these definitions
+are called \skey{subdefinition}s.
 
-\subsection{Expression Translation}
-\label{EXPRESSION-TRANSLATION}
+Note that subdefinitions can include operator definitions, operator
+undefinitions, qualifier definitions, and qualifier undefinitions.
+
+\subsubsubsection{Operator Parser}\ttmindex{parser}{of operator}
+\label{OPERATOR-PARSER}
+
+\subsubsection{Operator Selection}
+\label{OPERATOR-SELECTION}
+
+To check an expression for operators, an operator selection algorithm is
+run.  This algorithm selects operators whose name appears in the expression,
+and then applies rules to deselect some selected operators.  If at the end
+of the algorithm there is exactly one operator selected, the definition
+of that operator is used to restructure the expression.  If there is more
+than one operator selected, it is an error, and if there are no operators
+selected, the expression is not restructured.
+
+The operator selection rule uses the current parsing definition stack
+to determine which operators are defined.  The important parts of each
+definition are the operator name and operator fixity.
+
+In the algorithm the concepts of prefix sequence and postfix sequence
+are used.  A \key{prefix sequence} is a sequence of defined prefix operator
+names.  A \key{postfix sequence} is a sequence of defined postfix operator
+names.
+
+In the \key{operator selection algorithm}, which is defined as follows,
+each step is repeated until it does nothing.
+
+\begin{enumerate}
+
+\item
+Select any defined matchfix operator whose opening name
+begins the expression and whose closing name ends the expression.
+
+\item
+If two matchfix operators are selected, the opening operator name
+of the first is longer than the opening operator name of the second,
+and the closing operator name
+of the first is longer than the closing operator name of the second,
+then the second operator is deselected.
+
+Thus if `\verb/[| ... |]/' and `\verb/[ ... ]/' are two selected
+matchfix operators, the second will be deselected.
+
+\item
+If more than one matchfix operator is still selected, it is an error.
+
+\item
+If a matchfix operator is selected, and the expression begins with
+a prefix sequence that is not shorter than the opening name of the
+matchfix operator, then it is an error.
+Similarly if a matchfix operator is selected, and the expression ends with
+a postfix sequence that is not shorter than the closing name of the
+matchfix operator, then it is an error.
+
+Thus if `\verb|- < ... > -|' is a defined matchfix operator and
+`\verb|-|' is a defined prefix operator, but there is no defined
+prefix operator whose name begins with the lexeme `\verb|<|',
+then there is no error.
+But if there is another defined prefix operator named `\verb|<|',
+the expression is in error.
+
+\item
+If a matchfix operator is selected, the algorithm terminates successfully
+at this point, which selecting any other operators.
+The part of the expression between the opening operator name and closing
+operator name is the sole operand of the matchfix operator.  This operand
+is implicitly parenthesized, and may be empty.
+
+\item
+Select all defined infix operators that occur in the expression.
+
+\item
+Deselect any selected infix operator that overlaps or immediately follows
+a prefix sequence that begins the expression.
+Deselect any selected infix operator that overlaps or immediately precedes
+a postfix sequence that ends the expression.
+
+Note that the empty sequence is both a prefix and a postfix sequence,
+so infix operators that begin or end the expression are deselected.
+For example, in the expression `\verb|+ x * y|' the `\verb|+|' is
+deselected, and in the expression `\verb|+ + + x * y|' all the `\verb|+|'s are
+deselected.
+
+\item
+On the set of selected infix operators define the \key{infix conflict relation}
+to be the smallest equivalence relation such that two selected infix operators
+conflict if they overlap or abut.
+
+\item
+Deselect any infix operator if it is not followed by a prefix sequence that
+contains all other infix operators that conflict with the infix operator.
+Deselect any infix operator if it is not preceded by a postfix sequence that
+contains all other infix operators that conflict with the infix operator.
+In checking for conflicting operators, check any infix operator selected
+at the end of the previous step, whether or not it has been deselected
+in this step.
+
+Since the empty sequence is a prefix and postfix sequence, any infix operator
+that does not conflict with any other infix operator will still be selected
+at the end of this step.
+
+It is an error if the is an equivalence class of conflicting operators all
+of whose members are deselected by this step.
+
+\item
+If two infix operators are selected, and the first has strictly lower
+precedence than the second, deselect the second.
+
+\item
+It is an error if two conflicting infix operators are still selected at
+this point.
+
+\item
+If several infix operators are still selected at this point, all these
+operators must have the same associativity, which must not be `\verb|none|'.
+Otherwise it is an error.
+
+\item
+If several infix operators are selected at this point and their common
+associativity is `\verb|left|', all but the rightmost infix operator
+are deselected.
+Similarly if several infix operators are selected at this point and their common
+associativity is `\verb|right|', all but the leftmost infix operator
+are deselected.
+
+\item
+If any infix operators are still selected at this point, the algorithm
+terminates successfully.
+The parts of the expression between the operators, before the first
+operator, and after the last operator are the operands, and are
+implicitly parenthesized.  No operand is empty.
+If the common associativity of the infix operators is not
+`\verb|left|',
+`\verb|right|', or
+`\verb|none|', this associativity as a lexeme sequence is prepended to the
+expression, before the first operator.
+
+\item
+Select any prefix operator that begins the expression, and any postfix
+operator that ends the expression.
+
+\item
+If two prefix operators are selected, and one is longer than the other,
+deselect the shorter.
+Similarly, if two postfix operators are selected,
+and one is longer than the other,
+deselect the shorter.
+
+\item
+If more than one operator is selected at this point, it is an error.
+
+\item
+If one operator is selected at this point, and the operator name
+is the entire expression, deselect the operator.  Thus
+in the expression `\verb|x = (+)|', `\verb|+|' will be deselected
+when the subexpression `\verb|+|' is parsed.
+
+\item
+The algorithm terminates successfully
+at this point with zero operators selected,
+or with one prefix or postfix operator selected.
+If there is one selected operator, the part of the expression
+that is not the operator name is the sole operand, and is implicitly
+parenthesized.  Note this operand cannot be empty.
+
+\end{enumerate}
+
+
+The rules just given produce a result that is often the same as the
+more common context free grammar rules for parsing expressions.  However,
+there is a difference: in PCASL an operator can change the parsing context
+used to parse its operand subexpressions.  See the sections on operator
+control flags (\ref{OPERATOR-CONTROL-FLAGS}),
+operator subdefinitions (\ref{OPERATOR-SUBDEFINITIONS}),
+and operator parsers (\ref{OPERATOR-PARSER}) above.
+
+\subsubsection{Selection Post-Processing}
+\label{SELECTION-POST-PROCESSING}
 
 
 \section{Expression Inference}
