@@ -167,7 +167,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 18, 2004}
+\date{March 19, 2004}
  
 \maketitle
 
@@ -1757,8 +1757,7 @@ After pre-lexemes are scanned to produce lexemes, the lexemes are
 scanned to perform the following:
 
 \begin{indpar}[1in]
-Spelling Regularization \\
-Possessive Splitting \\
+Lexeme Replacement (Spelling Regularization, Possessive Splitting) \\
 Number Unit Grouping
 \end{indpar}
 
@@ -1771,8 +1770,42 @@ at the level of individual lexemes and short sequences of lexemes, and
 because it is controlled by definitions in the parsing stack
 (\pagref{PARSING-STACK}).
 
-\subsubsection{Spelling Regularization}
-\label{SPELLING-REGULARIZATION}
+\subsubsection{Lexeme Replacement}
+\label{LEXEME-REPLACEMENT}
+
+The lexeme replacement process replaces one lexeme by a string of zero or
+more lexemes.  Replacement may be done by either a dictionary or a function.
+Replacement is controlled by \key{lexeme replacement definition}s
+in the parsing stack (\pagref{PARSING-STACK}).
+
+There are two kinds of lexeme replacement definitions:
+dictionary and function.  These have the syntax:
+
+\begin{indpar}
+\key{lexeme-dictionary-definition} \\
+	\hspace*{1in}::= \verb|define lexeme dictionary|
+				{\em lexeme-dictionary-entries} \\[1ex]
+\key{lexeme-dictionary-entries} \begin{tabular}[t]{rl}
+                     ::= & \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
+		     \end{tabular} \\[1ex]
+\key{lexeme-dictionary-entry-list} \\
+		     \hspace*{1in}\begin{tabular}[t]{rl}
+                     ::= & {\em lexeme-dictionary-entry} \\
+		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
+		           {\em lexeme-dictionary-entry}
+		     \end{tabular} \\[1ex]
+\key{lexeme-dictionary-entry} ::= {\em replaced-lexeme} {\em lexeme-replacement}
+					\\[1ex]
+\key{replaced-lexeme} ::= {\em lexeme} \\[1ex]
+\key{lexeme-replacement} ::= {\em replacing-lexemes} \\[1ex]
+\key{replacing-lexemes} ::= {\em lexemes} \\[1ex]
+\key{lexeme-function-definition} \\
+	\hspace*{1in}::= \verb|define lexeme function|
+				{\em function-name} \\[1ex]
+\key{function-name} ::= {\em lexemes}
+\end{indpar}
+
+
 
 
 
