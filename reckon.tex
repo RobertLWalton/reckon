@@ -1297,10 +1297,10 @@ The syntax equations required are:
 {\bf Post Separator Rule.}\index{Post Separator Rule}
 A {\em pre-word} of 2 or more characters
 that ends with a {\em post-separator-character}
-is split into a {\em pre-word} and a {\em post-separator}
+is split into a smaller {\em pre-word} and a {\em post-separator}
 if the {\em post-separator-character} is strong, or if
-the split-out {\em pre-word} is a {\em number}, or if
-the split-out {\em pre-word} does 
+the smaller {\em pre-word} is a {\em number}, or if
+the smaller {\em pre-word} does 
 \underline{not} contain a copy of the {\em post-separator-character}.
 If the {\em pre-word} is not split, it becomes a {\em word} lexeme.
 
@@ -1317,13 +1317,15 @@ Examples:
 \begin{tabular}{@{}l@{\hspace*{0.3in}}l@{~~~}l@{\hspace*{0.6in}}l}
 Pre-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 							& Splits?	\\[1ex]
-\verb|hello.|		& \tt hello 		& .	& yes		\\
-\verb|X,|		& \tt X 		& ,	& yes		\\
+\verb|hello.|		& \tt hello 		& \tt .	& yes		\\
+\verb|X,|		& \tt X 		& \tt ,	& yes		\\
 \verb|h.e.l.l.o.|	& \tt h.e.l.l.o.	&	& no		\\
 \verb|e.g.|		& \tt e.g.		&	& no		\\
-\verb|5.0.|		& \tt 5.0		& .	& yes		\\
-\verb|1,234,|		& \tt 1,234		& ,	& yes		\\
-\verb|help!|		& \tt help		& !	& yes		\\
+\verb|5.0.|		& \tt 5.0		& \tt .	& yes		\\
+\verb|1,234,|		& \tt 1,234		& \tt ,	& yes		\\
+\verb|1,234,,|		& \tt 1,234		& \tt ,~~,
+							& yes, twice	\\
+\verb|help!|		& \tt help		& \tt !	& yes		\\
 \verb|!help!|		& \tt !help!		&	& no		\\
 \end{tabular}
 \end{indpar}
