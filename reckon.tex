@@ -4825,9 +4825,9 @@ The code of a block has the following syntax:
 
 \begin{indpar}
 \key{block} ::= \verb|{| {\em group}
-                         \{ {\em break} {\em group} \}\,$^\star$ \verb|}|
-			 \\[1ex]
-\key{break} ::= \ttnbkey{---}\verb|-|$^\star$
+                         \{ {\em sequence-break} {\em group} \}\,$^\star$
+			 \verb|}| \\[1ex]
+\key{sequence-break} ::= \ttnbkey{---}\verb|-|$^\star$
 	(1 word consisting of 3 or more \verb|-|'s) \\[1ex]
 \key{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
@@ -4994,20 +4994,23 @@ TBD: Arrays and array element names.
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
 
-{\em Blocks} are divided into \skey{statement group}s by
-{\em sequence-breaks}.
-Evaluation of a statement group is driven by availability of variable values
+\ikey{Blocks}{block!evaluation}
+are divided into \ikey{groups}{group!evaluation} by \skey{sequence-break}s.
+The {\em groups} are evaluated in order: each group being completely
+evaluated before the next group is evaluated.  However,
+evaluation within a \mkey{statement-group}{evaluation}
+is driven by availability of variable values,
 and not by the order of the {\em statements} in the group.
-However each group in a block is completely evaluated before any subsequent
-groups in the block are evaluated.
 
 Each variable in a block can be assigned at most one value: it is
-an error if the variable is assigned more than one value.
+an error if the variable is assigned a value more than once during
+a block evaluation, even if all the values assigned are the same.
+
 The \skey{input-variable}s of a {\em right-side-expression} are all
 variables in the expression that are not {\em output-variables} or
 {\em pattern-variables} of
 the {\em assignment-statement} or {\em guard} containing the expression.
-Each {\em right-side-expression} in a statement group
+Each {\em right-side-expression} in a {\em statement-group}
 is evaluated only when all its input variables have values.
 When the {\em right-side-expression} of an {\em assignment-statement}
 is evaluated, the variables named on the left side of the statement and any
@@ -5054,10 +5057,40 @@ value, while the variable \verb|y1| is never given a value.
 
 A {\em when-statement} is just like an {\em if-statement} that has
 no {\em else-if-continuation} or {\em else-continu\-a\-tion}.
+[TBD: what about making a variable true if it has ANY value, for the
+purposes of a {\em when-statement}?]
 
-Block evaluation terminates when no further evaluation is possible.
+A {\em statement-group} terminates when all the
+{\em right-side-expressions} in it have either been evaluated or
+cannot be evaluated because of lack of an input variable value or
+because of {\em guards}.
+Once a {\em statement-group}
+terminates, no part of the group can be evaluated, even if another group
+later in the block defines that part's input variables.
 
-When block evaluation terminates, the value of the block is the
+However, group evaluation is additionally modified by {\em statement-qualifiers}
+(\secref{STATEMENT-QUALIFIERS-AND-ITERATION}).
+
+The \ikey{declarations}{declaration!evaluation} of a
+\mkey{declaration-group}{evaluation} are evaluated in order.  Evaluation of a
+{\em declaration} just adds its definition to the current context.
+The {\em declaration-group} terminates when its last {\em declaration}
+has evaluated.  There are no {\em guards} or block variables in a declaration
+group (the variables of a definition are not variables of the block).
+
+\ikey{Empty-statements}{empty-statement!evaluation} and
+\ikey{empty-declarations}{empty-declaration!evaluation} do nothing
+when they evaluate.
+
+The {\em groups} of a {\em block} are evaluated in order.  No part of
+a {\em group}
+can evaluate until all previous {\em groups} of the block have completely
+finished evaluating.  Once a {\em group} starts to evaluate, no part of
+a previous {\em group} can evaluate.
+
+A {\em block} terminates when its last group terminates.
+
+When a block terminates, the \mkey{value}{of block} of the block is the
 value of its {\tt value} variable\index{value variable@{\tt value} variable},
 if any.  Thus the block
 
@@ -5071,10 +5104,7 @@ the sum of its inherited variables as the value of the block.
 If a block finishes without producing a value for a variable named
 {\tt value}, the value of the block is \ttmkey{true}{block value}.
 
-It is an error if a variable is assigned a value by more than one
-{\em assignment-statement} during block evaluation.
-
-Block evaluation is modified by {\em statement-qualifiers}
+Block evaluation is additionally modified by {\em statement-qualifiers}
 (\secref{STATEMENT-QUALIFIERS-AND-ITERATION}).
 
 \subsection{Statement Qualifiers and Iteration}
