@@ -173,7 +173,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 9, 2004}
+\date{October 13, 2004}
  
 \maketitle
 
@@ -4345,8 +4345,10 @@ but may evaluate expressions in the context of the expression being
 evaluated by the expression definition.
 
 When an expression definition applies to an expression, variables in a copy
-of the expression definition are bound to subexpressions of the expression.
-Then some of these subexpressions are evaluated and replaced by their
+of the expression definition are bound to subexpressions of the expression or
+to default values for the variables.
+Then some of these subexpressions or defaults are evaluated
+and replaced by their
 values before the guards and block of the expression definition are
 evaluated.  These argument evaluations and also all guard evaluations are
 required to have no visible side effects.
@@ -4375,7 +4377,8 @@ required to have no visible side effects.
 In use, the expression definition is copied, and the copy's {\em pattern}
 is call unified (\secref{CALL-UNIFICATION}) with the expression being
 evaluated.  If unification fails, the definition does not apply.  If
-unification succeeds, subexpressions bound to some of the variables in
+unification succeeds, variables not bound to values are given their
+default values, subexpressions bound to some of the variables in
 the {\em pattern} are evaluated and replaced by their values, and then
 the copied {\em guards} are evaluated.  If any of the {\em guards} evaluate
 to `\verb|false|', the definition does not apply.  If all evaluate to
@@ -4486,6 +4489,10 @@ unification succeeds, it modifies nodes in the expression
 being evaluated and provides variable values for the variables in
 the pattern.
 
+\item
+For any pattern variable bound to a null node, rebind the variable
+to its default value, if the variable has a default value.
+
 \item\label{PROTECTED-VARIABLE}
 For any pattern variable whose name does \underline{not} begin
 with `\ttkey{\#}', evaluate the value of that variable to obtain
@@ -4495,6 +4502,8 @@ forwarding a variable value graph node to the new value graph node.
 
 These variable value evaluations here are not permitted to have
 visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
+
+It is an error if a null node is to be evaluated.
 
 \item
 Evaluate each guard of the definition copy in left to right order.
