@@ -3024,7 +3024,9 @@ an arrow labeled \ttmkey{-ARITY-}{merge}.  The alterred merge algorithm is
 called the \key{arity merge algorithm}.
 
 The arity merge algorithm performs \skey{arith check}s on the nodes it
-is merging.  A node N passes an arity check if and only if
+is merging.
+
+A node N passes an arity check if and only if
 all of the following are true:
 
 \begin{enumerate}
@@ -3035,10 +3037,23 @@ N is the source of exactly one arrow labeled
 a natural number (string of decimal digits with no high order zeroes).
 
 \item
-For every natural number I from `\verb|0|' through A
-there is exactly one arrow sourced at N such that either
-the arrow label is I or the arrow label is `J\verb|-|K' where
-J and K are natural numbers and J$<$K, J$\leq$I$\leq$K.
+N is the source of exactly one arrow labeled `\verb|0|'.
+
+\item
+If an arrow sourced at N has a non-zero natural number label I, then
+\verb|1|$\leq$I$\leq$A, and there is exactly one arrow labeled I sourced at N.
+
+\item
+If an arrow sourced at N has a label of the form `J\verb|-|K', for
+natural numbers J and K, then 1$\leq$J$<$K$\leq$A, and there are exactly
+K$-$J$+1$ arrows sourced at N with this label.
+
+\item
+There is at least one 1-1 mapping from the integers
+1 through A onto arrows whose labels are either
+non-zero natural numbers or are of the form `J\verb|-|K' for natural
+numbers J and K, such that integer I is mapped to an arrow that either
+has label I or has label `J\verb|-|K' with J$\leq$I$\leq$K.
 
 \item
 There is at most one arrow sourced at N labeled
@@ -3046,14 +3061,15 @@ There is at most one arrow sourced at N labeled
 arrow exists, is a node with no label that is the source of no arrows.
 
 \item
-There may be any number of arrows sourced N labeled
+There may be any number of arrows sourced at N labeled
 \ttmkey{-QUALIFIER-}{arity check}.  If Q is the target of such an
 arrow, then Q satisfies the arity check recursively.  The arity check
 algorithm must allow cycles in the graph, e.g. the case that N and Q are the
 same node.
 
 \item
-There are no arrows sourced at N other than those enumerated above.
+There are no arrows sourced at N other than those with labels
+enumerated above.
 
 \end{enumerate}
 
