@@ -82,6 +82,12 @@
 \newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
+\newcommand{\secref}[1]{\ref{#1}{ p\pageref{#1}}}
+\newcommand{\Secref}[1]{\ref{#1}{(p\pageref{#1})}}
+\newcommand{\stepref}[1]{\ref{#1}{(p\pageref{#1})}}
+\newcommand{\appref}[1]{\ref{#1}{ p\pageref{#1}}}
+\newcommand{\pagref}[1]{p\pageref{#1}}
+
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
 \newcount\TildeCatcode
@@ -154,10 +160,13 @@
 \title{Personal\\Calculation and Simulation\\Language\\[2ex]PCASL\\[2ex]
        (Draft 1a)}
 
-\author{Robert L. Walton\thanks{This document was partly inspired
-by teaching courses at Suffolk University.}}
+\author{Robert L. Walton\thanks{Copyright 2004 Robert L. Walton.
+Permission to copy this document verbatim is granted by the author
+to the public.  This document was partly inspired
+by teaching courses at Suffolk University, and by the work of Thomas
+Cheatham and Stuart Shieber.}}
 
-\date{January 16, 2004}
+\date{March 17, 2004}
  
 \maketitle
 
@@ -211,6 +220,7 @@ the data types they particularly support, are:
 \begin{tabular}{l@{\hspace{0.5in}}l}
 Various Spreadsheets		& Spreadsheets \\
 Various Data Base Languages	& Data Bases \\
+Various Script Languages	& Documents \\
 MATLAB				& Matrices \\
 Mathematica			& Expressions \\
 TCL				& Character Strings and Lists \\
@@ -511,7 +521,7 @@ iteration.
 \verb|+         value = sum }| \\
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
-\verb|> all (sums from 5 through 10)| \\
+\verb|> all (sums from X through Y)| \\
 \begin{tabular}{|r|r|r|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
@@ -558,7 +568,7 @@ PCASL tends to ignore word endings: thus `{\tt person}' and
 PCASL can even be told that `{\tt person}'
 and `{\tt people}' are the same word.
 `{\tt Jack's}', on the other hand, is treated an abbreviation
-of two separate words `{\tt Jack 's}', where `{\tt 's}' is
+of two separate words `{\tt Jack}' and `{\tt 's}', where `{\tt 's}' is
 a separate word by itself.
 
 Expressions are just strings of words and subexpressions.  Subexpressions
@@ -623,8 +633,8 @@ compute such tuples are \key{flattened}:
 \verb|> rest (rest x)| \\
 \verb|(3,4)| \\
 \verb|> rest (rest (rest x))| \\
-\verb|3| \\
-\verb|> rest 9| \\
+\verb|4| \\
+\verb|> rest 4| \\
 \verb|()|
 \end{indpar}
 
@@ -751,6 +761,8 @@ Displays can be used to make demonstrations:
 \end{indpar}
 
 TBD: example of a simple game.
+
+The rest of this document is a reference manual for PCASL.
 
 
 \section{Lexical Scans}
@@ -1035,7 +1047,7 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \end{tabular}
 \end{indpar}
 
-Other rules of PCASL (\ref{LEXEMES})
+Other rules of PCASL (\secref{LEXEMES})
 limit the semantic content
 of {\em white-space}, so that there is no problem putting
 space between the \verb|``| and \verb|`| in the last example.
@@ -1081,7 +1093,7 @@ After these rules are applied, a {\em white-space} pre-lexeme consists of
 only of {\em vertical-space-characters} followed by {\em space} characters.
 
 {\em White-space} pre-lexemes are used to create indentation lexemes
-when pre-lexemes are converted to lexemes (\ref{INDENTATION-LEXEMES}).
+when pre-lexemes are converted to lexemes (\secref{INDENTATION-LEXEMES}).
 {\em White-space} pre-lexemes that contain only {\em space} characters
 become lexemes if they are after a {\em format-separator} \verb/|/ on
 a line.  All other {\em white-space} pre-lexemes are ignored when
@@ -1125,20 +1137,20 @@ ends of {\em pre-words}.  A {\em Word} is what is left of
 a {\em pre-word} after any {\em post-separators}
 are removed from its end.
 {\em Words} and {\em post-separators} are defined
-below in \ref{POST-SEPARATORS}.
+below in \Secref{POST-SEPARATORS}.
 
 
 The {\em indentation-lexemes} are lexemes implied by indentation, and
 are not distinguishable from explicit lexemes, namely the post-separator
 \verb|;|, the {\em opening-mark} \verb|{|, and the {\em closing-mark}
 \verb|}|.  They are defined below in
-\ref{INDENTATION-LEXEMES}.
+\secref{INDENTATION-LEXEMES}.
 
 {\em White-space} pre-lexemes are used to define indentation and
 create {\em indentation-lexemes}.
 {\em White-space} pre-lexemes become lexemes if they appear between a
 {\em format-separator} and a following line ending {\em white-space}
-pre-lexeme (\ref{TEXT-PARSING}).
+pre-lexeme (\secref{TEXT-PARSING}).
 All other {\em white-space} pre-lexemes are discarded when pre-lexemes
 are scanned to lexemes.
 
@@ -1265,7 +1277,7 @@ hexadecimal
 \end{center}
 
 The rules for comma location are the same as for {\em decimal-numbers}
-(\ref{DECIMAL-NUMBERS}), except the number of digits between commas may
+(\secref{DECIMAL-NUMBERS}), except the number of digits between commas may
 be 4 or 8 instead of 3.
 
 {\em Radix-numbers} can be legal lexemes and still be unconvertible to
@@ -1701,7 +1713,7 @@ because it does initial parse steps
 at the level of individual lexemes and short sequences of lexemes, and
 because it is controlled by definitions in the parsing stack
 
-(\pageref{PARSING-STACK}).
+(\pagref{PARSING-STACK}).
 
 \subsubsection{Spelling Regularization}
 \label{SPELLING-REGULARIZATION}
@@ -1756,7 +1768,7 @@ the following syntax equations.
 
 {\bf Subexpression Rule.}\index{Subexpression Rule}
 The {\em opening-mark} lexeme that begins a subexpression must lexically match
-(\ref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
+(\secref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
 \subsection{Expression Structure Overview}
@@ -1790,7 +1802,7 @@ expression item is an optional qualifier, as in the expression
 `\verb|sort X ?? with order O|'.  When default values are provided in
 definitions, required qualifier marks may be converted automatically to
 optional qualifier marks and an optional argument mark may be inserted into an
-argument list automatically (\ref{TBD}).
+argument list automatically (\secref{TBD}).
 
 Expressions are restructured if they contain operators (e.g.,
 \verb|+|,
@@ -1802,7 +1814,7 @@ qualifiers (e.g.,
 \verb|has|),
 or qualifier shortcuts (e.g., \verb|ascending|, which is a shortcut for
 `{\tt with order ascending}').
-A \key{raw expression} (\ref{RAW-EXPRESSIONS})
+A \key{raw expression} (\secref{RAW-EXPRESSIONS})
 is a particular kind of expression that will not be
 restructured.  The only special marks that may be in a raw expression
 are the five special marks:
@@ -1850,7 +1862,7 @@ Brackets	& qualifiers	& text		& \verb|@@  ??|
 \end{center}
 
 Other matching lexemes may be made to affect parsing by introducing
-operator definitions (\ref{OPERATOR-DEFINITIONS}).
+operator definitions (\secref{OPERATOR-DEFINITIONS}).
 
 Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
 which contains definitions of parsers, operators, qualifiers, and
@@ -1873,10 +1885,10 @@ where only the format-separator (\verb/|/) and punctuation are recognized.
 
 From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
-is done by the text parser (\ref{TEXT-PARSING}), which is invoked by
+is done by the text parser (\secref{TEXT-PARSING}), which is invoked by
 \verb|`'| quotes, and does things like turn
 \verb|`I am!'| into \verb|[sentence I am !]|.  Other kinds of
-restructuring are done by the operators parser (\ref{OPERATORS}).
+restructuring are done by the operators parser (\secref{OPERATORS}).
 The operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
 \verb|x + y - 5 * z| cause this expression to be restructured as
 \verb|[- [+ x y] [* 5 z]]|.  The qualifier `\verb|with|' in the
@@ -1916,7 +1928,7 @@ turn evaluation on thrice.
 
 Evaluation is not part of parsing; the evaluation counter is
 used during expression evaluation, which occurs after expression parsing.
-Parsing does insert the wrappers (\ref{OPERATOR-WRAPPER})
+Parsing does insert the wrappers (\secref{OPERATOR-WRAPPER})
 \ttkey{-EVAL-ON-} and \ttkey{-EVAL-OFF-} around expressions to inform
 the evaluator when to increment or decrement the evaluation counter.
 
@@ -2004,7 +2016,7 @@ The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
 not matter.  The {\em optional-argument-mark} (\verb|?:?|),
 {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
 (\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
-can only occur in a pattern (\ref{CALL-UNIFICATION}).
+can only occur in a pattern (\secref{CALL-UNIFICATION}).
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -2108,7 +2120,7 @@ a matchfix operator named `\verb/[| ... |]/' from being recognized.
 \label{OPERATOR-PRECEDENCE}
 The precedence of an operator is an integer.  Precedence is used in
 selecting which infix operators in an expression to consider
-(\ref{OPERATOR-SELECTION}).
+(\secref{OPERATOR-SELECTION}).
 Only infix operators have precedence.
 
 \subsubsubsection{Operator Associativity}\ttmindex{associativity}{of operator}
@@ -2121,7 +2133,7 @@ other associativity, it is said to have \key{named associativity}.
 Only infix operators have associativity.
 
 If more than one infix operator is selected in an expression by the operator
-selection algorithm\EOL (\ref{OPERATOR-SELECTION}),
+selection algorithm\EOL (\secref{OPERATOR-SELECTION}),
 all the infix operators that are selected
 must have the identical operator definitions except for operator names,
 and the associativity in these definitions
@@ -2186,7 +2198,7 @@ of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
 The \key{text parser} \ttkey{-TEXT-PARSER-}.
-The special constructs of text parsing (\ref{TEXT-PARSING}) are
+The special constructs of text parsing (\secref{TEXT-PARSING}) are
 recognized.  Operators, qualifiers, qualifier shortcuts, and
 the \verb|?:?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
@@ -2208,7 +2220,7 @@ It causes the
 left operand of the operator to be inspected to see if it is a definition
 that should be pushed into the parsing stack.  This can be an operator,
 qualifier, qualifier shortcut, or parser definition, or
-a lexical parsing definition (\ref{TBD}).
+a lexical parsing definition (\secref{TBD}).
 If no, nothing special is done.
 If yes, the expression containing
 the infix operator is replaced by just its right operand, the definition
@@ -2243,7 +2255,7 @@ are called \skey{subdefinition}s.
 Note that subdefinitions can include any definitions that can be 
 pushed into the parsing stack, and can also include undefinitions, that
 inactivate all definitions with particular names in the stack
-(\ref{TBD}).
+(\secref{TBD}).
 
 
 \subsubsection{Operator Definition Syntax}
@@ -2436,9 +2448,9 @@ The rules just given produce a result that is often the same as the
 more common context free grammar rules for parsing expressions.  However,
 there is a difference: in PCASL an operator can change the parsing stack
 used to parse its operand subexpressions.  See the sections on
-operator parsers (\ref{OPERATOR-PARSER}),
-operator control flags (\ref{OPERATOR-CONTROL-FLAGS}),
-and operator subdefinitions (\ref{OPERATOR-SUBDEFINITIONS})
+operator parsers (\secref{OPERATOR-PARSER}),
+operator control flags (\secref{OPERATOR-CONTROL-FLAGS}),
+and operator subdefinitions (\secref{OPERATOR-SUBDEFINITIONS})
 above.
 
 \subsubsection{Post Operator Selection Processing}
@@ -2542,7 +2554,7 @@ in the order of their qualifier clauses and the order of their reorderable
 arguments correspond to the same expression tree.
 
 There are several operations that convert expression trees into general
-expression graphs (\ref{EXPRESSION-GRAPH-REPRESENTATION}).
+expression graphs (\secref{EXPRESSION-GRAPH-REPRESENTATION}).
 All these use designated operators, such as
 `\verb|//|', to identify expression graph variables and their values.
 The most commonly used conversion operation also uses the convention that
@@ -2742,7 +2754,7 @@ is just the standard labeled graph unification
 algorithm, and is specified in this section.  The other form, which
 has a special merge operation for nodes representing calls on
 functions or builtin PCASL operations, is called `call unification',
-and is described in \ref{CALL-UNIFICATION}.
+and is described in \Secref{CALL-UNIFICATION}.
 
 Unification of two expression graph nodes
 either succeeds and produces a unique expression
@@ -3127,19 +3139,19 @@ The rest argument is not counted in the arity.
 \subsection{Call Nodes and the Call Check}
 \label{CALL-NODES-AND-CHECK}
 
-During expression evaluation (\ref{EXPRESSION-EVALUATION})
+During expression evaluation (\secref{EXPRESSION-EVALUATION})
 the expression being evaluated is unified with a pattern in an expression
 definition.  The unification used for this purpose is
-a variant called `call unification' (\ref{CALL-UNIFICATION}).
+a variant called `call unification' (\secref{CALL-UNIFICATION}).
 
 Call unification treats graph nodes called `call nodes'
-differently than pure unification (\ref{PURE-UNIFICATION}) does.
+differently than pure unification (\secref{PURE-UNIFICATION}) does.
 A \key{call node} is a node that has
 an \mkey{arity arrow}{of call node}.
 That is, it is the source of an arrow labeled
 \ttmkey{-ARITY-}{of call node}.  Call unification
 replaces the node merge algorithm
-(page~\pageref{NODE-MERGE-ALGORITHM})
+(\pagref{NODE-MERGE-ALGORITHM})
 with the call merge algorithm described below if one of the nodes
 being merged is a call node and the other is not a
 null node.
@@ -3200,7 +3212,7 @@ of its qualifiers are the same node.
 
 Note that raw expressions cannot represent call nodes that have
 qualifiers which in turn have qualifiers, but the conversions
-of \ref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
+of \Secref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
 Because of the difficulty of representing them, such call nodes are
 of mostly theoretical interest.
 
@@ -3244,7 +3256,7 @@ For example, consider the expression graph of
 \verb|[sort x @@ with key weight @@ with comparator <]|
 \end{center}
 
-on page~\pageref{QUALIFIER-EXAMPLE}.  The root of this expression graph
+on \pagref{QUALIFIER-EXAMPLE}.  The root of this expression graph
 has `\verb|0|: \verb|sort|' as one of its witnesses and
 `\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
 actually two distinct paths corresponding to this second witness.
@@ -3260,7 +3272,7 @@ For example, `\verb|0|: sort' and `\verb|1|: x' are compatible while
 It is not true that all witnesses for a node in an expression graph
 are compatible.  This is because we allow one node to source several
 arrows with the same label.  In the example expression graph
-on page~\pageref{QUALIFIER-EXAMPLE},
+on \pagref{QUALIFIER-EXAMPLE},
 `\verb|-REQUIRED-QUALIFIER- 1|: \verb|key|' and
 `\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
 witnesses for the value of \verb|{ROOT}|.  However, for an expression
@@ -3288,38 +3300,38 @@ witnesses are the incompatible witnesses `\verb|1|:~\verb|fee|' and
 node that was not the source of any arrow with arrow label `\verb|1|'.
 
 It can be easily proved that if two expression graphs can be unified
-by pure unification (\ref{PURE-UNIFICATION}),
+by pure unification (\secref{PURE-UNIFICATION}),
 then any two nodes that are merged during
 unification are 1-witness compatible.  This is because
-step \ref{UNIFICATION-AMBIGUITY-FAILURE} of the node merge algorithm
-(page~\pageref{NODE-MERGE-ALGORITHM})
+step \stepref{UNIFICATION-AMBIGUITY-FAILURE} of the node merge algorithm
+(\pagref{NODE-MERGE-ALGORITHM})
 means that if the nodes have incompatible 1-witnesses then the nodes each
 source only one arrow with the witness arrow label and therefore
 the targets of these two arrows must merge which is forbidden by
-step \ref{UNIFICATION-LABEL-FAILURE}.
+step \stepref{UNIFICATION-LABEL-FAILURE}.
 
 It can even be proved that if two expression graphs can be unified
-by pure unification (\ref{PURE-UNIFICATION}),
+by pure unification (\secref{PURE-UNIFICATION}),
 then any two nodes that are merged during
 unification are witness compatible.  This is because
 if there are two incompatible witnesses of the two nodes, there
 would be two paths with the same path name,
 one for each witness, with consecutive
 nodes on the two paths being merged, because
-step \ref{UNIFICATION-AMBIGUITY-FAILURE}
+step \stepref{UNIFICATION-AMBIGUITY-FAILURE}
 requires that along each of the two paths each node sources exactly
 one arrow with the next arrow label on the paths.
 The two paths would end at two nodes that
 would have different labels, but would have to be merged, causing
-the unification algorithm to fail by step \ref{UNIFICATION-LABEL-FAILURE}.
+the unification algorithm to fail by step \stepref{UNIFICATION-LABEL-FAILURE}.
 
 In the unification algorithm,
 arrow labels are used to match arrows to be merged.  More specifically,
 when two nodes M and N are merged, arrows sourced at M are matched
 with arrows sourced at N by arrow label.  If this match cannot be done,
-step \ref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
+step \stepref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
 causes unification to fail.  In order to merge qualifier nodes,
-we need to avoid this failure, and we do this in \ref{CALL-UNIFICATION}
+we need to avoid this failure, and we do this in \Secref{CALL-UNIFICATION}
 by using some of the
 the 1-witnesses of the qualifier nodes to make the match.
 The 1-witnesses we use include the qualifier head, if that
@@ -3330,17 +3342,17 @@ qualifier argument that is simply a node with a label.
 \label{CALL-UNIFICATION}
 
 \ikey{Call unification}{call unification}\index{unification!call}
-is a variant of pure unification (\ref{PURE-UNIFICATION}) that differs
+is a variant of pure unification (\secref{PURE-UNIFICATION}) that differs
 from pure unification when merging nodes one of which is a call node
 and the other of which is not a null node (node with no label that sources
 no arrows).  Call unification is
-used in the expression evaluation algorithm (\ref{EVALUATION-ALGORITHM}).
+used in the expression evaluation algorithm (\secref{EVALUATION-ALGORITHM}).
 
-Call unification is identical to pure unification (\ref{PURE-UNIFICATION})
+Call unification is identical to pure unification (\secref{PURE-UNIFICATION})
 with two differences.  The first difference is that when one of two nodes
-being merged is a call node (\ref{CALL-NODES-AND-CHECK}), and the other
+being merged is a call node (\secref{CALL-NODES-AND-CHECK}), and the other
 node is not a null node, call unification
-replaces the node merge algorithm (page~\pageref{NODE-MERGE-ALGORITHM})
+replaces the node merge algorithm (\pagref{NODE-MERGE-ALGORITHM})
 with the call merge algorithm described below.
 
 The second difference is that call unification makes choices during its
@@ -3388,7 +3400,7 @@ algorithm fails.
 
 \item
 For the rest of this algorithm,  let MT be the total number of arguments
-(page~\pageref{TOTAL-NUMBER-OF-ARGUMENTS})
+(\pagref{TOTAL-NUMBER-OF-ARGUMENTS})
 of M and NT be the total number of arguments of N.
 
 \item
@@ -3397,12 +3409,12 @@ For each natural number I from MT$+$1 through NT, an arrow
 an arrow labeled I$-$MT is added that has R as its source and the
 I'th argument of N as its target.
 Note that before this is done R is a null node
-(step \ref{NULL-REST-ARGUMENT} of the call check algorithm on
-page~\pageref{NULL-REST-ARGUMENT}).
+(step \stepref{NULL-REST-ARGUMENT} of the call check algorithm on
+\pagref{NULL-REST-ARGUMENT}).
 If NT$\leq$MT, this step does nothing (R remains a null node).
 
 \item
-Choose an argument order assignment (page~\pageref{ARGUMENT-ORDER-ASSIGNMENT})
+Choose an argument order assignment (\pagref{ARGUMENT-ORDER-ASSIGNMENT})
 for M.  For \verb|1|$\leq$I$\leq$MT, let MI let the assigned
 I'th argument of M.
 
@@ -3475,7 +3487,7 @@ given special treatment.
 
 In converting a raw expression to an expression tree,
 the rules for representing raw expressions as expression trees
-(\ref{RAW-EXPRESSION-TREES})
+(\secref{RAW-EXPRESSION-TREES})
 are followed, with the following exceptions:
 
 \begin{indpar}
@@ -3528,7 +3540,7 @@ After the expression tree is created, its root node becomes the root
 of the expression graph resulting from conversion.
 
 Then pure unification is performed as
-described in \ref{PURE-UNIFICATION}, except that the merge set is initialized
+described in \Secref{PURE-UNIFICATION}, except that the merge set is initialized
 to merge pairs that merge the values of each variable and the
 defaults of each variable.  It is a conversion error if this
 unification fails or if any variable has an empty set of values
@@ -3562,7 +3574,7 @@ default names and the descriptive names of the operations are:
 
 \ikey{Pseudo-variable}{expression graph pseudo-variable}%
 \index{pseudo-variable!expression graph}
-names (page~\pageref{PSEUDO-VARIABLES})
+names (\pagref{PSEUDO-VARIABLES})
 of the form `\verb|{|{\em word-or-separator}\verb|}|' can be used
 with the `\verb|//|' operation
 to merge nodes that are not the value or default of any real variable.
@@ -3734,7 +3746,7 @@ Giving a null node a label L is then implemented by forwarding the null node
 to the node with label L.
 
 A frequent operation is copying expression graphs as part of expression
-evaluation (\ref{EVALUATION-ALGORITHM}).  To make this more efficient,
+evaluation (\secref{EVALUATION-ALGORITHM}).  To make this more efficient,
 an expression graph can be separated into two parts: an immutable part,
 and a mutable part.  The mutable part is just a vector of node references,
 one per node.  The immutable part is just a set of immutable nodes, with
@@ -3811,9 +3823,9 @@ required to have no visible side effects.
 \end{indpar}
 
 {\em Blocks} and {\em statements} are further defined in
-\ref{BLOCK-EVALUATION}.
+\secref{BLOCK-EVALUATION}.
 
-In use, the {\em pattern} is call unified (\ref{CALL-UNIFICATION})
+In use, the {\em pattern} is call unified (\secref{CALL-UNIFICATION})
 with the expression being
 evaluated.  If unification fails, the definition does not apply.  If
 unification succeeds, subexpressions bound to some of the variables in
@@ -3829,7 +3841,7 @@ that applies can be found, the value of the expression is `\verb|false|'.
 \label{EVALUATION-ALGORITHM}
 
 The \key{evaluation algorithm} inputs an expression to be evaluated
-and a context.  The context (\ref{CONTEXTS}) provides a list of expression
+and a context.  The context (\secref{CONTEXTS}) provides a list of expression
 definitions that may be used to evaluate the expression.
 
 An expression to be evaluated may contain variables that are assigned
@@ -3840,7 +3852,7 @@ More than one definition may apply to evaluate an expression.
 More than one definition may apply to evaluate a guard of a definition,
 and different guard definitions may lead to different values of variables
 in the expression being evaluated.  In applying a definition, more than
-one argument order assignment (page~\pageref{ARGUMENT-ORDER-ASSIGNMENT})
+one argument order assignment (\pagref{ARGUMENT-ORDER-ASSIGNMENT})
 may allow the definition to be applied.  So expression
 evaluation is a search process with more than one possible choice that
 may lead to success.
@@ -3902,8 +3914,8 @@ distinct from other variables of the same name in memory.
 
 \item
 
-Call unify (\ref{CALL-UNIFICATION})
-the pattern (\ref{EXPRESSION-DEFINITIONS})
+Call unify (\secref{CALL-UNIFICATION})
+the pattern (\secref{EXPRESSION-DEFINITIONS})
 from the definition with the expression to be evaluated.
 Both the pattern and expression are expression graphs.
 If the unification fails, the definition does not apply.  If the
@@ -3919,18 +3931,18 @@ variable values by their new values.  Each replacement is done by
 forwarding a variable value graph node to the new value graph node.
 
 These variable value evaluations here are not permitted to have
-visible side effects (\ref{VISIBLE-SIDE-EFFECTS}).
+visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
 
 \item
 Evaluate each guard of the definition in left to right order.
 If any fail to evaluate to
 `\verb|true|', the definition does not apply.  These guard evaluations are not
-permitted to have visible side effects (\ref{VISIBLE-SIDE-EFFECTS}).
+permitted to have visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
 
 \item
 If the definition applies, but has no block, the value of the expression
 is `\verb|true|'.  If the definition applies and has a block, the block
-is evaluated (\ref{BLOCK-EVALUATION}) to determine the value of the
+is evaluated (\secref{BLOCK-EVALUATION}) to determine the value of the
 expression.
 
 \item
