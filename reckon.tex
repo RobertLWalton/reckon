@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 21, 2003}
+\date{December 22, 2003}
  
 \maketitle
 
@@ -1717,7 +1717,7 @@ in a {\em raw-expression} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
 not matter.  The {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
 (\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
-can only occur in a pattern (\ref{EXPRESSION-MATCHING}).
+can only occur in a pattern (\ref{CALL-UNIFICATION}).
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -2360,8 +2360,8 @@ label of the arrow followed by a colon (:) followed by
 a representation of the target node of the arrow.  This later
 is of course surrounded by [] brackets.
 
-\subsection{Expression Graph Unification}
-\label{UNIFICATION}
+\subsection{Pure Unification}
+\label{PURE-UNIFICATION}
 
 Informally, expression graphs may be thought of
 as expressions of information, and the unification of
@@ -2369,18 +2369,21 @@ two expression graphs is then an expression graph whose information content
 is the least upper bound of the information content of each of
 the two graphs taken separately.
 
-PCASL uses expression graph unification to represent expression
-graphs (\ref{EXPRESSION-GRAPH-REPRESENTATION}).
-PCASL also employs a modification of the unification operation
-called the matching operation (\ref{EXPRESSION-MATCHING}).
+PCASL uses two forms of expression graph unification to represent expression
+graphs.  The pure form, called `\key{pure unification}',
+is just the standard labeled graph unification
+algorithm, and is specified in this section.  The other form, which
+has a special merge operation for nodes representing calls on
+functions or builtin PCASL operations, is called `call unification',
+and is described in \ref{CALL-UNIFICATION}.
 
 Unification of two expression graphs
 either succeeds and produces a unique expression
 graph as its result, or fails and produces no result.
 
-If X and Y are expression graphs then their unification, Z,
-is computed by the following \key{unification algorithm}.%
-\label{UNIFICATION-ALGORITHM}.
+If X and Y are expression graphs then their pure unification, Z,
+is computed by the following \key{pure unification algorithm}.%
+\label{PURE-UNIFICATION-ALGORITHM}.
 This algorithm assumes that all expression graphs are stored in
 a common graph memory that contains nodes and arrows, but
 each expression graph has its own distinct set of variables.
@@ -2473,7 +2476,7 @@ merge pair (MT,NT) to the merge set.
 
 \end{enumerate}
 
-Note that the running time of the unification algorithm is bounded by
+Note that the running time of the pure unification algorithm is bounded by
 
 \[
 \begin{array}{c}
@@ -2691,6 +2694,274 @@ root.
 
 TBD: optional arguments.
 
+\subsection{Paths and Witnesses}
+\label{PATHS-AND-WITNESSES}
+
+A \ikey{non-empty path}{path!non-empty}
+is a sequence of one or more arrows in some expression graph,
+such that if A1 and A2 are consecutive
+arrows in the sequence, the target of A1 is the source of A2.
+The \mkey{path name}{of non-empty path}
+of the path is the
+sequence of words and separators that are the arrow labels of the
+arrows of the path.  The source node of the first arrow in the path
+is the \mkey{source}{of non-empty path} of the path.
+The target node of the last
+arrow in the path is the \mkey{target}{of non-empty path} of the path.
+Note that the path name and source node of a path are together
+not adequate to determine the path in all cases, since we allow
+a node to source several arrows with the same label.
+
+An \ikey{empty path}{path!empty} is just a node.  This node is both
+the \mkey{source}{of empty path} of the empty path and
+the \mkey{target}{of empty path} of the empty path.
+The \mkey{path name}{of empty path} of the path is the empty sequence.
+
+A \key{path name} is just a possibly empty sequence of words or separators.
+A \key{node label} is just any word or separator.
+
+A \key{witness} is a path name and a node label.
+We use `{\em path-name}: {\em node-label}' to name the witness.
+A \mkey{witness}{of node} of a node S in an expression graph is a witness
+P:~L with path name P and node label L such that there is a path with source S,
+path name P, and target that has node label L.
+
+For example, consider the graph of
+
+\begin{center}
+\verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
+\end{center}
+
+on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|-ROOT-|
+variable has `\verb|0|: \verb|sort|' as one of its witnesses and
+`\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
+actually two distinct paths corresponding to this second witness.
+
+Two witnesses are said to be \mkey{incompatible}{witness}
+if they have the same path name but have different labels.
+Two witnesses are said to be \mkey{compatible}{witness}
+if they are not incompatible: that is, if they have different path
+names, or if they have both the same path names and the same labels.
+For example, `\verb|0|: sort' and `\verb|1|: x' are compatible while
+`\verb|0|: sort' and `\verb|0|: switch' are incompatible.
+
+It is not true that all witnesses for a node in an expression graph
+are compatible.  This is because we allow one node to source several
+arrows with the same label.  In the example expression graph
+on page~\pageref{QUALIFIER-EXAMPLE},
+`\verb|-REQUIRED-QUALIFIER- 1|: \verb|key|' and
+`\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
+witnesses for the value of \verb|-ROOT-|.  However, for an expression
+graph in which no node sources two arrows with the same label, it can
+be easily proved that all withnesses of every node are compatible.
+
+Two expression graph nodes, S1 and S2, possibly the same node, and possibly
+in different expression graphs,
+are said to be \key{witness compatible} if and only if every
+witness for S1 is compatible with every witness for S2.  Otherwise
+S1 and S2 are said to be \key{witness incompatible}.
+
+For an integer N$\geq$0, an N-witness is a witness whose path name
+has at most N arrow labels.
+Two expression graph nodes, S1 and S2,
+are said to be \key{N-witness compatible} if and only if every
+N-witness for S1 is compatible with every N-witness for S2.  Otherwise
+S1 and S2 are said to be \key{N-witness incompatible}.
+
+It is possible for
+a node to be 1-witness incompatible with itself, without being witness
+incompatible with many other nodes.  For example, a node whose only
+witnesses are the incompatible witnesses `\verb|1|:~\verb|fee|' and
+`\verb|1|:~\verb|fie|' would be witness compatible with any
+node that was not the source of any arrow with arrow label `\verb|1|'.
+
+It can be easily proved that if two expression graphs can be unified
+(\ref{PURE-UNIFICATION}) then any two nodes that are merged during
+unification are 1-witness compatible.  This is because
+step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
+prohibits mergers where one node contributes incompatible 1-witnesses
+while the other node contributes at least one 1-witness.
+
+It can even be proved that if two expression graphs can be unified
+(\ref{PURE-UNIFICATION}) then any two nodes that are merged during
+unification are witness compatible.  This is because
+if there are two incompatible witnesses of the two nodes, there
+would be two paths corresponding to the two nodes with the consecutive
+nodes on the two paths being merged, because of the nature of
+the unification algorithm.  The two paths would end at two nodes that
+would have different labels, but would have to be merged, causing
+the unification algorithm to fail.
+Step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm,
+requires that along each of the two paths each node sources exactly
+one arrow with the next arrow label on the path.
+
+In the unification algorithm,
+arrow labels are used to match arrows to be merged.  More specifically,
+when two nodes M and N are merged, arrows sourced at M are matched
+with arrows sourced at N by arrow label.  If this match cannot be done,
+step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
+causes unification to fail.  In order to merge qualifier nodes,
+we need to avoid this failure, and we do this in \ref{CALL-UNIFICATION}
+by using some of the
+the 1-witnesses of the qualifier nodes to make the match.
+The 1-witnesses we use include the qualifier head, if that
+is a node with a label, and any unreordered non-rest
+qualifier argument that is simply a node with a label.
+
+\subsection{Call Unification}
+\label{CALL-UNIFICATION}
+
+\ikey{Expression matching}{expression matching}{matching!expression}
+is a variant of expression unification (\ref{PURE-UNIFICATION})
+that differs from expression
+unification when merging nodes that have qualifiers or that have
+optional, reordered, or rest arguments.  Expression matching is
+used in the inference algorithm (\ref{INFERENCE-ALGORITHM}).
+
+Expression matching treats call nodes differently than unification
+does.  A \key{call node} is a node that has
+an \mkey{arity arrow}{of call node}.
+That is, it is the source of an arrow labeled
+\ttmkey{-ARITY-}{of call node}.  More specifically, expression
+matching replaces the node merge algorithm
+(page~\pageref{NODE-MERGE-ALGORITHM})
+with the call merge algorithm described below.
+algorithm in
+
+The call merge algorithm performs a subalgorithm called
+the \key{call check algorithm} that checks whether a call node
+is legal.  Specifically, a call node N passes the call check
+algorithm if and only if the following are true:
+
+\begin{enumerate}
+
+\item
+The arity of N is either a natural number $n$ (string of digits without
+high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
+are natural numbers and $m<n$.  In either case $n$ is called the
+\key{maximum arity} of the call node N.
+
+\item
+N has exactly one head arrow.
+
+\item
+There exists a 1-1 map between the set of unreordered and reordered
+(but not rest) argument arrows of N and the set of
+natural numbers from \verb|1| through $n$, where $n$ is the
+maximum arity of N, such that if $i$ is a natural number
+from \verb|1| through $n$, the arrow mapped to $i$
+is either an unreordered argument arrow labeled $i$, 
+or is a reordered argument arrow labeled $j$\verb|-|$k$
+where $j\leq i\leq k$.
+
+Such a mapping is called a \key{argument order assignment} of N.
+If there are any reordered arguments of N, there will be
+more than one argument order assignment of N.
+
+\item
+N has at most one rest argument arrow.  If N has a rest argument
+arrow, the rest argument of N is a node with no label
+that is the source of no arrows.
+
+\item
+N can have any number of qualifier arrows (required or optional).
+
+\item
+There are no arrows sourced at N other than those with labels
+enumerated above.  That is, any arrow sourced at N is either an arity
+arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
+or a qualifier arrow.
+
+\item
+The qualifiers of N (targets of qualifier arrows)
+satisfy the arity check recursively.  The arity check
+algorithm allows cycles in the graph, e.g. the case that N and one
+of its qualifiers are the same node.
+
+Note that raw expressions cannot represent call nodes that have
+qualifiers which in turn have qualifiers, but the conversions
+of \ref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
+Because of the difficulty of representing them, such call nodes are
+of mostly theoretical interest.
+
+\end{enumerate}
+
+TBD
+
+
+The \key{arity merge algorithm} makes choices during its execution.  Each
+set of possible choices over the whole matching algorithm that contains
+arity merges leads to a separate matching algorithm execution that
+either succeeds or fails.
+
+The \key{arity merge algorithm} for a merge pair (M,N) in the merge set,
+where either M or N or both is the source of an arrow labeled
+`\verb|-ARITY-|', and with a particular set of choices, is as follows.
+
+\begin{enumerate}
+
+\item
+Remove (M,N) from the merge set.
+
+\item
+If either M or N fails to pass an arity check, the unification algorithm
+fails.
+
+\item
+If M and N are the same node, terminate the arity merge algorithm.
+
+\item
+If both M and N may have a reordered or rest argument, the
+unification algorithm fails.
+
+\item
+If N has a reordered or rest argument, swithch M and N, so only M
+has a reordered or rest argument.
+
+\item
+If M has does not have a rest argument R and MA does not equal NA,
+the unification algorithm fails.
+
+\item
+If M has a rest argument R, let MA be the arity of M and NA be the
+arity of N, and run the following \key{remainder merge subalgorithm}.
+
+\begin{enumerate}
+
+\item
+If MA is greater than NA, the unification algorithm fails.
+
+\item
+For each natural number I from MA$+$1 through NA, an arrow
+an arrow labeled I$-$MA is added that has R as its source and the
+I'th argument of N as its target.
+
+\end{enumerate}
+
+\item
+Choose an argument order assignment for M.  For \verb|1|$\leq$I$\leq$A,
+let MI bet the assigned I'th argument of M and NI be the I'th argument
+of N, and add the merge pair (MI,NI) to the merge set.
+
+\item
+Replace M by a forwarding pointer that points at N.
+This means that henceforth any attempt to reference M will be forwarded
+to N, so M is effectively merged with N.
+
+\item
+
+
+\item
+TBD
+For every arrow sourced at M do the following.
+Let the arrow be labeled L and point at target node MT.
+If N is not the source of an arrow labeled L,
+make a new arrow labeled L pointing from N to MT.
+But if N is the source of an arrow labelled L with target NT, add the
+merge pair (MT,NT) to the merge set.
+
+\end{enumerate}
+
 \subsection{Expression Graph Representation}
 \label{EXPRESSION-GRAPH-REPRESENTATION}
 
@@ -2758,7 +3029,7 @@ After the raw expression is converted to an expression tree plus
 a set of variables, a \ttmkey{-ROOT-}{of conversion} variable is
 created whose value is the root of the expression tree and which
 has no default.  The unification that is then performed is that
-described in \ref{UNIFICATION} except the merge set is initialized
+described in \ref{PURE-UNIFICATION} except the merge set is initialized
 to merge pairs that merge the values of each variable and the
 defaults of each variable.  It is a conversion error if this
 unification fails or if any variable has an empty set of values
@@ -2942,273 +3213,6 @@ implicit conversion
 \end{tabular}
 \end{indpar}
 
-\subsection{Paths and Witnesses}
-\label{PATHS-AND-WITNESSES}
-
-A \ikey{non-empty path}{path!non-empty}
-is a sequence of one or more arrows in some expression graph,
-such that if A1 and A2 are consecutive
-arrows in the sequence, the target of A1 is the source of A2.
-The \mkey{path name}{of non-empty path}
-of the path is the
-sequence of words and separators that are the arrow labels of the
-arrows of the path.  The source node of the first arrow in the path
-is the \mkey{source}{of non-empty path} of the path.
-The target node of the last
-arrow in the path is the \mkey{target}{of non-empty path} of the path.
-Note that the path name and source node of a path are together
-not adequate to determine the path in all cases, since we allow
-a node to source several arrows with the same label.
-
-An \ikey{empty path}{path!empty} is just a node.  This node is both
-the \mkey{source}{of empty path} of the empty path and
-the \mkey{target}{of empty path} of the empty path.
-The \mkey{path name}{of empty path} of the path is the empty sequence.
-
-A \key{path name} is just a possibly empty sequence of words or separators.
-A \key{node label} is just any word or separator.
-
-A \key{witness} is a path name and a node label.
-We use `{\em path-name}: {\em node-label}' to name the witness.
-A \mkey{witness}{of node} of a node S in an expression graph is a witness
-P:~L with path name P and node label L such that there is a path with source S,
-path name P, and target that has node label L.
-
-For example, consider the graph of
-
-\begin{center}
-\verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
-\end{center}
-
-on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|-ROOT-|
-variable has `\verb|0|: \verb|sort|' as one of its witnesses and
-`\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
-actually two distinct paths corresponding to this second witness.
-
-Two witnesses are said to be \mkey{incompatible}{witness}
-if they have the same path name but have different labels.
-Two witnesses are said to be \mkey{compatible}{witness}
-if they are not incompatible: that is, if they have different path
-names, or if they have both the same path names and the same labels.
-For example, `\verb|0|: sort' and `\verb|1|: x' are compatible while
-`\verb|0|: sort' and `\verb|0|: switch' are incompatible.
-
-It is not true that all witnesses for a node in an expression graph
-are compatible.  This is because we allow one node to source several
-arrows with the same label.  In the example expression graph
-on page~\pageref{QUALIFIER-EXAMPLE},
-`\verb|-REQUIRED-QUALIFIER- 1|: \verb|key|' and
-`\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
-witnesses for the value of \verb|-ROOT-|.  However, for an expression
-graph in which no node sources two arrows with the same label, it can
-be easily proved that all withnesses of every node are compatible.
-
-Two expression graph nodes, S1 and S2, possibly the same node, and possibly
-in different expression graphs,
-are said to be \key{witness compatible} if and only if every
-witness for S1 is compatible with every witness for S2.  Otherwise
-S1 and S2 are said to be \key{witness incompatible}.
-
-For an integer N$\geq$0, an N-witness is a witness whose path name
-has at most N arrow labels.
-Two expression graph nodes, S1 and S2,
-are said to be \key{N-witness compatible} if and only if every
-N-witness for S1 is compatible with every N-witness for S2.  Otherwise
-S1 and S2 are said to be \key{N-witness incompatible}.
-
-It is possible for
-a node to be 1-witness incompatible with itself, without being witness
-incompatible with many other nodes.  For example, a node whose only
-witnesses are the incompatible witnesses `\verb|1|:~\verb|fee|' and
-`\verb|1|:~\verb|fie|' would be witness compatible with any
-node that was not the source of any arrow with arrow label `\verb|1|'.
-
-It can be easily proved that if two expression graphs can be unified
-(\ref{UNIFICATION}) then any two nodes that are merged during
-unification are 1-witness compatible.  This is because
-step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
-prohibits mergers where one node contributes incompatible 1-witnesses
-while the other node contributes at least one 1-witness.
-
-It can even be proved that if two expression graphs can be unified
-(\ref{UNIFICATION}) then any two nodes that are merged during
-unification are witness compatible.  This is because
-if there are two incompatible witnesses of the two nodes, there
-would be two paths corresponding to the two nodes with the consecutive
-nodes on the two paths being merged, because of the nature of
-the unification algorithm.  The two paths would end at two nodes that
-would have different labels, but would have to be merged, causing
-the unification algorithm to fail.
-Step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm,
-requires that along each of the two paths each node sources exactly
-one arrow with the next arrow label on the path.
-
-In the unification algorithm,
-arrow labels are used to match arrows to be merged.  More specifically,
-when two nodes M and N are merged, arrows sourced at M are matched
-with arrows sourced at N by arrow label.  If this match cannot be done,
-step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
-causes unification to fail.  In order to merge qualifier nodes,
-we need to avoid this failure, and we do this in \ref{EXPRESSION-MATCHING}
-by using some of the
-the 1-witnesses of the qualifier nodes to make the match.
-The 1-witnesses we use include the qualifier head, if that
-is a node with a label, and any unreordered non-rest
-qualifier argument that is simply a node with a label.
-
-\subsection{Expression Matching}
-\label{EXPRESSION-MATCHING}
-
-\ikey{Expression matching}{expression matching}{matching!expression}
-is a variant of expression unification (\ref{UNIFICATION})
-that differs from expression
-unification when merging nodes that have qualifiers or that have
-optional, reordered, or rest arguments.  Expression matching is
-used in the inference algorithm (\ref{INFERENCE-ALGORITHM}).
-
-Expression matching treats call nodes differently than unification
-does.  A \key{call node} is a node that has
-an \mkey{arity arrow}{of call node}.
-That is, it is the source of an arrow labeled
-\ttmkey{-ARITY-}{of call node}.  More specifically, expression
-matching replaces the node merge algorithm
-(page~\pageref{NODE-MERGE-ALGORITHM})
-with the call merge algorithm described below.
-algorithm in
-
-The call merge algorithm performs a subalgorithm called
-the \key{call check algorithm} that checks whether a call node
-is legal.  Specifically, a call node N passes the call check
-algorithm if and only if the following are true:
-
-\begin{enumerate}
-
-\item
-The arity of N is either a natural number $n$ (string of digits without
-high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
-are natural numbers and $m<n$.  In either case $n$ is called the
-\key{maximum arity} of the call node N.
-
-\item
-N has exactly one head arrow.
-
-\item
-There exists a 1-1 map between the set of unreordered and reordered
-(but not rest) argument arrows of N and the set of
-natural numbers from \verb|1| through $n$, where $n$ is the
-maximum arity of N, such that if $i$ is a natural number
-from \verb|1| through $n$, the arrow mapped to $i$
-is either an unreordered argument arrow labeled $i$, 
-or is a reordered argument arrow labeled $j$\verb|-|$k$
-where $j\leq i\leq k$.
-
-Such a mapping is called a \key{argument order assignment} of N.
-If there are any reordered arguments of N, there will be
-more than one argument order assignment of N.
-
-\item
-N has at most one rest argument arrow.  If N has a rest argument
-arrow, the rest argument of N is a node with no label
-that is the source of no arrows.
-
-\item
-N can have any number of qualifier arrows (required or optional).
-
-\item
-There are no arrows sourced at N other than those with labels
-enumerated above.  That is, any arrow sourced at N is either an arity
-arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
-or a qualifier arrow.
-
-\item
-The qualifiers of N (targets of qualifier arrows)
-satisfy the arity check recursively.  The arity check
-algorithm allows cycles in the graph, e.g. the case that N and one
-of its qualifiers are the same node.
-
-Note that raw expressions cannot represent call nodes that have
-qualifiers which in turn have qualifiers, but the conversions
-of \ref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
-Because of the difficulty of representing them, such call nodes are
-of mostly theoretical interest.
-
-\end{enumerate}
-
-TBD
-
-
-The \key{arity merge algorithm} makes choices during its execution.  Each
-set of possible choices over the whole matching algorithm that contains
-arity merges leads to a separate matching algorithm execution that
-either succeeds or fails.
-
-The \key{arity merge algorithm} for a merge pair (M,N) in the merge set,
-where either M or N or both is the source of an arrow labeled
-`\verb|-ARITY-|', and with a particular set of choices, is as follows.
-
-\begin{enumerate}
-
-\item
-Remove (M,N) from the merge set.
-
-\item
-If either M or N fails to pass an arity check, the unification algorithm
-fails.
-
-\item
-If M and N are the same node, terminate the arity merge algorithm.
-
-\item
-If both M and N may have a reordered or rest argument, the
-unification algorithm fails.
-
-\item
-If N has a reordered or rest argument, swithch M and N, so only M
-has a reordered or rest argument.
-
-\item
-If M has does not have a rest argument R and MA does not equal NA,
-the unification algorithm fails.
-
-\item
-If M has a rest argument R, let MA be the arity of M and NA be the
-arity of N, and run the following \key{remainder merge subalgorithm}.
-
-\begin{enumerate}
-
-\item
-If MA is greater than NA, the unification algorithm fails.
-
-\item
-For each natural number I from MA$+$1 through NA, an arrow
-an arrow labeled I$-$MA is added that has R as its source and the
-I'th argument of N as its target.
-
-\end{enumerate}
-
-\item
-Choose an argument order assignment for M.  For \verb|1|$\leq$I$\leq$A,
-let MI bet the assigned I'th argument of M and NI be the I'th argument
-of N, and add the merge pair (MI,NI) to the merge set.
-
-\item
-Replace M by a forwarding pointer that points at N.
-This means that henceforth any attempt to reference M will be forwarded
-to N, so M is effectively merged with N.
-
-\item
-
-
-\item
-TBD
-For every arrow sourced at M do the following.
-Let the arrow be labeled L and point at target node MT.
-If N is not the source of an arrow labeled L,
-make a new arrow labeled L pointing from N to MT.
-But if N is the source of an arrow labelled L with target NT, add the
-merge pair (MT,NT) to the merge set.
-
-\end{enumerate}
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
 
