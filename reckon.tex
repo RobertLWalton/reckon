@@ -2694,7 +2694,8 @@ Remove (M,N) from the merge set.
 If M and N are the same node, terminate the node merge algorithm.
 
 \item
-If M and N are labeled nodes with different labels, the unification
+\label{UNIFICATION-LABEL-FAILURE}
+If and N are labeled nodes with different labels, the unification
 algorithm fails.
 
 \item
@@ -2702,9 +2703,8 @@ If either M or N is a labeled node and the other node is the
 source of some arrows, the unification algorithm fails.
 
 \item
-If
 \label{UNIFICATION-AMBIGUITY-FAILURE}
-there is an arrow label L such that one of the nodes M or N
+If there is an arrow label L such that one of the nodes M or N
 is the source of two or more arrows labeled L and the other node is the
 source of one or more arrows labeled L, the unification algorithm fails.
 Intuitively, when we try to match the arrows sourced at one of the
@@ -3080,11 +3080,11 @@ N can have any number of qualifier arrows (required or optional).
 There are no arrows sourced at N other than those with labels
 enumerated above.  That is, any arrow sourced at N is either an arity
 arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
-or a qualifier arrow.
+or a qualifier arrow (required or optional).
 
 \item
 The qualifiers of N (targets of qualifier arrows)
-satisfy the arity check recursively.  The arity check
+pass the call check algorithm recursively.  The call check
 algorithm allows cycles in the graph, e.g. the case that N and one
 of its qualifiers are the same node.
 
@@ -3131,7 +3131,7 @@ path name P, and target that has node label L.
 For example, consider the graph of
 
 \begin{center}
-\verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
+\verb|[sort x @@ with key weight @@ with comparator]|
 \end{center}
 
 on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|-ROOT-|
@@ -3155,7 +3155,7 @@ on page~\pageref{QUALIFIER-EXAMPLE},
 `\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
 witnesses for the value of \verb|-ROOT-|.  However, for an expression
 graph in which no node sources two arrows with the same label, it can
-be easily proved that all withnesses of every node are compatible.
+be easily proved that all witnesses of every node are compatible.
 
 Two expression graph nodes, S1 and S2, possibly the same node, and possibly
 in different expression graphs,
@@ -3180,28 +3180,31 @@ node that was not the source of any arrow with arrow label `\verb|1|'.
 It can be easily proved that if two expression graphs can be unified
 (\ref{PURE-UNIFICATION}) then any two nodes that are merged during
 unification are 1-witness compatible.  This is because
-step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
-prohibits mergers where one node contributes incompatible 1-witnesses
-while the other node contributes at least one 1-witness.
+step \ref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
+means that if the nodes have incompatible 1-witnesses then the nodes each
+source only one arrow with the withness arrow label and therefore
+the targets of these two arrows must merge which is forbidden by
+step \ref{UNIFICATION-LABEL-FAILURE}.
 
 It can even be proved that if two expression graphs can be unified
 (\ref{PURE-UNIFICATION}) then any two nodes that are merged during
 unification are witness compatible.  This is because
 if there are two incompatible witnesses of the two nodes, there
-would be two paths corresponding to the two nodes with the consecutive
-nodes on the two paths being merged, because of the nature of
-the unification algorithm.  The two paths would end at two nodes that
-would have different labels, but would have to be merged, causing
-the unification algorithm to fail.
-Step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm,
+would be two paths with the same path name,
+one for each witness, with consecutive
+nodes on the two paths being merged, because
+step \ref{UNIFICATION-AMBIGUITY-FAILURE}
 requires that along each of the two paths each node sources exactly
-one arrow with the next arrow label on the path.
+one arrow with the next arrow label on the paths.
+The two paths would end at two nodes that
+would have different labels, but would have to be merged, causing
+the unification algorithm to fail by step \ref{UNIFICATION-LABEL-FAILURE}.
 
 In the unification algorithm,
 arrow labels are used to match arrows to be merged.  More specifically,
 when two nodes M and N are merged, arrows sourced at M are matched
 with arrows sourced at N by arrow label.  If this match cannot be done,
-step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
+step \ref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
 causes unification to fail.  In order to merge qualifier nodes,
 we need to avoid this failure, and we do this in \ref{CALL-UNIFICATION}
 by using some of the
@@ -3213,24 +3216,28 @@ qualifier argument that is simply a node with a label.
 \subsection{Call Unification}
 \label{CALL-UNIFICATION}
 
-\ikey{Expression matching}{expression matching}{matching!expression}
-is a variant of expression unification (\ref{PURE-UNIFICATION})
-that differs from expression
-unification when merging nodes that have qualifiers or that have
-optional, reordered, or rest arguments.  Expression matching is
+\ikey{Call unification}{call unification}\index{unification!call}
+is a variant of pure unification (\ref{PURE-UNIFICATION}) that differs
+from pure unification when merging nodes that have qualifiers or that have
+optional, reordered, or rest arguments.  Call unification is
 used in the inference algorithm (\ref{INFERENCE-ALGORITHM}).
+
+Call unification is identical to pure unification (\ref{PURE-UNIFICATION})
+with two differences.  The first difference is that when one of two nodes
+being merged is a call node (\ref{CALL-NODES-AND-CHECK}), call unification
+replaces the node merge algorithm (page~\pageref{NODE-MERGE-ALGORITHM})
+with the call merge algorithm described below.
+
+The second difference is that call unification makes choices during its
+execution, because the call merge algorithm makes choices.  Each
+set of possible choices over the whole call unification algorithm
+leads to a separate algorithm execution that either succeeds or fails.
 
 TBD
 
-
-The \key{arity merge algorithm} makes choices during its execution.  Each
-set of possible choices over the whole matching algorithm that contains
-arity merges leads to a separate matching algorithm execution that
-either succeeds or fails.
-
-The \key{arity merge algorithm} for a merge pair (M,N) in the merge set,
-where either M or N or both is the source of an arrow labeled
-`\verb|-ARITY-|', and with a particular set of choices, is as follows.
+The \key{call merge algorithm} for a merge pair (M,N) in the merge set,
+where either M or N or both is a call node,
+with a particular choice, is as follows.
 
 \begin{enumerate}
 
@@ -3238,25 +3245,33 @@ where either M or N or both is the source of an arrow labeled
 Remove (M,N) from the merge set.
 
 \item
-If either M or N fails to pass an arity check, the unification algorithm
+If either M or N fails to pass a call check, the unification algorithm
 fails.
 
 \item
-If M and N are the same node, terminate the arity merge algorithm.
+If M and N are the same node, terminate the call merge algorithm.
 
 \item
-If both M and N may have a reordered or rest argument, the
-unification algorithm fails.
+A call node is said to be of \key{indeterminant arity} if it has
+an optional, reordered, or rest argument.  Otherwise the node is said
+to be of \key{determinant arity}.
 
-\item
-If N has a reordered or rest argument, swithch M and N, so only M
-has a reordered or rest argument.
-
-\item
-If M has does not have a rest argument R and MA does not equal NA,
+If \underline{both} M and N are of indeterminant arity,
 the unification algorithm fails.
 
+Otherwise, if just N is of indeterminant arity, switch M and N so that
+only N is of determinant arity.
+
 \item
+If M is of determinant arity and the arities of M and N are not equal,
+the unification algorithm fails.
+
+If M has more required arguments than N has arguments, the unification
+algorithm fails.
+
+\item
+TBD
+
 If M has a rest argument R, let MA be the arity of M and NA be the
 arity of N, and run the following \key{remainder merge subalgorithm}.
 
