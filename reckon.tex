@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 24, 2003}
+\date{September 27, 2003}
  
 \maketitle
 
@@ -1483,12 +1483,12 @@ subexpression.
 
 The two sequences of lexemes for a {\tt matchfix}
 operator are represented by a single sequence of lexemes that contains
-the subexpression beginning lexemes followed by a `\verb/+-+/' lexeme
+the subexpression beginning lexemes followed by a `\verb/.../' lexeme
 followed by the subexpression ending lexemes.   The beginning sequence
 of lexemes must include the {\em opening-mark} that begins a subexpression
 and the closing sequence of lexemes must include the {\em closing-mark}
 that ends the subexpression.  An example sequence of lexemes for a
-{\tt matchfix} operator is `\verb/[ | +-+ | ]/' that permits subexpressions
+{\tt matchfix} operator is `\verb/[ | ... | ]/' that permits subexpressions
 like `\verb/[| x - 5 |]/'.
 
 Two different operators may have the same sequence of lexemes.  For example,
@@ -1584,11 +1584,34 @@ represents the tree
     \left[ \begin{array}{l}
     	   \verb|sort| \left[ \verb|x| \right. \\
 	   \verb|ascending| \\
-	   \verb|with| \left[ \verb|key| \left[ \verb|weight| \right. \right. \\
-	   \verb|with| \left[ \verb|comparitor| \left[ \verb|<| \right.
-	   							\right. \\
+	   \verb|with| \left[ \begin{array}{l}
+			      \verb|key| \left[ \verb|weight| \right. \\
+			      \verb|comparitor| \left[ \verb|<| \right. \\
+			      \end{array}
+		       \right. \\
            \end{array}
     \right.
+\]
+
+and
+
+\begin{center}
+\verb|x = 7 * y + 5|
+\end{center}
+
+represents the tree
+
+\[
+    \left[ \begin{array}{l}
+        \verb|-EMPTY-| \left[ \verb|x| \right. \\
+        \verb|-REST-| \left[ = \left[ \begin{array}{l}
+	    \verb|-EMPTY-| \left[ \begin{array}{l}
+		\verb|-EMPTY-| \left[ \verb|y| \right. \\
+		\verb|-REST-| \left[ \verb|*| \left[ \verb|y| \right. \right.
+	    \end{array} \right. \\
+	    \verb|-REST-| \left[ \verb|+| \left[ \verb|5| \right. \right.
+	\end{array} \right. \right. \\
+    \end{array} \right.
 \]
 
 \subsection{Inference Rules}
