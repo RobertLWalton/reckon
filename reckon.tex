@@ -4702,21 +4702,24 @@ other contexts.  Context elements that are expression definitions are
 matched to the expression being evaluated.  Context elements that are
 themselves contexts are searched recursively.
 
-Lists are searched in order.  Sets are searched exhaustively,
+\ikey{Context lists}{list!context} are searched in order.
+\ikey{Context sets}{set!context} are searched exhaustively,
 and it is always an error if matching definitions are found in more than
 one element of a set.
 
-An expression definition object consists of a pattern, a list of guards,
+An expression definition is an object (\secref{OBJECTS})
+of \ttkey{expression-definition}
+type that consists of a pattern, a list of guards,
 an optional block, and an optional context.  An
 {\em EXPRESSION-DEFINITION} expression (\pagref{EXPRESSION-DEFINITION})
-computes an {\tt expression-definition} that has no context.
-A context can be added to such an object later by executing:
+computes an expression definition that has no context.
+A context can be added to the expression definition later by executing:
 
 \begin{indpar}
 \verb|set| {\em EXPRESSION-DEFINITION} \verb|context| {\em CONTEXT}
 \end{indpar}
 
-Once a context has been added to an expression definition, this context
+Once a context has been added to an expression definition, the context
 cannot be changed.
 
 A new expression definition can be made from an old one by
@@ -4729,22 +4732,20 @@ the expression:
 \end{indpar}
 
 The new expression definition has a different context, given by
-the second argument, than the first argument does.  The expression
+the second argument, than the first argument does.  The special
+value \ttmkey{UNDEFINED}{argument of!an expression-definition@{\tt an
+expression-definition}} can be given as the {\em CONTEXT} argument
+to create a new expression definition whose pattern, guards, and block
+are the same as those of {\em EXPRESSION-DEFINITION} argument
+but whose context part is missing and can be set later.
 
-\begin{indpar}
-	\verb|an expression-definition|
-	      {\em EXPRESSION-DEFINITION}
-\end{indpar}
+There are two kinds of contexts: \mkey{immutable}{context} and
+\mkey{mutable}{context}.
+An immutable context cannot be modified.  A mutable context can have
+its list (or set) modified.
+Each kind can be either a set or a list.
 
-makes a new expression definition whose pattern, guards, and block
-are the same as
-its argument but whose context part is missing and can be set later.
-
-There are two kinds of contexts: immutable and mutable.  Each kind can
-be either a set or a list.
-
-An \key{immutable context}\label{IMMUTABLE-CONTEXT}
-may not be modified.  It can be created by:
+A context can be created by:
 
 \begin{indpar}
 \verb|a| \ttkey{context}
@@ -4753,25 +4754,40 @@ may not be modified.  It can be created by:
 	\verb|)|
     \\
     \begin{tabular}[t]{@{}rl@{}}
-    [ & \ttmkey{is list}{of context!of {\tt context}} {\em IS-LIST-BOOLEAN} \\
-    $|$ & \ttmkey{with contexts set}{of context!of {\tt context}}
-           {\em WITH-CONTEXTS-SET-BOOLEAN} ]\opt
+    [ & \ttmkey{is list}{of context!of {\tt context}} {\em LIST} \\
+    $|$ & \ttmkey{is mutable}{of context!of {\tt context}}
+          {\em MUTABLE} \\
+    $|$ & \ttmkey{with contexts missing}{of context!of {\tt context}}
+           {\em CONTEXTS-MISSING} ]\opt
     \end{tabular}
     \end{tabular}
 \end{indpar}
 
 in which each {\em CONTEXT-ELEMENT} is either an expression definition or
-a context,
-{\em IS-LIST-BOOLEAN} is either `{\tt false}' (the default) or `{\tt true}',
-{\em WITH-CONTEXTS-SET-\EOL BOOL\-EAN} is either `{\tt false}' or `{\tt true}'
-(the default).  `{\tt is list}' means the context is a list; otherwise
-it is a set.  `{\tt with contexts set}' means any expression definitions
-that are {\em CONTEXT-ELEMENTs} and that do not have their contexts set
-will have them set equal to the context being created.  Thus the default
-if given a expression definitions that do not have their contexts set
-is to create a context set whose expression defintions have the new
-context and therefore can reference each other.
+a context, and {\em LIST}, {\em MUTABLE}, and {\em CONTEXTS-MISSING}
+are either `{\tt false}' (the default) or `{\tt true}'.
+If {\em CONTEXTS-MISSING} is {\tt false} (the default), any expression
+definition {\em CONTEXT-ELEMENTS} that do not have their
+contexts set will have them set equal to the context being created.
 
+Thus given expression definitions that do not have their contexts set,
+the default is to create an immutable context set whose expression defintions
+have the new context and therefore can reference each other.  Blocks
+containing {\em EXPRESSION-DEFINITIONs} perform exactly this kind of
+context creation.
+
+The {\em CONTEXT-ITEM} list of a context object is a list object
+(\pagref{LIST}) which can be extracted from the context object by
+
+\begin{indpar}
+\verb|the| \ttmkey{list}{of context} \verb|of| {\em CONTEXT}
+\end{indpar}
+
+This list object is a list or set according to whether or not the
+context is a list or set, and the list object is immutable or mutable
+according to whether or not the context object is immutable or mutable.
+If mutable, altering the list object will alter its containing context
+object, and this is in fact the only way to mutate a mutable context.
 
 The above expressions are defined by the
 expression definitions (\secref{EXPRESSION-DEFINITIONS}):
@@ -4782,31 +4798,19 @@ an expression-definition {
     on an expression-definition EXPRESSION-DEFINITION CONTEXT
        <-- expression-definition EXPRESSION-DEFINITION,
            context CONTEXT
-    on an expression-definition EXPRESSION-DEFINITION
-       <-- expression-definition EXPRESSION-DEFINITION
     on set SELF context CONTEXT <-- context CONTEXT
 }
 a context {
-    on a context CONTEXT-ELEMENT-LIST <--
-              list CONTEXT-ELEMENT-LIST of context-items
+    on a context CONTEXT-ELEMENT-LIST
+       ?? is list ( LIST ~ false )
+       ?? is mutable ( MUTABLE ~ false )
+       ?? with context missing ( CONTEXT-MISSING ~ false )
+       <-- list CONTEXT-ELEMENT-LIST of context-items
 }
 context-item X <-- expression-definition X
 context-item X <-- context X
-context-item X <-- mutable-context X
 \end{verbatim}
 \end{indpar}
-
-Design:
-
-There are immutable contexts that are just first element, rest of context
-pairs.  These can be created, or the rest-of-context extracted.
-
-There are mutable contexts that are doubly linked lists which can be iterated
-over and have elements deleted.
-
-Context elements can be expression definitions or pointers at contexts (mutable
-or immutable).
-
 
 \section{Blocks}
 \label{BLOCKS}
