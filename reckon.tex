@@ -167,7 +167,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 19, 2004}
+\date{March 23, 2004}
  
 \maketitle
 
@@ -1957,11 +1957,27 @@ operator definitions (\secref{OPERATOR-DEFINITIONS}).
 
 Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
 which contains definitions of parsers, operators, qualifiers, and
-qualifier shortcuts.  An operator may push definitions into the parsing
+qualifier shortcuts, as well as definitions related to
+lexical parsing (\pagref{LEXICAL-PARSING}).
+An operator may push definitions into the parsing
 stack.  After the expression containing the operator has been parsed,
 these definitions will be popped from the parsing stack.
 
-A \key{parser definition} just names a parser.  The most recent parser
+The following is a list of the kinds of definitions that may be in
+the parsing stack:
+
+\begin{center}
+\begin{tabular}{ll}
+parser & \pagref{PARSER-DEFINITION} \\
+operator & \secref{OPERATOR-DEFINITIONS} \\
+qualifier & \ref{TBD} \\
+qualifier shortcut & \ref{TBD} \\
+lexeme & \secref{LEXEME-REPLACEMENT}
+\end{tabular}
+\end{center}
+
+A \key{parser definition}\label{PARSER-DEFINITION}
+just names a parser.  The most recent parser
 definition in the parsing stack names the parser used to parse expressions.
 There are three standard \ikey{parsers}{parser!standard}:
 the \key{marks parser} \ttkey{-MARKS-PARSER-},
@@ -1983,10 +1999,10 @@ restructuring are done by the operators parser (\secref{OPERATORS}).
 The operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
 \verb|x + y - 5 * z| cause this expression to be restructured as
 \verb|[- [+ x y] [* 5 z]]|.  The qualifier `\verb|with|' in the
-expression \verb|sort x with order ascending| cause this expression
+expression \verb|sort x with order ascending| causes this expression
 to be restructured as \verb|[sort x @@ with order ascending]|.
 And the qualifier shortcut `\verb|ascending|' in the expression
-\verb|sort x| \verb|ascending| cause this expression to be
+\verb|sort x| \verb|ascending| causes this expression to be
 restructured as \verb|[sort x @@ with order ascending]|.
 
 In expressions that cannot contain operators,
@@ -2088,7 +2104,7 @@ The syntax of raw expressions is defined as follows:
 	    & \{ {\em reorder-mark-option} {\em raw-argument} \}$^\star$
 	\end{tabular} \\[1ex]
 \key{reorder-mark-option} ::= {\em empty} $|$ \verb|<:>| \\[1ex]
-\key{reorder-argument-remainder-option} ::=
+\key{raw-argument-remainder-option} ::=
 	{\em empty} $|$ \verb|::>| {\em raw-argument} \\[1ex]
 \key{raw-argument} ::= {\em raw-expression} \\[1ex]
 \key{raw-qualifier-phrase} ::=
@@ -2223,7 +2239,8 @@ Three associativities, {\tt left}, {\tt right}, and
 other associativity, it is said to have \key{named associativity}.
 Only infix operators have associativity.
 
-If more than one infix operator is selected in an expression by the operator
+If more than one infix operator of lowest precedence
+is selected in an expression by the operator
 selection algorithm\EOL (\secref{OPERATOR-SELECTION}),
 all the infix operators that are selected
 must have the identical operator definitions except for operator names,
@@ -2331,8 +2348,8 @@ with its `\verb|...|' lexeme replaced by the parse of the expression
 being restructured.
 
 For example, if the matchfix operator `\verb|<< ... >>|' has the
-wrapper `\verb|-EVAL-ON- ...|', then the expression `\verb|<<x>>|'
-will be restructured to be `\verb|-EVAL-ON- x|'.
+wrapper `\verb|[-EVAL-ON- ...]|', then the expression `\verb|<<x>>|'
+will be restructured to be `\verb|[-EVAL-ON- x]|'.
 
 \subsubsubsection{Operator Subdefinitions}\ttmindex{definition}{of operator}
 \label{OPERATOR-SUBDEFINITIONS}
