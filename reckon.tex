@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 4, 2005}
+\date{January 26, 2005}
  
 \maketitle
 
@@ -4922,7 +4922,6 @@ The code of a block has the following syntax:
     $|$ & {\em statement-qualifier} {\em qualified-statement}
     \end{tabular} \\[1ex]
 \key{statement-qualifier} ::= \ttkey{first}
-			  $|$ \ttkey{next}
 			  $|$ \ttkey{always}
 			  $|$ \ttkey{default}
 			  \\[1ex]
@@ -4940,7 +4939,9 @@ The code of a block has the following syntax:
 		\{ \verb|,| {\em output-variable} \}\,$^\star$
     \end{tabular} \\[1ex]
 \key{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
-\key{output-variable} ::= {\em variable-name} \\[1ex]
+\key{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
+\key{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
+\key{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
 \key{variable-name} ::= {\em word} \\[1ex]
 \key{pattern-assignment-statement} ::=
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
@@ -5138,7 +5139,7 @@ terminates, no part of the group can be evaluated, even if another group
 later in the block defines that part's input variables.
 
 However, group evaluation is additionally modified by {\em statement-qualifiers}
-(\secref{STATEMENT-QUALIFIERS-AND-ITERATION}).
+(\secref{DEFAULT-STATEMENTS}, \secref{BLOCK-ITERATION}).
 
 The \ikey{declarations}{declaration!evaluation} of a
 \mkey{declaration-group}{evaluation} are evaluated in order.  Evaluation of a
@@ -5174,24 +5175,29 @@ If a block finishes without producing a value for a variable named
 {\tt value}, the value of the block is \ttmkey{true}{block value}.
 
 Block evaluation is additionally modified by {\em statement-qualifiers}
-(\secref{STATEMENT-QUALIFIERS-AND-ITERATION}).
+and {\em next-variables}
+(\secref{DEFAULT-STATEMENTS} and \secref{BLOCK-ITERATION}).
 
-\subsection{Statement Qualifiers and Iteration}
-\label{STATEMENT-QUALIFIERS-AND-ITERATION}
+\subsection{Default Statements}
+\label{DEFAULT-STATEMENTS}
 
-{\em Statement-qualifiers} modify block evaluation.
+The \ttkey{default} {\em statement-qualifier} modifies group.
+A statement qualified by {\tt default}
+is called a \key{default statement}.  Such {\em statements} in a {\em group}
+are initially inactive, meaning that they are treated as if they do not exist,
 
-A {\em statement} qualified by the
-\ttkey{default} {\em statement-qualifier}
-is invisible, as if it did not exist, until all variables that can be
-given a value by other statements in a block have been given values.
-Then if \underline{no} variable that could be assigned by the {\tt default}
-qualified {\em statement} has
-been given a value, the statement is made visible, and can execute.
+After the {\em group} without its default statements finishes executing,
+any default statement in the {\em group} that has
+\underline{no} output or pattern variable with a value
+is made active.  All default statements that can be made active in this
+way are made active at the same time.  Then the {\em group}, which now
+consists of all non-default statements and all active default statement,
+continues executing, until no more non-default or active default statements
+can be executed.
 
-All {\tt default} qualified {\em statements} become visible at once,
-so it is possible for an error to occur if two such statements assign
-the same variable.
+Since all default statements that become active in a group become active
+at the same time, it is possible for an error to occur if two such
+statements assign values the same variable.
 
 An example application of these rules is:
 
@@ -5208,6 +5214,11 @@ the value of the block is `{\tt true}' and the {\tt default}
 {\em assignment-statement} remains invisible, but if \verb|X > 5| is false,
 the {\tt default} {\em assignment-statement} becomes visible and
 the value of the block is `{\tt false}'.
+
+\subsection{Block Iteration}
+\label{BLOCK-ITERATION}
+
+TBD
 
 A block can \key{iterate}, meaning that it generates another block
 that is the next block in a sequence of blocks.  A block
@@ -5305,7 +5316,7 @@ Objects are updated by adding code to them either permanently or temporarily.
 Whenever code is added to an object, the code executes as much as it
 can to define variable values that are then components of the object.
 When the code can execute no further (\secref{BLOCK-EVALUATION},
-\secref{STATEMENT-QUALIFIERS-AND-ITERATION}), any
+\secref{DEFAULT-STATEMENTS}, \secref{BLOCK-ITERATION}), any
 variables that do not have values become undefined components.  If some of
 undefined components are given values later, any code that is a permanent
 part of the object may restart and produce additional variable values that
@@ -5346,7 +5357,7 @@ the temporary code is removed from the object.
 
 When code is added to an object and executes, the statement qualifier
 {\tt default} acts when execution stops to enable execution of {\tt default}
-statements, as per \secref{STATEMENT-QUALIFIERS-AND-ITERATION}.  Similarly
+statements, as per \secref{DEFAULT-STATEMENTS}.  Similarly
 the statement qualifier {\tt next} can be used to create iterations of the
 object.  Each iteration replaces the previous iteration of the object
 wherever the object is referenced.  Thus if two variables equal
