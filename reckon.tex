@@ -3663,17 +3663,55 @@ implicit conversion
 \end{tabular}
 \end{indpar}
 
-\section{Expression Inference}
-\label{EXPRESSION-INFERENCE}
+\section{Expression Evaluation}
+\label{EXPRESSION-EVALUATION}
 
-Expression inference is part of expression evaluation and is done by
-running an inference algorithm on an expression and a set of inference rules.
-This algorithm matches the expression to an inference rule, and then generates
-a new set of expressions that must be inferred in order for the matching
-to be a success.
+An expression is evaluated by first searching for an expression definition
+that matches the expression.  Expression definitions also have guards, which
+are expressions that must evaluate to true in order for the expression
+definition to apply.  An expression definition may have an expression block
+that executes in order to produce a value for the expression if the definition
+applies.  If an expression definition has no expression block, the expression
+evaluates to `\ttkey{true}'.  If no expression definition applies to an
+expression, the expression evaluates to `\ttkey{false}'
 
-\subsection{The Inference Algorithm}
-\label{INFERENCE-ALGORITHM}
+Expression definitions are searched for in a context list, which is just
+a list of contexts.  Each context is a list of expression definitions.
+Each point in the program has a lexical context, which operates like
+a stack.  There is also a global context to which definitions may be added
+or from which they may be deleted.  An expression may act like
+a function call, and the called function may evaluate expressions in the
+context of its caller, or a context derived from that of its caller.
+?????
+
+\subsection{Expression Definitions}
+\label{EXPRESSION-DEFINITIONS}
+
+\ikey{Expression definitions}{expression definition} have the syntax:
+
+\begin{indpar}
+\key{expression-definition} ::=
+	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
+	\\[1ex]
+\key{pattern} ::= {\em expression} \\[1ex]
+\key{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
+\key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}$^\star$ \\[1ex]
+\key{guard} ::= {\em expression} \\[1ex]
+\key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
+\key{block} ::= \verb|{| {\em statement}$^\star$ \verb|}| \\[1ex]
+\end{indpar}
+
+An \key{inference step} takes as input one of the reduced goal-expressions
+in the goal set and one inference rule,
+such that the reduced goal-expression unifies with the
+consequent-expression of the inference rule.  The unification variables in the
+goal-set and inference-rule are replaced by their values computed
+by this unification.  The goal-expression is removed the goal set, and
+all the condition-expressions of the inference rule are added to the goal
+set.
+
+\subsection{The Evaluation Algorithm}
+\label{EVALUATION-ALGORITHM}
 \label{INFERENCE-RULE}
 
 The \key{inference algorithm} inputs an expression to be inferred
@@ -3731,54 +3769,6 @@ Logically infer each expanded goal.
 \end{enumerate}
 
 
-
-\subsection{Inference Rules}
-\label{INFERENCE-RULES}
-
-An \key{inference rule} has the form:
-
-\begin{center}
-\key{consequent-expression} \verb|<--|
-    \key{condition-expression} \{ \verb|,| {\em condition-expression} \}
-\end{center}
-
-An \key{inference step} takes as input one of the reduced goal-expressions
-in the goal set and one inference rule,
-such that the reduced goal-expression unifies with the
-consequent-expression of the inference rule.  The unification variables in the
-goal-set and inference-rule are replaced by their values computed
-by this unification.  The goal-expression is removed the goal set, and
-all the condition-expressions of the inference rule are added to the goal
-set.
-
-\subsection{Reduction Rules}
-\label{REDUCTION-RULES}
-
-A \key{reduction rule} has the form:
-
-\begin{center}
-\key{result-expression} \verb|<==|
-\key{consequent-expression} \verb|<--|
-    \key{condition-expression} \{ \verb|,| {\em condition-expression} \}
-\end{center}
-
-A reduction rule contains within it the equivalent of an inference rule,
-which is obtained by removing the result-expression and following \verb|<==|
-from the reduction rule.
-
-A subexpression is \key{reduced} by finding for it inferences in which
-the first rule applied to the original expression is a reduction rule.
-If the result-expressions of all such inferences found unify, their
-unification replaces the expression being reduced.  If no inferences
-are found, the expression is not replaced.  It is an error
-if several inferences are found but their result-expressions fail to unify.
-
-An expression is \key{reduced} by reducing all its subexpressions, smallest
-first, until lastly the whole expression is reduced as a subexpression of
-itself.
-
-\section{Expression Evaluation}
-\label{EXPRESSION-EVALUATION}
 
 \section{Debugging}
 
