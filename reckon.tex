@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 14, 2003}
+\date{November 15, 2003}
  
 \maketitle
 
@@ -1502,10 +1502,14 @@ ends a subexpression.
 \subsection{Expression Structure}
 \label{EXPRESSION-STRUCTURE}
 
-Expression structure is affected by two special marks.
-The \key{reorder mark} (\ttkey{<=>}) separates arguments that can be
-reordered, as in \verb|element LIST <=> INDEX|, and is used in
+Expression structure is affected by three special marks.
+The \key{reorder mark} (\ttkey{<:>}) separates arguments that can be
+reordered, as in \verb|element LIST <:> INDEX|, and is used in
 expression definitions.
+The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in a
+definition that represents the list of remainding arguments in a use
+of the definition, as in \verb|max ::> ARGS| where \verb|ARGS| represents
+the list of all the arguments given to \verb|max|.
 The \key{qualifier mark} (\ttkey{@@@}) signals that the following
 expression item is a qualifier, as in \verb|sort x @@@ ascending|,
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|,
@@ -1524,43 +1528,50 @@ or certain matching lexemes.  A \key{raw expression}
 (\ref{RAW-EXPRESSIONS})
 is a particular kind of expression that will not be
 restructured.  The only special marks in a raw expression
-are the reorder mark (\verb|<=>|)
+are the reorder mark (\verb|<:>|)
 and the qualifier mark (\verb|@@@|).
 Translating
 an expression into a raw expression is called \key{parsing}.
 
-Some subexpression bracketing matching lexemes affect parsing:
+Subexpression bracketing matching lexemes may affect parsing.
+An informal summary of some of these is:
 
 \begin{center}
 \begin{tabular}{lll}
 Brackets   & Turns Off			& Turns On \\[1ex]
 
 \verb|[]|  & operators, qualifiers, \verb/|/, text
-					& \verb|<=>|, \verb|@@@| \\
+					& \verb|<:>|, \verb|::>|, \verb|@@@| \\
 \verb|[< >]|  & \verb/|/, text		& operators, qualifiers,
-					  \verb|<=>|, \verb|@@@| \\
+					  \verb|<:>|, \verb|::>|, \verb|@@@| \\
 \verb|()|  & nothing			& nothing \\
 \verb|{}|  & eval, \verb/|/, text	& operators, qualifiers,
-					  \verb|<=>|, \verb|@@@| \\
+					  \verb|<:>|, \verb|::>|, \verb|@@@| \\
 \verb|<<>>|  & \verb/|/, text		& eval, operators, qualifiers,
-					  \verb|<=>|, \verb|@@@| \\
-\verb|`'|  & eval, operators, qualifiers, \verb|<=>|, \verb|@@@|
+					  \verb|<:>|, \verb|::>|, \verb|@@@| \\
+\verb|`'|  & eval, operators, qualifiers,
 					& \verb/|/, text \\
+	   & \verb|<:>|, \verb|::>|, \verb|@@@|
 \end{tabular}
 \end{center}
 
 Other matching lexemes may be made to affect parsing by introducing
 operator definitions with controls (\ref{OPERATOR-CONTROL}).
 
-There are three kinds of \skey{parsing context}s:
-one where only the reorder mark (\verb|<=>|)
-and the qualifier mark (\verb|@@@|) are recognized, one where these
+Parsing is controlled by the \key{parsing context}, which consists
+of a \key{parsing mode stack} and a \key{parsing definition stack}.
+
+There are three kinds of \skey{parsing mode}s:
+the \ttkey{marks} mode where only the reorder mark(\verb|<:>|),
+remainder mark(\verb|::>|), and the qualifier mark (\verb|@@@|) are recognized,
+the \ttkey{operators} mode where these marks
 are recognized along with operators and qualifiers,
-and one where only the format-separator (\verb/|/) is recognized.
-An opening mark may change the parsing context by
-pushing a new context into a parsing
-context stack whose top member is the effective parsing context.
-The corresponding closing mark will pop the parsing context
+and the \ttkey{text} mode where only the format-separator (\verb/|/)
+is recognized.
+An opening mark may change the parsing mode by
+pushing a new parsing mode into a parsing
+mode stack whose top member is the effective parsing mode.
+The corresponding closing mark will pop the parsing mode
 stack.
 
 From the parsing point of view there are several types of
@@ -1603,6 +1614,9 @@ corresponding closing mark.  This counter sticks at +1: matching
 lexemes that would increment the counter have no affect if the counter
 is at +1.
 
+Evaluation is also not part of parsing; the evaluation counter is
+used during expression evaluation, which occurs after expression parsing.
+
 \subsection{Raw Expressions}
 \label{RAW-EXPRESSIONS}
 
@@ -1610,7 +1624,7 @@ A raw expression is an expression that contains no operators,
 qualifiers, or text parsing contexts that induce restructuring.
 Also, all raw expressions must begin with a word or separator.
 Raw expressions can be directly represented using the \verb|[]|
-matching lexemes and the verb|<=>| reorder and 
+matching lexemes and the verb|<:>| reorder, \verb|::>| remainder, and 
 \verb|@@@| qualifier marks.
 
 When an expression is parsed, the output is a raw expression.
@@ -1642,31 +1656,34 @@ The syntax of raw expressions is defined as follows:
 \key{raw-subexpression} ::=
 	\begin{tabular}[t]{@{}ll}
 	\verb|[| & {\em raw-expression-head} \\
-		 & {\em raw-expression-argument-list} \\
-		 & {\em raw-expression-qualifier-phrase}$^\star$ \verb|]| \\
+		 & {\em raw-argument-list} \\
+		 & {\em raw-qualifier-phrase}$^\star$ \verb|]| \\
 	\end{tabular} \\[1ex]
 \key{raw-expression-head} ::= {\em word} $|$ {\em separator} \\[1ex]
-\key{raw-expression-argument-list}
-	\begin{tabular}[t]{@{}rl}
+\key{raw-argument-list} ::=
+	    {\em raw-base-argument-list}
+	    {\em raw-argument-remainder-option} \\[1ex]
+\key{raw-base-argument-list}
+        \begin{tabular}[t]{@{}rl}
 	::= & {\em empty} \\
-	$|$ & {\em raw-expression-argument} \\
-	    & \{ {\em reorder-mark-option}
-		 {\em raw-expression-argument} \}$^\star$ \\
+	$|$ & {\em raw-argument}
+	    \{ {\em reorder-mark-option} {\em raw-argument} \}$^\star$
 	\end{tabular} \\[1ex]
-\key{reorder-mark-option} ::= {\em empty} $|$ \verb|<=>| \\[1ex]
-\key{raw-expression-argument} ::= {\em raw-expression} \\[1ex]
-\key{raw-expression-qualifier-phrase} ::=
-	\begin{tabular}[t]{@{}ll}
-	\verb|@@@| & {\em raw-expression-qualifier-head} \\
-		   & {\em raw-expression-argument-list} \\
-	\end{tabular} \\[1ex]
-\key{raw-expression-qualifier-head} ::= {\em word} $|$ {\em separator}
+\key{reorder-mark-option} ::= {\em empty} $|$ \verb|<:>| \\[1ex]
+\key{reorder-argument-remainder-option} ::=
+	{\em empty} $|$ \verb|::>| {\em raw-argument} \\[1ex]
+\key{raw-argument} ::= {\em raw-expression} \\[1ex]
+\key{raw-qualifier-phrase} ::=
+	\verb|@@@| {\em raw-qualifier-head} {\em raw-argument-list} \\[1ex]
+\key{raw-qualifier-head} ::= {\em word} $|$ {\em separator}
 \end{indpar}
 
-The order of {\em raw-expression-qualifier-phrases}
+The order of {\em raw-qualifier-phrases}
 in a {\em raw-expression} does not matter.
-The order of arguments separated by {\em reorder-marks} (\verb|<=>|) does
-not matter.
+The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
+not matter.  Both {\em reorder-marks} (\verb|<:>|) and {\em remainder-marks}
+(\verb|::>|) can only occur in the head of an expression definition
+(\ref{TBD}).
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -1678,8 +1695,8 @@ operator context by some operators.
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
 
-The operator context (\ref{OPERATOR-CONTEXT})
-contains a set of \skey{operator definition}s.
+The parsing definitions stack
+contains \skey{operator definition}s and qualifier definitions.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
@@ -1818,7 +1835,7 @@ expression would have erroneous ambiguity.
 The rules just given produce a result that is often the same as the
 more common context free grammar rules for parsing expressions.  However,
 there is a difference: in PCASL an operator can change the parsing context
-use to parse its operand subexpressions.  See the second on operator
+used to parse its operand subexpressions.  See the section on operator
 control below (\ref{OPERATOR-CONTROL}).
 
 \subsubsubsection{Precedence}\ttmindex{precedence}{of operator}
@@ -1873,11 +1890,41 @@ be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
 Operators can be associated with \skey{operator control flag}s that
 affect parsing of subexpressions of the operator.
 
-[TBD: add operator def flag to right associative operators.]
+\begin{indpar}
 
-[TBD: matchfix operators can turn evaluation, text, operators and qualifiers
-on and off.]
+{\bf operators}\index{operators flag@{\tt operators} flag}\\
+{\bf marks}\index{marks flag@{\tt marks} flag}\\
+{\bf text}\index{text flag@{\tt text} flag}\\
+At most one of these flags may be given.  These flags push a new
+parsing context into the parsing context stack, parse the operands
+of the current expression, and then pop the parsing context stack.
+They are usually used only for matchfix operators, but may be used
+for other operators.
 
+The {\tt operators} flag turns on
+operator, reorder mark(\verb|<:>|),
+remainder mark(\verb|::>|),
+and qualifier mark(\verb|@@@|) parsing, and turns off text parsing.
+
+The {\tt marks} flag turns on parsing of
+reorder marks(\verb|<:>|), remainder marks(\verb|::>|),
+and qualifier marks(\verb|@@@|), and turns off operator and text parsing.
+
+The {\tt text} flag turns on
+text parsing, and turns off operator, reorder mark(\verb|<:>|),
+remainder mark(\verb|::>|), and qualifier mark(\verb|@@@|) parsing.
+
+{\bf definitions}\index{definitions flag@{\tt definitions} flag}\\
+This flag may only be given for a right associative infix operator.
+It causes the
+left operand of the operator to be inspected to see if it is an
+operator or qualifier definition.  If no, nothing special is done.
+If yes, the expression containing
+the infix operator is replaced by just its right operand, the definition
+is pushed onto the parsing definitions stack, the right operand is
+parsed, and then the definition is popped off the parsing definitions stack.
+
+\end{indpar}
 
 \subsubsection{Implicit Parenthesis Insertion}
 \label{IMPLICIT-PARENTHESIS-INSERTION}
