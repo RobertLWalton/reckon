@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{August 9, 2003}
+\date{August 22, 2003}
  
 \maketitle
 
@@ -662,6 +662,283 @@ You can also change how an expression is displayed.
 \put(1.6,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture}
 \end{indpar}
+
+
+\section{Lexemes}
+
+A PCASL program is a sequence of characters which is scanned from
+left to right to produce a sequence of primary lexemes.  The sequence
+of primary lexemes is then scanned from left to right to produce
+a sequence of lexemes.
+
+\subsection{Primary Lexemes}
+
+Primarly lexemes are defined as follows:
+
+\begin{indpar}
+\key{primary-lexeme}
+	\begin{tabular}[t]{rl}
+	::= & \key{word} \\
+	$|$ & \key{separator} \\
+	$|$ & \key{left-quote} \\
+	$|$ & \key{right-quote} \\
+	$|$ & \key{white-space}
+	\end{tabular}
+	\\[1ex]
+\key{word} ::= {\em word-character} {\em word-character}$^\star$ \\[1ex]
+\key{word-character} \begin{tabular}[t]{rl}
+                       ::= & {\em letter} $|$ {\em digit} \\
+		       $|$ &    \verb|+|%
+		             $|$\verb|-|%
+		             $|$\verb|*|%
+		             $|$\verb|/|%
+		             $|$\verb|\|%
+		             $|$\verb|~|%
+		             $|$\verb|@|%
+		             $|$\verb|#|%
+		             $|$\verb|$|%
+		             $|$\verb|%|%
+		             $|$\verb|^|%
+		             $|$\verb|&|%
+		             $|$\verb|=|%
+		             $|$\verb/|/%
+		             $|$\verb|<|%
+		             $|$\verb|>|%
+		             $|$\verb|_|%
+		             $|$\verb|"|%
+		             $|$\verb|`|%
+		             $|$\verb|'|%
+		             $|$\verb|!|%
+		             $|$\verb|?|%
+			     $|$\verb|;|%
+			     $|$\verb|:|%
+			     $|$\verb|,|%
+		             $|$\verb|.|
+			\end{tabular}\\[1ex]
+\key{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
+\key{lower-case-letter} ::=    \verb|a|%
+			    $|$\verb|b|%
+			    $|$\verb|c|%
+			    $|$\verb|d|%
+			    $|$\verb|e|%
+			    $|$\verb|f|%
+			    $|$\verb|g|%
+			    $|$\verb|h|%
+			    $|$\verb|i|%
+			    $|$\verb|j|%
+			    $|$\verb|k|%
+			    $|$\verb|l|%
+			    $|$\verb|m|%
+			    $|$\verb|n|%
+			    $|$\verb|o|%
+			    $|$\verb|p|%
+			    $|$\verb|q|%
+			    $|$\verb|r|%
+			    $|$\verb|s|%
+			    $|$\verb|t|%
+			    $|$\verb|u|%
+			    $|$\verb|v|%
+			    $|$\verb|w|%
+			    $|$\verb|x|%
+			    $|$\verb|y|%
+			    $|$\verb|z|
+			    \\[1ex]
+\key{upper-case-letter} ::=    \verb|A|%
+			    $|$\verb|B|%
+			    $|$\verb|C|%
+			    $|$\verb|D|%
+			    $|$\verb|E|%
+			    $|$\verb|F|%
+			    $|$\verb|G|%
+			    $|$\verb|H|%
+			    $|$\verb|I|%
+			    $|$\verb|J|%
+			    $|$\verb|K|%
+			    $|$\verb|L|%
+			    $|$\verb|M|%
+			    $|$\verb|N|%
+			    $|$\verb|O|%
+			    $|$\verb|p|%
+			    $|$\verb|Q|%
+			    $|$\verb|R|%
+			    $|$\verb|S|%
+			    $|$\verb|T|%
+			    $|$\verb|U|%
+			    $|$\verb|V|%
+			    $|$\verb|W|%
+			    $|$\verb|X|%
+			    $|$\verb|Y|%
+			    $|$\verb|Z|
+			    \\[1ex]
+\key{digit} ::=    \verb|0|%
+		$|$\verb|1|%
+		$|$\verb|2|%
+		$|$\verb|3|%
+		$|$\verb|4|%
+		$|$\verb|5|%
+		$|$\verb|6|%
+		$|$\verb|7|%
+		$|$\verb|8|%
+		$|$\verb|9|
+		\\[1ex]
+\key{primary-separator} ::= {\em primary-separator-character} \\[1ex]
+\key{primary-separator-character} ::=    \verb|(|%
+				      $|$\verb|)|%
+				      $|$\verb|[|%
+				      $|$\verb|]|%
+				      $|$\verb|{|%
+				      $|$\verb|}|
+				      \\[1ex]
+\key{ambiguous-separator-character} ::=    \verb|!|%
+				        $|$\verb|?|%
+			                $|$\verb|;|%
+			                $|$\verb|:|%
+			                $|$\verb|,|%
+			                $|$\verb|.|
+					\\[1ex]
+\key{left-quote} ::= {\em left-quote-character}
+                     {\em left-quote-character}$^\star$ \\[1ex]
+\key{right-quote} ::= {\em right-quote-character}
+                     {\em right-quote-character}$^\star$ \\[1ex]
+\key{left-quote-character} ::= \verb|`| \\[1ex]
+\key{right-quote-character} ::= \verb|'| \\[1ex]
+\key{white-space} ::= {\em white-space-character}
+                     {\em white-space-character}$^\star$ \\[1ex]
+\key{white-space-character} ::=
+    \key{horizontal-space-character} $|$ \key{vertical-space-character} \\[1ex]
+\key{horizontal-space-character} ::=
+    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
+\key{vertical-space-character} ::=
+    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
+\end{indpar}
+
+The following sections resolve an ambiguity involving
+the quote characters and decribe a nuisance involving white space.
+
+\subsubsection{Quote Scanning}
+
+\ikey{Left-quotes}{left-quote} and \skey{right-quote}s are scanned for
+using the following rules.
+
+{\bf Left Quote Rule.}\index{Left Quote Rule}
+A \key{left-quote} must be preceeded by {\em whitespace} or
+a {\em primary-separator-character}.
+
+{\bf Right Quote Rule.}\index{Right Quote Rule}
+A \key{right-quote} must match a preceding {\em left-quote} with the
+same number of characters.
+
+{\bf Single Quote New-Line Rule.}\index{Single Quote Newline Rule}
+Between a matching {\em left-quote} with a single
+{\em left-quote-character} (\verb|`|) and its matching {\em right-quote}
+(\verb|'|), no {\em white-space} contining a {\em vertical-space-character}
+may occur.
+
+Examples:
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}l@{\hspace*{0.3in}}l}
+			& Primary Lexeme Sequence		\\
+Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
+\verb|I said `Hello'.|	& \tt `~~Hello~~'			\\
+\verb|Re`op 'tis.  But!|
+			& \tt Re`op~~\verb|_|~~'tis.%
+			  ~~\verb|__|~~But! \\
+\verb|`Like 'tis'|	& \tt `~~Like~~\verb|_|~~'~~tis'	\\
+\verb|``Like 'tis''|	& \tt ``~~Like~~\verb|_|~~'tis~~''	\\
+\verb|`Like me''|	& \tt `~~Like~~\verb|_|~~me~~'~~~'
+				~~~~~\rm (last \verb|'| is a word) \\
+\verb|`` `Hello' is a word.''|
+			& \tt ``~~\verb|_|~~`~~Hello~~'~~\verb|_|~~is%
+			  ~~\verb|_|~~a~~\verb|_|~~word.~~'' \\
+\end{tabular}
+\end{indpar}
+
+Quoted expression formation rules in \ref{QUOTED-EXPRESSION}
+cause {\em white-space} after a {\em left-quote} or before
+a {\em right-quote} to be ignored,
+so that the last example works to double quote a sentence beginning
+with a single quoted word.
+
+
+\subsubsection{White Space Conversion}
+
+A \key{white-space} lexeme does not have exactly the same characters
+that were input to create it, unlike other primary lexemes.  The
+sequence of {\em white-space-characters} input to create a
+{\em white-space} lexeme is modified as follows to create the lexeme:
+
+{\bf Line End Spaces Rule.}\index{Line End Spaces Rule}
+All {\em horizontal-space} characters preceeding a {\em vertical-space}
+character are deleted.  Thus spaces at line ends are ignored.
+
+{\bf Carriage Return Rule.}\index{Carriage Return Rule}
+Each {\em carriage-return} and all {\em horizontal-spaces} preceding
+it are deleted.  Thus the lexeme has no {\em carriage-returns}.
+
+{\bf Horizontal Tab Rule.}\index{Horizontal Tab Rule}
+Each {\em horizontal-tab} is replace by {\em spaces} assuming that
+horizontal tab stops are set every 8 columns.
+
+Note that these rules do \underline{not} alter the printed appearance
+of the {\em white-space} lexeme.
+
+Rules that relate to expression formation ensure that all
+{\em vertical-space} characters are equivalent: see
+\ref{QUOTED-LINE-FEEDS} and \ref{TBD}.
+
+
+\subsection{Primary Lexeme Conversion}
+
+The sequence of primiary lexemes is converted to a sequence of lexemes
+according to the following rules, which we will describe in the
+order given:
+
+\begin{indpar}[1in]
+Ambiguous Separators \\
+Indent Implied Lexemes \\
+Formatting Lexemes
+\end{indpar}
+
+\subsubsection{foo}
+
+Separator characters can be classified into three kinds:
+
+\begin{indpar}
+\key{separator-character}
+	\begin{tabular}[t]{rl}
+	::= & \key{opening-bracket} \\
+	$|$ & \key{closing-bracket} \\
+	$|$ & \key{ambiguous-separator-character}
+	\end{tabular}
+        \\[1ex]
+\key{opening-bracket} ::=    \verb|(|%
+			  $|$\verb|[|%
+			  $|$\verb|{|
+			  \\[1ex]
+\key{closing-bracket} ::=    \verb|)|%
+			  $|$\verb|]|%
+			  $|$\verb|}|
+			  \\[1ex]
+\key{ambiguous-separator-character} ::=    \verb|!|%
+				        $|$\verb|?|%
+			                $|$\verb|;|%
+			                $|$\verb|:|%
+			                $|$\verb|,|%
+			                $|$\verb|.|
+\end{indpar}
+
+Then the ambiguities involving separators are resolved by the
+following rules:
+
+{\bf Ambiguous Separator Rule.}\index{ambiguous separator}
+An {\em ambiguous-separator-character} is a {\em separator-character}
+if and only if it is followed by {\em white-space}
+or a {\em closing-backet} or a {\em right-quote} and is
+\underline{not} preceded by {\em white-space} or an {\em opening-bracket}
+or a {\em left-quote}.  Otherwise it is a {\em word-character}.
+There is one exception for `\verb|.|' given in the following
+rule.
 
 
 \section{Rules}
