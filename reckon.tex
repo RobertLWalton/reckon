@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 28, 2003}
+\date{December 29, 2003}
  
 \maketitle
 
@@ -1146,12 +1146,8 @@ defining {\em numbers} are as follows.
 \subsubsection{Decimal Numbers}
 \label{DECIMAL-NUMBERS}
 
-Decimal numbers are sequences of digits with an optional decimal point
-and an optional exponent.
-Decimal ratios are sequences of digits separated into a numerator
-and a denominator by a `\verb|/|'.
-The syntax equations defining {\em decimal-numbers} and
-{\em decimal-ratios} are as follows.
+Decimal numbers are sequences of digits with optional commas,
+an optional decimal point, and an optional sign.
 
 \begin{indpar}
 \key{decimal-number} ::= {\em unsigned-decimal-number}
@@ -1178,28 +1174,24 @@ Decimal Number Examples:
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 123	& -123		& +123		& 1,234		& -1,234,567 \\
 123.0	& -.123		& +0.0		& +.000		& 1,234.987,654 \\
-1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\
-1,2	& 1.86,54	& .123,45,6	& 1,2345678	& 1.2345678,92
+1,2	& -1.86,54	& 1,234567.89	& 12345.678,9	& +1.234567,892
 \end{tabular}
 \end{indpar}
 
-In a {\em decimal-number} the decimal point
-must be followed by a digit.  Commas must be surrounded by digits,
-and should be
-every 3 digits from the decimal point, or every three digits
-from the end if there is no decimal point.  If there is any comma at all,
-there must be commas
-every 3 digits, except that commas may be used in the integer part 
-without any being used in the faction part.
-Incorrect numbers of digits between commas will result in an
+In a {\em decimal-number} lexeme, the decimal point must be followed by
+a digit, and commas must be surrounded by digits.
+
+In addition, commas must be located
+every 3 digits from the decimal point, or every 3 digits
+from the right end if there is no decimal point.
+If there are any commas at all, there must be commas every 3 digits
+in the integer part, while the fraction part may be comma free,
+or may contain commas every 3 digits.
+Failure to follow the rules of this paragraph will result in an
 error when the lexeme is converted to a number,
 but is \underline{not} an error of lexeme formation.  The last line of
 examples above are therefore legal lexemes that will give errors when
 converted to numbers.
-
-Similarly there will be an error converting a {\em decimal-ratio} to a
-number if the denominator equals zero, but the ratio will still be a legal
-lexeme.  \verb|-53/000| is an example.
 
 \subsubsection{Radix Numbers}
 \label{RADIXED-NUMBERS}
@@ -1217,8 +1209,9 @@ schemes are permitted.
 		        \\[1ex]
 \key{radix-indicator} ::= {\em letter} {\em letter-or-digit}$^\star$ \\[1ex]
 \key{letter-or-digit} ::= {\em letter} $|$ {\em digit} \\[1ex]
-\key{radix-number-mark} ::= {\em digit} $|$ {\em letter}
-                      $|$ \verb|.| $|$ \verb|,|
+\key{radix-number-mark} ::= {\em word-character} except
+	\{ \verb|#| $|$ \verb/|/ $|$ \verb|<| $|$ \verb|>|
+	            $|$ \verb|`| $|$ \verb|'| \}
 \end{indpar}
 
 Radix Number Examples:
@@ -1227,12 +1220,10 @@ Radix Number Examples:
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 
-B\verb|#|10110100\verb|#|	& O\verb|#|77534201\verb|#|
-	& D\verb|#|19758\verb|#|	& X\verb|#|FE8A932B\verb|#| \\
-B\verb|#|101101\verb|#|		& O\verb|#|0.7753\verb|#|
-	& D\verb|#|197.58\verb|#|	& X\verb|#|0.FE8A932B\verb|#| \\
-B\verb|#|10,1101\verb|#|	& O\verb|#|12,3456\verb|#|
-	& D\verb|#|0.123,5\verb|#|	& X\verb|#|FE8A,932B.7CCD,83\verb|#| \\
+B\#10110100\#	& O\#77534201\# & D\#19758\#	& X\#FE8A932B\# \\
+B\#101101\#	& O\#0.7753\#	& D\#197.58\#	& X\#0.fe8a932b\# \\
+B\#10,1101\#	& O\#12,3456\#  & D\#0.123,5\#	& X\#FE8A,932B.7CCD,83\# \\
+B\#a5,7b63\#	& O\#12/3456\#	& D\#+0.1\#	& X\#F.E8A932B.7CCD\# \\
 \end{tabular}
 \end{indpar}
 
@@ -1254,11 +1245,22 @@ hexadecimal
 \end{tabular}
 \end{center}
 
+The rules for comma location are the same as for {\em decimal-numbers}
+(\ref{DECIMAL-NUMBERS}), except the number of digits between commas may
+be 4 or 8 instead of 3.
+
 {\em Radix-numbers} can be legal lexemes and still be unconvertable to
 numbers because their {\em radix-indicators} are undefined, they
-have digits not defined for the given {\em radix-indicator}, they
-have too many decimal points, and so forth.  These errors are detected
-when the lexemes are converted to numbers.  On the other hand, it
+have {\em radix-number-marks} (e.g., digits)
+not defined for the given {\em radix-indicator}, they
+have too many decimal points, and so forth.
+These errors are detected when the lexemes are converted to numbers.
+The last line of {\em radix-number} examples above are legal lexemes that
+will give errors when converted to numbers.
+Note that standard radix indicators only allow commas, a decimal point,
+and digits as {\em radix-number-marks}.
+
+On the other hand, it
 is possible to define non-standard converters for converting
 {\em radix-number} lexemes to numbers, and thereby increase the
 space of number representations.
@@ -1267,12 +1269,13 @@ space of number representations.
 \label{RATIOS}
 
 A {\em ratio} consists of two strings of decimal digits, the numerator
-separated by a slash (`\verb|/|'), with an optional prefix sign.
+and denominator, separated by a slash (`\verb|/|'),
+with an optional sign.
 
 \begin{indpar}
 \key{ratio} ::= {\em unsigned-ratio}
 	    $|$ {\em sign} {\em unsigned-ratio} \\[1ex]
-\key{ratio} ::= {\em numerator} \verb|/| {\em denominator} \\[1ex]
+\key{unsigned-ratio} ::= {\em numerator} \verb|/| {\em denominator} \\[1ex]
 \key{numerator} ::= {\em decimal-natural} \\[1ex]
 \key{denominator} ::= {\em decimal-natural}
 \end{indpar}
@@ -1313,14 +1316,16 @@ Scientific Number Examples:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-123e0	& -123e+2	& +123e-321	& 1,234e9 \\
-123E0	& -123E+2	& +123E-321	& -0.123,456e-3	\\
-123\verb|^|0 & -123\verb|^|+2 & -0.123,456e-3 & -1,234.567890\verb|^|6 \\
-X\verb|#|A\verb|#|e0 	& B\verb|#|1011\verb|#|e-3
-	& O\verb|#|0.7753\verb|#|e-5
-	& X\verb|#|0.FE8,A93,2BE\verb|#|\verb|^|+5 \\
+123e0		& -123e+2	& +123e-321	& 1,234e9 \\
+123E0		& -123E+2	& +123E-321	& -0.123,456e-3	\\
+123\verb|^|0	& -123\verb|^|+2
+				& -0.123,456e-3 & -1,234.567890\verb|^|6 \\
+X\#a9\#e0	& B\#1011\#e-3	& O\#0.7753\#e-5
+					    & X\#0.FE8A,932B,E\#\verb|^|+5 \\
 \end{tabular}
 \end{indpar}
+
+Note that exponents cannot contain commas.
 
 \subsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
@@ -1331,14 +1336,14 @@ or after a prefix {\em unit-indicator}.
 
 \begin{indpar}
 \key{unit-number} \begin{tabular}[t]{rl}
-		  ::= & {\em pre-unit-indicator} {\em base-number} \\
+		  ::= & {\em pre-unit-indicator} {\em unit-base-number} \\
 		  $|$ & {\em sign} {\em pre-unit-indicator}
-		  		   {\em unsigned-base-number} \\
-		  $|$ & {\em base-number} {\em post-unit-indicator}
+		  		   {\em unsigned-unit-base-number} \\
+		  $|$ & {\em unit-base-number} {\em post-unit-indicator}
 		  \end{tabular} \\[1ex]
-\key{base-number} ::= {\em decimal-number} $|$ {\em ratio} \\[1ex]
-\key{unsigned-base-number} ::= {\em unsigned-decimal-number}
-                           $|$ {\em unsigned-ratio} \\[1ex]
+\key{unit-base-number} ::= {\em decimal-number} $|$ {\em ratio} \\[1ex]
+\key{unsigned-unit-base-number} ::= {\em unsigned-decimal-number}
+                                $|$ {\em unsigned-ratio} \\[1ex]
 \key{pre-unit-indicator} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
 \key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ \verb|%|
                           $|$ $^\circ$ \\[1ex]
@@ -1363,29 +1368,48 @@ Unit Number		& Lexeme Sequence	\\[1ex]
 \tt \pounds -5.71	& \tt \pounds ~~-5.71 \\
 \tt 15'			& \tt 15~~' \\
 \tt -2.543e3"		& \tt -2.543e3~~" \\
-\tt 72$^\circ$		& \tt 72~~$^\circ$ \\
-\tt X'BE63'e-2$^\circ$	& \tt X'BE63'e-2~~$^\circ$
+\tt 72\%		& \tt 72~~\% \\
+\tt X\#BE63\#$^\circ$	& \tt X\#BE63\#~~$^\circ$
 \end{tabular}
 \end{indpar}
+
+Note that {\em ratios} and {\em scientific-numbers} cannot have units
+as part of their pre-lexeme.  This is to reduce confusion: the units can
+always be given separated by a space from the number, as in `\verb|5e3 %|'.
 
 \subsubsection{Complex Numbers}
 \label{COMPLEX-NUMBERS}
 
-An {\em imaginary-number} is just a {\em real-number} with an
-{\em imaginary-indicator}, e.g.~\verb|i|, post-fixed.  A
-{\em complex-number} is just an {\em imaginary-number}
-or a {\em real-number} followed by
-a {\em sign} followed by an {\em imaginary-number}.
+An {\em imaginary-number} is just a {\em decimal-number}, {\em radix-number},
+or {\em scientific-number} with an
+{\em imaginary-indicator}, e.g.~\verb|j|, post-fixed.  A
+{\em complex-number} is either an {\em imaginary-number}
+or is a {\em decimal-number}, {\em radix-number}, or
+{\em scientific-number} followed by signed
+a {\em imaginary-number}.
 
 \begin{indpar}
-\key{complex-number} ::= {\em imaginary-number}
-		$|$ {\em real-number} {\em signed-imaginary-number} \\[1ex]
-\key{imaginary-number} ::= {\em unsigned-imaginary-number}
-		$|$ {\em signed-imaginary-number} \\[1ex]
-\key{signed-imaginary-number} ::=
-		{\em sign} {\em unsigned-imaginary-number} \\[1ex]
+\key{complex-number} \begin{tabular}[t]{rl}
+		     ::= & {\em imaginary-number} \\
+		     $|$ & {\em complex-base-number}
+		         {\em sign} {\em unsigned-imaginary-number}
+		     \end{tabular} \\[1ex]
+\key{imaginary-number} \begin{tabular}[t]{rl}
+		     ::= & {\em unsigned-imaginary-number} \\
+		     $|$ & {\em sign} {\em unsigned-imaginary-number}
+		     \end{tabular} \\[1ex]
+\key{complex-base-number} \begin{tabular}[t]{rl}
+			  ::= & {\em unsigned-complex-base-number} \\
+			  $|$ & {\em sign} {\em unsigned-complex-base-number}
+			  \end{tabular} \\[1ex]
 \key{unsigned-imaginary-number} ::=
-		{\em unsigned-real-number} {\em imaginary-indicator} \\[1ex]
+		{\em unsigned-complex-base-number}
+		{\em imaginary-indicator} \\[1ex]
+\key{unsigned-complex-base-number} \begin{tabular}[t]{rl}
+			   ::= & {\em unsigned-decimal-number} \\
+			   $|$ & {\em unsigned-radix-number} \\
+			   $|$ & {\em unsigned-scientific-number}
+			   \end{tabular} \\[1ex]
 \key{imaginary-indicator} ::=     \verb|I|
 			      $|$ \verb|i|
 			      $|$ \verb|J|
@@ -1402,6 +1426,10 @@ Complex Number Examples:
 2+3i		& -3+3.345e10j	& 35-X'FE90.34D2'J		\\
 \end{tabular}
 \end{indpar}
+
+Note that {\em ratios} cannot be parts of complex numbers.
+This is to reduce confusion: the {\em imaginary-indicator} can be used
+as a separate unit lexeme as in `\verb|5 + 3/4 j|'.
 
 \subsubsection{Post Separators}
 \label{POST-SEPARATORS}
@@ -1564,31 +1592,51 @@ Indentation Lexeme Examples:
 
 \begin{indpar}[0.1in]
 \tt \ttbrackets
-\begin{tabular}{@{}l@{~~~~~~~~~~}l}
+\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 {\rm Input String}		& {\rm Output Lexemes} \\[1ex]
 hi \{ x; y z; w \}		& \tt hi \{ x ; y z ; w \} \\[1ex]
 hi \{				& hi \{ \\
 ~~~~x				& x \\
 ~~~~y z				& ; y z \\
-~~~~w \}			& ; w \} \\[1ex]
+~~~~w \}			& ; w \}
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\tt \ttbrackets
+\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 hi				& hi \\
 \{				& \{ \\
 ~~~~x				& x \\
 ~~~~y z				& ; y z \\
 ~~~~w				& ; w \\
-\}				& \} \\[1ex]
+\}				& \}
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\tt \ttbrackets
+\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 hi:				& hi \{ \\
 ~~~~x				& x \\
 ~~~~y z				& ; y z \\
 ~~~~w				& ; w \\
-				& \} \\[1ex]
+				& \}
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\tt \ttbrackets
+\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 hi \{				& hi \{ \\
 ~~~~x				& x \\
 ~~~~y `this			& ; y ` this \\
 is another pre-lexical		& is another pre-lexical \\
 context.			& context . \\
 ' foo bar			& ' foo bar \\
-~~~~w \}			& ; w \} \\[1ex]
+~~~~w \}			& ; w \}
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\tt \ttbrackets
+\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 hi \{				& hi \{ \\
 ~~~~x				& x \\
 ~~~~y \{			& ; y \{ \\
