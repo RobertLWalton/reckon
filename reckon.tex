@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{August 28, 2003}
+\date{August 29, 2003}
  
 \maketitle
 
@@ -851,6 +851,7 @@ Primarly lexemes are defined as follows:
 The following sections give rules involving primary lexemes.
 
 \subsubsection{Matching and Context}
+\label{MATCHING}
 
 {\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}
 An {\em opening-lexeme} with $N$ characters $C$
@@ -1073,6 +1074,39 @@ Primary-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 \verb|!help!|		& \tt !help!		&	& no		\\
 \end{tabular}
 \end{indpar}
+
+\section{Expressions}
+
+An expression is a sequence of words, separators, and subexpressions.
+A subexpression is a pair of matching lexemes and all the lexemes in
+between.
+
+Expressions and subexpressions can contain operators.  When they do,
+matching implied parentheses are inserted into the expressions or subexpressions
+according to rules of operator precedence and associativity, and these
+implied parentheses create new subexpressions.
+
+\subsection{Subexpressions}
+
+Expressions and subexpressions are defined by the following syntax equations.
+
+\begin{indpar}
+\key{expression} ::= {\em expression-item}$^\star$ \\[1ex]
+\key{expression-item} ::= {\em word} $|$ {\em separator}
+				     $|$ {\em subexpression} \\[1ex]
+\key{subexpression} \begin{tabular}[t]{rl}
+		    ::= & \verb|(| {\em expression} \verb|)| \\
+		    $|$ & \verb|[| {\em expression} \verb|]| \\
+		    $|$ & \verb|{| {\em expression} \verb|}| \\
+		    $|$ & {\em opening-quote} {\em expression} {\em closing-quote} \\
+		    $|$ & {\em opening-angle} {\em expression} {\em closing-angle}
+		    \end{tabular}
+\end{indpar}
+
+{\bf Subexpression Rule.}\index{Subexpression Rule}
+The beginning and ending lexemes of a subexpression must match (\ref{MATCHING}).
+
+\subsection{Operators}
 
 \section{Rules}
 
