@@ -97,6 +97,12 @@
 \newcommand{\Tilde}{~}
 \catcode`~=\TildeCatcode
 
+\newcount\CircumflexCatcode
+\CircumflexCatcode=\catcode`\^
+\catcode`^=12
+\newcommand{\Circumflex}{^}
+\catcode`^=\CircumflexCatcode
+
 \newcount\CurlyBraCatcode
 \newcount\CurlyKetCatcode
 \newcount\SquareBraCatcode
@@ -167,7 +173,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 19, 2004}
+\date{May 20, 2004}
  
 \maketitle
 
@@ -2943,16 +2949,123 @@ to separate paragraphs.
 
 \end{list}
 
-\subsection{Paragraph and Sentence Parsing}
-\label{PARAGRAPH-AND-SENTENCE-PARSING}
+\subsection{Section, Paragraph, and Sentence Parsing}
+\label{SECTION-PARAGRAPH-AND-SENTENCE-PARSING}
 
 If the text being parsed does not contain any format separators,
-the text is lexically just a string of non-whitespace lexemes
-which is parsed into a list of paragraphs and sentences.  Paragraphs
-are separated by blank lines, and sentences end with sentence
-terminators, such as the period or question mark.
+the text is parsed phrases, sentences, and paragraphs.
+
+First the text is divided by blank line lexemes into paragraphs.
+The sequence of paragraphs comprises a section.
+
+Then in each paragraph, sentence terminators are located.
+White-space lexemes in the paragraph are deleted after sentence terminators
+are located.
+Each sequence
+of lexemes or subexpressions ending in a sentence terminator
+is made into a sentence, and any
+non-empty sequence
+of lexemes or subexpressions following the last sentence terminator
+is made into a phrase.
+The paragraph is then a sequence of zero or more sentences 
+possibly followed by a phrase.
+
+The syntax of the result is:
+
+\begin{indpar}
+\key{section} ::= \verb|[section| {\em paragraph} {\em paragraph}$^\star$
+                  \verb|]| \\[1ex]
+\key{paragraph}
+	\begin{tabular}[t]{rl}
+	::= &  \verb|[paragraph| {\em sentence} {\em sentence}$^\star$
+	       \verb|]| \\
+	$|$ &  \verb|[paragraph| {\em sentence}$^\star$ {\em phrase}
+	       \verb|]|
+	\end{tabular} \\[1ex]
+\key{sentence} ::= \verb|[sentence| {\em sentence-non-terminator}$^\star$
+                                    {\em sentence-terminator}
+                  \verb|]| \\[1ex]
+\key{phrase} ::= \verb|[phrase| {\em sentence-non-terminator}
+                                    {\em sentence-non-terminator}$^\star$
+                  \verb|]| \\[1ex]
+\key{sentence-terminator} ::= \verb|.| $|$
+                              \verb|?| $|$
+                              \verb|!| \\[1ex]
+\key{sentence-non-terminator} ::= {\em word} $|$
+                                  {\em separator} $|$
+                                  {\em subexpression}
+\end{indpar}
+
+There are several rules that modify the description just given:
+
+{\bf Sentence Terminator Rule.}\index{Sentence Terminator Rule}
+A \key{sentence-terminator} is any lexeme that is syntactically
+a sentence terminator and is also not preceded by a {\em white-space}
+lexeme.  All other lexemes and all subexpressions are
+\skey{sentence-non-terminator}s.
+
+{\bf Initial Capitalization Rule.}\index{Initial Capitalization Rule}
+A {\em word} consisting of an initial capital letter followed
+by zero or more lower case letters is converted
+to an all lower case word if it begins a sentence or phrase.
+A {\em word} consisting of an initial
+\verb|^|\index{^@{\tt \Circumflex}} followed by an upper
+case letter followed by zero or more lower case letters has the
+initial \verb|^| removed.
+
+{\bf Text Simplification Rule.}\index{Text Simplification Rule}
+If the {\tt -TEXT-PARSER-} is to return a {\em section} with just
+one {\em paragraph} and that {\em paragraph} contains nothing but
+just one {\em sentence} or {\em phrase},
+then just the {\em sentence} or {\em phrase} is returned.
+Otherwise, if a {\em section} with just one {\em paragraph} is
+to be returned, just the {\em paragraph} is returned.
 
 
+Some examples follow:
+
+\begin{center}
+\begin{tabular}{lcl}
+
+\verb|`the wife of Bob'|
+& parses as &
+\verb|[phrase the wife of Bob]|
+\\[2ex]
+\verb|`She hit the ball.'|
+& parses as &
+\verb|[sentence she hit the ball .]|
+\\[2ex]
+\begin{tabular}{@{}l@{}}
+\verb|``^Bill swung.| \\
+\verb|  But he missed!''|
+\end{tabular}
+& parses as &
+\begin{tabular}{@{}l@{}}
+\verb|[paragraph [sentence Bill swung .]| \\
+\verb|           [sentence but he missed !]]|
+\end{tabular}
+\\[5ex]
+\begin{tabular}{@{}l@{}}
+\verb|``^I liked| \\
+\verb|  the party.| \\
+\verb|| \\
+\verb|  Later, we caught| \\
+\verb|  the bus.''|
+\end{tabular}
+& parses as &
+\begin{tabular}{@{}l@{}}
+\verb|[section| \\
+\verb|   [paragraph [sentence I liked the]]| \\
+\verb|                        party .]]| \\
+\verb|   [paragraph [sentence later , we caught| \\
+\verb|                        the bus .]]]| \\
+\end{tabular}
+
+\end{tabular}
+\end{center}
+
+Note that capitalized words like proper names and `\verb|I|' need to be
+prefixed `\verb|^|' if they begin a sentence or phrase.
 
 
 \section{Expression Graphs}
