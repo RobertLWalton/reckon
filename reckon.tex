@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 8, 2003}
+\date{November 9, 2003}
  
 \maketitle
 
@@ -1576,7 +1576,7 @@ corresponding right matching lexeme.  This counter sticks at +1: matchings
 lexemes that would increment the counter have no affect if the counter
 is initially at +1.
 
-\subsubsection{Raw Expressions}
+\subsection{Raw Expressions}
 
 A raw expression is an expression that contains no operators,
 qualifiers, or text parsing contexts that induce restructuring.
@@ -1634,42 +1634,24 @@ The syntax of raw expressions is defined as follows:
 \key{raw-expression-qualifier-head} ::= {\em word} $|$ {\em separator}
 \end{indpar}
 
-\subsection{Parsing}
-\label{PARSING}
+The order of {\em raw-expression-qualifier-phrases}
+in a {\em raw-expression} does not matter.
+The order of arguments separated by {\em reorder-marks} (\verb|<=>|) does
+not matter.
 
-Before an expression can be evaluated, it must be
-\ikey{parsed}{parsing!expressions}.  The output of parsing is the
-input expression with implied parentheses added.
-This is called a \key{parsed expression}, and is input to
-expression translation (\ref{EXPRESSION-TRANSLATION}).
+\subsection{Operators}
+\label{OPERATORS}
 
-The first step in parsing is to transform the expression into a sequence of
-expression items as described in \ref{SUBEXPRESSIONS}.  This is
-called \key{subexpression parsing}.
-
-The second step in parsing is called \key{operator parsing}.
-Operator parsing finds all the
-expression items that are operators, picks from these the operators
-of lowest precedence, and inserts implied parentheses around the arguments
-of these operators, making new subexpressions.  The exact way in which
-lowest precedence operators are selected and implied parantheses are
-inserted depends upon operator definitions in the lexical context
-(\ref{OPERATOR-DEFINITIONS}).
-
-The third step in parsing is to parse each subexpression.  Thus parsing
-is recursive.
-
-In specific circumstances, subexpressions of an expression $E$
-can be operator definitions (\ref{OPERATOR-DEFINITIONS})
-that are added to the lexical context (\ref{LEXICAL-CONTEXT}) used to parse
-subsequent subexpressions of $E$.
+Operators restructure expressions in which they occur.  Operators
+are defined by operator definitions that are added to the current
+lexical context.
 
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
 
 A lexical context (\ref{LEXICAL-CONTEXT})
-consists of a set of \skey{operator definition}s.
+contains a set of \skey{operator definition}s.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
@@ -1746,6 +1728,8 @@ higher precedence than those to the left.
 If all operators are non-associative, all are recognized, and 
 implicitly parenthesized subexpressions will be created between the
 operators as well as possibly at the beginning and end of the whole expression.
+
+[TBD: add operator def flag to right associative operators.]
 
 
 \subsubsection{Implicit Parenthesis Insertion}
