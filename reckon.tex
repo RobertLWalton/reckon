@@ -1855,7 +1855,8 @@ definitions (\secref{EXPRESSION-DEFINITIONS}).}
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
 	\verb|]|
-\end{indpar}
+\end{indpar}%
+\label{LEXEME-REPLACEMENT-DEFINITION}
 
 which correspond to the expression definitions
 (\secref{EXPRESSION-DEFINITIONS}):
@@ -2021,7 +2022,8 @@ must be defined as a {\em UNIT-SPECIFIER-NAME} by the following:
 	\ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
 \ikey{UNIT-SPECIFIER-NAME}{unit-specifier-name} ::=
 	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
-\end{indpar}
+\end{indpar}%
+\label{UNIT-SPECIFIER-DEFINITION}
 
 It is possible to temporarily void unit specifier definitions by
 placing canceling undefinitions in the parsing stack.  These have the
@@ -2094,10 +2096,10 @@ parentheses as their opening and closing marks.
 \label{EXPRESSION-STRUCTURE-OVERVIEW}
 
 Expression structure is affected by five special marks.
-The \key{optional argument mark} `\ttkey{?:?}' is used in expression
+The \key{optional argument mark} `\ttkey{::?}' is used in expression
 definitions
 to separate arguments that are required from those that can be optional,
-as in the expression `\verb|find-max LIST ?:? COMPARATOR|', in which the
+as in the expression `\verb|find-max LIST ::? COMPARATOR|', in which the
 the `\verb|LIST|' argument is required but the `\verb|COMPARATOR|' argument
 is optional.
 The \key{reorder mark} `\ttkey{<:>}' is used in expression definitions
@@ -2110,13 +2112,13 @@ of the definition, as in the expression `\verb|max ::> ARGS|',
 where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
 The \key{required qualifier mark}\index{qualifier mark!required}
-`\ttkey{@@}' signals that the following
+`\ttkey{@@}' in an expression signals that the following
 expression item is a required qualifier, as in the expression
 `\verb|sort x @@ with order ascending |',
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|)
 in an expression.
 The \key{optional qualifier mark}\index{qualifier mark!optional}
-`\ttkey{??}' signals that the following
+`\ttkey{??}' in an expression signals that the following
 expression item is an optional qualifier, as in the expression
 `\verb|sort X ?? with order O|'.  When default values are provided in
 definitions, required qualifier marks may be converted automatically to
@@ -2137,11 +2139,11 @@ A \key{raw expression} (\secref{RAW-EXPRESSIONS})
 is a particular kind of expression that will not be
 restructured.  The only special marks that may be in a raw expression
 are the five special marks:
-the optional argument mark (\verb|?:?|), the reorder mark (\verb|<:>|),
+the optional argument mark (\verb|::?|), the reorder mark (\verb|<:>|),
 the remainder mark (\verb|::>|),
 and the qualifier marks (\verb|@@|, \verb|??|).
-Translating
-an expression into a raw expression is called \key{parsing}.
+Translating an expression into a raw expression is called
+\key{expression parsing}\index{parsing!expression}.
 
 Some operators are matchfix operators, which surround their single
 argument like parentheses.  Some matchfix operators have special
@@ -2151,8 +2153,8 @@ operators is:
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
 		& \multicolumn{4}{c}{Turns} \\ \cline{2-5}
-		& operators	& \verb/|/	& \verb|<:> ::>| \\
-Brackets	& qualifiers	& text		& \verb|@@  ??|
+		& operators		& \verb/|/	& \verb|<:> ::> ::?| \\
+Brackets	& and qualifiers	& text		& \verb|@@  ??|
 								& eval \\[1ex]
 
 \verb|(|\ldots\verb|)|
@@ -2186,30 +2188,52 @@ operator definitions (\secref{OPERATOR-DEFINITIONS}).
 Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
 which contains definitions of parsers, operators, qualifiers, and
 qualifier shortcuts, as well as definitions related to
-lexical parsing (\pagref{LEXICAL-PARSING}).
-An operator may push definitions onto the parsing
+lexical parsing.
+An definitional operator (\pagref{DEFINITIONAL})
+may push definitions onto the parsing
 stack.  After the expression containing the operator has been parsed,
 these definitions will be popped from the parsing stack.
 
-The following is a list of the kinds of definitions that may be in
-the parsing stack:
+The following is a list of the kinds of
+\ikey{definitions}{definition!in parsing stack} that may be in
+the \mkey{parsing stack}{kinds of definition in}:%
+\label{PARSING-STACK-DEFINITION-KINDS}
 
 \begin{center}
 \begin{tabular}{ll}
-parser & \pagref{PARSER-DEFINITION} \\
+parser & \secref{PARSER-DEFINITION} \\
 operator & \secref{OPERATOR-DEFINITIONS} \\
-qualifier & \ref{TBD} \\
-qualifier shortcut & \ref{TBD} \\
-lexeme & \secref{LEXEME-REPLACEMENT}
+qualifier & \ref{QUALIFIER-DEFINITION} \\
+qualifier shortcut & \ref{QUALIFIER-SHORTCUT-DEFINITION} \\
+lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
+unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
 \end{tabular}
 \end{center}
 
 A \key{parser definition}\label{PARSER-DEFINITION}
 just names a parser.  The most recent parser
 definition in the parsing stack names the parser used to parse expressions.
+Parser definitions have the syntax:
+
+\begin{indpar}
+\ikey{PARSER-DEFINITION}{parser-definition} \\
+	\hspace*{0.5in}::= \verb|define parser| ~ {\em PARSER-NAME}
+\ikey{PARSER-NAME}{parser-name} ::=
+	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
+\end{indpar}
+
+It is possible to temporarily void parser definitions by
+placing canceling undefinitions in the parsing stack.  These have the
+syntax:
+
+\begin{indpar}
+\ikey{PARSER-UNDEFINITION}{parser-undefinition} \\
+	\hspace*{0.5in}::= \verb|undefine parser| ~ {\em PARSER-NAME}
+\end{indpar}
+
 There are three standard \ikey{parsers}{parser!standard}:
 the \key{marks parser} \ttkey{-MARKS-PARSER-},
-where only the optional argument mark (\verb|?:?|), reorder mark (\verb|<:>|),
+where only the optional argument mark (\verb|::?|), reorder mark (\verb|<:>|),
 remainder mark (\verb|::>|), required qualifier mark (\verb|@@|),
 and optional qualifier mark (\verb|??|), are recognized;
 the \key{operators parser} \ttkey{-OPERATORS-PARSER-},
@@ -2264,8 +2288,8 @@ turn evaluation on thrice.
 Evaluation is not part of parsing; the evaluation counter is
 used during expression evaluation, which occurs after expression parsing.
 Parsing does insert the wrappers (\secref{OPERATOR-WRAPPER})
-\ttkey{-EVAL-ON-} and \ttkey{-EVAL-OFF-} around expressions to inform
-the evaluator when to increment or decrement the evaluation counter.
+\ttkey{-EVAL-OFF-} and \ttkey{-EVAL-ON-} around expressions to inform
+the evaluator when to decrement or increment the evaluation counter.
 
 \subsection{Raw Expressions}
 \label{RAW-EXPRESSIONS}
@@ -2274,7 +2298,7 @@ A raw expression is an expression that contains no operators,
 qualifiers, qualifier shortcuts, or text parsing contexts that
 induce restructuring.
 Raw expressions can be directly represented using the \verb|[]|
-matching lexemes and the \verb|?:?| optional argument,
+matching lexemes and the \verb|::?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and \verb|??| optional qualifier marks.
 
@@ -2323,7 +2347,7 @@ The syntax of raw expressions is defined as follows:
 	      {\em raw-argument-remainder-option}
 	      \end{tabular}
 	\end{tabular} \\[1ex]
-\key{optional-argument-mark} ::= \verb|?:?| \\[1ex]
+\key{optional-argument-mark} ::= \verb|::?| \\[1ex]
 \key{raw-base-argument-list}
 	::= {\em empty} $|$ {\em non-empty-raw-base-argument-list} \\[1ex]
 \key{raw-non-empty-base-argument-list}
@@ -2348,10 +2372,10 @@ The syntax of raw expressions is defined as follows:
 The order of {\em raw-qualifier-phrases}
 in a {\em raw-expression} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
-not matter.  The {\em optional-argument-mark} (\verb|?:?|),
+not matter.  The {\em optional-argument-mark} (\verb|::?|),
 {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
 (\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
-can only occur in a pattern (\secref{CALL-UNIFICATION}).
+can only occur in a pattern (\secref{PATTERN}).
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -2447,9 +2471,10 @@ the expression `\verb/x + (| y |)/', but not by the expression
 to include parentheses \verb|()|, so names such as `\verb/(| ... |)/'
 are erroneous.
 Generally, including extra pairs of parentheses
-\verb|()| has no affect on expression parsing or expression meaning,
-though the explicit parentheses in `\verb/[(|x|)]/' will prevent 
-a matchfix operator named `\verb/[| ... |]/' from being recognized.
+\verb|()| has no affect on expression parsing or expression meaning.
+Note however that the explicit parentheses in `\verb/[(|x|)]/' will prevent 
+a matchfix operator named `\verb/[| ... |]/' from being recognized, and
+in this sense these parentheses are not extra.
 
 \subsubsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
 \label{OPERATOR-PRECEDENCE}
@@ -2517,7 +2542,7 @@ The following are standard parsers:
 
 The \key{operators parser} \ttkey{-OPERATORS-PARSER-}.
 Operators, qualifiers, qualifier shortcuts,
-and the \verb|?:?| optional argument,
+and the \verb|::?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
 \verb|??| optional qualifier marks are recognized.  The special constructs
@@ -2525,7 +2550,7 @@ of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
 The \key{marks parser} \ttkey{-MARKS-PARSER-}.
-The \verb|?:?| optional argument,
+The \verb|::?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
 \verb|??| optional qualifier marks are recognized.  Operators, qualifiers,
@@ -2536,7 +2561,7 @@ are \underline{not} recognized.
 The \key{text parser} \ttkey{-TEXT-PARSER-}.
 The special constructs of text parsing (\secref{TEXT-PARSING}) are
 recognized.  Operators, qualifiers, qualifier shortcuts, and
-the \verb|?:?| optional argument,
+the \verb|::?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
 \verb|??| optional qualifier marks are \underline{not} recognized.
@@ -2553,17 +2578,23 @@ affect parsing of subexpressions of the operator.
 {\bf definitional}\index{definitional flag@{\tt definitional} flag}%
 \label{DEFINITIONAL}~~~~~
 This flag may only be given for a right associative infix operator.
-It causes the
-left operand of the operator to be inspected to see if it is a definition
-that should be pushed onto the parsing stack.  This can be an operator,
-qualifier, qualifier shortcut, or parser definition, or
-a lexical parsing definition (\secref{TBD}).
-If no, nothing special is done.
-If yes, the expression containing
-the infix operator is replaced by just its right operand, the definition
-in the left operand
-is pushed onto the parsing stack, the right operand is
-parsed, and then the definition is popped off the parsing stack.
+It causes the left operand of the operator to be inspected to see if it is
+an expression beginning with the word `\ttkey{define}' or `\ttkey{undefine}'.
+Such an expression
+is called a \key{definition}, and is assumed to push a definition into
+the parsing stack.
+See \pagref{PARSING-STACK-DEFINITION-KINDS} for a list of the kinds of
+definition that may be pushed into the parsing stack.
+
+If its left operand is not a definition, nothing special is done by
+a definitional operator.
+
+If its left operand is a definition,
+the left operand is executed by the parser and
+may push definitions into the parsing stack, the expression containing
+the infix operator is replaced by just its right operand,
+the right operand is parsed, and then any definitions pushed while
+executing the left operand are popped off the parsing stack.
 
 \end{indpar}
 
@@ -2988,7 +3019,7 @@ which is the parser for subexpressions of the
 The \verb/|/ format separator and sentence and paragraph ends are
 recognized by text processing, while
 operators, qualifiers, qualifier shortcuts, and
-the \verb|?:?|, \verb|<:>|, \verb|::>|, \verb|@@|, and
+the \verb|::?|, \verb|<:>|, \verb|::>|, \verb|@@|, and
 \verb|??| marks are \underline{not} recognized.
 
 Text parsing is normally done in the context of a pair of matched
@@ -3682,7 +3713,7 @@ or `\ttkey{-OPTIONAL-QUALIFIER-}'.
 A fourth example is the expression
 
 \begin{center}
-\verb|[fill Prefix ?:? Matrix <:> Value Postfix ::> Runs]|
+\verb|[fill Prefix ::? Matrix <:> Value Postfix ::> Runs]|
 \end{center}
 
 which is represented by the raw expression tree
@@ -3714,7 +3745,7 @@ which is represented by the raw expression tree
 \end{Graph}
 \end{center}
 
-Arguments appearing after the \key{optional argument mark} \ttkey{?:?} are
+Arguments appearing after the \key{optional argument mark} \ttkey{::?} are
 optional.  This is indicated by the arity `\verb|1-4|' that indicates
 that argument `\verb|1|' is the last required argument and there are
 `\verb|4|' arguments total.  In general, the arity can have the form
@@ -4443,7 +4474,8 @@ required to have no visible side effects.
 \key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
 \key{block} ::= \verb|{| {\em statement}
                          \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
-\end{indpar}
+\end{indpar}%
+\label{PATTERN}
 
 {\em Blocks} and {\em statements} are further defined in
 \secref{BLOCKS}.
