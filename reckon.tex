@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 9, 2004}
+\date{November 10, 2004}
  
 \maketitle
 
@@ -4519,7 +4519,7 @@ required to have no visible side effects.
 \ikey{Expression definitions}{expression definition} have the syntax:
 
 \begin{indpar}
-\key{expression-definition}\label{EXPRESSION-DEFINITION} ::=
+\key{EXPRESSION-DEFINITION}\label{EXPRESSION-DEFINITION} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
 \key{pattern} ::= {\em expression} \\[1ex]
@@ -4535,13 +4535,14 @@ required to have no visible side effects.
 {\em Blocks} and {\em statements} are further defined in
 \secref{BLOCKS}.
 
-In use, the expression definition is copied, and the copy's {\em pattern}
-is call unified (\secref{CALL-UNIFICATION}) with the expression being
-evaluated.  If unification fails, the definition does not apply.  If
+In use, the pattern of an expression definition and the expression being
+evaluated are both copied and the two copies are then call unified
+(\secref{CALL-UNIFICATION}).
+If unification fails, the definition does not apply.  If
 unification succeeds, variables not bound to values are given their
 default values, subexpressions bound to some of the variables in
 the {\em pattern} are evaluated and replaced by their values, and then
-the copied {\em guards} are evaluated.  If any of the {\em guards} evaluate
+the {\em guards} are evaluated.  If any of the {\em guards} evaluate
 to `\verb|false|', the definition does not apply.  If all evaluate to
 `\verb|true|', the definition applies.  Then if the definition has
 a {\em block}, that is evaluated to produce a value for the expression.
@@ -4553,8 +4554,18 @@ as well as graph nodes.   When an expression definition is copied,
 the copy has its own variables that are distinct from the variables in
 the original expression definition or in any other expression definition copy.
 
-TBD: how are expressions that have expression definitions defined syntactically
-in this document.
+In this document names of syntactic categories that are expressions defined
+by expression definitions are capitalized, while other syntactic category
+names are lower case.  The syntactic category {\em EXPRESSION-DEFINITION}
+itself corresponds to the expression definition:
+
+\begin{indpar}
+\begin{verbatim}
+( #PATTERN <-- #GUARD-LIST {#BLOCK} ) <--
+\end{verbatim}
+\end{indpar}
+
+TBD, how to handle \verb|{ }| as implying a qualifier.
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
