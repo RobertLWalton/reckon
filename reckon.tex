@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 3, 2003}
+\date{September 5, 2003}
  
 \maketitle
 
@@ -673,15 +673,15 @@ a sequence of lexemes.
 
 \subsection{Pre-Lexemes}
 
-Primarly lexemes are defined as follows:
+Pre-lexemes are defined as follows:
 
 \begin{indpar}
 \key{pre-lexeme}
 	\begin{tabular}[t]{rl}
 	::= & \key{pre-word} \\
-	$|$ & \key{separator} \\
-	$|$ & \key{left-quote} \\
-	$|$ & \key{right-quote} \\
+	$|$ & \key{opening-mark} \\
+	$|$ & \key{closing-mark} \\
+	$|$ & \key{format-separator} \\
 	$|$ & \key{white-space}
 	\end{tabular}
 	\\[1ex]
@@ -781,18 +781,18 @@ Primarly lexemes are defined as follows:
 		$|$\verb|8|%
 		$|$\verb|9|
 		\\[1ex]
-\key{opening-lexeme} ::=     \verb|(|
-	       		 $|$ \verb|[|
-	       		 $|$ \verb|{|
-	       		 $|$ {\em opening-quote}
-	       		 $|$ {\em opening-angle}
-	       		 \\[1ex]
-\key{closing-lexeme} ::=     \verb|)|
-	       		 $|$ \verb|]|
-	       		 $|$ \verb|}|
-	       		 $|$ {\em closing-quote}
-	       		 $|$ {\em closing-angle}
-	       		 \\[1ex]
+\key{opening-mark} ::=     \verb|(|
+	       	       $|$ \verb|[|
+	       	       $|$ \verb|{|
+	       	       $|$ {\em opening-quote}
+	       	       $|$ {\em opening-angle}
+	       	       \\[1ex]
+\key{closing-mark} ::=     \verb|)|
+	       	       $|$ \verb|]|
+	       	       $|$ \verb|}|
+	       	       $|$ {\em closing-quote}
+	       	       $|$ {\em closing-angle}
+	       	       \\[1ex]
 \key{opening-quote} \begin{tabular}[t]{rl}
 		     ::= & {\em opening-quote-character}
 		           {\em opening-quote-character}$^\star$ \\
@@ -853,32 +853,41 @@ The following sections give rules involving pre-lexemes.
 \subsubsection{Matching and Pre-Lexical Context}
 \label{MATCHING}
 
+{\em Opening-marks} and {\em closing-marks} are both pre-lexemes
+and also lexemes.  Rules for matching pre-lexemes in a pre-lexeme
+sequence are the same as rules for matching lexemes in a lexeme sequence.
+Here we will state the rules for lexemes, and leave it to the reader
+to reformulate them for pre-lexemes.
+
 {\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}
-An {\em opening-lexeme} with $N$ characters $C$
-must have a matching {\em closing-lexeme} with $N$ characters each the
-mirror of $C$.  Each {\em closing-lexeme} must match exactly one
-{\em opening-lexeme} and the {\em opening-lexeme} must proceed the
-{\em closing-lexeme}.
+An {\em opening-mark} with $N$ characters $C$
+must have a matching {\em closing-mark} with $N$ characters each the
+mirror of $C$.  Each {\em closing-mark} must match exactly one
+{\em opening-mark} and the {\em opening-mark} must precede the
+{\em closing-mark}.
 
 Two lexemes are said to be \mkey{matched}{lexemes} if and only if
-the are matched opening and closing lexemes.
+they are matched opening and closing lexemes.
 
-{\bf Lexeme Nesting Rule.}\index{Lexeme Nesting Rule}
-If one lexeme in a pair $P_2$ of matching lexemes is in between the
-lexemes of another pair $P_1$ of matching lexemes, then both lexemes
+{\bf Matched Lexeme Nesting Rule.}\index{Matched Lexeme Nesting Rule}
+If one lexeme in a pair $P_2$ of matched lexemes is in between the
+lexemes of another pair $P_1$ of matched lexemes, then both lexemes
 in $P_2$ must be in between the lexemes of $P_1$.  In this case
 $P_2$ is said to be \mkey{nested}{lexemes} inside of $P_1$.
 
 During the scan a character $C$ is said to be in the
-\key{pre-lexical context} of a pair $P$ of matched lexemes
+\key{lexical context} of a pair $P$ of matched lexemes
 if and only if $C$ is between the matched lexemes of $P$,
 and $C$ is neither part of or between any other pair of matched
 lexemes that is nested inside of $P$.
 
+For a sequence of pre-lexemes, \mkey{matched}{pre-lexemes} pre-lexemes
+and \key{pre-lexical context} are defined as for a sequence of lexemes.
+
 \subsubsection{Character Disambiguation Rules}
 
 Several characters in pre-lexemes are ambiguous in the
-lexeme syntax equations.  The following rules disambiguate these
+pre-lexeme syntax equations.  The following rules disambiguate these
 characters.
 
 {\bf Opening Quote Rule.}\index{Opening Quote Rule}
@@ -890,17 +899,17 @@ Otherwise it is a {\em word-character}.
 {\bf Closing Quote Rule.}\index{Closing Quote Rule}
 A \key{closing-quote-character} must be part of a sequence of
 {\em closing-quote-characters} that is of exactly the right length to be the
-matching lexeme for the last previous unmatched {\em opening-lexeme},
+matching pre-lexeme for the last previous unmatched {\em opening-mark},
 which must be an {\em opening-quote}.
 Otherwise the potential {\em closing-quote-character}
 is a {\em word-character}.
 
 {\bf Format Separator Rule.}\index{Format Separator Rule}
 A {\em format-separator-character} must be in the pre-lexical context of
-a pair of matching {\em quotes}.  Otherwise it is a {\em word-character}.
+a pair of matched {\em quotes}.  Otherwise it is a {\em word-character}.
 
 {\bf Angle Rule.}\index{Angle Rule}
-An {\em angle-character} must be either proceeded by or followed by a copy
+An {\em angle-character} must be either preceded by or followed by a copy
 of itself.  Otherwise it is a {\em word-character}.
 
 Quote Examples:
@@ -922,10 +931,10 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \end{tabular}
 \end{indpar}
 
-Other rules of PCASL (\ref{TBD}) cause {\em white-space} following an
-{\em opening-lexeme} or preceding a {\em closing-lexeme} to
-be ignored.  As a consequence, there is no problem putting
-space between the \verb|``| and \verb|`| in the last example.
+Other rules of PCASL limit the semantic content
+of {\em white-space}, so that there is no problem putting
+space between the \verb|``| and \verb|`| in the last example:
+see \ref{INDENTATION-LEXEMES}.
 
 Angle and Format Separator Examples:
 
@@ -969,7 +978,8 @@ only of {\em vertical-space-characters} followed by {\em space} characters.
 {\em White-space} lexemes are only pre-lexemes; they are deleted
 when pre-lexemes are converted to lexemes.  The rules that
 form the lexeme sequence ensure that all
-{\em vertical-space} characters are equivalent: see \ref{TBD}.
+{\em vertical-space} characters are equivalent:
+see \ref{INDENTATION-LEXEMES}.
 
 
 \subsection{Lexemes}
@@ -988,21 +998,27 @@ The syntax equations defining a lexeme are:
 
 \begin{indpar}
 \key{lexeme} ::= {\em word} $|$ {\em separator}
-		$|$ {\em opening-lexeme}
-		$|$ {\em closing-lexeme} \\[1ex]
+		$|$ {\em opening-mark}
+		$|$ {\em closing-mark} \\[1ex]
 \key{separator} ::= {\em format-separator}
-		$|$ {\em post-separator}
-		$|$ {\em indentation-lexeme}
+		$|$ {\em post-separator} \\[1ex]
+\key{indentation-lexeme} ::= \verb|;|
+			 $|$ \verb|{|
+			 $|$ \verb|}|
 \end{indpar}
 
-{\em Ambigous-separators} are single characters removed from the
+{\em Post-separators} are single characters removed from the
 ends of {\em pre-words}.  A {\em Word} is what is left of
 a {\em pre-word} after any {\em post-separator}
 is removed from its end.
 {\em Words} and {\em post-separators} are defined
 below in \ref{POST-SEPARATORS}.
 
-{\em Indentation-lexemes} are implied by indentation, and are defined below in
+
+The {\em indentation-lexemes} are lexemes implied by indentation, and
+are not distinguishable from explicit lexemes, namely the post-separator
+\verb|;|, the {\em opening-mark} \verb|{|, and the {\em closing-mark}
+\verb|}|.  They are defined below in
 \ref{INDENTATION-LEXEMES}.
 
 {\em White-space} pre-lexemes are used only to define indentation and
@@ -1010,7 +1026,7 @@ create {\em indentation-lexemes}.
 Then {\em white-space} pre-lexemes are
 discarded: they are not {\em lexemes}.
 
-{\em Format-separators}, {\em opening-lexemes}, and {\em closing-lexemes}
+{\em Format-separators}, {\em opening-marks}, and {\em closing-marks}
 are both pre-lexemes and lexemes.
 
 \subsubsection{Number Lexemes}
@@ -1019,7 +1035,7 @@ are both pre-lexemes and lexemes.
 The rule for spliting a {\em pre-word} into a {\em word}
 and a {\em separator} makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
-resulting from the split is a {\em number}.  The syntax equations
+resulting from the split is a {\em number}.  Some syntax equations
 for defining {\em numbers} are as follows.
 
 \begin{indpar}
@@ -1032,33 +1048,154 @@ for defining {\em numbers} are as follows.
 \key{unsigned-real-number} ::= {\em unexponented-number}
 		$|$ {\em unexponented-number} {\em exponent} \\[1ex]
 \key{unexponented-number} ::= {\em decimal-number}
+			  $|$ {\em decimal-ratio}
 			  $|$ {\em radixed-number} \\[1ex]
-\key{radixed-number}::= {\em radix-indicator}
-		        \verb|`| {\em radixed-digmark}
-		        {\em radix-digmark}$^\star$ \verb|'|
-		        \\[1ex]
-\key{radix-indicator} ::= {\em letter} {\em letter}$^\star$ \\[1ex]
-\key{radixed-digmark} ::= {\em digit} $|$ {\em letter}
-                      $|$ \verb|.| $|$ \verb|,| \\[1ex]
 \key{decimal-number} \begin{tabular}[t]{rl}
-                     ::= & {\em decimal-integer} \\
-		     $|$ & {\em decimal-integer} \verb|.|
-		           {\em decimal-integer} \\
-		     $|$ & \verb|.| {\em decimal-integer}
+                     ::= & {\em decimal-natural} \\
+		     $|$ & {\em decimal-natural} \verb|.|
+		           {\em decimal-natural} \\
+		     $|$ & \verb|.| {\em decimal-natural}
 		     \end{tabular} \\[1ex]
-\key{decimal-integer} ::= {\em decimal-digits}
-		     $|$ {\em decimal-integer} \verb|,| {\em decimal-digits}
+\key{decimal-natural} ::= {\em decimal-digits}
+		     $|$ {\em decimal-natural} \verb|,| {\em decimal-digits}
 		     \\[1ex]
 \key{decimal-digits} ::= {\em digit} {\em digit}$^\star$ \\[1ex]
+\key{decimal-ratio} ::= {\em decimal-natural} \verb|/|
+			{\em decimal-natural} \\[1ex]
 \key{exponent} ::= {\em exponent-indicator}
-		   {\em exponent-digits} \\[1ex]
+		   {\em exponent-sign-and-digits} \\[1ex]
 \key{exponent-indicator} ::= \verb|e| $|$ \verb|E| $|$ \verb|^| \\[1ex]
-\key{exponent-digits} ::= {\em decimal-digits}
-			    $|$ {\em sign} {\em decimal-digits} \\[1ex]
-\key{unit-number} ::= {\em pre-unit} {\em real-number}
-		  $|$ {\em real-number} {\em post-unit} \\[1ex]
-\key{pre-unit} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
-\key{post-unit} ::= \verb|'| $|$ \verb|"| $|$ $^\circ$ \\[1ex]
+\key{exponent-sign-and-digits} ::= {\em decimal-digits}
+			    $|$ {\em sign} {\em decimal-digits}
+\end{indpar}
+
+Real Decimal Number Examples:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+123	& -123		& +123		& 1,234		& -1,234,567 \\
+123.0	& -.123		& +0.0		& +.000		& 1,234.987,654 \\
+123e0	& -123e+2	& +123e-321	& 1,234e9	& -0.123,456e-3 \\
+123E0	& -123E+2	& +123E-321	& -0.123,456e-3	& -1,234.567890	\\
+1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\
+1,2	& 1.86,54	& .123,45,6	& 1,2345678	& 1.2345678,92
+\end{tabular}
+\end{indpar}
+
+In a {\em decimal-number} the decimal point
+must be followed by a digit.  Commas must be surrounded by digits,
+and should be
+every 3 digits from the decimal point, or every three digits
+from the end if there is no decimal point.  If there is any comma at all,
+there must be commas
+every 3 digits, except that commas may be used in the integer part 
+without any being used in the faction part.
+Incorrect numbers of digits between commas will result in an
+error when the lexeme is converted to a number,
+but is \underline{not} an error of lexeme formation.  The last line of
+examples above are therefore legal lexemes that will give errors when
+converted to numbers.
+
+Similarly there will be an error converting a {\em decimal-ratio} to a
+number if the denominator equals zero, but the ratio will still be a legal
+lexeme.  \verb|-53/000| is an example.
+
+\ikey{Radixed-numbers}{radixed-number} permit binary, octal, or hexadecimal
+radices to the used instead of decimal.  In fact, other number representation
+schemes are permitted.
+
+\begin{indpar}
+\key{radixed-number}::= {\em radix-indicator}
+		        \verb|`| {\em radixed-number-mark}
+		        {\em radix-number-mark}$^\star$ \verb|'|
+		        \\[1ex]
+\key{radix-indicator} ::= {\em letter} {\em letter}$^\star$ \\[1ex]
+\key{radixed-number-mark} ::= {\em digit} $|$ {\em letter}
+                      $|$ \verb|.| $|$ \verb|,| $|$ {\em sign}
+\end{indpar}
+
+Radixed Number Examples:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+
+B'10110100'	& O'77534201'	& D'19758'	& X'FE8A932B' \\
+B'101101'e+2	& O'0.7753'e-5	& D'197.58'	& X'0.FE8A932B' \\
+B'10,1101'	& O'12,3456'e-5	& D'0.123,5'	& X'FE8A,932B.7CCD,83' \\
+\end{tabular}
+\end{indpar}
+
+
+The following {\em radix-indicators} are standard.
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+Radix	& Radix		 &			& Allowed Digits \\
+Name	& Indicators     & Allowed Digits	& Between Commas \\[1ex]
+binary	& \tt b~~~B	 & \tt 0 1		& 4 or 8 \\
+octal	& \tt o~~~O	 & \tt 0 1 2 3 4 5 6 7	& 3 \\
+decimal	& \tt d~~~D	 & \tt 0 1 2 3 4 5 6 7 8 9
+						& 3 \\
+hexadecimal
+	& \tt x~~~X	 & \tt 0 1 2 3 4 5 6 7 8 9
+						& 4 or 8 \\
+	&		 & \tt a b c d e f A B C D E F
+\end{tabular}
+\end{center}
+
+{\em Radixed-numbers} can be legal lexemes and still be unconvertable to
+numbers because their {\em radix-indicators} are undefined, they
+have digits not defined for the given {\em radix-indicator}, they
+have too many decimal points, and so forth.  These errors are detected
+when the lexemes are converted to numbers.  On the other hand, it
+is possible to define non-standard converters for converting
+{\em radixed-number} lexemes to numbers, and thereby increase the
+space of number representations.
+
+
+\ikey{Unit-numbers}{unit-number} are just {\em real-numbers} with a
+{\em unit-indicator} prefixed or postfixed.
+
+\begin{indpar}
+\key{unit-number} ::= {\em pre-unit-indicator} {\em real-number}
+		  $|$ {\em real-number} {\em post-unit-indicator} \\[1ex]
+\key{pre-unit-indicator} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
+\key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ $^\circ$ \\[1ex]
+\key{unit-indicator} ::= {\em pre-unit-indicator}
+		     $|$ {\em post-unit-indicator}
+\end{indpar}
+
+However, unit numbers are not lexemes.
+
+{\bf Unit Number Rule.}\index{Unit Number Rule}
+If a {\em unit-number} is to be output as a {\em word} lexeme, then instead
+the {\em unit-number} is split into two {\em word} lexemes, one of which
+is the {\em real-number} part and the other of which is a 1-character
+{\em word} consisting of the {\em unit-indicator}.
+
+Unit Number Examples:
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}l@{\hspace*{0.3in}}l}
+Unit Number		& Lexeme Sequence	\\[1ex]
+\tt \$5.71		& \tt \$~~5.71 \\
+\tt \pounds -5.71	& \tt \pounds ~~-5.71 \\
+\tt 15'			& \tt 15~~' \\
+\tt -2.543e3"		& \tt -2.543e3~~" \\
+\tt 72$^\circ$		& \tt 72~~$^\circ$ \\
+\tt X'BE63'e-2$^\circ$	& \tt X'BE63'e-2~~$^\circ$
+\end{tabular}
+\end{indpar}
+
+An {\em imaginary-number} is just a {\em real-number} with an
+{\em imaginary-indicator}, e.g.~\verb|i|, post-fixed.  A
+{\em complex-number} is just an {\em imaginary-number}
+or a {\em real-number} followed by
+a {\em sign} followed by an {\em imaginary-number}.
+
+\begin{indpar}
 \key{complex-number} ::= {\em imaginary-number}
 		$|$ {\em real-number} {\em signed-imaginary-number} \\[1ex]
 \key{imaginary-number} ::= {\em unsigned-imaginary-number}
@@ -1073,48 +1210,25 @@ for defining {\em numbers} are as follows.
 			      $|$ \verb|j|
 \end{indpar}
 
+Complex Number Examples:
 
-Note that decimal points and commas in a {\em decimal-number}
-must be followed by a digit.  Commas in a {\em decimal-number}
-must be every 3 digits from the decimal point, or every three digits
-from the end if there is no decimal point.
-Incorrect numbers of digits between commas will result in an
-error when the lexeme is converted to a number,
-but is \underline{not} an error of lexeme formation.
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
 
-{\em Radixed-numbers} are converted to numbers in a context which defines
-ways of doing this for different {\em radix-indicators}: see \ref{TBD}.
-The following are standard:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-Radix	& Radix		 &			& Allowed Digits \\
-Name	& Indicators     & Allowed Digits	& Between Commas \\[1ex]
-binary	& \tt b~~~B	 & \tt 0 1		& 4 or 8 \\
-octal	& \tt o~~~O	 & \tt 0 1 2 3 4 5 6 7	& 4 or 8 \\
-decimal	& \tt d~~~D	 & \tt 0 1 2 3 4 5 6 7 8 9
-						& 3 \\
-hexadecimal
-	& \tt x~~~X	 & \tt 0 1 2 3 4 5 6 7 8 9
-						& 4 or 8 \\
-	&		 & \tt a b c d e f A B C D E F
+3i		& +3j		& -X'FE90.34D2'I		\\
+2+3i		& -3+3.345e10j	& 35-X'FE90.34D2'J		\\
 \end{tabular}
-\end{center}
-
-{\em Radixed-numbers} can be legal lexemes and still be unconvertable to
-numbers because their {\em radix-indicators} are undefined, they
-have digits not defined for the given {\em radix-indicator}, they
-have too many decimal points, and so forth.  These errors are detected
-when the lexemes are converted to numbers.
+\end{indpar}
 
 \subsubsection{Post Separators}
 \label{POST-SEPARATORS}
 
-Informally, a post-separator is a one character separator that immediately
-follows a word, and could be part of the word.  Examples are the period
+Informally, a post-separator is a 1-character separator that immediately
+follows a word and could be part of that word.  Examples are the period
 and the exclamation point.  The Post Separator Rule
-given below tells when to split a {\em pre-word} that ends with an
-post-separator character into a {\em word} and a one character
+given below tells when to split a {\em pre-word} that ends with a
+post-separator character into a {\em word} and a 1-character
 {\em separator}.  The rule makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
 resulting from the split is a {\em number}.
@@ -1147,12 +1261,11 @@ The following rule controls when to split a {\em pre-word}
 of 2 or more characters into a {\em word} and an {\em post-separator}.
 
 {\bf Post Separator Rule.}\index{Post Separator Rule}
-A {\em pre-word} or 2 or more characters
+A {\em pre-word} of 2 or more characters
 that ends with an {\em post-separator-character}
 is split into a {\em word} and an {\em post-separator} if the {\em word}
 does \underline{not} contain a copy of the {\em post-separator} character,
-or if the {\em post-separator} is a period
-and the {\em word} is a {\em number}.
+or if the {\em word} is a {\em number}.
 Otherwise the {\em pre-word} is not split and becomes a {\em word}.
 
 
@@ -1163,9 +1276,11 @@ Examples:
 Pre-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 							& Splits?	\\[1ex]
 \verb|hello.|		& \tt hello 		& .	& yes		\\
+\verb|X,|		& \tt X 		& ,	& yes		\\
 \verb|h.e.l.l.o.|	& \tt h.e.l.l.o.	&	& no		\\
 \verb|e.g.|		& \tt e.g.		&	& no		\\
 \verb|5.0.|		& \tt 5.0		& .	& yes		\\
+\verb|1,234,|		& \tt 1,234		& ,	& yes		\\
 \verb|help!|		& \tt help		& !	& yes		\\
 \verb|!help!|		& \tt !help!		&	& no		\\
 \end{tabular}
@@ -1178,8 +1293,8 @@ Pre-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 \mkey{indentation}{of line} of a line is the
 the number of {\em space} characters in the {\em white-space}
 pre-lexeme just before the first non-{\em white-space} pre-lexeme
-of the line.  Note that lines cannot be empty; such lines would
-be merged into a single {\em white-space} pre-lexeme.
+of the line.  Note that lines cannot be empty; empty lines are
+merged into {\em white-space} pre-lexemes.
 
 At any given point in the scan of pre-lexemes, there is a
 stack of indentation records, called the \key{indentation stack}.
@@ -1194,8 +1309,8 @@ Initially the indentation stack contains a single indentation record with
 0 indentation, the outermost pre-lexical context,
 and an off implicit bracket flag.
 The stack cannot become empty; any operation that would
-pop the last indentation off the stack announces an error leaves the
-stack along.  The bottommost indentation on the stack is always
+pop the last indentation off the stack announces an error and leaves the
+stack alone.  The bottommost indentation on the stack is always
 the same.
 
 The indentation in the indentation record at the top of the indentation
@@ -1204,45 +1319,97 @@ context in that record is calle the \key{current pre-lexical context}.
 
 {\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
 If the first non-{\em white-space} pre-lexeme of a line is neither
-\verb|{| nor \verb|}|, if the first pre-lexeme of the line is in
-the current pre-lexical context, and if the indentatoin of the line
-is the current indentation, then a \verb|;| implied lexeme is output
+\verb|{| nor \verb|}|, if that pre-lexeme is in
+the current pre-lexical context, and if the indentation of the line
+is the current indentation, and if the last lexeme output was not
+a \verb|;| {\em separator} lexeme or a \verb|{| {\em opening-mark}
+lexeme (including an implied {\em opening-mark} as in the
+Implicit-Bracket Rule below), then a \verb|;| implied {\em separator}
+lexeme is output
 before any lexemes generated by the line are output.
 
 {\bf Explicit-Bracket Rule.}\index{Explicit-Bracket Rule}
 If the last pre-lexeme of a line is \verb|{|, then an indentation record
 is pushed into the indentation stack just after the \verb|{| lexeme
 is output.  The indentation in the record is the indentation of the next
-list, the pre-lexical context is that of the \verb|{|,
+line, the pre-lexical context is that of the \verb|{|,
 and the implicit bracket flag is off.
-The pushed indentation record is popped just after is pre-lexical context
+The pushed indentation record is popped just after its pre-lexical context
 ends; that is, just after reading the \verb|}| pre-lexeme that matches the
 \verb|{| pre-lexeme that pushed the indentation record.
 
 {\bf Implicit-Bracket Rule.}\index{Implicit-Bracket Rule}
 If the last lexeme output for a line would be a post-separator \verb|:|,
-then a \verb|{| implied lexeme
+then a \verb|{| implied {\em opening-mark} lexeme
 is output instead of the \verb|:|, and an indentation
 record is pushed into the indentation stack.  The indentation of the
-record is the indentation of the next line, and the implicit bracket flag
-or the record is on.
-The pre-lexical context of the record is that of the \verb|:|.
+record is the indentation of the next line, the implicit bracket flag
+of the record is on, and the
+pre-lexical context of the record is that of the \verb|:|.
 The pushed record is popped just before the first line such that
 the line beginning pre-lexeme is in the record's pre-lexical context
-and the line indentation is equal to or less than the record's indentation.
-When the record is popped, a \verb|}| implied lexeme is output.
+and the line's indentation is less than the record's indentation,
+or at the end of the input pre-lexeme stream.
+When the record is popped, a \verb|}| implied {\em closing-mark}
+lexeme is output.
 
-Examples:
+In order to avoid subtle errors created by indentation, there
+is a {\tt minimum-indentation} parameter and the following rule.
+
+{\bf Minimum-Indentation Rule.}\index{Minimum-Indentation Rule}
+The indentation of any line must equal the current indentation
+or differ from it by at least the value of the
+\ttkey{minimum-indentation} parameter.  The {\tt minimum-indentation}
+parameter defaults to {\tt 4}.
+
+
+Indentation Lexeme Examples:
+
+\begin{indpar}[0.1in]
+\tt \ttbrackets
+\begin{tabular}{@{}l@{~~~~~~~~~~}l}
+{\rm Input String}		& {\rm Output Lexemes} \\[1ex]
+hi \{ x; y z; w \}		& \tt hi \{ x ; y z ; w \} \\[1ex]
+hi \{				& hi \{ \\
+~~~~x				& x \\
+~~~~y z				& ; y z \\
+~~~~w \}			& ; w \} \\[1ex]
+hi				& hi \\
+\{				& \{ \\
+~~~~x				& x \\
+~~~~y z				& ; y z \\
+~~~~w				& ; w \\
+\}				& \} \\[1ex]
+hi:				& hi \{ \\
+~~~~x				& x \\
+~~~~y z				& ; y z \\
+~~~~w				& ; w \\
+				& \} \\[1ex]
+hi \{				& hi \{ \\
+~~~~x				& x \\
+~~~~y `this			& ; y ` this \\
+is another pre-lexical		& is another pre-lexical \\
+context.			& context . \\
+' foo bar			& ' foo bar \\
+~~~~w \}			& ; w \} \\[1ex]
+hi \{				& hi \{ \\
+~~~~x				& x \\
+~~~~y \{			& ; y \{ \\
+ho				& ho \\
+hum \} z			& ; hum \} z \\
+~~~~w \}			& ; w \}
+\end{tabular}
+\end{indpar}
 
 
 \section{Expressions}
 
 An expression is a sequence of words, separators, and subexpressions.
-A subexpression is a pair of matching lexemes and all the lexemes in
+A subexpression is a pair of matched lexemes and all the lexemes in
 between.
 
 Expressions and subexpressions can contain operators.  When they do,
-matching implied parentheses are inserted into the expressions or subexpressions
+matched implied parentheses are inserted into the expressions or subexpressions
 according to rules of operator precedence and associativity, and these
 implied parentheses create new subexpressions.
 
@@ -1254,21 +1421,22 @@ Expressions and subexpressions are defined by the following syntax equations.
 \key{expression} ::= {\em expression-item}$^\star$ \\[1ex]
 \key{expression-item} ::= {\em word} $|$ {\em separator}
 				     $|$ {\em subexpression} \\[1ex]
-\key{subexpression} \begin{tabular}[t]{rl}
-		    ::= & \verb|(| {\em expression} \verb|)| \\
-		    $|$ & \verb|[| {\em expression} \verb|]| \\
-		    $|$ & \verb|{| {\em expression} \verb|}| \\
-		    $|$ & {\em opening-quote} {\em expression} {\em closing-quote} \\
-		    $|$ & {\em opening-angle} {\em expression} {\em closing-angle}
-		    \end{tabular}
+\key{subexpression} ::= {\em opening-mark} {\em expression}
+			{\em closing-mark}
 \end{indpar}
 
 {\bf Subexpression Rule.}\index{Subexpression Rule}
-The beginning and ending lexemes of a subexpression must match (\ref{MATCHING}).
+The {\em opening-mark} lexeme that begins an expression
+must match (see \ref{MATCHING}) the {\em closing-mark} lexeme that
+ends an expression.
+
+Besides subexpressions defined in this section, other implied subexpressions
+may be induced by operators: see \ref{OPERATORS}.
 
 \subsection{Operators}
+\label{OPERATORS}
 
-\section{Rules}
+\section{Design Notes}
 
 These are some detailed design rules to be incorporated in the language
 definition later.
