@@ -167,7 +167,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 13, 2004}
+\date{May 19, 2004}
  
 \maketitle
 
@@ -734,7 +734,7 @@ You can also change how an expression is displayed.
 \setlength{\ovalraise}{-0.1in}
 \addtolength{\ovalraise}{0.8ex}
 \verb|> display ( P ) <-- person ( P ) has name ( X ) {| \\
-\verb|>     value = (oval (0.4,0.2)) labeled X }| \\
+\verb|>     value = {oval (0.4,0.2) labeled <<X>>} }| \\
 \verb|> (a person named `Jack')| \\
 \begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
@@ -1160,6 +1160,7 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \end{indpar}
 
 \subsubsection{White Space Conversion}
+\label{WHITE-SPACE-CONVERSION}
 
 A \key{white-space} pre-lexeme does not have exactly the same characters
 that were input to create it, unlike other pre-lexemes.  The
@@ -1197,17 +1198,25 @@ or it has a {\em space} character which cannot be deleted because
 in the absence of a {\em vertical-space-character} the input
 to the pre-lexeme cannot have a {\em carriage-return}.
 
-{\em White-space} pre-lexemes are used to create indentation lexemes
+{\em White-space} pre-lexemes in certain pre-lexical contexts
+are used to create indentation lexemes
 when pre-lexemes are converted to lexemes (\secref{INDENTATION-LEXEMES}).
-{\em White-space} pre-lexemes that contain only {\em space} characters
-become lexemes if they are after a {\em format-separator} \verb/|/ on
-a line.  All other {\em white-space} pre-lexemes are ignored when
-pre-lexemes are converted to lexemes, and all {\em white-space} pre-lexemes
-that are not after a {\em format-separator} on a line are discarded and do
-not become lexemes.
+{\em White-space} pre-lexemes in the pre-lexical context of
+a pair of matched {\em quotes} become lexemes.
+All other {\em white-space} pre-lexemes are ignored when
+pre-lexemes are converted to lexemes.  All {\em white-space} pre-lexemes
+that are not in the pre-lexical context of a pair of matched {\em quotes}
+are discarded and do not become lexemes.
 
 The rules for forming lexemes from pre-lexemes ensure that all
-non-empty sequences of {\em vertical-space} characters are equivalent.
+non-empty sequences of {\em vertical-space} characters are equivalent,
+except that within the pre-lexical context of a pair of matched {\em quotes}
+a distinction is made between a {\em white-space} lexeme that contains
+only a single {\em line-feed}, and represents just the end of a non-blank line,
+and a {\em white-space} lexeme that represents one or more blank lines, because
+it contains two or more {\em line-feeds},
+or because it contains
+a {\em vertical-space} character that is not a {\em line-feed}.
 
 
 \subsection{Lexemes}
@@ -1251,11 +1260,8 @@ are not distinguishable from explicit lexemes, namely the post-separator
 \verb|}|.  They are defined below in
 \secref{INDENTATION-LEXEMES}.
 
-{\em White-space} pre-lexemes are used to define indentation and
-create {\em indentation-lexemes}.
-{\em White-space} pre-lexemes become lexemes if they appear between a
-{\em format-separator} and a following line ending {\em white-space}
-pre-lexeme (\secref{TEXT-PARSING}).
+{\em White-space} pre-lexemes become lexemes if they appear
+in the pre-lexical context of a pair of matched {\em quotes}.
 All other {\em white-space} pre-lexemes are discarded when pre-lexemes
 are scanned to lexemes.
 
@@ -2892,6 +2898,61 @@ The expression is returned as the result of parsing the expression.
 
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
+
+\ikey{Text parsing}{text parsing} is performed by the \ttkey{-TEXT-PARSER-},
+which is the parser for subexpressions of the
+\verb|`|...\verb|'|,
+\verb|``|...\verb|''|,
+\verb|```|...\verb|'''|, etc. matchfix operators.
+The \verb/|/ format separator and sentence and paragraph ends are
+recoginized by text processing, while
+operators, qualifiers, qualifier shortcuts, and
+the \verb|?:?|, \verb|<:>|, \verb|::>|, \verb|@@|, and
+\verb|??| marks are \underline{not} recognized.
+
+Text parsing is normally done in the context of a pair of matched
+{\em quotes}, and in this context {\em white-space} pre-lexemes
+become lexemes.  Note that {\em white-space} lexemes all consist
+of zero or more {\em vertical space} characters followed by zero or
+more {\em single-space} characters (see \secref{WHITE-SPACE-CONVERSION}).
+There are three kinds of {\em white-space} lexemes
+used by text parsing:
+
+\begin{list}{}{}
+
+\item[{\bf Spacer Lexemes}.]
+A \key{spacer} lexeme is a {\em white-space} lexeme containing
+only single spaces.  Spacers are used in text parsing if they follow
+a \verb\|\ format separator on a line.
+
+\item[{\bf Line Separator Lexemes}.]
+A \key{line separator} lexeme is a {\em white-space}
+lexeme that contains a single {\em line-feed} character and no other
+{\em vertical-space} characters.  Such lexemes separate
+non-blank lines, and are used by text parsing to end lines containing
+a \verb\|\ format separator.
+
+\item[{\bf Blank Line Lexemes}.]
+A \key{blank line} lexeme is a {\em white-space}
+lexeme that contains either two or more {\em line-feed} characters or contains
+a {\em vertical-space} character that is not a {\em line-feed} character.
+Such lexemes
+represent blank lines between non-blank lines, and are used by text parsing
+both to end lines containing a \verb\|\ format separator and
+to separate paragraphs.
+
+\end{list}
+
+\subsection{Paragraph and Sentence Parsing}
+\label{PARAGRAPH-AND-SENTENCE-PARSING}
+
+If the text being parsed does not contain any format separators,
+the text is lexically just a string of non-whitespace lexemes
+which is parsed into a list of paragraphs and sentences.  Paragraphs
+are separated by blank lines, and sentences end with sentence
+terminators, such as the period or question mark.
+
+
 
 
 \section{Expression Graphs}
