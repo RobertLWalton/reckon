@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 3, 2004}
+\date{December 17, 2004}
  
 \maketitle
 
@@ -5171,7 +5171,7 @@ An \key{object} can be created by an {\em OBJECT} expression:
 
 \begin{indpar}
 \key{OBJECT} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
-		      {\em block} \\[1ex]
+		      {\em block-option} \\[1ex]
 \key{type-name} ::= {\em word}
 \end{indpar}
 
@@ -5222,7 +5222,7 @@ A statement of the form:
 
 \begin{indpar}
 \ttkey{update} {\em OBJECT} {\em block} 
-\end{indpar}
+\end{indpar}\label{UPDATE}
 
 where {\em OBJECT} evaluates to an object adds the code in the
 {\em block} temporarily to the object.  The code is added and all
@@ -5233,7 +5233,7 @@ When code is added to an object and executes, the statement qualifier
 {\tt default} acts when execution stops to enable execution of {\tt default}
 statements, as per \secref{STATEMENT-QUALIFIERS-AND-ITERATION}.  Similarly
 the statement qualifier {\tt next} can be used to create iterations of the
-object.  Each iteration replaces the previous iteration as the object
+object.  Each iteration replaces the previous iteration of the object
 wherever the object is referenced.  Thus if two variables equal
 the object, and one is used to cause the object to iterate, both variable
 values will become the new iterated object.
@@ -5258,9 +5258,7 @@ The statement
 (\pagref{UNDEFINED})
 can be used to change this behavior and make a component undefined when
 the next object iteration is created, in which case other permanent
-code may immediately execute to define the object.
-
-TBD: what does the last sentence mean?
+code may execute in that iteration to give the component a value.
 
 When an iteration of an object is created by temporary code, the
 sequence of actions is:
@@ -5278,7 +5276,33 @@ sequence of actions is:
 \end{tabular}
 \end{center}
 
-TBD: methods.
+Code can be temporarily added to an object by invoking methods.
+A \key{method} is defined by a \key{method definition}
+that is part of the code of an object.
+The method is callable from code inside or outside the block.
+The syntax for a method definition is:
+
+\begin{center}
+\ttkey{on} {\em expression-definition}
+\end{center}
+
+When the method definition is called, the method code block executes
+in a particular object.  More specifically, the method code is added
+temporarily to the object, as for the {\tt update} function
+(\pagref{UPDATE}).
+
+If a method definition has an argument named \ttkey{SELF}, then when the
+definition is called, that argument becomes the object in which
+the method code executes.  This argument must have the same type as
+the object whose code contains the method definition.
+If there is no {\tt SELF} argument, a new method of the right type
+is created by the method execution, and the variable name
+{\tt SELF} may be used in the method code to refer to this object,
+even though there is no argument with this name.
+Usually {\tt SELF} is returned as the value of the execution of such
+a method, but the language does not require this.
+
+TBD: protection; protection zones.
 
 
 \section{Side Effects}
