@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 6, 2004}
+\date{November 9, 2004}
  
 \maketitle
 
@@ -4603,11 +4603,11 @@ successful results are collected in a set of values.  Then these results
 are tested to see if they are pairwise equal.
 All the values of the expression
 being evaluated must be equal, and all the values of each variable
-contained in the expression must be equal.  If yes, one of the results
-is used to return the expression and variable values.
-If no, an error value describing
-the evaluation is returned as the expression value, and as the value of any
-variable in the expression.
+contained in the expression must be equal.  If all values of the expression
+or of a variable are equal, one of these values is returned as the value
+of the expression or variable.  If some of the values are unequal, an
+error value giving the context of the evaluation and the unequal values
+is returned as the value of the expression or variable.
 
 \item[\ttkey{consistent-reordering}]~\\
 Definitions are 
@@ -4617,12 +4617,11 @@ all possible argument order assignments are tried.  The results are collected
 in a set of results that is tested for pairwise equality.
 All the values of the expression
 being evaluated must be equal, and all the values of each variable
-contained in the expression must be equal.  If yes, one of the results
-is used to return the expression and variable values.
-If no, an error value describing
-the evaluation is returned as the expression value, and as the value of any
-variable in the expression.
-
+contained in the expression must be equal.  If all values of the expression
+or of a variable are equal, one of these values is returned as the value
+of the expression or variable.  If some of the values are unequal, an
+error value giving the context of the evaluation and the unequal values
+is returned as the value of the expression or variable.
 \end{list}
 
 If the expression evaluation search process yields no results at all,
@@ -5024,6 +5023,73 @@ iteration and these values will then be propagated to subsequent iterations.
 A typed block is a block that has a type, that can be used as a value,
 and that inherits code from its type.
 
+A \key{block value} can be created by a {\em block-value} expression:
+
+
+\begin{indpar}
+\key{block-value} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
+		      {\em block} \\[1ex]
+\key{type-name} ::= {\em word}
+\end{indpar}
+
+The code in the {\em block} becomes a permanent part of the block value.
+The variable values defined by this code become \skey{component}s of the value.
+These components can be retrieved by expressions of the form:
+
+\begin{center}
+\ttmkey{the}{the of@{\tt the} \ldots {\tt of}}
+{\em variable-name}
+\ttmkey{of}{the of@{\tt the} \ldots {\tt of}}
+{\em block-value}
+\end{center}
+
+Blocks are updated by adding code to them either permanently or temporarily.
+When code becomes part of a block value, the code executes as much as it
+can to define variable values that are then components of the block value.
+When the code can execute no further (\secref{BLOCK-EVALUATION}), any
+variables that do not have values are undefined components.  If some of
+these are given values later, any code that is a permanent part of the
+block may restart and produce additional variable values that define
+additional components.
+
+A statement of the form:
+
+\begin{indpar}
+\ttkey{for every} {\em type-name} {\em block} 
+\end{indpar}
+
+adds the code in its block permanently to every block value of the given type,
+including both existing block values and block values that are
+created in the future.  The code in the block is associated with the
+type and is said to be `\skey{inherit}{ed}' by every block of that type.
+
+A statement of the form:
+
+\begin{indpar}
+\ttkey{update} {\em expression} {\em block} 
+\end{indpar}
+
+where {\em expression} evaluates to a block value adds the code in the
+{\em block} temporarily to the block value.  The code is added and all
+code in the block value executes until it can do nothing more.  Then
+the temporary code is removed from the block value.
+
+When code is added to a block value and executes, the statement qualifier
+{\tt default} acts when execution stops to enable execution of {\tt default}
+statements, as per \secref{STATEMENT-QUALIFIERS-AND-ITERATION}.  Similarly
+the statement qualifier {\tt next} can be used to create iterations of the
+block value.  Each iteration replaces the previous iteration as the block
+value wherever the block value is referenced.  Thus if two variables equal
+the block value, and one is used to cause the value to iterate, both variables
+get the new iterated value.
+
+TBD:  next default v = v implied for permanent code variables
+
+TBD: next x = nothing causes x to become undefined for the next iteration
+
+
+
+
 
 
 
@@ -5068,32 +5134,6 @@ These are some detailed design rules to be incorporated in the language
 definition later.
 
 \begin{list}{}{}
-
-\item
-{\bf Quotes}.  \verb|`'| are word, phrase, sentence, paragraph quotes.
-\verb|[]| are math expression quotes.   Quotes are in left-right pairs
-and can be nested.
-
-\item
-{\bf Multiple Quotes}.  Quotes can be multiplied $N$ times: e.g.,
-\verb|[[...]]|, \verb|[[[...]]]|, etc.  It is possible to begin a quoted
-phrase with a quoted phrase by following the initial $N$-left-quote by
-space.  E.g., \verb|`` `Hello' 'tis a good word.''|.
-
-\item
-{\bf Algebraic Expressions}.
-An expression may or may not be algebraic.  Algebraic expressions have
-operators that determine structure.  Atoms in these are sequences of
-words, numbers, and parenthesized or bracketed subexpressions.
-
-\item
-{\bf N-tuples and Flattening}.
-The comma operator forms N-tuples, e.g., \verb|(x,y,z)| is a 3-tuple.
-
-Tuples flatten.  It is not possible for a tuple to be a component of
-a tuple: instead the tuples are flattened.  E.g., \verb|(x,(y,z),w)|
-is the same value as \verb|(x,y,z,w)|.  There is no such thing as a
-1-tuple, but any non-tuple behaves like a 1-tuple.
 
 \item
 {\bf Blank Algebraic Operators}.
