@@ -167,7 +167,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 23, 2004}
+\date{March 27, 2004}
  
 \maketitle
 
@@ -1782,6 +1782,9 @@ There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
 
 \begin{indpar}
+\key{lexeme-definition} ::=
+	{\em lexeme-dictionary-definition}
+	{\em lexeme-function-definition} \\[1ex]
 \key{lexeme-dictionary-definition} \\
 	\hspace*{1in}::= \verb|define lexeme dictionary|
 				{\em lexeme-dictionary-entries} \\[1ex]
@@ -1794,15 +1797,19 @@ dictionary and function.  These have the syntax:
 		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
 		           {\em lexeme-dictionary-entry}
 		     \end{tabular} \\[1ex]
-\key{lexeme-dictionary-entry} ::= {\em replaced-lexeme} {\em lexeme-replacement}
-					\\[1ex]
-\key{replaced-lexeme} ::= {\em lexeme} \\[1ex]
+\key{lexeme-dictionary-entry} ::=
+	{\em replaced-lexeme} \verb|=>| {\em lexeme-replacement} \\[1ex]
+\key{replaced-lexeme} ::= {\em word} $|$ {\em separator} \\[1ex]
 \key{lexeme-replacement} ::= {\em replacing-lexemes} \\[1ex]
-\key{replacing-lexemes} ::= {\em lexemes} \\[1ex]
+\key{replacing-lexemes} ::=
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$ \\[1ex]
 \key{lexeme-function-definition} \\
 	\hspace*{1in}::= \verb|define lexeme function|
 				{\em function-name} \\[1ex]
-\key{function-name} ::= {\em lexemes}
+\key{function-name} ::=
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$ \\[1ex]
 \end{indpar}
 
 
@@ -2368,6 +2375,25 @@ inactivate all definitions with particular names in the stack
 
 \subsubsection{Operator Definition Syntax}
 \label{OPERATOR-DEFINITION-SYNTAX}
+
+The syntax of operator definitions is:
+
+\begin{indpar}
+\key{operator-definition} \\
+	\hspace*{1in}::= \verb|define operator| {\em operator-name}
+	\\[1ex]
+\key{lexeme-dictionary-entries} \begin{tabular}[t]{rl}
+                     ::= & \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
+		     \end{tabular} \\[1ex]
+\key{lexeme-dictionary-entry-list} \\
+		     \hspace*{1in}\begin{tabular}[t]{rl}
+                     ::= & {\em lexeme-dictionary-entry} \\
+		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
+		           {\em lexeme-dictionary-entry}
+		     \end{tabular} \\[1ex]
+\key{lexeme-dictionary-entry} ::=
+	{\em replaced-lexeme} \verb|=>| {\em lexeme-replacement} \\[1ex]
+\end{indpar}
 
 \subsubsection{Operator Selection}
 \label{OPERATOR-SELECTION}
