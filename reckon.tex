@@ -137,7 +137,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{July 10, 2003}
+\date{July 12, 2003}
  
 \maketitle
 
@@ -230,9 +230,9 @@ and paragraphs.  You can calculate with these `\skey{document expression}s' too:
 \verb|`|hello there\verb|'| \\
 \verb|> z = ``I thought he said `<g>'.''| \\
 \verb|``|I thought he said `hello'.\verb|''| \\
-\verb|> notice = ``This document is meant to be read.| \\
-\verb|             Reading this document is good, but...| \\
-\verb|             <z>.''| \\
+\verb/> notice = ``|This document is meant to be read./ \\
+\verb/             |Reading this document is good, but.../ \\
+\verb/             |<z>.''/ \\
 \verb|``|This document is meant to be read. \\
 \verb|  |Reading this document is good, but\ldots \\
 \verb|  |I thought he said `hello'.\verb|''| \\
@@ -260,9 +260,54 @@ You can compute with \skey{math expression}s in PCASL too:
 \verb|[|$\frac{1}{3} x^3$\verb|]| \\
 \verb|> v = evaluate g from [x=1] to [x=5]| \\
 \verb|41 1/3| \\
-\verb|> `The value of <definite g from [x=1] to [x=5]> is <v>.'| \\
-\verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'|
+\verb|> out = `The value of <definite g from [x=1] to [x=5]> is <v>.'| \\
+\verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
+\verb|> raw out| \\
+\verb|[sentence [the value of [definite integral [x^2*dx]| \\
+\verb|                                  from [x=1] to [x=5]] is 124/3]]|
 \end{indpar}
+
+\section{Rules}
+
+These are some detailed design rules to be incorporated in the language
+definition later.
+
+\begin{list}{}{}
+
+\item
+{\bf Quotes}.  \verb|`'| are word, phrase, sentence, paragraph quotes.
+\verb|[]| are math expression quotes.   Quotes are in left-right pairs
+and can be nested.
+
+\item
+{\bf Multiple Quotes}.  Quotes can be multiplied $N$ times: e.g.,
+\verb|[[...]]|, \verb|[[[...]]]|, etc.  It is possible to begin a quoted
+phrase with a quoted phrase by following the initial $N$-left-quote by
+space.  E.g., \verb|`` `Hello' 'tis a good word.''|.
+
+\item
+{\bf Algebraic Expressions}.
+An expression may or may not be algebraic.  Algebraic expressions have
+operators that determine structure.  Atoms in these are sequences of
+words, numbers, and parenthesized or bracketted subexpressions.
+
+\item
+{\bf N-tuples and Flatening}.
+The comma operator forms N-tuples, e.g., \verb|(x,y,z)| is a 3-tuple.
+
+Tuples flatten.  It is not possible for a tuple to be a component of
+a tuple: instead the tuples are flattened.  E.g., \verb|(x,(y,z),w)|
+is the same value as \verb|(x,y,z,w)|.  There is no such thing as a
+1-tuple, but any non-tuple behaves like a 1-tuple.
+
+\item
+{\bf Blank Algebraic Operators}.
+The blank, or missing operator, denotes \verb|*| when it precedes a word,
+as in \verb|5x| being equivalent to \verb|5*x|.  When it is between a
+preceding integer and a following ratio, it adds the ratio to the integer,
+as in \verb|41 1/3|.
+
+\end{list}
 
 
 
