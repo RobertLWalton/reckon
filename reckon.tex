@@ -1487,8 +1487,14 @@ The {\em opening-mark} lexeme that begins a subexpression
 must match (\ref{MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
-Expression structure is affected by two special marks:
-the reorder mark (\verb|<=>|) and the qualifier mark (\verb|@@@|).
+\subsection{Expression Structure Overview}
+\label{EXPRESSION-STRUCTURE-OVERVIEW}
+
+Expression structure is affected by two special marks.
+The reorder mark (\verb|<=>|) separates arguments that can be
+reordered, as in \verb|element LIST <=> INDEX|.
+The qualifier mark (\verb|@@@|) signals that the following
+expression item is a qualifier, as in \verb|sort x @@@ ascending|.
 Expressions will be restructured if they contain operators (e.g.,
 \verb|+|,
 \verb|-|,
@@ -1499,36 +1505,37 @@ qualifiers (e.g.,
 \verb|has|,
 \verb|ascending|).
 
-Note that there are several different types of matching lexemes
+There are several different types of matching lexemes
 that are used to bracket subexpressions.  The following informal guide may
-help keep them separate:
+help:
 
 \begin{center}
 \begin{tabular}{lll}
 Brackets   & Turns Off			& Turns On \\[1ex]
 
-\verb|[]|  & eval, ops, quals, \verb/|/, text
+\verb|[]|  & eval, operators, qualifiers, \verb/|/, text
 					& \verb|<=>|, \verb|@@@| \\
-\verb|`'|  & eval, ops, quals, \verb|<=>|, \verb|@@@|
+\verb|`'|  & eval, operators, qualifiers, \verb|<=>|, \verb|@@@|
 					& \verb/|/, text \\
 \verb|()|  & nothing			& nothing \\
-\verb|{}|  & eval, \verb/|/, text	& ops, quals, \verb|<=>|, \verb|@@@| \\
-\verb|<<>>|  & \verb/|/, text		& eval, ops, quals, \verb|<=>|,
-					  \verb|@@@| \\
+\verb|{}|  & eval, \verb/|/, text	& operators, qualifiers,
+					  \verb|<=>|, \verb|@@@| \\
+\verb|<<>>|  & \verb/|/, text		& eval, operators, qualifiers,
+					  \verb|<=>|, \verb|@@@| \\
 \end{tabular}
 \end{center}
 
 From the parsing point of view there are three kinds of contexts:
 one where only the reorder mark (\verb|<=>|)
 and the qualifier mark (\verb|@@@|) are recognized, one where these
-are recognized along with operators (ops) and qualifiers (quals),
-and one where the format-separator (\verb/|/) is recoginized.
+are recognized along with operators and qualifiers,
+and one where only the format-separator (\verb/|/) is recognized.
 
 Also from the parsing point of view there are several types of
-expression restructuring that can occur.  One, \verb|text| restructuring,
+expression restructuring that can occur.  One, text restructuring,
 is turned on by \verb|`'| quotes, and does things like turn
 \verb|`I am!'| into \verb|[sentence I am !]|.  A second kind of
-restructuring, which is always on when \verb|text| restructuring is
+restructuring, which is always on when text restructuring is
 off, enforces the rule that the first item of an expression with no
 operators cannot be a subexpression or qualifier,
 by inserting the word \verb|-EMPTY-| at the
@@ -1546,7 +1553,9 @@ is restructured as
 In expressions that cannot contain operators
 or qualifiers, words and separators that would be recognized as operators
 or qualifiers elsewhere are not recognized as such.  Thus in
-\verb|[word +]| the \verb|+| is never recognized as an operator.
+\verb|[word +]| the \verb|+| is not recognized as an operator, and
+in \verb|[item ascending]| \verb|ascending| is not recognized as
+a qualifier.
 
 \subsection{Raw Expressions}
 
