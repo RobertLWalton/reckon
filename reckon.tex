@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 6, 2003}
+\date{September 8, 2003}
  
 \maketitle
 
@@ -1464,15 +1464,37 @@ Precedence \\
 Associativity
 \end{indpar}
 
+{\bf Lexemes.}\ttmindex{lexemes}{of operator}
+An operator definition has a sequence of lexemes.  The operator
+inside a subexpression is just this sequence of lexemes, except for
+{\tt matchfix} operators, which have two sequences of lexemes, one
+of which must begin the subexpression and one of which must end the
+subexpression.
+
+The two sequences of lexemes for a {\tt matchfix}
+operator are represented by a single sequence of lexemes that contains
+the subexpression beginning lexemes followed by a `\verb/+-+/' lexeme
+followed by the subexpression ending lexemes.   The beginning sequence
+of lexemes must include the {\em opening-mark} that begins a subexpression
+and the closing sequence of lexemes must include the {\em closing-mark}
+that ends the subexpression.  An example sequence of lexemes for a
+{\tt matchfix} operator is `\verb/[ | +-+ | ]/' that permits subexpressions
+like `\verb/[| x - 5 |]/'.
+
+Two different operators may have the same sequence of lexemes.  For example,
+`\verb|-|' is the lexeme sequence of a {\tt prefix} operator and also of
+a distinct {\tt infix} operator.
+
+
 {\bf Fixity.}\ttmindex{fixity}{of operator}
-An operator has one or more of the following fixities:
+An operator has one of the following fixities:
 
 \begin{indpar}
 \begin{tabular}{@{}p{1in}@{~~~}p{4in}@{}}
-\ttkey{infix}		& \\
-\ttkey{prefix}		& \\
-\ttkey{postfix}		& \\
-\ttkey{matchfix}	& \\
+\ttkey{infix}		& E.g., \verb|+| in \verb|x + 5|.\\
+\ttkey{prefix}		& E.g., \verb|-| in \verb|- 5|.\\
+\ttkey{postfix}		& E.g., \verb|!| in \verb|x!|.\\
+\ttkey{matchfix}	& E.g., \verb/[| |]/ in \verb/[| x - 5 |]/.
 \end{tabular}
 \end{indpar}
 
