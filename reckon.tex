@@ -1734,13 +1734,19 @@ ends a subexpression.
 \subsection{Expression Structure Overview}
 \label{EXPRESSION-STRUCTURE-OVERVIEW}
 
-Expression structure is affected by four special marks.
-The \key{reorder mark} (\ttkey{<:>}) separates arguments that can be
-reordered, as in the expression `\verb|element LIST <:> INDEX|', and is used in
-expression definitions.
+Expression structure is affected by five special marks.
+The \key{optional mark} (\ttkey{?:?}) is used in expression definitions
+to separate arguments that are required from those that can be optional,
+as in the expression `\verb|find-max LIST ?:? COMPARATOR|', in which the
+the `\verb|LIST|' argument is required but the `\verb|COMPARATOR|' argument
+is optional.
+The \key{reorder mark} (\ttkey{<:>}) is used in expression definitions
+to separate arguments whose order can be switched,
+as in the expression `\verb|element LIST <:> INDEX|' in which the
+the `\verb|LIST|' and `\verb|INDEX|' argument can be reordered.
 The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in an
 expression definition that represents the list of remaining arguments in a use
-of the definition, as in the expression `\verb|max ::> ARGS|'
+of the definition, as in the expression `\verb|max ::> ARGS|',
 where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
 The \key{required qualifier mark}\index{qualifier mark!required}
@@ -1752,9 +1758,10 @@ in an expression.
 The \key{optional qualifier mark}\index{qualifier mark!optional}
 (\ttkey{??}) signals that the following
 expression item is an optional qualifier, as in the expression
-`\verb|sort X ?? with order O |'.  When default values are provided in
+`\verb|sort X ?? with order O|'.  When default values are provided in
 definitions, required qualifier marks may be converted automatically to
-optional qualifier marks (\ref{TBD}).
+optional qualifier marks and an optional mark may be inserted into an
+argument list automatically (\ref{TBD}).
 
 Expressions are restructured if they contain operators (e.g.,
 \verb|+|,
@@ -1763,19 +1770,22 @@ Expressions are restructured if they contain operators (e.g.,
 \verb|/|),
 qualifiers (e.g.,
 \verb|with|,
-\verb|has|,
-\verb|ascending|),
-or certain matching lexemes.  A \key{raw expression}
-(\ref{RAW-EXPRESSIONS})
+\verb|has|),
+or qualifier shortcuts (e.g., \verb|ascending|, which is a shortcut for
+`{\tt with order ascending}').
+A \key{raw expression} (\ref{RAW-EXPRESSIONS})
 is a particular kind of expression that will not be
 restructured.  The only special marks that may be in a raw expression
-are the reorder mark (\verb|<:>|), the remainder mark (\verb|::>|),
+are the five special marks:
+the optional mark (\verb|?:?|), the reorder mark (\verb|<:>|),
+the remainder mark (\verb|::>|),
 and the qualifier marks (\verb|@@|, \verb|??|).
 Translating
 an expression into a raw expression is called \key{parsing}.
 
-Matching lexemes may affect parsing.
-An informal summary of some of these is:
+Some operators are matchfix operators, which surround their single
+argument like parentheses.  Some matchfix operators have special
+affects on parsing.  An informal summary of a few of these is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
@@ -1808,24 +1818,25 @@ Brackets	& qualifiers	& text		& \verb|@@  ??|
 Other matching lexemes may be made to affect parsing by introducing
 operator definitions (\ref{OPERATOR-DEFINITIONS}).
 
-Parsing is controlled by the \key{parsing context}, which consists
-of a \key{parsing parser stack} and a \key{parsing definition stack}.
+Parsing is controlled by the \key{parsing context}, which is a stack
+that contains definitions of parsers, operators, qualifiers, and
+qualifier shortcuts.  An operator may push definitions into the parsing
+context.  After the expression containing the operator has been parsed,
+these definitions will be popped from the parsing context.
 
+A \key{parser definition} just names a parser.  The most recent parser
+definition in the parsing context names the parser used to parse expressions.
 There are three standard \ikey{parsers}{parser!standard}:
 the \key{marks parser} \ttkey{-MARKS-PARSER-},
-where only the reorder mark (\verb|<:>|),
-remainder mark (\verb|::>|), and the qualifier mark (\verb|@@|) are recognized,
+where only the optional mark (\verb|?:?|), reorder mark (\verb|<:>|),
+remainder mark (\verb|::>|), required qualifier mark (\verb|@@|),
+and optional qualifier mark (\verb|??|), are recognized;
 the \key{operators parser} \ttkey{-OPERATORS-PARSER-},
 where these marks
-are recognized along with operators and qualifiers,
+are recognized along with operators, qualifiers, and qualifier shortcuts;
 and the \key{text parser} \ttkey{-TEXT-PARSER-},
 where only the format-separator (\verb/|/)
 is recognized.
-An opening mark may change the parser by
-pushing a new parser into the parsing
-parser stack whose top member is the effective parser for subexpressions.
-The corresponding closing mark will pop the parsing parser
-stack.
 
 From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
@@ -1849,7 +1860,7 @@ qualifiers, or qualifier shortcuts are not recognized as such.  Thus in
 in \verb|[item ascending]| \verb|ascending| is not recognized as
 a qualifier shortcut.
 
-Some of the matching lexemes above affect evaluation (eval).
+Some of the matchfix operators above affect evaluation (eval).
 Evaluation differs from parsing context in that it is managed by a
 counter and not a stack; if evaluation is
 turned off twice, it must be turned on twice to be in effect.
@@ -1883,13 +1894,15 @@ A raw expression is an expression that contains no operators,
 qualifiers, qualifier shortcuts, or text parsing contexts that
 induce restructuring.
 Raw expressions can be directly represented using the \verb|[]|
-matching lexemes and the \verb|<:>| reorder, \verb|::>| remainder,
+matching lexemes and the \verb|?:?| optional,
+\verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and \verb|??| optional qualifier marks.
 
 When an expression is parsed, the output is a raw expression.
 The following are examples, all of which are assumed to
 appear in the context of \verb|{}| matching lexemes (so
-operators and qualifiers are turned on and text parsing is turned off):
+operators, qualifiers, and qualifier shortcuts
+are turned on and text parsing is turned off):
 
 \begin{center}
 \begin{tabular}{ll}
@@ -1919,9 +1932,18 @@ The syntax of raw expressions is defined as follows:
 		 & {\em raw-qualifier-phrase}$^\star$ \verb|]| \\
 	\end{tabular} \\[1ex]
 \key{raw-expression-head} ::= {\em raw-expression} \\[1ex]
-\key{raw-argument-list} ::=
-	    {\em raw-base-argument-list}
-	    {\em raw-argument-remainder-option} \\[1ex]
+\key{raw-argument-list}
+        \begin{tabular}[t]{@{}rl}
+	::= & {\em raw-base-argument-list}
+	      {\em raw-argument-remainder-option} \\
+	$|$ & \begin{tabular}[t]{@{}l}
+	      {\em raw-base-argument-list}
+	      {\em optional-mark}
+	      {\em raw-base-argument-list} \\
+	      {\em raw-argument-remainder-option}
+	      \end{tabular}
+	\end{tabular} \\[1ex]
+\key{optional-mark} ::= \verb|?:?| \\[1ex]
 \key{raw-base-argument-list}
         \begin{tabular}[t]{@{}rl}
 	::= & {\em empty} \\
@@ -1945,7 +1967,8 @@ The syntax of raw expressions is defined as follows:
 The order of {\em raw-qualifier-phrases}
 in a {\em raw-expression} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
-not matter.  The {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
+not matter.  The {\em optional-mark} (\verb|?:?|),
+{\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
 (\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
 can only occur in a pattern (\ref{CALL-UNIFICATION}).
 
@@ -1953,8 +1976,8 @@ can only occur in a pattern (\ref{CALL-UNIFICATION}).
 \label{OPERATORS}
 
 Operators restructure expressions in which they occur.  Operators
-are defined by operator definitions that can be added to the current
-operator context by some operators.
+are defined by operator definitions that can be added to the
+parsing context by some operators.
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
@@ -2845,7 +2868,7 @@ which is represented by the expression tree
 
 Here each qualifier becomes the target of an arrow labeled
 `\ttkey{-REQUIRED-QUALIFIER-}' because
-the `\verb|@@|' \key{required-qualifier-mark} is used (the label
+the `\verb|@@|' \key{required-qualifier-mark} is used (the arrow label
 would be `{\tt -OPTIONAL-QUALIFIER-}' if the `\verb|??|'
 optional-qualifier-mark had been used).
 The arrows with these labels are called \skey{qualifier arrow}s of the
@@ -2920,7 +2943,7 @@ or `\ttkey{-OPTIONAL-QUALIFIER-}'.
 A fourth example is the expression
 
 \begin{center}
-\verb|[fill Prefix Matrix <:> Value Postfix ::> Runs]|
+\verb|[fill Prefix ?:? Matrix <:> Value Postfix ::> Runs]|
 \end{center}
 
 which is represented by the expression tree
@@ -2929,7 +2952,7 @@ which is represented by the expression tree
 \begin{Graph}
     \Gvariable{-ROOT-} \\
     \begin{Gchild}{-ARITY-}
-	\Glabel{4} \\
+	\Glabel{1-4} \\
     \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{fill} \\
@@ -2952,12 +2975,23 @@ which is represented by the expression tree
 \end{Graph}
 \end{center}
 
-Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
-given an argument index that is a range of the form
-`$m$\verb|-|$n$', where $m$ is the number of the first of the consecutive
-arguments and $n$ is the number of the last.  Thus in our example, arguments
-2 and 3 are consecutive arguments separated by \verb|<:>|, so
-they both get the argument index `\verb|2-3|'.
+Arguments appearing after the \key{optional mark} \ttkey{?:?} are
+optional.  This is indicated by the arity `\verb|1-4|' that indicates
+that argument `\verb|1|' is the last required argument and there are
+`\verb|4|' arguments total.  In general, the arity can have the form
+`$m$\verb|-|$n$', where $0\leq m<n$, $m$ is the number of required arguments,
+$n$ is the total number of arguments, and $n-m$ is the number of optional
+arguments.
+
+Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} can
+be reordered.  These arguments are indicated by argument indices that
+describe the positions the arguments can occur in.  Thus in the example
+the two arguments with index `\verb|2-3|' can each appear as either the
+2nd or 3rd argument.  In general,
+an argument index that is a range of the form
+`$i$\verb|-|$j$', where $0\leq i<j\leq n$, and
+$n$ is the total number of arguments, indicates that the argument can
+be the $i$'th through $j$'th argument position.
 These argument indices are called the
 \ikey{reordered argument indices}{reordered argument index} of the
 root node,
@@ -2966,15 +3000,20 @@ of the root,
 and the targets of these arrows are called \skey{reordered argument}s
 of the root.
 
+Note that if an argument has index `$i$\verb|-|$j$', then the $i$'th
+and $j$'th argument must be either both required or both optional.
+That is, if there are optional arguments and
+$m$ is the number of required arguments, either
+$j\leq m$ or $m<i$.
+
 The argument after a \key{remainder mark} \ttkey{::>} is
-given the special argument index `\ttkey{-REST-}'.  This argument
-is not counted in the `\verb|-ARITY-|'.  Here \verb|-REST-|
+given the special argument index `\ttkey{-REST-}' and names a list of
+all arguments that occur after the total number of arguments specified
+by the arity.  Here \verb|-REST-|
 is called the \key{rest argument index} of the root node, the arrow it labels
 is called the \key{rest argument arrow} of the root, 
 and the target of this arrow is called the \key{rest argument} of the
-root.
-
-TBD: optional arguments.
+The rest argument is not counted in the arity.
 
 \subsection{Call Nodes and the Call Check}
 \label{CALL-NODES-AND-CHECK}
