@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 18, 2004}
+\date{November 19, 2004}
  
 \maketitle
 
@@ -566,7 +566,7 @@ iteration.
 One can also iterate over data.
 
 \begin{indpar}
-\verb|> average weight of X <-- tuple X of persons {| \\
+\verb|> average weight of X <-- list X of persons {| \\
 \verb|+     first count = 0| \\
 \verb|+     first sum = 0| \\
 \verb|+     if X = ():| \\
@@ -596,7 +596,7 @@ Expressions are just strings of words and subexpressions.  Subexpressions
 must be parenthesized unless they consist of a single word, or unless
 they are delimited by operators.
 
-Lists of values can be stored in tuples, which are computed by comma
+Lists of values can be stored in \skey{list}s, which are computed by comma
 separated lists in parentheses.  Thus
 
 \begin{indpar}
@@ -632,7 +632,7 @@ separated lists in parentheses.  Thus
 
 The `{\tt raw}' form of a value is a form that prints as you could
 input it in a way that reveals its internal structure.  Thus
-`{\tt all persons}' denotes the tuple of all persons.
+`{\tt all persons}' denotes the list of all persons.
 
 `{\tt the person named Jack}' is a printed representation of the
 internal name of a block.  Such printed representations are chosen
@@ -640,9 +640,9 @@ automatically from the set of all possible representations, which
 in this case include `{\tt the person weighing 123 lbs}' and
 `{\tt the person named Jack weighing 123 lbs}'.
 
-A single non-tuple value is equivalent to a tuple with one element.
-Tuples cannot have other tuples as elements; instead attempts to
-compute such tuples are \key{flattened}:
+A single non-list value is equivalent to a list with one element.
+Lists cannot have other lists as elements; instead attempts to
+compute such lists are \key{flattened}:
 
 \begin{indpar}
 \verb|> x = (1,(2,3),4)| \\
@@ -658,6 +658,8 @@ compute such tuples are \key{flattened}:
 \verb|> rest 4| \\
 \verb|()|
 \end{indpar}
+
+For this reason PCASL lists are sometimes called `\skey{flat list}s'.
 
 PCASL has many different kinds of quotes or brackets.  Some of these,
 \verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|, and \verb|{{|\ldots\verb|}}|,
@@ -1881,7 +1883,7 @@ which correspond to the expression definitions
 
 \begin{indpar}
 \begin{verbatim}
-define lexeme dictionary NAME ENTRIES <-- tuple ENTRIES
+define lexeme dictionary NAME ENTRIES <-- list ENTRIES
 
 define lexeme function NAME <--
 \end{verbatim}
@@ -4730,7 +4732,7 @@ the second argument, than the first argument does.  The expression
 \end{indpar}
 
 makes a new expression definition whose definition part is the same as
-its argument but whose context part is missing (and can be set later).
+its argument but whose context part is missing and can be set later.
 
 There are two kinds of contexts: immutable and mutable.
 
@@ -4745,22 +4747,41 @@ in which each {\em CONTEXT-ITEM} is either an expression definition or
 a context.  If any of the {\em CONTEXT-ITEMs} are expression definitions
 that do not have their contexts set, their contexts are set to the context
 being created.  Thus a set of expression definitions can be created
-which
+which can reference each other.
+
+The expression
+
+\begin{indpar}
+\verb|a context (| {\em CONTEXT-ITEM} \{ \verb|,| {\em CONTEXT-ITEM} \} \verb|)|
+\verb|with context setting false|
+\end{indpar}
+
+makes an immutable context without setting the contexts of any expression
+definition {\em CONTEXT-ITEMs}.  This gives the flexibility to set these
+contexts later.
 
 TBD problem with conflicts among definitions in one list
 
-An {\em IMMU\-TABLE-CONTEXT} is defined by the
+The above expressions are defined by the
 expression definitions (\secref{EXPRESSION-DEFINITIONS}):
 
 \begin{indpar}
 \begin{verbatim}
+an expression-definition {
+    on an expression-definition EXPRESSION-DEFINITION CONTEXT
+       <-- expression-definition EXPRESSION-DEFINITION,
+           context CONTEXT
+    on an expression-definition EXPRESSION-DEFINITION
+       <-- expression-definition EXPRESSION-DEFINITION
+    on set SELF context CONTEXT <-- context CONTEXT
+}
 a context {
-    a context CONTEXT-ITEM-LIST <--
-              tuple CONTEXT-ITEM-LIST of context-items {...}
+    on a context CONTEXT-ITEM-TUPLE <--
+              list CONTEXT-ITEM-TUPLE of context-items
 }
 context-item X <-- expression-definition X
 context-item X <-- context X
-context-item X <-- immutable-context X
+context-item X <-- mutable-context X
 \end{verbatim}
 \end{indpar}
 
