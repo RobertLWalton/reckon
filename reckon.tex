@@ -1830,9 +1830,9 @@ which correspond to the expression definitions
 
 \begin{indpar}
 \begin{verbatim}
-define lexeme dictionary NAME ENTRIES <== n-tuple ENTRIES
+define lexeme dictionary NAME ENTRIES <-- n-tuple ENTRIES
 
-define lexeme function NAME <==
+define lexeme function NAME <--
 \end{verbatim}
 \end{indpar}
 
@@ -1861,7 +1861,7 @@ and the expression definition
 
 \begin{indpar}
 \begin{verbatim}
-replace people X <== {
+replace people X <-- {
     if X == people:
         value = [person]
     else:
@@ -1896,28 +1896,63 @@ which correspond to the expression definitions
 
 \begin{indpar}
 \begin{verbatim}
-undefine lexeme dictionary NAME <==
+undefine lexeme dictionary NAME <--
 
-undefine lexeme function NAME <==
+undefine lexeme function NAME <--
 \end{verbatim}
 \end{indpar}
 
-The following standard lexeme dictionaries and functions have
-definitions in the initial parsing stack.  These are ordered in the
+The following lexeme dictionaries and functions are
+defined in the initial parsing stack.  Their definitions are ordered in the
 stack so the first given below is at the top of the stack and is the
 first that replaces lexemes.
 
 \begin{list}{}{}
 
 \item
-\verb|define lexeme dictionary [standard lexeme dictionary]|
+\verb|define lexeme dictionary [english lexeme dictionary]|~~
+This dictionary translates common English irregular plurals,
+such to their singular form, and decomposes
+irregular possessives to their singular decomposed form.
+This dictionary also protects irregular singluar forms that might be
+mistaken for regular plural forms (e.g., `\verb|news|').
+Some example translations are:
 
-TBD
+\begin{center}
+\begin{tabular}{l}
+\verb|people| $\longrightarrow$ \verb|[person]| \\
+\verb|women| $\longrightarrow$ \verb|[woman]| \\
+\verb|geese| $\longrightarrow$ \verb|[goose]| \\
+\verb|fungi| $\longrightarrow$ \verb|[fungus]| \\
+\verb|news| $\longrightarrow$ \verb|[news]| \\
+\end{tabular}
+\end{center}
+
+\item
+\verb|define lexeme function [english lexeme function]|~~
+This function translates common English standard plurals,
+such to their singular form, and decomposes
+standard possessives to their singular decomposed form.
+Some example translations are:
+
+\begin{center}
+\begin{tabular}{l}
+\verb|boys| $\longrightarrow$ \verb|[boy]| \\
+\verb|boy's| $\longrightarrow$ \verb|[boy 's]| \\
+\verb|boys'| $\longrightarrow$ \verb|[boy 's]| \\
+\verb|boxes| $\longrightarrow$ \verb|[box]| \\
+\end{tabular}
+\end{center}
 
 \end{list}
 
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
 not themselves subject to replacement.
+
+Because PCASL insists on mapping different forms of a word to a single
+word, some subtleties of language are lost.  For example, `\verb|people|'
+can be a singluar word refering to a group of people, but PCASL will
+standardly confuse it with `\verb|person|'.
 
 \subsubsection{Number Unit Grouping}
 \label{NUMBER-UNIT-GROUPING}
@@ -2561,7 +2596,7 @@ define operator FIXITY NAME
 		with flags FLAGS
 		with wrapper WRAPPER
 		with subdefinitions SUBDEFINITIONS
-		<== integer(PRECEDENCE)
+		<-- integer(PRECEDENCE)
 \end{verbatim}
 \end{indpar}
 
