@@ -4996,9 +4996,24 @@ A statement of the form
 \verb|default| \verb|next| {\em variable-name} = {\em variable-name}
 \end{center}
 
-is implied for every inherited {\em variable-name}.  Thus inherited
-variables are normally propagated unchanged from one iteration to the
-next.
+is implied for every inherited {\em variable-name} that is not
+defined by an explicit `{\tt default next}' statement in the code.
+Thus inherited variables are normally propagated unchanged from
+one iteration to the next.
+
+If a `{\tt next}' qualified statement sets a variable to the value of
+the expression `\ttkey{UNDEFINED}',\label{UNDEFINED}
+the variable will become undefined
+at the beginning of the next iteration.  Thus the statement
+
+\begin{center}
+\verb|default| \verb|next| {\em variable-name} = \verb|UNDEFINED|
+\end{center}
+
+for an inherited {\em variable-name} will keep the inherited
+variable from being propagated from one iteration to the next.
+The expression `{\tt UNDEFINED}' cannot be used to set a variable
+outside a `{\tt next}' qualified statement.
 
 A \ttkey{first} qualified {\em statement} is only visible in the
 first iteration of a block sequence.
@@ -5044,13 +5059,25 @@ These components can be retrieved by expressions of the form:
 \end{center}
 
 Blocks are updated by adding code to them either permanently or temporarily.
-When code becomes part of a block value, the code executes as much as it
+Whenever code is added to a block value, the code executes as much as it
 can to define variable values that are then components of the block value.
-When the code can execute no further (\secref{BLOCK-EVALUATION}), any
+When the code can execute no further (\secref{BLOCK-EVALUATION},
+\secref{STATEMENT-QUALIFIERS-AND-ITERATION}), any
 variables that do not have values are undefined components.  If some of
 these are given values later, any code that is a permanent part of the
 block may restart and produce additional variable values that define
 additional components.
+
+Recall that the concept of being a variable of a block
+of code is defined syntactically and independently of which variable values
+the block actually computes (\secref{BLOCK-VARIABLE-NAMES}).
+The components of a block value are more precisely the syntactic variables
+of the code added permanently to the block value, whether or not these
+variables have values defined by code added permanently or temporarily
+to the block value.  Variables of code added temporarily that are not
+syntactically variables of code added permanently are
+\underline{not} components of the block value,
+and are not visible outside the temporarily added code.
 
 A statement of the form:
 
@@ -5083,14 +5110,45 @@ value wherever the block value is referenced.  Thus if two variables equal
 the block value, and one is used to cause the value to iterate, both variables
 get the new iterated value.
 
-TBD:  next default v = v implied for permanent code variables
+A statement of the form
 
-TBD: next x = nothing causes x to become undefined for the next iteration
+\begin{center}
+\verb|default| \verb|next| {\em component-name} = {\em component-name}
+\end{center}
 
+is implied for every {\em component-name} of a block value that is not
+defined by an explicit `{\tt default next}' statement in the current
+(permanent plus temporary) code of the block value.
+Thus components not explicitly changed propagate unchanged from
+one iteration of a block value to the next.
+The statement
 
+\begin{center}
+\verb|default| \verb|next| {\em component-name} = \verb|UNDEFINED|
+\end{center}
 
+(\pagref{UNDEFINED})
+can be used to change this behavior and make a component undefined when
+the next block value iteration is created, in which case other permanent
+code may immediately execute to define the value.
 
+When an iteration of a block value is created by temporary code, the
+sequence of actions is:
 
+\begin{center}
+\begin{tabular}{lp{5.5in}}
+(1) & Add the temporary code to the block value. \\
+(2) & Execute all block value code until it terminates. \\
+(3) & If any {\tt next} variable values were defined by the
+      execution in step (2), create
+      the next iteration of the block value, giving this
+      iteration only the permanent code of the block value. \\
+(4) & In the next iteration of the block value execute all
+      code until it terminates.
+\end{tabular}
+\end{center}
+
+TBD: methods.
 
 
 \section{Side Effects}
