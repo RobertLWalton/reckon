@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 12, 2004}
+\date{November 17, 2004}
  
 \maketitle
 
@@ -4519,7 +4519,7 @@ required to have no visible side effects.
 \ikey{Expression definitions}{expression definition} have the syntax:
 
 \begin{indpar}
-\key{EXPRESSION-DEFINITION}\label{EXPRESSION-DEFINITION} ::=
+\key{expression-definition}\label{EXPRESSION-DEFINITION} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
 \key{pattern} ::= {\em expression} \\[1ex]
@@ -4553,19 +4553,6 @@ An expression definition is an expression graph which may have variables
 as well as graph nodes.   When an expression definition is copied,
 the copy has its own variables that are distinct from the variables in
 the original expression definition or in any other expression definition copy.
-
-In this document names of syntactic categories that are expressions defined
-by expression definitions are capitalized, while other syntactic category
-names are lower case.  The syntactic category {\em EXPRESSION-DEFINITION}
-itself corresponds to the expression definition:
-
-\begin{indpar}
-\begin{verbatim}
-( #PATTERN <-- #GUARD-LIST {#BLOCK} ) <--
-\end{verbatim}
-\end{indpar}
-
-TBD, how to handle \verb|{ }| as implying a qualifier.
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
@@ -4763,9 +4750,11 @@ The code of a block has the following syntax:
 \key{block} ::= \verb|{| {\em statement}
                          \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
 			 \\[1ex]
-\key{statement} ::= {\em empty-statement}
+\key{statement} ::= {\em expression-definition}
+		$|$ {\em empty-statement}
 		$|$ {\em qualified-statement}
 			 \\[1ex]
+\key{expression-definition} ::= see \pagref{EXPRESSION-DEFINITION} \\[1ex]
 \key{empty-statement} ::= {\em empty} \\[1ex]
 \key{qualified-statement}
     \begin{tabular}[t]{rl}
@@ -4788,10 +4777,11 @@ The code of a block has the following syntax:
 	{\em output-variable} \ttkey{=} {\em right-side} \\[1ex]
 \key{right-side} \
     \begin{tabular}[t]{rl}
-    ::= & {\em expression} \\
-    $|$ & {\em expression} \ttnbkey{=>} {\em output-variable}
+    ::= & {\em right-side-expression} \\
+    $|$ & {\em right-side-expression} \ttnbkey{=>} {\em output-variable}
 		\{ \verb|,| {\em output-variable} \}\,$^\star$
     \end{tabular} \\[1ex]
+\key{right-side-expression} ::= {\em expression} \\[1ex]
 \key{output-variable} ::= {\em variable-name} \\[1ex]
 \key{variable-name} ::= {\em word} \\[1ex]
 \key{pattern-assignment-statement} ::=
@@ -4848,7 +4838,7 @@ a block are identified.  Each
 {\em variable-name} is a subexpression consisting of a single
 {\em word}, but not all such subexpressions are {\em variable-names}.
 Some {\em variable-names} may be \mkey{inherited}{variable-name}
-from the statement containing the block.
+from a statement containing the block.
 Some are {\em output-variables} in {\em assignment-statements}
 or {\em guards}.
 Some are expression graph variables of {\em assignment-patterns}.
@@ -4860,7 +4850,10 @@ following \verb|=>| in {\em assignment-statements} or {\em guards}.
 When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 {\em subblock} of the {\em block} are treated as if they
 were in the {\em block} proper.  Thus variables named in the
-{\em subblock} are variables named in the {\em block}.
+{\em subblock} are variables named in the {\em block}.\footnote{
+PCASL does not have the notion of name space nesting, because the
+{\tt \CurlyBra\CurlyKet} brackets that would
+indicate nesting can be implied by the {\tt :} construction.}
 
 If a {\em block} is part of an {\em expression-definition}
 (\pagref{EXPRESSION-DEFINITION}), the names of expression graph variables of
@@ -4888,16 +4881,17 @@ the variable names \verb|X| and \verb|Y| are pattern variable names
 that are {\em variable-names} of the {\em block} containing this
 {\em pattern-assignment-statement}.
 
-{\em Output-variables} are variables named after \verb|=>| following
-an expression.  In the statements
+The variable named before the \verb|=| in a {\em variable-assignment-statement}
+is an {\em output-variable}.
+Variables named after \verb|=>| following an expression in
+a {\em right-side} are also {\em output-variables}.  In the statements
 
 \begin{indpar}[1in]\begin{verbatim}
-when sort x to z => z
+when sort x to y => y:
+    z = first 
 \end{verbatim}\end{indpar}
 
-TBD
-
-
+\verb|y| and \verb|z| are {\em output-variables}.
 
 From the point of view of block evaluation there is no distinction between
 variable names beginning with \verb|#| and other variable names.  The
@@ -4906,20 +4900,26 @@ where the values obtained by call unification for input variables
 whose names do not begin with \verb|#| are replaced by their evaluations
 (\pagref{PROTECTED-VARIABLE}).
 
+TBD: Arrays and array element names.
+
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
 
 Evaluation of a {\em block} is driven by availability of variable values
 and not by the order of the {\em statements} in the {\em block}.
 Each variable in a block can be assigned at most one value: it is
-an error if the variable is assigned more than one value.  Each
-{\em right-side} and {\em guard} in a {\em block}
-is evaluated only when all the input variables it contains have values.
-When the {\em right-side} of an {\em assignment-statement} is evaluated,
-the variables named on the left side of the statement and any
+an error if the variable is assigned more than one value.
+The \skey{input-variable}s of a {\em right-side-expression} are all
+variables in the expression that are not {\em output-variables} or
+{\em pattern-variables} of
+the {\em assignment-statement} or {\em guard} containing the expression.
+Each {\em right-side-expression} in a {\em block}
+is evaluated only when all its input variables have values.
+When the {\em right-side-expression} of an {\em assignment-statement}
+is evaluated, the variables named on the left side of the statement and any
 {\em output-variables} named after a \verb|=>| in the {\em right-side}
 are given values.
-When a {\em guard} is evaluated, any
+When the {\em right-side-expression} of a {\em guard} is evaluated, any
 {\em output-variables} named after a \verb|=>| in the {\em guard}
 are given values.
 
@@ -5028,8 +5028,7 @@ sequence might include only one block which does not iterate.
 The variable values computed by a \ttkey{next} qualified
 {\em statement} are not variable values in the current
 block, but are rather values for the current block's next block,
-if the current block iterates because it has not produced a value
-for the {\tt value} variable.  The next block starts with these
+if the current block iterates.  The next block starts with these
 variable values, so these variables must not be assigned in the next
 block.
 
@@ -5078,6 +5077,8 @@ for every {\em variable-name} that can be assigned by the
 {\tt always} qualified {\em statement}.  The intention is that the
 {\tt always} qualified {\em statement} will assign values on the first
 iteration and these values will then be propagated to subsequent iterations.
+
+TBD: should {\tt next} qualify a variable name and not a statement?
 
 
 
