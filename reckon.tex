@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{August 4, 2003}
+\date{August 8, 2003}
  
 \maketitle
 
@@ -254,25 +254,25 @@ You can compute with \skey{math expression}s in PCASL too:
 \begin{indpar}
 \verb|> f = [10x^2 - 3.67x - 0.04]| \\
 \verb|[|$10x^2-3.67x-0.04$\verb|]| \\
-\verb|> h = [- 0.96 + 0.67x]| \\
+\verb|> h = (- 0.96 + 0.67x) in x| \\
 \verb|[|$-0.96+0.67x$\verb|]| \\
-\verb|> f + h| \\
+\verb|> (f + h) in x| \\
 \verb|[|$10x^2-3x-1$\verb|]| \\
-\verb|> solve [f + h = 0]| \\
+\verb|> solve (f + h = 0) for x| \\
 \verb|[x = (-0.2, 0.5)]| \\
-\verb|> evaluate [f + h] at [x = (3, 4, 5)]| \\
+\verb|> (f + h) at (x = (3, 4, 5))| \\
 \verb|(78.95, 145.28, 231.61)| \\
 \verb|> g = [integral (x^2 dx)]| \\
 \verb|[|$\int x^2 dx$\verb|]| \\
 \verb|> simplify g| \\
 \verb|[|$\frac{1}{3} x^3$\verb|]| \\
-\verb|> v = evaluate g from [x=1] to [x=5]| \\
+\verb|> v = g from (x=1) to (x=5)| \\
 \verb|41 1/3| \\
-\verb|> out = `The value of <definite g from [x=1] to [x=5]> is <v>.'| \\
+\verb|> out = `The value of (<g> from (x=1) to (x=5)) is <v>.'| \\
 \verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|[sentence (the value of (definite (integral (x^2*dx))| \\
-\verb|                                  from (x=1) to (x=5)) is 124/3)]|
+\verb|[sentence (the value of ((integral (x^2*dx)) from (x=1) to (x=5))| \\
+\verb|           is 124/3)]|
 \end{indpar}
 
 Another kind of datum you can compute with in PCASL, which is
@@ -341,7 +341,7 @@ Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
 It is possible to add code to a type such as `{\tt person}':
 
 \begin{indpar}
-\verb|> define (a person) {| \\
+\verb|> a person <-- {| \\
 \verb|+     body-mass-index = 703.06958 * weight in lbs| \\
 \verb|+                     / (height in inches)^2 }| \\
 \verb|> all persons| \\
@@ -362,16 +362,16 @@ Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo & \tt 17.228258 \\
 One can use definitions to define expressions that compute values:
 
 \begin{indpar}
-\verb|> define (the sum from X through Y)| \\
-\verb|+         -: integer X, integer Y {| \\
+\verb|> sum from X through Y| \\
+\verb|+         <-- integer X, integer Y {| \\
 \verb|+     # Sum of integers from X through Y.| \\
 \verb|+     if ( X > Y ):| \\
 \verb|+         value = 0| \\
 \verb|+     else:| \\
 \verb|+         value = X + sum (X+1) through Y }| \\
-\verb|> the sum from 5 through 10| \\
+\verb|> sum from 5 through 10| \\
 \verb|45| \\
-\verb|> all sums from X through Y| \\
+\verb|> all (sums from X through Y)| \\
 \begin{tabular}{|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf X} &
@@ -387,9 +387,9 @@ One can use definitions to define expressions that compute values:
 \tt 11	& \tt	10	& \tt 0 \\
 \hline
 \end{tabular} \\
-\verb|> the sum from 1 through 2| \\
+\verb|> sum from 1 through 2| \\
 \verb|3| \\
-\verb|> all sums from X through Y| \\
+\verb|> all (sums from X through Y)| \\
 \begin{tabular}{|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf X} &
@@ -420,8 +420,7 @@ one computes the sum of 6 through 10.  One can also compute sums by
 iteration:
 
 \begin{indpar}
-\verb|> define (the sum from X through Y)| \\
-\verb|+         -: integer X, integer Y {| \\
+\verb|> sum from X through Y <-- integer X, integer Y {| \\
 \verb|+     # Sum of integers from X through Y.| \\
 \verb|+     first sum = 0| \\
 \verb|+     if ( X <= Y ):| \\
@@ -430,7 +429,7 @@ iteration:
 \verb|+     else:| \\
 \verb|+         value = sum| \\
 \verb|+     next Y = Y }| \\
-\verb|> the sum from 5 through 10| \\
+\verb|> sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all sums from X through Y| \\
 \begin{tabular}{|r|r|r|r|r|r|}
@@ -456,8 +455,7 @@ iteration:
 One can also iterate over data.
 
 \begin{indpar}
-\verb|> define (the average weight of X)| \\
-\verb|+         -: tuple X of persons {| \\
+\verb|> average weight of X <-- tuple X of persons {| \\
 \verb|+     first count = 0| \\
 \verb|+     first sum = 0| \\
 \verb|+     if X = ():| \\
@@ -469,7 +467,7 @@ One can also iterate over data.
 \verb|+         next count = count + 1| \\
 \verb|+         next sum = sum + the weight of (first X)| \\
 \verb|+         next X = rest X }| \\
-\verb|> the average weight of (all persons)| \\
+\verb|> average weight of (all persons)| \\
 \verb|116.5 lbs|
 \end{indpar}
 
@@ -550,38 +548,53 @@ compute such tuples are \key{flattened}:
 
 \newpage
 
+PCASL stores information as expressions.  For example:
+
+\begin{indpar}
+\verb|> a person named X <-- a person Y, Y has name X {| \\
+\verb|+     value = Y }| \\
+\verb|> (a person named `Jack') is husband of (a person named `Jill') <--| \\
+\verb|> Y is wife of X <-- X is husband of Y| \\
+\verb|> (a person named `Jill') is wife of (a person named `Jack') ?| \\
+\verb|true| \\
+\verb|> (a person named `Jack') is wife of (a person named `Jill') ?| \\
+\verb|false| \\
+\verb|> (a person named X) is wife of (a person named `Jack') ?| \\
+\verb|X = `|Jill\verb|'|
+\end{indpar}
+
 In PCASL also supports pictorial data
 that are computed like expressions.
 
 \begin{indpar}
-\verb|> x = [circle 0.4]| \\
+\verb|> x = circle 0.4| \\
 \begin{picture}(0.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \end{picture} \\
-\verb|> y = [rectangle (0.4,0.2)]| \\
+\verb|> y = rectangle (0.4,0.2)| \\
 \begin{picture}(0.4,0.2)
 \put(0,0){\framebox(0.4,0.2){}}
 \end{picture} \\
-\verb|> z = [(circle 0.4) labeled `Jack']| \\
+\verb|> z = (circle 0.4) labeled `Jack'| \\
 \begin{picture}(0.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \put(0.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> [(x right of y) above z]| \\
+\verb|> (x right of y) above z| \\
 \begin{picture}(0.8,0.8)
 \put(0.6,0.6){\circle{0.4}}
 \put(0.0,0.5){\framebox(0.4,0.2){}}
 \put(0.4,0.2){\circle{0.4}}
 \put(0.2,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> [row(x,y,z)]| \\
+\verb|> row(x,y,z)| \\
 \begin{picture}(1.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \put(0.5,0.1){\framebox(0.4,0.2){}}
 \put(1.2,0.2){\circle{0.4}}
 \put(1.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> [column (row(x,y,z), row(z,y,x))]| \\
+\verb|> p = column (row(x,y,z), row(z,y,x))| \\
 \begin{picture}(1.4,0.9)
 \put(0.2,0.7){\circle{0.4}}
 \put(0.5,0.6){\framebox(0.4,0.2){}}
@@ -591,6 +604,34 @@ that are computed like expressions.
 \put(0.5,0.1){\framebox(0.4,0.2){}}
 \put(0.2,0.2){\circle{0.4}}
 \put(0.0,0.0){\makebox(0.4,0.4){Jack}}
+\end{picture} \\
+\verb|> raw x| \\
+\verb|[circle 0.4]| \\
+\verb|> raw p| \\
+\verb|[column (row (circle 0.4,| \\
+\verb|              rectangle (0.4,0.2),| \\
+\verb|              (circle 0.4) labeled `Jack'),| \\
+\verb|         row ((circle 0.4) labeled `Jack',| \\
+\verb|              rectangle (0.4,0.2),| \\
+\verb|              circle 0.4))]|
+\end{indpar}
+
+You can also change how an expression is displayed.
+
+\begin{indpar}
+\verb|> display (a person named X) as ((oval (0.4,0.2)) labelled X) <--| \\
+\verb|> (a person named `Jack')| \\
+\begin{picture}(0.4,0.2)
+\put(0.2,0.1){\oval(0.4,0.2)}
+\put(0.0,0.0){\makebox(0.4,0.2){Jack}}
+\end{picture} \\
+\verb|> ``(a person named `Jill') is wife of (a person named `Jack')''| \\
+\begin{picture}(2.0,0.2)
+\put(0.2,0.1){\oval(0.4,0.2)}
+\put(0.0,0.0){\makebox(0.4,0.2){Jill}}
+\put(0.4,0.0){\makebox(1.2,0.2){is the wife of}}
+\put(1.8,0.1){\oval(0.4,0.2)}
+\put(1.6,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture}
 \end{indpar}
 
