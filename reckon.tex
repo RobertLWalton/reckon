@@ -1432,10 +1432,10 @@ must match (see \ref{MATCHING}) the {\em closing-mark} lexeme that
 ends an subexpression.
 
 Besides subexpressions defined in this section, other implied subexpressions
-may be induced by operators: see \ref{OPERATORS}.
+may be induced by operators: see \ref{PARSING}.
 
-\subsection{Operators}
-\label{OPERATORS}
+\subsection{Parsing}
+\label{PARSING}
 
 Before an expression can be evaluated, it must be
 \ikey{parsed}{parsing!expressions}.  The first
@@ -1443,24 +1443,23 @@ step in parsing is to transform the expression into a sequence of
 expression items as described in \ref{SUBEXPRESSIONS}.  This is
 called \key{subexpression parsing}.
 
-The second step in parsing is called \key{operator parsing},
-and consists of substeps called \skey{operator scan}s.
-An operator scan performed on an expression finds all the
+The second step in parsing is called \key{operator parsing}.
+Operator parsing finds all the
 the expression items that are operators, picks from these the operators
 of lowest precedence, and inserts implied parentheses around the arguments
-of these operators, making new subexpressions.  Operator parsing
-is just performing an operator scan of an expression and then performing
-operator parsing recursively on all the subexpressions of the result of
-the operator scan.
+of these operators, making new subexpressions.  The exact way in which
+lowest precedence operators are selected and implied parantheses are
+inserted depends upon operator definitions in the lexical context:
+see \ref{OPERATOR-DEFINITIONS}.
 
-TBD
+The third step in parsing is to parse each subexpression.  Thus parsing
+is recursive.
 
-Operator parsing is done under the control of the \key{lexical context}.
-In many cases, the lexical conte
-which is defined 
-which is defined by the
-code that is evaluating the expression to be parsed.  The operator context
-defines operators and specifies their precedence and other properties.
+In specific circumstances, subexpressions of an expression $E$
+can be operator definitions (\ref{OPERATOR-DEFINITIONS})
+that are added to the lexical context used to parse
+subsequent subexpressions of $E$. TBD
+
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
