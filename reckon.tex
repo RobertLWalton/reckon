@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 8, 2003}
+\date{December 9, 2003}
  
 \maketitle
 
@@ -2222,7 +2222,7 @@ tree.
 
 There are several operations that convert expression trees into general
 expression graphs.  All these use a designated operator, which defaults
-to \ttkey{..::}, to identify expression graph variables and their values.
+to \ttkey{//}, to identify expression graph variables and their values.
 The most commonly used conversion operation also uses the convention that
 words beginning with a capital letter designate
 expression graph variables.
@@ -2238,6 +2238,7 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
 
 \newcommand{\Glabel}[1]{\mbox{\tt #1}}
 \newcommand{\Gvariable}[1]{\fbox{\tt #1}}
+\newcommand{\Gdefault}[1]{\fbox{\fbox{\tt #1}}}
 \newenvironment{Graph}%
     { \( \left[ \begin{array}{l}}%
     {\end{array} \right] \) }
@@ -2404,28 +2405,31 @@ after a \key{remainder mark} \ttkey{::>} is given the special argument index
 
 Expression trees can be used to represent expression graphs.  This is
 done by defining conversions between expression trees
-to expression graphs.
+and expression graphs.
 
 There are two kinds of such conversions: explicit and implicit.
 In explicit conversion, all graph variable names in the expression trees
-are indicated by a particular graph variable operations which
-by default are `\verb|..::|' and `\verb|~~|'.
+are indicated by particular graph variable operations which
+by default are `\verb|//|' and `\verb|~~|'.
 In implicit conversion, graph variable
 operations are used as in explicit conversion,
 but in addition all expression tree
 leaves that are words beginning with an upper case letter are treated
-as graph variable names, as if they were preceded implicitly by `\verb|..::|'.
+as graph variable names, as if they were implicitly the single
+argument of a `\verb|//|' operation.
 
 In this section we consider conversions between expression trees represented
 by raw expressions and expression graphs.  There are two
 \skey{graph variable operation}s
 involved: the \key{graph variable value operation}, which defaults to
-\ttkey{..::}, and the \key{graph variable default operation}, which
+\ttkey{//}, and the \key{graph variable default operation}, which
 defaults to \verb|~~|\index{~~@{\tt \protect\Tilde\protect\Tilde}}.
 In this section we will consider these
 two operations in the context of raw expressions, but in non-raw expresssions
-these operations are usually the prefix operator \verb|..::|
-and high precedence infix operators \verb|..::| and \verb|~~|.
+these operations are usually the postfix operator \verb|//|
+and high precedence infix operators \verb|//| and \verb|~~|.
+The conversion operations can also be done with different names for
+the graph variable value and default operations.
 
 Using raw expression notation, the following subexpressions are used
 to represent single nodes of an expression graph:
@@ -2433,11 +2437,11 @@ to represent single nodes of an expression graph:
 \begin{indpar}
 \begin{list}{}{}
 
-\item[{\tt [..::} {\em variable-name} {\em variable-value}{\tt]}]~\\
+\item[{\tt [//} {\em variable-name} {\em variable-value}{\tt]}]~\\
 Represents the node represented by {\em variable-value} and specifies that
 this node is the value of the named expression graph variable.
 
-\item[{\tt [..::} {\em variable-name}{\tt]}]~\\
+\item[{\tt [//} {\em variable-name}{\tt]}]~\\
 Represents a node with no label that is not the source of any arrow,
 and specifies that
 this node is the value of the named expression graph variable.
@@ -2449,25 +2453,25 @@ Ditto, in the case that implicit conversion is being used and
 \item[{\tt [\Tilde\Tilde} {\em variable-name} {\em variable-default} {\tt]}]~\\
 Represents a node with no label that is not the source of any arrow,
 specifies that this node is the value of the named expression graph variable,
-and specifies that the default value of the expression graph variable is
+and specifies that the default of the expression graph variable is
 the node represented by {\em variable-default}.
 
 \end{list}
 \end{indpar}
 
 It is possible for several subexpressions of the above form to mention the
-same graph variable.  If this happens, all the subexpressions represent the
-same node, and at most one of the subexpressions may have either a value
-or default value for the variable.  That is, at most one of the subexpressions
+same graph variable.  If this happens, all these subexpressions represent the
+same node, and at most one of these subexpressions may have either a value
+or default for the variable.  That is, at most one of these subexpressions
 may have a second argument.
 
 Some examples of expression trees represented by raw expressions and the
 expression graphs they convert to are as follows:
 
-\begin{center}
-\begin{tabular}{r@{~~~~~}l}
+\begin{indpar}
+\begin{tabular}{p{2.5in}@{~~~~~}l}
 
-\verb|[z [..:: x] [..:: x]]|
+\verb|[z [// x] [// x]]|
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
@@ -2481,12 +2485,122 @@ expression graphs they convert to are as follows:
 	\Gvariable{x} \\
     \end{Gchild} \\
 \end{Graph}
-\\
-\verb||
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{p{2.5in}@{~~~~~}l}
+\verb|[z [// x [+ 9 8]] [// x]]|
 &
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{0}
+	\Glabel{z} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Gvariable{x} \\
+	\begin{Gchild}{0}
+	    \Glabel{+} \\
+	\end{Gchild} \\
+	\begin{Gchild}{1}
+	    \Glabel{9} \\
+	\end{Gchild} \\
+	\begin{Gchild}{2}
+	    \Glabel{8} \\
+	\end{Gchild} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Gvariable{x} \\
+    \end{Gchild} \\
+\end{Graph}
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{p{2.5in}@{~~~~~}l}
+\begin{tabular}{l}
+\verb|[z [// X foo] X]| \\
+implicit conversion
+\end{tabular}
+&
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{0}
+	\Glabel{z} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Gvariable{X} \\
+	\Glabel{foo}
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Gvariable{X} \\
+    \end{Gchild} \\
+\end{Graph}
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{p{2.5in}@{~~~~~}l}
+\begin{tabular}{l}
+\verb|[z [// X foo] X]| \\
+explicit conversion
+\end{tabular}
+&
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{0}
+	\Glabel{z} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Gvariable{X} \\
+	\Glabel{foo}
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{X} \\
+    \end{Gchild} \\
+\end{Graph}
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{p{2.5in}@{~~~~~}l}
+\begin{tabular}{l}
+\verb|[z [~~ X foo] X]| \\
+implicit conversion
+\end{tabular}
+&
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{0}
+	\Glabel{z} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Gvariable{X} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Gvariable{X} \\
+    \end{Gchild} \\
+\end{Graph}
+~~~
+\begin{tabular}{l}
+defaults: \\
+~\\
+\begin{Graph}
+    \Gdefault{X} \\
+    \Glabel{foo} \\
+\end{Graph}
+\end{tabular}
 
 \end{tabular}
-\end{center}
+\end{indpar}
+
+Here we have represented the default for a variable by putting
+the variable name in a double box, as in \Gdefault{X}, on the node
+that is the default for the variable.  Note that the
+default of a variable must be an expression graph not connected to
+the main expression graph or other default graphs.  Note also that
+a variable with a default cannot have a regular value that is
+anything but an unlabeled node that is not the source of any arrows.
 
 
 \section{Expression Inference}
