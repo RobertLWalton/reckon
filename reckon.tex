@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 29, 2003}
+\date{December 30, 2003}
  
 \maketitle
 
@@ -1731,8 +1731,8 @@ The {\em opening-mark} lexeme that begins a subexpression must lexically match
 (\ref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
-\subsection{Expression Structure}
-\label{EXPRESSION-STRUCTURE}
+\subsection{Expression Structure Overview}
+\label{EXPRESSION-STRUCTURE-OVERVIEW}
 
 Expression structure is affected by four special marks.
 The \key{reorder mark} (\ttkey{<:>}) separates arguments that can be
@@ -1829,33 +1829,27 @@ stack.
 
 From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
-is done by the text parser, which is invoked by
+is done by the text parser (\ref{TEXT-PARSING}), which is invoked by
 \verb|`'| quotes, and does things like turn
-\verb|`I am!'| into \verb|[sentence I am !]|.  A second kind of
-restructuring, which is done by all standard parsers,
-enforces the rule that the first item of an expression with no
-operators cannot be a subexpression or qualifier,
-by inserting the word \verb|-EMPTY-| at the
-beginning of the expression if necessary, as when
-\verb|((integral x) from 0)| is restructured as
-\verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators (\ref{OPERATORS}),
-as recognized by the operators parser,
-can cause major restructuring of an expression,
-as when \verb|x + y - 5 * z| is restructured as \verb|[- [+ x y] [* 5 z]]|,
-and qualifiers, also recognized by the operators parser,
-can cause qualifier marks (\verb|@@|) to be inserted, as when
-\verb|sort x| \verb|ascending|
-is restructured as
-\verb|[sort x @@ ascending]|.
+\verb|`I am!'| into \verb|[sentence I am !]|.  Other kinds of
+restructuring are done by the operators parser (\ref{OPERATORS}).
+The operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
+\verb|x + y - 5 * z| cause this expression to be restructured as
+\verb|[- [+ x y] [* 5 z]]|.  The qualifier `\verb|with|' in the
+expression \verb|sort x with order ascending| cause this expression
+to be restructured as \verb|[sort x @@ with order ascending]|.
+And the qualifier shortcut `\verb|ascending|' in the expression
+\verb|sort x| \verb|ascending| cause this expression to be
+restructured as \verb|[sort x @@ with order ascending]|.
 
-In expressions that cannot contain operators
-or qualifiers, words and separators that would be recognized as operators
-or qualifiers elsewhere are not recognized as such.  Thus in
+In expressions that cannot contain operators,
+words and separators that would be recognized elsewhere as operators,
+qualifiers, or qualifier shortcuts are not recognized as such.  Thus in
 \verb|[word +]| the \verb|+| is not recognized as an operator, and
 in \verb|[item ascending]| \verb|ascending| is not recognized as
-a qualifier.
+a qualifier shortcut.
 
-Some matching lexemes above affect evaluation (eval).
+Some of the matching lexemes above affect evaluation (eval).
 Evaluation differs from parsing context in that it is managed by a
 counter and not a stack; if evaluation is
 turned off twice, it must be turned on twice to be in effect.
@@ -1869,7 +1863,14 @@ corresponding closing mark.  This counter sticks at +1: matching
 lexemes that would increment the counter have no affect if the counter
 is at +1.
 
-Evaluation is also not part of parsing; the evaluation counter is
+The brackets `\verb|<<<|\ldots\verb|>>>|' are equivalent to
+`\verb|<< <<|\ldots\verb|>> >>|' and thus turn evaluation on twice.
+Thus \verb|{ y = `<< <<X>> >>' }| is equivalent to \verb|{ y = `<<<X>>>' }|.
+Similarly the brackets `\verb|<<<<|\ldots\verb|>>>>|'
+are equivalent to `\verb|<< << <<|\ldots\verb|>> >> >>|' and
+turn evaluation on thrice.
+
+Evaluation is not part of parsing; the evaluation counter is
 used during expression evaluation, which occurs after expression parsing.
 Parsing does insert the wrappers (\ref{OPERATOR-WRAPPER})
 \ttkey{-EVAL-ON-} and \ttkey{-EVAL-OFF-} around expressions to inform
@@ -1879,11 +1880,11 @@ the evaluator when to increment or decrement the evaluation counter.
 \label{RAW-EXPRESSIONS}
 
 A raw expression is an expression that contains no operators,
-qualifiers, or text parsing contexts that induce restructuring.
-Also, all raw expressions must begin with a word or separator.
+qualifiers, qualifier shortcuts, or text parsing contexts that
+induce restructuring.
 Raw expressions can be directly represented using the \verb|[]|
-matching lexemes and the \verb|<:>| reorder, \verb|::>| remainder, and 
-\verb|@@| qualifier marks.
+matching lexemes and the \verb|<:>| reorder, \verb|::>| remainder,
+\verb|@@| required qualifier, and \verb|??| optional qualifier marks.
 
 When an expression is parsed, the output is a raw expression.
 The following are examples, all of which are assumed to
@@ -1893,7 +1894,7 @@ operators and qualifiers are turned on and text parsing is turned off):
 \begin{center}
 \begin{tabular}{ll}
 Input Expression	& Raw Expression Equivalent \\[1ex]
-\verb|3*x*x + 5|	& \verb|[+ [* [* 3 x] x] 5]| \\
+\verb|3 * x * x + 5|	& \verb|[+ [* [* 3 x] x] 5]| \\
 \verb|x = y = 10|	& \verb|[= x [= y 10]]| \\
 \verb|0 < x <= 5 |	& \verb|[-COMPARE- 0 < x <= 5]| \\
 \verb|x = `Hello <<y>>.' |
