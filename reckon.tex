@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 2, 2003}
+\date{December 3, 2003}
  
 \maketitle
 
@@ -1455,7 +1455,8 @@ hum \} z			& ; hum \} z \\
 \end{indpar}
 
 
-\section{Expressions}
+\section{Expression Parsing}\index{parsing}
+\label{EXPRESSION-PARSING}
 
 An expression is a sequence of words, separators, and subexpressions.
 A subexpression is a pair of matched lexemes and all the lexemes in
@@ -2170,62 +2171,130 @@ The expression is returned as the result of parsing the expression.
 
 
 \section{Expression Inference}
+\label{EXPRESSION-INFERENCE}
 
-Expressions can be inferred to be true by inference and reduction rules.
-Such \key{expression inference} is more basic than expression
-evaluation, because to evaluate an expression you must first
-infer it.  Inference rules can have associated blocks of code,
-and the inference of an expression by a rule associates the rule's
-block of code with the expression.  Evaluating that block of code
-then evaluates the expression.  However, sometimes expressions are
-inferred without being evaluated.
+Expression inference is done for three reasons:
 
-Inference and reduction rules are collected into sets of rules called
-contexts.  An expression is inferred in some context.  Usually the
-context is that of the code in which the expression appears, but
-sometimes the context is that of the caller of that code (TBD).
+\begin{indpar}
 
-To infer an expression, the expression is first reduced, and then
-inferred.  Reduction and inference are intermixed; to reduce an
-expression, one applied first a reduction rule, and gets are resulting
-set of goal expressions that must be inferred for the reduction to succeed.
-These expressions are in turned first reduced and then inferred.
+{\bf Logic Inference}.\index{logic inference}The expression is
+inferred to discover whether the expression is true or false.
 
-Expression inference is a search process in which inferences
-are found for a non-empty \key{goal set} of \skey{goal-expression}s.
-An \key{inference} is an alternating sequence of expression reductions
-and inference steps.
- 
-Expression reduction is a process that creates a unique result and
-has no side effects.  An inference step takes as input a reduced
-goal-expression and an inference rule, and replaced the goal-expression
-in the goal set by other expressions that are in the inference rule.
+{\bf Evaluation Inference}.\index{logic inference}The expression is
+inferred to discover a code block that is to be used to evaluate the expression.
 
-An unreduced goal expression is said to be the parent of the unreduced
-expressions that replace it in the goal set, and the parent relation
-is labelled by the inference rule used to make the replacement.
-An inference is associated with a forest (set of trees) whose nodes
-are labelled with unreduced goal expressions and whose arcs are just the
-parenting arcs which are labelled with the inference rule used to
-replace the parent by its children.  Two inferences are said to be
-distinct if and only if the inferences have distinct forests.
+{\bf Reduction Inference}.\index{logic inference}The expression is
+inferred to discover a reduction of the expression, which is another
+expression that is substituted for the original expression.
 
-An expression inference is a search for all distinct inferences of
-a goal set whose only member is the expression to be inferred.
+\end{indpar}
+
+All three forms of inference run a reduction/inference algorithm on the
+expression and a set of inference rules.  This algorithm matches
+the expression to an inference rule, and then generates a new set of
+expressions that must be logically inferred in order for the matching
+to be a success.
+
+There are four differences between the three kinds of inference.
+The first is in which inference rules are checked against the expression
+to be inferred.  There are logic rules, evaluation rules, and reduction
+rules.  An expression to be logically inferred is matched only against
+logic rules; an expression to be evaluated is matched only against
+evaluation rules; and an expression to be reduced is matched only
+against reduction rules.  Note that if a matching is successful and a new set
+expressions is generated to be logically inferred, these secondary
+expressions must be logically inferred using only logic rules.
+
+The second difference lies in what is done after inferrence succeeds.
+For logic inference, true is returned.  For evaluation inference, a code
+block assoicated with the matching rule is evaluated.  For reduction
+inference, a reduced expression associated with the reduction rule replaces
+the original expression.
+
+The third difference lies in what is done should inferrence fail.
+For logic inference, false is returned.  For evaluation inferrence, an
+the expression evaluates to an error value.
+For reduction inference, the original expression is left alone and not
+replaced, as if it reduced to itself.
+
+The fourth difference is in what is done should an expression be inferrable
+in more than one way.  In logic inference, true is returned.  In evaluation
+inference, the code blocks of the separate inferences must be the same
+indentical code block, the expression evaluates to an error value.
+For reduction inference,
+the reduced expressions must be structurally the
+same (\ref{EXPRESSION-STRUCTURE}), else an error is
+signalled.
+
+\section{The Inference Algorithm}
+\label{INFERENCE-ALGORITHM}
+
+The inference algorithm inputs an expression to be inferred
+and a set of inference rules.
+
+Rules are collected into contexts.  An expression is
+usually inferred in the context in which the expression occurs,
+though it is possible to explicitly designate the context in which an
+expression is to be inferred.
+
+An inference rule consists of single head and a possibly empty
+set of goals, in the format
+
+\begin{center}
+{\em head} \verb|<===| {\em goal}\verb|,| {\em goal}\verb|,|
+			\ldots\verb|,| {\em goal}
+\end{center}
+
+The head is
+an expression that is matched against the expression to be inferred.
+A goal is an expression that must be logically inferred to make
+inference involving the rule a success.  The intuition is that
+the head is true when all the goals are true, and if the head
+can be matched against the expression to be inferred, then
+the expression to be inferred is true if all the goals are true.
+
+The head may contain variables that receive values during matching.
+The goals may contain these same variables which are replaced by
+their values before the goals are logically inferred.
+
+Expression inference consists of the following steps.
+
+\begin{enumerate}
+
+\item Reduce the expression.  Initially, all subexpressions of the
+expression are marked as reducible.  For logic and evaluation inferences,
+the expression itself is considered to be a subexpression, but this is
+not done for reduction inferences.  The reduction algorithm
+selects a reducible subexpression S that does not contain any reducible
+subexpression, and reduces S using reduction inference.  If S is successfully
+reduced, it is replace in the original expression by its reduction, and
+the reduction and all its subexpressions are marked reducible.  If S is
+not successfully reduced, its `reducible mark' is removed, so it becomes
+irreducible.  This step is repeated until there are no reducible subexpressions
+left (including the entire expression itself).
+
+\item
+
+Match the expression to the head of some inference rule of suitable type
+(logic, evaluation, or reduction).  Matching assigns values to variables
+in the expression being inferred and to variables in the head of the
+inference rule.
+
+\item
+Expand the goal expressions of the inference rule whose head matched,
+by replacing variables in these expressions that were assigned values
+by the matching with their values.
+
+\item
+Logically infer each expanded goal.
+
+\end{enumerate}
 
 
-Reduction and inference rules make use of unification and unification
-variables (\ref{UNIFICATION}).
-Each inference generates a set of values for the unification variables in the
-original goal set.  Inference may create new unification variables that
-appear in these values.
+\subsection{Matching}
+\label{MATCHING}
 
-As inference rules (\ref{INFERENCE-RULES})
-are simpler than reduction rules (\ref{REDUCTION-RULES}),
-inference rules are explained first.
-
-\subsection{Unification}
-\label{UNIFICATION}
+TBD
 
 Expressions are externally represented as sequences of lexemes and
 subexpressions, but internally they are represented as directed graphs whose
@@ -2348,6 +2417,9 @@ if several inferences are found but their result-expressions fail to unify.
 An expression is \key{reduced} by reducing all its subexpressions, smallest
 first, until lastly the whole expression is reduced as a subexpression of
 itself.
+
+\section{Expression Evaluation}
+\label{EXPRESSION-EVALUATION}
 
 \section{Design Notes}
 
