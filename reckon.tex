@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 14, 2003}
+\date{December 15, 2003}
  
 \maketitle
 
@@ -1688,7 +1688,7 @@ The syntax of raw expressions is defined as follows:
 		 & {\em raw-argument-list} \\
 		 & {\em raw-qualifier-phrase}$^\star$ \verb|]| \\
 	\end{tabular} \\[1ex]
-\key{raw-expression-head} ::= {\em word} $|$ {\em separator} \\[1ex]
+\key{raw-expression-head} ::= {\em raw-expression} \\[1ex]
 \key{raw-argument-list} ::=
 	    {\em raw-base-argument-list}
 	    {\em raw-argument-remainder-option} \\[1ex]
@@ -1703,16 +1703,21 @@ The syntax of raw expressions is defined as follows:
 	{\em empty} $|$ \verb|::>| {\em raw-argument} \\[1ex]
 \key{raw-argument} ::= {\em raw-expression} \\[1ex]
 \key{raw-qualifier-phrase} ::=
-	\verb|@@| {\em raw-qualifier-head} {\em raw-argument-list} \\[1ex]
-\key{raw-qualifier-head} ::= {\em word} $|$ {\em separator}
+	{\em qualifier-mark} {\em raw-qualifier-head}
+			     {\em raw-argument-list} \\[1ex]
+\key{qualifier-mark} ::= {\em required-qualifier-mark}
+			 $|$ {\em optional-qualifier-mark} \\[1ex]
+\key{required-qualifier-mark} ::= \ttkey{@@} \\[1ex]
+\key{optional-qualifier-mark} ::= \ttkey{??} \\[1ex]
+\key{raw-qualifier-head} ::= {\em raw-expression}
 \end{indpar}
 
 The order of {\em raw-qualifier-phrases}
 in a {\em raw-expression} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
-not matter.  Both {\em reorder-marks} (\verb|<:>|) and {\em remainder-marks}
-(\verb|::>|) can only occur in the head of an inference rule
-(\ref{INFERENCE-RULE}).
+not matter.  The {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
+(\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
+can only occur in a pattern (\ref{EXPRESSION-MATCHING}).
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -2367,13 +2372,11 @@ the two graphs taken separately.
 PCASL uses expression graph unification to represent expression
 graphs (\ref{EXPRESSION-GRAPH-REPRESENTATION}).
 PCASL also employs a modification of the unification operation
-called the matching operation (\ref{MATCHING}).
+called the matching operation (\ref{EXPRESSION-MATCHING}).
 
 Unification of two expression graphs
 either succeeds and produces a unique expression
-graph as its result, or fails and produces no result.  Unification
-fails if any graph being unified has a node that is the source of
-two or more arrows with the same arrow label.
+graph as its result, or fails and produces no result.
 
 If X and Y are expression graphs then their unification, Z,
 is computed by the following \key{unification algorithm}.
@@ -2438,8 +2441,13 @@ If either M or N is a labeled node and the other node is the
 source of some arrows, the unification algorithm fails.
 
 \item
-If either M or N is a node that is the source of two or more arrows
-with the same label, the unification algorithm fails.
+If there is an arrow label L such that one of the nodes M or N
+is the source of two or more arrows labeled L and the other node is the
+source of one or more arrows labeled L, the unification algorithm fails.
+Intuitively, when we try to match the arrows sourced at one of the
+two nodes with arrows sourced at the other of the two nodes so
+that matched arrows have the same arrow label, then we must get a
+unique answer.
 
 \item
 Replace M by a forwarding pointer that points at N.
@@ -2538,7 +2546,7 @@ at a node labeled with the number of arguments in the raw expression.
 A second example is the expression
 
 \begin{center}
-\verb|[sort x @@ with key weight @@ with comparator <]|
+\verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
 \end{center}
 
 is represented by the expression tree
@@ -2555,7 +2563,7 @@ is represented by the expression tree
     \begin{Gchild}{1}
 	\Glabel{x} \\
     \end{Gchild} \\
-    \begin{Gchild}{-QUALIFIER-}
+    \begin{Gchild}{-REQUIRED-QUALIFIER-}
 	\begin{Gchild}{-ARITY-}
 	    \Glabel{2}
 	\end{Gchild} \\
@@ -2569,7 +2577,7 @@ is represented by the expression tree
 	    \Glabel{weight}
 	\end{Gchild} \\
     \end{Gchild} \\
-    \begin{Gchild}{-QUALIFITER-}
+    \begin{Gchild}{-REQUIRED-QUALIFITER-}
 	\begin{Gchild}{-ARITY-}
 	    \Glabel{2}
 	\end{Gchild} \\
@@ -2583,11 +2591,23 @@ is represented by the expression tree
 	    \Glabel{<}
 	\end{Gchild} \\
     \end{Gchild} \\
+    \begin{Gchild}{-OPTIONAL-QUALIFITER-}
+	\begin{Gchild}{-ARITY-}
+	    \Glabel{0}
+	\end{Gchild} \\
+	\begin{Gchild}{0}
+	    \Glabel{ascending}
+	\end{Gchild} \\
+    \end{Gchild} \\
 \end{Graph}
 \end{center}
 
-Here each qualifier becomes node that is the target of an arrow labeled
-`\ttkey{-QUALIFIER-}'.  The qualifier node has the arrows with the same
+Here each qualifier becomes the target of an arrow labeled
+`\ttkey{-REQUIRED-QUALIFIER-}'
+if the `\verb|@@|' \key{required-qualifier-mark} is used or
+`\ttkey{-OPTIONAL-QUALIFIER-}'
+if the `\verb|??|' \key{optional-qualifier-mark} is used.
+The qualifier node has arrows with the same
 labels as the root node: an arrow labeled `\verb|0|' for the
 qualifier head, arrows labeled `\verb|1|', `\verb|2|', etc. for the
 arguments, and an arrow labeled `\verb|-ARITY-|' for the number of arguments.
@@ -3014,8 +3034,8 @@ Logically infer each expanded goal.
 \end{enumerate}
 
 
-\subsection{Inference Matching}
-\label{INFERENCE-MATCHING}
+\subsection{Expression Matching}
+\label{EXPRESSION-MATCHING}
 
 \ikey{Inference matching}{inference matching}\index{matching!inference}
 is a variant on unification (\ref{UNIFICATION}).  What is changed is
