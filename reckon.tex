@@ -2422,7 +2422,8 @@ neither YD or XD is missing, add the merge pair (XD,YD) to the merge set.
 
 \item
 For each merge pair (M,N) in the merge set,
-perform the following \key{node merge algorithm}.
+perform the following \key{node merge algorithm}.%
+\label{NODE-MERGE-ALGORITHM}
 Do this recursively until the merge set is empty.
 
 \begin{enumerate}
@@ -3065,6 +3066,149 @@ unification when merging nodes that have qualifiers or that have
 optional, reordered, or rest arguments.  Expression matching is
 used in the inference algorithm (\ref{INFERENCE-ALGORITHM}).
 
+Expression matching treats call nodes differently than unification
+does.  A \key{call node} is a node that has
+an \mkey{arity arrow}{of call node}.
+That is, it is the source of an arrow labeled
+\ttmkey{-ARITY-}{of call node}.  More specifically, expression
+matching replaces the node merge algorithm
+(page~\pageref{NODE-MERGE-ALGORITHM})
+with the call merge algorithm described below.
+algorithm in
+
+The call merge algorithm performs a subalgorithm called
+the \key{call check algorithm} that checks whether a call node
+is legal.  Specifically, a call node N passes the call check
+algorithm if and only if the following are true:
+
+\begin{enumerate}
+
+\item
+The arity of N is either a natural number $n$ (string of digits without
+high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
+are natural numbers and $m<n$.  In either case $n$ is called the
+\key{maximum arity} of the call node N.
+
+\item
+N has exactly one head arrow.
+
+\item
+There exists a 1-1 map between the set of unreordered and reordered
+(but not rest) argument arrows of N and the set of
+natural numbers from \verb|1| through $n$, where $n$ is the
+maximum arity of N, such that if $i$ is a natural number
+from \verb|1| through $n$, the arrow mapped to $i$
+is either an unreordered argument arrow labeled $i$, 
+or is a reordered argument arrow labeled $j$\verb|-|$k$
+where $j\leq i\leq k$.
+
+Such a mapping is called a \key{argument order assignment} of N.
+If there are any reordered arguments of N, there will be
+more than one argument order assignment of N.
+
+\item
+N has at most one rest argument arrow.  If N has a rest argument
+arrow, the rest argument of N is a node with no label
+that is the source of no arrows.
+
+\item
+N can have any number of qualifier arrows (required or optional).
+
+\item
+There are no arrows sourced at N other than those with labels
+enumerated above.  That is, any arrow sourced at N is either an arity
+arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
+or a qualifier arrow.
+
+\item
+The qualifiers of N (targets of qualifier arrows)
+satisfy the arity check recursively.  The arity check
+algorithm allows cycles in the graph, e.g. the case that N and one
+of its qualifiers are the same node.
+
+Note that raw expressions cannot represent call nodes that have
+qualifiers which in turn have qualifiers, but the conversions
+of \ref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
+Because of the difficulty of representing them, such call nodes are
+of mostly theoretical interest.
+
+\end{enumerate}
+
+TBD
+
+
+The \key{arity merge algorithm} makes choices during its execution.  Each
+set of possible choices over the whole matching algorithm that contains
+arity merges leads to a separate matching algorithm execution that
+either succeeds or fails.
+
+The \key{arity merge algorithm} for a merge pair (M,N) in the merge set,
+where either M or N or both is the source of an arrow labeled
+`\verb|-ARITY-|', and with a particular set of choices, is as follows.
+
+\begin{enumerate}
+
+\item
+Remove (M,N) from the merge set.
+
+\item
+If either M or N fails to pass an arity check, the unification algorithm
+fails.
+
+\item
+If M and N are the same node, terminate the arity merge algorithm.
+
+\item
+If both M and N may have a reordered or rest argument, the
+unification algorithm fails.
+
+\item
+If N has a reordered or rest argument, swithch M and N, so only M
+has a reordered or rest argument.
+
+\item
+If M has does not have a rest argument R and MA does not equal NA,
+the unification algorithm fails.
+
+\item
+If M has a rest argument R, let MA be the arity of M and NA be the
+arity of N, and run the following \key{remainder merge subalgorithm}.
+
+\begin{enumerate}
+
+\item
+If MA is greater than NA, the unification algorithm fails.
+
+\item
+For each natural number I from MA$+$1 through NA, an arrow
+an arrow labeled I$-$MA is added that has R as its source and the
+I'th argument of N as its target.
+
+\end{enumerate}
+
+\item
+Choose an argument order assignment for M.  For \verb|1|$\leq$I$\leq$A,
+let MI bet the assigned I'th argument of M and NI be the I'th argument
+of N, and add the merge pair (MI,NI) to the merge set.
+
+\item
+Replace M by a forwarding pointer that points at N.
+This means that henceforth any attempt to reference M will be forwarded
+to N, so M is effectively merged with N.
+
+\item
+
+
+\item
+TBD
+For every arrow sourced at M do the following.
+Let the arrow be labeled L and point at target node MT.
+If N is not the source of an arrow labeled L,
+make a new arrow labeled L pointing from N to MT.
+But if N is the source of an arrow labelled L with target NT, add the
+merge pair (MT,NT) to the merge set.
+
+\end{enumerate}
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
 
@@ -3189,175 +3333,6 @@ Logically infer each expanded goal.
 
 \end{enumerate}
 
-
-\subsection{Expression Matching}
-\label{EXPRESSION-MATCHING}
-
-\ikey{Inference matching}{inference matching}\index{matching!inference}
-is a variant on unification (\ref{UNIFICATION}).  What is changed is
-the way two nodes are merged if one or both nodes are the source of
-an arrow labeled \ttmkey{-ARITY-}{merge}.  The alterred merge algorithm is
-called the \key{arity merge algorithm}.
-
-The arity merge algorithm performs \skey{arith check}s on the nodes it
-is merging.
-
-A node N passes an arity check if and only if
-all of the following are true:
-
-\begin{enumerate}
-
-\item
-N is the source of exactly one arrow labeled `\ttmkey{-ARITY-}{check}'.
-This arrow is called the \key{arity arrow} of N, and its target is
-called the \mkey{arity target}{of node} of N.
-
-\item
-The arity target of N is a node labeled A, where A is
-a natural number (string of decimal digits with no high order zeroes).
-A is called the \mkey{arity}{of node} of N.
-
-\item
-N is the source of exactly one arrow labeled `\verb|0|'.
-This arrow is called the \key{head arrow} of N, and its target is
-called the \mkey{head}{of node} of N.
-
-\item
-If an arrow sourced at N has a non-zero natural number label I, then
-\verb|1|$\leq$I$\leq$A, and there is exactly one arrow labeled I sourced at N.
-These arrows are called the \skey{unreordered argument arrow}s of N,
-and their targets are called
-\ikey{unreordered arguments}{unreordered argument!of node} of N.
-The target of the arrow labeled I is called the \key{I'th argument} of N.
-
-\item
-If an arrow sourced at N has a label of the form `J\verb|-|K', for
-natural numbers J and K, then 1$\leq$J$<$K$\leq$A, and there are exactly
-K$-$J$+1$ arrows sourced at N with this label.
-These arrows are called the \skey{reordered argument arrow}s of N,
-and their targets are called
-\ikey{reordered arguments}{reordered argument!of node} of N.
-
-\item
-There is a 1-1 mapping between the integers
-1 through A and the unreordered and ordered
-argument arrows of N
-such that for 1$\leq$I$\leq$A,
-I is mapped to an arrow that either
-has label I or has label `J\verb|-|K' with J$\leq$I$\leq$K.
-Every unreordered and ordered argument arrow must be mapped to
-some integer by this mapping.
-The arrow mapped to I is called the \key{assigned I'th argument arrow}
-of N, and the target of this arrow is called the
-\key{assigned I'th argument} of N.
-
-Such a mapping is called a \key{argument order assignment} of N.
-If there are any reordered arguments of N, there will be
-more than one argument order assignment of N.
-
-\item
-There is at most one arrow sourced at N labeled
-`\ttmkey{-REST-}{arity check}'.
-This arrow is called the \key{rest argument arrow} of N, and its target R is
-called the \mkey{rest argument}{of node} of N.
-
-\item
-If N has a rest argument R,
-R is a node with no label and is the source of no arrows.
-
-\item
-There may be any number of arrows sourced at N labeled
-\ttmkey{-QUALIFIER-}{arity check}.  These arrows are called the
-\skey{qualifier arrow}s of N, and their targets are called the
-\ikey{qualifiers}{qualifier!of node} of N.
-
-\item
-There are no arrows sourced at N other than those with labels
-enumerated above.  That is, any arrow sourced at N is either an arity
-arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
-or a qualifier arrow.
-
-\item
-The qualifiers of N (targets of qualifier arrows)
-satisfy the arity check recursively.  The arity check
-algorithm allows cycles in the graph, e.g. the case that N and one
-of its qualifiers are the same node.
-
-\end{enumerate}
-
-
-The \key{arity merge algorithm} makes choices during its execution.  Each
-set of possible choices over the whole matching algorithm that contains
-arity merges leads to a separate matching algorithm execution that
-either succeeds or fails.
-
-The \key{arity merge algorithm} for a merge pair (M,N) in the merge set,
-where either M or N or both is the source of an arrow labeled
-`\verb|-ARITY-|', and with a particular set of choices, is as follows.
-
-\begin{enumerate}
-
-\item
-Remove (M,N) from the merge set.
-
-\item
-If either M or N fails to pass an arity check, the unification algorithm
-fails.
-
-\item
-If M and N are the same node, terminate the arity merge algorithm.
-
-\item
-If both M and N may have a reordered or rest argument, the
-unification algorithm fails.
-
-\item
-If N has a reordered or rest argument, swithch M and N, so only M
-has a reordered or rest argument.
-
-\item
-If M has does not have a rest argument R and MA does not equal NA,
-the unification algorithm fails.
-
-\item
-If M has a rest argument R, let MA be the arity of M and NA be the
-arity of N, and run the following \key{remainder merge subalgorithm}.
-
-\begin{enumerate}
-
-\item
-If MA is greater than NA, the unification algorithm fails.
-
-\item
-For each natural number I from MA$+$1 through NA, an arrow
-an arrow labeled I$-$MA is added that has R as its source and the
-I'th argument of N as its target.
-
-\end{enumerate}
-
-\item
-Choose an argument order assignment for M.  For \verb|1|$\leq$I$\leq$A,
-let MI bet the assigned I'th argument of M and NI be the I'th argument
-of N, and add the merge pair (MI,NI) to the merge set.
-
-\item
-Replace M by a forwarding pointer that points at N.
-This means that henceforth any attempt to reference M will be forwarded
-to N, so M is effectively merged with N.
-
-\item
-
-
-\item
-TBD
-For every arrow sourced at M do the following.
-Let the arrow be labeled L and point at target node MT.
-If N is not the source of an arrow labeled L,
-make a new arrow labeled L pointing from N to MT.
-But if N is the source of an arrow labelled L with target NT, add the
-merge pair (MT,NT) to the merge set.
-
-\end{enumerate}
 
 
 \subsection{Inference Rules}
