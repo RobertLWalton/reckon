@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 13, 2004}
+\date{January 16, 2004}
  
 \maketitle
 
@@ -2686,7 +2686,7 @@ a representation of the target node of the arrow.  This later
 is of course surrounded by [] brackets.
 
 It is permitted to omit the [] brackets when only one thing is
-bracketted.  Thus the above example can also be rendered as:
+bracketed.  Thus the above example can also be rendered as:
 
 \begin{center}
 
@@ -2753,7 +2753,7 @@ of node pairs called \skey{merge pair}s.  For pure unification of
 two nodes, X and Y, this is initialized to the set containing
 only the one merge pair, (X,Y).
 
-A unification alogithm simply extracts a merge pair (M,N) from the
+A unification algorithm simply extracts a merge pair (M,N) from the
 merge set, merges the two nodes named, M and N, and does this
 repeatedly until the merge set is empty.  The algorithm succeeds if
 every pair of nodes that must be merged can be merged.  When two nodes
@@ -3723,7 +3723,7 @@ implicit conversion
 In this section we give ideas that may or may not be used to
 implement PCASL expression graphs.
 
-PCASL may have a single memory of nodes and arrows that holds all expession
+PCASL may have a single memory of nodes and arrows that holds all expression
 graphs.  We will call this the expression graph memory.
 
 There may be at most one node in expression graph memory that has a given
@@ -3771,18 +3771,27 @@ that matches the expression.  Expression definitions also have guards, which
 are expressions that must evaluate to true in order for the expression
 definition to apply.  An expression definition may have an expression block
 that executes in order to produce a value for the expression if the definition
-applies.  If an expression definition has no expression block, the expression
+applies.  If an applicable
+expression definition has no expression block, the expression
 evaluates to `\ttkey{true}'.  If no expression definition applies to an
-expression, the expression evaluates to `\ttkey{false}'
+expression, the expression evaluates to `\ttkey{false}'.
 
 Expression definitions are searched for in a context, which is a list
 of expression definitions and pointers to other contexts.
 Each point in the program has a lexical context, which is used by default
 for expression evaluation.  There is also a global context to which
 definitions may be added or from which they may be deleted.
-An expression may act like a function call, and the called function may
-evaluate expressions in the context of its caller, or a context derived
-from that of its caller.
+The block of an expression definition usually evaluates expressions in the
+lexical context of its expression definition,
+but may evaluate expressions in the context of the expression being
+evaluated by the expression definition.
+
+When an expression definition applies to an expression, variables in the
+expression definition are bound to subexpressions of the expression.
+Then some of these subexpressions are evaluated and replaced by their
+values before the guards and block of the expression definition are
+evaluated.  These argument evaluations and also all guard evaluations are
+required to have no visible side effects.
 
 \subsection{Expression Definitions}
 \label{EXPRESSION-DEFINITIONS}
@@ -3801,6 +3810,9 @@ from that of its caller.
 \key{block} ::= \verb|{| {\em statement}$^\star$ \verb|}|
 \end{indpar}
 
+{\em Blocks} and {\em statements} are further defined in
+\ref{BLOCK-EVALUATION}.
+
 In use, the {\em pattern} is call unified (\ref{CALL-UNIFICATION})
 with the expression being
 evaluated.  If unification fails, the definition does not apply.  If
@@ -3809,7 +3821,7 @@ the {\em pattern} are evaluated and replaced by their values, and then
 the {\em guards} are evaluated.  If any of the {\em guards} evaluate
 to `\verb|false|', the definition does not apply.  If all evaluate to
 `\verb|true|', the definition applies.  Then if the definition has
-a {\em block}, that is evaluated and produces a value for the expression.
+a {\em block}, that is evaluated to produce a value for the expression.
 If not, the value of the expression is `\verb|true|'.  If no definition
 that applies can be found, the value of the expression is `\verb|false|'.
 
@@ -3840,37 +3852,41 @@ Evaluation may be done in any of the following modes:
 
 \begin{list}{}{}
 
-\item[\ttkey{first-value}]~~~~The first definitions in contexts and first
+\item[\ttkey{first-value}]~\\
+The first definitions in contexts and first
 argument order assignments tried that lead to success are the only ones
 used.  Definitions are tried in the order they are given in the contexts
 used in evaluation.
 The order in which argument order assignments are tried is implementation
 dependent.
 
-\item[\ttkey{all-values}]~~~~All possible choices are tried and the
+\item[\ttkey{all-values}]~\\
+All possible choices are tried and the
 successful results are collected in a set of results.  Each result
 in this set consists of a value for the expression being evaluated
 and values for each variable in that expression.
 
-\item[\ttkey{consistent-values}]~~~~All possible choices are tried and the
+\item[\ttkey{consistent-values}]~\\
+All possible choices are tried and the
 successful results are collected in a set of values.  Then these results
 are tested to see if they are pairwise equal.  If yes, one of these results
-is returned as the expression value.  If no, an error values describing
-the error are returned as the expression value, and as values of any variables
-in the expression.
+is returned as the expression value.  If no, an error value describing
+the evaluation is returned as the expression value, and as the value of any
+variable in the expression.
 
-\item[\ttkey{consistent-reordering}]~~~~Definitions are 
+\item[\ttkey{consistent-reordering}]~\\
+Definitions are 
 tried in the order they are given in the contexts used in evaluation,
 and the first definitions that apply are used.  However, for each definition
 all possible argument order assignments are tried.  The results are collected
 in a set of results that is tested for pairwise equality.  If all are equal,
-one of these results is returned as the expression value.  Otherwise, an
-error value describing the error is returned as the expression value,
-and as values of any variables in the expression.
+one of these results is returned as the expression value.  Otherwise,
+an error value describing the evaluation is returned as the expression value,
+and as the value of any variable in the expression.
 
 \end{list}
 
-If the search process that is expression evaluation yields no results at all,
+If the expression evaluation search process yields no results at all,
 the expression is given the value `\verb|false|', and variables in the
 expression are not changed.
 
@@ -3881,9 +3897,8 @@ assignment is as follows.
 \begin{enumerate}
 
 \item
-Make a copy of the expression definition.  In this copy, change each
-variable name to a new unique name not used elsewhere to name any
-variable.
+Make a copy of the expression definition.  Variables in this copy are
+distinct from other variables of the same name in memory.
 
 \item
 
@@ -3907,7 +3922,8 @@ These variable value evaluations here are not permitted to have
 visible side effects (\ref{VISIBLE-SIDE-EFFECTS}).
 
 \item
-Evaluate each guard of the definition in order.  If any fail to evaluate to
+Evaluate each guard of the definition in left to right order.
+If any fail to evaluate to
 `\verb|true|', the definition does not apply.  These guard evaluations are not
 permitted to have visible side effects (\ref{VISIBLE-SIDE-EFFECTS}).
 
