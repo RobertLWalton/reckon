@@ -74,6 +74,8 @@
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+% < and > do not work for \tt \bf, hence:
+\newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
@@ -102,6 +104,18 @@
 \catcode`^=12
 \newcommand{\Circumflex}{^}
 \catcode`^=\CircumflexCatcode
+
+\newcount\BraCatcode
+\BraCatcode=\catcode`\<
+\catcode`<=12
+\newcommand{\Bra}{<}
+\catcode`<=\BraCatcode
+
+\newcount\KetCatcode
+\KetCatcode=\catcode`\>
+\catcode`>=12
+\newcommand{\Ket}{>}
+\catcode`>=\KetCatcode
 
 \newcount\CurlyBraCatcode
 \newcount\CurlyKetCatcode
@@ -173,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 1, 2004}
+\date{November 2, 2004}
  
 \maketitle
 
@@ -1044,8 +1058,12 @@ Pre-lexemes are defined as follows:
 				        \\[1ex]
 \key{white-space} ::= {\em white-space-character}
                      {\em white-space-character}\,$^\star$ \\[1ex]
-\key{white-space-character} ::=
-    \key{horizontal-space-character} $|$ \key{vertical-space-character} \\[1ex]
+\key{white-space-character}
+    \begin{tabular}[t]{rl}
+    ::= & {\em horizontal-space-character} \\
+    $|$ & {\em vertical-space-character}
+    \end{tabular}
+    \\[1ex]
 \key{horizontal-space-character} ::=
     \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
 \key{vertical-space-character} ::=
@@ -1349,7 +1367,7 @@ converted to numbers.
 \label{RADIXED-NUMBERS}
 
 \ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
-radixes to the used instead of decimal.  In fact, other number representation
+radi\-ces to the used instead of decimal.  In fact, other number representation
 schemes are permitted.
 
 \begin{indpar}
@@ -1492,7 +1510,7 @@ multiplication by their radix to the exponent power.  Thus
 \label{UNIT-NUMBERS}
 
 \ikey{Unit-numbers}{unit-number} are just {\em decimal-numbers}
-with a {\em unit-indicator} prefixed or postfixed.  A {\em sign} may be before
+with a {\em unit-indica\-tor} prefixed or postfixed.  A {\em sign} may be before
 or after a prefix {\em unit-indicator}.
 
 \begin{indpar}
@@ -2096,17 +2114,17 @@ parentheses as their opening and closing marks.
 \label{EXPRESSION-STRUCTURE-OVERVIEW}
 
 Expression structure is affected by five special marks.
-The \key{optional argument mark} `\ttkey{::?}' is used in expression
+The \key{optional argument mark} `\ttnbkey{::?}' is used in expression
 definitions
 to separate arguments that are required from those that can be optional,
 as in the expression `\verb|find-max LIST ::? COMPARATOR|', in which the
 the `\verb|LIST|' argument is required but the `\verb|COMPARATOR|' argument
 is optional.
-The \key{reorder mark} `\ttkey{<:>}' is used in expression definitions
+The \key{reorder mark} `\ttnbkey{<:>}' is used in expression definitions
 to separate arguments whose order can be switched,
 as in the expression `\verb|element LIST <:> INDEX|' in which the
 `\verb|LIST|' and `\verb|INDEX|' argument can be switched.
-The \key{remainder mark} `\ttkey{::>}' precedes a final argument in an
+The \key{remainder mark} `\ttnbkey{::>}' precedes a final argument in an
 expression definition that represents the list of remaining arguments in a use
 of the definition, as in the expression `\verb|max ::> ARGS|',
 where \verb|ARGS| represents
@@ -2118,7 +2136,7 @@ expression item is a required qualifier, as in the expression
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|)
 in an expression.
 The \key{optional qualifier mark}\index{qualifier mark!optional}
-`\ttkey{??}' in an expression signals that the following
+`\ttnbkey{??}' in an expression signals that the following
 expression item is an optional qualifier, as in the expression
 `\verb|sort X ?? with order O|'.  When default values are provided in
 definitions, required qualifier marks may be converted automatically to
@@ -2350,8 +2368,8 @@ The syntax of raw expressions is defined as follows:
 \key{optional-argument-mark} ::= \verb|::?| \\[1ex]
 \key{raw-base-argument-list}
 	::= {\em empty} $|$ {\em non-empty-raw-base-argument-list} \\[1ex]
-\key{raw-non-empty-base-argument-list}
-        \begin{tabular}[t]{@{}rl}
+\key{raw-non-empty-base-argument-list} \\
+	\hspace*{0.5in}\begin{tabular}[t]{rl}
 	::= & {\em raw-argument} \\
 	    & \{ {\em reorder-mark-option} {\em raw-argument} \}\,$^\star$
 	\end{tabular} \\[1ex]
@@ -2365,7 +2383,7 @@ The syntax of raw expressions is defined as follows:
 \key{qualifier-mark} ::= {\em required-qualifier-mark}
 			 $|$ {\em optional-qualifier-mark} \\[1ex]
 \key{required-qualifier-mark} ::= \ttkey{@@} \\[1ex]
-\key{optional-qualifier-mark} ::= \ttkey{??} \\[1ex]
+\key{optional-qualifier-mark} ::= \ttnbkey{??} \\[1ex]
 \key{raw-qualifier-head} ::= {\em raw-expression}
 \end{indpar}
 
@@ -2454,19 +2472,16 @@ matchfix operator named `\verb/[ | ... | ]/' permits subexpressions
 like `\verb/[| x - 5 |]/'.  Here the opening operator name
 is `\verb/[|/' and the closing operator name is `\verb/|]/'.
 
-A matchfix operator name must begin with an opening mark other than
-\verb|(|, and end with a matching closing mark.  These must be the only
-opening/closing marks in the matchfix operator name.  Non-matchfix
+A matchfix operator name must begin with an opening mark and end with
+a matching closing mark.  Non-matchfix
 operator names cannot contain opening or closing marks.
 
 When a subexpression is tested
-for matchfix operators, any opening and closing marks that begin and
-end the subexpression are included in the subexpression, unless they are
-parentheses \verb|()|, which are always removed (recursively) when they
-begin and end a subexpression, and are thus invisible.
-Operator names are not allowed
-to include parentheses \verb|()|, so names such as `\verb/(| ... |)/'
-are erroneous.
+for matchfix operators, any explicit opening and closing marks that begin and
+end the subexpression are included in the subexpression.  Implicit
+parentheses, are not included.  Thus a matchfix operator
+such as `\verb/(| ... |)/' can only be invoked with explicit parentheses,
+and not with implicit parentheses.
 
 \subsubsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
 \label{OPERATOR-PRECEDENCE}
@@ -2655,7 +2670,8 @@ The syntax of operator definitions is:
 	$|$ &  \ttkey{left} \\
 	$|$ &  \ttkey{right}
 	\end{tabular} \\[1ex]
-\key{OPERATOR-ASSOCIATIVITY} ::=
+\key{OPERATOR-ASSOCIATIVITY} \\
+        \hspace*{0.5in}::=
 	\verb|[|
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
@@ -2745,7 +2761,12 @@ The operator selection algorithm produces a result that is often
 the same as the more common operator precedence rules for parsing expressions.
 However, in PCASL an operator can change the parsing stack
 used to parse its operand subexpressions, and this allows PCASL to
-to use non-operator-precedence grammars for subexpressions.
+to use abritrary grammars for subexpressions.\footnote{In practice
+we expect this may be equivalent to using an operator precedence grammar
+to parse everything outside explicit opening and closing marks, and only
+permitting matchfix operators to change grammars.  But PCASL currently
+has more capabilities than this, and it is a matter or experiment to
+see whether these extra capabilities are useful.}
 
 In the operator selection algorithm the concepts of
 prefix sequence and postfix sequence
@@ -2758,6 +2779,17 @@ steps in the order given, repeating each step until it does nothing new
 before proceeding to the next step.
 
 \begin{enumerate}
+
+\item
+If the expression begins with an implicit `\verb|(|' and ends with an
+implicit `\verb|)|', then
+discard the beginning `\verb|(|' and ending `\verb|)|'.
+
+Similarly if the expression begins with an explicit
+`\verb|(|' and ends with an explicit `\verb|)|', and if
+there is \underline{no} defined matchfix operator whose opening name
+begins the expression and whose closing name ends the expression, then
+discard the beginning `\verb|(|' and ending `\verb|)|'.
 
 \item
 Select any defined matchfix operator whose opening name
@@ -2775,22 +2807,6 @@ matchfix operators, the second will be deselected.
 
 \item
 If more than one matchfix operator is still selected, the parse is in error.
-
-\item
-If a matchfix operator is selected, and the expression begins with
-a prefix sequence that is not shorter than the opening name of the
-matchfix operator, the parse is in error.
-Similarly if a matchfix operator is selected, and the expression ends with
-a postfix sequence that is not shorter than the closing name of the
-matchfix operator, the parse is in error.
-
-Thus if `\verb|- < ... > -|' is a defined matchfix operator and
-`\verb|-|' is a defined prefix operator, but there is no defined
-prefix operator whose name begins with the lexeme `\verb|<|',
-parses of expressions containing the matchfix operator
-will \underline{not} be in error.
-But if there is another defined prefix operator named `\verb|<|',
-parses of these expressions will be in error.
 
 \item
 If a matchfix operator is selected, the algorithm terminates successfully
@@ -3652,7 +3668,7 @@ which is represented by the raw expression tree
 Here each qualifier becomes the target of an arrow labeled
 `\ttkey{-REQUIRED-QUALIFIER-}' because
 the `\verb|@@|' \key{required-qualifier-mark} is used (the arrow label
-would be `{\tt -OPTIONAL-QUALIFIER-}' if the `\verb|??|'
+would be `{\tt -OPTIONAL-\EOL QUALIFIER-}' if the `\verb|??|'
 optional-qualifier-mark had been used).
 The arrows with these labels are called \skey{qualifier arrow}s of the
 root node and their targets are called \skey{qualifier}s of the root.
@@ -3758,7 +3774,7 @@ which is represented by the raw expression tree
 \end{Graph}
 \end{center}
 
-Arguments appearing after the \key{optional argument mark} \ttkey{::?} are
+Arguments appearing after the \key{optional argument mark} \ttnbkey{::?} are
 optional.  This is indicated by the arity `\verb|1-4|' that indicates
 that argument `\verb|1|' is the last required argument and there are
 `\verb|4|' arguments total.  In general, the arity can have the form
@@ -3772,7 +3788,7 @@ If there are no optional arguments and the arity is just a natural
 number $n$, then $n$ is both the number of required arguments and the
 total number of arguments.
 
-Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
+Consecutive arguments separated by the \key{reorder mark} \ttnbkey{<:>} are
 reorderable.  These arguments are indicated by argument indices that
 describe the positions the arguments can occur in.  Thus in the example
 the two arguments with index `\verb|2-3|' can each appear as either the
@@ -3795,7 +3811,7 @@ That is, if there are optional arguments and
 $m$ is the number of required arguments, either
 $j\leq m$ or $m<i$.
 
-The argument after a \key{remainder mark} \ttkey{::>} is
+The argument after a \key{remainder mark} \ttnbkey{::>} is
 given the special argument index `\ttkey{-REST-}' and names a list of
 all arguments that occur after the total number of arguments specified
 by the arity.  Here \verb|-REST-|
@@ -4699,7 +4715,7 @@ The code of a block has the following syntax:
 \key{right-side} \
     \begin{tabular}[t]{rl}
     ::= & {\em expression} \\
-    $|$ & {\em expression} \ttkey{=>} {\em output-variable}
+    $|$ & {\em expression} \ttnbkey{=>} {\em output-variable}
 		\{ \verb|,| {\em output-variable} \}\,$^\star$
     \end{tabular} \\[1ex]
 \key{output-variable} ::= {\em variable-name} \\[1ex]
@@ -4708,7 +4724,7 @@ The code of a block has the following syntax:
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
 \key{assignment-pattern} ::= {\em expression} \\[1ex]
-\key{unguarded-subblock} ::= {\em block}
+\key{unguarded-subblock} ::= {\em block} \\[1ex]
 \key{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
 \key{if-statement} ::=
