@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 23, 2003}
+\date{December 27, 2003}
  
 \maketitle
 
@@ -231,7 +231,7 @@ data types.
 
 The current version of PCASL is not stable, because it has not been
 implemented, and because, unlike most programming languages, PCASL
-has lots of subtle interactions between its various features.  The
+has lots of subtle important interactions between its various features.  The
 hope is that with implementation and experimentation, a stable sensible
 version of PCASL integrating all its data types can be achieved.
 
@@ -241,8 +241,11 @@ PCASL has two major kinds of data: expressions and blocks.  Numbers are
 the simplest expressions.  More complex expressions are math
 expressions or document expressions.  Blocks are sets of variables
 each of which can have a value, which is an expression, and also
-a definition, which is another expression that is used to compute the
-value when the value is needed.  The definitions of a block, taken all
+a definition, which is a set of guarded expressions.
+Each guarded expression consists of a guard, which is an expression that
+evaluates to true or false, and a value expression, which is an expression
+that is evaluated if the guard is true to produce the value of the variable.
+The definitions of a block, taken all
 together, are called the `code' of the block.
 
 You can use PCASL as a calculator by typing into it expressions to
@@ -303,13 +306,15 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|{|$\int x^2 dx$\verb|}| \\
 \verb|> simplify g| \\
 \verb|{|$\frac{1}{3} x^3$\verb|}| \\
-\verb|> v = g from (x=1) to (x=5)| \\
+\verb|> v = g from (x = 1) to (x = 5)| \\
 \verb|41 1/3| \\
-\verb|> out = `The value of {<<g>> from (x=1) to (x=5)} is <<v>>.'| \\
-\verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
+\verb|> out = `The value of {<<<g>>> from (x = 1) to (x = 5)} is <<v>>.'| \\
+\verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|[sentence the value of {(integral (x^2*dx)) from (x=1) to (x=5)}| \\
-\verb|          is 124/3]|
+\verb|{{sentence the value of| \\
+\verb|           (from-to (integral (* (^ x 2) dx)) from (= x 1)| \\
+\verb|                                              to (= x 5))| \\
+\verb|           is 124/3}}|
 \end{indpar}
 
 Another kind of datum you can compute with in PCASL is
@@ -583,8 +588,8 @@ input it in a way that reveals its internal structure.  Thus
 `{\tt the person named Jack}' is a printed representation of the
 internal name of a block.  Such printed representations are chosen
 automatically from the set of all possible representations, which
-in this case include `{\tt the person weighing 123}' and
-`{\tt the person named Jack weighing 123}'.
+in this case include `{\tt the person weighing 123 lbs}' and
+`{\tt the person named Jack weighing 123 lbs}'.
 
 A single non-tuple value is equivalent to a tuple with one element.
 Tuples cannot have other tuples as elements; instead attempts to
@@ -606,13 +611,18 @@ compute such tuples are \key{flattened}:
 \end{indpar}
 
 PCASL has many different kinds of quotes or brackets.  Some of these,
-\verb|{...}|, \verb|`...'|, and \verb|[...]|, turn evalution off,
-while \verb|<<...>>| turns evaluation on.  Some,
-\verb|`...'| and \verb|[...]|, turn recognition of operators (e.g., \verb|+|
-and \verb|=|) off, while others,
-\verb|{...}| and \verb|<<...>>|, turn recognition of operators on.
-\verb|`...'| (and \verb|``...''|, \verb|```...'''|, etc.), also do other
-things, like insert implicit operations (e.g., \verb|sentence|).
+\verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|, and \verb|{{|\ldots\verb|}}|,
+turn evalution off, while \verb|<<|\ldots\verb|>>|,
+\verb|<<<|\ldots\verb|>>>|, \verb|<<<<|\ldots\verb|>>>>|, etc.
+turn evaluation on.
+Some,
+\verb|`|\ldots\verb|'| and \verb|{{|\ldots\verb|}}|,
+turn recognition of operators (e.g., \verb|+| and \verb|=|) off, while others,
+\verb|<<|\ldots\verb|>>| and \verb|{|\ldots\verb|}|,
+turn recognition of operators on.
+\verb|`|\ldots\verb|'|,
+\verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.
+also do other things, like insert implicit operations (e.g., \verb|sentence|).
 
 PCASL stores information as expressions.  For example:
 
