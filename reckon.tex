@@ -5278,29 +5278,34 @@ sequence of actions is:
 
 Code can be temporarily added to an object by invoking methods.
 A \key{method} is defined by a \key{method definition}
-that is part of the code of an object.
-The method is callable from code inside or outside the block.
+that is an expression definition which is part of the code of an object.
+The method is callable from code inside or outside the object code block.
 The syntax for a method definition is:
 
 \begin{center}
 \ttkey{on} {\em expression-definition}
 \end{center}
 
-When the method definition is called, the method code block executes
-in a particular object.  More specifically, the method code is added
-temporarily to the object, as for the {\tt update} function
-(\pagref{UPDATE}).
+When the method definition is called, the method code block
+is added temporarily to the code that contained
+the method definition.  The object whose code this is
+may be referred to within its
+code by the name \ttkey{SELF}, which may or may not also be an argument
+of the method definition.  If it is an argument, the method definition
+has an implicit guard that requires the {\tt SELF} argument value to be
+equal to the object whose code contains the method definition.
 
-If a method definition has an argument named \ttkey{SELF}, then when the
-definition is called, that argument becomes the object in which
-the method code executes.  This argument must have the same type as
-the object whose code contains the method definition.
-If there is no {\tt SELF} argument, a new method of the right type
-is created by the method execution, and the variable name
-{\tt SELF} may be used in the method code to refer to this object,
-even though there is no argument with this name.
-Usually {\tt SELF} is returned as the value of the execution of such
-a method, but the language does not require this.
+If there is no {\tt SELF} argument, a new object
+is created when the method is called, and the permanent code plus
+method code is executed for that object.  The permanent code must
+contain the method definition in this case.  Such a method is
+called a {\tt constructor}, and the object created is said to be
+constructed by the method execution.  Constructor executions usually return
+the object they construct, but this is not required by the language.
+Constructors usually
+have patterns that begin with `\{ \verb|a| $|$ \verb|an| \} {\em type-name}',
+where {\em type-name} names the type of object they construct, but
+this is not required by the language either.
 
 TBD: protection; protection zones.
 
