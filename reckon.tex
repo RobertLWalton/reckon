@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 26, 2005}
+\date{January 27, 2005}
  
 \maketitle
 
@@ -4498,7 +4498,7 @@ are expressions that must evaluate to true in order for the expression
 definition match to succeed.
 An expression definition may have an expression block
 that executes in order to produce a value for the expression if the definition
-matchs.  If a matching
+matches.  If a matching
 expression definition has no expression block, the expression
 evaluates to `\ttkey{true}'.  If no expression definition matches an
 expression, the expression evaluates to `\ttkey{false}'.
@@ -4840,7 +4840,7 @@ definition {\em CONTEXT-ELEMENTS} that do not have their
 contexts set will have them set equal to the context being created.
 
 Thus given expression definitions that do not have their contexts set,
-the default is to create an immutable context set whose expression defintions
+the default is to create an immutable context set whose expression definitions
 have the new context and therefore can reference each other.  Blocks
 containing {\em EXPRESSION-DEFINITIONs} perform exactly this kind of
 context creation.
@@ -5266,7 +5266,7 @@ outputs \verb|next(|$V$\verb|)|.
 Thus inherited variables are normally propagated unchanged from
 one iteration to the next.
 
-If a {\em next-varible} is given the value of
+If a {\em next-variable} is given the value of
 the expression `\ttkey{UNDEFINED}',\label{UNDEFINED}
 the variable will become undefined
 at the beginning of the next iteration.  Thus the statement
@@ -5490,12 +5490,55 @@ operation can be performed that backs up to previously recorded positions
 by deleting actions form the end of the {\tt todo} list and undoing
 actions on the end of the {\tt undo} list.
 
-TBD
+To control the side effect mode there is a \key{side effect mode stack}.
+This contains items each of which contains a side effect mode and
+positions in the {\tt todo} and {\tt undo} stacks.  The side effect mode
+of the top item on the side effect mode stack is the effective side
+effect mode for current execution.
+Whenever an item is pushed to the side effect mode stack, the current
+positions of the {\tt todo} and {\tt undo} lists are recorded in the
+item.
 
-They can be encapsulated in a dynamic block that makes included side effects
-legal even when side effects outside the block are not.  The included side
-effects are called invisible side effects, while those outside the block
-are called visible.
+The following statements operate on the side effect mode stack:
+
+\begin{list}{}{}
+\item[\ttkey{begin executing side effects}]~~~Push a new item with side effect
+execute mode onto the side effect mode stack.  Before the push the
+stack must be empty or the top item in the stack must have execute or
+error mode.
+
+\item[\ttkey{end executing side effects}]~~~Pop the top item from
+the side effect mode stack.  This top item must have
+execute mode.
+
+\item[\ttkey{begin forbidding side effects}]~~~Push a new item with side effect
+error mode onto the side effect mode stack.  Before the push the
+stack must be empty or the top item in the stack must have execute or
+error mode.
+
+\item[\ttkey{end forbidding side effects}]~~~Pop the top item from the
+side effect mode stack.  This top item must have
+error mode.
+
+\item[\ttkey{delay side effects}]~~~Push a new item with side effect
+delay mode onto the side effect mode stack.
+
+\item[\ttkey{commit side effects}]~~~Pop the top item from the
+side effect mode stack.  This top item must have
+delay mode.  It the resulting stack has a new top item that is not
+delay mode, discard the contents of the {\tt undo} stack, and execute
+and then discard the contents of the {\tt todo} stack.
+
+\item[\ttkey{abort side effects}]~~~Pop the item from the
+the side effect mode stack.  This top item must have
+delay mode.  Consider the {\tt todo} and {\tt undo} list positions
+of the new item at the top of the stack, or take these positions to be
+the beginning of the lists if the stack has become empty.  Remove
+elements from ends of the lists until these considered positions become
+the current list positions.  When removing an element from the end of the
+{\tt undo} list, perform the undo action specified by the element.
+
+\end{list}
 
 \section{Debugging}
 
