@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 22, 2003}
+\date{December 23, 2003}
  
 \maketitle
 
@@ -2694,6 +2694,77 @@ root.
 
 TBD: optional arguments.
 
+\subsection{Call Nodes and the Call Check}
+\label{CALL-NODES-AND-CHECK}
+
+Expression matching treats call nodes differently than unification
+does.  A \key{call node} is a node that has
+an \mkey{arity arrow}{of call node}.
+That is, it is the source of an arrow labeled
+\ttmkey{-ARITY-}{of call node}.  More specifically, expression
+matching replaces the node merge algorithm
+(page~\pageref{NODE-MERGE-ALGORITHM})
+with the call merge algorithm described below.
+algorithm in
+
+The call merge algorithm performs a subalgorithm called
+the \key{call check algorithm} that checks whether a call node
+is legal.  Specifically, a call node N passes the call check
+algorithm if and only if the following are true:
+
+\begin{enumerate}
+
+\item
+The arity of N is either a natural number $n$ (string of digits without
+high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
+are natural numbers and $m<n$.  In either case $n$ is called the
+\key{maximum arity} of the call node N.
+
+\item
+N has exactly one head arrow.
+
+\item
+There exists a 1-1 map between the set of unreordered and reordered
+(but not rest) argument arrows of N and the set of
+natural numbers from \verb|1| through $n$, where $n$ is the
+maximum arity of N, such that if $i$ is a natural number
+from \verb|1| through $n$, the arrow mapped to $i$
+is either an unreordered argument arrow labeled $i$, 
+or is a reordered argument arrow labeled $j$\verb|-|$k$
+where $j\leq i\leq k$.
+
+Such a mapping is called a \key{argument order assignment} of N.
+If there are any reordered arguments of N, there will be
+more than one argument order assignment of N.
+
+\item
+N has at most one rest argument arrow.  If N has a rest argument
+arrow, the rest argument of N is a node with no label
+that is the source of no arrows.
+
+\item
+N can have any number of qualifier arrows (required or optional).
+
+\item
+There are no arrows sourced at N other than those with labels
+enumerated above.  That is, any arrow sourced at N is either an arity
+arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
+or a qualifier arrow.
+
+\item
+The qualifiers of N (targets of qualifier arrows)
+satisfy the arity check recursively.  The arity check
+algorithm allows cycles in the graph, e.g. the case that N and one
+of its qualifiers are the same node.
+
+Note that raw expressions cannot represent call nodes that have
+qualifiers which in turn have qualifiers, but the conversions
+of \ref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
+Because of the difficulty of representing them, such call nodes are
+of mostly theoretical interest.
+
+\end{enumerate}
+
 \subsection{Paths and Witnesses}
 \label{PATHS-AND-WITNESSES}
 
@@ -2817,74 +2888,6 @@ that differs from expression
 unification when merging nodes that have qualifiers or that have
 optional, reordered, or rest arguments.  Expression matching is
 used in the inference algorithm (\ref{INFERENCE-ALGORITHM}).
-
-Expression matching treats call nodes differently than unification
-does.  A \key{call node} is a node that has
-an \mkey{arity arrow}{of call node}.
-That is, it is the source of an arrow labeled
-\ttmkey{-ARITY-}{of call node}.  More specifically, expression
-matching replaces the node merge algorithm
-(page~\pageref{NODE-MERGE-ALGORITHM})
-with the call merge algorithm described below.
-algorithm in
-
-The call merge algorithm performs a subalgorithm called
-the \key{call check algorithm} that checks whether a call node
-is legal.  Specifically, a call node N passes the call check
-algorithm if and only if the following are true:
-
-\begin{enumerate}
-
-\item
-The arity of N is either a natural number $n$ (string of digits without
-high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
-are natural numbers and $m<n$.  In either case $n$ is called the
-\key{maximum arity} of the call node N.
-
-\item
-N has exactly one head arrow.
-
-\item
-There exists a 1-1 map between the set of unreordered and reordered
-(but not rest) argument arrows of N and the set of
-natural numbers from \verb|1| through $n$, where $n$ is the
-maximum arity of N, such that if $i$ is a natural number
-from \verb|1| through $n$, the arrow mapped to $i$
-is either an unreordered argument arrow labeled $i$, 
-or is a reordered argument arrow labeled $j$\verb|-|$k$
-where $j\leq i\leq k$.
-
-Such a mapping is called a \key{argument order assignment} of N.
-If there are any reordered arguments of N, there will be
-more than one argument order assignment of N.
-
-\item
-N has at most one rest argument arrow.  If N has a rest argument
-arrow, the rest argument of N is a node with no label
-that is the source of no arrows.
-
-\item
-N can have any number of qualifier arrows (required or optional).
-
-\item
-There are no arrows sourced at N other than those with labels
-enumerated above.  That is, any arrow sourced at N is either an arity
-arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
-or a qualifier arrow.
-
-\item
-The qualifiers of N (targets of qualifier arrows)
-satisfy the arity check recursively.  The arity check
-algorithm allows cycles in the graph, e.g. the case that N and one
-of its qualifiers are the same node.
-
-Note that raw expressions cannot represent call nodes that have
-qualifiers which in turn have qualifiers, but the conversions
-of \ref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
-Because of the difficulty of representing them, such call nodes are
-of mostly theoretical interest.
-
-\end{enumerate}
 
 TBD
 
