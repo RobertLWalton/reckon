@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 26, 2003}
+\date{December 2, 2003}
  
 \maketitle
 
@@ -1924,8 +1924,11 @@ undefinitions, qualifier definitions, and qualifier undefinitions.
 \subsubsection{Operator Selection}
 \label{OPERATOR-SELECTION}
 
-To check an expression for operators, an operator selection algorithm is
-run.  This algorithm selects operators whose name appears in the expression,
+The operator selection algorithm is run by the
+the \mkey{operators parser}{operator selection}
+\ttmkey{-OPERATORS-PARSER-}{operator selection} to check an expression
+for operators.
+This algorithm selects operators whose name appears in the expression,
 and then applies rules to deselect some selected operators.  If at the end
 of the algorithm there is exactly one operator selected, the definition
 of that operator is used to restructure the expression.  If there is more
@@ -2103,8 +2106,67 @@ operator control flags (\ref{OPERATOR-CONTROL-FLAGS}),
 and operator subdefinitions (\ref{OPERATOR-SUBDEFINITIONS})
 above.
 
-\subsubsection{Selection Post-Processing}
-\label{SELECTION-POST-PROCESSING}
+\subsubsection{Post Operator Selection Processing}
+\label{POST-OPERATOR-SELECTION-PROCESSING}
+
+Post operator selection processing is done after operator selection by
+the \mkey{operators parser}{post operator selection}
+\ttmkey{-OPERATORS-PARSER-}{post operator selection},
+whether or not any operators are selected.
+After operators are selected without a parse error, all the selected
+operators have identical definitions except for operator name.
+The common part of these definitions, which we will refer to as
+`the opertor definition', is used to control post operator selection
+processing of the expression containing the operators.  If no operators are
+selected, a definition containing no optional parts (no named associativity,
+no parser, no control flags, no wrapper, no subdefinitions) is used
+to control post operator selection processing.
+
+Post operator selection processing is done in the following steps.
+
+\begin{enumerate}
+
+\item
+If the operator definition has a parser, this is pushed into the
+parsing parser stack.
+
+\item
+If the operator definition has subdefinitions, these are pushed into the
+parsing definition stack.
+
+
+\item
+Subexpressions are parsed left to right by calling the parser at the
+top of the parsing parser stack.  If the operator definition has the
+\ttmkey{definitions}{control flag} control flag (note the operator must
+be right associative), after the first subexpression is parsed,
+it is checked to see if it is an operator definition
+(\ref{OPERATOR-DEFINITION}).  If yes, this operator definition is pushed
+into the parsing definition stack before the second subexpression is parsed.
+
+\item
+If an operator definition in the first subexpression was pushed into
+the parsing definition stack, the expression is replaced by its parsed
+second subexpression.  Otherwise all subexpressions in the expression
+are replaced by their parsed versions.
+
+\item
+If the operator definition has a named associativity, this is prefixed
+to the expression.
+
+\item
+If the operator definition has a wrapper, the expression is
+replaced by its wrapper with the word \verb|...| in the wrapper
+replaced by the expression.
+
+\item
+If anything was pushed into the parsing stacks above, these things
+are popped from the stacks.
+
+\item
+The expression is returned as the result of parsing the expression.
+
+\end{enumerate}
 
 
 \section{Expression Inference}
