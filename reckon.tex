@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 27, 2003}
+\date{September 28, 2003}
  
 \maketitle
 
@@ -933,8 +933,8 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 
 Other rules of PCASL limit the semantic content
 of {\em white-space}, so that there is no problem putting
-space between the \verb|``| and \verb|`| in the last example:
-see \ref{INDENTATION-LEXEMES}.
+space between the \verb|``| and \verb|`| in the last example
+(\ref{INDENTATION-LEXEMES}).
 
 Angle and Format Separator Examples:
 
@@ -978,8 +978,8 @@ only of {\em vertical-space-characters} followed by {\em space} characters.
 {\em White-space} lexemes are only pre-lexemes; they are deleted
 when pre-lexemes are converted to lexemes.  The rules that
 form the lexeme sequence ensure that all
-{\em vertical-space} characters are equivalent:
-see \ref{INDENTATION-LEXEMES}.
+{\em vertical-space} characters are equivalent
+(\ref{INDENTATION-LEXEMES}).
 
 
 \subsection{Lexemes}
@@ -1427,12 +1427,12 @@ Expressions and subexpressions are defined by the following syntax equations.
 \end{indpar}
 
 {\bf Subexpression Rule.}\index{Subexpression Rule}
-The {\em opening-mark} lexeme that begins an subexpression
-must match (see \ref{MATCHING}) the {\em closing-mark} lexeme that
-ends an subexpression.
+The {\em opening-mark} lexeme that begins a subexpression
+must match (\ref{MATCHING}) the {\em closing-mark} lexeme that
+ends a subexpression.
 
 Besides subexpressions defined in this section, other implied subexpressions
-may be induced by operators: see \ref{PARSING}.
+may be induced by operators (\ref{PARSING}).
 
 \subsection{Parsing}
 \label{PARSING}
@@ -1445,26 +1445,27 @@ called \key{subexpression parsing}.
 
 The second step in parsing is called \key{operator parsing}.
 Operator parsing finds all the
-the expression items that are operators, picks from these the operators
+expression items that are operators, picks from these the operators
 of lowest precedence, and inserts implied parentheses around the arguments
 of these operators, making new subexpressions.  The exact way in which
 lowest precedence operators are selected and implied parantheses are
-inserted depends upon operator definitions in the lexical context:
-see \ref{OPERATOR-DEFINITIONS}.
+inserted depends upon operator definitions in the lexical context
+(\ref{OPERATOR-DEFINITIONS}).
 
 The third step in parsing is to parse each subexpression.  Thus parsing
 is recursive.
 
 In specific circumstances, subexpressions of an expression $E$
 can be operator definitions (\ref{OPERATOR-DEFINITIONS})
-that are added to the lexical context used to parse
-subsequent subexpressions of $E$. TBD
+that are added to the lexical context (\ref{LEXICAL-CONTEXT}) used to parse
+subsequent subexpressions of $E$.
 
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
 
-An operator context consists of a set of \skey{operator definition}s.
+A lexical context (\ref{LEXICAL-CONTEXT})
+consists of a set of \skey{operator definition}s.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
@@ -1508,8 +1509,72 @@ An operator has one of the following fixities:
 \end{tabular}
 \end{indpar}
 
+{\bf Precedence.}\ttmindex{precedence}{of operator}
+The precedence of an operator is an integer.  Precedence is used in
+selecting which infix operators in an expression will be used to form
+implicitly parenthized subexpressions.  Only infix operators have
+precedence.
+
+If no matchfix operators apply to an expression, but there
+are infix operators in the expression, the lowest
+precedence $P$ of any infix operator in the expression is determined, and
+only infix operators of precedence $P$ are considered when inserting implied
+parentheses into the expression.  However, after implied parentheses
+are inserted, higher precedence infix operators, prefix operators, and
+postfix operators will be recognized when
+the resulting subexpressions are parsed recursively.
+
+{\bf Associativity.}\ttmindex{associativity}{of operator}
+A infix operator may be \ttkey{left} or \ttkey{right} associative, or
+\ttkey{non-associative}.
+
+If more than one infix operator with lowest precedence appears in an expression,
+all the operators that appear must have the same associativity.
+
+If all operators are left associative, only the rightmost operator is used to
+insert implied parentheses, so it is as if operators to the left had
+higher precedence than those to the right.
+
+If all operators are right associative, only the leftmost operator is used to
+insert implied parentheses, so it is as if operators to the right had
+higher precedence than those to the left.
+
+If all operators are non-associative, all are recognized, and 
+implicitly parenthesized subexpressions will be created between the
+operators as well as possibly at the beginning and end of the whole expression.
+
+
 \subsubsection{Implicit Parenthesis Insertion}
 \label{IMPLICIT-PARENTHESIS-INSERTION}
+
+If an expression begins and ends with a matchfix operator, that operator
+will be used to insert implied parentheses.  Otherwise, if there are
+any infix operators in the expression, these will be used to insert
+implied parentheses.  Otherwise if the expression begins with a prefix
+operator or ends with a postfix operator, that operator will be used
+to insert implied parentheses.
+
+An expression is in error if it begins and ends with more than one
+matchfix operator.
+When a matchfix operator is used to insert implicit parentheses
+into an expression, the part of the expression that is not part of the
+operator is the subexpression that is implicitly parenthesized.
+This subexpression may be empty.
+
+When infix operators are used to insert implicit parentheses
+in an expression, the parts of the expression between operators and
+the ends of the expression are the subexpressions that are implicitly
+parenthesized.  These subexpressions can be empty.
+
+An expression is in error if it has not matchfix or infix operators,
+and it both begins with a prefix operator and ends with a postfix operator.
+When a prefix or postfix operator is used to insert implied parentheses
+into an expression, the part of the expression that is not part of the
+operator is the subexpression that is implicitly parenthesized.
+This subexpression may be empty.
+
+\subsubsection{Lexical Context}
+\label{LEXICAL-CONTEXT}
 
 \section{Expression Inference}
 
