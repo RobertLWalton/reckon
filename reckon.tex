@@ -2577,6 +2577,14 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
     {\end{array} \right] \\
      \rule{0in}{0in} \vspace{-0.15in}
      \end{array}}
+\newenvironment{Gsimplechild}[1]%
+    {\mbox{\tt #1}:
+     \begin{array}{l}
+     \rule{0in}{0in} \vspace{-0.15in} \\
+     \begin{array}{l}}%
+    {\end{array} \\
+     \rule{0in}{0in} \vspace{-0.15in}
+     \end{array}}
 
 \begin{center}
 
@@ -2636,34 +2644,33 @@ example.
 A single node can be the value or default of several variables: in the
 example one node is both the value and the default of \verb|Y|.
 
-TBD
-
-The example expression graph has three variables, \verb|{ROOT}|, \verb|X|,
+The example expression graph has two variables, \verb|X|
 and \verb|Y|.  While all nodes in the expression graph must be reachable
-from the value or default of some variable in the graph, all nodes
-need not be reachable from the value of \verb|{ROOT}|.  The above example
-is a single expression graph with three variables, and \underline{not}
+from the root or the value or default of some variable in the graph, all nodes
+need not be reachable from the root,  The above example
+is a single expression graph with a root and two variables, and \underline{not}
 three expression graphs.
 
-Two nodes with the same boxed variable name in their representation
+Two nodes with the same boxed name in their representation
 are actually the same node in the graph, and
-similarly two nodes with the same doubly boxed variable name in their
+similarly two nodes with the same doubly boxed name in their
 representation are actually the same node in the graph.  When several
 nodes are the same in this sense, all but one of these must have only
-boxed or doubly boxed variable names in its representation.
+boxed or doubly boxed names in its representation.
 
 Sometimes it is necessary to indicate that two nodes are the same for
-a node that is not the value or default of any variable.
+a node that is not the root or the value or default of any variable.
 This is done by creating an
 \key{expression graph pseudo-variable}\index{pseudo-variable!expression graph}%
 \label{PSEUDO-VARIABLES}
 whose name is a word or separator in curly brackets.  In the example,
-\verb|{1}| is such a pseudo-variable name.  Such pseudo-variable names
-are always boxed, and never double boxed.
+\verb|{1}| is such a pseudo-variable name, and of course \verb|{ROOT}|
+is such a name.  Pseudo-variable names are always boxed, and
+never double boxed.
 
 If a node has a label, that is the last line in the node's representation,
 and is
-immediately below any boxed or doubly boxed variable names.
+immediately below any boxed or doubly boxed names.
 There are no other lines in the representation.
 In the above example, \Glabel{\$5} labels
 the node that is the value of the variable \verb|X|.
@@ -2676,66 +2683,96 @@ label of the arrow followed by a colon (:) followed by
 a representation of the target node of the arrow.  This later
 is of course surrounded by [] brackets.
 
-\subsection{Pure Unification}
+It is permitted to omit the [] brackets when only one thing is
+bracketted.  Thus the above example can also be rendered as:
+
+\begin{center}
+
+\begin{Graph}
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
+    \begin{Gchild}{fee}
+	\Gvariable{X} \\
+	\Glabel{\$5} \\
+    \end{Gchild} \\
+    \begin{Gsimplechild}{fie}
+	\Gvariable{X} \\
+    \end{Gsimplechild} \\
+\end{Graph}
+\hspace{0.3in}
+\begin{Graph}
+    \Gdefault{X} \\
+    \begin{Gsimplechild}{1}
+	\Glabel{foe} \\
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2}
+	\Glabel{fum} \\
+    \end{Gsimplechild} \\
+\end{Graph}
+\hspace{0.3in}
+\begin{Graph}
+    \Gvariable{Y} \\
+    \Gdefault{Y} \\
+    \begin{Gsimplechild}{1}
+	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2}
+	\begin{Gsimplechild}{*}
+	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
+	\end{Gsimplechild} \\
+    \end{Gsimplechild} \\
+\end{Graph}
+
+
+\end{center}
+
+\subsection{of nodes Pure Unification}
 \label{PURE-UNIFICATION}
 
-Informally, expression graphs may be thought of
+Informally, expression graph nodes may be thought of
 as expressions of information, and the unification of
-two expression graphs is then an expression graph whose information content
+two nodes is then a node whose information content
 is the least upper bound of the information content of each of
-the two graphs taken separately.
+the two nodes taken separately.
 
-PCASL uses two forms of expression graph unification to represent expression
-graphs.  The pure form, called `\key{pure unification}',
+PCASL uses two forms of expression graph node unification.
+The pure form, called `\key{pure unification}',
 is just the standard labeled graph unification
 algorithm, and is specified in this section.  The other form, which
 has a special merge operation for nodes representing calls on
 functions or builtin PCASL operations, is called `call unification',
 and is described in \ref{CALL-UNIFICATION}.
 
-Unification of two expression graphs
+Unification of two expression graph nodes
 either succeeds and produces a unique expression
-graph as its result, or fails and produces no result.
+graph node as its result, or fails and produces no result.
 
-If X and Y are expression graphs then their pure unification, Z,
-is computed by the following \key{pure unification algorithm}.%
-\label{PURE-UNIFICATION-ALGORITHM}.
-This algorithm assumes that all expression graphs are stored in
-a common graph memory that contains nodes and arrows, but
-each expression graph has its own distinct set of variables.
+Unification algorithms use a set called the \key{merge set}
+of node pairs called \skey{merge pair}s.  For pure unification of
+two nodes, X and Y, this is initialized to the set containing
+only the one merge pair, (X,Y).
 
-\begin{enumerate}
+A unification alogithm simply extracts a merge pair (M,N) from the
+merge set, merges the two nodes named, M and N, and does this
+repeatedly until the merge set is empty.  The algorithm succeeds if
+every pair of nodes that must be merged can be merged.  When two nodes
+are merged, they become the same node.  Merging two nodes can
+create new merge pairs.  However, merging two nodes that are identical
+does nothing, and since expression graph memory is finite,
+the algorithm must terminate after all nodes are merged, if it does not
+terminate before then.
 
-\item
-The set of nodes and arrows of Z is initialized to the union
-of the sets of nodes and arrows of X and Y.
+If a unification algorithm is unsuccessful, all changes to expression
+graph memory are undone.
 
-\item
-There is a set called the \key{merge set}
-of node pairs called \skey{merge pair}s that is
-used by the algorithm.  This is initialized to the empty set.
+For pure unification of two nodes X and Y, the merge set is initially
+the single pair (X,Y).  If unification is successful, X and Y are merged,
+and the result of the unification is the merged node, i.e., the node
+X, or equivalently the node Y.
 
-\item
-The set of variables of Z is initialized to the set of
-variables in X.
+It is possible to run unification with arbitrary initial merge sets.
 
-\item
-Each variable V in Y is added to the variable set of Z using
-the following method.  If V is not already in the variable set of Z,
-it is simply added to that set.  If V is already in the set,
-let V in the variable set of Z have value XV and default XD
-(because V must have come from X),
-and let V in the variable set of Y have value YV and default YD,
-where XD and/or YD may be missing.  Then add the merge pair (XV,YV)
-to the merge set.  If YD is not missing but XD is missing,
-set the default of V in the variable set of Z to equal YD.  If
-neither YD or XD is missing, add the merge pair (XD,YD) to the merge set.
-
-\item
-For each merge pair (M,N) in the merge set,
-perform the following \key{node merge algorithm}.%
-\label{NODE-MERGE-ALGORITHM}
-Do this recursively until the merge set is empty.
+For pure unification the \key{node merge algorithm}.%
+\label{NODE-MERGE-ALGORITHM} applied to the merge pair (M,N) is as follows:
 
 \begin{enumerate}
 
@@ -2782,22 +2819,19 @@ to N, so M is effectively merged with N.
 
 \end{enumerate}
 
-\end{enumerate}
-
 Note that the running time of the pure unification algorithm is bounded by
 
 \[
 \begin{array}{c}
-T_1(\mbox{number of variables in X} + \mbox{number of variables in Y}) \\
-+ \\
-T_2(\mbox{number of nodes in X} + \mbox{number of nodes in Y}) \\
+T(\mbox{number of nodes reachable from nodes in the initial merge set}) \\
 \times \\
-(\mbox{number of distinct arrow labels in either X or Y})^2
+(\mbox{number of arrows sourced at these nodes})^2
 \end{array}
 \]
 
-where $T_1$ and $T_2$ are small constant times (typically a few microseconds).
-The total number of nodes in X and Y bounds the number of node merge
+where $T$ is a small constant time (typically a few microseconds).
+The total number of nodes reachable from nodes in the initial merge set
+bounds the number of node merge
 operations, and the
 last factor bounds the time to form the union of the arrow labels of
 any two nodes that are being merged.  The bound just given is typically
@@ -2805,12 +2839,16 @@ a substantial overestimate, and can be improved to:
 
 \[
 \begin{array}{c}
-T_1(\mbox{number of variables in X} + \mbox{number of variables in Y}) \\
-+ \\
-T_2(\mbox{number of nodes in X} + \mbox{number of nodes in Y}
-				- \mbox{number of nodes in Z}) \\
+T \left(
+   \begin{array}{c}
+   \mbox{number of nodes reachable from nodes in the initial merge set} \\
+    - \\
+  \mbox{number of nodes reachable from these nodes after unification} \\
+  \end{array}
+  \right) \\
 \times \\
-(\mbox{maximum number of arrows sourced at any one node in Z})^2
+(\mbox{maximum number of arrows sourced at any one node reachable
+       after unification})^2
 \end{array}
 \]
 
