@@ -302,7 +302,7 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|{|$x = (-0.2, 0.5)$\verb|}| \\
 \verb|> (f + h) at (x = (3, 4, 5))| \\
 \verb|(78.95, 145.28, 231.61)| \\
-\verb|> g = {integral (x^2 dx)}| \\
+\verb|> g = {integral (x ^ 2 dx)}| \\
 \verb|{|$\int x^2 dx$\verb|}| \\
 \verb|> simplify g| \\
 \verb|{|$\frac{1}{3} x^3$\verb|}| \\
@@ -311,10 +311,9 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|> out = `The value of {<<<g>>> from (x = 1) to (x = 5)} is <<v>>.'| \\
 \verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|{{sentence the value of| \\
-\verb|           (from-to (integral (* (^ x 2) dx)) from (= x 1)| \\
-\verb|                                              to (= x 5))| \\
-\verb|           is 124/3}}|
+\verb|{sentence the value of| \\
+\verb|          {(integral (x ^ 2 * dx)) from (x = 1) to (x = 5)}| \\
+\verb|          is 124/3}|
 \end{indpar}
 
 Another kind of datum you can compute with in PCASL is
@@ -724,6 +723,14 @@ You can also change how an expression is displayed.
 \verb|''|
 \end{indpar}
 
+Displays can be used to make demonstrations:
+
+\begin{indpar}
+\verb|> a demo {| \\
+\verb|+     angle = 30 degrees }| \\
+\verb|display (a demo with angle X) as TBD <--|
+\end{indpar}
+
 TBD: example of a simple game.
 
 
@@ -925,7 +932,13 @@ to reformulate them for pre-lexemes.
 {\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}
 An {\em opening-mark} with $N$ characters $C$
 must have a matching {\em closing-mark} with $N$ characters each the
-mirror of $C$.  Each {\em closing-mark} must match exactly one
+mirror of $C$.  Here
+the mirror of \verb|`| is \verb|'|,
+the mirror of \verb|{| is \verb|}|,
+the mirror of \verb|[| is \verb|]|,
+the mirror of \verb|(| is \verb|)|,
+and the mirror of \verb|<| is \verb|>|.
+Each {\em closing-mark} must match exactly one
 {\em opening-mark} and the {\em opening-mark} must precede the
 {\em closing-mark}.
 
@@ -941,8 +954,13 @@ $P_2$ is said to be \mkey{nested}{lexemes} inside of $P_1$.
 During the scan a character $C$ is said to be in the
 \key{lexical context} of a pair $P$ of matched lexemes
 if and only if $C$ is between the matched lexemes of $P$,
-and $C$ is neither part of or between any other pair of matched
-lexemes that is nested inside of $P$.
+and $C$ is not between any other pair of matched
+lexemes that is nested inside of $P$.  For example,
+in \verb|{ x [ y ] z }|, \verb|{ }| are in the outermost pre-lexical
+context, \verb|x [ ] z| are in the middle pre-lexical context whose
+matched lexemes are \verb|{ }|, and
+\verb|y| is in the innermost pre-lexical context whose matched lexemes
+are \verb|[ ]|.
 
 For a sequence of pre-lexemes, \mkey{matched}{pre-lexemes} pre-lexemes
 and \key{pre-lexical context} are defined as for a sequence of lexemes.
@@ -975,6 +993,8 @@ a pair of matched {\em quotes}.  Otherwise it is a {\em word-character}.
 An {\em angle-character} must be either preceded by or followed by a copy
 of itself.  Otherwise it is a {\em word-character}.
 
+\subsubsection{Pre-Lexeme Examples}
+
 Quote Examples:
 
 \begin{indpar}[0.1in]
@@ -985,9 +1005,9 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \verb|Re`op 'tis.  But!|
 			& \tt Re`op~~\verb|_|~~'tis.%
 			  ~~\verb|__|~~But! \\
-\verb|`Like 'tis'|	& \tt `~~Like~~\verb|_|~~'~~tis'	\\
-\verb|``Like 'tis''|	& \tt ``~~Like~~\verb|_|~~'tis~~''	\\
-\verb|`Like me''|	& \tt `~~Like~~\verb|_|~~me''		\\
+\verb|`Like 'tis'.|	& \tt `~~Like~~\verb|_|~~'~~tis'.	\\
+\verb|``Like 'tis''.|	& \tt ``~~Like~~\verb|_|~~'tis~~''~~.	\\
+\verb|`Like me''.|	& \tt `~~Like~~\verb|_|~~me''.		\\
 \verb|`` `Hello' is a word.''|
 			& \tt ``~~\verb|_|~~`~~Hello~~'~~\verb|_|~~is%
 			  ~~\verb|_|~~a~~\verb|_|~~word.~~'' \\
@@ -1015,10 +1035,10 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 
 \subsubsection{White Space Conversion}
 
-A \key{white-space} lexeme does not have exactly the same characters
+A \key{white-space} pre-lexeme does not have exactly the same characters
 that were input to create it, unlike other pre-lexemes.  The
 sequence of {\em white-space-characters} input to create a
-{\em white-space} lexeme is modified as follows to create the lexeme:
+{\em white-space} pre-lexeme is modified as follows to create the pre-lexeme:
 
 {\bf Line End Spaces Rule.}\index{Line End Spaces Rule}
 All {\em horizontal-space} characters preceeding a {\em vertical-space}
@@ -1026,23 +1046,30 @@ character are deleted.  Thus spaces at line ends are ignored.
 
 {\bf Carriage Return Rule.}\index{Carriage Return Rule}
 Each {\em carriage-return} and all {\em horizontal-spaces} preceding
-it are deleted.  Thus the lexeme has no {\em carriage-returns}.
+it are deleted.  Thus the pre-lexeme has no {\em carriage-returns}.
 
 {\bf Horizontal Tab Rule.}\index{Horizontal Tab Rule}
 Each {\em horizontal-tab} is replace by {\em spaces} assuming that
 horizontal tab stops are set every 8 columns.
-Thus the lexeme has no {\em horizontal-tabs}.
+Thus the pre-lexeme has no {\em horizontal-tabs}.
 
 Note that these rules do \underline{not} alter the printed appearance
-of the {\em white-space} lexeme.
+of the {\em white-space} pre-lexeme.
 
-After these rules are applied, a {\em white-space} lexeme consists of
+After these rules are applied, a {\em white-space} pre-lexeme consists of
 only of {\em vertical-space-characters} followed by {\em space} characters.
-{\em White-space} lexemes are only pre-lexemes; they are deleted
-when pre-lexemes are converted to lexemes.  The rules that
-form the lexeme sequence ensure that all
-{\em vertical-space} characters are equivalent
-(\ref{INDENTATION-LEXEMES}).
+
+{\em White-space} pre-lexemes are used to create indentation lexemes
+when pre-lexemes are converted to lexemes (\ref{INDENTATION-LEXEMES}).
+{\em White-space} pre-lexemes that contain only {\em space} characters
+become lexemes if they are after a {\em format-separator} \verb/|/ on
+a line.  All other {\em white-space} pre-lexemes are ignored when
+pre-lexemes are converted to lexemes, and all {\em white-space} pre-lexemes
+that are not after a {\em format-separator} on a line are discarded and do
+not become lexemes.
+
+The rules for forming lexemes from pre-lexemes ensure that all
+non-empty sequences of {\em vertical-space} characters are equivalent.
 
 
 \subsection{Lexemes}
