@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 12, 2003}
+\date{December 13, 2003}
  
 \maketitle
 
@@ -2264,7 +2264,6 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
      \end{array}}
 
 \begin{center}
-\ttbrackets
 
 \begin{Graph}
     \Gvariable{-ROOT-} \\
@@ -2291,11 +2290,11 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
     \Gvariable{Y} \\
     \Gdefault{Y} \\
     \begin{Gchild}{1}
-	\Gvariable{\{1\}} \\
+	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
     \end{Gchild} \\
     \begin{Gchild}{2}
 	\begin{Gchild}{*}
-	    \Gvariable{\{1\}} \\
+	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
 	\end{Gchild} \\
     \end{Gchild} \\
 \end{Graph}
@@ -2335,7 +2334,8 @@ boxed or doubly boxed variable names in its representation.
 Sometimes it is necessary to indicate that two nodes are the same for
 a node that is not the value or default of any variable.
 This is done by creating an
-\key{expression graph pseudo-variable}\index{pseudo-variable!expression graph}
+\key{expression graph pseudo-variable}\index{pseudo-variable!expression graph}%
+\label{PSEUDO-VARIABLES}
 whose name is a word or separator in curly brackets.  In the example,
 \verb|{1}| is such a pseudo-variable name.  Such pseudo-variable names
 are always boxed, and never double boxed.
@@ -2645,154 +2645,111 @@ Raw expressions can be used to represent expression graphs.  This is
 done by defining conversions between expression trees that correspond
 directly to raw expressions and arbitrary expression graphs.
 
-There are two kinds of such conversions: explicit and implicit.
-In explicit conversion, all graph variable names in the expression trees
-are indicated by particular graph variable operations which
-by default are `\verb|//|' and `\verb|~~|'.
-In implicit conversion, graph variable
-operations are used as in explicit conversion,
-but in addition all expression tree
-leaves that are words beginning with an upper case letter are treated
-as graph variable names, as if they were implicitly the single
-argument of a `\verb|//|' operation.  Thus `\verb|Fie|' is
-treated as if it were `\verb|[// Fee]|'.
+Conversion from a raw expression to an expression graph is performed
+by first converting the raw expression to an expression tree plus
+a set of variables where each variable has not a single value or
+single optional default, but instead has a set of one or more values
+and zero or more defaults.  Then all the values of each variable and
+all the defaults of each variable are unified, and to produce an
+expression graph.
 
-In this section we consider conversions between expression trees represented
-by raw expressions and expression graphs.  There are two
-\skey{graph variable operation}s
-involved: the \key{graph variable value operation},%
-\index{value operation!graph variable}
-which defaults to
-\ttkey{//}, and the \key{graph variable default operation},%
-\index{default operation!graph variable}
-which defaults to \verb|~~|%
-\index{~~@{\tt \protect\Tilde\protect\Tilde}}.
-In this section we will consider these
-two operations in the context of raw expressions, but in non-raw expresssions
-these operations are usually the postfix operator \verb|//|
-and high precedence infix operators \verb|//| and \verb|~~|.
-
-In addition to the graph variable operations, there are two other
-\skey{graph operation}s.  The \key{graph parent operation},%
-\index{parent operation!graph}
-which defaults to \ttkey{\#\#\#\#},
-is used to specify graph nodes that are the source of arrows
-with labels that are not head or argument indices.
-The \key{graph concatenation operation},%
-\index{concatenation operation!graph}
-which defaults to \ttkey{++++},
-is used to combine graphs by removing the \verb|-ROOT-| variable
-from all but the first and unifying (\ref{UNIFICATION}) the resulting
-graphs.  This operation may be needed to produce graphs that have disjoint
-components.
-
-We have given default names for the three graph operations, but
-conversions can optionally be done using different names for these
-operations.  In the rest of this document we use the default names.
-
-Using raw expression notation, the following subexpressions are used
-to represent single nodes of an expression graph:
+In converting a raw expression to an expression tree, the
+the rules for representing raw expressions as expression trees
+are followed, with the following exceptions:
 
 \begin{indpar}
 \begin{list}{}{}
 
-\item[{\tt [//} {\em variable-name} {\em variable-value}{\tt]}]~\\
-Represents the node represented by {\em variable-value} and specifies that
-this node is the value of the named expression graph variable.
+\item[{\tt [}{\tt //} {\em variable-name} {\em variable-value}{\tt]}]~\\
+This expression converts to the same tree that the {\em variable-value}
+converts to, and adds the root node of this tree to the value set of
+the named variable.
 
-\item[{\tt [//} {\em variable-name}{\tt]}]~\\
-Represents a node with no label that is not the source of any arrow,
-and specifies that
-this node is the value of the named expression graph variable.
+\item[{\tt [}\ttkey{//} {\em variable-name}{\tt]}]~\\
+This expression converts to a tree consisting of a single unlabeled root
+node, and this node to the default set of the named variable.
 
-\item[{\em variable-name}]~\\
-Ditto, in the case that implicit conversion is being used and
-{\em variable-name} is a word beginning with a capital letter.
+\item[{\em variable-name}~~~(where {\em variable-name} is a word
+			     beginning with a capital letter)]~\\
+For one kind of conversion, implicit conversion, this is
+treated as the equivalent of `\verb|[// |{\em variable-name}\verb|]|'.
 
-\item[{\tt [\Tilde\Tilde} {\em variable-name} {\em variable-default} {\tt]}]~\\
-Represents a node with no label that is not the source of any arrow,
-specifies that this node is the value of the named expression graph variable,
-and specifies that the default of the expression graph variable is
-the node represented by {\em variable-default}.
+\item[{\tt [\Tilde\Tilde}\index{~~@{\tt \protect\Tilde\protect\Tilde}}
+           {\em variable-name} {\em variable-default} {\tt]}]~\\
+This expression converts to the same tree that the {\em variable-default}
+converts to, and adds the root node of this tree to the default set of
+the named variable.
 
-\item[{\tt [\#\#\#\#}
+\item[{\tt [}\ttkey{\#\#\#\#}
       \{ {\em arrow-label} {\em target-value} \}$^\star${\tt]}]~\\
-Represents an unlabeled node that is the source of arrows labeled with
-the {\em arrow-labels}.  The target of each arrow is represented by
+This expression converts to a tree whose root is an unlabeled node
+that is the source of arrows labeled with the {\em arrow-labels}.
+The target of each arrow is the tree obtained by converting
 the {\em target-value} raw expression that follows the arrow's
 {\em arrow-label}.
 
-\item[{\tt [++++}
+\item[{\tt [}\ttkey{++++}
       {\em expression-graph} {\em expression-graph}$^\star${\tt]}]~\\
-Represents the combination of the {\em expression-graphs}.  The
-\verb|-ROOT-| variable is deleted from all {\em expression-graphs} but the
-first, and the resulting expression graphs are unified: (\ref{UNIFICATION}).
-It is an error if the unification does not produce a unique result.
+This expression converts to the tree that the first {\em expression-graph}
+converts to.  The other expression-graphs are also converted to trees,
+and this conversion may create variables or add nodes of these other
+trees to sets of variable values or defaults.  Thus the other
+{\em expression-graphs} may provide variable values or defaults that
+are disconnected from what will eventually become the part of the
+expression graph reachable from its \verb|-ROOT-|.
 
 \end{list}
 \end{indpar}
 
-It is possible for several subexpressions of the above form to mention the
-same graph variable.  If this happens, all these subexpressions represent the
-same node, and the graph variable may be given several values or several
-defaults.  If a variable is given several values, these values
-are unified (\ref{UNIFICATION} to produce a single variable value, and if 
-a variable is given several defaults, these are unified to produce a
-single default.  It is an error if any of these value or default
-unifications produces does
-not produce a single unified value or default.
+After the raw expression is converted to an expression tree plus
+a set of variables, a \ttmkey{-ROOT-}{of conversion} variable is
+created whose value is the root of the expression tree and which
+has no default.  The unification that is then performed is that
+described in \ref{UNIFICATION} except the merge set is initialized
+to merge pairs that merge the values of each variable and the
+defaults of each variable.  It is a conversion error if this
+unification fails or if any variable has an empty set of values
+before unification is attempted.
+
+There are two kinds of such conversions: explicit and implicit.
+In \ikey{implicit conversions}{implicit conversion!to expression graph}
+nodes labeled by a word L beginning with
+a capital letter are treated as the equivalent of `\verb|[// |L\verb|]|'.
+Thus L is a variable name and its name in the raw expression
+represents an unlabeled node that is the source of no arrows but is a
+value of the variable named L.
+For \ikey{explicit conversions}{explicit conversion!to expression graph}
+no such special provision is made for labeled nodes.
+
+The exact operation names used in these conversions may be different
+from those given above.  The names to be used are given as to the
+conversion operations, with the names used above as defaults.  These
+default names and the descriptive names of the operations are:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+\verb|//|	& \key{graph variable value operation} \\
+\verb|~~|	& \key{graph variable default operation} \\
+\verb|####|	& \key{graph source construction operation} \\
+\verb|++++|	& \key{graph concatenation operation} \\
+\end{tabular}
+\end{center}
+
+\ikey{Pseudo-variable}{expression graph pseudo-variable}%
+\index{pseudo-variable!expression graph}
+names (page~\pageref{PSEUDO-VARIABLES})
+of the form `\verb|{|{\em word-or-separator}\verb|}|' can be used
+with the `\verb|//|' operation
+to merge nodes that are not the value or default of any real variable.
+This use simply
+creates variables with names that are not single words or separators
+which are discarded at the end of conversion.  Pseudo-variables cannot
+be given defaults.
 
 Some examples of expression trees represented by raw expressions and the
 expression graphs they convert to are as follows:
 
 \begin{indpar}
-\begin{tabular}{p{2.5in}@{~~~~~}l}
-
-\verb|[z [// x] [// x]]|
-&
-\begin{Graph}
-    \Gvariable{-ROOT-} \\
-    \begin{Gchild}{0}
-	\Glabel{z} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
-	\Gvariable{x} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
-	\Gvariable{x} \\
-    \end{Gchild} \\
-\end{Graph}
-\end{tabular}
-
-\medskip
-
-\begin{tabular}{p{2.5in}@{~~~~~}l}
-\verb|[z [// x [+ 9 8]] [// x]]|
-&
-\begin{Graph}
-    \Gvariable{-ROOT-} \\
-    \begin{Gchild}{0}
-	\Glabel{z} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
-	\Gvariable{x} \\
-	\begin{Gchild}{0}
-	    \Glabel{+} \\
-	\end{Gchild} \\
-	\begin{Gchild}{1}
-	    \Glabel{9} \\
-	\end{Gchild} \\
-	\begin{Gchild}{2}
-	    \Glabel{8} \\
-	\end{Gchild} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
-	\Gvariable{x} \\
-    \end{Gchild} \\
-\end{Graph}
-\end{tabular}
-
-\medskip
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
@@ -2802,6 +2759,9 @@ implicit conversion
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{2} \\
+    \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{z} \\
     \end{Gchild} \\
@@ -2825,6 +2785,9 @@ explicit conversion
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{2} \\
+    \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{z} \\
     \end{Gchild} \\
@@ -2848,6 +2811,9 @@ implicit conversion
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{2} \\
+    \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{z} \\
     \end{Gchild} \\
@@ -2859,26 +2825,69 @@ implicit conversion
     \end{Gchild} \\
 \end{Graph}
 ~~~
-\begin{tabular}{l}
-defaults: \\
-~\\
 \begin{Graph}
     \Gdefault{X} \\
     \Glabel{foo} \\
 \end{Graph}
 \end{tabular}
 
+\medskip
+
+\begin{tabular}{p{2.5in}@{~~~~~}l}
+\begin{tabular}{@{}l@{}}
+\verb|[++++| \\
+\verb|  [#### fee [// X $5]| \\
+\verb|        fie X]| \\
+\verb|  [~~ X [#### 1 foe 2 fum]]| \\
+\verb|  [~~ Y| \\
+\verb|    [// Y| \\
+\verb|      [#### 1 [// {1}]| \\
+\verb|            2 [####| \\
+\verb|                *| \\
+\verb|                [// {1}]]| \\
+\verb|            ]]]]| \\[1ex]
+implicit conversion
+\end{tabular}
+&
+\begin{tabular}{@{}l@{}}
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{fee}
+	\Gvariable{X} \\
+	\Glabel{\$5} \\
+    \end{Gchild} \\
+    \begin{Gchild}{fie}
+	\Gvariable{X} \\
+    \end{Gchild} \\
+\end{Graph}
+\hspace{0.1in}
+\begin{Graph}
+    \Gdefault{X} \\
+    \begin{Gchild}{1}
+	\Glabel{foe} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{fum} \\
+    \end{Gchild} \\
+\end{Graph}
+\\
+~\\
+\begin{Graph}
+    \Gvariable{Y} \\
+    \Gdefault{Y} \\
+    \begin{Gchild}{1}
+	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\begin{Gchild}{*}
+	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
+	\end{Gchild} \\
+    \end{Gchild} \\
+\end{Graph}
+\end{tabular}
+
 \end{tabular}
 \end{indpar}
-
-Here we have represented the default for a variable by putting
-the variable name in a double box, as in \Gdefault{X}, on the node
-that is the default for the variable.  Note that the
-default of a variable must be an expression graph not connected to
-the main expression graph or other default graphs.  Note also that
-a variable with a default cannot have a regular value that is
-anything but an unlabeled node that is not the source of any arrows.
-
 
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
