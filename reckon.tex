@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 8, 2004}
+\date{January 10, 2004}
  
 \maketitle
 
@@ -3733,7 +3733,7 @@ and a context.  The context (\ref{CONTEXTS}) provides a list of expression
 definitions that may be used to evaluate the expression.
 
 An expression to be evaluated may contain variables that are assigned
-values during unification.  The output of evaluation is both a value for
+values during unification.  The result of evaluation is both a value for
 the expression and an assignment of values for these variables.
 
 More than one definition may apply to evaluate an expression.
@@ -3760,51 +3760,66 @@ The order in which argument order assignments are tried is implementation
 dependent.
 
 \item[\ttkey{all-values}]~~~~All possible choices are tried and the
-successful results are collected in a set of values.  Note that each
-value in this set consists of a value for the expression being evaluated
+successful results are collected in a set of results.  Each result
+in this set consists of a value for the expression being evaluated
 and values for each variable in that expression.
 
 \item[\ttkey{consistent-values}]~~~~All possible choices are tried and the
-successful results are collected in a set of values.  Then these values
-are tested to see if they are pairwise equal.  If yes, one of these values
-is returned as the expression value.  If no, an error value describing
-the error is returned as the expression value.
+successful results are collected in a set of values.  Then these results
+are tested to see if they are pairwise equal.  If yes, one of these results
+is returned as the expression value.  If no, an error values describing
+the error are returned as the expression value, and as values of any variables
+in the expression.
 
 \item[\ttkey{consistent-reordering}]~~~~Definitions are 
 tried in the order they are given in the contexts used in evaluation,
 and the first definitions that apply are used.  However, for each definition
 all possible argument order assignments are tried.  The results are collected
-in a set of values that is tested for pairwise equality.  If all are equal,
-one of these values is returned as the expression value.  Otherwise, an
-error value describing the error is returned as the expression value.
+in a set of results that is tested for pairwise equality.  If all are equal,
+one of these results is returned as the expression value.  Otherwise, an
+error value describing the error is returned as the expression value,
+and as values of any variables in the expression.
 
 \end{list}
 
-TBD
+If the search process that is expression evaluation yields no results at all,
+the expression is given the value `\verb|false|', and variables in the
+expression are not changed.
 
-
-Expression inference consists of the following steps.
+The matching of an expression to be evaluated to a particular
+expression definition with a particular argument order
+asssignment is as follows.
 
 \begin{enumerate}
 
 \item
 
-Match the expression to the head of some inference rule of suitable type
-(logic, evaluation, or reduction).  Matching assigns values to variables
-in the expression being inferred and to variables in the head of the
-inference rule.
+Call unify (\ref{CALL-UNIFICATION})
+the pattern (\ref{EXPRESSION-DEFINITIONS})
+from the definition with the expression to be evaluated.
+Both the pattern and expression are expression graphs.
+If the unification fails, the definition does not apply.  If the
+unification succeeds, it modifies nodes in the expression 
+being evaluated and provides variable values for the variables in
+the pattern.
 
 \item
-Evaluate the values of variables which have been assigned values,
-unless these variables are marked as holding unevaluated argument values.
+For any pattern variable whose name does \underline{not} begin
+with `\ttkey{\#}',
+evaluate the value of that variable, and replace this value node
+by the value obtained.  The order in which these variable evaluations are done
+is implementation dependent.  Any side effects of the evaluations
+TBD
 
 \item
-Expand the goal expressions of the inference rule whose head matched,
-by replacing variables in these expressions that were assigned values
-by the matching with their values.
+Evaluate each guard of the definition in order.  If any fail to evaluate to
+`\verb|true|', the definition does not apply.
 
 \item
-Logically infer each expanded goal.
+If the definition applies, but has no block, the value of the expression
+is `\verb|true|'.  If the definition applies and has a block, the block
+is evaluated (\ref{BLOCK-EVALUATION}) to determine the value of the
+expression.
 
 \end{enumerate}
 
