@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 4, 2004}
+\date{November 6, 2004}
  
 \maketitle
 
@@ -2026,7 +2026,7 @@ The syntax equations are:
                          {\em postfix-unit-specifier}
 \end{indpar}
 
-In order to be recoginzed as a {\em unit-specifier} a {\em word} sequence
+In order to be recognized as a {\em unit-specifier} a {\em word} sequence
 must be defined as a {\em UNIT-SPECIFIER-NAME} by the following:
 
 \begin{indpar}
@@ -2761,7 +2761,7 @@ The operator selection algorithm produces a result that is often
 the same as the more common operator precedence rules for parsing expressions.
 However, in PCASL an operator can change the parsing stack
 used to parse its operand subexpressions, and this allows PCASL to
-to use abritrary grammars for subexpressions.\footnote{In practice
+to use arbitrary grammars for subexpressions.\footnote{In practice
 we expect this may be equivalent to using an operator precedence grammar
 to parse everything outside explicit opening and closing marks, and only
 permitting matchfix operators to change grammars.  But PCASL currently
@@ -2858,7 +2858,7 @@ of whose members are deselected by repetitions of this step.
 Thus in the expression `\verb|x + - y|', the `\verb|-|' would be deselected
 as an infix operator by this step, as `\verb|+|'
 conflicts with `\verb|-|' and is not a postfix operator.  The `\verb|+|'
-would not be delesected, as although `\verb|-|' conflicts with it,
+would not be deselected, as although `\verb|-|' conflicts with it,
 `\verb|-|' is a prefix sequence.
 
 \item
@@ -4065,7 +4065,7 @@ fails.
 \item
 If M and N are the same node, terminate the call merge algorithm.
 
-\item
+\item\label{DETERMINATE}
 A call node is said to be \key{indeterminate} if it has
 an optional, reorderable, or rest argument or an optional qualifier.
 Otherwise the node is said to be \key{determinate}.
@@ -4131,7 +4131,7 @@ For each qualifier arrow MA of M whose target is 1-witness compatible with
 the target of exactly one qualifier arrow NA of N, let MQ be the target
 of MA and NQ be the target of NA.  Add (MQ,NQ) to the merge set.
 
-\item
+\item\label{ADD-ARROW-STEP}
 For each qualifier arrow MA of M whose target is 1-witness compatible with
 the targets of no qualifier arrows N, let MQ be the target of MA,
 and make an arrow from N to MQ
@@ -4434,30 +4434,51 @@ A frequent operation is copying expression graphs as part of expression
 evaluation (\secref{EVALUATION-ALGORITHM}).  To make this more efficient,
 an expression graph can be separated into two parts: an immutable part,
 and a mutable part.  The mutable part is just a vector of node references,
-one per node.  The immutable part is just a set of immutable nodes, with
-associated arrows, except that arrow targets which are not labeled nodes
-are indices of node cells in the mutable vector.  Thus there are now two
-kinds of nodes in memory: normal or mutable nodes, and immutable nodes,
-and the latter can only be pointed at by a node reference in a mutable
-vector, and in turn can only point at node references in that vector or
-at labeled nodes.
+one per node if the expression graph.
+The immutable part is just a set of immutable nodes, with
+associated arrows, except that arrow targets may be indices of node references
+in the mutable vector.  Thus there are now two kinds of nodes in memory:
+normal nodes, which include those that are labeled and those that are
+mutable in the normal way, and immutable nodes.  The latter can only be
+pointed at by a node reference in a mutable vector.
 
-Node references are like nodes that are always forwarded.  They
-can hold a pointer to an immutable node, or can hold a normal node forwarding
-pointer.  They can be pointed at by other nodes.  However, a pointer to
-a node reference must include a pointer to its containing mutable
-vector, as that vector is needed to interpret any immutable node that the
-node reference points at.
-
-The node reference vector for an expression graph also has a node
-reference for each expression graph variable value and
-for each existing variable default.
+Node references in mutable vectors are like nodes.  They can be null, forwarded,
+or point at an immutable node associated with the mutable vector.  In the
+last case, the node reference and immutable node together behave like a
+mutable node, and we say the node reference is `\key{coupled}' to the
+immutable node.
 
 During unification arrows are sometimes added to a node.  To make this
-more efficient, a node reference can also be permitted to hold a pointer
-to a structure that stores
-a pointer to an immutable node plus a list of extra arrows added to that
-node.  
+work for a node reference coupled to an immutable node, a node reference may
+also point to a structure that stores a pointer to an immutable node plus
+a list of extra arrows added to that node.  The node reference is still
+coupled to the immutable node, but the node reference now represents
+a new node that has more arrows than the immutable node.
+
+An arrow target can be a normal node,
+that is, either a labeled node or a normal mutable node.
+An arrow target may not be an immutable node unless that node
+is never forwarded and arrows are never added to the node.  Instead the
+arrow target be a node reference coupled to the immutable node.
+
+In PCASL things can be arranged so the nodes to be evaluated,
+which are guard nodes in expression definitions or nodes in expression
+definition blocks, are never forwarded.  They are determinant
+(\pagref{DETERMINATE}), and in any call unification at most one node is
+being evaluated, while the other
+is the expression defined by an expression definition.  However, in PCASL
+arrows may be added to an expression being evaluated (Step~\ref{ADD-ARROW-STEP}
+\pagref{ADD-ARROW-STEP}).
+So in PCASL probably no immutable node can
+point directly at another immutable node.\footnote{PCASL differs from
+PROLOG in that in PROLOG arrows are not added to nodes during unification
+so immutable guard nodes can point directly at other immutable guard nodes.}
+Luckily PCASL is not intended to run large programs.  However, it should be
+possible to compile code that will check whether an expression defined by
+a given definition unifies with an arbitrary expression to be evaluated.
+Call unification is just a specification for a kind of pattern matching,
+and pattern matching specifications can be compiled into classical
+imperative code.
 
 
 \section{Expression Evaluation}
@@ -4860,11 +4881,11 @@ evaluated until the block's {\em guard} has been evaluated to true.
 If the guard evaluates to false, no statement in the
 {\em guarded-block} is ever evaluated.  An {\em else-if-continuation}
 {\em guard} is not evaluated until all {\em guards}
-in any preceeding {\em if-statement}
+in any preceding {\em if-statement}
 or {\em else-if-continuations} in the same {\em guard-statement}
 have been evaluated to false.  The {\em guarded-block} of an
 {\em else-continuation} is evaluated if and only if
-all {\em guards} in any preceeding {\em if-statement}
+all {\em guards} in any preceding {\em if-statement}
 or {\em else-if-continuation} in the same {\em guard-statement}
 have been evaluated to false.
 
@@ -4905,7 +4926,7 @@ if any.  Thus the block
 which inherits the variables \verb|X| and \verb|Y| will return
 the sum of its inherited variables as the value of the block.
 
-If a block finishes without producing a value for a variale named
+If a block finishes without producing a value for a variable named
 {\tt value}, the value of the block is \ttmkey{true}{block value}.
 
 It is an error if a variable is assigned a value by more than one
@@ -4970,14 +4991,14 @@ the {\em statement} becomes visible after all {\tt default}
 the block is going to iterate, and if at this point none of the variables
 that can be assigned by the {\em statement} have values for the next iteration.
 
-A statment of the form
+A statement of the form
 
 \begin{center}
 \verb|default| \verb|next| {\em variable-name} = {\em variable-name}
 \end{center}
 
 is implied for every inherited {\em variable-name}.  Thus inherited
-variables are normally propogated unchanged from one iteration to the
+variables are normally propagated unchanged from one iteration to the
 next.
 
 A \ttkey{first} qualified {\em statement} is only visible in the
