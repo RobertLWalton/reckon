@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 19, 2004}
+\date{November 20, 2004}
  
 \maketitle
 
@@ -4763,7 +4763,7 @@ may not be modified.  It can be created by:
 in which each {\em CONTEXT-ELEMENT} is either an expression definition or
 a context,
 {\em IS-LIST-BOOLEAN} is either `{\tt false}' (the default) or `{\tt true}',
-{\em WITH-CONTEXTS-SET-BOOLEAN} is either `{\tt false}' or `{\tt true}'
+{\em WITH-CONTEXTS-SET-\EOL BOOL\-EAN} is either `{\tt false}' or `{\tt true}'
 (the default).  `{\tt is list}' means the context is a list; otherwise
 it is a set.  `{\tt with contexts set}' means any expression definitions
 that are {\em CONTEXT-ELEMENTs} and that do not have their contexts set
@@ -5156,51 +5156,51 @@ TBD: should {\tt next} qualify a variable name and not a statement?
 
 
 
-\section{Typed Blocks}
-\label{TYPED-BLOCKS}
+\section{Objects}
+\label{OBJECTS}
 
-A typed block is a block that has a type, that can be used as a value,
-and that inherits code from its type.
+An object is a typed block that can be used as a value.
+A typed block, or object, has a type and inherits code from its type.
 
-A \key{block value} can be created by a {\em block-value} expression:
+An \key{object} can be created by an {\em OBJECT} expression:
 
 
 \begin{indpar}
-\key{block-value} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
+\key{OBJECT} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
 		      {\em block} \\[1ex]
 \key{type-name} ::= {\em word}
 \end{indpar}
 
-The code in the {\em block} becomes a permanent part of the block value.
-The variable values defined by this code become \skey{component}s of the value.
+The code in the {\em block} becomes a permanent part of the object.
+The variable values defined by this code become \skey{component}s of the object.
 These components can be retrieved by expressions of the form:
 
 \begin{center}
 \ttmkey{the}{the of@{\tt the} \ldots {\tt of}}
 {\em variable-name}
 \ttmkey{of}{the of@{\tt the} \ldots {\tt of}}
-{\em block-value}
+{\em object}
 \end{center}
 
-Blocks are updated by adding code to them either permanently or temporarily.
-Whenever code is added to a block value, the code executes as much as it
-can to define variable values that are then components of the block value.
+Objects are updated by adding code to them either permanently or temporarily.
+Whenever code is added to an object, the code executes as much as it
+can to define variable values that are then components of the object.
 When the code can execute no further (\secref{BLOCK-EVALUATION},
 \secref{STATEMENT-QUALIFIERS-AND-ITERATION}), any
-variables that do not have values are undefined components.  If some of
-these are given values later, any code that is a permanent part of the
-block may restart and produce additional variable values that define
-additional components.
+variables that do not have values become undefined components.  If some of
+undefined components are given values later, any code that is a permanent
+part of the object may restart and produce additional variable values that
+define additional components.
 
 Recall that the concept of being a variable of a block
 of code is defined syntactically and independently of which variable values
 the block actually computes (\secref{BLOCK-VARIABLE-NAMES}).
-The components of a block value are more precisely the syntactic variables
-of the code added permanently to the block value, whether or not these
+The components of an object are more precisely the syntactic variables
+of the code added permanently to the object, whether or not these
 variables have values defined by code added permanently or temporarily
-to the block value.  Variables of code added temporarily that are not
+to the object.  Variables of code added temporarily that are not
 syntactically variables of code added permanently are
-\underline{not} components of the block value,
+\underline{not} components of the object,
 and are not visible outside the temporarily added code.
 
 A statement of the form:
@@ -5209,30 +5209,30 @@ A statement of the form:
 \ttkey{for every} {\em type-name} {\em block} 
 \end{indpar}
 
-adds the code in its block permanently to every block value of the given type,
-including both existing block values and block values that are
+adds the code in its block permanently to every object of the given type,
+including both existing objects and objects that are
 created in the future.  The code in the block is associated with the
-type and is said to be `\skey{inherit}{ed}' by every block of that type.
+type and is said to be `\skey{inherit}{ed}' by every object of that type.
 
 A statement of the form:
 
 \begin{indpar}
-\ttkey{update} {\em EXPRESSION} {\em block} 
+\ttkey{update} {\em OBJECT} {\em block} 
 \end{indpar}
 
-where {\em EXPRESSION} evaluates to a block value adds the code in the
-{\em block} temporarily to the block value.  The code is added and all
-code in the block value executes until it can do nothing more.  Then
-the temporary code is removed from the block value.
+where {\em OBJECT} evaluates to an object adds the code in the
+{\em block} temporarily to the object.  The code is added and all
+code in the object executes until it can do nothing more.  Then
+the temporary code is removed from the object.
 
-When code is added to a block value and executes, the statement qualifier
+When code is added to an object and executes, the statement qualifier
 {\tt default} acts when execution stops to enable execution of {\tt default}
 statements, as per \secref{STATEMENT-QUALIFIERS-AND-ITERATION}.  Similarly
 the statement qualifier {\tt next} can be used to create iterations of the
-block value.  Each iteration replaces the previous iteration as the block
-value wherever the block value is referenced.  Thus if two variables equal
-the block value, and one is used to cause the value to iterate, both variables
-get the new iterated value.
+object.  Each iteration replaces the previous iteration as the object
+wherever the object is referenced.  Thus if two variables equal
+the object, and one is used to cause the object to iterate, both variable
+values will become the new iterated object.
 
 A statement of the form
 
@@ -5240,11 +5240,11 @@ A statement of the form
 \verb|default| \verb|next| {\em component-name} = {\em component-name}
 \end{center}
 
-is implied for every {\em component-name} of a block value that is not
+is implied for every {\em component-name} of an object that is not
 defined by an explicit `{\tt default next}' statement in the current
-(permanent plus temporary) code of the block value.
+(permanent plus temporary) code of the object.
 Thus components not explicitly changed propagate unchanged from
-one iteration of a block value to the next.
+one iteration of an object to the next.
 The statement
 
 \begin{center}
@@ -5253,21 +5253,23 @@ The statement
 
 (\pagref{UNDEFINED})
 can be used to change this behavior and make a component undefined when
-the next block value iteration is created, in which case other permanent
-code may immediately execute to define the value.
+the next object iteration is created, in which case other permanent
+code may immediately execute to define the object.
 
-When an iteration of a block value is created by temporary code, the
+TBD: what does the last sentence mean?
+
+When an iteration of an object is created by temporary code, the
 sequence of actions is:
 
 \begin{center}
 \begin{tabular}{lp{5.5in}}
-(1) & Add the temporary code to the block value. \\
-(2) & Execute all block value code until it terminates. \\
-(3) & If any {\tt next} variable values were defined by the
+(1) & Add the temporary code to the object. \\
+(2) & Execute all object code until it terminates. \\
+(3) & If any {\tt next} component values were defined by the
       execution in step (2), create
-      the next iteration of the block value, giving this
-      iteration only the permanent code of the block value. \\
-(4) & In the next iteration of the block value execute all
+      the next iteration of the object, giving this
+      iteration only the permanent code of the object. \\
+(4) & In the next iteration of the object execute all
       code until it terminates.
 \end{tabular}
 \end{center}
@@ -5280,8 +5282,8 @@ TBD: methods.
 
 Design:
 
-Operations that have side effects: input, output, typed block update
-(which is like typed block IO).
+Operations that have side effects: input, output, object update
+(which is like object IO).
 
 Operations that have side effects can be controlled by side effects modes.
 
