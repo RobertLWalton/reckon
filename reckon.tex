@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{August 23, 2003}
+\date{August 28, 2003}
  
 \maketitle
 
@@ -678,14 +678,14 @@ Primarly lexemes are defined as follows:
 \begin{indpar}
 \key{primary-lexeme}
 	\begin{tabular}[t]{rl}
-	::= & \key{word} \\
+	::= & \key{primary-word} \\
 	$|$ & \key{separator} \\
 	$|$ & \key{left-quote} \\
 	$|$ & \key{right-quote} \\
 	$|$ & \key{white-space}
 	\end{tabular}
 	\\[1ex]
-\key{word} ::= {\em word-character} {\em word-character}$^\star$ \\[1ex]
+\key{primary-word} ::= {\em word-character} {\em word-character}$^\star$ \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                        ::= & {\em letter} $|$ {\em digit} \\
 		       $|$ &    \verb|+|%
@@ -821,28 +821,22 @@ Primarly lexemes are defined as follows:
 		     \\[1ex]
 \key{closing-angle-character} ::= \verb|>| \\[1ex]
 \key{angle-character} ::= \verb|<| $|$ \verb|>| \\[1ex]
-\key{opening-character} ::=    \verb|(|%
-		            $|$\verb|[|%
-		            $|$\verb|{|%
-		            $|$\verb|`|%
-		            $|$\verb|<|
+\key{opening-character} ::=     \verb|(|
+		            $|$ \verb|[|
+		            $|$ \verb|{|
+		            $|$ \verb|`|
+		            $|$ \verb|<|
 			    \\[1ex]
-\key{closing-character} ::=    \verb|)|%
-		            $|$\verb|]|%
-		            $|$\verb|}|%
-		            $|$\verb|'|%
-		            $|$\verb|>|
+\key{closing-character} ::=     \verb|)|
+		            $|$ \verb|]|
+		            $|$ \verb|}|
+		            $|$ \verb|'|
+		            $|$ \verb|>|
 			    \\[1ex]
-\key{primary-separator} ::= {\em primary-separator-character} \\[1ex]
-\key{primary-separator-character} ::=    \verb\|\
-				      \\[1ex]
-\key{ambiguous-separator-character} ::=    \verb|!|%
-				        $|$\verb|?|%
-			                $|$\verb|;|%
-			                $|$\verb|:|%
-			                $|$\verb|,|%
-			                $|$\verb|.|
-					\\[1ex]
+\key{format-separator} ::= {\em format-separator-character}
+			   {\em format-separator-character}$^\star$ \\[1ex]
+\key{format-separator-character} ::=    \verb\|\
+				        \\[1ex]
 \key{white-space} ::= {\em white-space-character}
                      {\em white-space-character}$^\star$ \\[1ex]
 \key{white-space-character} ::=
@@ -882,7 +876,7 @@ if and only if $C$ is between the matched lexemes of $P$,
 and $C$ is neither part of or between any other pair of matched
 lexemes that is nested inside of $P$.
 
-\subsubsection{Primary Character Disambiguation Rules}
+\subsubsection{Character Disambiguation Rules}
 
 Several characters in primary lexemes are ambiguous in the
 lexeme syntax equations.  The following rules disambiguate these
@@ -891,18 +885,24 @@ characters.
 {\bf Opening Quote Rule.}\index{Opening Quote Rule}
 An \key{opening-quote-character} must be preceeded by a
 {\em white-space-character},
-an {\em opening-character}, or a {\em primary-separator-character}.
+an {\em opening-character}, or a {\em format-separator-character}.
 Otherwise it is a {\em word-character}.
 
-{\bf Primary Separator Rule.}\index{Primary Separator Rule}
-A {\em primary-separator-character} must be in the context of
+{\bf Closing Quote Rule.}\index{Closing Quote Rule}
+An \key{closing-quote-character} must be part of a sequence of
+{\em closing-quote-characters} that is just long enough to be the
+matching lexeme for some previous {\em open-quote}.
+Otherwise it is a {\em word-character}.
+
+{\bf Format Separator Rule.}\index{Format Separator Rule}
+A {\em format-separator-character} must be in the context of
 a pair of matching {\em quotes}.  Otherwise it is a {\em word-character}.
 
 {\bf Angle Rule.}\index{Angle Rule}
-An {\em angle-character} must be either proceeded or followed by a copy
+An {\em angle-character} must be either proceeded by or followed by a copy
 of itself.  Otherwise it is a {\em word-character}.
 
-Examples:
+Quote Examples:
 
 \begin{indpar}[0.1in]
 \begin{tabular}{@{}l@{\hspace*{0.3in}}l}
@@ -914,18 +914,31 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 			  ~~\verb|__|~~But! \\
 \verb|`Like 'tis'|	& \tt `~~Like~~\verb|_|~~'~~tis'	\\
 \verb|``Like 'tis''|	& \tt ``~~Like~~\verb|_|~~'tis~~''	\\
-\verb|`Like me''|	& \tt `~~Like~~\verb|_|~~me~~'~~~'
-				~~~~~\rm (last \verb|'| is a word) \\
+\verb|`Like me''|	& \tt `~~Like~~\verb|_|~~me''		\\
 \verb|`` `Hello' is a word.''|
 			& \tt ``~~\verb|_|~~`~~Hello~~'~~\verb|_|~~is%
 			  ~~\verb|_|~~a~~\verb|_|~~word.~~'' \\
 \end{tabular}
 \end{indpar}
 
-Other rules of PCASL cause {\em white-space} following an
+Other rules of PCASL (\ref{TBD}) cause {\em white-space} following an
 {\em opening-lexeme} or preceding a {\em closing-lexeme} to
 be ignored.  As a consequence, there is no problem putting
 space between the \verb|``| and \verb|`| in the last example.
+
+Angle and Format Separator Examples:
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}l@{\hspace*{0.3in}}l}
+			& Primary Lexeme Sequence		\\
+Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
+\verb|x <= y |		& \tt x \verb|_| \verb|<=| \verb|_| y	\\
+\verb|x <<= y |		& \tt x \verb|_| \verb|<<| = \verb|_| y	\\
+\verb/x = y|z/		& \tt x \verb|_| = \verb|_| \verb/y|z/ \\
+\verb/x = `y|z'/	& \tt x \verb|_| = \verb|_|
+                              \verb|`| y \verb/|/ z \verb|'| \\
+\end{tabular}
+\end{indpar}
 
 \subsubsection{White Space Conversion}
 
@@ -949,12 +962,13 @@ horizontal tab stops are set every 8 columns.
 Note that these rules do \underline{not} alter the printed appearance
 of the {\em white-space} lexeme.
 
+After these rules are applied, a {\em white-space} lexeme consists of
+only of {\em vertical-space-characters} followed by {\em space} characters.
 Rules that relate to expression formation ensure that all
-{\em vertical-space} characters are equivalent: see
-\ref{QUOTED-LINE-FEEDS} and \ref{TBD}.
+{\em vertical-space} characters are equivalent: see \ref{TBD}.
 
 
-\subsection{Primary Lexeme Conversion}
+\subsection{Lexemes}
 
 The sequence of primiary lexemes is converted to a sequence of lexemes
 according to the following rules, which we will describe in the
@@ -962,54 +976,103 @@ order given:
 
 \begin{indpar}[1in]
 Ambiguous Separators \\
-Indent Implied Lexemes \\
-Formatting Lexemes
+Indent Implied Lexemes
 \end{indpar}
 
 \subsubsection{Ambiguous Separators}
 
-A primary word may be converted to a word lexeme with the identical
-set of characters, or may have either its first or last character or
-both removed.
+Informally, an ambiguous separator is a one character separator that immediately
+follows a word, and could be part of the word.  Examples are the period
+and the exclamation point.  The Ambiguous Separator Rule
+given below tells when to split a {\em primary-word} that ends with an
+ambiguous separator character into a {\em word} and a one character
+{\em separator}.  The rule makes reference to {\em words} that are
+{\em numbers}, saying that splitting is preferred if the {\em word}
+resulting from the split is a {\em number} and the {\em separator}
+is a period.
 
-Separator characters can be classified into three kinds:
+The formal definitions required are:
 
 \begin{indpar}
-\key{separator-character}
-	\begin{tabular}[t]{rl}
-	::= & \key{opening-bracket} \\
-	$|$ & \key{closing-bracket} \\
-	$|$ & \key{ambiguous-separator-character}
-	\end{tabular}
-        \\[1ex]
-\key{opening-bracket} ::=    \verb|(|%
-			  $|$\verb|[|%
-			  $|$\verb|{|
+\key{separator} ::= {\em format-separator}
+		$|$ {\em ambiguous-separator} \\[1ex]
+\key{ambiguous-separator} ::= {\em ambiguous-separator-character} \\[1ex]
+\key{ambiguous-separator-character} ::=     \verb|!|
+				        $|$ \verb|?|
+			                $|$ \verb|;|
+			                $|$ \verb|:|
+			                $|$ \verb|,|
+			                $|$ \verb|.|
+					\\[1ex]
+\key{primary-word} ::= {\em word}
+		$|$ {\em word} {\em ambiguous-separator} \\[1ex]
+\key{number} ::= {\em real-number} $|$ {\em complex-number} \\[1ex]
+\key{real-number} ::= {\em unsigned-real-number} $|$ {\em signed-real-number}
+		      \\[1ex]
+\key{signed-real-number} ::= {\em sign} {\em unsigned-real-number} \\[1ex]
+\key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
+\key{unsigned-real-number} ::= {\em unsigned-decimal}
+		$|$ {\em unsigned-decimal} {\em exponent} \\[1ex]
+\key{unsigned-decimal} ::= {\em unsigned-integer}
+		$|$ {\em unsigned-integer} {\em fraction}
+		$|$ {\em fraction} \\[1ex]
+\key{fraction} ::= \verb|.| {\em unsigned-integer} \\[1ex]
+\key{unsigned-integer} ::= {\em digit} {\em digit}$^\star$ \\[1ex]
+\key{exponent} ::= {\em radix-indicator}
+		$|$ {\em radix-indicator} {\em integer} \\[1ex]
+\key{radix-indicator} ::=     \verb|E|
+			  $|$ \verb|e|
+			  $|$ \verb|D|
+			  $|$ \verb|d|
+			  $|$ \verb|X|
+			  $|$ \verb|x|
+			  $|$ \verb|O|
+			  $|$ \verb|o|
+			  $|$ \verb|B|
+			  $|$ \verb|b|
 			  \\[1ex]
-\key{closing-bracket} ::=    \verb|)|%
-			  $|$\verb|]|%
-			  $|$\verb|}|
-			  \\[1ex]
-\key{ambiguous-separator-character} ::=    \verb|!|%
-				        $|$\verb|?|%
-			                $|$\verb|;|%
-			                $|$\verb|:|%
-			                $|$\verb|,|%
-			                $|$\verb|.|
+\key{integer} ::= {\em unsigned-integer} $|$ {\em signed-integer} \\[1ex]
+\key{signed-integer} ::= {\em sign} {\em unsigned-integer} \\[1ex]
+\key{complex-number} ::= {\em imaginary-number}
+		$|$ {\em real-number} {\em signed-imaginary-number} \\[1ex]
+\key{imaginary-number} ::= {\em unsigned-imaginary-number}
+		$|$ {\em signed-imaginary-number} \\[1ex]
+\key{signed-imaginary-number} ::=
+		{\em sign} {\em unsigned-imaginary-number} \\[1ex]
+\key{unsigned-imaginary-number} ::=
+		{\em unsigned-real-number} {\em imaginary-indicator} \\[1ex]
+\key{imaginary-indicator} ::=     \verb|I|
+			      $|$ \verb|i|
+			      $|$ \verb|J|
+			      $|$ \verb|j|
 \end{indpar}
 
-Then the ambiguities involving separators are resolved by the
-following rules:
+The following rule controls when to split a {\em primary-word}
+into a {\em word} and an {\em ambiguous-separator}.
 
-{\bf Ambiguous Separator Rule.}\index{ambiguous separator}
-An {\em ambiguous-separator-character} is a {\em separator-character}
-if and only if it is followed by {\em white-space}
-or a {\em closing-backet} or a {\em right-quote} and is
-\underline{not} preceded by {\em white-space} or an {\em opening-bracket}
-or a {\em left-quote}.  Otherwise it is a {\em word-character}.
-There is one exception for `\verb|.|' given in the following
-rule.
+{\bf Ambiguous Separator Rule.}\index{Ambiguous Separator Rule}
+A {\em primary-word} that ends with an {\em ambigous-separator-character}
+is split into a {\em word} and an {\em ambiguous-separator} if the {\em word}
+does \underline{not} contain a copy of the {\em ambiguous-separator} character,
+or if the {\em ambiguous-separator} is a period
+and the {\em word} is a {\em number}.
+Otherwise the {\em primary-word} is not split and becomes a {\em word}.
 
+
+Examples:
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}l@{\hspace*{0.3in}}l@{~~~}l@{\hspace*{0.6in}}l}
+Primary-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
+							& Splits?	\\[1ex]
+\verb|hello.|		& \tt hello 		& .	& yes		\\
+\verb|h.e.l.l.o.|	& \tt h.e.l.l.o.	&	& no		\\
+\verb|e.g.|		& \tt e.g.		&	& no		\\
+\verb|5.0.|		& \tt 5.0		& .	& yes		\\
+\verb|help!|		& \tt help		& !	& yes		\\
+\verb|!help!|		& \tt !help!		&	& no		\\
+\end{tabular}
+\end{indpar}
 
 \section{Rules}
 
