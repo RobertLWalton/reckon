@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 10, 2004}
+\date{November 12, 2004}
  
 \maketitle
 
@@ -1881,7 +1881,7 @@ which correspond to the expression definitions
 
 \begin{indpar}
 \begin{verbatim}
-define lexeme dictionary NAME ENTRIES <-- n-tuple ENTRIES
+define lexeme dictionary NAME ENTRIES <-- tuple ENTRIES
 
 define lexeme function NAME <--
 \end{verbatim}
@@ -4709,8 +4709,32 @@ continuing to the next element of the list.
 
 There are two kinds of contexts: immutable and mutable.
 
-An \key{immutable context} may not be modified.  It can be created by
-the expression TBD.
+An \key{immutable context}\label{IMMUTABLE-CONTEXT}
+may not be modified.  It can be created by the expression
+
+\begin{indpar}
+\ikey{IMMUTABLE-CONTEXT}{immutable-context} \\
+	\hspace*{0.5in}::= \verb|a context (| {\em CONTEXT-ITEM}
+		     		\{ \verb|,| {\em CONTEXT-ITEM} \} \verb|)|
+\\[1ex]
+\ikey{CONTEXT-ITEM}{context-item} ::= {\em expression}
+\end{indpar}
+
+in which each {\em CONTEXT-ITEM} is either an expression definition or
+a context.  An {\em IMMU\-TABLE-CONTEXT} is defined by the
+expression definitions (\secref{EXPRESSION-DEFINITIONS}):
+
+\begin{indpar}
+\begin{verbatim}
+a context {
+    a context CONTEXT-ITEM-LIST <--
+              tuple CONTEXT-ITEM-LIST of context-items {...}
+}
+context-item X <-- expression-definition X
+context-item X <-- context X
+context-item X <-- immutable-context X
+\end{verbatim}
+\end{indpar}
 
 Design:
 
