@@ -136,10 +136,10 @@
 \title{Personal\\Calculation and Simulation\\Language\\[2ex]PCASL\\[2ex]
        (Draft 1a)}
 
-\author{Robert L. Walton\thanks{This document is was partly inspired
-teaching courses at Suffolk University.}}
+\author{Robert L. Walton\thanks{This document was partly inspired
+by teaching courses at Suffolk University.}}
 
-\date{October 21, 2003}
+\date{October 29, 2003}
  
 \maketitle
 
@@ -197,6 +197,25 @@ Prolog				& Logical Expressions \\
 PCASL is \underline{not} designed to be a computer-efficient language.
 It is designed to be person-efficient, and to do small calculations
 rapidly enough with inexpensive modern computers.
+
+\section{Remarks}
+
+PCASL was created as an answer to the question: what programming language
+should you teach beginning programming students who do not have the talent
+or inclination to become good programmers?  The inital answer, that it does
+not matter provided you implement some powerful types of data in the
+language you choose, has a flaw.  The flaw is that without the right powerful
+data types, the language will be useless to the students after the course
+is over.  So what is needed is a programming language that will be useful
+to students after a first course in programming, and the essence of
+such a language is the integration within it of many powerful and useful
+data types.
+
+The current version of PCASL is not stable, because it has not been
+implemented, and because, unlike most programming languages, PCASL
+has lots of subtle interactions between its various features.  The
+hope is that with implementation and experimentation, a stable sensible
+version of PCASL integrating all its data types can be achieved.
 
 \section{Data}
 
@@ -259,7 +278,7 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|> (f + h) in x| \\
 \verb|{|$10x^2-3x-1$\verb|}| \\
 \verb|> solve (f + h = 0) for x| \\
-\verb|{x = (-0.2, 0.5)}| \\
+\verb|{|$x = (-0.2, 0.5)$\verb|}| \\
 \verb|> (f + h) at (x = (3, 4, 5))| \\
 \verb|(78.95, 145.28, 231.61)| \\
 \verb|> g = {integral (x^2 dx)}| \\
@@ -268,14 +287,14 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|{|$\frac{1}{3} x^3$\verb|}| \\
 \verb|> v = g from (x=1) to (x=5)| \\
 \verb|41 1/3| \\
-\verb|> out = `The value of (<<g>> from (x=1) to (x=5)) is <<v>>.'| \\
+\verb|> out = `The value of {<<g>> from (x=1) to (x=5)} is <<v>>.'| \\
 \verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
 \verb|[sentence the value of {(integral (x^2*dx)) from (x=1) to (x=5)}| \\
 \verb|          is 124/3]|
 \end{indpar}
 
-Another kind of datum you can compute with in PCASL, which is
+Another kind of datum you can compute with in PCASL is
 the \key{block}:
 
 \begin{indpar}
@@ -568,7 +587,14 @@ compute such tuples are \key{flattened}:
 \verb|()|
 \end{indpar}
 
-\newpage
+PCASL has many different kinds of quotes or brackets.  Some of these,
+\verb|{...}|, \verb|`...'|, and \verb|[...]|, turn evalution off,
+while \verb|<<...>>| turns evaluation on.  Some,
+\verb|`...'| and \verb|[...]|, turn recognition of operators (e.g., \verb|+|
+and \verb|=|) off, while others,
+\verb|{...}| and \verb|<<...>>|, turn recognition of operators on.
+\verb|`...'| (and \verb|``...''|, \verb|```...'''|, etc.), also do other
+things, like insert implicit operations (e.g., \verb|sentence|).
 
 PCASL stores information as expressions.  For example:
 
@@ -591,38 +617,38 @@ PCASL stores information as expressions.  For example:
 \verb|false|
 \end{indpar}
 
-In PCASL also supports pictorial data
+PCASL also supports pictorial data
 that are computed like expressions.
 
 \begin{indpar}
-\verb|> x = circle 0.4| \\
+\verb|> x = {circle 0.4}| \\
 \begin{picture}(0.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \end{picture} \\
-\verb|> y = rectangle (0.4,0.2)| \\
+\verb|> y = {rectangle (0.4,0.2)}| \\
 \begin{picture}(0.4,0.2)
 \put(0,0){\framebox(0.4,0.2){}}
 \end{picture} \\
-\verb|> z = (circle 0.4) labeled `Jack'| \\
+\verb|> z = {(circle 0.4) labeled `Jack'}| \\
 \begin{picture}(0.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \put(0.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> (x right of y) above z| \\
+\verb|> {(<<x>> right of <<y>>) above <<z>>}| \\
 \begin{picture}(0.8,0.8)
 \put(0.6,0.6){\circle{0.4}}
 \put(0.0,0.5){\framebox(0.4,0.2){}}
 \put(0.4,0.2){\circle{0.4}}
 \put(0.2,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> row(x,y,z)| \\
+\verb|> {row(<<x>>,<<y>>,<<z>>)}| \\
 \begin{picture}(1.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \put(0.5,0.1){\framebox(0.4,0.2){}}
 \put(1.2,0.2){\circle{0.4}}
 \put(1.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> p = column (row(x,y,z), row(z,y,x))| \\
+\verb|> p = {column (row(<<x>>,<<y>>,<<z>>), row(<<z>>,<<y>>,<<x>>))}| \\
 \begin{picture}(1.4,0.9)
 \put(0.2,0.7){\circle{0.4}}
 \put(0.5,0.6){\framebox(0.4,0.2){}}
@@ -647,6 +673,9 @@ that are computed like expressions.
 You can also change how an expression is displayed.
 
 \begin{indpar}
+\newlength{\ovalraise}
+\setlength{\ovalraise}{-0.1in}
+\addtolength{\ovalraise}{0.8ex}
 \verb|> display (a person named X) as ((oval (0.4,0.2)) labelled X) <--| \\
 \verb|> (a person named `Jack')| \\
 \begin{picture}(0.4,0.2)
@@ -654,14 +683,20 @@ You can also change how an expression is displayed.
 \put(0.0,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture} \\
 \verb|> ``(a person named `Jill') is wife of (a person named `Jack')''| \\
-\begin{picture}(2.0,0.2)
+\verb|``|
+\raisebox{\ovalraise}{\begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jill}}
-\put(0.4,0.0){\makebox(1.2,0.2){is the wife of}}
-\put(1.8,0.1){\oval(0.4,0.2)}
-\put(1.6,0.0){\makebox(0.4,0.2){Jack}}
-\end{picture}
+\end{picture}}
+{is the wife of}
+\raisebox{\ovalraise}{\begin{picture}(0.4,0.2)
+\put(0.2,0.1){\oval(0.4,0.2)}
+\put(0.0,0.0){\makebox(0.4,0.2){Jack}}
+\end{picture}}
+\verb|''|
 \end{indpar}
+
+TBD: example of a simple game.
 
 
 \section{Lexemes}
@@ -867,7 +902,7 @@ mirror of $C$.  Each {\em closing-mark} must match exactly one
 {\em closing-mark}.
 
 Two lexemes are said to be \mkey{matched}{lexemes} if and only if
-they are matched opening and closing lexemes.
+they are matched opening and closing marks.
 
 {\bf Matched Lexeme Nesting Rule.}\index{Matched Lexeme Nesting Rule}
 If one lexeme in a pair $P_2$ of matched lexemes is in between the
@@ -918,7 +953,7 @@ Quote Examples:
 \begin{tabular}{@{}l@{\hspace*{0.3in}}l}
 			& Pre-Lexeme Sequence		\\
 Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
-\verb|I said `Hello'.|	& \tt `~~Hello~~'			\\
+\verb|I said `Hello'.|	& \tt I~~\verb|_|~~said~~\verb|_|~~`~~Hello~~'~~.	\\
 \verb|Re`op 'tis.  But!|
 			& \tt Re`op~~\verb|_|~~'tis.%
 			  ~~\verb|__|~~But! \\
@@ -931,10 +966,10 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \end{tabular}
 \end{indpar}
 
-Other rules of PCASL limit the semantic content
+Other rules of PCASL (\ref{LEXEMES})
+limit the semantic content
 of {\em white-space}, so that there is no problem putting
-space between the \verb|``| and \verb|`| in the last example
-(\ref{INDENTATION-LEXEMES}).
+space between the \verb|``| and \verb|`| in the last example.
 
 Angle and Format Separator Examples:
 
@@ -983,6 +1018,7 @@ form the lexeme sequence ensure that all
 
 
 \subsection{Lexemes}
+\label{LEXEMES}
 
 The sequence of pre-lexemes is converted to a sequence of lexemes
 according to the following rules, which we will describe in the
@@ -1009,8 +1045,8 @@ The syntax equations defining a lexeme are:
 
 {\em Post-separators} are single characters removed from the
 ends of {\em pre-words}.  A {\em Word} is what is left of
-a {\em pre-word} after any {\em post-separator}
-is removed from its end.
+a {\em pre-word} after any {\em post-separators}
+are removed from its end.
 {\em Words} and {\em post-separators} are defined
 below in \ref{POST-SEPARATORS}.
 
@@ -1035,8 +1071,8 @@ are both pre-lexemes and lexemes.
 The rule for spliting a {\em pre-word} into a {\em word}
 and a {\em separator} makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
-resulting from the split is a {\em number}.  Some syntax equations
-for defining {\em numbers} are as follows.
+resulting from the split is a {\em number}.  Some of the syntax equations
+defining {\em numbers} are as follows.
 
 \begin{indpar}
 \key{number} ::= {\em real-number} $|$ {\em unit-number}
@@ -1225,48 +1261,54 @@ Complex Number Examples:
 \label{POST-SEPARATORS}
 
 Informally, a post-separator is a 1-character separator that immediately
-follows a word and could be part of that word.  Examples are the period
-and the exclamation point.  The Post Separator Rule
-given below tells when to split a {\em pre-word} that ends with a
-post-separator character into a {\em word} and a 1-character
-{\em separator}.  The rule makes reference to {\em words} that are
-{\em numbers}, saying that splitting is preferred if the {\em word}
+follows a word and could be part of that word.  Examples are the comma, period,
+and the exclamation point.  There are two kinds of post separators:
+weak and strong.  The Post Separator Rule
+given below tells when a {\em pre-word} ending
+in a {\em post-separator-character}
+must be split into smaller {\em pre-word} and a 1-character
+{\em separator}.  This rule makes reference to {\em words} that are
+{\em numbers}, saying that splitting is preferred when the
+{\em post-separator-character} is weak if the {\em word}
 resulting from the split is a {\em number}.
 
-The formal definitions required are:
+The syntax equations required are:
 
 \begin{indpar}
 \key{separator} ::= {\em format-separator}
 		$|$ {\em post-separator} \\[1ex]
 \key{post-separator} ::= {\em post-separator-character} \\[1ex]
-\key{post-separator-character} ::=     \verb|!|
-				        $|$ \verb|?|
+\key{post-separator-character} \begin{tabular}[t]{rl}
+                     ::= & {\em strong-post-separator-character} \\
+		     $|$ & {\em weak-post-separator-character}
+		     \end{tabular} \\[1ex]
+\key{strong-post-separator-character} ::=     \verb|,|
 			                $|$ \verb|;|
+					\\[1ex]
+\key{weak-post-separator-character} ::=     \verb|!|
+				        $|$ \verb|?|
 			                $|$ \verb|:|
-			                $|$ \verb|,|
 			                $|$ \verb|.|
 					\\[1ex]
 \key{pre-word} ::= {\em word}
-		$|$ {\em word} {\em post-separator}
-		$|$ {\em post-separator}
+		$|$ {\em pre-word} {\em post-separator-character}
 \end{indpar}
+
+{\bf Post Separator Rule.}\index{Post Separator Rule}
+A {\em pre-word} of 2 or more characters
+that ends with a {\em post-separator-character}
+is split into a {\em pre-word} and a {\em post-separator}
+if the {\em post-separator-character} is strong, or if
+the split-out {\em pre-word} is a {\em number}, or if
+the split-out {\em pre-word} does 
+\underline{not} contain a copy of the {\em post-separator-character}.
+If the {\em pre-word} is not split, it becomes a {\em word} lexeme.
 
 The following rule handles the case of 1-character {\em pre-words}.
 
 {\bf Isolated Post Separator Rule.}\index{Isolated Post Separator Rule}
-A {\em pre-word} consists of a single {\em post-separator-character}
-is a {\em post-separator}.
-
-The following rule controls when to split a {\em pre-word}
-of 2 or more characters into a {\em word} and an {\em post-separator}.
-
-{\bf Post Separator Rule.}\index{Post Separator Rule}
-A {\em pre-word} of 2 or more characters
-that ends with an {\em post-separator-character}
-is split into a {\em word} and an {\em post-separator} if the {\em word}
-does \underline{not} contain a copy of the {\em post-separator} character,
-or if the {\em word} is a {\em number}.
-Otherwise the {\em pre-word} is not split and becomes a {\em word}.
+A {\em pre-word} that consists of a single {\em post-separator-character}
+is a {\em post-separator} lexeme.
 
 
 Examples:
