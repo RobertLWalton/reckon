@@ -3466,6 +3466,13 @@ are unified using pure unification, and all the defaults of each
 variable with defaults are similarly unified.  The result after
 unification is an expression graph.
 
+There are two kinds of graph creation conversion: explicit and implicit.
+In implicit conversion words beginning with a capital letter or
+with `\verb|#|' followed
+by a capital letter are taken to be variable names if they appear where
+a node label would appear.  In explicit conversion such words are not
+given special treatment.
+
 In converting a raw expression to an expression tree,
 the rules for representing raw expressions as expression trees
 (\ref{RAW-EXPRESSION-TREES})
@@ -3483,11 +3490,12 @@ the named variable.
 This expression converts to a tree consisting of a single null root
 node, and adds this node to the value set of the named variable.
 
-\item[{\em variable-name}~~~(where {\em variable-name} is a word
-			     beginning with a capital letter)]~\\
+\item[{\em variable-name}]~\\
 For implicit conversion this is
-treated as the equivalent of `\verb|[// |{\em variable-name}\verb|]|'.
-For explicit conversion this is converts to a tree with a single node
+treated as the equivalent of `\verb|[// |{\em variable-name}\verb|]|'
+if {\em variable-name} begins with a capital letter or with
+`\verb|#|' followed by a capital letter.
+Otherwise this converts to a tree with a single node
 labeled with a word that is not in general a variable name.
 
 \item[{\tt [\Tilde\Tilde}\index{~~@{\tt \protect\Tilde\protect\Tilde}}
@@ -3508,38 +3516,16 @@ the {\em target-value} raw expression that follows the arrow's
 \item[{\tt [}\ttkey{++++}
       {\em expression-graph} {\em expression-graph}$^\star${\tt]}]~\\
 This expression converts to the tree that the first {\em expression-graph}
-converts to.  The other expression-graphs are also converted to trees.
-Before the variable value and default sets are unified, the union
-of all the variables, variable value sets, and variable default sets
-is taken over all the {\em expression-graphs}.
-
-More explicitly, any variable of any {\em expression-graph} is a variable
-of the result, any variable value of any {\em expression-graph} is in the
-set of values for that variable that are unified to produce the value
-of the variable in the result,
-and any variable default of any {\em expression-graph}
-is in the set of defaults for that variable that are unified to produce
-the default for the variable in the result.
-
-Thus {\em expression-graphs} other than the first can provide
-variable values or defaults that are not reachable from the root of the
-result.
+converts to.  The other {\em expression-graphs} are also converted to trees.
+All the {\em expression-graphs} may contribute variables, variable values,
+and variable defaults, and the values and defaults for each variable
+will be merged by the unification at the end of the conversion.
 
 \end{list}
 \end{indpar}
 
-Note that during creation of the expression tree before unification
-the roots of various subtrees are not treated as values of a variable
-named \verb|{ROOT}|.  More explicitly, no variable is permitted that
-has the name \verb|{ROOT}|, and tree roots are tracked by means other
-than variables.  The resulting expression tree has a root but no
-\verb|{ROOT}| variable.  It is an error if any of the special expressions
-listed above specifies \verb|{ROOT}| as a variable name.
-
-After the expression tree is created,
-a \ttmkey{\CurlyBra ROOT\CurlyKet}{of conversion} variable is created
-whose sole value is the root of the expression tree, and whose set of
-default values is empty.
+After the expression tree is created, its root node becomes the root
+of the expression graph resulting from conversion.
 
 Then pure unification is performed as
 described in \ref{PURE-UNIFICATION}, except that the merge set is initialized
@@ -3551,12 +3537,14 @@ if and only if its set of default values before unification was non-empty.
 
 There are two kinds of graph creation conversions: explicit and implicit.
 In \ikey{implicit conversions}{implicit conversion!to expression graph}
-nodes labeled by a word L beginning with
-a capital letter are treated as the equivalent of `\verb|[// |L\verb|]|'.
-Thus L is a variable name and its name in the raw expression
+what appear to be nodes labeled by a word L beginning with
+a capital letter or with `\ttkey{\#}' followed by a capital
+letter are treated as the equivalent of `\verb|[// |L\verb|]|'.
+Thus L is a variable name and its name used like a node label
+in the raw expression
 represents a null node that is a value of the variable named L.
 For \ikey{explicit conversions}{explicit conversion!to expression graph}
-no such special provision is made for labeled nodes.
+no such special provision is made for words that are used like node labels.
 
 The exact operation names used in graph creation conversions may be different
 from those given above.  The names to be used are given as arguments to the
@@ -3580,8 +3568,11 @@ with the `\verb|//|' operation
 to merge nodes that are not the value or default of any real variable.
 This use simply
 creates variables with names that are not single words or separators
-which are discarded at the end of conversion.  Pseudo-variables cannot
-be given defaults.
+which are discarded at the end of conversion.
+The pseudo-variable `\verb|{ROOT}|' is always given
+the root node of the expression tree as one of its values, but may
+be given other values by this method.
+Pseudo-variables cannot be given defaults.
 
 Some examples of expression trees represented by raw expressions and the
 expression graphs they convert to are as follows:
