@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 13, 2003}
+\date{November 14, 2003}
  
 \maketitle
 
@@ -1477,13 +1477,13 @@ particular matching lexemes, such as \verb|`'|, are restructured.
 
 The process of restructuring expressions is called \key{parsing}.
 Parsing takes an expression as input, and produces as output a raw
-expression that contains nothing which will trigger further restructuring.
+expression that contains nothing that will trigger further restructuring.
 
 \subsection{Subexpressions}
 \label{SUBEXPRESSIONS}
 
 The first step in parsing is to identify \skey{subexpression}s within
-an expression without restructuring the expression by applying
+an expression, without restructuring the expression, by applying
 the following syntax equations.
 
 \begin{indpar}
@@ -1673,12 +1673,12 @@ not matter.
 
 Operators restructure expressions in which they occur.  Operators
 are defined by operator definitions that can be added to the current
-lexical context by some operators.
+operator context by some operators.
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
 
-A lexical context (\ref{LEXICAL-CONTEXT})
+The operator context (\ref{OPERATOR-CONTEXT})
 contains a set of \skey{operator definition}s.
 An operator definition specifies for each operator the following:
 
@@ -1712,8 +1712,8 @@ operators may not be empty.
 An \verb|infix| operator may not begin or end an expression;
 a \verb|prefix| operator must begin an expression;
 a \verb|postfix| operator must end an expression;
-and a \verb|matchfix| operator has two parts: a beginning part
-that must begin an expression and an ending part that must end
+and a \verb|matchfix| operator has two parts: an opening operator
+that must begin an expression and a closing operator that must end
 the same expression.
 
 \subsubsubsection{Name}\ttmindex{name}{of operator}
@@ -1723,6 +1723,11 @@ inside a subexpression is just this sequence of lexemes, except for
 matchfix operators, which have two sequences of lexemes, an
 \key{opening operator name} that must begin the subexpression and
 a \key{closing operator name} that must end the subexpression.
+
+By abuse of language, the term `\key{operator}' is often used
+as a synonym for `operator name'.  Similarly `\key{opening operator}'
+is used as a synonym for `opening operator name' and `\key{closing operator}'
+is used as a synonym for `closing operator name'.
 
 The opening and closing names of a matchfix
 operator are bundled into a single operator name that is
@@ -1776,6 +1781,9 @@ that both apply to an expression, the second will be suppressed.  If
 `\verb|- < ... > -|' is a matchfix operator and `\verb|-|' is a prefix
 operator, and both apply to an expression, the prefix operator will be
 suppressed.
+However, if `\verb|-< ... >-|' is a matchfix operator and `\verb|-<|'
+is a prefix operator, and both apply to an expression, neither will be
+suppressed, and their ambiguity will cause an error.
 
 {\bf Prefix/Postfix Rule.}\index{Prefix/Postfix Rule}
 If an expression begins with a consecutive sequence of prefix operators,
@@ -1785,6 +1793,12 @@ any infix operator overlapping this sequence is suppressed.
 
 Thus if `\verb|+|' is both a prefix and infix operator,
 the expression `\verb|+ + y|' is equivalent to `\verb|+ (+ y)|'.
+
+{\bf Infix Precedence Rule.}\index{Infix Precedence Rule}
+If an expression contains any infix operators that are not be suppressed by the
+previous rules (Matchfix and Prefix/Postfix), then any prefix operators
+beginning the expression are suppressed, and any postfix operators
+ending the expression are suppressed.
 
 {\bf Consecutive Infix Rule.}\index{Consecutive Infix Rule}
 Any consecutive sequence infix operators not suppressed by the
@@ -1798,30 +1812,30 @@ If there is not a single unique way of doing this, it is an error.
 
 Thus if `\verb|+|' is both a prefix and infix operator,
 the expression `\verb|x + + y|' is equivalent to `\verb|x + (+ y)|'.
-But if `\verb|+|' were a prefix, infix, and postfix operator, these
-expressions would both have erroneous ambiguity.
+But if `\verb|+|' were a prefix, infix, and postfix operator, this
+expression would have erroneous ambiguity.
 
 
 \subsubsubsection{Precedence}\ttmindex{precedence}{of operator}
 The precedence of an operator is an integer.  Precedence is used in
-selecting which infix operators in an expression will be used to form
-implicitly parenthized subexpressions.  Only infix operators have
-precedence.
+selecting which infix operators in an expression to consider.
+Only infix operators have precedence.
 
 If no matchfix operators apply to an expression, but there
 are infix operators in the expression, the lowest
 precedence $P$ of any infix operator in the expression is determined, and
-only infix operators of precedence $P$ are considered when inserting implied
-parentheses into the expression.  However, after implied parentheses
+only infix operators of precedence $P$ are considered when parsing the
+expression.  In this case prefix and postfix operators are not considered
+in parsing the expression.  However, after implied parentheses
 are inserted, higher precedence infix operators, prefix operators, and
 postfix operators will be recognized when
 the resulting subexpressions are parsed recursively.
 
 \subsubsubsection{Associativity}\ttmindex{associativity}{of operator}
-An infix operator has an {\em associativity} that is named
-by a single word or separator lexeme.
-Three words, {\tt left}, {\tt right}, and
-{\tt none} have special meaning.  If an infix operator has some
+An infix operator has an {\em associativity} that
+a sequence of lexemes.
+Three associativities, {\tt left}, {\tt right}, and
+{\tt none}, have special meaning.  If an infix operator has some
 other associativity, it is said to have \key{named associativity}.
 
 If more than one infix operator with lowest precedence appears in an expression,
@@ -1830,23 +1844,23 @@ associativity must not be {\tt none}\ttmindex{none}{associativity}.
 
 If all operators are {\tt left} associative%
 \index{left associative@{\tt left} associative},
-only the rightmost operator is used to
-insert implied parentheses, so it is as if operators to the left had
+all the infix operators but the rightmost are suppressed,
+so it is as if operators to the left had
 higher precedence than those to the right.
 
 If all operators are {\tt right} associative,
 \index{right associative@{\tt right} associative},
-only the leftmost operator is used to
-insert implied parentheses, so it is as if operators to the right had
+all the infix operators but the leftmost are suppressed,
+so it is as if operators to the right had
 higher precedence than those to the left.
 
 If all operators are of \key{named associativity}, all are recognized, and 
 implicitly parenthesized subexpressions will be created between the
-operators as well as betweeen the beginning of the expression and the
+operators as well as between the beginning of the expression and the
 first operator and between the last operator and the end of the expression.
-Then the lexeme naming the associativity is prepended to the expression.
+Then the associativity, as a lexeme sequence, is prepended to the expression.
 Thus if the infix operators \verb|<| and \verb|<=| have associativity
-\verb|-COMPARE-|, then the expression \verb|0 < x - 3 <= 5| will
+\verb|-COMPARE-|, the expression \verb|0 < x - 3 <= 5| will
 be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
 
 \subsubsubsection{Control}\ttmindex{control}{of operator}
@@ -1887,8 +1901,8 @@ into an expression, the part of the expression that is not part of the
 operator is the subexpression that is implicitly parenthesized.
 This subexpression may be empty.
 
-\subsubsection{Lexical Context}
-\label{LEXICAL-CONTEXT}
+\subsubsection{Operator Context}
+\label{OPERATOR-CONTEXT}
 
 \subsection{Expression Translation}
 \label{EXPRESSION-TRANSLATION}
