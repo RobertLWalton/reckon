@@ -885,8 +885,8 @@ Pre-lexemes are defined as follows:
 
 The following sections give rules involving pre-lexemes.
 
-\subsubsection{Matching and Pre-Lexical Context}
-\label{MATCHING}
+\subsubsection{Lexical Matching and Pre-Lexical Context}
+\label{LEXICAL-MATCHING}
 
 {\em Opening-marks} and {\em closing-marks} are both pre-lexemes
 and also lexemes.  Rules for matching pre-lexemes in a pre-lexeme
@@ -1497,7 +1497,7 @@ the following syntax equations.
 
 {\bf Subexpression Rule.}\index{Subexpression Rule}
 The {\em opening-mark} lexeme that begins a subexpression
-must match (\ref{MATCHING}) the {\em closing-mark} lexeme that
+must match (\ref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
 \subsection{Expression Structure}
@@ -1693,8 +1693,8 @@ The order of {\em raw-qualifier-phrases}
 in a {\em raw-expression} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
 not matter.  Both {\em reorder-marks} (\verb|<:>|) and {\em remainder-marks}
-(\verb|::>|) can only occur in the head of an expression definition
-(\ref{TBD}).
+(\verb|::>|) can only occur in the head of an inference rule
+(\ref{INFERENCE-RULE}).
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -1922,6 +1922,9 @@ are called \skey{subdefinition}s.
 Note that subdefinitions can include operator definitions, operator
 undefinitions, qualifier definitions, and qualifier undefinitions.
 
+\subsubsection{Operator Definition Syntax}
+\label{OPERATOR-DEFINITION-SYNTAX}
+
 \subsubsection{Operator Selection}
 \label{OPERATOR-SELECTION}
 
@@ -2142,7 +2145,7 @@ top of the parsing parser stack.  If the operator definition has the
 \ttmkey{definitions}{control flag} control flag (note the operator must
 be right associative), after the first subexpression is parsed,
 it is checked to see if it is an operator definition
-(\ref{OPERATOR-DEFINITION}).  If yes, this operator definition is pushed
+(\ref{OPERATOR-DEFINITION-SYNTAX}).  If yes, this operator definition is pushed
 into the parsing definition stack before the second subexpression is parsed.
 
 \item
@@ -2169,9 +2172,9 @@ The expression is returned as the result of parsing the expression.
 
 \end{enumerate}
 
+\subsection{Text Parsing}
+\label{TEXT-PARSING}
 
-\subsubsection{Operator Definition Syntax}
-\label{OPERATOR-DEFINITION-SYNTAX}
 
 \section{Expression Graphs}
 \label{EXPRESSION-GRAPHS}
@@ -2180,11 +2183,15 @@ Expression graphs store expressions.  An \key{expression graph}
 is a directed possibly cyclic graph with labels on all arcs and on some
 nodes, plus a set of graph node valued variables.  Labels and variable
 names must be single words or
-separators.  Labelled nodes cannot be the source of any arc.  There is
+separators.  Labelled nodes cannot be the source of any arc.
+Several arcs with the
+same source node may have the same arc label.
+
+There is
 always a variable named \ttkey{-ROOT-} that designates a graph node
 called the \mkey{root}{of expression graph} of the expression graph.
-All graph nodes are reachable from this root.  Several arcs with the
-same source node may have the same arc label.
+All graph nodes are reachable from from the variable values, and
+usually all graph nodes are reachable from the root.
 
 If there is only one variable, \verb|-ROOT-|, and no node is the destination
 of more than one arc, the graph is a tree.  In this case it is called
@@ -2201,6 +2208,51 @@ to \ttkey{..::}, to identify expression graph variables and their values.
 The most commonly used conversion operation also uses the convention that
 words beginning with a capital letter designate
 expression graph variables.
+
+\subsection{Expression Graph Notation}
+
+The following is an example of the notation we will use to represent
+expression graphs:
+
+\newcommand{\Gleaf}[1]{{\tt #1}}
+\newcommand{\Glabel}[1]{\fbox{\tt #1}}
+\newenvironment{Graph}%
+    {\[ \left[ \begin{array}{l}}%
+    {\end{array} \right] \]}
+\newenvironment{Gchild}[1]%
+    {{\tt #1}{\tt :} \left[ \begin{array}{l}}%
+    {\end{array} \right]}
+
+\begin{Graph}
+    \Glabel{-ROOT-} \\
+    \begin{Gchild}{foo}
+    \Gleaf{fum} \\
+    \Glabel{X} \\
+    \end{Gchild} \\
+    \begin{Gchild}{fie}
+    \Gleaf{foe} \\
+    \Glabel{X} \\
+    \end{Gchild} \\
+\end{Graph}
+
+\[
+    \verb|sort| \left[
+	\begin{array}{l}
+        \verb|1| \left[ \verb|x| \right. \\
+        \verb|2| \left[ \verb|ascending| \right. \\
+        \verb|3| \left[ \verb|with| \left[
+	    \begin{array}{l}
+	    \verb|1| \left[ \verb|key| \right. \\
+	    \verb|2| \left[ \verb|weight| \right. \\
+           \end{array} \right. \right. \\
+        \verb|4| \left[ \verb|with| \left[
+	    \begin{array}{l}
+	    \verb|1| \left[ \verb|comparitor| \right. \\
+	    \verb|2| \left[ \verb|<| \right. \\
+           \end{array} \right. \right. \\
+       \end{array} \right.
+\]
+
 
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
@@ -2260,6 +2312,7 @@ signalled.
 
 \subsection{The Inference Algorithm}
 \label{INFERENCE-ALGORITHM}
+\label{INFERENCE-RULE}
 
 The inference algorithm inputs an expression to be inferred
 and a set of inference rules.
@@ -2269,7 +2322,7 @@ usually inferred in the context in which the expression occurs,
 though it is possible to explicitly designate the context in which an
 expression is to be inferred.
 
-An inference rule consists of single head and a possibly empty
+An \key{inference rule} consists of single head and a possibly empty
 set of goals, in the format
 
 \begin{center}
@@ -2323,8 +2376,8 @@ Logically infer each expanded goal.
 \end{enumerate}
 
 
-\subsection{Matching}
-\label{MATCHING}
+\subsection{Inference Matching}
+\label{INFERENCE-MATCHING}
 
 TBD
 
