@@ -173,7 +173,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 18, 2004}
+\date{June 26, 2004}
  
 \maketitle
 
@@ -4552,6 +4552,7 @@ The code of a block has the following syntax:
 \key{qualified-statement}
     \begin{tabular}[t]{rl}
     ::= & {\em assignment-statement} \\
+    $|$ & {\em unguarded-subblock} \\
     $|$ & {\em guarded-statement} \\
     $|$ & {\em statement-qualifier} {\em qualified-statement}
     \end{tabular} \\[1ex]
@@ -4579,6 +4580,7 @@ The code of a block has the following syntax:
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
 \key{assignment-pattern} ::= {\em expression} \\[1ex]
+\key{unguarded-subblock} ::= {\em block}
 \key{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
 \key{if-statement} ::=
@@ -4591,8 +4593,11 @@ The code of a block has the following syntax:
       \verb|;| \ttkey{else if} {\em guard} {\em guarded-subblock} \\[1ex]
 \key{else-continuation-option} ::= {\em empty} $|$
       \verb|;| \ttkey{else} {\em guard} {\em guarded-subblock} \\[1ex]
+\key{when-statement} ::=
+      \ttkey{when} {\em guard} {\em guarded-subblock} \\[1ex]
 \key{guard} ::= {\em right-side} \\[1ex]
-\key{guarded-subblock} ::= {\em block}
+\key{guarded-subblock} ::= {\em block} \\[1ex]
+\key{subblock} ::= {\em guarded-subblock} $|$ {\em unguarded-subblock}
 \end{indpar}
 
 A block is parsed when the statement that contains it (typically
@@ -4627,7 +4632,7 @@ a block are identified.  Each
 Some {\em variable-names} may be \mkey{inherited}{variable-name}
 from the statement containing the block.
 Some are {\em output-variables} in {\em assignment-statements}
-or {em guards}.
+or {\em guards}.
 Some are expression graph variables of {\em assignment-patterns}.
 All the {\em variable-names}
 in the block are inherited or can be identified by looking at the left
@@ -4635,9 +4640,9 @@ sides of {\em assignment-statements} or at the {\em output-variables}
 following \verb|=>| in {\em assignment-statements} or {\em guards}.
 
 When identifying {\em variable-names} in a {\em block}, {\em statements} in a
-{\em guarded-subblock} of the {\em block} are treated as if they
+{\em subblock} of the {\em block} are treated as if they
 were in the {\em block} proper.  Thus variables named in the
-{\em guarded-subblock} are variables named in the {\em block}.
+{\em subblock} are variables named in the {\em block}.
 
 If a {\em block} is part of an {\em expression-definition}
 (\pagref{EXPRESSION-DEFINITION}), the names of expression graph variables of
@@ -4645,9 +4650,9 @@ the {\em pattern} and {\em guard-list} expression tree
 become {\em variable-names} inherited by the {\em block}.
 Thus in
 
-\begin{center}
-\verb|sum from X through Y <-- integer X, integer Y| {\em block} \\
-\end{center}
+\begin{indpar}[1in]
+\verb|sum from X through Y <-- integer X, integer Y| {\em block}
+\end{indpar}
 
 the variable names \verb|X| and \verb|Y| are inherited by the {\em block}.
 
@@ -4657,13 +4662,24 @@ own expression graph variables.  These variables are called
 {\em variable-names} of the {\em block} containing the
 {\em assignment-pattern}.  Thus in the statement
 
-\begin{center}
+\begin{indpar}[1in]
 \verb|X + Y ~=~ `5 + ( 7 * y )'|
-\end{center}
+\end{indpar}
 
 the variable names \verb|X| and \verb|Y| are pattern variable names
 that are {\em variable-names} of the {\em block} containing this
 {\em pattern-assignment-statement}.
+
+{\em Output-variables} are variables named after \verb|=>| following
+an expression.  In the statements
+
+\begin{indpar}[1in]\begin{verbatim}
+when sort x to z => z
+\end{verbatim}\end{indpar}
+
+TBD
+
+
 
 From the point of view of block evaluation there is no distinction between
 variable names beginning with \verb|#| and other variable names.  The
@@ -4675,7 +4691,8 @@ whose names do not begin with \verb|#| are replaced by their evaluations
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
 
-Evaluation of a {\em block} is driven by availability of variable values.
+Evaluation of a {\em block} is driven by availability of variable values
+and not by the order of the {\em statements} in the {\em block}.
 Each variable in a block can be assigned at most one value: it is
 an error if the variable is assigned more than one value.  Each
 {\em right-side} and {\em guard} in a {\em block}
@@ -4688,10 +4705,10 @@ When a {\em guard} is evaluated, any
 {\em output-variables} named after a \verb|=>| in the {\em guard}
 are given values.
 
-None of the expressions or statements in an {\em if-statement}
+None of the statements in an {\em if-statement}
 {\em guarded-block} are
-evaluated until the block's {\em guard} has been evaluated to true;
-if the guard evaluates to false, no expression or statement in the
+evaluated until the block's {\em guard} has been evaluated to true.
+If the guard evaluates to false, no statement in the
 {\em guarded-block} is ever evaluated.  An {\em else-if-continuation}
 {\em guard} is not evaluated until all {\em guards}
 in any preceeding {\em if-statement}
@@ -4739,6 +4756,9 @@ if any.  Thus the block
 which inherits the variables \verb|X| and \verb|Y| will return
 the sum of its inherited variables as the value of the block.
 
+If a block finishes without producing a value for a variale named
+{\tt value}, the value of the block is \ttmkey{true}{block value}.
+
 It is an error if a variable is assigned a value by more than one
 {\em assignment-statement} during block evaluation.
 
@@ -4754,7 +4774,7 @@ A {\em statement} qualified by the
 \ttkey{default} {\em statement-qualifier}
 is invisible, as if it did not exist, until all variables that can be
 given a value by other statements in a block have been given values.
-Then if no variable that could be assigned by the {\tt default}
+Then if \underline{no} variable that could be assigned by the {\tt default}
 qualified {\em statement} has
 been given a value, the statement is made visible, and can execute.
 
@@ -4781,8 +4801,8 @@ the value of the block is `{\tt false}'.
 A block can \key{iterate}, meaning that it generates another block
 that is the next block in a sequence of blocks.  A block
 iterates if it does \underline{not} produce a value of a {\tt value}
-variable and if it does execute a non-{\tt default} {\tt next} qualified
-{\em statement}.  The sequence of blocks are called the
+variable and if it does execute a \underline{non-{\tt default}}
+{\tt next} qualified {\em statement}.  The sequence of blocks are called the
 \skey{iteration}s of the sequence.  Evaluation of a block can always
 be thought of as producing a sequence of iterations, though this
 sequence might include only one block which does not iterate.
@@ -4790,13 +4810,14 @@ sequence might include only one block which does not iterate.
 The variable values computed by a \ttkey{next} qualified
 {\em statement} are not variable values in the current
 block, but are rather values for the current block's next block,
-if the current block iterates.  The next block starts with these
+if the current block iterates because it has not produced a value
+for the {\tt value} variable.  The next block starts with these
 variable values, so these variables must not be assigned in the next
 block.
 
 If a {\em statement} is qualified by both {\tt next} and {\tt default},
 the {\em statement} becomes visible after all {\tt default}
-{\em statements} have become visible and executed, if at this point
+{\em statements} have become visible and executed if at this point
 the block is going to iterate, and if at this point none of the variables
 that can be assigned by the {\em statement} have values for the next iteration.
 
@@ -4807,7 +4828,7 @@ A statment of the form
 \end{center}
 
 is implied for every inherited {\em variable-name}.  Thus inherited
-variables are normally propogated unchanged from on iteration to the
+variables are normally propogated unchanged from one iteration to the
 next.
 
 A \ttkey{first} qualified {\em statement} is only visible in the
@@ -4821,11 +4842,17 @@ qualified by {\tt first} plus additional {\em statements} of the form
 \end{center}
 
 for every {\em variable-name} that can be assigned by the
-{\tt once} qualified {\em statement}.  The intention is that the
+{\tt always} qualified {\em statement}.  The intention is that the
 {\tt always} qualified {\em statement} will assign values on the first
-iteration and these values will then be propogated to subsequent iterations.
+iteration and these values will then be propagated to subsequent iterations.
 
 
+
+\section{Typed Blocks}
+\label{TYPED-BLOCKS}
+
+A typed block is a block that has a type, that can be used as a value,
+and that inherits code from its type.
 
 
 
@@ -4834,6 +4861,9 @@ iteration and these values will then be propogated to subsequent iterations.
 \label{SIDE-EFFECTS}
 
 Design:
+
+Operations that have side effects: input, output, typed block update
+(which is like typed block IO).
 
 Operations that have side effects can be controlled by side effects modes.
 
