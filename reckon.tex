@@ -188,7 +188,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 3, 2005}
+\date{April 4, 2005}
  
 \maketitle
 
@@ -1812,8 +1812,10 @@ not in the lexical context of a pair of matched {\em quotes} are
 scanned to perform the following:
 
 \begin{indpar}[1in]
-Lexeme Replacement (Spelling Regularization, Possessive Splitting) \\
-Number Unit Grouping
+Lexeme Replacement (Spelling Regularization, Possessive Splitting)
+    (\secref{LEXEME-REPLACEMENT}) \\
+Number Unit Grouping (\secref{NUMBER-UNIT-GROUPING}) \\
+Unit Multiplier Insertion (\secref{UNIT-MULTIPLIER-INSERTION})
 \end{indpar}
 
 We describe these below in order.
@@ -1868,7 +1870,7 @@ definitions (\secref{EXPRESSION-DEFINITIONS}).}
 		           {\em LEXEME-DICTIONARY-ENTRY}
 		     \end{tabular} \\[1ex]
 \ikey{LEXEME-DICTIONARY-ENTRY}{lexeme-dictionary-entry} ::=
-	\verb|[| {\em replaced-lexeme} \verb|=>| {\em replacing-lexemes}
+	\verb|[| {\em replaced-lexeme} \verb|==>| {\em replacing-lexemes}
 	\verb|]| \\[1ex]
 \key{replaced-lexeme} ::=
 	\{ {\em word} $|$ {\em separator} \} \\[1ex]
@@ -1931,7 +1933,7 @@ replace people X <-- {
 \end{indpar}
 
 an appearance of the lexeme `\verb|fie|' will evaluate the
-expression `\verb|replace person fie|' which will return `\verb|false|'
+expression `\verb|replace people fie|' which will return `\verb|false|'
 to avoid replacing the lexeme `\verb|fie|'.
 
 It is possible to temporarily void lexeme replacement definitions by
@@ -1991,8 +1993,8 @@ Some example translations are:
 
 \item
 \verb|define lexeme function [english lexeme function]|~~
-This function translates common English standard plurals,
-such to their singular form, and decomposes
+This function translates common English standard plurals
+to their singular form, and decomposes
 standard possessives to their singular decomposed form.
 Some example translations are:
 
@@ -2010,7 +2012,8 @@ Some example translations are:
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
 not themselves subject to replacement.
 
-Because PCASL insists on mapping different forms of a word to a single
+Because PCASL, outside the context of quotes,
+insists on mapping different forms of a word to a single
 word, some subtleties of language are lost.  For example, `\verb|people|'
 can be a singular word referring to a group of people, but PCASL will
 standardly confuse it with `\verb|person|'.
@@ -2063,11 +2066,39 @@ syntax:
 	    {\em UNIT-SPECIFIER-NAME}
 \end{indpar}
 
-Lexical parsing recognizes \skey{unit-number-group}s and places
-parentheses around them.  This is done after lexeme replacement
+The \key{number unit grouping} phase of lexical
+parsing recognizes {\em number-unit-groups} containing more than
+one {\em number-unit-pair}, places
+implied parentheses around them, and places implied `\verb|+|' operators
+between their {\em number-unit-pairs}.  This is done after lexeme replacement
 (\secref{LEXEME-REPLACEMENT}).
 
-TBD: This needs to be done during expression parsing.
+For example, `\verb|7 ' 30 "|' is a {\em number-unit-group} containing
+2 {\em number-unit-pairs} that number unit grouping transforms into
+`\verb|( 7 ' + 30 " )|'.
+
+\subsubsection{Unit Multiplier Insertion}
+\label{UNIT-MULTIPLIER-INSERTION}
+
+The \key{unit multiplier insertion} phase of lexical
+parsing inserts a multiplication operator lexeme, `\verb|*|',
+before a {\em postfix-unit-specifier}, and
+after a {\em prefix-unit-specifier}, unless the point at which the
+`\verb|*|' is to be inserted is already occupied by a
+`\verb|*|' or `\verb|/|' lexeme.  This is done after number unit
+grouping (\secref{NUMBER-UNIT-GROUPING}).
+
+For example, if `\verb|sec|', `\verb|ft|', and `\verb|lb|'
+are {\em postfix-unit-specifiers},
+then
+\begin{center}
+\verb|some function ( 3 ft / sec, 9 ft ^ 2 lb / sec )|
+\end{center}
+becomes
+\begin{center}
+\verb|some function ( 3 * ft / sec, 9 * ft ^ 2 * lb / sec )|
+\end{center}
+
 
 \section{Expression Parsing}\index{parsing!expression}
 \label{EXPRESSION-PARSING}
@@ -2183,34 +2214,39 @@ affects on parsing.  An informal summary of the standard matchfix
 operators is:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-		& \multicolumn{4}{c}{Turns} \\ \cline{2-5}
-		& operators		& \verb/|/	& \verb|<:> ::> ::?| \\
-Brackets	& and qualifiers	& text		& \verb|@@  ??|
-								& eval \\[1ex]
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
+		& \multicolumn{5}{c}{Turns} \\ \cline{2-6} \\
+		& operators
+				& lexical
+					& \verb/|/
+						& \verb|<:> ::> ::?| \\
+Brackets	& and qualifiers
+				& parsing
+					& text	& \verb|@@  ??|
+							& eval \\[1ex]
 
 \verb|(|\ldots\verb|)|
-		& --		& --		& --		& -- \\
+		& --		& --    & --	& --	& -- \\
 \verb|{|\ldots\verb|}|
-		& on		& off		& on		& off \\
+		& on		& on	& off	& on	& off \\
 \verb|[|\ldots\verb|]|
-		& off		& off		& on		& off \\
+		& off		& off	& off	& on	& off \\
 \verb|{{|\ldots\verb|}}|
-		& on		& off		& on		& -- \\
+		& on		& on	& off	& on	& -- \\
 \verb|[[|\ldots\verb|]]|
-		& off		& off		& on		& -- \\
+		& off		& off	& off	& on	& -- \\
 \verb|<<|\ldots\verb|>>|
-		& on		& off		& on		& on \\
+		& on		& on	& off	& on	& on \\
 \verb|<<<|\ldots\verb|>>>|
-		& on		& off		& on		& on twice \\
+		& on		& on	& off	& on	& on twice \\
 \verb|<<<<|\ldots\verb|>>>>|
-		& on		& off		& on		& on thrice \\
+		& on		& on	& off	& on	& on thrice \\
 \verb|`|\ldots\verb|'|
-		& off		& on		& off		& off \\
+		& off		& off	& on	& off	& off \\
 \verb|``|\ldots\verb|''|
-		& off		& on		& off		& off \\
+		& off		& off	& on	& off	& off \\
 \verb|```|\ldots\verb|'''|
-		& off		& on		& off		& off \\
+		& off		& off	& on	& off	& off \\
 \end{tabular}
 \end{center}
 
@@ -2249,7 +2285,7 @@ Parser definitions have the syntax:
 
 \begin{indpar}
 \ikey{PARSER-DEFINITION}{parser-definition} \\
-	\hspace*{0.5in}::= \verb|define parser| ~ {\em PARSER-NAME}
+	\hspace*{0.5in}::= \verb|define parser| {\em PARSER-NAME} \\
 \ikey{PARSER-NAME}{parser-name} ::=
 	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
 \end{indpar}
@@ -2260,7 +2296,7 @@ syntax:
 
 \begin{indpar}
 \ikey{PARSER-UNDEFINITION}{parser-undefinition} \\
-	\hspace*{0.5in}::= \verb|undefine parser| ~ {\em PARSER-NAME}
+	\hspace*{0.5in}::= \verb|undefine parser| {\em PARSER-NAME}
 \end{indpar}
 
 There are three standard \ikey{parsers}{parser!standard}:
@@ -2270,7 +2306,8 @@ remainder mark (\verb|::>|), required qualifier mark (\verb|@@|),
 and optional qualifier mark (\verb|??|), are recognized;
 the \key{operators parser} \ttkey{-OPERATORS-PARSER-},
 where these marks
-are recognized along with operators, qualifiers, and qualifier shortcuts;
+are recognized along with operators, qualifiers, and qualifier shortcuts,
+and where lexical parsing (\secref{LEXICAL-PARSING}) is performed;
 and the \key{text parser} \ttkey{-TEXT-PARSER-},
 where only the format-separator (\verb/|/) and punctuation are recognized.
 
@@ -2285,9 +2322,11 @@ The operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
 \verb|[- [+ x y] [* 5 z]]|.  The qualifier `\verb|with|' in the
 expression \verb|sort x with order ascending| causes this expression
 to be restructured as \verb|[sort x @@ with order ascending]|.
-And the qualifier shortcut `\verb|ascending|' in the expression
+The qualifier shortcut `\verb|ascending|' in the expression
 \verb|sort x| \verb|ascending| causes this expression to be
 restructured as \verb|[sort x @@ with order ascending]|.
+In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
+by the opertors parser.
 
 In expressions that cannot contain operators,
 words and separators that would be recognized elsewhere as operators,
