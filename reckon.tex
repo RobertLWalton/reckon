@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 9, 2003}
+\date{November 10, 2003}
  
 \maketitle
 
@@ -1663,6 +1663,7 @@ Associativity \\
 Control
 \end{indpar}
 
+
 \subsubsubsection{Fixity}\ttmindex{fixity}{of operator}
 An operator has one of the following fixities:
 
@@ -1679,6 +1680,17 @@ An \verb|infix| operator is placed between its two operands;
 a \verb|prefix| operator is placed before its one operand;
 a \verb|postfix| operator is placed after its one operand;
 and a \verb|matchfix| operator surrounds its one operand.
+An \verb|infix| operator may not begin or end an expression;
+a \verb|prefix| operator must begin an expression;
+a \verb|postfix| operator must end an expression;
+and a \verb|matchfix| operator has two parts: a beginning part
+that must begin an expression and an ending part that must end
+the same expression.
+
+If an expression is to be examined for operators, \verb|matchfix|
+operators are looked for first, \verb|infix| operators second,
+and \verb|prefix| and \verb|postfix| operators are looked for
+simultaneously third.
 
 \subsubsubsection{Lexemes}\ttmindex{lexemes}{of operator}
 An operator definition has a sequence of lexemes.  The operator
@@ -1730,28 +1742,35 @@ postfix operators will be recognized when
 the resulting subexpressions are parsed recursively.
 
 \subsubsubsection{Associativity}\ttmindex{associativity}{of operator}
-An {\tt infix} operator may be \ttkey{left} or \ttkey{right} associative, or
-it may have some other associativity that is named by any lexeme other
-that {\tt left} or {\tt right}.  The last kind of {\tt infix} operator
-is said to have \key{named associativity}.
+An {\tt infix} operator has an {\em associativity} that is named
+by a single word or separator lexeme.
+Three words, {\tt left}, {\tt right}, and
+{\tt none} have special meaning.  If an {\tt infix} operator has some
+other associativity, it is said to have \key{named associativity}.
 
 If more than one infix operator with lowest precedence appears in an expression,
-all the operators that appear must have the same associativity.
+all the operators that appear must have the same associativity, and this
+associativity must not be {\tt none}\ttmindex{none}{associativity}.
 
-If all operators are left associative, only the rightmost operator is used to
+If all operators are {\tt left} associative%
+\index{left associative@{\tt left} associative},
+only the rightmost operator is used to
 insert implied parentheses, so it is as if operators to the left had
 higher precedence than those to the right.
 
-If all operators are right associative, only the leftmost operator is used to
+If all operators are {\tt right} associative,
+\index{right associative@{\tt right} associative},
+only the leftmost operator is used to
 insert implied parentheses, so it is as if operators to the right had
 higher precedence than those to the left.
 
-If all operators are of named associativity, all are recognized, and 
+If all operators are of \key{named associativity}, all are recognized, and 
 implicitly parenthesized subexpressions will be created between the
-operators as well as possibly at the beginning and end of the whole expression.
-Then the name of the associativity is prepended to the expression.
+operators as well as betweeen the beginning of the expression and the
+first operator and between the last operator and the end of the expression.
+Then the lexeme naming the associativity is prepended to the expression.
 Thus if the {\tt infix} operators \verb|<| and \verb|<=| have associativity
-\verb|-COMPARE-| and the expression \verb|0 < x - 3 <= 5| will
+\verb|-COMPARE-|, then the expression \verb|0 < x - 3 <= 5| will
 be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
 
 \subsubsubsection{Control}\ttmindex{control}{of operator}
