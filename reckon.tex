@@ -732,7 +732,8 @@ You can also change how an expression is displayed.
 \newlength{\ovalraise}
 \setlength{\ovalraise}{-0.1in}
 \addtolength{\ovalraise}{0.8ex}
-\verb|> display (a person named X) as ((oval (0.4,0.2)) labeled X) <--| \\
+\verb|> display (a person named X) <-- {| \\
+\verb|>     value = (oval (0.4,0.2)) labeled X }| \\
 \verb|> (a person named `Jack')| \\
 \begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
@@ -756,8 +757,43 @@ Displays can be used to make demonstrations:
 
 \begin{indpar}
 \verb|> a demo {| \\
-\verb|+     angle = 30 degrees }| \\
-\verb|display (a demo with angle X) as TBD <--|
+\verb|+     angle = 30 degrees| \\
+\verb|+     on update ( THIS ) to ( X ) {| \\
+\verb|+         next angle = X }| \\
+\verb|+     on increment ( THIS ) by ( X ) {| \\
+\verb|+         next angle = angle + X } }| \\
+\verb|> x = a demo| \\
+\begin{tabular}{|r|r|}
+\hline
+\multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c|}{\bf value} \\
+\hline
+\tt @1000043 & 30 degrees \\
+\hline
+\end{tabular} \\
+\verb|> update x to 45 degrees| \\
+\begin{tabular}{|r|r|}
+\hline
+\multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c|}{\bf value} \\
+\hline
+\tt @1000044 & 45 degrees \\
+\hline
+\end{tabular} \\
+\verb|> display (a demo with angle X) <-- {| \\
+\verb|+     c = {circle 2.0 dotted center (0.0,0.0)}| \\
+\verb|+     x-axis = {arrow from (-3.0,0.0) to (3.0,0.0)}| \\
+\verb|+     y-axis = {arrow from (0.0,-3.0) to (0.0,3.0)}| \\
+\verb|+     line = {line from (0.0,0.0) to <<(cos X, sin X)>>}| \\
+\verb|+     arc = {arc-arrow from (0.7,0.0) to <<(0.7*cos X, 0.7*sin X)>>}| \\
+\verb|+     value = {column (| \\
+\verb|+                overlap (| \\
+\verb|+                  <<c>>,| \\
+\verb|+                  <<x-axis>> labelled `X axis',| \\
+\verb|+                  <<y-axis>> labelled `Y axis',| \\
+\verb|+                  <<line>>,| \\
+\verb|+                  <<arc-arrow>> labelled `{Greek T}' ),| \\
+\verb|+                label `Depiction of Angle {Greek T}' )}} | \\
 \end{indpar}
 
 TBD: example of a simple game.
