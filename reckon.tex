@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 17, 2004}
+\date{November 18, 2004}
  
 \maketitle
 
@@ -2094,10 +2094,10 @@ an expression, without restructuring the expression, by applying
 the following syntax equations.
 
 \begin{indpar}
-\key{expression} ::= {\em expression-item}\,$^\star$ \\[1ex]
+\key{EXPRESSION} ::= {\em expression-item}\,$^\star$ \\[1ex]
 \key{expression-item} ::= {\em word} $|$ {\em separator}
 				     $|$ {\em subexpression} \\[1ex]
-\key{subexpression} ::= {\em opening-mark} {\em expression}
+\key{subexpression} ::= {\em opening-mark} {\em EXPRESSION}
 			{\em closing-mark}
 \end{indpar}
 
@@ -2109,6 +2109,10 @@ ends a subexpression.
 The subexpressions identified by this rule have explicit opening and closing
 marks.  Below we introduce subexpressions with operators that have implicit
 parentheses as their opening and closing marks.
+
+The syntactic category name {\em EXPRESSION} is capitalized because in
+this document syntactic categories representing PCASL {\em EXPRESSIONs}
+are given completely capitalized names.
 
 \subsection{Expression Structure Overview}
 \label{EXPRESSION-STRUCTURE-OVERVIEW}
@@ -2345,7 +2349,7 @@ Input Expression	& Raw Expression Equivalent \\[1ex]
 The syntax of raw expressions is defined as follows:
 
 \begin{indpar}
-\key{raw-expression} ::= {\em word} $|$ {\em separator}
+\key{RAW-EXPRESSION} ::= {\em word} $|$ {\em separator}
 				     $|$ {\em raw-subexpression} \\[1ex]
 \key{raw-subexpression} ::=
 	\begin{tabular}[t]{@{}ll}
@@ -2353,7 +2357,7 @@ The syntax of raw expressions is defined as follows:
 		 & {\em raw-argument-list} \\
 		 & {\em raw-qualifier-phrase}\,$^\star$ \verb|]| \\
 	\end{tabular} \\[1ex]
-\key{raw-expression-head} ::= {\em raw-expression} \\[1ex]
+\key{raw-expression-head} ::= {\em RAW-EXPRESSION} \\[1ex]
 \key{raw-argument-list}
         \begin{tabular}[t]{@{}rl}
 	::= & {\em raw-base-argument-list}
@@ -2376,7 +2380,7 @@ The syntax of raw expressions is defined as follows:
 \key{reorder-mark-option} ::= {\em empty} $|$ \verb|<:>| \\[1ex]
 \key{raw-argument-remainder-option} ::=
 	{\em empty} $|$ \verb|::>| {\em raw-argument} \\[1ex]
-\key{raw-argument} ::= {\em raw-expression} \\[1ex]
+\key{raw-argument} ::= {\em RAW-EXPRESSION} \\[1ex]
 \key{raw-qualifier-phrase} ::=
 	{\em qualifier-mark} {\em raw-qualifier-head}
 			     {\em raw-argument-list} \\[1ex]
@@ -2384,11 +2388,11 @@ The syntax of raw expressions is defined as follows:
 			 $|$ {\em optional-qualifier-mark} \\[1ex]
 \key{required-qualifier-mark} ::= \ttkey{@@} \\[1ex]
 \key{optional-qualifier-mark} ::= \ttnbkey{??} \\[1ex]
-\key{raw-qualifier-head} ::= {\em raw-expression}
+\key{raw-qualifier-head} ::= {\em RAW-EXPRESSION}
 \end{indpar}
 
 The order of {\em raw-qualifier-phrases}
-in a {\em raw-expression} does not matter.
+in a {\em RAW-EXPRESSION} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
 not matter.  The {\em optional-argument-mark} (\verb|::?|),
 {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
@@ -4519,13 +4523,13 @@ required to have no visible side effects.
 \ikey{Expression definitions}{expression definition} have the syntax:
 
 \begin{indpar}
-\key{expression-definition}\label{EXPRESSION-DEFINITION} ::=
+\key{EXPRESSION-DEFINITION}\label{EXPRESSION-DEFINITION} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
-\key{pattern} ::= {\em expression} \\[1ex]
+\key{pattern} ::= {\em EXPRESSION} \\[1ex]
 \key{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
 \key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
-\key{guard} ::= {\em expression} \\[1ex]
+\key{guard} ::= {\em EXPRESSION} \\[1ex]
 \key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
 \key{block} ::= \verb|{| {\em statement}
                          \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
@@ -4694,21 +4698,58 @@ The search of a context is in list order.  If a list element that is another
 context is encountered, that context is searched completely before
 continuing to the next element of the list.
 
+An \key{expression definition} consists
+of an {\em EXPRESSION-DEFINITION} (\pagref{EXPRESSION-DEFINITION}) and
+a context in which the expression defined is executed.  An
+{\em EXPRESSION-DEFINITION} expression computes an expression definition
+object of type \ttkey{expression-definition} that has no context.
+A context can be added to such an object later by executing:
+
+\begin{indpar}
+\verb|set| {\em EXPRESSION-DEFINITION} \verb|context| {\em CONTEXT}
+\end{indpar}
+
+Once a context has been added to an expression definition, this context
+cannot be changed.
+
+A new expression definition can be made from an old one by
+the expression:
+
+\begin{indpar}
+	\verb|an expression-definition|
+	      {\em EXPRESSION-DEFINITION}
+	      {\em CONTEXT}
+\end{indpar}
+
+The new expression definition has a different context, given by
+the second argument, than the first argument does.  The expression
+
+\begin{indpar}
+	\verb|an expression-definition|
+	      {\em EXPRESSION-DEFINITION}
+\end{indpar}
+
+makes a new expression definition whose definition part is the same as
+its argument but whose context part is missing (and can be set later).
+
 There are two kinds of contexts: immutable and mutable.
 
 An \key{immutable context}\label{IMMUTABLE-CONTEXT}
-may not be modified.  It can be created by the expression
+may not be modified.  It can be created by:
 
 \begin{indpar}
-\ikey{IMMUTABLE-CONTEXT}{immutable-context} \\
-	\hspace*{0.5in}::= \verb|a context (| {\em CONTEXT-ITEM}
-		     		\{ \verb|,| {\em CONTEXT-ITEM} \} \verb|)|
-\\[1ex]
-\ikey{CONTEXT-ITEM}{context-item} ::= {\em expression}
+\verb|a context (| {\em CONTEXT-ITEM} \{ \verb|,| {\em CONTEXT-ITEM} \} \verb|)|
 \end{indpar}
 
 in which each {\em CONTEXT-ITEM} is either an expression definition or
-a context.  An {\em IMMU\-TABLE-CONTEXT} is defined by the
+a context.  If any of the {\em CONTEXT-ITEMs} are expression definitions
+that do not have their contexts set, their contexts are set to the context
+being created.  Thus a set of expression definitions can be created
+which
+
+TBD problem with conflicts among definitions in one list
+
+An {\em IMMU\-TABLE-CONTEXT} is defined by the
 expression definitions (\secref{EXPRESSION-DEFINITIONS}):
 
 \begin{indpar}
@@ -4754,7 +4795,8 @@ The code of a block has the following syntax:
 		$|$ {\em empty-statement}
 		$|$ {\em qualified-statement}
 			 \\[1ex]
-\key{expression-definition} ::= see \pagref{EXPRESSION-DEFINITION} \\[1ex]
+\key{expression-definition} ::= {\em EXPRESSION-DEFINITION} 
+				( see \pagref{EXPRESSION-DEFINITION}) \\[1ex]
 \key{empty-statement} ::= {\em empty} \\[1ex]
 \key{qualified-statement}
     \begin{tabular}[t]{rl}
@@ -4781,13 +4823,13 @@ The code of a block has the following syntax:
     $|$ & {\em right-side-expression} \ttnbkey{=>} {\em output-variable}
 		\{ \verb|,| {\em output-variable} \}\,$^\star$
     \end{tabular} \\[1ex]
-\key{right-side-expression} ::= {\em expression} \\[1ex]
+\key{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
 \key{output-variable} ::= {\em variable-name} \\[1ex]
 \key{variable-name} ::= {\em word} \\[1ex]
 \key{pattern-assignment-statement} ::=
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
-\key{assignment-pattern} ::= {\em expression} \\[1ex]
+\key{assignment-pattern} ::= {\em EXPRESSION} \\[1ex]
 \key{unguarded-subblock} ::= {\em block} \\[1ex]
 \key{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
@@ -4809,7 +4851,7 @@ The code of a block has the following syntax:
 \end{indpar}
 
 A block is parsed when the statement that contains it (typically
-an {\em expression-definition}, \pagref{EXPRESSION-DEFINITION})
+an {\em EXPRESSION-DEFINI\-TION}, \pagref{EXPRESSION-DEFINITION})
 is parsed.  Because the \ttmkey{;}{statement separator} operator used
 as a statement separator in a {\em block} is by default
 {\tt definitional} (\pagref{DEFINITIONAL}), in addition to {\em statements}
@@ -4855,7 +4897,7 @@ PCASL does not have the notion of name space nesting, because the
 {\tt \CurlyBra\CurlyKet} brackets that would
 indicate nesting can be implied by the {\tt :} construction.}
 
-If a {\em block} is part of an {\em expression-definition}
+If a {\em block} is part of an {\em EXPRESSION-DEFINITION}
 (\pagref{EXPRESSION-DEFINITION}), the names of expression graph variables of
 the {\em pattern} and {\em guard-list} expression tree
 become {\em variable-names} inherited by the {\em block}.
@@ -4895,7 +4937,7 @@ when sort x to y => y:
 
 From the point of view of block evaluation there is no distinction between
 variable names beginning with \verb|#| and other variable names.  The
-only distinction occurs in {\em expression-definition} {\em patterns},
+only distinction occurs in {\em EXPRESSION-DEFINITION} {\em patterns},
 where the values obtained by call unification for input variables
 whose names do not begin with \verb|#| are replaced by their evaluations
 (\pagref{PROTECTED-VARIABLE}).
@@ -5143,10 +5185,10 @@ type and is said to be `\skey{inherit}{ed}' by every block of that type.
 A statement of the form:
 
 \begin{indpar}
-\ttkey{update} {\em expression} {\em block} 
+\ttkey{update} {\em EXPRESSION} {\em block} 
 \end{indpar}
 
-where {\em expression} evaluates to a block value adds the code in the
+where {\em EXPRESSION} evaluates to a block value adds the code in the
 {\em block} temporarily to the block value.  The code is added and all
 code in the block value executes until it can do nothing more.  Then
 the temporary code is removed from the block value.
