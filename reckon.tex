@@ -234,17 +234,17 @@ and paragraphs.  You can calculate with these `\skey{document expression}s'.
 \begin{indpar}
 \verb|> g = `hello'| \\
 \verb|`|hello\verb|'| \\
-\verb|> `<g> there'| \\
+\verb|> `<<g>> there'| \\
 \verb|`|hello there\verb|'| \\
-\verb|> z = ``I thought he said `<g>'.''| \\
+\verb|> z = ``I thought he said `<<g>>'.''| \\
 \verb|``|I thought he said `hello'.\verb|''| \\
 \verb/> notice = ``|This document is meant to be read./ \\
 \verb/+            |Reading this document is good, but.../ \\
-\verb/+            |<z>.''/ \\
+\verb/+            |<<z>>.''/ \\
 \verb|``|This document is meant to be read. \\
 \verb|  |Reading this document is good, but\ldots \\
 \verb|  |I thought he said `hello'.\verb|''| \\
-\verb|> `When you add <x> and <y> you get <x+y>.'| \\
+\verb|> `When you add <<x>> and <<y>> you get <<x+y>>.'| \\
 \verb|`|When you add 9 and 17 you get 26.\verb|'|
 \end{indpar}
 
@@ -252,27 +252,27 @@ Modern math computes with expressions, and not just numbers.
 You can compute with \skey{math expression}s in PCASL.
 
 \begin{indpar}
-\verb|> f = [10x^2 - 3.67x - 0.04]| \\
-\verb|[|$10x^2-3.67x-0.04$\verb|]| \\
+\verb|> f = {10x^2 - 3.67x - 0.04}| \\
+\verb|{|$10x^2-3.67x-0.04$\verb|}| \\
 \verb|> h = (- 0.96 + 0.67x) in x| \\
-\verb|[|$-0.96+0.67x$\verb|]| \\
+\verb|{|$-0.96+0.67x$\verb|}| \\
 \verb|> (f + h) in x| \\
-\verb|[|$10x^2-3x-1$\verb|]| \\
+\verb|{|$10x^2-3x-1$\verb|}| \\
 \verb|> solve (f + h = 0) for x| \\
-\verb|[x = (-0.2, 0.5)]| \\
+\verb|{x = (-0.2, 0.5)}| \\
 \verb|> (f + h) at (x = (3, 4, 5))| \\
 \verb|(78.95, 145.28, 231.61)| \\
-\verb|> g = [integral (x^2 dx)]| \\
-\verb|[|$\int x^2 dx$\verb|]| \\
+\verb|> g = {integral (x^2 dx)}| \\
+\verb|{|$\int x^2 dx$\verb|}| \\
 \verb|> simplify g| \\
-\verb|[|$\frac{1}{3} x^3$\verb|]| \\
+\verb|{|$\frac{1}{3} x^3$\verb|}| \\
 \verb|> v = g from (x=1) to (x=5)| \\
 \verb|41 1/3| \\
-\verb|> out = `The value of (<g> from (x=1) to (x=5)) is <v>.'| \\
+\verb|> out = `The value of (<<g>> from (x=1) to (x=5)) is <<v>>.'| \\
 \verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|[sentence (the value of ((integral (x^2*dx)) from (x=1) to (x=5))| \\
-\verb|           is 124/3)]|
+\verb|{sentence (the value of ((integral (x^2*dx)) from (x=1) to (x=5))| \\
+\verb|           is 124/3)}|
 \end{indpar}
 
 Another kind of datum you can compute with in PCASL, which is
@@ -634,14 +634,14 @@ that are computed like expressions.
 \put(0.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
 \verb|> raw x| \\
-\verb|[circle 0.4]| \\
+\verb|{circle 0.4}| \\
 \verb|> raw p| \\
-\verb|[column (row (circle 0.4,| \\
+\verb|{column (row (circle 0.4,| \\
 \verb|              rectangle (0.4,0.2),| \\
 \verb|              (circle 0.4) labeled `Jack'),| \\
 \verb|         row ((circle 0.4) labeled `Jack',| \\
 \verb|              rectangle (0.4,0.2),| \\
-\verb|              circle 0.4))]|
+\verb|              circle 0.4))}|
 \end{indpar}
 
 You can also change how an expression is displayed.
@@ -781,13 +781,60 @@ Primarly lexemes are defined as follows:
 		$|$\verb|8|%
 		$|$\verb|9|
 		\\[1ex]
+\key{opening-lexeme} ::=     \verb|(|
+	       		 $|$ \verb|[|
+	       		 $|$ \verb|{|
+	       		 $|$ {\em opening-quote}
+	       		 $|$ {\em opening-angle}
+	       		 \\[1ex]
+\key{closing-lexeme} ::=     \verb|(|
+	       		 $|$ \verb|[|
+	       		 $|$ \verb|{|
+	       		 $|$ {\em closing-quote}
+	       		 $|$ {\em closing-angle}
+	       		 \\[1ex]
+\key{opening-quote} \begin{tabular}[t]{rl}
+		     ::= & {\em opening-quote-character}
+		           {\em opening-quote-character}$^\star$ \\
+		     \end{tabular}
+		     \\[1ex]
+\key{opening-quote-character} ::= \verb|`| \\[1ex]
+\key{closing-quote} \begin{tabular}[t]{rl}
+		     ::= & {\em closing-quote-character}
+		           {\em closing-quote-character}$^\star$ \\
+		     \end{tabular}
+		     \\[1ex]
+\key{closing-quote-character} ::= \verb|'| \\[1ex]
+\key{quote} ::= {\em opening-quote} $|$ {\em closing-quote} \\[1ex]
+\key{opening-angle} \begin{tabular}[t]{rl}
+		     ::= & {\em opening-angle-character}
+		           {\em opening-angle-character} \\
+		         & {\em opening-angle-character}$^\star$ \\
+		     \end{tabular}
+		     \\[1ex]
+\key{opening-angle-character} ::= \verb|<| \\[1ex]
+\key{closing-angle} \begin{tabular}[t]{rl}
+		     ::= & {\em closing-angle-character}
+		           {\em closing-angle-character} \\
+		         & {\em closing-angle-character}$^\star$ \\
+		     \end{tabular}
+		     \\[1ex]
+\key{closing-angle-character} ::= \verb|>| \\[1ex]
+\key{angle-character} ::= \verb|<| $|$ \verb|>| \\[1ex]
+\key{opening-character} ::=    \verb|(|%
+		            $|$\verb|[|%
+		            $|$\verb|{|%
+		            $|$\verb|`|%
+		            $|$\verb|<|
+			    \\[1ex]
+\key{closing-character} ::=    \verb|)|%
+		            $|$\verb|]|%
+		            $|$\verb|}|%
+		            $|$\verb|'|%
+		            $|$\verb|>|
+			    \\[1ex]
 \key{primary-separator} ::= {\em primary-separator-character} \\[1ex]
-\key{primary-separator-character} ::=    \verb|(|%
-				      $|$\verb|)|%
-				      $|$\verb|[|%
-				      $|$\verb|]|%
-				      $|$\verb|{|%
-				      $|$\verb|}|
+\key{primary-separator-character} ::=    \verb\|\
 				      \\[1ex]
 \key{ambiguous-separator-character} ::=    \verb|!|%
 				        $|$\verb|?|%
@@ -796,12 +843,6 @@ Primarly lexemes are defined as follows:
 			                $|$\verb|,|%
 			                $|$\verb|.|
 					\\[1ex]
-\key{left-quote} ::= {\em left-quote-character}
-                     {\em left-quote-character}$^\star$ \\[1ex]
-\key{right-quote} ::= {\em right-quote-character}
-                     {\em right-quote-character}$^\star$ \\[1ex]
-\key{left-quote-character} ::= \verb|`| \\[1ex]
-\key{right-quote-character} ::= \verb|'| \\[1ex]
 \key{white-space} ::= {\em white-space-character}
                      {\em white-space-character}$^\star$ \\[1ex]
 \key{white-space-character} ::=
@@ -812,27 +853,54 @@ Primarly lexemes are defined as follows:
     \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
 \end{indpar}
 
-The following sections resolve an ambiguity involving
-the quote characters and decribe a nuisance involving white space.
 
-\subsubsection{Quote Scanning}
+The following sections give rules involving primary lexemes.
 
-\ikey{Left-quotes}{left-quote} and \skey{right-quote}s are scanned for
-using the following rules.
+\subsubsection{Matching and Context}
 
-{\bf Left Quote Rule.}\index{Left Quote Rule}
-A \key{left-quote} must be preceeded by {\em whitespace} or
-a {\em primary-separator-character}.
+{\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}
+An {\em opening-lexeme} with $N$ characters $C$
+must have a matching {\em closing-lexeme} with $N$ characters each the
+mirror of $C$.  Each {\em closing-lexeme} must match exactly one
+{\em opening-lexeme} and the {\em opening-lexeme} must proceed the
+{\em closing-lexeme}.
 
-{\bf Right Quote Rule.}\index{Right Quote Rule}
-A \key{right-quote} must match a preceding {\em left-quote} with the
-same number of characters.
+Two lexemes are said to be \mkey{matched}{lexemes} if and only if
+the are matched opening and closing lexemes.
 
-{\bf Single Quote New-Line Rule.}\index{Single Quote Newline Rule}
-Between a matching {\em left-quote} with a single
-{\em left-quote-character} (\verb|`|) and its matching {\em right-quote}
-(\verb|'|), no {\em white-space} contining a {\em vertical-space-character}
-may occur.
+{\bf Lexeme Nesting Rule.}\index{Lexeme Nesting Rule}
+If an {\em opening-lexeme} $O$ is between a pair $P$ of matched lexemes,
+the {\em closing-lexeme} $C$ that matches $O$ must also be between $P$.
+
+If one pair $P_2$ of matching lexemes is between another pair $P_1$
+of matching lexemes, $P_2$ is said to be \mkey{nested}{lexemes} inside
+of $P_1$.
+
+During the scan a character $C$ is said to be in the
+\mkey{context}{of matched lexemes} of a pair $P$ of matched lexemes
+if and only if $C$ is between the matched lexemes of $P$,
+and $C$ is neither part of or between any other pair of matched
+lexemes that is nested inside of $P$.
+
+\subsubsection{Primary Character Disambiguation Rules}
+
+Several characters in primary lexemes are ambiguous in the
+lexeme syntax equations.  The following rules disambiguate these
+characters.
+
+{\bf Opening Quote Rule.}\index{Opening Quote Rule}
+An \key{opening-quote-character} must be preceeded by a
+{\em white-space-character},
+an {\em opening-character}, or a {\em primary-separator-character}.
+Otherwise it is a {\em word-character}.
+
+{\bf Primary Separator Rule.}\index{Primary Separator Rule}
+A {\em primary-separator-character} must be in the context of
+a pair of matching {\em quotes}.  Otherwise it is a {\em word-character}.
+
+{\bf Angle Rule.}\index{Angle Rule}
+An {\em angle-character} must be either proceeded or followed by a copy
+of itself.  Otherwise it is a {\em word-character}.
 
 Examples:
 
@@ -854,12 +922,10 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \end{tabular}
 \end{indpar}
 
-Quoted expression formation rules in \ref{QUOTED-EXPRESSION}
-cause {\em white-space} after a {\em left-quote} or before
-a {\em right-quote} to be ignored,
-so that the last example works to double quote a sentence beginning
-with a single quoted word.
-
+Other rules of PCASL cause {\em white-space} following an
+{\em opening-lexeme} or preceding a {\em closing-lexeme} to
+be ignored.  As a consequence, there is no problem putting
+space between the \verb|``| and \verb|`| in the last example.
 
 \subsubsection{White Space Conversion}
 
@@ -900,7 +966,7 @@ Indent Implied Lexemes \\
 Formatting Lexemes
 \end{indpar}
 
-\subsubsection{Word Conversion}
+\subsubsection{Ambiguous Separators}
 
 A primary word may be converted to a word lexeme with the identical
 set of characters, or may have either its first or last character or
