@@ -1693,41 +1693,42 @@ the same expression.
 An operator definition has a sequence of lexemes that is the
 {\em name} of the operator.  The operator
 inside a subexpression is just this sequence of lexemes, except for
-{\tt matchfix} operators, which have two sequences of lexemes, an
+matchfix operators, which have two sequences of lexemes, an
 \key{opening operator name} that must begin the subexpression and
 a \key{closing operator name} that must end the subexpression.
 
-The two sequences of lexemes for a {\tt matchfix}
+The two sequences of lexemes for a matchfix
 operator are represented by a single sequence of lexemes that contains
 the opening operator name followed by a `\verb/.../' lexeme
 followed by the closing operator name.
 An example sequence of lexemes for a
-{\tt matchfix} operator is `\verb/[ | ... | ]/' that permits subexpressions
+matchfix operator is `\verb/[ | ... | ]/' that permits subexpressions
 like `\verb/[| x - 5 |]/'.  Here the opening operator name
 is `\verb/[|/' and the closing operator name is `\verb/|]/'.
 
-If opening and closing marks are part of a {\tt matchfix} operator
+If opening and closing marks are part of a matchfix operator
 name, they must begin and end the name.  When a subexpression is tested
-for {\tt matchfix} operators, any opening and closing marks that begin and
+for matchfix operators, any opening and closing marks that begin and
 end the subexpression are included in the subexpression, unless they are
 parentheses \verb|()|, which are always removed (recursively) when they
 begin and end a subexpression, and are thus invisible.  Thus
-the {\tt matchfix} operator `\verb/| ... |/' could be invoked by
+the matchfix operator `\verb/| ... |/' could be invoked by
 the expression `\verb/x + (| y |)/'.  Inclusing of extra pairs of parentheses
 \verb|()| therefore has no affect on the raw representation of an expression
 or its meaning.
 
 When an expression is checked for operators,
-only {\tt infix} operators in the expression that have lowest precedence
-among all the {\tt infix} operators are considered,
-all {\tt prefix} operators that begin the expression are considered,
-all {\tt postfix} operators that end the expression are considered,
-and all {\tt matchfix} operators that begin and end the expression are
-considered.  Ambiguity is possible, and unless resulved by one of the
+only infix operators in the expression that have lowest precedence
+among all the infix operators in the expression are considered, and
+other infix operators are suppressed.
+All prefix operators that begin the expression are considered,
+all postfix operators that end the expression are considered,
+and all matchfix operators that begin and end the expression are
+considered.  Ambiguity is possible, and, unless resolved by one of the
 following rules, is an error.
 
 {\bf Matchfix Rule.}\index{Matchfix Rule}
-If two different matchfix operators surround and expression, but the
+If two different matchfix operators surround an expression, but the
 first has longer opening and closing names, then the second is suppressed.
 If a matchfix operator and a prefix operator apply, but the opening operator
 name of the matchfix operator is longer than the name of the prefix operator,
@@ -1735,30 +1736,38 @@ then the prefix operator is suppressed.
 If a matchfix operator and a postfix operator apply, but the closing operator
 name of the matchfix operator is longer than the name of the postfix operator,
 then the prefix operator is suppressed.
+If a matchfix operator and in infix operator apply, the infix operator is
+suppressed.
 
-Thus if \verb/[| ... |]/ and \verb/[ ... ]/ are two matchfix operators
+Thus if `\verb/[| ... |]/' and `\verb/[ ... ]/' are two matchfix operators
 that both apply to an expression, the second will be suppressed.  If
-\verb|- < ... > -| is a matchfix operator and \verb|-| is a prefix
+`\verb|- < ... > -|' is a matchfix operator and `\verb|-|' is a prefix
 operator, and both apply to an expression, the prefix operator will be
 suppressed.
 
-{\bf Non-Empty Operand Rule.}\index{Non-Empty Operand Rule}
-Any selection of operators in a expression that would produce an empty
-operand for an infix, prefix, or postfix operator is suppressed.
+{\bf Prefix/Postfix Rule.}\index{Prefix/Postfix Rule}
+If an expression begins with a consecutive sequence of prefix operators,
+any infix operator overlapping this sequence is suppressed.
+If an expression ends with a consecutive sequence of postfix operators,
+any infix operator overlapping this sequence is suppressed.
 
-This if \verb|+| is both a prefix and infix operator, the
-expression `\verb|x + + y|' 
+Thus if `\verb|+|' is both a prefix and infix operator,
+the expression `\verb|+ + y|' is equivalent to `\verb|+ (+ y)|'.
 
-TBD
+{\bf Consecutive Infix Rule.}\index{Consecutive Infix Rule}
+Any consecutive sequence infix operators not suppressed by the
+Matchfix or Prefix/Postfix Rules must permit all operators in
+the sequence but one to be suppressed so that the sequence of
+suppressed infix operators before the unsuppressed operator can be
+interpreted as a sequence of postfix operators,
+and the sequence of suppressed infix operators after the
+unsuppressed operator can be interpreted as a sequence of prefix operators.
+If there is not a single unique way of doing this, it is an error.
 
-Two different \verb|matchfix| operators X and Y may be such that the beginning
-lexemes of X are a proper prefix of the beginning lexemes of Y, and the
-ending lexemes of X are a proper prefix of the ending lexemes of Y.  In this
-case we say that X is more general than Y, and Y is more specific
-than X.  For example,
-More specific \verb|matchfix| operators are tested for before more general
-\verb|matchfix| operators, so the most specific \verb|matchfix| operator
-that works for a given expression will be the one recognized.
+Thus if `\verb|+|' is both a prefix and infix operator,
+the expression `\verb|x + + y|' is equivalent to `\verb|x + (+ y)|'.
+But if `\verb|+|' were a prefix, infix, and postfix operator, these
+expressions would both have erroneous ambiguity.
 
 
 \subsubsubsection{Precedence}\ttmindex{precedence}{of operator}
@@ -1777,10 +1786,10 @@ postfix operators will be recognized when
 the resulting subexpressions are parsed recursively.
 
 \subsubsubsection{Associativity}\ttmindex{associativity}{of operator}
-An {\tt infix} operator has an {\em associativity} that is named
+An infix operator has an {\em associativity} that is named
 by a single word or separator lexeme.
 Three words, {\tt left}, {\tt right}, and
-{\tt none} have special meaning.  If an {\tt infix} operator has some
+{\tt none} have special meaning.  If an infix operator has some
 other associativity, it is said to have \key{named associativity}.
 
 If more than one infix operator with lowest precedence appears in an expression,
@@ -1804,7 +1813,7 @@ implicitly parenthesized subexpressions will be created between the
 operators as well as betweeen the beginning of the expression and the
 first operator and between the last operator and the end of the expression.
 Then the lexeme naming the associativity is prepended to the expression.
-Thus if the {\tt infix} operators \verb|<| and \verb|<=| have associativity
+Thus if the infix operators \verb|<| and \verb|<=| have associativity
 \verb|-COMPARE-|, then the expression \verb|0 < x - 3 <= 5| will
 be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
 
