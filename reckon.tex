@@ -1,0 +1,202 @@
+% Personal Calculation and Simulation Langauge (PCASL)
+%
+% File:         pcasl.tex
+% Author:       Bob Walton (walton@deas.harvard.edu)
+% Date:		See \date below.
+  
+\documentclass[12pt]{article}
+
+\usepackage{makeidx}
+
+\makeindex
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\raggedbottom
+
+\pagestyle{headings}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1ex}
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
+\newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
+
+% Begin \tableofcontents surgery.
+
+\newcount\ATCATCODE
+\ATCATCODE=\catcode`@
+\catcode `@=11	% @ is now a letter
+
+\renewcommand{\contentsname}{}
+\renewcommand\l@section{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\l@table{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\tableofcontents{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}}%
+    \item\@starttoc{toc}%
+    \end{list}}
+\renewcommand\listoftables{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}%
+	      }%
+    \item\@starttoc{lot}%
+    \end{list}}
+
+\catcode `@=\ATCATCODE	% @ is now restored
+
+% End \tableofcontents surgery.
+
+\newcommand{\CN}[2]%	Change Notice.
+    {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
+     $^{\mbox{#1}}$#2}}
+    % Change notice.
+
+\newcommand{\key}[1]{{\em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
+\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newsavebox{\leftbracket}
+\begin{lrbox}{\leftbracket}
+\verb|{|
+\end{lrbox}
+
+\newsavebox{\rightbracket}
+\begin{lrbox}{\rightbracket}
+\verb|}|
+\end{lrbox}
+
+\newcommand{\ttbrackets}{
+    \renewcommand{\{}{\usebox{\leftbracket}}
+    \renewcommand{\}}{\usebox{\rightbracket}}}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.40in}
+
+\newsavebox{\figurebox}
+
+\newenvironment{boxedfigure}[1][!btp]%
+	{\begin{figure*}[#1]
+	 \begin{lrbox}{\figurebox}
+	 \begin{minipage}{\figurewidth}
+
+	 \vspace*{1ex}}%
+	{
+	 \vspace*{1ex}
+
+	 \end{minipage}
+	 \end{lrbox}
+	 \begin{center}
+	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
+	 \end{center}
+	 \end{figure*}}
+
+\newenvironment{indpar}[1][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item}%
+	{\end{list}}
+
+\begin{document}
+        
+\title{Personal Calculation and Simulation Language (PCASL)\\
+       (Draft 1a)}
+
+\author{Robert L. Walton\thanks{This document is was partly inspired
+teaching courses at Suffolk University.}}
+
+\date{July 1, 2003}
+ 
+\maketitle
+
+\tableofcontents 
+
+\newpage
+
+\section{Introduction}
+
+This document describes PCASL, the Personal Calculation and Simulation
+Language, that is informally referred to as Personal Castle, or just
+Castle.
+
+PCASL is designed for naive programmers: that is, for people who may never
+be able to program computers well.  It is a simple language that has
+powerful data types which make it easier to write small programs
+that do a variety of tasks that a person might want to do.  Generally
+the tasks fall into the categories of calculating things (taxes,
+statistics) or simulating things (a.k.a., computer games).  Included are:
+
+\begin{center}
+\begin{tabular}{l}
+Calculations that might be done with a spreadsheet. \\
+Drawing pictures. \\
+Simulating popular board games and creating new ones. \\
+Creating simple computer games, including dialog games. \\
+Analysing documents. \\
+Doing elementary algebra and calculus problems. \\
+Calculating basic statistics. \\
+Simulating simple electrical, mechanical, and chemical systems.\\
+Solving problems in elementary logic. \\
+\end{tabular}
+\end{center}
+
+There are many computer languages that have some powerful data type that adapts
+them for a specific kind of computation.  PCASL tries to combine these.
+Some previous computer languages that have influenced PCASL are:
+
+\begin{center}
+\begin{tabular}{ll}
+Various Spreadsheets	& Spreadsheets \\
+Matlab			& Matrics. \\
+Mathematica		& Expressions \\
+LISP			& Words and Phrases \\
+TCL			& Character Strings and Lists \\
+\end{tabular}
+\end{center}
+
+PCASL is \underline{not} designed to be a computer-efficient language.
+It is designed to be person efficient, and to do small calculations
+rapidly enough with inexpensive modern computers.
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{pcasl}
+
+\printindex
+
+\end{document}
+
