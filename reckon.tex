@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 3, 2004}
+\date{January 4, 2004}
  
 \maketitle
 
@@ -2464,10 +2464,13 @@ must be single words or separators.  Labelled nodes cannot be the source
 of any arrow.  Several arrows with the same source node may have the same
 arrow label.
 
+A node that does not have a label and is not the source of any arrows
+is called a \key{null node}.
+
 An expression graph variable has a name, a value, and a default.
 Variable names must be single words or separators.
 Both the value and the default are graph nodes.  The default may be
-missing.
+missing.  Variable values are often, but by no means always, null nodes.
 
 All graph nodes are reachable from from either the value or the default
 of some variable.
@@ -3018,15 +3021,21 @@ The rest argument is not counted in the arity.
 \subsection{Call Nodes and the Call Check}
 \label{CALL-NODES-AND-CHECK}
 
-Expression matching treats call nodes differently than unification
-does.  A \key{call node} is a node that has
+During expression inference (\ref{EXPRESSION-INFERENCE})
+and evaluation (\ref{EXPRESSION-EVALUATION})
+expressions are matched using a variant of unification called
+`call unification' (\ref{CALL-UNIFICATION}).
+
+Call unification treats graph nodes called `call nodes'
+differently than pure unification (\ref{PURE-UNIFICATION}) does.
+A \key{call node} is a node that has
 an \mkey{arity arrow}{of call node}.
 That is, it is the source of an arrow labeled
-\ttmkey{-ARITY-}{of call node}.  More specifically, expression
-matching replaces the node merge algorithm
+\ttmkey{-ARITY-}{of call node}.  Call unification
+replaces the node merge algorithm
 (page~\pageref{NODE-MERGE-ALGORITHM})
-with the call merge algorithm described below.
-algorithm in
+with the call merge algorithm described below if one of the nodes
+being merged is a call node.
 
 The call merge algorithm performs a subalgorithm called
 the \key{call check algorithm} that checks whether a call node
@@ -3038,8 +3047,9 @@ algorithm if and only if the following are true:
 \item
 The arity of N is either a natural number $n$ (string of digits without
 high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
-are natural numbers and $m<n$.  In either case $n$ is called the
-\key{maximum arity} of the call node N.
+are natural numbers and $m<n$.  In either case $m$ is called the
+\key{minimum arity} of N and $n$ is called the
+\key{maximum arity} of N.
 
 \item
 N has exactly one head arrow.
@@ -3060,8 +3070,8 @@ more than one argument order assignment of N.
 
 \item
 N has at most one rest argument arrow.  If N has a rest argument
-arrow, the rest argument of N is a node with no label
-that is the source of no arrows.
+arrow, the rest argument of N is a null node (a node with no label
+that is the source of no arrows).
 
 \item
 N can have any number of qualifier arrows (required or optional).
