@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{August 8, 2003}
+\date{August 9, 2003}
  
 \maketitle
 
@@ -229,7 +229,7 @@ Here the `\verb|> |' at the beginning of some lines is the PCASL \key{prompt}
 that tells you its OK to input an expression to be evaluated.
 
 At somewhat the opposite extreme from numbers are words, phrases, sentences,
-and paragraphs.  You can calculate with these `\skey{document expression}s' too:
+and paragraphs.  You can calculate with these `\skey{document expression}s'.
 
 \begin{indpar}
 \verb|> g = `hello'| \\
@@ -249,7 +249,7 @@ and paragraphs.  You can calculate with these `\skey{document expression}s' too:
 \end{indpar}
 
 Modern math computes with expressions, and not just numbers.
-You can compute with \skey{math expression}s in PCASL too:
+You can compute with \skey{math expression}s in PCASL.
 
 \begin{indpar}
 \verb|> f = [10x^2 - 3.67x - 0.04]| \\
@@ -284,14 +284,15 @@ the \key{block}:
 \verb|+     weight = 123 lb| \\
 \verb|+     height = 5'9"| \\
 \verb|+     age = 23 yr 2 mo }| \\
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
+\tt @1000000 & Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
 \hline
 \end{tabular} \\
 \verb|> a person {| \\
@@ -299,43 +300,60 @@ Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
 \verb|+     weight = 110 lb| \\
 \verb|+     height = 5'7"| \\
 \verb|+     age = 21 yr 8 mo }| \\
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
+\tt @1000001 & Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
 \hline
 \end{tabular} \\
 \verb|> all persons| \\
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
-Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
+\tt @1000000 & Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
+\tt @1000001 & Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
 \hline
 \end{tabular} \\
 \verb|> the person Jack| \\
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
+\tt @1000000 & Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
 \hline
 \end{tabular} \\
 \verb|> the person named Jack's height| \\
 \verb|5'9"| \\
 \verb|> the weight of the person named Jack| \\
-\verb|123 lb|
+\verb|123 lb| \\
+\verb|> @1000001| \\
+\begin{tabular}{|r|l|r|r|r|}
+\hline
+\multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf name} &
+\multicolumn{1}{|c}{\bf weight} &
+\multicolumn{1}{|c}{\bf height} &
+\multicolumn{1}{|c|}{\bf age} \\
+\hline
+\tt @1000001 & Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
+\hline
+\end{tabular} \\
+\verb|> the weight of @1000001| \\
+\verb|110 lb|
 \end{indpar}
 
 It is possible to add code to a type such as `{\tt person}':
@@ -345,16 +363,17 @@ It is possible to add code to a type such as `{\tt person}':
 \verb|+     body-mass-index = 703.06958 * weight in lbs| \\
 \verb|+                     / (height in inches)^2 }| \\
 \verb|> all persons| \\
-\begin{tabular}{|l|r|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} &
-\multicolumn{1}{|c|}{\bf body-mass-index} \\
+\multicolumn{1}{|c|}{\bf \shortstack{body-mass-\\index}} \\
 \hline
-Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo & \tt 18.163738 \\
-Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo & \tt 17.228258 \\
+\tt @1000000 & Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo & \tt 18.163738 \\
+\tt @1000001 & Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo & \tt 17.228258 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -362,9 +381,8 @@ Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo & \tt 17.228258 \\
 One can use definitions to define expressions that compute values:
 
 \begin{indpar}
-\verb|> sum from X through Y| \\
-\verb|+         <-- integer X, integer Y {| \\
-\verb|+     # Sum of integers from X through Y.| \\
+\verb|> sum from X through Y <-- integer X, integer Y {| \\
+\verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     if ( X > Y ):| \\
 \verb|+         value = 0| \\
 \verb|+     else:| \\
@@ -372,40 +390,42 @@ One can use definitions to define expressions that compute values:
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all (sums from X through Y)| \\
-\begin{tabular}{|r|r|r|}
+\begin{tabular}{|r|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf X} &
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt 5	& \tt	10	& \tt 45 \\
-\tt 6	& \tt	10	& \tt 40 \\
-\tt 7	& \tt	10	& \tt 34 \\
-\tt 8	& \tt	10	& \tt 27 \\
-\tt 9	& \tt	10	& \tt 19 \\
-\tt 10	& \tt	10	& \tt 10 \\
-\tt 11	& \tt	10	& \tt 0 \\
+\tt @1000002 & \tt 5	& \tt	10	& \tt 45 \\
+\tt @1000003 & \tt 6	& \tt	10	& \tt 40 \\
+\tt @1000004 & \tt 7	& \tt	10	& \tt 34 \\
+\tt @1000005 & \tt 8	& \tt	10	& \tt 27 \\
+\tt @1000006 & \tt 9	& \tt	10	& \tt 19 \\
+\tt @1000007 & \tt 10	& \tt	10	& \tt 10 \\
+\tt @1000008 & \tt 11	& \tt	10	& \tt 0 \\
 \hline
 \end{tabular} \\
 \verb|> sum from 1 through 2| \\
 \verb|3| \\
 \verb|> all (sums from X through Y)| \\
-\begin{tabular}{|r|r|r|}
+\begin{tabular}{|r|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf X} &
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt 5	& \tt	10	& \tt 45 \\
-\tt 6	& \tt	10	& \tt 40 \\
-\tt 7	& \tt	10	& \tt 34 \\
-\tt 8	& \tt	10	& \tt 27 \\
-\tt 9	& \tt	10	& \tt 19 \\
-\tt 10	& \tt	10	& \tt 10 \\
-\tt 11	& \tt	10	& \tt 0 \\
-\tt 1	& \tt	2	& \tt 3 \\
-\tt 2	& \tt	2	& \tt 2 \\
-\tt 3	& \tt	2	& \tt 0 \\
+\tt @1000002 & \tt 5	& \tt	10	& \tt 45 \\
+\tt @1000003 & \tt 6	& \tt	10	& \tt 40 \\
+\tt @1000004 & \tt 7	& \tt	10	& \tt 34 \\
+\tt @1000005 & \tt 8	& \tt	10	& \tt 27 \\
+\tt @1000006 & \tt 9	& \tt	10	& \tt 19 \\
+\tt @1000007 & \tt 10	& \tt	10	& \tt 10 \\
+\tt @1000008 & \tt 11	& \tt	10	& \tt 0 \\
+\tt @1000009 & \tt 1	& \tt	2	& \tt 3 \\
+\tt @1000010 & \tt 2	& \tt	2	& \tt 2 \\
+\tt @1000011 & \tt 3	& \tt	2	& \tt 0 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -413,41 +433,41 @@ One can use definitions to define expressions that compute values:
 Executions can be examined in detail because
 when an expression is computed, the block that computes it is remembered
 for some time.  However, as memory is finite, eventually these
-computations are forgotten.
+computations are forgotten as they can always be regenerated if
+needed.
 
 The sum above was computed by recursion: to compute the sum of 5 through 10
 one computes the sum of 6 through 10.  One can also compute sums by
-iteration:
+iteration.
 
 \begin{indpar}
 \verb|> sum from X through Y <-- integer X, integer Y {| \\
-\verb|+     # Sum of integers from X through Y.| \\
+\verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     first sum = 0| \\
 \verb|+     if ( X <= Y ):| \\
 \verb|+         next sum = sum + X| \\
 \verb|+         next X = X + 1| \\
 \verb|+     else:| \\
-\verb|+         value = sum| \\
-\verb|+     next Y = Y }| \\
+\verb|+         value = sum }| \\
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
-\verb|> all sums from X through Y| \\
+\verb|> all (sums from 5 through 10)| \\
 \begin{tabular}{|r|r|r|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf previous} &
 \multicolumn{1}{|c}{\bf X} &
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c}{\bf sum} &
-\multicolumn{1}{|c}{\bf next X} &
-\multicolumn{1}{|c}{\bf next sum} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt 5	& \tt 10	& \tt 0		& \tt 6		& \tt 5		& \\
-\tt 6	& \tt 10	& \tt 5		& \tt 7		& \tt 11	& \\
-\tt 7	& \tt 10	& \tt 11	& \tt 8		& \tt 18	& \\
-\tt 8	& \tt 10	& \tt 18	& \tt 9		& \tt 26	& \\
-\tt 9	& \tt 10	& \tt 26	& \tt 10	& \tt 35	& \\
-\tt 10	& \tt 10	& \tt 35	& \tt 11	& \tt 45	& \\
-\tt 11	& \tt 10	& \tt 45	& 		& 		& \tt 45 \\
+\tt @1000012 &              & \tt 5	& \tt 10   & \tt 0	& \\
+\tt @1000013 & \tt @1000012 & \tt 6	& \tt 10   & \tt 5	& \\
+\tt @1000014 & \tt @1000013 & \tt 7	& \tt 10   & \tt 11	& \\
+\tt @1000015 & \tt @1000014 & \tt 8	& \tt 10   & \tt 18	& \\
+\tt @1000016 & \tt @1000015 & \tt 9	& \tt 10   & \tt 26	& \\
+\tt @1000017 & \tt @1000016 & \tt 10	& \tt 10   & \tt 35	& \\
+\tt @1000018 & \tt @1000017 & \tt 11	& \tt 10   & \tt 45	& \tt 45 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -490,27 +510,29 @@ separted lists in parentheses.  Thus
 
 \begin{indpar}
 \verb|> (the person named Jill, the person named Jack)| \\
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
-Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
+\tt @1000001 & Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
+\tt @1000000 & Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
 \hline
 \end{tabular} \\
 \verb|> (the person named Jack, the person named Jill)| \\
-\begin{tabular}{|l|r|r|r|}
+\begin{tabular}{|r|l|r|r|r|}
 \hline
+\multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
-Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
+\tt @1000000 & Jack & \tt 123 lb & \tt 5'9" & \tt 23 yr 2 mo \\
+\tt @1000001 & Jill & \tt 110 lb & \tt 5'7" & \tt 21 yr 8 mo \\
 \hline
 \end{tabular} \\
 \verb|> raw (all persons)| \\
@@ -551,8 +573,6 @@ compute such tuples are \key{flattened}:
 PCASL stores information as expressions.  For example:
 
 \begin{indpar}
-\verb|> a person named X <-- a person Y, Y has name X {| \\
-\verb|+     value = Y }| \\
 \verb|> (a person named `Jack') is husband of (a person named `Jill') <--| \\
 \verb|> Y is wife of X <-- X is husband of Y| \\
 \verb|> (a person named `Jill') is wife of (a person named `Jack') ?| \\
@@ -560,7 +580,15 @@ PCASL stores information as expressions.  For example:
 \verb|> (a person named `Jack') is wife of (a person named `Jill') ?| \\
 \verb|false| \\
 \verb|> (a person named X) is wife of (a person named `Jack') ?| \\
-\verb|X = `|Jill\verb|'|
+\verb|X = `|Jill\verb|'| \\
+\verb|> X is wife of (a person named `Jack') ?| \\
+\verb|X = (a person named `Jill')| \\
+\verb|> @1000001 is wife of (a person named `Jack') ?| \\
+\verb|true| \\
+\verb|> @1000001 = (a person named `Jill') ?| \\
+\verb|true| \\
+\verb|> @1000001 = (a person named `Jack') ?| \\
+\verb|false|
 \end{indpar}
 
 In PCASL also supports pictorial data
