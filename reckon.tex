@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 21, 2004}
+\date{January 4, 2005}
  
 \maketitle
 
@@ -4495,11 +4495,12 @@ imperative code.
 An expression is evaluated by first searching for an expression definition
 that matches the expression.  Expression definitions also have guards, which
 are expressions that must evaluate to true in order for the expression
-definition to apply.  An expression definition may have an expression block
+definition match to succeed.
+An expression definition may have an expression block
 that executes in order to produce a value for the expression if the definition
-applies.  If an applicable
+matchs.  If a matching
 expression definition has no expression block, the expression
-evaluates to `\ttkey{true}'.  If no expression definition applies to an
+evaluates to `\ttkey{true}'.  If no expression definition matches an
 expression, the expression evaluates to `\ttkey{false}'.
 
 Expression definitions are searched for in a context, which is a list
@@ -4512,14 +4513,30 @@ lexical context of its expression definition,
 but may evaluate expressions in the context of the expression being
 evaluated by the expression definition.
 
-When an expression definition applies to an expression, variables in a copy
-of the expression definition are bound to subexpressions of the expression or
-to default values for the variables.
-Then some of these subexpressions or defaults are evaluated
-and replaced by their
-values before the guards and block of the expression definition are
-evaluated.  These argument evaluations and also all guard evaluations are
-required to have no visible side effects.
+When an expression definition is found that matches an expression, a
+copy of the expression definition is made, and part of this copy is
+unified with the expression being evaluated.  This unification defines
+variables in the expression definition.  Expression definition
+variables that receive no value in this way, but which have default
+values, are given the default values.
+However, values received from unification may be incomplete, in that they
+are expressions which include other variables with unknown values.
+When the guards of the expression definition
+are matched in turn with other expression
+definitions, and unified with parts of copies of these matched definitions,
+the incomplete values may become complete.  For this reason,
+matching of guards with definitions and unification of guards
+is done as much as possible before any blocks are evaluated.
+
+After all guards are matched with definitions and unified,
+blocks are evaluated, beginning with any blocks in the definitions matched
+to guards.  The first step in evaluating a block is to evaluate
+the values of variables which are marked as being subject to initial
+evaluation before they are used.  Then the block is evaluated.  Guard
+blocks must return true or false, and if any returns false, the expression
+definition match fails, and the search for other matching definitions continues.
+Evaluations of variable values just before a block evaluation,
+and evaluations of guard blocks, are required to have no visible side effects.
 
 \subsection{Expression Definitions}
 \label{EXPRESSION-DEFINITIONS}
@@ -4543,19 +4560,13 @@ required to have no visible side effects.
 {\em Blocks} and {\em statements} are further defined in
 \secref{BLOCKS}.
 
-In use, the pattern of an expression definition and the expression being
-evaluated are both copied and the two copies are then call unified
-(\secref{CALL-UNIFICATION}).
-If unification fails, the definition does not apply.  If
-unification succeeds, variables not bound to values are given their
-default values, subexpressions bound to some of the variables in
-the {\em pattern} are evaluated and replaced by their values, and then
-the {\em guards} are evaluated.  If any of the {\em guards} evaluate
-to `\verb|false|', the definition does not apply.  If all evaluate to
-`\verb|true|', the definition applies.  Then if the definition has
-a {\em block}, that is evaluated to produce a value for the expression.
-If not, the value of the expression is `\verb|true|'.  If no definition
-that applies can be found, the value of the expression is `\verb|false|'.
+In use, an expression definition is just before matching it to an expression,
+and then the pattern of the copy is call unified
+(\secref{CALL-UNIFICATION}) with the expression to be matched.
+If unification fails, the definition does not match.  If
+unification succeeds, variables bound to null values are given their
+default values, and the matching process continues by searching for
+definitions that match the guards.
 
 An expression definition is an expression graph which may have variables
 as well as graph nodes.   When an expression definition is copied,
@@ -4567,23 +4578,23 @@ the original expression definition or in any other expression definition copy.
 
 The \key{evaluation algorithm} inputs an expression to be evaluated
 and a context.  The context (\secref{CONTEXTS}) provides a list of expression
-definitions that may be used to evaluate the expression.
+definitions that may match the expression.
 
 An expression to be evaluated may contain variables that are assigned
-values during unification.  The result of evaluation is both a value for
+values during matching.  The result of evaluation is both a value for
 the expression and an assignment of values for these variables.
 
-More than one definition may apply to evaluate an expression.
-More than one definition may apply to evaluate a guard of a definition,
+More than one definition may match an expression.
+More than one definition may match a guard of a definition,
 and different guard definitions may lead to different values of variables
-in the expression being evaluated.  In applying a definition, more than
+in the expression being evaluated.  In matching a definition, more than
 one argument order assignment (\pagref{ARGUMENT-ORDER-ASSIGNMENT})
-may allow the definition to be applied.  So expression
+may allow the definition to be matched.  So expression
 evaluation is a search process with more than one possible choice that
 may lead to success.
 
-Note that the guards of an expression are always evaluated from left to
-right, so order of guard evaluation is not a choice.
+Note that the guards of an expression are always matched from left to
+right, so order of guard matching is not a choice.
 
 Evaluation may be done in any of the following modes:
 
@@ -4591,7 +4602,8 @@ Evaluation may be done in any of the following modes:
 
 \item[\ttkey{first-value}]~\\
 The first definitions in contexts and first
-argument order assignments tried that lead to success are the only ones
+argument order assignments tried that lead to successful matches
+are the only ones
 used.  Definitions are tried in the order they are given in the contexts
 used in evaluation.
 The order in which argument order assignments are tried is implementation
@@ -4630,13 +4642,19 @@ error value giving the context of the evaluation and the unequal values
 is returned as the value of the expression or variable.
 \end{list}
 
-If the expression evaluation search process yields no results at all,
+If the expression match search process yields no matches at all,
 the expression is given the value `\verb|false|', and variables in the
 expression are not changed.
 
-The matching of an expression to be evaluated to a particular
-expression definition with a particular argument order
-assignment is as follows.
+In the following description of algorithms we use a `\key{choose operation}'
+as if there were an oracle that allowed us to make appropriate
+choices.  In actuality a search process is used, as indicated above.
+
+Evaluating an expression uses subalgorithms for matching an expression with
+a definition and for evaluating a block.
+
+The following subalgorithm is used to match an expression to be matched
+with an expression definition.
 
 \begin{enumerate}
 
@@ -4645,15 +4663,18 @@ Make a copy of the expression definition.  Variables in this copy are
 distinct from other variables of the same name in memory.
 
 \item
+If there are reorderable arguments in the expression definition pattern,
+choose an argument order.
+
+\item
 
 Call unify (\secref{CALL-UNIFICATION})
 the pattern (\secref{EXPRESSION-DEFINITIONS})
-from the definition copy with the expression to be evaluated.
-Both the pattern and expression are expression graphs.
-If the unification fails, the definition does not apply.  If the
-unification succeeds, it modifies nodes in the expression 
-being evaluated and provides variable values for the variables in
-the pattern.
+from the definition copy with the expression to be matched,
+using any chosen argument order.
+If the unification fails, the definition does not match.  If the
+unification succeeds, it provides variable values for the variables
+in the pattern and in the expression to be matched.
 
 \item
 For any pattern variable bound to a null node, rebind the variable
@@ -4671,22 +4692,42 @@ visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
 
 It is an error if a null node is to be evaluated.
 
+\end{enumerate}
+
+The subalgorithm for evaluating a block is given in \secref{BLOCK-EVALUATION}.
+
+Evaluating an expression is as follows:
+
+\begin{enumerate}
+
 \item
-Evaluate each guard of the definition copy in left to right order.
-If any fail to evaluate to
-`\verb|true|', the definition does not apply.  These guard evaluations are not
+Choose and expression definition in the appropriate context that
+matches the expression to be evaluated, and match the definition
+with the expression.
+
+Note the variable value expression evaluations of
+\ref{PROTECTED-VARIABLE} above are done before guard expression matching
+is done.
+
+\item
+For each guard of the expression definition, from left to right,
+choose an expression definition
+in the appropriate context that matches the guard, and match the definition
+with the guard.
+
+\item
+For each guard that has a block, evaluate the block, working in left
+to right depth first order of guards.  If a guard block evaluates to
+something other
+than `\verb|true|', declare the choices made so far to be a failure,
+and continue the search.  These guard block evaluations are not
 permitted to have visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
 
 \item
-If the definition applies, but has no block, the value of the expression
-is `\verb|true|'.  If the definition applies and has a block, the block
-is evaluated (\secref{BLOCKS}) to determine the value of the
-expression.
-
-\item
-If the definition does not apply, any expression graph changes made while
-trying to apply the definition are undone.  Note that invisible side effects
-are not undone.
+If the definition matched to the expression to be evaluated has no block,
+the value of the expression is `\verb|true|'.
+If it has a block, the block is evaluated to produce a value and possibly
+side effects as per \secref{BLOCKS}.
 
 \end{enumerate}
 
