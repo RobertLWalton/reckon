@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 30, 2003}
+\date{January 3, 2004}
  
 \maketitle
 
@@ -2459,8 +2459,8 @@ an \key{expression tree}.
 
 There is a correspondence between raw expressions and expression trees
 that is one-to-one, except that two raw expressions differing only
-in the order of their qualifier clauses correspond to the same expression
-tree.
+in the order of their qualifier clauses and the order of their reordered
+arguments correspond to the same expression tree.
 
 There are several operations that convert expression trees into general
 expression graphs.  All these use a designated operator, which defaults
@@ -2795,7 +2795,7 @@ the label of that target is called the \key{arity} of the root.
 A second example is the expression
 
 \begin{center}
-\verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
+\verb|[sort x @@ with key weight @@ with comparator]|
 \end{center}
 
 which is represented by the expression tree
@@ -2840,32 +2840,84 @@ which is represented by the expression tree
 	    \Glabel{<}
 	\end{Gchild} \\
     \end{Gchild} \\
-    \begin{Gchild}{-OPTIONAL-QUALIFIER-}
-	\begin{Gchild}{-ARITY-}
-	    \Glabel{0}
-	\end{Gchild} \\
-	\begin{Gchild}{0}
-	    \Glabel{ascending}
-	\end{Gchild} \\
-    \end{Gchild} \\
 \end{Graph}\label{QUALIFIER-EXAMPLE}
 \end{center}
 
 Here each qualifier becomes the target of an arrow labeled
-`\ttkey{-REQUIRED-QUALIFIER-}'
-if the `\verb|@@|' \key{required-qualifier-mark} is used or
-`\ttkey{-OPTIONAL-QUALIFIER-}'
-if the `\verb|??|' \key{optional-qualifier-mark} is used.
+`\ttkey{-REQUIRED-QUALIFIER-}' because
+the `\verb|@@|' \key{required-qualifier-mark} is used (the label
+would be `{\tt -OPTIONAL-QUALIFIER-}' if the `\verb|??|'
+optional-qualifier-mark had been used).
 The arrows with these labels are called \skey{qualifier arrow}s of the
 root node and their targets are called \skey{qualifier}s of the root.
 In this case there are two \skey{required qualifier arrow}s and
-two \skey{required qualifier}s, and one \key{optional qualifier arrow}
-with its one \key{required qualifier}.
+two \skey{required qualifier}s.
 Each qualifier sources arity, head, and unreordered argument arrows
 analogous to those of the root node, and could source qualifier,
-reordered argument, and rest argument arrows.
+reordered argument (see below), and rest argument (see below) arrows.
 
-Another example is the expression
+A third example is the expression
+
+\begin{center}
+\verb|[sort x @@ with key weight ?? with order X]|
+\end{center}
+
+which is represented by the expression tree
+
+\begin{center}
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{1} \\
+    \end{Gchild} \\
+    \begin{Gchild}{0}
+	\Glabel{sort} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Glabel{x} \\
+    \end{Gchild} \\
+    \begin{Gchild}{-REQUIRED-QUALIFIER-}
+	\begin{Gchild}{-ARITY-}
+	    \Glabel{2}
+	\end{Gchild} \\
+	\begin{Gchild}{0}
+	    \Glabel{with}
+	\end{Gchild} \\
+	\begin{Gchild}{1}
+	    \Glabel{key}
+	\end{Gchild} \\
+	\begin{Gchild}{2}
+	    \Glabel{weight}
+	\end{Gchild} \\
+    \end{Gchild} \\
+    \begin{Gchild}{-OPTIONAL-QUALIFIER-}
+	\begin{Gchild}{-ARITY-}
+	    \Glabel{2}
+	\end{Gchild} \\
+	\begin{Gchild}{0}
+	    \Glabel{with}
+	\end{Gchild} \\
+	\begin{Gchild}{1}
+	    \Glabel{order}
+	\end{Gchild} \\
+	\begin{Gchild}{2}
+	    \Glabel{X}
+	\end{Gchild} \\
+    \end{Gchild} \\
+\end{Graph}
+\end{center}
+
+This is the same as the last example except one qualifier is an
+`\ttkey{-OPTIONAL-QUALIFIER-}' because the
+`\verb|??|' \key{optional-qualifier-mark} is used.
+In this case there is one \skey{required qualifier arrow},
+one \skey{required qualifier}, one \key{optional qualifier arrow}, and
+one \key{optional qualifier}.  The only difference between
+required and optional qualifiers is the label on the arrow to the qualifier
+node.  This label is either `\ttkey{-REQUIRED-QUALIFIER-}'
+or `\ttkey{-OPTIONAL-QUALIFIER-}'.
+
+A fourth example is the expression
 
 \begin{center}
 \verb|[fill Prefix Matrix <:> Value Postfix ::> Runs]|
