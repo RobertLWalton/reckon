@@ -1802,7 +1802,6 @@ dictionary and function.  These have the syntax:
 \ikey{LEXEME-DICTIONARY-ENTRY}{lexeme-dictionary-entry} ::=
 	\verb|[| {\em replaced-lexeme} \verb|=>| {\em replacing-lexemes}
 	\verb|]| \\[1ex]
-\key{lexeme-replacement} ::= {\em replacing-lexemes} \\[1ex]
 \key{replacing-lexemes} ::=
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}$^\star$ \\[1ex]
@@ -1815,6 +1814,56 @@ dictionary and function.  These have the syntax:
 	\{ {\em word} $|$ {\em separator} \}$^\star$
 	\verb|]|
 \end{indpar}
+
+which correspond to the expression definitions
+(\secref{EXPRESSION-DEFINITIONS}):
+
+\begin{indpar}
+\begin{verbatim}
+define lexeme dictionary ENTRIES <== n-tuple ENTRIES of expressions
+
+define lexeme function NAME <== expression NAME
+\end{verbatim}
+\end{indpar}
+
+A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
+and a sequence of lexemes that replace it.  For example, the entry
+
+\begin{center}
+\verb|[ people ==> person ]|
+\end{center}
+
+causes the word `\verb|people|' to be replaced by the word `\verb|person|'.
+
+A \key{lexeme function} is a function that is called with a lexeme as its
+single argument and which returns either `\verb|false|' if the lexeme is
+not to be replaced or returns an expression consisting of a sequence of
+lexemes that are to replace the lexeme otherwise.  For example, given the
+lexeme function definition
+
+\begin{indpar}
+\begin{verbatim}
+define lexeme function [replace people]
+\end{verbatim}
+\end{indpar}
+
+and the expression definition
+
+\begin{indpar}
+\begin{verbatim}
+replace people X <== {
+    if X == people:
+        value = [person]
+    else:
+        value = false }
+\end{verbatim}
+\end{indpar}
+
+an appearance of the lexeme `\verb|fie|' will evaluate the
+expression `\verb|replace person fie|' which will return `\verb|false|'
+to avoid replacing the lexeme `\verb|fie|'.
+
+TBD
 
 
 
@@ -3974,6 +4023,9 @@ to `\verb|false|', the definition does not apply.  If all evaluate to
 a {\em block}, that is evaluated to produce a value for the expression.
 If not, the value of the expression is `\verb|true|'.  If no definition
 that applies can be found, the value of the expression is `\verb|false|'.
+
+TBD: how are expressions that have expression definitions defined syntactically
+in this document.
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
