@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 10, 2004}
+\date{January 11, 2004}
  
 \maketitle
 
@@ -2702,16 +2702,8 @@ each expression graph has its own distinct set of variables.
 \begin{enumerate}
 
 \item
-X is replaced by a copy of X, and Y is replaced by a copy
-of Y.  Each copy has nodes,
-arrows, and variables that are distinct from those
-of any other expression graph.  
-
-\item
 The set of nodes and arrows of Z is initialized to the union
-of the sets of nodes and arrows of X and Y.  Note that since
-X and Y are now copies of the original, the nodes and arrows
-of X and Y are all now distinct.
+of the sets of nodes and arrows of X and Y.
 
 \item
 There is a set called the \key{merge set}
@@ -3296,8 +3288,6 @@ execution, because the call merge algorithm makes choices.  Each
 set of possible choices over the whole call unification algorithm
 leads to a separate algorithm execution that either succeeds or fails.
 
-TBD
-
 The \key{call merge algorithm} for a merge pair (M,N) in the merge set,
 where either M or N or both is a call node,
 with a particular choice, is as follows.
@@ -3793,6 +3783,11 @@ asssignment is as follows.
 \begin{enumerate}
 
 \item
+Make a copy of the expression definition.  In this copy, change each
+variable name to a new unique name not used elsewhere to name any
+variable.
+
+\item
 
 Call unify (\ref{CALL-UNIFICATION})
 the pattern (\ref{EXPRESSION-DEFINITIONS})
@@ -3805,15 +3800,18 @@ the pattern.
 
 \item
 For any pattern variable whose name does \underline{not} begin
-with `\ttkey{\#}',
-evaluate the value of that variable, and replace this value node
-by the value obtained.  The order in which these variable evaluations are done
-is implementation dependent.  Any side effects of the evaluations
-TBD
+with `\ttkey{\#}', evaluate the value of that variable to obtain
+a new variable value.  Then simultaneously replace all the evaluated
+variable values by their new values.  Each replacement is done by
+forwarding a variable value graph node to the new value graph node.
+
+These variable value evaluations here are not permitted to have
+visible side effects (\ref{VISIBLE-SIDE-EFFECTS}).
 
 \item
 Evaluate each guard of the definition in order.  If any fail to evaluate to
-`\verb|true|', the definition does not apply.
+`\verb|true|', the definition does not apply.  These guard evaluations are not
+permitted to have visible side effects (\ref{VISIBLE-SIDE-EFFECTS}).
 
 \item
 If the definition applies, but has no block, the value of the expression
@@ -3821,16 +3819,53 @@ is `\verb|true|'.  If the definition applies and has a block, the block
 is evaluated (\ref{BLOCK-EVALUATION}) to determine the value of the
 expression.
 
+\item
+If the definition does not apply, any expression graph changes made while
+trying to apply the definition are undone.  Note that invisible side effects
+are not undone.
+
 \end{enumerate}
 
 \subsection{Contexts}
 \label{CONTEXTS}
 
+Design:
 
+There are immutable contexts that are just first element, rest of context
+pairs.  These can be created, or the rest-of-context extracted.
+
+There are muttable contexts that are doubly linked lists which can be iterated
+over and have elements deleted.
+
+Context elements can be expression definitions or pointers at contexts (mutable
+or immutable).
+
+
+\section{Block Evaluation}
+\label{BLOCK-EVALUATION}
+
+\section{Side Effects}
+\label{SIDE-EFFECTS}
+
+Design:
+
+Operations that have side effects can be controlled by side effects modes.
+
+They can be made illegal by setting the illegal-side-effects mode.
+
+They can be encapsulated in a dynamic block that makes included side effects
+legal even when side effects outside the block are not.  The included side
+effects are called invisible side effects, while those outside the block
+are called visible.
+
+Side effects can be delayed.  They are pushed to a FIFO, which can be executed
+all at once.
 
 \section{Debugging}
 
-Design: Th debugging design is based on the notion that almost all
+Design:
+
+Debugging is based on the notion that almost all
 PCASL programs will run quickly.
 Input checkpointing is used to record all inputs to a computation
 so the computation can be deterministically rerun.  Detailed
