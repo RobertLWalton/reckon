@@ -7,6 +7,7 @@
 \documentclass[12pt]{article}
 
 \usepackage{makeidx}
+\usepackage{pictex}
 
 \makeindex
 
@@ -732,7 +733,7 @@ You can also change how an expression is displayed.
 \newlength{\ovalraise}
 \setlength{\ovalraise}{-0.1in}
 \addtolength{\ovalraise}{0.8ex}
-\verb|> display (a person named X) <-- {| \\
+\verb|> display ( P ) <-- person ( P ) has name ( X ) {| \\
 \verb|>     value = (oval (0.4,0.2)) labeled X }| \\
 \verb|> (a person named `Jack')| \\
 \begin{picture}(0.4,0.2)
@@ -757,12 +758,13 @@ Displays can be used to make demonstrations:
 
 \begin{indpar}
 \verb|> a demo {| \\
-\verb|+     angle = 30 degrees| \\
-\verb|+     on update ( THIS ) to ( X ) {| \\
+\verb|>     on a demo with angle ( X ) <-- {| \\
+\verb|+         angle = X }| \\
+\verb|+     on update ( THIS ) to ( X ) <-- {| \\
 \verb|+         next angle = X }| \\
-\verb|+     on increment ( THIS ) by ( X ) {| \\
+\verb|+     on increment ( THIS ) by ( X ) <-- {| \\
 \verb|+         next angle = angle + X } }| \\
-\verb|> x = a demo| \\
+\verb|> x = a demo with angle 30 degrees| \\
 \begin{tabular}{|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
@@ -771,7 +773,16 @@ Displays can be used to make demonstrations:
 \tt @1000043 & 30 degrees \\
 \hline
 \end{tabular} \\
-\verb|> update x to 45 degrees| \\
+\verb|> update x to 40 degrees| \\
+\begin{tabular}{|r|r|}
+\hline
+\multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c|}{\bf value} \\
+\hline
+\tt @1000044 & 40 degrees \\
+\hline
+\end{tabular} \\
+\verb|> increment x by 5 degrees| \\
 \begin{tabular}{|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
@@ -780,21 +791,46 @@ Displays can be used to make demonstrations:
 \tt @1000044 & 45 degrees \\
 \hline
 \end{tabular} \\
-\verb|> display (a demo with angle X) <-- {| \\
-\verb|+     c = {circle 2.0 dotted center (0.0,0.0)}| \\
-\verb|+     x-axis = {arrow from (-3.0,0.0) to (3.0,0.0)}| \\
-\verb|+     y-axis = {arrow from (0.0,-3.0) to (0.0,3.0)}| \\
-\verb|+     line = {line from (0.0,0.0) to <<(cos X, sin X)>>}| \\
-\verb|+     arc = {arc-arrow from (0.7,0.0) to <<(0.7*cos X, 0.7*sin X)>>}| \\
+\verb|> display ( D ) <-- demo ( D ) with angle ( X ) {| \\
+\verb|+     c = {circle 1.0 dotted center (0.0,0.0)}| \\
+\verb|+     x-axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
+\verb|+     y-axis = {arrow from (0.0,-0.75) to (0.0,0.75)}| \\
+\verb|+     line = {line from (0.0,0.0) to <<(0.5*cos X, 0.5*sin X)>>}| \\
+\verb|+     arc = {arc-arrow from (0.7,0.0) to <<(0.3*cos X, 0.3*sin X)>>}| \\
+\verb|+     theta = {Greek T}| \\
 \verb|+     value = {column (| \\
 \verb|+                overlap (| \\
 \verb|+                  <<c>>,| \\
-\verb|+                  <<x-axis>> labelled `X axis',| \\
-\verb|+                  <<y-axis>> labelled `Y axis',| \\
+\verb|+                  <<x-axis>> labelled `X Axis',| \\
+\verb|+                  <<y-axis>> labelled `Y Axis',| \\
 \verb|+                  <<line>>,| \\
-\verb|+                  <<arc-arrow>> labelled `{Greek T}' ),| \\
-\verb|+                label `Depiction of Angle {Greek T}' )}} | \\
-\end{indpar}
+\verb|+                  <<arc>> labelled `<<theta>>' ),| \\
+\verb|+                label `Depiction of Angle <<theta>>' ) } } | \\
+\verb|> x| \\
+\begin{picture}(4.0,1.9)
+\put(1.0,0.95){\qbezier[40](0.5,0.0)(0.45,0.45)(0.0,0.5)}
+\put(1.0,0.95){\qbezier[40](0.0,0.5)(-0.45,0.45)(-0.5,0.0)}
+\put(1.0,0.95){\qbezier[40](-0.5,0.0)(-0.45,-0.45)(0.0,-0.5)}
+\put(1.0,0.95){\qbezier[40](0.0,-0.5)(0.45,-0.45)(0.5,0.0)}
+\put(1.0,0.95){
+    \qbezier[1000](0.3,0.0)(0.3,0.124264)(0.212132,0.212132)
+    \put(0.232132,0.192132){\vector(-1,1){0.02}}
+    \put(0.31,0.1){$\theta$}
+}
+\put(1.0,0.2){\vector(0,1){1.5}}
+\put(0.0,1.7){\makebox(2.0,0.2){Y Axis}}
+\put(0.25,0.95){\vector(1,0){1.5}}
+\put(1.80,0.85){\makebox(2.0,0.2)[l]{X Axis}}
+\put(1.0,0.95){\line(1,1){0.353553}}
+\put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta$}}
+\end{picture} \\
+\verb|> show x label {Greek T}| \\
+\verb|See| $\theta$ \\
+\verb|> update x to 40 degrees| \\
+\verb|See| $\theta$ \\
+\verb|> increment x by -5 degrees| \\
+\verb|See| $\theta$ \\
+\end{indpar} 
 
 TBD: example of a simple game.
 
