@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 13, 2003}
+\date{September 14, 2003}
  
 \maketitle
 
@@ -1503,42 +1503,128 @@ An operator has one of the following fixities:
 
 \section{Expression Inference}
 
-Expressions can be inferred to be true by inference rules.
+Expressions can be inferred to be true by inference and reduction rules.
 Such \key{expression inference} is more basic than expression
 evaluation, because to evaluate an expression you must first
 infer it.  Inference rules can have associated blocks of code,
 and the inference of an expression by a rule associates the rule's
 block of code with the expression.  Evaluating that block of code
-then evaluates the expression.
+then evaluates the expression.  However, sometimes expressions are
+inferred without being evaluated.
 
-Inference rules are collected into sets of rules called inference contexts.
-An expression has an associated inference context that can be used to infer
-and also evaluate the expression.  By default, the inference context
-of an expression is the context in which the expression appears as a part
-of a code block or as input from a user (what is called the `lexical context'
-in programming languages).
+Inference and reduction rules are collected into sets of rules called
+contexts.  An expression is inferred in some context.  Usually the
+context is that of the code in which the expression appears, but
+sometimes the context is that of the caller of that code (TBD).
 
-Expression inference is done in three stages:
+To infer an expression, the expression is first reduced, and then
+inferred.  Reduction and inference are intermixed; to reduce an
+expression, one applied first a reduction rule, and gets are resulting
+set of goal expressions that must be inferred for the reduction to succeed.
+These expressions are in turned first reduced and then inferred.
+
+Expression inference is a search process in which inferences
+are found for a non-empty \key{goal set} of \skey{goal-expression}s.
+An \key{inference} is an alternating sequence of expression reductions
+and inference steps.
+ 
+Expression reduction is a process that creates a unique result and
+has no side effects.  An inference step takes as input a reduced
+goal-expression and an inference rule, and replaced the goal-expession
+in the goal set by other expressions that are in the inference rule.
+
+An unreduced goal expression is said to be the parent of the unreduced
+expressions that replace it in the goal set, and the parent relation
+is labelled by the inference rule used to make the replacement.
+An inference is associated with a forest (set of trees) whose nodes
+are labelled with unreduced goal expressions and whose arcs are just the
+parenting arcs which are labelled with the inference rule used to
+replace the parent by its children.  Two inferences are said to be
+distinct if and only if the inferences have distinct forests.
+
+An expression inference is a search for all distinct inferences of
+a goal set whose only member is the expression to be inferred.
+
+
+Reduction and inference rules make use of unification and unification
+variables (\ref{UNIFICATION}).
+Each inference generates a set of values for the unification variables in the
+original goal set.  Inference may create new unification variables that
+appear in these values.
+
+As inference rules (\ref{INFERENCE-RULES})
+are simpler than reduction rules (\ref{REDUCTION-RULES}),
+inference rules are explained first.
+
+\subsection{Unification}
+\label{UNIFICATION}
+
+Expressions are externally represented as sequences of lexemes and
+subexpressions, but internally they are represented as directed graphs whose
+arcs are labelled by lexemes from the expression, and
+whose nodes are unlabelled.  For example, the expression
 
 \begin{center}
-\begin{tabular}{ll}
-(1) & Implicit Parenthesis Insertion
-      (\ref{IMPLICIT-PARENTHESIS-INSERTION}) \\
-(2) & Subexpression Reduction \\
-(3) & Expression Inference \\
-\end{tabular}
+\verb|sort x ascending with key weight with comparitor <|
 \end{center}
 
-Note that implicit parenthsis insertion have been covered in a previous
-section and that expression evaluation is done after expression inference if
-expression evaluation is being done at all.
+represents the tree
 
-\subsection{Reduction Rules}
-\label{REDUCTION-RULES}
+\[
+    \left[ \begin{array}{l}
+    	   \verb|sort| \left[ \verb|x| \right. \\
+	   \verb|ascending| \\
+	   \verb|with| \left[ \verb|key| \left[ \verb|weight| \right. \right. \\
+	   \verb|with| \left[ \verb|comparitor| \left[ \verb|<| \right.
+	   							\right. \\
+           \end{array}
+    \right.
+\]
 
 \subsection{Inference Rules}
 \label{INFERENCE-RULES}
 
+An \key{inference rule} has the form:
+
+\begin{center}
+\key{consequent-expression} \verb|<--|
+    \key{condition-expression} \{ \verb|,| {\em condition-expression} \}
+\end{center}
+
+An \key{inference step} takes as input one of the reduced goal-expressions
+in the goal set and one inference rule,
+such that the reduced goal-expression unifies with the
+consequent-expression of the inference rule.  The unification variables in the
+goal-set and inference-rule are replaced by their values computed
+by this unification.  The goal-expression is removed the goal set, and
+all the condition-expressions of the inference rule are added to the goal
+set.
+
+\subsection{Reduction Rules}
+\label{REDUCTION-RULES}
+
+A \key{reduction rule} has the form:
+
+\begin{center}
+\key{result-expression} \verb|<==|
+\key{consequent-expression} \verb|<--|
+    \key{condition-expression} \{ \verb|,| {\em condition-expression} \}
+\end{center}
+
+A reduction rule contains within it the equivalent of an inference rule,
+which is obtained by removing the result-expression and following \verb|<==|
+from the reduction rule.
+
+A subexpression is \key{reduced} by finding for it inferences in which
+the first rule applied to the original expression is a reduction rule.
+If the result-expressions of all such inferences found unify, their
+unification replaces the expression being reduced.  If no inferences
+are found, the expression is not replaced.  It is an error
+if several inferences are found but their result-expressions fail to unify.
+
+An expression is \key{reduced} by reducing all its subexpressions, smallest
+first, until lastly the whole expression is reduced as a subexpression of
+itself.
 
 \section{Design Notes}
 
