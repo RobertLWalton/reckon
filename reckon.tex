@@ -2180,12 +2180,12 @@ The expression is returned as the result of parsing the expression.
 \label{EXPRESSION-GRAPHS}
 
 Expression graphs store expressions.  An \key{expression graph}
-is a directed possibly cyclic graph with labels on all arcs and on some
+is a directed possibly cyclic graph with labels on all arrows and on some
 nodes, plus a set of graph node valued variables.  Labels and variable
 names must be single words or
-separators.  Labelled nodes cannot be the source of any arc.
-Several arcs with the
-same source node may have the same arc label.
+separators.  Labelled nodes cannot be the source of any arrow.
+Several arrows with the
+same source node may have the same arrow label.
 
 There is
 always a variable named \ttkey{-ROOT-} that designates a graph node
@@ -2194,7 +2194,7 @@ All graph nodes are reachable from from the variable values, and
 usually all graph nodes are reachable from the root.
 
 If there is only one variable, \verb|-ROOT-|, and no node is the destination
-of more than one arc, the graph is a tree.  In this case it is called
+of more than one arrow, the graph is a tree.  In this case it is called
 an \key{expression tree}.
 
 There is a correspondence between raw expressions and expression trees
@@ -2210,48 +2210,162 @@ words beginning with a capital letter designate
 expression graph variables.
 
 \subsection{Expression Graph Notation}
+\label{EXPRESSION-GRAPH-NOTATION}
 
 The following is an example of the notation we will use to represent
-expression graphs:
+expression graphs:%
+\footnote{This notation is standard for feature structures:
+e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
+1992, Cambridge University Press}
 
-\newcommand{\Gleaf}[1]{{\tt #1}}
-\newcommand{\Glabel}[1]{\fbox{\tt #1}}
+\newcommand{\Glabel}[1]{{\tt #1}}
+\newcommand{\Gvariable}[1]{\fbox{\tt #1}}
 \newenvironment{Graph}%
-    {\[ \left[ \begin{array}{l}}%
+    { \[ \left[ \begin{array}{l}}%
     {\end{array} \right] \]}
 \newenvironment{Gchild}[1]%
-    {{\tt #1}{\tt :} \left[ \begin{array}{l}}%
-    {\end{array} \right]}
+    {{\tt #1}:
+     \begin{array}{l}
+     \rule{0in}{0in} \vspace{-0.15in} \\
+     \left[ \begin{array}{l}}%
+    {\end{array} \right] \\
+     \rule{0in}{0in} \vspace{-0.15in}
+     \end{array}}
 
 \begin{Graph}
-    \Glabel{-ROOT-} \\
+    \Gvariable{-ROOT-} \\
     \begin{Gchild}{foo}
-    \Gleaf{fum} \\
-    \Glabel{X} \\
+    \Gvariable{X} \\
+    \Glabel{fum} \\
     \end{Gchild} \\
     \begin{Gchild}{fie}
-    \Gleaf{foe} \\
-    \Glabel{X} \\
+    \Gvariable{X} \\
     \end{Gchild} \\
 \end{Graph}
 
-\[
-    \verb|sort| \left[
-	\begin{array}{l}
-        \verb|1| \left[ \verb|x| \right. \\
-        \verb|2| \left[ \verb|ascending| \right. \\
-        \verb|3| \left[ \verb|with| \left[
-	    \begin{array}{l}
-	    \verb|1| \left[ \verb|key| \right. \\
-	    \verb|2| \left[ \verb|weight| \right. \\
-           \end{array} \right. \right. \\
-        \verb|4| \left[ \verb|with| \left[
-	    \begin{array}{l}
-	    \verb|1| \left[ \verb|comparitor| \right. \\
-	    \verb|2| \left[ \verb|<| \right. \\
-           \end{array} \right. \right. \\
-       \end{array} \right.
-\]
+In this notation, the representation of a graph node is a set of lines
+enclosed in [] brackets.
+
+If the node is the value some variables,
+the names of those variables, each enclosed in a box, are the top
+lines of the representation.  Examples above are \Gvariable{-ROOT-} and
+\Gvariable{X}.  Two nodes with the same variable label in the representation
+are actually the same node in the graph, and among all nodes that are
+values of the same variable, all but one can only have variable names in
+its representation.
+
+If the node has a label, that is a line in the representation that is
+below any variable names, and there are no other lines in the representation.
+The only node label in the above example is \Glabel{fum}, which is a label
+on the node that is the value of the variable \verb|X|.
+
+If the node is the source of arrows in the directed graph,
+representations of each arrow appear below any variable names in the
+representation of the node.  Each arrow representation consists of the
+label of the arrow followed by a colon (:) followed by
+a representation of the target node of the arrow.  This later
+is of course surrounded by [] brackets.
+
+\subsection{Raw Expression Trees}
+\label{RAW-EXPRESSION-TREES}
+
+Raw expressions represent expression trees.  For example, the expression
+
+\begin{center}
+\verb|[max x y z]|
+\end{center}
+
+represents the expression tree
+
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{max}
+        \begin{Gchild}{1}
+	    \Glabel{x} \\
+	\end{Gchild} \\
+	\begin{Gchild}{2}
+	    \Glabel{y} \\
+	\end{Gchild} \\
+	\begin{Gchild}{3}
+	    \Glabel{z} \\
+	\end{Gchild} \\
+    \end{Gchild} \\
+\end{Graph}
+
+The raw expression head, \verb|max|, becomes an arrow label
+pointing at a graph node that represents the argument list `\verb|x y z|'.
+A node representing an argument list is the source of arrows labeled with
+\ikey{argument indices}{argument index}
+`\verb|1|', `\verb|2|', `\verb|3|', etc. to nodes representing the first,
+second, third, etc. arguments.
+
+A second example is the expression
+
+\begin{center}
+\verb|[sort x @@@ with key weight @@@ with comparator <]|
+\end{center}
+
+is represented by the expression tree
+
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{sort}
+        \begin{Gchild}{1}
+	    \Glabel{x} \\
+	\end{Gchild} \\
+	\begin{Gchild}{with}
+	    \begin{Gchild}{1}
+	        \Glabel{key}
+	    \end{Gchild} \\
+	    \begin{Gchild}{2}
+	        \Glabel{weight}
+	    \end{Gchild} \\
+	\end{Gchild} \\
+	\begin{Gchild}{with}
+	    \begin{Gchild}{1}
+	        \Glabel{comparator}
+	    \end{Gchild} \\
+	    \begin{Gchild}{2}
+	        \Glabel{<}
+	    \end{Gchild} \\
+	\end{Gchild} \\
+    \end{Gchild} \\
+\end{Graph}
+
+Here each qualifier head (the two `\verb|with|'s) becomes a label
+for an arrow that points at a node representing the the qualifier clause
+argument list.
+
+Another example is the expression
+
+\begin{center}
+\verb|[fill Matrix <:> Value ::> Runs]|
+\end{center}
+
+is represented by the expression tree
+
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{fill}
+        \begin{Gchild}{1}
+	    \Glabel{Matrix} \\
+	\end{Gchild} \\
+	\begin{Gchild}{1}
+	    \Glabel{Value}
+	\end{Gchild} \\
+	\begin{Gchild}{-REST-}
+	    \Glabel{Runs}
+	\end{Gchild} \\
+    \end{Gchild} \\
+\end{Graph}
+
+Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
+given the same argument index, in this case `\verb|1|'.  The argument
+after a \key{remainder mark} \ttkey{::>} is given the special argument index
+`\ttkey{-REST-}'.
+
+\subsection{Raw Expression Graphs}
+\label{RAW-EXPRESSION-GRAPHS}
 
 
 \section{Expression Inference}
@@ -2383,11 +2497,11 @@ TBD
 
 Expressions are externally represented as sequences of lexemes and
 subexpressions, but internally they are represented as directed graphs whose
-arcs are labelled by lexemes from the expression, and
+arrows are labelled by lexemes from the expression, and
 whose nodes are unlabelled.  For example, the expression
 
 \begin{center}
-\verb|sort x ascending with key weight with comparitor <|
+\verb|sort x ascending with key weight with comparator <|
 \end{center}
 
 represents the tree
@@ -2404,7 +2518,7 @@ represents the tree
            \end{array} \right. \right. \\
         \verb|4| \left[ \verb|with| \left[
 	    \begin{array}{l}
-	    \verb|1| \left[ \verb|comparitor| \right. \\
+	    \verb|1| \left[ \verb|comparator| \right. \\
 	    \verb|2| \left[ \verb|<| \right. \\
            \end{array} \right. \right. \\
        \end{array} \right.
