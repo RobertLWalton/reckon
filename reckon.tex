@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 12, 2004}
+\date{January 13, 2004}
  
 \maketitle
 
@@ -2521,7 +2521,7 @@ of any arrow.  Several arrows with the same source node may have the same
 arrow label.
 
 A node that does not have a label and is not the source of any arrows
-is called a \key{null node}.
+is called a \key{null node}.\label{NULL-NODE}
 
 An expression graph variable has a name, a value, and an optional default.
 Variable names must be single words or separators.
@@ -2577,7 +2577,9 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
     {\end{array} \right] \\
      \rule{0in}{0in} \vspace{-0.15in}
      \end{array}}
-\newenvironment{Gsimplechild}[1]%
+% Gsingle is Gchild with only one thing in its brackets so
+% the brackets can be eliminated.
+\newenvironment{Gsingle}[1]%
     {\mbox{\tt #1}:
      \begin{array}{l}
      \rule{0in}{0in} \vspace{-0.15in} \\
@@ -2694,32 +2696,32 @@ bracketted.  Thus the above example can also be rendered as:
 	\Gvariable{X} \\
 	\Glabel{\$5} \\
     \end{Gchild} \\
-    \begin{Gsimplechild}{fie}
+    \begin{Gsingle}{fie}
 	\Gvariable{X} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \hspace{0.3in}
 \begin{Graph}
     \Gdefault{X} \\
-    \begin{Gsimplechild}{1}
+    \begin{Gsingle}{1}
 	\Glabel{foe} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2}
 	\Glabel{fum} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \hspace{0.3in}
 \begin{Graph}
     \Gvariable{Y} \\
     \Gdefault{Y} \\
-    \begin{Gsimplechild}{1}
+    \begin{Gsingle}{1}
 	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2}
-	\begin{Gsimplechild}{*}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2}
+	\begin{Gsingle}{*}
 	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-	\end{Gsimplechild} \\
-    \end{Gsimplechild} \\
+	\end{Gsingle} \\
+    \end{Gsingle} \\
 \end{Graph}
 
 
@@ -2728,8 +2730,8 @@ bracketted.  Thus the above example can also be rendered as:
 \subsection{Pure Unification}
 \label{PURE-UNIFICATION}
 
-Informally, expression graph nodes may be thought of
-as expressions of information, and the unification of
+Informally, expression graph nodes represent expressions that
+may be thought of as containing information, and the unification of
 two nodes is then a node whose information content
 is the least upper bound of the information content of each of
 the two nodes taken separately.
@@ -2760,6 +2762,12 @@ create new merge pairs.  However, merging two nodes that are identical
 does nothing, and since expression graph memory is finite,
 the algorithm must terminate after all nodes are merged, if it does not
 terminate before then.
+
+In merging two nodes M and N, one of these nodes, say M, is replaced by
+a forwarding pointer to the other node, say N, so every reference to M
+becomes a reference to N.  N may also be modified by giving it a label
+or creating arrows that it sources.  And as mentioned above, new merge
+pairs may be created.
 
 If a unification algorithm is unsuccessful, all changes to expression
 graph memory are undone.
@@ -2868,21 +2876,21 @@ represents the raw expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{3} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{max} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{1}
+    \end{Gsingle} \\
+    \begin{Gsingle}{1}
 	\Glabel{x} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2}
 	\Glabel{y} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{3}
+    \end{Gsingle} \\
+    \begin{Gsingle}{3}
 	\Glabel{z} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \end{center}
 
@@ -2913,7 +2921,7 @@ the label of that target is called the \key{arity} of the root.
 A second example is the expression
 
 \begin{center}
-\verb|[sort x @@ with key weight @@ with comparator]|
+\verb|[sort x @@ with key weight @@ with comparator <]|
 \end{center}
 
 which is represented by the raw expression tree
@@ -2921,42 +2929,42 @@ which is represented by the raw expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{1} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{sort} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{1}
+    \end{Gsingle} \\
+    \begin{Gsingle}{1}
 	\Glabel{x} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
     \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gsimplechild}{-ARITY-}
+	\begin{Gsingle}{-ARITY-}
 	    \Glabel{2}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{0}
+	\end{Gsingle} \\
+	\begin{Gsingle}{0}
 	    \Glabel{with}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{1}
+	\end{Gsingle} \\
+	\begin{Gsingle}{1}
 	    \Glabel{key}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{2}
+	\end{Gsingle} \\
+	\begin{Gsingle}{2}
 	    \Glabel{weight}
-	\end{Gsimplechild} \\
+	\end{Gsingle} \\
     \end{Gchild} \\
     \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gsimplechild}{-ARITY-}
+	\begin{Gsingle}{-ARITY-}
 	    \Glabel{2}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{0}
+	\end{Gsingle} \\
+	\begin{Gsingle}{0}
 	    \Glabel{with}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{1}
+	\end{Gsingle} \\
+	\begin{Gsingle}{1}
 	    \Glabel{comparator}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{2}
+	\end{Gsingle} \\
+	\begin{Gsingle}{2}
 	    \Glabel{<}
-	\end{Gsimplechild} \\
+	\end{Gsingle} \\
     \end{Gchild} \\
 \end{Graph}\label{QUALIFIER-EXAMPLE}
 \end{center}
@@ -2985,47 +2993,47 @@ which is represented by the raw expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{1} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{sort} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{1}
+    \end{Gsingle} \\
+    \begin{Gsingle}{1}
 	\Glabel{x} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
     \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gsimplechild}{-ARITY-}
+	\begin{Gsingle}{-ARITY-}
 	    \Glabel{2}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{0}
+	\end{Gsingle} \\
+	\begin{Gsingle}{0}
 	    \Glabel{with}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{1}
+	\end{Gsingle} \\
+	\begin{Gsingle}{1}
 	    \Glabel{key}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{2}
+	\end{Gsingle} \\
+	\begin{Gsingle}{2}
 	    \Glabel{weight}
-	\end{Gsimplechild} \\
+	\end{Gsingle} \\
     \end{Gchild} \\
     \begin{Gchild}{-OPTIONAL-QUALIFIER-}
-	\begin{Gsimplechild}{-ARITY-}
+	\begin{Gsingle}{-ARITY-}
 	    \Glabel{2}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{0}
+	\end{Gsingle} \\
+	\begin{Gsingle}{0}
 	    \Glabel{with}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{1}
+	\end{Gsingle} \\
+	\begin{Gsingle}{1}
 	    \Glabel{order}
-	\end{Gsimplechild} \\
-	\begin{Gsimplechild}{2}
+	\end{Gsingle} \\
+	\begin{Gsingle}{2}
 	    \Glabel{X}
-	\end{Gsimplechild} \\
+	\end{Gsingle} \\
     \end{Gchild} \\
 \end{Graph}
 \end{center}
 
-This is the same as the last example except one qualifier is an
+This is similar to the last example except one qualifier is an
 `\ttkey{-OPTIONAL-QUALIFIER-}' because the
 `\verb|??|' \key{optional-qualifier-mark} is used.
 In this case there is one \skey{required qualifier arrow},
@@ -3046,27 +3054,27 @@ which is represented by the raw expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{1-4} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{fill} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{1}
+    \end{Gsingle} \\
+    \begin{Gsingle}{1}
 	\Glabel{Prefix} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2-3}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2-3}
 	\Glabel{Matrix} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2-3}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2-3}
 	\Glabel{Value}
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{4}
+    \end{Gsingle} \\
+    \begin{Gsingle}{4}
 	\Glabel{Postfix}
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{-REST-}
+    \end{Gsingle} \\
+    \begin{Gsingle}{-REST-}
 	\Glabel{Runs}
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \end{center}
 
@@ -3084,8 +3092,8 @@ If there are no optional arguments and the arity is just a natural
 number $n$, then $n$ is both the number of required arguments and the
 total number of arguments.
 
-Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} can
-be reorderable.  These arguments are indicated by argument indices that
+Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
+reorderable.  These arguments are indicated by argument indices that
 describe the positions the arguments can occur in.  Thus in the example
 the two arguments with index `\verb|2-3|' can each appear as either the
 2nd or 3rd argument.  In general,
@@ -3113,7 +3121,7 @@ all arguments that occur after the total number of arguments specified
 by the arity.  Here \verb|-REST-|
 is called the \key{rest argument index} of the root node, the arrow it labels
 is called the \key{rest argument arrow} of the root, 
-and the target of this arrow is called the \key{rest argument} of the
+and the target of this arrow is called the \key{rest argument}.
 The rest argument is not counted in the arity.
 
 \subsection{Call Nodes and the Call Check}
@@ -3121,7 +3129,7 @@ The rest argument is not counted in the arity.
 
 During expression evaluation (\ref{EXPRESSION-EVALUATION})
 the expression being evaluated is unified with a pattern in an expression
-definition.  The unification used for this purpose is a
+definition.  The unification used for this purpose is
 a variant called `call unification' (\ref{CALL-UNIFICATION}).
 
 Call unification treats graph nodes called `call nodes'
@@ -3133,7 +3141,8 @@ That is, it is the source of an arrow labeled
 replaces the node merge algorithm
 (page~\pageref{NODE-MERGE-ALGORITHM})
 with the call merge algorithm described below if one of the nodes
-being merged is a call node.
+being merged is a call node and the other is not a
+null node.
 
 The call merge algorithm performs a subalgorithm called
 the \key{call check algorithm} that checks whether a call node
@@ -3145,9 +3154,10 @@ algorithm if and only if the following are true:
 \item
 The arity of N is either a natural number $n$ (string of digits without
 high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
-are natural numbers and $m<n$.  In either case $m$ is called the
+are natural numbers and $m<n$.  In the second case $m$ is called the
 \key{minimum arity} of N and $n$ is called the
-\key{maximum arity} of N.
+\key{maximum arity} of N.  In the first case $n$ is both the minimum
+and the maximum arity of N.
 
 \item
 N has exactly one head arrow.
@@ -3223,19 +3233,19 @@ A \key{path name} is just a possibly empty sequence of words or separators.
 A \key{node label} is just any word or separator.
 
 A \key{witness} is a path name and a node label.
-We use `{\em path-name}: {\em node-label}' to name the witness.
+We use `{\em path-name}\,: {\em node-label}\,' to name the witness.
 A \mkey{witness}{of node} of a node S in an expression graph is a witness
 P:~L with path name P and node label L such that there is a path with source S,
 path name P, and target that has node label L.
 
-For example, consider the graph of
+For example, consider the expression graph of
 
 \begin{center}
-\verb|[sort x @@ with key weight @@ with comparator]|
+\verb|[sort x @@ with key weight @@ with comparator <]|
 \end{center}
 
-on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|{ROOT}|
-variable has `\verb|0|: \verb|sort|' as one of its witnesses and
+on page~\pageref{QUALIFIER-EXAMPLE}.  The root of this expression graph
+has `\verb|0|: \verb|sort|' as one of its witnesses and
 `\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
 actually two distinct paths corresponding to this second witness.
 
@@ -3278,16 +3288,19 @@ witnesses are the incompatible witnesses `\verb|1|:~\verb|fee|' and
 node that was not the source of any arrow with arrow label `\verb|1|'.
 
 It can be easily proved that if two expression graphs can be unified
-(\ref{PURE-UNIFICATION}) then any two nodes that are merged during
+by pure unification (\ref{PURE-UNIFICATION}),
+then any two nodes that are merged during
 unification are 1-witness compatible.  This is because
-step \ref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
+step \ref{UNIFICATION-AMBIGUITY-FAILURE} of the node merge algorithm
+(page~\pageref{NODE-MERGE-ALGORITHM})
 means that if the nodes have incompatible 1-witnesses then the nodes each
 source only one arrow with the witness arrow label and therefore
 the targets of these two arrows must merge which is forbidden by
 step \ref{UNIFICATION-LABEL-FAILURE}.
 
 It can even be proved that if two expression graphs can be unified
-(\ref{PURE-UNIFICATION}) then any two nodes that are merged during
+by pure unification (\ref{PURE-UNIFICATION}),
+then any two nodes that are merged during
 unification are witness compatible.  This is because
 if there are two incompatible witnesses of the two nodes, there
 would be two paths with the same path name,
@@ -3318,13 +3331,15 @@ qualifier argument that is simply a node with a label.
 
 \ikey{Call unification}{call unification}\index{unification!call}
 is a variant of pure unification (\ref{PURE-UNIFICATION}) that differs
-from pure unification when merging nodes that have qualifiers or that have
-optional, reorderable, or rest arguments.  Call unification is
-used in the inference algorithm (\ref{EVALUATION-ALGORITHM}).
+from pure unification when merging nodes one of which is a call node
+and the other of which is not a null node (node with no label that sources
+no arrows).  Call unification is
+used in the expression evaluation algorithm (\ref{EVALUATION-ALGORITHM}).
 
 Call unification is identical to pure unification (\ref{PURE-UNIFICATION})
 with two differences.  The first difference is that when one of two nodes
-being merged is a call node (\ref{CALL-NODES-AND-CHECK}), call unification
+being merged is a call node (\ref{CALL-NODES-AND-CHECK}), and the other
+node is not a null node, call unification
 replaces the node merge algorithm (page~\pageref{NODE-MERGE-ALGORITHM})
 with the call merge algorithm described below.
 
@@ -3334,7 +3349,7 @@ set of possible choices over the whole call unification algorithm
 leads to a separate algorithm execution that either succeeds or fails.
 
 The \key{call merge algorithm} for a merge pair (M,N) in the merge set,
-where either M or N or both is a call node,
+where either M or N or both is a call node, and neither is a null node,
 with a particular choice, is as follows.
 
 \begin{enumerate}
@@ -3358,7 +3373,7 @@ If \underline{both} M and N are of indeterminate arity,
 the unification algorithm fails.
 
 Otherwise, if just N is of indeterminate arity, switch M and N so that
-only N is of determinant arity.
+N is always of determinant arity.
 
 Later in this call merge algorithm M will be replaced by a forwarding
 pointer to N, and N will not be given any optional, rest, or reorderable
@@ -3374,7 +3389,7 @@ algorithm fails.
 \item
 For the rest of this algorithm,  let MT be the total number of arguments
 (page~\pageref{TOTAL-NUMBER-OF-ARGUMENTS})
-of M and NT be the total number of arguments of N
+of M and NT be the total number of arguments of N.
 
 \item
 If M has a rest argument R, then
@@ -3384,6 +3399,7 @@ I'th argument of N as its target.
 Note that before this is done R is a null node
 (step \ref{NULL-REST-ARGUMENT} of the call check algorithm on
 page~\pageref{NULL-REST-ARGUMENT}).
+If NT$\leq$MT, this step does nothing (R remains a null node).
 
 \item
 Choose an argument order assignment (page~\pageref{ARGUMENT-ORDER-ASSIGNMENT})
@@ -3395,7 +3411,7 @@ Let T be the minimum of MT and NT.
 For \verb|1|$\leq$I$\leq$T, let
 NI be the I'th argument of N,
 and add the merge pair (MI,NI) to the merge set.
-For T$<$I$\leq$NT (if T$<$NT), add an arrow labeled I from N to MI.
+For T$<$I$\leq$MT (if T$<$MT), add an arrow labeled I from N to MI.
 
 \item
 Let MH be the head of M and NH be the head of N.  Add a merge pair
@@ -3412,7 +3428,7 @@ of M, the unification algorithm fails.
 \item
 For each qualifier arrow MA of M whose target is 1-witness compatible with
 the target of exactly one qualifier arrow NA of N, let MQ be the target
-MA and NQ bet the target of NA.
+of MA and NQ be the target of NA.
 
 Then add (MQ,NQ) to the merge set.  Also, if NA is an optional
 qualifier arrow and MA is a required qualifier arrow, change
@@ -3423,7 +3439,7 @@ it a required qualifier arrow.
 For each qualifier arrow MA of M whose target is 1-witness compatible with
 the targets of no qualifier arrows N, let MQ be the target of MA,
 and make an arrow from N to MQ
-that has the same label as MA (\verb|-REQUIRED-QUALIFIER| or
+that has the same arrow label as MA (\verb|-REQUIRED-QUALIFIER| or
 \verb|-OPTIONAL-QUALIFIER-|).
 
 \item
@@ -3580,19 +3596,19 @@ implicit conversion
 &
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{2} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{z} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
     \begin{Gchild}{1}
 	\Gvariable{X} \\
 	\Glabel{foo}
     \end{Gchild} \\
-    \begin{Gsimplechild}{2}
+    \begin{Gsingle}{2}
 	\Gvariable{X} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \end{tabular}
 
@@ -3606,19 +3622,19 @@ explicit conversion
 &
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{2} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{z} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
     \begin{Gchild}{1}
 	\Gvariable{X} \\
 	\Glabel{foo}
     \end{Gchild} \\
-    \begin{Gsimplechild}{2}
+    \begin{Gsingle}{2}
 	\Glabel{X} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \end{tabular}
 
@@ -3632,18 +3648,18 @@ implicit conversion
 &
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsimplechild}{-ARITY-}
+    \begin{Gsingle}{-ARITY-}
 	\Glabel{2} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{0}
+    \end{Gsingle} \\
+    \begin{Gsingle}{0}
 	\Glabel{z} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{1}
+    \end{Gsingle} \\
+    \begin{Gsingle}{1}
 	\Gvariable{X} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2}
 	\Gvariable{X} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 ~~~
 \begin{Graph}
@@ -3677,38 +3693,84 @@ implicit conversion
 	\Gvariable{X} \\
 	\Glabel{\$5} \\
     \end{Gchild} \\
-    \begin{Gsimplechild}{fie}
+    \begin{Gsingle}{fie}
 	\Gvariable{X} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \hspace{0.1in}
 \begin{Graph}
     \Gdefault{X} \\
-    \begin{Gsimplechild}{1}
+    \begin{Gsingle}{1}
 	\Glabel{foe} \\
-    \end{Gsimplechild} \\
-    \begin{Gsimplechild}{2}
+    \end{Gsingle} \\
+    \begin{Gsingle}{2}
 	\Glabel{fum} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
 \end{Graph}
 \\
 ~\\
 \begin{Graph}
     \Gvariable{Y} \\
     \Gdefault{Y} \\
-    \begin{Gsimplechild}{1}
+    \begin{Gsingle}{1}
 	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-    \end{Gsimplechild} \\
+    \end{Gsingle} \\
     \begin{Gchild}{2}
-	\begin{Gsimplechild}{*}
+	\begin{Gsingle}{*}
 	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-	\end{Gsimplechild} \\
+	\end{Gsingle} \\
     \end{Gchild} \\
 \end{Graph}
 \end{tabular}
 
 \end{tabular}
 \end{indpar}
+
+\subsection{Expression Graph Implementation}
+\label{EXPRESSION-GRAPH-IMPLEMENTATION}
+
+In this section we give ideas that may or may not be used to
+implement PCASL expression graphs.
+
+PCASL may have a single memory of nodes and arrows that holds all expession
+graphs.  We will call this the expression graph memory.
+
+There may be at most one node in expression graph memory that has a given
+label L.  That is, all nodes labeled L, for a particular L, are the same
+node.
+
+Giving a null node a label L is then implemented by forwarding the null node
+to the node with label L.
+
+A frequent operation is copying expression graphs as part of expression
+evaluation (\ref{EVALUATION-ALGORITHM}).  To make this more efficient,
+an expression graph can be separated into two parts: an immutable part,
+and a mutable part.  The mutable part is just a vector of node references,
+one per node.  The immutable part is just a set of immutable nodes, with
+associated arrows, except that arrow targets which are not labeled nodes
+are indices of node cells in the mutable vector.  Thus there are now two
+kinds of nodes in memory: normal or mutable nodes, and immutable nodes,
+and the latter can only be pointed at by a node reference in a mutable
+vector, and in turn can only point at node references in that vector or
+at labeled nodes.
+
+Node references are like nodes that are always forwarded.  They
+can hold a pointer to an immutable node, or can hold a normal node forwarding
+pointer.  They can be pointed at by other nodes.  However, a pointer to
+a node reference must include a pointer to its containing mutable
+vector, as that vector is needed to interpret any immutable node that the
+node reference points at.
+
+The node reference vector for an expression graph also has a node
+reference for each expression graph variable value and
+for each existing variable default.
+
+During unification arrows are sometimes added to a node.  To make this
+more efficient, a node reference can also be permitted to hold a pointer
+to a structure that stores
+a pointer to an immutable node plus a list of extra arrows added to that
+node.  
+
 
 \section{Expression Evaluation}
 \label{EXPRESSION-EVALUATION}
