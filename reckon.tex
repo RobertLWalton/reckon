@@ -2199,17 +2199,24 @@ The expression is returned as the result of parsing the expression.
 
 Expression graphs store expressions.  An \key{expression graph}
 is a directed possibly cyclic graph with labels on all arrows and on some
-nodes, plus a set of graph node valued variables.  Labels and variable
-names must be single words or
-separators.  Labelled nodes cannot be the source of any arrow.
-Several arrows with the
-same source node may have the same arrow label.
+nodes, plus a set of graph node valued variables.
 
-There is
-always a variable named \ttkey{-ROOT-} that designates a graph node
-called the \mkey{root}{of expression graph} of the expression graph.
-All graph nodes are reachable from from the variable values, and
-usually all graph nodes are reachable from the root.
+Expression graph arrow and node labels 
+must be single words or separators.  Labelled nodes cannot be the source
+of any arrow.  Several arrows with the same source node may have the same
+arrow label.
+
+An expression graph variable has a name, a value, and a default.
+Variable names must be single words or separators.
+Both the value and the default are graph nodes.  The default may be
+missing.
+
+All graph nodes are reachable from from either the value or the default
+of some variable.
+
+There is always a variable named \ttkey{-ROOT-} whose value
+is a graph node called the \mkey{root}{of expression graph}
+of the expression graph.  The \verb|-ROOT-| variable does not have a default.
 
 If there is only one variable, \verb|-ROOT-|, and no node is the destination
 of more than one arrow, the graph is a tree.  In this case it is called
@@ -2222,7 +2229,7 @@ tree.
 
 There are several operations that convert expression trees into general
 expression graphs.  All these use a designated operator, which defaults
-to \ttkey{//}, to identify expression graph variables and their values.
+to \ttkey{///}, to identify expression graph variables and their values.
 The most commonly used conversion operation also uses the convention that
 words beginning with a capital letter designate
 expression graph variables.
@@ -2238,7 +2245,12 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
 
 \newcommand{\Glabel}[1]{\mbox{\tt #1}}
 \newcommand{\Gvariable}[1]{\fbox{\tt #1}}
-\newcommand{\Gdefault}[1]{\fbox{\fbox{\tt #1}}}
+\newsavebox{\Gfbox}
+\newcommand{\Gdefault}[1]{%
+    \sbox{\Gfbox}{\fbox{\tt #1}}%
+    {\setlength{\fboxsep}{0.01in}%
+     \fbox{\usebox{\Gfbox}}%
+    }}
 \newenvironment{Graph}%
     { \( \left[ \begin{array}{l}}%
     {\end{array} \right] \) }
@@ -2251,39 +2263,98 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
      \rule{0in}{0in} \vspace{-0.15in}
      \end{array}}
 
+\begin{center}
+\ttbrackets
+
 \begin{Graph}
     \Gvariable{-ROOT-} \\
-    \begin{Gchild}{foo}
-    \Gvariable{X} \\
-    \Glabel{fum} \\
+    \begin{Gchild}{fee}
+	\Gvariable{X} \\
+	\Glabel{\$5} \\
     \end{Gchild} \\
     \begin{Gchild}{fie}
-    \Gvariable{X} \\
+	\Gvariable{X} \\
     \end{Gchild} \\
 \end{Graph}
+\hspace{0.3in}
+\begin{Graph}
+    \Gdefault{X} \\
+    \begin{Gchild}{1}
+	\Glabel{foe} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{fum} \\
+    \end{Gchild} \\
+\end{Graph}
+\hspace{0.3in}
+\begin{Graph}
+    \Gvariable{Y} \\
+    \Gdefault{Y} \\
+    \begin{Gchild}{1}
+	\Gvariable{\{1\}} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\begin{Gchild}{*}
+	    \Gvariable{\{1\}} \\
+	\end{Gchild} \\
+    \end{Gchild} \\
+\end{Graph}
+
+
+\end{center}
 
 In this notation, the representation of a graph node is a set of lines
 enclosed in [] brackets.
 
-If the node is the value some variables,
-the names of those variables, each enclosed in a box, are the top
-lines of the representation.  Examples above are \Gvariable{-ROOT-} and
-\Gvariable{X}.  Two nodes with the same variable label in the representation
-are actually the same node in the graph, and among all nodes that are
-values of the same variable, all but one can only have variable names in
-its representation.
+If the node is the value or default of some variables,
+the names of those variables, each enclosed in a box or double box, are the top
+lines of the representation of the node.
+A variable name is boxed if the node is the value of
+a variable, and double boxed if the node is the default of the
+variable.
+In our example \Gvariable{-ROOT-}, \Gvariable{X}, and \Gvariable{Y}
+designate nodes that are variable values and
+\Gdefault{X} and \Gdefault{Y} designate nodes that are variable defaults.
+A single node can be the value or default of several variables: in the
+example one node is both the value and the default of \verb|Y|.
 
-If the node has a label, that is a line in the representation that is
-below any variable names, and there are no other lines in the representation.
-The only node label in the above example is \Glabel{fum}, which is a label
-on the node that is the value of the variable \verb|X|.
+The example expression graph has three variables, \verb|-ROOT-|, \verb|X|,
+and \verb|Y|.  While all nodes in the expression graph must be reachable
+from the value or default of some variable in the graph, all nodes
+need not be reachable from the value of \verb|-ROOT-|.  The above example
+is a single expression graph with three variables, and \underline{not}
+three expression graphs.
 
-If the node is the source of arrows in the directed graph,
-representations of each arrow appear below any variable names in the
+Two nodes with the same boxed variable name in their representation
+are actually the same node in the graph, and
+similarly two nodes with the same doubly boxed variable name in their
+representation are actually the same node in the graph.  When several
+nodes are the same in this sense, all but one of these must have only
+boxed or doubly boxed variable names in its representation.
+
+Sometimes it is necessary to indicate that two nodes are the same for
+a node that is not the value or default of any variable.
+This is done by creating an
+\key{expression graph pseudo-variable}\index{pseudo-variable!expression graph}
+whose name is a word or separator in curly brackets.  In the example,
+\verb|{1}| is such a pseudo-variable name.  Such pseudo-variable names
+are always boxed, and never double boxed.
+
+If a node has a label, that is the last line in the node's representation,
+and is
+immediately below any boxed or doubly boxed variable names.
+There are no other lines in the representation.
+In the above example, \Glabel{\$5} labels
+the node that is the value of the variable \verb|X|.
+
+If a node is the source of arrows in the directed graph,
+representations of each arrow appear below any boxed or doubly
+boxed variable names in the
 representation of the node.  Each arrow representation consists of the
 label of the arrow followed by a colon (:) followed by
 a representation of the target node of the arrow.  This later
 is of course surrounded by [] brackets.
+
 
 \subsection{Raw Expression Trees}
 \label{RAW-EXPRESSION-TREES}
@@ -2296,6 +2367,7 @@ Raw expressions represent expression trees.  For example, the expression
 
 represents the expression tree
 
+\begin{center}
 \begin{Graph}
     \Gvariable{-ROOT-} \\
     \begin{Gchild}{0}
@@ -2311,6 +2383,7 @@ represents the expression tree
 	\Glabel{z} \\
     \end{Gchild} \\
 \end{Graph}
+\end{center}
 
 The raw expression is represented by the root node of an expression tree.
 The raw expression head, \verb|max|, is represented by a node labeled
@@ -2330,6 +2403,7 @@ A second example is the expression
 
 is represented by the expression tree
 
+\begin{center}
 \begin{Graph}
     \Gvariable{-ROOT-} \\
     \begin{Gchild}{0}
@@ -2355,6 +2429,7 @@ is represented by the expression tree
 	\end{Gchild} \\
     \end{Gchild} \\
 \end{Graph}
+\end{center}
 
 Here each qualifier head (the two `\verb|with|'s) becomes a label
 for an arrow that points at a node representing the the qualifier clause
@@ -2362,8 +2437,9 @@ argument list.
 
 Note that qualifier heads become arrow labels, while expression heads
 become labels of nodes that are targets of arrows labeled `\verb|0|'.
-Later we will see that because of this expression heads can be
-expression graph variable values, but qualifier heads cannot be.
+Because expression heads are nodes, they can be
+expression graph variable values, but qualifier heads, which are
+arrow labels, cannot be variable values.
 
 Another example is the expression
 
@@ -2373,6 +2449,7 @@ Another example is the expression
 
 is represented by the expression tree
 
+\begin{center}
 \begin{Graph}
     \Gvariable{-ROOT-} \\
     \begin{Gchild}{0}
@@ -2394,11 +2471,56 @@ is represented by the expression tree
 	\Glabel{Runs}
     \end{Gchild} \\
 \end{Graph}
+\end{center}
 
 Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
 given the same argument index, in this case `\verb|2|'.  The argument
 after a \key{remainder mark} \ttkey{::>} is given the special argument index
 `\ttkey{*}'.
+
+The empty raw expression, `\verb|[]|', represents the expression tree which
+only has one unlabeled node and no arrows:
+
+\begin{center}
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+\end{Graph}
+\end{center}
+
+A raw expression that only has qualifier clauses can be used to
+represent an expression tree node that is not the source of an arrow
+labeled `\verb|0|'.  For example, the raw expression
+
+
+\begin{center}
+\verb|TBD|
+\end{center}
+
+is represented by the expression tree
+
+\begin{center}
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{0}
+	\Glabel{fill} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Glabel{Prefix} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{Matrix} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{Value}
+    \end{Gchild} \\
+    \begin{Gchild}{3}
+	\Glabel{Postfix}
+    \end{Gchild} \\
+    \begin{Gchild}{*}
+	\Glabel{Runs}
+    \end{Gchild} \\
+\end{Graph}
+\end{center}
 
 \subsection{Expression Graph Representation}
 \label{EXPRESSION-GRAPH-REPRESENTATION}
@@ -2410,24 +2532,25 @@ and expression graphs.
 There are two kinds of such conversions: explicit and implicit.
 In explicit conversion, all graph variable names in the expression trees
 are indicated by particular graph variable operations which
-by default are `\verb|//|' and `\verb|~~|'.
+by default are `\verb|///|' and `\verb|~~~|'.
 In implicit conversion, graph variable
 operations are used as in explicit conversion,
 but in addition all expression tree
 leaves that are words beginning with an upper case letter are treated
 as graph variable names, as if they were implicitly the single
-argument of a `\verb|//|' operation.
+argument of a `\verb|///|' operation.
 
 In this section we consider conversions between expression trees represented
 by raw expressions and expression graphs.  There are two
 \skey{graph variable operation}s
 involved: the \key{graph variable value operation}, which defaults to
-\ttkey{//}, and the \key{graph variable default operation}, which
-defaults to \verb|~~|\index{~~@{\tt \protect\Tilde\protect\Tilde}}.
+\ttkey{///}, and the \key{graph variable default operation}, which
+defaults to \verb|~~~|%
+\index{~~~@{\tt \protect\Tilde\protect\Tilde\protect\Tilde}}.
 In this section we will consider these
 two operations in the context of raw expressions, but in non-raw expresssions
-these operations are usually the postfix operator \verb|//|
-and high precedence infix operators \verb|//| and \verb|~~|.
+these operations are usually the postfix operator \verb|///|
+and high precedence infix operators \verb|///| and \verb|~~~|.
 The conversion operations can also be done with different names for
 the graph variable value and default operations.
 
@@ -2437,11 +2560,11 @@ to represent single nodes of an expression graph:
 \begin{indpar}
 \begin{list}{}{}
 
-\item[{\tt [//} {\em variable-name} {\em variable-value}{\tt]}]~\\
+\item[{\tt [///} {\em variable-name} {\em variable-value}{\tt]}]~\\
 Represents the node represented by {\em variable-value} and specifies that
 this node is the value of the named expression graph variable.
 
-\item[{\tt [//} {\em variable-name}{\tt]}]~\\
+\item[{\tt [///} {\em variable-name}{\tt]}]~\\
 Represents a node with no label that is not the source of any arrow,
 and specifies that
 this node is the value of the named expression graph variable.
@@ -2471,7 +2594,7 @@ expression graphs they convert to are as follows:
 \begin{indpar}
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 
-\verb|[z [// x] [// x]]|
+\verb|[z [/// x] [/// x]]|
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
@@ -2490,7 +2613,7 @@ expression graphs they convert to are as follows:
 \medskip
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
-\verb|[z [// x [+ 9 8]] [// x]]|
+\verb|[z [/// x [+ 9 8]] [/// x]]|
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
@@ -2519,7 +2642,7 @@ expression graphs they convert to are as follows:
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
-\verb|[z [// X foo] X]| \\
+\verb|[z [/// X foo] X]| \\
 implicit conversion
 \end{tabular}
 &
@@ -2542,7 +2665,7 @@ implicit conversion
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
-\verb|[z [// X foo] X]| \\
+\verb|[z [/// X foo] X]| \\
 explicit conversion
 \end{tabular}
 &
@@ -2565,7 +2688,7 @@ explicit conversion
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
-\verb|[z [~~ X foo] X]| \\
+\verb|[z [~~~ X foo] X]| \\
 implicit conversion
 \end{tabular}
 &
