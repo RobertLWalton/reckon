@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{August 29, 2003}
+\date{September 3, 2003}
  
 \maketitle
 
@@ -787,9 +787,9 @@ Primarly lexemes are defined as follows:
 	       		 $|$ {\em opening-quote}
 	       		 $|$ {\em opening-angle}
 	       		 \\[1ex]
-\key{closing-lexeme} ::=     \verb|(|
-	       		 $|$ \verb|[|
-	       		 $|$ \verb|{|
+\key{closing-lexeme} ::=     \verb|)|
+	       		 $|$ \verb|]|
+	       		 $|$ \verb|}|
 	       		 $|$ {\em closing-quote}
 	       		 $|$ {\em closing-angle}
 	       		 \\[1ex]
@@ -864,12 +864,10 @@ Two lexemes are said to be \mkey{matched}{lexemes} if and only if
 the are matched opening and closing lexemes.
 
 {\bf Lexeme Nesting Rule.}\index{Lexeme Nesting Rule}
-If an {\em opening-lexeme} $O$ is between a pair $P$ of matched lexemes,
-the {\em closing-lexeme} $C$ that matches $O$ must also be between $P$.
-
-If one pair $P_2$ of matching lexemes is between another pair $P_1$
-of matching lexemes, $P_2$ is said to be \mkey{nested}{lexemes} inside
-of $P_1$.
+If one lexeme in a pair $P_2$ of matching lexemes is in between the
+lexemes of another pair $P_1$ of matching lexemes, then both lexemes
+in $P_2$ must be in between the lexemes of $P_1$.  In this case
+$P_2$ is said to be \mkey{nested}{lexemes} inside of $P_1$.
 
 During the scan a character $C$ is said to be in the
 \mkey{context}{of matched lexemes} of a pair $P$ of matched lexemes
@@ -890,10 +888,12 @@ an {\em opening-character}, or a {\em format-separator-character}.
 Otherwise it is a {\em word-character}.
 
 {\bf Closing Quote Rule.}\index{Closing Quote Rule}
-An \key{closing-quote-character} must be part of a sequence of
-{\em closing-quote-characters} that is just long enough to be the
-matching lexeme for some previous {\em open-quote}.
-Otherwise it is a {\em word-character}.
+A \key{closing-quote-character} must be part of a sequence of
+{\em closing-quote-characters} that is of exactly the right length to be the
+matching lexeme for the last previous unmatched {\em opening-lexeme},
+which must be an {\em opening-quote}.
+Otherwise the potential {\em closing-quote-character}
+is a {\em word-character}.
 
 {\bf Format Separator Rule.}\index{Format Separator Rule}
 A {\em format-separator-character} must be in the context of
@@ -930,7 +930,7 @@ space between the \verb|``| and \verb|`| in the last example.
 Angle and Format Separator Examples:
 
 \begin{indpar}[0.1in]
-\begin{tabular}{@{}l@{\hspace*{0.3in}}l}
+\begin{tabular}{@{}l@{\hspace*{0.6in}}l}
 			& Primary Lexeme Sequence		\\
 Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \verb|x <= y |		& \tt x \verb|_| \verb|<=| \verb|_| y	\\
@@ -959,26 +959,123 @@ it are deleted.  Thus the lexeme has no {\em carriage-returns}.
 {\bf Horizontal Tab Rule.}\index{Horizontal Tab Rule}
 Each {\em horizontal-tab} is replace by {\em spaces} assuming that
 horizontal tab stops are set every 8 columns.
+Thus the lexeme has no {\em horizontal-tabs}.
 
 Note that these rules do \underline{not} alter the printed appearance
 of the {\em white-space} lexeme.
 
 After these rules are applied, a {\em white-space} lexeme consists of
 only of {\em vertical-space-characters} followed by {\em space} characters.
-Rules that relate to expression formation ensure that all
+{\em White-space} lexemes are only primary lexemes; they are deleted
+when primary lexemes are converted to lexemes.  The rules that
+form the lexeme sequence ensure that all
 {\em vertical-space} characters are equivalent: see \ref{TBD}.
 
 
 \subsection{Lexemes}
 
-The sequence of primiary lexemes is converted to a sequence of lexemes
+The sequence of primary lexemes is converted to a sequence of lexemes
 according to the following rules, which we will describe in the
 order given:
 
 \begin{indpar}[1in]
+Numbers \\
 Ambiguous Separators \\
 Indent Implied Lexemes
 \end{indpar}
+
+\subsubsection{Numbers}
+
+The rule for spliting a {\em primary-word} into a {\em word}
+and a {\em separator} makes reference to {\em words} that are
+{\em numbers}, saying that splitting is preferred if the {\em word}
+resulting from the split is a {\em number}.  The syntax equations
+for defining {\em numbers} are as follows.
+
+\begin{indpar}
+\key{number} ::= {\em real-number} $|$ {\em unit-number}
+				   $|$ {\em complex-number} \\[1ex]
+\key{real-number} ::= {\em unsigned-real-number} $|$ {\em signed-real-number}
+		      \\[1ex]
+\key{signed-real-number} ::= {\em sign} {\em unsigned-real-number} \\[1ex]
+\key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
+\key{unsigned-real-number} ::= {\em unsigned-decimal}
+		$|$ {\em unsigned-decimal} {\em exponent} \\[1ex]
+\key{unsigned-decimal} ::= {\em unsigned-integer}
+		$|$ {\em unsigned-integer} {\em fraction}
+		$|$ {\em fraction} \\[1ex]
+\key{fraction} ::= \verb|.| {\em unsigned-integer} \\[1ex]
+\key{unsigned-integer} ::= {\em integer-digits}
+		       $|$ {\em unsigned-integer} \verb|,| {\em integer-digits}
+		       \\[1ex]
+\key{integer-digits} ::= {\em integer-digit} {\em integer-digit}$^\star$
+			 \\[1ex]
+\key{integer-digit} ::= {\em digit}%
+			$|$\verb|A|%
+			$|$\verb|B|%
+			$|$\verb|C|%
+			$|$\verb|D|%
+			$|$\verb|E|%
+			$|$\verb|F|%
+			$|$\verb|a|%
+			$|$\verb|b|%
+			$|$\verb|c|%
+			$|$\verb|d|%
+			$|$\verb|e|%
+			$|$\verb|f|
+			\\[1ex]
+\key{exponent} ::= {\em radix-indicator}
+		$|$ {\em radix-indicator} {\em integer} \\[1ex]
+\key{radix-indicator} ::= {\em decimal-radix-indicator} \\[1ex]
+\key{radix-indicator} \begin{tabular}[t]{rl}
+		     ::= & {\em binary-radix-indicator} \\
+		     $|$ & {\em octal-radix-indicator} \\
+		     $|$ & {\em decimal-radix-indicator} \\
+		     $|$ & {\em hexadecimal-radix-indicator} \\
+		     \end{tabular} \\[1ex]
+\key{binary-radix-indicator} ::= \verb|B| $|$ \verb|b| \\[1ex]
+\key{octal-radix-indicator} ::= \verb|O| $|$ \verb|o| \\[1ex]
+\key{decimal-radix-indicator} ::= \verb|D| $|$ \verb|d|
+			      $|$ \verb|E| $|$ \verb|e| \\[1ex]
+\key{hexadecimal-radix-indicator} ::= \verb|X| $|$ \verb|x| \\[1ex]
+\key{integer} ::= {\em unsigned-integer} $|$ {\em signed-integer} \\[1ex]
+\key{signed-integer} ::= {\em sign} {\em unsigned-integer} \\[1ex]
+\key{unit-number} ::= {\em pre-unit} {\em real-number}
+		  $|$ {\em real-number} {\em post-unit} \\[1ex]
+\key{pre-unit} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
+\key{post-unit} ::= \verb|'| $|$ \verb|"| $|$ $^\circ$ \\[1ex]
+\key{complex-number} ::= {\em imaginary-number}
+		$|$ {\em real-number} {\em signed-imaginary-number} \\[1ex]
+\key{imaginary-number} ::= {\em unsigned-imaginary-number}
+		$|$ {\em signed-imaginary-number} \\[1ex]
+\key{signed-imaginary-number} ::=
+		{\em sign} {\em unsigned-imaginary-number} \\[1ex]
+\key{unsigned-imaginary-number} ::=
+		{\em unsigned-real-number} {\em imaginary-indicator} \\[1ex]
+\key{imaginary-indicator} ::=     \verb|I|
+			      $|$ \verb|i|
+			      $|$ \verb|J|
+			      $|$ \verb|j|
+\end{indpar}
+
+Some lexemes defined according to the above equations to be {\em numbers}
+are not in fact {\em numbers}.  To be a {\em number}, a lexeme must
+pass the following additional test:
+
+{\bf Number Digit Rule.}\index{Number Digit Rule}
+{\em Integer-digits} that are not {\em digits} are not permitted in a
+{\em number} unless a {\em hexadecimal-radix-indicator} is present
+in the {\em number}.
+
+Note that decimal points and commas in a {\em number}
+must be followed by a digit.
+Also, although the hexadecimal digits \verb|A|-\verb|F| will be prohibited
+from non-hexadecimal numbers, digits outside the range of the radix are
+not prohibited from binary or octal numbers.  Use of such digits will
+result in an erroneous lexeme,
+but would not be an error of lexeme formation.
+Similarly, incorrect numbers of digits between commas will result in an
+erroneous lexeme, but will not be an error of lexeme formation.
 
 \subsubsection{Ambiguous Separators}
 
@@ -989,8 +1086,7 @@ given below tells when to split a {\em primary-word} that ends with an
 ambiguous separator character into a {\em word} and a one character
 {\em separator}.  The rule makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
-resulting from the split is a {\em number} and the {\em separator}
-is a period.
+resulting from the split is a {\em number}.
 
 The formal definitions required are:
 
@@ -1006,46 +1102,7 @@ The formal definitions required are:
 			                $|$ \verb|.|
 					\\[1ex]
 \key{primary-word} ::= {\em word}
-		$|$ {\em word} {\em ambiguous-separator} \\[1ex]
-\key{number} ::= {\em real-number} $|$ {\em complex-number} \\[1ex]
-\key{real-number} ::= {\em unsigned-real-number} $|$ {\em signed-real-number}
-		      \\[1ex]
-\key{signed-real-number} ::= {\em sign} {\em unsigned-real-number} \\[1ex]
-\key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
-\key{unsigned-real-number} ::= {\em unsigned-decimal}
-		$|$ {\em unsigned-decimal} {\em exponent} \\[1ex]
-\key{unsigned-decimal} ::= {\em unsigned-integer}
-		$|$ {\em unsigned-integer} {\em fraction}
-		$|$ {\em fraction} \\[1ex]
-\key{fraction} ::= \verb|.| {\em unsigned-integer} \\[1ex]
-\key{unsigned-integer} ::= {\em digit} {\em digit}$^\star$ \\[1ex]
-\key{exponent} ::= {\em radix-indicator}
-		$|$ {\em radix-indicator} {\em integer} \\[1ex]
-\key{radix-indicator} ::=     \verb|E|
-			  $|$ \verb|e|
-			  $|$ \verb|D|
-			  $|$ \verb|d|
-			  $|$ \verb|X|
-			  $|$ \verb|x|
-			  $|$ \verb|O|
-			  $|$ \verb|o|
-			  $|$ \verb|B|
-			  $|$ \verb|b|
-			  \\[1ex]
-\key{integer} ::= {\em unsigned-integer} $|$ {\em signed-integer} \\[1ex]
-\key{signed-integer} ::= {\em sign} {\em unsigned-integer} \\[1ex]
-\key{complex-number} ::= {\em imaginary-number}
-		$|$ {\em real-number} {\em signed-imaginary-number} \\[1ex]
-\key{imaginary-number} ::= {\em unsigned-imaginary-number}
-		$|$ {\em signed-imaginary-number} \\[1ex]
-\key{signed-imaginary-number} ::=
-		{\em sign} {\em unsigned-imaginary-number} \\[1ex]
-\key{unsigned-imaginary-number} ::=
-		{\em unsigned-real-number} {\em imaginary-indicator} \\[1ex]
-\key{imaginary-indicator} ::=     \verb|I|
-			      $|$ \verb|i|
-			      $|$ \verb|J|
-			      $|$ \verb|j|
+		$|$ {\em word} {\em ambiguous-separator}
 \end{indpar}
 
 The following rule controls when to split a {\em primary-word}
