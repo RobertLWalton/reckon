@@ -1168,23 +1168,16 @@ The syntax equations defining {\em decimal-numbers} and
 		     \\[1ex]
 \key{decimal-digits} ::= {\em digit} {\em digit}$^\star$ \\[1ex]
 \key{decimal-ratio} ::= {\em decimal-natural} \verb|/|
-			{\em decimal-natural} \\[1ex]
-\key{exponent} ::= {\em exponent-indicator}
-		   {\em exponent-sign-and-digits} \\[1ex]
-\key{exponent-indicator} ::= \verb|e| $|$ \verb|E| $|$ \verb|^| \\[1ex]
-\key{exponent-sign-and-digits} ::= {\em decimal-digits}
-			    $|$ {\em sign} {\em decimal-digits}
+			{\em decimal-natural}
 \end{indpar}
 
-Real Decimal Number Examples:
+Decimal Number Examples:
 
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 123	& -123		& +123		& 1,234		& -1,234,567 \\
 123.0	& -.123		& +0.0		& +.000		& 1,234.987,654 \\
-123e0	& -123e+2	& +123e-321	& 1,234e9	& -0.123,456e-3 \\
-123E0	& -123E+2	& +123E-321	& -0.123,456e-3	& -1,234.567890	\\
 1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\
 1,2	& 1.86,54	& .123,45,6	& 1,2345678	& 1.2345678,92
 \end{tabular}
@@ -1216,13 +1209,16 @@ radices to the used instead of decimal.  In fact, other number representation
 schemes are permitted.
 
 \begin{indpar}
-\key{radix-number}::= {\em radix-indicator}
-		        \verb|`| {\em radix-number-mark}
-		        {\em radix-number-mark}$^\star$ \verb|'|
+\key{radix-number} ::= {\em unsigned-radix-number}
+		   $|$ {\em sign} {\em unsigned-radix-number} \\[1ex]
+\key{unsigned-radix-number}::= {\em radix-indicator}
+		        \verb|#| {\em radix-number-mark}
+		        {\em radix-number-mark}$^\star$ \verb|#|
 		        \\[1ex]
-\key{radix-indicator} ::= {\em letter} {\em letter}$^\star$ \\[1ex]
+\key{radix-indicator} ::= {\em letter} {\em letter-or-digit}$^\star$ \\[1ex]
+\key{letter-or-digit} ::= {\em letter} $|$ {\em digit} \\[1ex]
 \key{radix-number-mark} ::= {\em digit} $|$ {\em letter}
-                      $|$ \verb|.| $|$ \verb|,| $|$ {\em sign}
+                      $|$ \verb|.| $|$ \verb|,|
 \end{indpar}
 
 Radix Number Examples:
@@ -1231,9 +1227,12 @@ Radix Number Examples:
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 
-B'10110100'	& O'77534201'	& D'19758'	& X'FE8A932B' \\
-B'101101'e+2	& O'0.7753'e-5	& D'197.58'	& X'0.FE8A932B' \\
-B'10,1101'	& O'12,3456'e-5	& D'0.123,5'	& X'FE8A,932B.7CCD,83' \\
+B\verb|#|10110100\verb|#|	& O\verb|#|77534201\verb|#|
+	& D\verb|#|19758\verb|#|	& X\verb|#|FE8A932B\verb|#| \\
+B\verb|#|101101\verb|#|		& O\verb|#|0.7753\verb|#|
+	& D\verb|#|197.58\verb|#|	& X\verb|#|0.FE8A932B\verb|#| \\
+B\verb|#|10,1101\verb|#|	& O\verb|#|12,3456\verb|#|
+	& D\verb|#|0.123,5\verb|#|	& X\verb|#|FE8A,932B.7CCD,83\verb|#| \\
 \end{tabular}
 \end{indpar}
 
@@ -1291,6 +1290,38 @@ If the denominator equals zero, the ratio is still a legal lexeme, but
 will cause an error when it is interpreted as a number.
 \verb|-53/000| is an example.
 
+\subsubsection{Scientific Numbers}
+\label{SCIENTIFIC-NUMBERS}
+
+A {\em scientific-number} is a {\em decimal-number} or a {\em radix-number}
+followed by an exponent.
+
+\begin{indpar}
+\key{scientific-number} \begin{tabular}[t]{rl}
+                        ::= & {\em decimal-number} {\em exponent} \\
+			$|$ & {\em radix-number} {\em exponent}
+		        \end{tabular} \\[1ex]
+\key{exponent} ::= {\em exponent-indicator}
+		   {\em exponent-sign-and-digits} \\[1ex]
+\key{exponent-indicator} ::= \verb|e| $|$ \verb|E| $|$ \verb|^| \\[1ex]
+\key{exponent-sign-and-digits} ::= {\em decimal-digits}
+			    $|$ {\em sign} {\em decimal-digits}
+\end{indpar}
+
+Scientific Number Examples:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+123e0	& -123e+2	& +123e-321	& 1,234e9 \\
+123E0	& -123E+2	& +123E-321	& -0.123,456e-3	\\
+123\verb|^|0 & -123\verb|^|+2 & -0.123,456e-3 & -1,234.567890\verb|^|6 \\
+X\verb|#|A\verb|#|e0 	& B\verb|#|1011\verb|#|e-3
+	& O\verb|#|0.7753\verb|#|e-5
+	& X\verb|#|0.FE8,A93,2BE\verb|#|\verb|^|+5 \\
+\end{tabular}
+\end{indpar}
+
 \subsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
 
@@ -1336,6 +1367,9 @@ Unit Number		& Lexeme Sequence	\\[1ex]
 \tt X'BE63'e-2$^\circ$	& \tt X'BE63'e-2~~$^\circ$
 \end{tabular}
 \end{indpar}
+
+\subsubsection{Complex Numbers}
+\label{COMPLEX-NUMBERS}
 
 An {\em imaginary-number} is just a {\em real-number} with an
 {\em imaginary-indicator}, e.g.~\verb|i|, post-fixed.  A
