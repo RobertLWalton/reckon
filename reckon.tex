@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 9, 2003}
+\date{December 12, 2003}
  
 \maketitle
 
@@ -1530,9 +1530,9 @@ expression definition that represents the list of remainding arguments in a use
 of the definition, as in the expression `\verb|max ::> ARGS|'
 where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
-The \key{qualifier mark} (\ttkey{@@@}) signals that the following
+The \key{qualifier mark} (\ttkey{@@}) signals that the following
 expression item is a qualifier, as in the expression
-`\verb|sort x @@@ ascending|',
+`\verb|sort x @@ ascending|',
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|,
 \verb|ascending|) in an expression.
 
@@ -1550,7 +1550,7 @@ or certain matching lexemes.  A \key{raw expression}
 is a particular kind of expression that will not be
 restructured.  The only special marks that may be in a raw expression
 are the reorder mark (\verb|<:>|), the remainder mark (\verb|::>|),
-and the qualifier mark (\verb|@@@|).
+and the qualifier mark (\verb|@@|).
 Translating
 an expression into a raw expression is called \key{parsing}.
 
@@ -1562,17 +1562,17 @@ An informal summary of some of these is:
 Brackets   & Turns Off			& Turns On \\[1ex]
 
 \verb|[]|  & operators, qualifiers, \verb/|/, text
-					& \verb|<:>|, \verb|::>|, \verb|@@@| \\
+					& \verb|<:>|, \verb|::>|, \verb|@@| \\
 \verb|[< >]|  & \verb/|/, text		& operators, qualifiers,
-					  \verb|<:>|, \verb|::>|, \verb|@@@| \\
+					  \verb|<:>|, \verb|::>|, \verb|@@| \\
 \verb|()|  & nothing			& nothing \\
 \verb|{}|  & eval, \verb/|/, text	& operators, qualifiers,
-					  \verb|<:>|, \verb|::>|, \verb|@@@| \\
+					  \verb|<:>|, \verb|::>|, \verb|@@| \\
 \verb|<<>>|  & \verb/|/, text		& eval, operators, qualifiers,
-					  \verb|<:>|, \verb|::>|, \verb|@@@| \\
+					  \verb|<:>|, \verb|::>|, \verb|@@| \\
 \verb|`'|  & eval, operators, qualifiers,
 					& \verb/|/, text \\
-	   & \verb|<:>|, \verb|::>|, \verb|@@@|
+	   & \verb|<:>|, \verb|::>|, \verb|@@|
 \end{tabular}
 \end{center}
 
@@ -1585,7 +1585,7 @@ of a \key{parsing parser stack} and a \key{parsing definition stack}.
 There are three standard \ikey{parsers}{parser!standard}:
 the \key{marks parser} \ttkey{-MARKS-PARSER-},
 where only the reorder mark (\verb|<:>|),
-remainder mark (\verb|::>|), and the qualifier mark (\verb|@@@|) are recognized,
+remainder mark (\verb|::>|), and the qualifier mark (\verb|@@|) are recognized,
 the \key{operators parser} \ttkey{-OPERATORS-PARSER-},
 where these marks
 are recognized along with operators and qualifiers,
@@ -1614,10 +1614,10 @@ as recognized by the operators parser,
 can cause major restructuring of an expression,
 as when \verb|x + y - 5 * z| is restructured as \verb|[- [+ x y] [* 5 z]]|,
 and qualifiers, also recognized by the operators parser,
-can cause qualifier marks (\verb|@@@|) to be inserted, as when
+can cause qualifier marks (\verb|@@|) to be inserted, as when
 \verb|sort x| \verb|ascending|
 is restructured as
-\verb|[sort x @@@ ascending]|.
+\verb|[sort x @@ ascending]|.
 
 In expressions that cannot contain operators
 or qualifiers, words and separators that would be recognized as operators
@@ -1654,7 +1654,7 @@ qualifiers, or text parsing contexts that induce restructuring.
 Also, all raw expressions must begin with a word or separator.
 Raw expressions can be directly represented using the \verb|[]|
 matching lexemes and the \verb|<:>| reorder, \verb|::>| remainder, and 
-\verb|@@@| qualifier marks.
+\verb|@@| qualifier marks.
 
 When an expression is parsed, the output is a raw expression.
 The following are examples, all of which are assumed to
@@ -1703,7 +1703,7 @@ The syntax of raw expressions is defined as follows:
 	{\em empty} $|$ \verb|::>| {\em raw-argument} \\[1ex]
 \key{raw-argument} ::= {\em raw-expression} \\[1ex]
 \key{raw-qualifier-phrase} ::=
-	\verb|@@@| {\em raw-qualifier-head} {\em raw-argument-list} \\[1ex]
+	\verb|@@| {\em raw-qualifier-head} {\em raw-argument-list} \\[1ex]
 \key{raw-qualifier-head} ::= {\em word} $|$ {\em separator}
 \end{indpar}
 
@@ -1876,13 +1876,13 @@ The following are standard parsers:
 The \key{operators parser} \ttkey{-OPERATORS-PARSER-}.
 Operators, qualifiers, and the
 \verb|<:>| reorder, \verb|::>| remainder, and
-\verb|@@@| qualifier marks are recognized.  The special constructs
+\verb|@@| qualifier marks are recognized.  The special constructs
 of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
 The \key{marks parser} \ttkey{-MARKS-PARSER-}.
 The \verb|<:>| reorder, \verb|::>| remainder, and
-\verb|@@@| qualifier marks are recognized.  Operators, qualifiers,
+\verb|@@| qualifier marks are recognized.  Operators, qualifiers,
 and the special constructs
 of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
@@ -1891,7 +1891,7 @@ The \key{text parser} \ttkey{-TEXT-PARSER-}.
 The special constructs of text parsing (\ref{TEXT-PARSING}) are
 recognized.  Operators, qualifiers, and
 the \verb|<:>| reorder, \verb|::>| remainder, and
-\verb|@@@| qualifier marks are \underline{not} recognized.
+\verb|@@| qualifier marks are \underline{not} recognized.
 
 \end{indpar}
 
@@ -2229,7 +2229,7 @@ tree.
 
 There are several operations that convert expression trees into general
 expression graphs.  All these use a designated operator, which defaults
-to \ttkey{///}, to identify expression graph variables and their values.
+to \ttkey{//}, to identify expression graph variables and their values.
 The most commonly used conversion operation also uses the convention that
 words beginning with a capital letter designate
 expression graph variables.
@@ -2355,6 +2355,141 @@ label of the arrow followed by a colon (:) followed by
 a representation of the target node of the arrow.  This later
 is of course surrounded by [] brackets.
 
+\subsection{Expression Graph Unification}
+\label{UNIFICATION}
+
+Informally, expression graphs may be thought of
+as expressions of information, and the unification of
+two expression graphs is then an expression graph whose information content
+is the least upper bound of the information content of each of
+the two graphs taken separately.
+
+PCASL uses expression graph unification to represent expression
+graphs (\ref{EXPRESSION-GRAPH-REPRESENTATION}).
+PCASL also employs a modification of the unification operation
+called the matching operation (\ref{MATCHING}).
+
+Unification of two expression graphs
+either succeeds and produces a unique expression
+graph as its result, or fails and produces no result.  Unification
+fails if any graph being unified has a node that is the source of
+two or more arrows with the same arrow label.
+
+If X and Y are expression graphs then their unification, Z,
+is computed by the following \key{unification algorithm}.
+This algorithm assumes that all expression graphs are stored in
+a common graph memory that contains nodes and arrows, but
+each expression graph has its own distinct set of variables.
+
+\begin{enumerate}
+
+\item
+X is replaced by a copy of X, and Y is replaced by a copy
+of Y.  Each copy has nodes,
+arrows, and variables that are distinct from those
+of any other expression graph.  
+
+\item
+The set of nodes and arrows of Z is initialized to the union
+of the sets of nodes and arrows of X and Y.  Note that since
+X and Y are now copies of the original, the nodes and arrows
+of X and Y are all now distinct.
+
+\item
+There is a set called the \key{merge set}
+of node pairs called \skey{merge pair}s that is
+used by the algorithm.  This is initialized to the empty set.
+
+\item
+The set of variables of Z is initialized to the set of
+variables in X.
+
+\item
+Each variable V in Y is added to the variable set of Z using
+the following method.  If V is not already in the variable set of Z,
+it is simply added to that set.  If V is already in the set,
+let V in the variable set of Z have value XV and default XD
+(because V must have come from X),
+and let V in the variable set of Y have value YV and default YD,
+where XD and/or YD may be missing.  Then add the merge pair (XV,YV)
+to the merge set.  If YD is not missing but XD is missing,
+set the default of V in the variable set of Z to equal YD.  If
+neither YD or XD is missing, add the merge pair (XD,YD) to the merge set.
+
+\item
+For each merge pair (M,N) in the merge set,
+perform the following \key{pair merge algorithm}.
+Do this recursively until the merge set is empty.
+
+\begin{enumerate}
+
+\item
+Remove (M,N) from the merge set.
+
+\item
+If M and N are the same node, terminate the pair merge algorithm.
+
+\item
+If M and N are labeled nodes with different labels, the merge
+algorithm fails.
+
+\item
+If either M or N is a labeled node and the other node is the
+source of some arrows, the merge algorithm fails.
+
+\item
+If either M or N is a node that is the source of two or more arrows
+with the same label, the merge algorithm fails.
+
+\item
+Replace M by a forwarding pointer that points at N.
+This means that henceforth any attempt to reference M will be forwarded
+to N, so M is effectively merged with N.
+
+\item
+If M is a labeled node with label L, and N is unlabeled, label N with L.
+
+\item
+For every arrow sourced at M do the following.
+Let the arrow be labeled L and point at target node MT.
+If N is not the source of an arrow labeled L,
+make a new arrow labeled L pointing from N to MT.
+But if N is the source of an arrow labelled L with target NT, add the
+merge pair (MT,NT) to the merge set.
+
+\end{enumerate}
+
+\end{enumerate}
+
+Note that the running time of the unification algorithm is bounded by
+
+\[
+\begin{array}{c}
+T_1(\mbox{number of variables in X} + \mbox{number of variables in Y}) \\
++ \\
+T_2(\mbox{number of nodes in X} + \mbox{number of nodes in Y}) \\
+\times \\
+(\mbox{number of distinct arrow labels in either X or Y})^2
+\end{array}
+\]
+
+where $T_1$ and $T_2$ are small constant times (typically a few microseconds).
+The total number of nodes in X and Y bounds the number of pair merge
+operations, and the
+last factor bounds the time to form the union of the arrow labels of
+any two nodes that are being merged.  The bound just given is typically
+a substantial overestimate, and can be improved to:
+
+\[
+\begin{array}{c}
+T_1(\mbox{number of variables in X} + \mbox{number of variables in Y}) \\
++ \\
+T_2(\mbox{number of nodes in X} + \mbox{number of nodes in Y}
+				- \mbox{number of nodes in Z}) \\
+\times \\
+(\mbox{maximum number of arrows sourced at any one node in Z})^2
+\end{array}
+\]
 
 \subsection{Raw Expression Trees}
 \label{RAW-EXPRESSION-TREES}
@@ -2370,6 +2505,9 @@ represents the expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{3} \\
+    \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{max} \\
     \end{Gchild} \\
@@ -2386,7 +2524,7 @@ represents the expression tree
 \end{center}
 
 The raw expression is represented by the root node of an expression tree.
-The raw expression head, \verb|max|, is represented by a node labeled
+The raw expression head, `\verb|max|', is represented by a node labeled
 `\verb|max|' that is the target of an arrow labeled `\verb|0|' from the root.
 Here `\verb|0|' is called the \key{head index} of the root node, and is
 always the label on an arrow leading to a raw expression head.
@@ -2394,11 +2532,13 @@ The three arguments become targets of arrows from the root labeled
 with the \ikey{argument indices}{argument index}
 `\verb|1|', `\verb|2|', `\verb|3|'.  Each argument in this case is a single
 word, and is represented by a node labeled with that word.
+An arrow labeled `\ttkey{-ARITY-}' is added to the root node to point
+at a node labeled with the number of arguments in the raw expression.
 
 A second example is the expression
 
 \begin{center}
-\verb|[sort x @@@ with key weight @@@ with comparator <]|
+\verb|[sort x @@ with key weight @@ with comparator <]|
 \end{center}
 
 is represented by the expression tree
@@ -2406,13 +2546,22 @@ is represented by the expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{1} \\
+    \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{sort} \\
     \end{Gchild} \\
     \begin{Gchild}{1}
 	\Glabel{x} \\
     \end{Gchild} \\
-    \begin{Gchild}{with}
+    \begin{Gchild}{-QUALIFIER-}
+	\begin{Gchild}{-ARITY-}
+	    \Glabel{2}
+	\end{Gchild} \\
+	\begin{Gchild}{0}
+	    \Glabel{with}
+	\end{Gchild} \\
 	\begin{Gchild}{1}
 	    \Glabel{key}
 	\end{Gchild} \\
@@ -2420,7 +2569,13 @@ is represented by the expression tree
 	    \Glabel{weight}
 	\end{Gchild} \\
     \end{Gchild} \\
-    \begin{Gchild}{with}
+    \begin{Gchild}{-QUALIFITER-}
+	\begin{Gchild}{-ARITY-}
+	    \Glabel{2}
+	\end{Gchild} \\
+	\begin{Gchild}{0}
+	    \Glabel{with}
+	\end{Gchild} \\
 	\begin{Gchild}{1}
 	    \Glabel{comparator}
 	\end{Gchild} \\
@@ -2431,15 +2586,11 @@ is represented by the expression tree
 \end{Graph}
 \end{center}
 
-Here each qualifier head (the two `\verb|with|'s) becomes a label
-for an arrow that points at a node representing the the qualifier clause
-argument list.
-
-Note that qualifier heads become arrow labels, while expression heads
-become labels of nodes that are targets of arrows labeled `\verb|0|'.
-Because expression heads are nodes, they can be
-expression graph variable values, but qualifier heads, which are
-arrow labels, cannot be variable values.
+Here each qualifier becomes node that is the target of an arrow labeled
+`\ttkey{-QUALIFIER-}'.  The qualifier node has the arrows with the same
+labels as the root node: an arrow labeled `\verb|0|' for the
+qualifier head, arrows labeled `\verb|1|', `\verb|2|', etc. for the
+arguments, and an arrow labeled `\verb|-ARITY-|' for the number of arguments.
 
 Another example is the expression
 
@@ -2452,107 +2603,92 @@ is represented by the expression tree
 \begin{center}
 \begin{Graph}
     \Gvariable{-ROOT-} \\
+    \begin{Gchild}{-ARITY-}
+	\Glabel{4} \\
+    \end{Gchild} \\
     \begin{Gchild}{0}
 	\Glabel{fill} \\
     \end{Gchild} \\
     \begin{Gchild}{1}
 	\Glabel{Prefix} \\
     \end{Gchild} \\
-    \begin{Gchild}{2}
+    \begin{Gchild}{2-3}
 	\Glabel{Matrix} \\
     \end{Gchild} \\
-    \begin{Gchild}{2}
+    \begin{Gchild}{2-3}
 	\Glabel{Value}
     \end{Gchild} \\
-    \begin{Gchild}{3}
+    \begin{Gchild}{4}
 	\Glabel{Postfix}
     \end{Gchild} \\
-    \begin{Gchild}{*}
+    \begin{Gchild}{-REST-}
 	\Glabel{Runs}
     \end{Gchild} \\
 \end{Graph}
 \end{center}
 
 Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
-given the same argument index, in this case `\verb|2|'.  The argument
-after a \key{remainder mark} \ttkey{::>} is given the special argument index
-`\ttkey{*}'.
+given the an argument index that is actually a range of the form
+`$m$\verb|-|$n$', where $m$ is the number of the first of the consecutive
+arguments and $n$ is the number of the last.  Thus in our example, arguments
+2 and 3 are consecutive arguments separated by \verb|<:>|, so
+they both get the argument index `\verb|2-3|'.
 
-The empty raw expression, `\verb|[]|', represents the expression tree which
-only has one unlabeled node and no arrows:
-
-\begin{center}
-\begin{Graph}
-    \Gvariable{-ROOT-} \\
-\end{Graph}
-\end{center}
-
-A raw expression that only has qualifier clauses can be used to
-represent an expression tree node that is not the source of an arrow
-labeled `\verb|0|'.  For example, the raw expression
-
-
-\begin{center}
-\verb|TBD|
-\end{center}
-
-is represented by the expression tree
-
-\begin{center}
-\begin{Graph}
-    \Gvariable{-ROOT-} \\
-    \begin{Gchild}{0}
-	\Glabel{fill} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
-	\Glabel{Prefix} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
-	\Glabel{Matrix} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
-	\Glabel{Value}
-    \end{Gchild} \\
-    \begin{Gchild}{3}
-	\Glabel{Postfix}
-    \end{Gchild} \\
-    \begin{Gchild}{*}
-	\Glabel{Runs}
-    \end{Gchild} \\
-\end{Graph}
-\end{center}
+The argument after a \key{remainder mark} \ttkey{::>} is
+given the special argument index `\ttkey{-REST-}'.  This argument
+is not counted in the `\verb|-ARITY-|'.
 
 \subsection{Expression Graph Representation}
 \label{EXPRESSION-GRAPH-REPRESENTATION}
 
-Expression trees can be used to represent expression graphs.  This is
-done by defining conversions between expression trees
-and expression graphs.
+Raw expressions can be used to represent expression graphs.  This is
+done by defining conversions between expression trees that correspond
+directly to raw expressions and arbitrary expression graphs.
 
 There are two kinds of such conversions: explicit and implicit.
 In explicit conversion, all graph variable names in the expression trees
 are indicated by particular graph variable operations which
-by default are `\verb|///|' and `\verb|~~~|'.
+by default are `\verb|//|' and `\verb|~~|'.
 In implicit conversion, graph variable
 operations are used as in explicit conversion,
 but in addition all expression tree
 leaves that are words beginning with an upper case letter are treated
 as graph variable names, as if they were implicitly the single
-argument of a `\verb|///|' operation.
+argument of a `\verb|//|' operation.  Thus `\verb|Fie|' is
+treated as if it were `\verb|[// Fee]|'.
 
 In this section we consider conversions between expression trees represented
 by raw expressions and expression graphs.  There are two
 \skey{graph variable operation}s
-involved: the \key{graph variable value operation}, which defaults to
-\ttkey{///}, and the \key{graph variable default operation}, which
-defaults to \verb|~~~|%
-\index{~~~@{\tt \protect\Tilde\protect\Tilde\protect\Tilde}}.
+involved: the \key{graph variable value operation},%
+\index{value operation!graph variable}
+which defaults to
+\ttkey{//}, and the \key{graph variable default operation},%
+\index{default operation!graph variable}
+which defaults to \verb|~~|%
+\index{~~@{\tt \protect\Tilde\protect\Tilde}}.
 In this section we will consider these
 two operations in the context of raw expressions, but in non-raw expresssions
-these operations are usually the postfix operator \verb|///|
-and high precedence infix operators \verb|///| and \verb|~~~|.
-The conversion operations can also be done with different names for
-the graph variable value and default operations.
+these operations are usually the postfix operator \verb|//|
+and high precedence infix operators \verb|//| and \verb|~~|.
+
+In addition to the graph variable operations, there are two other
+\skey{graph operation}s.  The \key{graph parent operation},%
+\index{parent operation!graph}
+which defaults to \ttkey{\#\#\#\#},
+is used to specify graph nodes that are the source of arrows
+with labels that are not head or argument indices.
+The \key{graph concatenation operation},%
+\index{concatenation operation!graph}
+which defaults to \ttkey{++++},
+is used to combine graphs by removing the \verb|-ROOT-| variable
+from all but the first and unifying (\ref{UNIFICATION}) the resulting
+graphs.  This operation may be needed to produce graphs that have disjoint
+components.
+
+We have given default names for the three graph operations, but
+conversions can optionally be done using different names for these
+operations.  In the rest of this document we use the default names.
 
 Using raw expression notation, the following subexpressions are used
 to represent single nodes of an expression graph:
@@ -2560,11 +2696,11 @@ to represent single nodes of an expression graph:
 \begin{indpar}
 \begin{list}{}{}
 
-\item[{\tt [///} {\em variable-name} {\em variable-value}{\tt]}]~\\
+\item[{\tt [//} {\em variable-name} {\em variable-value}{\tt]}]~\\
 Represents the node represented by {\em variable-value} and specifies that
 this node is the value of the named expression graph variable.
 
-\item[{\tt [///} {\em variable-name}{\tt]}]~\\
+\item[{\tt [//} {\em variable-name}{\tt]}]~\\
 Represents a node with no label that is not the source of any arrow,
 and specifies that
 this node is the value of the named expression graph variable.
@@ -2579,14 +2715,32 @@ specifies that this node is the value of the named expression graph variable,
 and specifies that the default of the expression graph variable is
 the node represented by {\em variable-default}.
 
+\item[{\tt [\#\#\#\#}
+      \{ {\em arrow-label} {\em target-value} \}$^\star${\tt]}]~\\
+Represents an unlabeled node that is the source of arrows labeled with
+the {\em arrow-labels}.  The target of each arrow is represented by
+the {\em target-value} raw expression that follows the arrow's
+{\em arrow-label}.
+
+\item[{\tt [++++}
+      {\em expression-graph} {\em expression-graph}$^\star${\tt]}]~\\
+Represents the combination of the {\em expression-graphs}.  The
+\verb|-ROOT-| variable is deleted from all {\em expression-graphs} but the
+first, and the resulting expression graphs are unified: (\ref{UNIFICATION}).
+It is an error if the unification does not produce a unique result.
+
 \end{list}
 \end{indpar}
 
 It is possible for several subexpressions of the above form to mention the
 same graph variable.  If this happens, all these subexpressions represent the
-same node, and at most one of these subexpressions may have either a value
-or default for the variable.  That is, at most one of these subexpressions
-may have a second argument.
+same node, and the graph variable may be given several values or several
+defaults.  If a variable is given several values, these values
+are unified (\ref{UNIFICATION} to produce a single variable value, and if 
+a variable is given several defaults, these are unified to produce a
+single default.  It is an error if any of these value or default
+unifications produces does
+not produce a single unified value or default.
 
 Some examples of expression trees represented by raw expressions and the
 expression graphs they convert to are as follows:
@@ -2594,7 +2748,7 @@ expression graphs they convert to are as follows:
 \begin{indpar}
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 
-\verb|[z [/// x] [/// x]]|
+\verb|[z [// x] [// x]]|
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
@@ -2613,7 +2767,7 @@ expression graphs they convert to are as follows:
 \medskip
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
-\verb|[z [/// x [+ 9 8]] [/// x]]|
+\verb|[z [// x [+ 9 8]] [// x]]|
 &
 \begin{Graph}
     \Gvariable{-ROOT-} \\
@@ -2642,7 +2796,7 @@ expression graphs they convert to are as follows:
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
-\verb|[z [/// X foo] X]| \\
+\verb|[z [// X foo] X]| \\
 implicit conversion
 \end{tabular}
 &
@@ -2665,7 +2819,7 @@ implicit conversion
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
-\verb|[z [/// X foo] X]| \\
+\verb|[z [// X foo] X]| \\
 explicit conversion
 \end{tabular}
 &
@@ -2688,7 +2842,7 @@ explicit conversion
 
 \begin{tabular}{p{2.5in}@{~~~~~}l}
 \begin{tabular}{l}
-\verb|[z [~~~ X foo] X]| \\
+\verb|[z [~~ X foo] X]| \\
 implicit conversion
 \end{tabular}
 &
