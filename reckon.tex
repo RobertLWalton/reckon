@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 5, 2003}
+\date{November 8, 2003}
  
 \maketitle
 
@@ -1487,61 +1487,64 @@ The {\em opening-mark} lexeme that begins a subexpression
 must match (\ref{MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
-\subsection{Expression Structure Overview}
-\label{EXPRESSION-STRUCTURE-OVERVIEW}
+\subsection{Expression Structure}
+\label{EXPRESSION-STRUCTURE}
 
 Expression structure is affected by two special marks.
-The reorder mark (\verb|<=>|) separates arguments that can be
-reordered, as in \verb|element LIST <=> INDEX|.
-The qualifier mark (\verb|@@@|) signals that the following
-expression item is a qualifier, as in \verb|sort x @@@ ascending|.
-Expressions will be restructured if they contain operators (e.g.,
+The \key{reorder mark} (\ttkey{<=>}) separates arguments that can be
+reordered, as in \verb|element LIST <=> INDEX|, and is used in
+expression definitions.
+The \key{qualifier mark} (\ttkey{@@@}) signals that the following
+expression item is a qualifier, as in \verb|sort x @@@ ascending|,
+and is implied by qualifiers (e.g. \verb|with|, \verb|has|,
+\verb|ascending|) in an expression.
+Expressions are restructured if they contain operators (e.g.,
 \verb|+|,
 \verb|-|,
 \verb|*|,
-\verb|.|) or
-qualifiers (e.g.,
-\verb|with|,
-\verb|has|,
-\verb|ascending|).
+\verb|/|).
 
 There are several different types of matching lexemes
-that are used to bracket subexpressions.  The following informal guide may
-help:
+that are used to bracket subexpressions:
 
 \begin{center}
 \begin{tabular}{lll}
 Brackets   & Turns Off			& Turns On \\[1ex]
 
-\verb|[]|  & eval, operators, qualifiers, \verb/|/, text
+\verb|[]|  & operators, qualifiers, \verb/|/, text
 					& \verb|<=>|, \verb|@@@| \\
-\verb|`'|  & eval, operators, qualifiers, \verb|<=>|, \verb|@@@|
-					& \verb/|/, text \\
 \verb|()|  & nothing			& nothing \\
 \verb|{}|  & eval, \verb/|/, text	& operators, qualifiers,
 					  \verb|<=>|, \verb|@@@| \\
 \verb|<<>>|  & \verb/|/, text		& eval, operators, qualifiers,
 					  \verb|<=>|, \verb|@@@| \\
+\verb|`'|  & eval, operators, qualifiers, \verb|<=>|, \verb|@@@|
+					& \verb/|/, text \\
 \end{tabular}
 \end{center}
 
-From the parsing point of view there are three kinds of contexts:
+There are three kinds of \skey{parsing context}s:
 one where only the reorder mark (\verb|<=>|)
 and the qualifier mark (\verb|@@@|) are recognized, one where these
 are recognized along with operators and qualifiers,
 and one where only the format-separator (\verb/|/) is recognized.
+A left matching lexeme may change the parsing context by `turning on'
+a new kind of context by pushing the new kind of contest into a parsing
+context stack whose top member is the effective parsing context.
+The corresponding right matching lexeme will pop the parsing context
+stack.
 
-Also from the parsing point of view there are several types of
+From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
 is turned on by \verb|`'| quotes, and does things like turn
 \verb|`I am!'| into \verb|[sentence I am !]|.  A second kind of
-restructuring, which is always on when text restructuring is
+restructuring, which is on if and only if text restructuring is
 off, enforces the rule that the first item of an expression with no
 operators cannot be a subexpression or qualifier,
 by inserting the word \verb|-EMPTY-| at the
 beginning of the expression if necessary, as when
 \verb|((integral x) from 0)| is restructured as
-\verb|(-EMPTY- (integral x) from 0)|.  Lastly operators can cause
+\verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators can cause
 major restructuring of an expression (\ref{OPERATORS}),
 as when \verb|x + y - 5 * z| is restructured as \verb|[+- x + y - [* 5 z]]|,
 and qualifiers
@@ -1557,11 +1560,30 @@ or qualifiers elsewhere are not recognized as such.  Thus in
 in \verb|[item ascending]| \verb|ascending| is not recognized as
 a qualifier.
 
-\subsection{Raw Expressions}
+Some matching lexemes above affect evaluation (eval).
+Evaluation differs from parsing context in that it is managed by a
+stack and not a counter; if evaluation is
+turned off twice, it must be turned on twice to be in effect.
+Thus in a context in which evaluation is on, the \verb|X| in
+\verb|{ <<X>> = 5 }| and \verb|{ y = `<< <<X>> >>' }| will be evaluated
+but the \verb|X| in \verb|{ y = `<<X>>' }| will not be.  There is
+an \key{evaluation counter} value that is
+incremented (decremented) by a left matching lexeme
+that turns evaluation on (off), and decremented (incremented) by the
+corresponding right matching lexeme.  This counter sticks at +1: matchings
+lexemes that would increment the counter have no affect if the counter
+is initially at +1.
 
-A raw expression is an expression that contains no operators or
-qualifiers that induce restructuring.  Raw expressions also contain
-no 
+\subsubsection{Raw Expressions}
+
+A raw expression is an expression that contains no operators,
+qualifiers, or text parsing contexts that induce restructuring.
+Also, all raw expressions must begin with a word or separator.
+
+When an expression is parsed, the output is a raw expression.
+Some examples are:
+
+TBD
 
 \subsection{Parsing}
 \label{PARSING}
