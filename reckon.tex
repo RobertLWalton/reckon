@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 14, 2003}
+\date{September 24, 2003}
  
 \maketitle
 
@@ -1414,6 +1414,7 @@ according to rules of operator precedence and associativity, and these
 implied parentheses create new subexpressions.
 
 \subsection{Subexpressions}
+\label{SUBEXPRESSIONS}
 
 Expressions and subexpressions are defined by the following syntax equations.
 
@@ -1436,18 +1437,28 @@ may be induced by operators: see \ref{OPERATORS}.
 \subsection{Operators}
 \label{OPERATORS}
 
-Expressions in PCASL are evaluated top-down, meaning that the code
-that evaluates one expression has control of evaluating subexpressions,
-and can choose how each subexpression is evaluated.
+Before an expression can be evaluated, it must be
+\ikey{parsed}{parsing!expressions}.  The first
+step in parsing is to transform the expression into a sequence of
+expression items as described in \ref{SUBEXPRESSIONS}.  This is
+called \key{subexpression parsing}.
 
-Normally one of the first steps in expression evaluation is
-\key{operator parsing}.  This scans the expressions for \skey{operator}s
-and if any are found, inserts implied parentheses to re-parse the expression,
-introducing new subexpressions, and changing the sequence of words, separators,
-and subexpressions that constitute the expression.
+The second step in parsing is called \key{operator parsing},
+and consists of substeps called \skey{operator scan}s.
+An operator scan performed on an expression finds all the
+the expression items that are operators, picks from these the operators
+of lowest precedence, and inserts implied parentheses around the arguments
+of these operators, making new subexpressions.  Operator parsing
+is just performing an operator scan of an expression and then performing
+operator parsing recursively on all the subexpressions of the result of
+the operator scan.
 
-Operator parsing is
-done under the control of the \key{operator context}, which is defined by the
+TBD
+
+Operator parsing is done under the control of the \key{lexical context}.
+In many cases, the lexical conte
+which is defined 
+which is defined by the
 code that is evaluating the expression to be parsed.  The operator context
 defines operators and specifies their precedence and other properties.
 
