@@ -2476,7 +2476,8 @@ affect parsing of subexpressions of the operator.
 
 \begin{indpar}
 
-{\bf definitional}\index{definitional flag@{\tt definitional} flag}~~~~~
+{\bf definitional}\index{definitional flag@{\tt definitional} flag}%
+\label{DEFINITIONAL}~~~~~
 This flag may only be given for a right associative infix operator.
 It causes the
 left operand of the operator to be inspected to see if it is a definition
@@ -4090,7 +4091,8 @@ before unification is attempted.  After unification a variable has a default
 if and only if its set of default values before unification was non-empty.
 
 There are two kinds of graph creation conversions: explicit and implicit.
-In \ikey{implicit conversions}{implicit conversion!to expression graph}
+In \ikey{implicit conversions}{implicit conversion!to expression graph}%
+\label{IMPLICIT-CONVERSION}
 what appear to be nodes labeled by a word L beginning with
 a capital letter or with `\ttkey{\#}' followed by a capital
 letter are treated as the equivalent of `\verb|[// |L\verb|]|'.
@@ -4532,17 +4534,32 @@ or immutable).
 \label{BLOCKS}
 
 A block is a set of variables, values for some of the variables, and
-code for computing these values.  The code has the following syntax:
+code for computing these values.
+
+\subsection{Block Syntax}
+\label{BLOCK-SYNTAX}
+
+The code of a block has the following syntax:
 
 \begin{indpar}
 \key{block} ::= \verb|{| {\em statement}
                          \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
 			 \\[1ex]
 \key{statement} ::= {\em empty-statement}
-		$|$ {\em assignment-statement}
-		$|$ {\em guarded-statement}
+		$|$ {\em qualified-statement}
 			 \\[1ex]
 \key{empty-statement} ::= {\em empty} \\[1ex]
+\key{qualified-statement}
+    \begin{tabular}[t]{rl}
+    ::= & {\em assignment-statement} \\
+    $|$ & {\em guarded-statement} \\
+    $|$ & {\em statement-qualifier} {\em qualified-statement}
+    \end{tabular} \\[1ex]
+\key{statement-qualifier} ::= \ttkey{first}
+			  $|$ \ttkey{next}
+			  $|$ \ttkey{always}
+			  $|$ \ttkey{default}
+			  \\[1ex]
 \key{assignment-statement}
 	\begin{tabular}[t]{rl}
 	::= & {\em variable-assignment-statement} \\
@@ -4557,37 +4574,64 @@ code for computing these values.  The code has the following syntax:
 	{\em assignment-pattern} \ttkey{\Tilde\Tilde} {\em right-side} \\[1ex]
 \key{assignment-pattern} ::= {\em expression} \\[1ex]
 \key{guarded-statement} ::=
-      {\em if-statement}
-      {\em else-if-statement}$^\star$
-      {\em else-statement-option}\\[1ex]
+      {\em if-statement} {\em else-if-continuation}$^\star$
+      $|$ {\em else-continuation-option}\\[1ex]
 \key{if-statement} ::=
-      \ttkey{if} {\em statement-guard} {\em guarded-block} \\[1ex]
-\key{else-if-statement} ::=
-      \ttkey{else if} {\em statement-guard} {\em guarded-block} \\[1ex]
-\key{else-statement-option} ::= {\em empty} $|$
-      \ttkey{else} {\em statement-guard} {\em guarded-block} \\[1ex]
-\key{statement-guard} ::= {\em expression} \\[1ex]
-\key{guarded-block} ::= {\em block}
+      \ttkey{if} {\em guard} {\em guarded-subblock} \\[1ex]
+\key{else-if-continuation} ::=
+      \verb|;| \ttkey{else if} {\em guard} {\em guarded-subblock} \\[1ex]
+\key{else-continuation-option} ::= {\empty} $|$
+      \verb|;| \ttkey{else} {\em guard} {\em guarded-subblock} \\[1ex]
+\key{guard} ::= {\em expression} \\[1ex]
+\key{guarded-subblock} ::= {\em block}
 \end{indpar}
 
-Blocks are parsed when the statement that contains them (typically
-a definition) is parsed, and in addition to {\em statements}, a block
+A block is parsed when the statement that contains it (typically
+an {\em expression-definition}, \pagref{EXPRESSION-DEFINITION})
+is parsed.  Because the \ttmkey{;}{statement separator} operator used
+as a statement separator in a {\em block} is by default
+{\tt definitional} (\pagref{DEFINITIONAL}), in addition to {\em statements}
+a {\em block}
 can contain definitions that control parsing but do not become part of the
 parsed block.  Such definitions are omitted from the above syntax.
 
-After parsing, the {\em variable-names} in a block are identified.  Each
+When the pattern and guard parts of an expression definition are parsed,
+they are parsed together to create an expression graph, and
+implicit conversion (\pagref{IMPLICIT-CONVERSION}) of variable names
+is used to produce variables for that graph.
+Any {\em block} part of the expression
+definition is parsed separately to produce a separate expression graph that
+has no expression graph variables (it does have variables in
+a different sense: see \secref{BLOCK-VARIABLES}).
+Implicit conversion is not used for any part of {\em block} parsing,
+except for {\em assignment-patterns}, each of which becomes a separate
+expression graph with its own separate expression graph variables
+[TBD: how is this represented and done?].
+
+\subsection{Block Variable Names}
+\label{BLOCK-VARIABLE-NAMES}
+
+After parsing, the {\em variable-names} in the code of
+a block are identified.  Each
 {\em variable-name} is a subexpression consisting of a sequence of one or
 more {\em words}, but not all such subexpressions are {\em variable-names}.
 Some {\em variable-names} may be \mkey{inherited}{variable-name}
 from the statement containing the block.
 Some are left sides of {\em variable-assignment-statements}.
-Some are parts of {\em assignment-patterns}.  All the {\em variable-names}
+Some are expression graph variables of {\em assignment-patterns}.
+All the {\em variable-names}
 in the block are inherited or can be identified by looking at the left
 sides of {\em assignment-statements}.
 
+When identifying {\em variable-names} in a {\em block}, {\em statements} in a
+{\em guarded-subblock} of the {\em block} are treated as if they
+were in the {\em block} proper.  Thus variables named in the
+{\em guarded-subblock} are variables named in the {\em block}.
+
 If a {\em block} is part of an {\em expression-definition}
-(\pagref{EXPRESSION-DEFINITION}) the pattern variable names in the
-{\em expres\-sion-definition} {\em pattern} are inherited by the {\em block}.
+(\pagref{EXPRESSION-DEFINITION}), the names of expression graph variables of
+the {\em pattern} and {\em guard-list} expression tree
+become {\em variable-names} inherited by the {\em block}.
 Thus in
 
 \begin{center}
@@ -4596,9 +4640,11 @@ Thus in
 
 the variable names \verb|X| and \verb|Y| are inherited by the {\em block}.
 
-The pattern variable names in an {\em assignment-pattern} are
+An {\em assignment-pattern} is parsed to an expression graph with its
+own expression graph variables.  These variables are called
+\skey{pattern variable}s, and their names become
 {\em variable-names} of the {\em block} containing the
-{\em pattern-assignment-statement}.  Thus in the statement
+{\em assignment-pattern}.  Thus in the statement
 
 \begin{center}
 \verb|X + Y ~~ `5 + ( 7 * y )'|
@@ -4606,11 +4652,13 @@ The pattern variable names in an {\em assignment-pattern} are
 
 the variable names \verb|X| and \verb|Y| are pattern variable names
 that are {\em variable-names} of the {\em block} containing this
-{\em pattern-assignment-statement}.  Unlike pattern variables in
-{\em expression-definitions}, there is no distinction between
-evaluated and unevaluated pattern variables: the
-{\em pattern-assignment-statement} pattern variable values are not
-further evaluated.
+{\em pattern-assignment-statement}.
+
+Pattern variable names are not permitted to begin with
+\ttmkey{\#}{pattern variable name}.
+
+\subsection{Block Evaluation}
+\label{BLOCK-EVALUATION}
 
 Evaluation of a {\em block} is driven by availability of variable values.
 Each variable in a block can be assigned at most one value: it is
@@ -4624,14 +4672,14 @@ None of the expressions or statements in an {\em if-statement}
 {\em guarded-block} are
 evaluated until the block's {\em guard} has been evaluated to true;
 if the guard evaluates to false, no expression or statement in the
-{\em guarded-block} is ever evaluated.  An {\em else-if-statement}
+{\em guarded-block} is ever evaluated.  An {\em else-if-continuation}
 {\em guard} is not evaluated until all {\em guards}
 in any preceeding {\em if-statement}
-or {\em else-if-statements} in the same {\em guard-statement}
+or {\em else-if-continuations} in the same {\em guard-statement}
 have been evaluated to false.  The {\em guarded-block} of an
-{\em else-statement} is evaluated if and only if
+{\em else-continuation} is evaluated if and only if
 all {\em guards} in any preceeding {\em if-statement}
-or {\em else-if-statements} in the same {\em guard-statement}
+or {\em else-if-continuation} in the same {\em guard-statement}
 have been evaluated to false.
 
 An example application of these rules is:
@@ -4654,6 +4702,104 @@ is never given a value.  If \verb|X > 5| is false,
 the variable \verb|y2|
 is given the value \verb|10| and then \verb|z| is given this
 value, while the variable \verb|y1| is never given a value.
+
+Block evaluation terminates when no further evaluation is possible.
+
+When block evaluation terminates, the value of the block is the
+value of its {\tt value} variable\index{value variable@{\tt value} variable},
+if any.  Thus the block
+
+\begin{center}
+\verb|{ value = X + Y }|
+\end{center}
+
+which inherits the variables \verb|X| and \verb|Y| will return
+the sum of its inherited variables as the value of the block.
+
+It is an error if a variable is assigned a value by more than one
+{\em assignment-statement} during block evaluation.
+
+Block evaluation is modified by {\em statement-qualifiers}
+(\secref{STATEMENT-QUALIFIERS}).
+
+\subsection{Statement Qualifiers and Iteration}
+\label{STATEMENT-QUALIFIERS-AND-ITERATION}
+
+{\em Statement-qualifiers} modify block evaluation.
+
+A {\em statement} qualified by the
+\ttkey{default} {\em statement-qualifier}
+is invisible, as if it did not exist, until all variables that can be
+given a value by other statements in a block have been given values.
+Then if no variable that could be assigned by the {\tt default}
+qualified {\em statement} has
+been given a value, the statement is made visible, and can execute.
+
+All {\tt default} qualified {\em statements} become visible at once,
+so it is possible for an error to occur if two such statements assign
+the same variable.
+
+An example application of these rules is:
+
+\begin{indpar}\begin{verbatim}
+{
+  if X > 5:
+    value = `yes'
+  default value = `no'
+}
+\end{verbatim}\end{indpar}
+
+where \verb|X| is an inherited variable name.  If \verb|X > 5| is true,
+the value of the block is `{\tt yes}' and the {\tt default}
+{\em assignment-statement} remains invisible, but if \verb|X > 5| is false,
+the {\tt default} {\em assignment-statement} becomes visible and
+the value of the block is `{\tt no}'.
+
+A block can \key{iterate}, meaning that it generates another block
+that is the next block in a sequence of blocks.  A block
+iterates if it does \underline{not} produce a value of a {\tt value}
+variable and if it does execute a {\tt next} qualified
+{\em assignment-statement}.  The sequence of blocks are called the
+\skey{iteration}s of the sequence.  Evaluation of a block can always
+be thought of as producing a sequence of iterations, though this
+sequence might include only one block which does not iterate.
+
+The variable values computed by a \ttkey{next} qualified
+{\em statement} are not variable values in the current
+block, but are rather values for the current block's next block,
+if the current block iterates.  The next block starts with these
+variable values, so these variables must not be assigned in the next
+block.
+
+If a {\em statement} is qualified by both {\tt next} and {\tt default},
+the {\em statement} becomes visible with the rest of the {\tt default}
+{\em statements} if none of the variables that can be assigned by the
+{\em statement} have values for the next iteration.
+
+A statment of the form
+
+\begin{center}
+\verb|default| \verb|next| {\em variable-name} = {\em variable-name}
+\end{center}
+
+is implied for every inherited {\em variable-name}.  Thus inherited
+variables are normally propogated unchanged from on iteration to the
+next.
+
+A \ttkey{first} qualified {\em statement} is only visible in the
+first iteration of a block sequence.
+
+An \ttkey{always} qualified {\em statement} is equivalent to the {\em statement}
+qualified by {\tt first} plus additional {\em statements} of the form
+
+\begin{center}
+\verb|next| {\em variable-name} = {\em variable-name}
+\end{center}
+
+for every {\em variable-name} that can be assigned by the
+{\tt once} qualified {\em statement}.  The intention is that the
+{\tt always} qualified {\em statement} will assign values on the first
+iteration and these values will then be propogated to subsequent iterations.
 
 
 
