@@ -4510,33 +4510,52 @@ for expression evaluation.  There is also a global context to which
 definitions may be added or from which they may be deleted.
 The block of an expression definition usually evaluates expressions in the
 lexical context of its expression definition,
-but may evaluate expressions in the context of the expression being
+but may evaluate expressions in the lexical context of the expression being
 evaluated by the expression definition.
 
 When an expression definition is found that matches an expression, a
-copy of the expression definition is made, and part of this copy is
-unified with the expression being evaluated.  This unification defines
-variables in the expression definition.  Expression definition
-variables that receive no value in this way, but which have default
-values, are given the default values.
+copy of the expression definition is made, and a part of this copy called
+the pattern is unified with the matched expression.  This unification defines
+variables in the expression definition and null nodes in the matched
+expression that are values of variables outside the expression definition.
+Expression definition variables that receive no value in this way,
+but which have default values, are given the default values.
 However, values received from unification may be incomplete, in that they
-are expressions which include other variables with unknown values.
+may be expressions which include null nodes that represent unknown values
+of other variables.
 When the guards of the expression definition
 are matched in turn with other expression
-definitions, and unified with parts of copies of these matched definitions,
+definitions, and unified with patterns in copies of these matched definitions,
 the incomplete values may become complete.  For this reason,
 matching of guards with definitions and unification of guards
 is done as much as possible before any blocks are evaluated.
 
+The expression being evaluated may also have null nodes that represent
+unknown values of variables.  During evaluation
+these null nodes may be unified with patterns in expression definitions,
+and cease to become null nodes.  This process is known as
+`\key{completing the expression}' being evaluated.  An expression with
+no null nodes is said to be \mkey{complete}{expression}, whereas
+an expression with null nodes is said to be \mkey{incomplete}{expression}.
+
+After an expression definition pattern is unified with an
+expression the definition matches, and after default values are assigned,
+some variable values are evaluated and replaced by their evaluated values.
+These variables are called evaluated variables, and typically have names
+beginning with a capital letter, whereas other variables are
+called unevaluated variables, and typically have names beginning with
+`\verb|#|' followed by a capital letter.  Evaluation of evaluated variable
+values happens before guard expressions are matched to definitions,
+so guard expressions see only the evaluated value of evaluated variables.
+The values which are evaluated in this manner must not be incomplete,
+and their evaluation must have no visible side effects.
+
 After all guards are matched with definitions and unified,
 blocks are evaluated, beginning with any blocks in the definitions matched
-to guards.  The first step in evaluating a block is to evaluate
-the values of variables which are marked as being subject to initial
-evaluation before they are used.  Then the block is evaluated.  Guard
-blocks must return true or false, and if any returns false, the expression
-definition match fails, and the search for other matching definitions continues.
-Evaluations of variable values just before a block evaluation,
-and evaluations of guard blocks, are required to have no visible side effects.
+to guards.  If any of these guard blocks fails to produce the value true,
+the expression definition match fails, and the search for other matching
+definitions continues.
+Evaluations of guard blocks are required to have no visible side effects.
 
 \subsection{Expression Definitions}
 \label{EXPRESSION-DEFINITIONS}
@@ -4560,12 +4579,13 @@ and evaluations of guard blocks, are required to have no visible side effects.
 {\em Blocks} and {\em statements} are further defined in
 \secref{BLOCKS}.
 
-In use, an expression definition is just before matching it to an expression,
-and then the pattern of the copy is call unified
+In use, an expression definition being matched to an expression is
+copied, and then the pattern of the copy is call unified
 (\secref{CALL-UNIFICATION}) with the expression to be matched.
 If unification fails, the definition does not match.  If
 unification succeeds, variables bound to null values are given their
-default values, and the matching process continues by searching for
+default values, evaluated variable values are evaluated,
+and then the matching process continues by searching for
 definitions that match the guards.
 
 An expression definition is an expression graph which may have variables
@@ -4586,15 +4606,21 @@ the expression and an assignment of values for these variables.
 
 More than one definition may match an expression.
 More than one definition may match a guard of a definition,
-and different guard definitions may lead to different values of variables
-in the expression being evaluated.  In matching a definition, more than
+and different guard definitions may lead to different completions of
+values of variables in the expression being evaluated.
+In matching a definition, more than
 one argument order assignment (\pagref{ARGUMENT-ORDER-ASSIGNMENT})
 may allow the definition to be matched.  So expression
-evaluation is a search process with more than one possible choice that
-may lead to success.
+evaluation is a search process to find a choice of expression definitions
+and argument order assignments which leads to success, and more than
+one choice may succeed.
 
 Note that the guards of an expression are always matched from left to
-right, so order of guard matching is not a choice.
+right, so order of guard matching is not a choice.  Similarly guard
+block evaluation order is fixed, left to right, depth first, so this
+is not a choice.  Lastly evaluation of evaluated variable values and
+of guard blocks are required to have no side effects, so these can be
+undone trivially when part of the search fails.
 
 Evaluation may be done in any of the following modes:
 
@@ -4613,33 +4639,33 @@ dependent.
 All possible choices are tried and the
 successful results are collected in a set of results.  Each result
 in this set consists of a value for the expression being evaluated
-and values for each variable in that expression.
+and values for each null node in that expression.
 
 \item[\ttkey{consistent-values}]~\\
 All possible choices are tried and the
 successful results are collected in a set of values.  Then these results
 are tested to see if they are pairwise equal.
 All the values of the expression
-being evaluated must be equal, and all the values of each variable
+being evaluated must be equal, and all the values of each null node
 contained in the expression must be equal.  If all values of the expression
-or of a variable are equal, one of these values is returned as the value
-of the expression or variable.  If some of the values are unequal, an
+or of a null node are equal, one of these values is returned as the value
+of the expression or null node.  If some of the values are unequal, an
 error value giving the context of the evaluation and the unequal values
-is returned as the value of the expression or variable.
+is returned as the value of the expression or null node.
 
 \item[\ttkey{consistent-reordering}]~\\
 Definitions are 
 tried in the order they are given in the contexts used in evaluation,
-and the first definitions that apply are used.  However, for each definition
+and the first definitions that match are used.  However, for each definition
 all possible argument order assignments are tried.  The results are collected
 in a set of results that is tested for pairwise equality.
 All the values of the expression
-being evaluated must be equal, and all the values of each variable
+being evaluated must be equal, and all the values of each null node
 contained in the expression must be equal.  If all values of the expression
-or of a variable are equal, one of these values is returned as the value
-of the expression or variable.  If some of the values are unequal, an
+or of a null node are equal, one of these values is returned as the value
+of the expression or null node.  If some of the values are unequal, an
 error value giving the context of the evaluation and the unequal values
-is returned as the value of the expression or variable.
+is returned as the value of the expression or null node.
 \end{list}
 
 If the expression match search process yields no matches at all,
@@ -4671,10 +4697,10 @@ choose an argument order.
 Call unify (\secref{CALL-UNIFICATION})
 the pattern (\secref{EXPRESSION-DEFINITIONS})
 from the definition copy with the expression to be matched,
-using any chosen argument order.
+using the chosen argument order if any.
 If the unification fails, the definition does not match.  If the
-unification succeeds, it provides variable values for the variables
-in the pattern and in the expression to be matched.
+unification succeeds, it provides values for the variables
+in the pattern and for null nodes in the matched expression.
 
 \item
 For any pattern variable bound to a null node, rebind the variable
@@ -4687,10 +4713,8 @@ a new variable value.  Then simultaneously replace all the evaluated
 variable values by their new values.  Each replacement is done by
 forwarding a variable value graph node to the new value graph node.
 
-These variable value evaluations here are not permitted to have
+These variable value evaluations are not permitted to have
 visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
-
-It is an error if a null node is to be evaluated.
 
 \end{enumerate}
 
@@ -4705,7 +4729,7 @@ Choose and expression definition in the appropriate context that
 matches the expression to be evaluated, and match the definition
 with the expression.
 
-Note the variable value expression evaluations of
+Note the evaluated variable value evaluations of
 \ref{PROTECTED-VARIABLE} above are done before guard expression matching
 is done.
 
@@ -4727,9 +4751,13 @@ permitted to have visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
 If the definition matched to the expression to be evaluated has no block,
 the value of the expression is `\verb|true|'.
 If it has a block, the block is evaluated to produce a value and possibly
-side effects as per \secref{BLOCKS}.
+side effects (\secref{BLOCK-EVALUATION}).
 
 \end{enumerate}
+
+It is always an error if a null node is to be evaluated.  In particular,
+the value of an evaluated variable just before the value is to be evaluated
+must not be a null node.
 
 \subsection{Contexts}
 \label{CONTEXTS}
