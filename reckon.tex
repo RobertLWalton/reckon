@@ -28,8 +28,8 @@
 
 % Begin \tableofcontents surgery.
 
-\newcount\ATCATCODE
-\ATCATCODE=\catcode`@
+\newcount\AtCatcode
+\AtCatcode=\catcode`@
 \catcode `@=11	% @ is now a letter
 
 \renewcommand{\contentsname}{}
@@ -59,7 +59,7 @@
     \item\@starttoc{lot}%
     \end{list}}
 
-\catcode `@=\ATCATCODE	% @ is now restored
+\catcode `@=\AtCatcode	% @ is now restored
 
 % End \tableofcontents surgery.
 
@@ -84,19 +84,37 @@
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
-\newsavebox{\leftbracket}
-\begin{lrbox}{\leftbracket}
-\verb|{|
-\end{lrbox}
+\newcount\TildeCatcode
+\TildeCatcode=\catcode`\~
+\catcode`~=12
+\newcommand{\Tilde}{~}
+\catcode`~=\TildeCatcode
 
-\newsavebox{\rightbracket}
-\begin{lrbox}{\rightbracket}
-\verb|}|
-\end{lrbox}
+\newcount\CurlyBraCatcode
+\newcount\CurlyKetCatcode
+\newcount\SquareBraCatcode
+\newcount\SquareKetCatcode
+\CurlyBraCatcode=\catcode`{
+\CurlyKetCatcode=\catcode`}
+\SquareBraCatcode=\catcode`[
+\SquareKetCatcode=\catcode`]
+
+\catcode`{=\SquareBraCatcode
+\catcode`}=\SquareKetCatcode
+\catcode`[=\CurlyBraCatcode
+\catcode`]=\CurlyKetCatcode
+
+\newcommand[\CurlyBra][{]
+\newcommand[\CurlyKet][}]
+
+\catcode`{=\CurlyBraCatcode
+\catcode`}=\CurlyKetCatcode
+\catcode`[=\SquareBraCatcode
+\catcode`]=\SquareKetCatcode
 
 \newcommand{\ttbrackets}{
-    \renewcommand{\{}{\usebox{\leftbracket}}
-    \renewcommand{\}}{\usebox{\rightbracket}}}
+    \renewcommand{\{}{\CurlyBra}
+    \renewcommand{\}}{\CurlyKet}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -139,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 7, 2003}
+\date{December 8, 2003}
  
 \maketitle
 
@@ -2221,8 +2239,8 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
 \newcommand{\Glabel}[1]{\mbox{\tt #1}}
 \newcommand{\Gvariable}[1]{\fbox{\tt #1}}
 \newenvironment{Graph}%
-    { \[ \left[ \begin{array}{l}}%
-    {\end{array} \right] \]}
+    { \( \left[ \begin{array}{l}}%
+    {\end{array} \right] \) }
 \newenvironment{Gchild}[1]%
     {\mbox{\tt #1}:
      \begin{array}{l}
@@ -2279,25 +2297,29 @@ represents the expression tree
 
 \begin{Graph}
     \Gvariable{-ROOT-} \\
-    \begin{Gchild}{max}
-        \begin{Gchild}{1}
-	    \Glabel{x} \\
-	\end{Gchild} \\
-	\begin{Gchild}{2}
-	    \Glabel{y} \\
-	\end{Gchild} \\
-	\begin{Gchild}{3}
-	    \Glabel{z} \\
-	\end{Gchild} \\
+    \begin{Gchild}{0}
+	\Glabel{max} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Glabel{x} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{y} \\
+    \end{Gchild} \\
+    \begin{Gchild}{3}
+	\Glabel{z} \\
     \end{Gchild} \\
 \end{Graph}
 
-The raw expression head, \verb|max|, becomes an arrow label
-pointing at a graph node that represents the argument list `\verb|x y z|'.
-A node representing an argument list is the source of arrows labeled with
-\ikey{argument indices}{argument index}
-`\verb|1|', `\verb|2|', `\verb|3|', etc. to nodes representing the first,
-second, third, etc. arguments.
+The raw expression is represented by the root node of an expression tree.
+The raw expression head, \verb|max|, is represented by a node labeled
+`\verb|max|' that is the target of an arrow labeled `\verb|0|' from the root.
+Here `\verb|0|' is called the \key{head index} of the root node, and is
+always the label on an arrow leading to a raw expression head.
+The three arguments become targets of arrows from the root labeled
+with the \ikey{argument indices}{argument index}
+`\verb|1|', `\verb|2|', `\verb|3|'.  Each argument in this case is a single
+word, and is represented by a node labeled with that word.
 
 A second example is the expression
 
@@ -2309,25 +2331,26 @@ is represented by the expression tree
 
 \begin{Graph}
     \Gvariable{-ROOT-} \\
-    \begin{Gchild}{sort}
-        \begin{Gchild}{1}
-	    \Glabel{x} \\
+    \begin{Gchild}{0}
+	\Glabel{sort} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Glabel{x} \\
+    \end{Gchild} \\
+    \begin{Gchild}{with}
+	\begin{Gchild}{1}
+	    \Glabel{key}
 	\end{Gchild} \\
-	\begin{Gchild}{with}
-	    \begin{Gchild}{1}
-	        \Glabel{key}
-	    \end{Gchild} \\
-	    \begin{Gchild}{2}
-	        \Glabel{weight}
-	    \end{Gchild} \\
+	\begin{Gchild}{2}
+	    \Glabel{weight}
 	\end{Gchild} \\
-	\begin{Gchild}{with}
-	    \begin{Gchild}{1}
-	        \Glabel{comparator}
-	    \end{Gchild} \\
-	    \begin{Gchild}{2}
-	        \Glabel{<}
-	    \end{Gchild} \\
+    \end{Gchild} \\
+    \begin{Gchild}{with}
+	\begin{Gchild}{1}
+	    \Glabel{comparator}
+	\end{Gchild} \\
+	\begin{Gchild}{2}
+	    \Glabel{<}
 	\end{Gchild} \\
     \end{Gchild} \\
 \end{Graph}
@@ -2336,44 +2359,134 @@ Here each qualifier head (the two `\verb|with|'s) becomes a label
 for an arrow that points at a node representing the the qualifier clause
 argument list.
 
+Note that qualifier heads become arrow labels, while expression heads
+become labels of nodes that are targets of arrows labeled `\verb|0|'.
+Later we will see that because of this expression heads can be
+expression graph variable values, but qualifier heads cannot be.
+
 Another example is the expression
 
 \begin{center}
-\verb|[fill Matrix <:> Value ::> Runs]|
+\verb|[fill Prefix Matrix <:> Value Postfix ::> Runs]|
 \end{center}
 
 is represented by the expression tree
 
 \begin{Graph}
     \Gvariable{-ROOT-} \\
-    \begin{Gchild}{fill}
-        \begin{Gchild}{1}
-	    \Glabel{Matrix} \\
-	\end{Gchild} \\
-	\begin{Gchild}{1}
-	    \Glabel{Value}
-	\end{Gchild} \\
-	\begin{Gchild}{-REST-}
-	    \Glabel{Runs}
-	\end{Gchild} \\
+    \begin{Gchild}{0}
+	\Glabel{fill} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Glabel{Prefix} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{Matrix} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Glabel{Value}
+    \end{Gchild} \\
+    \begin{Gchild}{3}
+	\Glabel{Postfix}
+    \end{Gchild} \\
+    \begin{Gchild}{*}
+	\Glabel{Runs}
     \end{Gchild} \\
 \end{Graph}
 
 Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
-given the same argument index, in this case `\verb|1|'.  The argument
+given the same argument index, in this case `\verb|2|'.  The argument
 after a \key{remainder mark} \ttkey{::>} is given the special argument index
-`\ttkey{-REST-}'.
+`\ttkey{*}'.
 
 \subsection{Expression Graph Representation}
 \label{EXPRESSION-GRAPH-REPRESENTATION}
 
 Expression trees can be used to represent expression graphs.  This is
-done by defining conversion operators that convert expression trees
-to expression graphs, and vice versa.
+done by defining conversions between expression trees
+to expression graphs.
 
-There are two kinds of such conversion operators: mnemonic and rigid.
+There are two kinds of such conversions: explicit and implicit.
+In explicit conversion, all graph variable names in the expression trees
+are indicated by a particular graph variable operations which
+by default are `\verb|..::|' and `\verb|~~|'.
+In implicit conversion, graph variable
+operations are used as in explicit conversion,
+but in addition all expression tree
+leaves that are words beginning with an upper case letter are treated
+as graph variable names, as if they were preceded implicitly by `\verb|..::|'.
 
-TBD
+In this section we consider conversions between expression trees represented
+by raw expressions and expression graphs.  There are two
+\skey{graph variable operation}s
+involved: the \key{graph variable value operation}, which defaults to
+\ttkey{..::}, and the \key{graph variable default operation}, which
+defaults to \verb|~~|\index{~~@{\tt \protect\Tilde\protect\Tilde}}.
+In this section we will consider these
+two operations in the context of raw expressions, but in non-raw expresssions
+these operations are usually the prefix operator \verb|..::|
+and high precedence infix operators \verb|..::| and \verb|~~|.
+
+Using raw expression notation, the following subexpressions are used
+to represent single nodes of an expression graph:
+
+\begin{indpar}
+\begin{list}{}{}
+
+\item[{\tt [..::} {\em variable-name} {\em variable-value}{\tt]}]~\\
+Represents the node represented by {\em variable-value} and specifies that
+this node is the value of the named expression graph variable.
+
+\item[{\tt [..::} {\em variable-name}{\tt]}]~\\
+Represents a node with no label that is not the source of any arrow,
+and specifies that
+this node is the value of the named expression graph variable.
+
+\item[{\em variable-name}]~\\
+Ditto, in the case that implicit conversion is being used and
+{\em variable-name} is a word beginning with a capital letter.
+
+\item[{\tt [\Tilde\Tilde} {\em variable-name} {\em variable-default} {\tt]}]~\\
+Represents a node with no label that is not the source of any arrow,
+specifies that this node is the value of the named expression graph variable,
+and specifies that the default value of the expression graph variable is
+the node represented by {\em variable-default}.
+
+\end{list}
+\end{indpar}
+
+It is possible for several subexpressions of the above form to mention the
+same graph variable.  If this happens, all the subexpressions represent the
+same node, and at most one of the subexpressions may have either a value
+or default value for the variable.  That is, at most one of the subexpressions
+may have a second argument.
+
+Some examples of expression trees represented by raw expressions and the
+expression graphs they convert to are as follows:
+
+\begin{center}
+\begin{tabular}{r@{~~~~~}l}
+
+\verb|[z [..:: x] [..:: x]]|
+&
+\begin{Graph}
+    \Gvariable{-ROOT-} \\
+    \begin{Gchild}{0}
+	\Glabel{z} \\
+    \end{Gchild} \\
+    \begin{Gchild}{1}
+	\Gvariable{x} \\
+    \end{Gchild} \\
+    \begin{Gchild}{2}
+	\Gvariable{x} \\
+    \end{Gchild} \\
+\end{Graph}
+\\
+\verb||
+&
+
+\end{tabular}
+\end{center}
 
 
 \section{Expression Inference}
