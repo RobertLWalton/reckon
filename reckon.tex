@@ -2432,20 +2432,44 @@ inactivate all definitions with particular names in the stack
 The syntax of operator definitions is:
 
 \begin{indpar}
-\key{operator-definition} \\
-	\hspace*{1in}::= \verb|define operator| {\em operator-name}
-	\\[1ex]
-\key{lexeme-dictionary-entries} \begin{tabular}[t]{rl}
-                     ::= & \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
+\ikey{OPERATOR-DEFINITION}{operator-definition} \\
+	\hspace*{0.5in}::= \ttkey{define operator}
+	    \begin{tabular}[t]{l}
+	    {\em OPERATOR-FIXITY} ~ {\em OPERATOR-NAME} \\
+	    {\em operator-definition-option}$^\star$
+	    \end{tabular} \\[1ex]
+\ikey{OPERATOR-FIXITY}{operator-fixity} ::=
+	\ttkey{prefix} $|$ \ttkey{infix} $|$ \ttkey{postfix}
+	$|$ \ttkey{matchfix} \\[1ex]
+\ikey{OPERATOR-NAME}{operator-name} ::=
+	\verb|[|
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\verb|]| \\[1ex]
+\key{operator-definition-option} \begin{tabular}[t]{rl}
+                     ::= &  {\em operator-precedence-option} \\
+                     $|$ &  {\em operator-associativity-option} \\
+                     $|$ &  {\em operator-parser-option} \\
+                     $|$ &  {\em operator-flags-option} \\
+                     $|$ &  {\em operator-wrapper-option} \\
+                     $|$ &  {\em operator-subdefinition-option} \\
 		     \end{tabular} \\[1ex]
-\key{lexeme-dictionary-entry-list} \\
-		     \hspace*{1in}\begin{tabular}[t]{rl}
-                     ::= & {\em lexeme-dictionary-entry} \\
-		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
-		           {\em lexeme-dictionary-entry}
-		     \end{tabular} \\[1ex]
-\key{lexeme-dictionary-entry} ::=
-	{\em replaced-lexeme} \verb|=>| {\em lexeme-replacement}
+\key{operator-precedence-option} ::=
+	\ttkey{with precedence} {\em integer} \\[1ex]
+\key{operator-associativity-option} \\
+	\hspace*{0.5in}\begin{tabular}[t]{rl}
+	::= &  \ttkey{with associativity} {\em OPERATOR-ASSOCIATIVITY} \\
+	$|$ &  \ttkey{left} \\
+	$|$ &  \ttkey{right}
+	\end{tabular} \\[1ex]
+\key{operator-parser-option} ::=
+	\ttkey{with parser} {\em PARSER-NAME} \\[1ex]
+\ikey{PARSER-NAME}{parser-name} ::=
+	\verb|[|
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\verb|]| \\[1ex]
+TBD
 \end{indpar}
 
 \subsubsection{Operator Selection}
