@@ -1504,42 +1504,49 @@ that are used to bracket subexpressions.  The following informal guide may
 help keep them separate:
 
 \begin{center}
-\begin{tabular}{llll}
-	   & Turn	& Is Subexpression	& Subexpression \\
-Brackets   & Evaluation	& Restructured?		& Can Contain \\[1ex]
+\begin{tabular}{lll}
+Brackets   & Turns Off			& Turns On \\[1ex]
 
-\verb|[]|  & off	& no			& \verb|<=>|, \verb|@@@| \\
-\verb|`'|  & off	& yes			& \verb/|/ \\
-\verb|()|  & -		& sometimes		& \verb|<=>|, \verb|@@@|,
-						  operators, qualifiers \\
-\verb|{}|  & off	& sometimes		& \verb|<=>|, \verb|@@@|,
-						  operators, qualifiers \\
-\verb|<<>>|& on		& sometimes		& \verb|<=>|, \verb|@@@|,
-						  operators, qualifiers \\
+\verb|[]|  & eval, ops, quals, \verb/|/, text
+					& \verb|<=>|, \verb|@@@| \\
+\verb|`'|  & eval, ops, quals, \verb|<=>|, \verb|@@@|
+					& \verb/|/, text \\
+\verb|()|  & nothing			& nothing \\
+\verb|{}|  & eval, \verb/|/, text	& ops, quals, \verb|<=>|, \verb|@@@| \\
+\verb|<<>>|  & \verb/|/, text		& eval, ops, quals, \verb|<=>|,
+					  \verb|@@@| \\
 \end{tabular}
 \end{center}
 
-Operators and qualifiers, when present in an expression, always
-restructure the expression.  For example, \verb|x + y - 5 * z| is
-restructured as \verb|[+- x + y - [* 5 z]]|, and \verb|sort x| \verb|ascending|
-is restructured as \verb|[sort x @@@ ascending]|.
+From the parsing point of view there are three kinds of contexts:
+one where only the reorder mark (\verb|<=>|)
+and the qualifier mark (\verb|@@@|) are recognized, one where these
+are recognized along with operators (ops) and qualifiers (quals),
+and one where the format-separator (\verb/|/) is recoginized.
+
+Also from the parsing point of view there are several types of
+expression restructuring that can occur.  One, \verb|text| restructuring,
+is turned on by \verb|`'| quotes, and does things like turn
+\verb|`I am!'| into \verb|[sentence I am !]|.  A second kind of
+restructuring, which is always on when \verb|text| restructuring is
+off, enforces the rule that the first item of an expression with no
+operators cannot be a subexpression or qualifier,
+by inserting the word \verb|-EMPTY-| at the
+beginning of the expression if necessary, as when
+\verb|((integral x) from 0)| is restructured as
+\verb|(-EMPTY- (integral x) from 0)|.  Lastly operators can cause
+major restructuring of an expression (\ref{OPERATORS}),
+as when \verb|x + y - 5 * z| is restructured as \verb|[+- x + y - [* 5 z]]|,
+and qualifiers
+can cause qualifier marks (\verb|@@@|) to be inserted, as when
+\verb|sort x| \verb|ascending|
+is restructured as
+\verb|[sort x @@@ ascending]|.
 
 In expressions that cannot contain operators
 or qualifiers, words and separators that would be recognized as operators
 or qualifiers elsewhere are not recognized as such.  Thus in
 \verb|[word +]| the \verb|+| is never recognized as an operator.
-
-A \verb|`'| quoted expression is typically restructured into a
-computational representation of a part of a document.  For example,
-\verb|`I am!'| is restructured to become \verb|[sentence I am !]|.
-
-A \verb|()|, \verb|{}|, or \verb|<<>>| bracketted
-expression that does not contain operators
-is restructured if its first item is a subexpression.
-For example, \verb|((integral x) from 0)| is restructured as
-\verb|(-EMPTY- (integral x) from 0)|.
-
-TBD evaluation on/off.
 
 \subsection{Raw Expressions}
 
@@ -1554,7 +1561,7 @@ Before an expression can be evaluated, it must be
 \ikey{parsed}{parsing!expressions}.  The output of parsing is the
 input expression with implied parentheses added.
 This is called a \key{parsed expression}, and is input to
-expression translation (\ref{EXPRESSION-TRANSLATION}.
+expression translation (\ref{EXPRESSION-TRANSLATION}).
 
 The first step in parsing is to transform the expression into a sequence of
 expression items as described in \ref{SUBEXPRESSIONS}.  This is
