@@ -187,7 +187,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 2, 2004}
+\date{November 4, 2004}
  
 \maketitle
 
@@ -2969,11 +2969,11 @@ Post operator selection processing is done in the following steps.
 
 \begin{enumerate}
 
-\item
+\item\label{PARSER-PUSH}
 If the operator definition has a parser, this is pushed onto the
 parsing parser stack.
 
-\item
+\item\label{SUBDEFINITION-PUSH}
 If the operator definition has subdefinitions, these are pushed onto the
 parsing definition stack.
 
@@ -3029,7 +3029,9 @@ replaced by the expression.
 
 \item
 \label{POP-PARSING-STACK}
-If anything was pushed onto the parsing stack above, these things
+If anything was pushed onto the parsing stack
+by steps \ref{PARSER-PUSH} and \ref{SUBDEFINITION-PUSH}
+above, these things
 are popped from the stack.
 
 \item
@@ -3088,7 +3090,7 @@ to separate paragraphs.
 \label{SECTION-PARAGRAPH-AND-SENTENCE-PARSING}
 
 If the text being parsed does not contain any format separators,
-the text is parsed phrases, sentences, and paragraphs.
+the text is parsed into phrases, sentences, and paragraphs.
 
 First the text is divided by blank line lexemes into paragraphs.
 The sequence of paragraphs comprises a section.
@@ -3135,14 +3137,16 @@ There are several rules that modify the description just given:
 
 {\bf Sentence Terminator Rule.}\index{Sentence Terminator Rule}
 A \key{sentence-terminator} is any lexeme that is syntactically
-a sentence terminator and is also not preceded by a {\em white-space}
-lexeme.  All other lexemes and all subexpressions are
+a sentence terminator, that is not preceded by a {\em white-space}
+lexeme, and that is followed by a {\em white-space} lexeme, a
+{\em closing-mark} lexeme, or the
+end of the lexeme sequence.  All other lexemes and all subexpressions are
 \skey{sentence-non-terminator}s.
 
 {\bf Initial Capitalization Rule.}\index{Initial Capitalization Rule}
 A {\em word} consisting of an initial capital letter followed
 by zero or more lower case letters is converted
-to an all lower case word if it begins a sentence or phrase.
+to an all lower case word if it begins a sentence.
 A {\em word} consisting of an initial
 \verb|^|\index{^@{\tt \Circumflex}} followed by an upper
 case letter followed by zero or more lower case letters has the
@@ -3190,7 +3194,7 @@ Some examples follow:
 & parses as &
 \begin{tabular}{@{}l@{}}
 \verb|[section| \\
-\verb|   [paragraph [sentence I liked the]]| \\
+\verb|   [paragraph [sentence I liked the| \\
 \verb|                        party .]]| \\
 \verb|   [paragraph [sentence later , we caught| \\
 \verb|                        the bus .]]]| \\
@@ -3200,7 +3204,7 @@ Some examples follow:
 \end{center}
 
 Note that capitalized words like proper names and `\verb|I|' need to be
-prefixed `\verb|^|' if they begin a sentence or phrase.
+prefixed by `\verb|^|' if they begin a sentence or phrase.
 
 
 \section{Expression Graphs}
@@ -3599,7 +3603,7 @@ and the target of that arrow is called the \key{head} of the root node.
 
 The three arguments become targets of three arrows from the root labeled
 `\verb|1|', `\verb|2|', and `\verb|3|'.
-Each argument in this case is a single
+Each argument in this example is a single
 word, and is represented by a node labeled with that word.
 Here non-zero natural numbers are
 \ikey{un-reorderable argument indices}{un-reorderable argument index} of the
@@ -3990,9 +3994,10 @@ unification are 1-witness compatible.  This is because
 step \stepref{UNIFICATION-AMBIGUITY-FAILURE} of the node merge algorithm
 (\pagref{NODE-MERGE-ALGORITHM})
 means that if the nodes have incompatible 1-witnesses then the nodes each
-source only one arrow with the witness arrow label and therefore
-the targets of these two arrows must merge which is forbidden by
-step \stepref{UNIFICATION-LABEL-FAILURE}.
+source only one arrow with the witness arrow label, and therefore
+the targets of these two arrows must merge, which is forbidden by
+step \stepref{UNIFICATION-LABEL-FAILURE} as according to the incompatible
+1-witnesses the targets have unequal labels.
 
 It can even be proved that if two expression graphs can be unified
 by pure unification (\secref{PURE-UNIFICATION}),
@@ -4230,8 +4235,8 @@ In \ikey{implicit conversions}{implicit conversion!to expression graph}%
 what appear to be nodes labeled by a word L beginning with
 a capital letter or with `\ttkey{\#}' followed by a capital
 letter are treated as the equivalent of `\verb|[// |L\verb|]|'.
-Thus L is a variable name and its name used like a node label
-in the raw expression
+Thus L is a variable name, and when used like a node label
+in the raw expression, L
 represents a null node that is a value of the variable named L.
 For \ikey{explicit conversions}{explicit conversion!to expression graph}
 no such special provision is made for words that are used like node labels.
@@ -4257,8 +4262,8 @@ of the form `\verb|{|{\em word-or-separator}\verb|}|' can be used
 with the `\verb|//|' operation
 to merge nodes that are not the value or default of any real variable.
 This use simply
-creates variables with names that are not single words or separators
-which are discarded at the end of conversion.
+creates variables with names that are not single words or separators,
+and these variables are discarded at the end of conversion.
 The pseudo-variable `\verb|{ROOT}|' is always given
 the root node of the expression tree as one of its values, but may
 be given other values by this method.
