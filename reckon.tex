@@ -173,7 +173,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{October 13, 2004}
+\date{October 29, 2004}
  
 \maketitle
 
@@ -195,9 +195,9 @@ Language, that is informally referred to as P-Castle, Personal Castle, or just
 Castle.
 
 PCASL is designed for naive programmers: that is, for people who may never
-be able to program computers well.  It is a simple language that has
-powerful data types which make it easier to write small programs
-that do a variety of tasks that a person might want to do.  Generally
+be able to program computers well.  It is a simple language with
+powerful data types that make it easier to write small programs
+that do a variety of tasks a person might want to do.  Generally
 the tasks fall into the categories of calculating things (taxes,
 probabilities, statistics) or simulating things
 (computer games, construction designs, mathematics demonstrations).
@@ -285,8 +285,8 @@ The definitions of a block, taken all
 together, are called the `code' of the block.
 
 You can use PCASL as a calculator by typing into it expressions to
-be evaluated and assignments of values and definitions to variables.
-Some examples involving numbers are:
+be evaluated, assignments of values to variables, and definitions
+of functions and predicates.  Some examples involving numbers are:
 
 \begin{indpar}\begin{verbatim}
 > 9
@@ -867,11 +867,14 @@ a sequence of lexemes.  The sequence of lexemes is then subject to
 a left to right lexical parsing scan to produce a final set of lexemes
 that is input for expression parsing.
 
-For example, the input `{\tt x = 7' 25";}' contains the pre-lexeme
+For example, the input `{\tt x = 7' 5.5";}' contains the pre-lexeme
 `{\tt 5.5";}', which is split into 3 lexemes `{\tt 5.5 " ;}', and
 then during lexical parsing numbers and units are grouped
-using parentheses to produce the following string of 9 lexemes:
-`{\tt x = ( 7 ' 25 " ) ;}'.
+using parentheses to produce from the input the following string of 9 lexemes:
+
+\begin{center}
+\tt x = ( 7 ' 5.5 " ) ;
+\end{center}
 
 \subsection{Pre-Lexemes}
 
@@ -1088,11 +1091,11 @@ During the scan a character $C$ is said to be in the
 if and only if $C$ is between the matched lexemes of $P$,
 and $C$ is not between any other pair of matched
 lexemes that is nested inside of $P$.  For example,
-in \verb|{ x [ y ] z }|, \verb|{ }| are in the outermost pre-lexical
-context, \verb|x [ ] z| are in the middle pre-lexical context whose
+in \verb|{ x [ y ] z }|, \verb|{ }| are in the outermost lexical
+context, \verb|x [ ] z| are in the middle lexical context whose
 matched lexemes are \verb|{ }|, and
-\verb|y| is in the innermost pre-lexical context whose matched lexemes
-are \verb|[ ]|.
+\verb|y| is in the innermost lexical context whose matched lexemes
+are \verb|[ ]|.\label{LEXICAL-CONTEXT}
 
 For a sequence of pre-lexemes, \mkey{matched}{pre-lexemes} pre-lexemes
 and \key{pre-lexical context} are defined as for a sequence of lexemes.
@@ -1157,11 +1160,11 @@ Angle and Format Separator Examples:
 \begin{tabular}{@{}l@{\hspace*{0.6in}}l}
 			& Pre-Lexeme Sequence		\\
 Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
-\verb|x <= y |		& \tt x \verb|_| \verb|<=| \verb|_| y	\\
-\verb|x <<= y |		& \tt x \verb|_| \verb|<<| = \verb|_| y	\\
-\verb/x = y|z/		& \tt x \verb|_| = \verb|_| \verb/y|z/ \\
-\verb/x = `y|z'/	& \tt x \verb|_| = \verb|_|
-                              \verb|`| y \verb/|/ z \verb|'| \\
+\verb|x <= y |		& \tt x~~\verb|_|~~\verb|<=|~~\verb|_|~~y	\\
+\verb|x <<= y |		& \tt x~~\verb|_|~~\verb|<<|~~=~~\verb|_|~~y	\\
+\verb/x = y|z/		& \tt x~~\verb|_|~~=~~\verb|_|~~\verb/y|z/ \\
+\verb/x = `y|z'/	& \tt x~~\verb|_|~~=~~\verb|_|~~%
+                              \verb|`|~~y~~\verb/|/~~z~~\verb|'|~~\\
 \end{tabular}
 \end{indpar}
 
@@ -1197,7 +1200,8 @@ with no effect.
 
 After these rules are applied, a {\em white-space} pre-lexeme consists
 of zero or more {\em vertical-space-characters} followed by
-zero or more {\em space} characters.  It is not possible to have an
+zero or more {\em space} characters.\label{WHITE-SPACE-PRE-LEXEMES}
+It is not possible to have an
 empty {\em white-space} pre-lexeme; the pre-lexeme either has a
 {\em vertical-space-character} which none of the above rules delete,
 or it has a {\em space} character which cannot be deleted because
@@ -1405,12 +1409,13 @@ These errors are detected when the lexemes are converted to numbers.
 The last line of {\em radix-number} examples above are legal lexemes that
 will give errors when converted to numbers.
 Note that standard radix indicators only allow commas, a decimal point,
-and digits as {\em radix-number-marks}.
+digits, and letters that are hexadecimal digits
+as {\em radix-number-marks}.
 
 On the other hand, it
 is possible to define non-standard converters for converting
 {\em radix-number} lexemes to numbers, and thereby increase the
-space of number representations.
+set of legal number representations.
 
 \subsubsubsection{Ratios}
 \label{RATIOS}
@@ -1474,6 +1479,13 @@ X\#a9\#e0	& B\#1011\#e-3	& O\#0.7753\#e-5
 
 Note that exponents cannot contain commas.
 
+The digits in an exponent are always decimal, even when the number has
+a radix indicator such as {\tt B} or {\tt X} that indicates a different
+radix.  However, the interpretation of the exponent depends upon the
+radix indicator.  Standard radix indicators interpret the exponent as
+multiplication by their radix to the exponent power.  Thus
+{\tt B\#1101\#e-2} and {\tt B\#11.01\#} are both equal to {\tt 3.25}.
+
 \subsubsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
 
@@ -1527,7 +1539,7 @@ numbers: see \pagref{IMAGINARY-UNITS}.
 Note that {\em radix-numbers}, {\em ratios}, and {\em scientific-numbers}
 cannot have units as part of their pre-lexeme.  This is to reduce confusion:
 the units can always be given separated by a space from the number,
-as in `{\tt \pounds} \verb|O#7601#|', `\verb|$ 3/4|', and `\verb|5e3 i|'.
+as in `{\tt \pounds~}\verb|O#7601#|', `\verb|$ 3/4|', and `\verb|5e3 i|'.
 
 \subsubsection{Post Separators}
 \label{POST-SEPARATORS}
@@ -1621,12 +1633,15 @@ Pre-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 the number of {\em space} characters in the {\em white-space}
 pre-lexeme just before the first non-{\em white-space} pre-lexeme
 of the line.  Note that lines cannot be empty; empty lines are
-merged into {\em white-space} pre-lexemes.
+merged into {\em white-space} pre-lexemes.  Recall that
+{\em white-space} pre-lexemes each consist
+of zero or more {\em vertical-space-characters} followed by
+zero or more {\em space} characters (\pagref{WHITE-SPACE-PRE-LEXEMES}).
 
 At any given point in the scan converting pre-lexemes to lexemes, there is a
 stack of indentation records, called the \key{indentation stack}.
 An \key{indentation record} is a number of
-columns, a pre-lexical context, and a flag.
+columns, a pre-lexical context (\pagref{LEXICAL-CONTEXT}), and a flag.
 The number of columns is called the \key{indentation}.
 The flag is called the \key{implicit bracket flag}, and indicates whether
 or not an implied \verb|{| lexeme was inserted at the same time the
@@ -1650,7 +1665,8 @@ bracket pair, or are the outermost pre-lexical context, which therefore behaves
 like the context of a \verb|{ }| bracket pair as far as indentation is
 concerned.  A line beginning is said to be in a particular pre-lexical
 context if the first lexeme on the line, were it not a {\em closing-mark},
-would be in that pre-lexical context.
+would be in that pre-lexical context.  One may think of a \key{line beginning}
+as being a position on a line just before the first pre-lexeme on the line.
 
 {\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
 If the first non-{\em white-space} pre-lexeme of a line is not \verb|}|,
@@ -1683,13 +1699,13 @@ record is the indentation of the next line, the implicit bracket flag
 of the record is on, and the
 pre-lexical context of the record is that of the \verb|:|.
 The pushed record is popped (1) just before the first line such that
-the line beginning in the record's pre-lexical context
+the line beginning is in the record's pre-lexical context
 and the line's indentation is less than the record's indentation,
 or (2) at the end of the input pre-lexeme stream.
 When the record is popped, a \verb|}| implied {\em closing-mark}
 lexeme is output.  It is an error if this implied {\em closing-mark}
 does not match the implied {\em opening-mark} associated with the popped
-record.
+record, because of intervening explicit opening and closing marks.
 
 In order to avoid subtle errors created by indentation, there
 is a {\tt minimum-indentation} parameter and the following rule.
@@ -1794,7 +1810,9 @@ There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
 
 \begin{indpar}
-\ikey{LEXEME-DEFINITION}{lexeme-definition}
+\ikey{LEXEME-DEFINITION}{lexeme-definition}\,\footnote{Capitalized syntactic
+categories represent PCASL expressions defined by expression
+definitions (\secref{EXPRESSION-DEFINITIONS}).}
 		     \begin{tabular}[t]{rl}
                      ::= & {\em LEXEME-DICTIONARY-DEFINITION} \\
 		     $|$ & {\em LEXEME-FUNCTION-DEFINITION}
@@ -1924,7 +1942,7 @@ first that replaces lexemes.
 \item
 \verb|define lexeme dictionary [english lexeme dictionary]|~~
 This dictionary translates common English irregular plurals,
-such to their singular form, and decomposes
+to their singular form, and decomposes
 irregular possessives to their singular decomposed form.
 This dictionary also protects irregular singular forms that might be
 mistaken for regular plural forms (e.g., `\verb|news|').
