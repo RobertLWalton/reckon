@@ -173,7 +173,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{October 30, 2004}
+\date{October 31, 2004}
  
 \maketitle
 
@@ -2622,8 +2622,9 @@ are called \skey{subdefinition}s.
 
 Note that subdefinitions can include any definitions that can be 
 pushed onto the parsing stack, and can also include undefinitions, that
-inactivate all definitions with particular names in the stack
-(\secref{TBD}).
+inactivate all definitions with particular names in the stack.
+See \pagref{PARSING-STACK-DEFINITION-KINDS} for a list of the kinds of
+definition that may be pushed into the parsing stack.
 
 
 \subsubsection{Operator Definition Syntax}
@@ -2703,19 +2704,29 @@ which correspond to the definitions
 define qualifier with
 
 define qualifier shortcuts
-       ( [left => with associativity [left]],
-         [right => with associativity [right]],
-         [definitional => with flags [definitional]] )
+       ( [left => with associativity left],
+         [right => with associativity right],
+         [definitional => with flags definitional] )
 
 define operator FIXITY NAME
-		with precedence PRECEDENCE
-		with associativity ASSOCIATIVITY
-		with parser PARSER
-		with flags FLAGS
-		with wrapper WRAPPER
-		with subdefinitions SUBDEFINITIONS
-		<-- integer(PRECEDENCE)
+       ?? with precedence PRECEDENCE
+       ?? with associativity ASSOCIATIVITY
+       ?? with parser PARSER
+       ?? with flags FLAGS
+       ?? with wrapper WRAPPER
+       ?? with subdefinitions SUBDEFINITIONS
+       <-- missing(PRECEDENCE) or integer(PRECEDENCE)
 \end{verbatim}
+\end{indpar}
+
+It is possible to temporarily void an operator definition by
+placing a canceling undefinition in the parsing stack.  This has the
+syntax:
+
+\begin{indpar}
+\ikey{OPERATOR-UNDEFINITION}{operator-undefinition} \\
+	\hspace*{0.5in}::= \verb|undefine operator|
+	~ {\em OPERATOR-FIXITY} ~ {\em OPERATOR-NAME}
 \end{indpar}
 
 \subsubsection{Operator Selection}
