@@ -1062,6 +1062,8 @@ create {\em indentation-lexemes}.
 Then {\em white-space} pre-lexemes are
 discarded: they are not {\em lexemes}.
 
+[TBD: what about use of whitespace in text.]
+
 {\em Format-separators}, {\em opening-marks}, and {\em closing-marks}
 are both pre-lexemes and lexemes.
 
@@ -1546,7 +1548,7 @@ beginning of the expression if necessary, as when
 \verb|((integral x) from 0)| is restructured as
 \verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators can cause
 major restructuring of an expression (\ref{OPERATORS}),
-as when \verb|x + y - 5 * z| is restructured as \verb|[+- x + y - [* 5 z]]|,
+as when \verb|x + y - 5 * z| is restructured as \verb|[- [+ x y] [* 5 z]]|,
 and qualifiers
 can cause qualifier marks (\verb|@@@|) to be inserted, as when
 \verb|sort x| \verb|ascending|
@@ -1579,11 +1581,58 @@ is initially at +1.
 A raw expression is an expression that contains no operators,
 qualifiers, or text parsing contexts that induce restructuring.
 Also, all raw expressions must begin with a word or separator.
+Raw expressions can be directly represented using the \verb|[]|
+matching lexemes.
 
 When an expression is parsed, the output is a raw expression.
-Some examples are:
+The following are examples, all of which are assumed to
+appear in the context of \verb|{}| matching lexemes (so
+operators and qualifiers are turned on and text parsing is turned off):
 
-TBD
+\begin{center}
+\begin{tabular}{ll}
+Input Expression	& Raw Expression Equivalent \\[1ex]
+\verb|3*x*x + 5|	& \verb|[+ [* [* 3 x] x] 5]| \\
+\verb|x = y = 10|	& \verb|[= x [= y 10]]| \\
+\verb|0 < x <= 5 |	& \verb|[-COMPARE- 0 < x <= 5]| \\
+\verb|x = `Hello <<y>>.' |
+			& \begin{tabular}[t]{@{}l}
+	    \verb|[= x [-EVAL-OFF-| \\
+	    \verb|      [sentence Hello| \\
+	    \verb|                [-EVAL-ON- y]| \\
+	    \verb|                .]]]| \\
+	    \end{tabular}
+\end{tabular}
+\end{center}
+
+The syntax of raw expressions is defined as follows:
+
+\begin{indpar}
+\key{raw-expression} ::= {\em word} $|$ {\em separator}
+				     $|$ {\em raw-subexpression} \\[1ex]
+\key{raw-subexpression} ::=
+	\begin{tabular}[t]{@{}ll}
+	\verb|[| & {\em raw-expression-head} \\
+		 & {\em raw-expression-argument-list} \\
+		 & {\em raw-expression-qualifier-phrase}$^\star$ \verb|]| \\
+	\end{tabular} \\[1ex]
+\key{raw-expression-head} ::= {\em word} $|$ {\em separator} \\[1ex]
+\key{raw-expression-argument-list}
+	\begin{tabular}[t]{@{}rl}
+	::= & {\em empty} \\
+	$|$ & {\em raw-expression-argument} \\
+	    & \{ {\em reorder-mark-option}
+		 {\em raw-expression-argument} \}$^\star$ \\
+	\end{tabular} \\[1ex]
+\key{reorder-mark-option} ::= {\em empty} $|$ \verb|<=>| \\[1ex]
+\key{raw-expression-argument} ::= {\em raw-expression} \\[1ex]
+\key{raw-expression-qualifier-phrase} ::=
+	\begin{tabular}[t]{@{}ll}
+	\verb|@@@| & {\em raw-expression-qualifier-head} \\
+		   & {\em raw-expression-argument-list} \\
+	\end{tabular} \\[1ex]
+\key{raw-expression-qualifier-head} ::= {\em word} $|$ {\em separator}
+\end{indpar}
 
 \subsection{Parsing}
 \label{PARSING}
