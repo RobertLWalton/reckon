@@ -1525,7 +1525,7 @@ pre-lexeme just before the first non-{\em white-space} pre-lexeme
 of the line.  Note that lines cannot be empty; empty lines are
 merged into {\em white-space} pre-lexemes.
 
-At any given point in the scan of pre-lexemes, there is a
+At any given point in the scan converting pre-lexemes to lexemes, there is a
 stack of indentation records, called the \key{indentation stack}.
 An \key{indentation record} is a number of
 columns, a pre-lexical context, and a flag.
@@ -1544,13 +1544,21 @@ the same.
 
 The indentation in the indentation record at the top of the indentation
 stack is called the \key{current indentation}, and the pre-lexical
-context in that record is called the \key{current pre-lexical context}.
+context in that record is called the \key{current indentation context}.
+
+The rules for creating indentation records are such that the pre-lexical
+contexts in such records are either pre-lexical contexts of some \verb|{ }|
+bracket pair, or are the outermost pre-lexical context, which therefore behaves
+like the context of a \verb|{ }| bracket pair as far as indentation is
+concerned.
 
 {\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
-If the first non-{\em white-space} pre-lexeme of a line is neither
-\verb|{| nor \verb|}|, if that pre-lexeme is in
-the current pre-lexical context, and if the indentation of the line
-is the current indentation, and if the last lexeme output was not
+If the first non-{\em white-space} pre-lexeme of a line is not \verb|}|,
+if the beginning of the line is in the current indentation context
+(the first pre-lexeme of the line would be in the current indentation
+context if it did not end a sub-context),
+if the indentation of the line is the current indentation,
+and if the last lexeme output was not
 a \verb|;| {\em separator} lexeme or a \verb|{| {\em opening-mark}
 lexeme (including an implied {\em opening-mark} as in the
 Implicit-Bracket Rule below), then a \verb|;| implied {\em separator}
@@ -1564,11 +1572,12 @@ is output.  The indentation in the record is the indentation of the next
 line, the pre-lexical context is that in effect just after the \verb|{|,
 and the implicit bracket flag is off.
 The pushed indentation record is popped just after its pre-lexical context
-ends; that is, just after reading the \verb|}| pre-lexeme that matches the
+ends; that is, just before reading the \verb|}| pre-lexeme that matches the
 \verb|{| pre-lexeme that pushed the indentation record.
 
 {\bf Implicit-Bracket Rule.}\index{Implicit-Bracket Rule}
-If the last lexeme output for a line would be a post-separator \verb|:|,
+If the last lexeme output for a line would be a separator \verb|:| in
+the current indentation context,
 then a \verb|{| implied {\em opening-mark} lexeme
 is output instead of the \verb|:|, and an indentation
 record is pushed into the indentation stack.  The indentation of the
@@ -1586,7 +1595,9 @@ In order to avoid subtle errors created by indentation, there
 is a {\tt minimum-indentation} parameter and the following rule.
 
 {\bf Minimum-Indentation Rule.}\index{Minimum-Indentation Rule}
-The indentation of any line must equal the current indentation
+The indentation of any line whose beginning is in the current indentation
+context (the first pre-lexeme of the line would be in the current indentation
+context if it did not end a sub-context) must equal the current indentation
 or differ from it by at least the value of the
 \ttkey{minimum-indentation} parameter.  The {\tt minimum-indentation}
 parameter defaults to {\tt 4}.
@@ -1643,10 +1654,10 @@ context.			& context . \\
 \begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 hi \{				& hi \{ \\
 ~~~~x				& x \\
-~~~~y \{			& ; y \{ \\
+~~~~\{				& ; \{ \\
 ho				& ho \\
-hum \} z			& ; hum \} z \\
-~~~~w \}			& ; w \}
+hum \} y			& ; hum \} y \\
+~~~~z \}			& ; z \}
 \end{tabular}
 \end{indpar}
 
