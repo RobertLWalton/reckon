@@ -740,7 +740,7 @@ A PCASL program is a sequence of characters which is scanned from
 left to right to produce a sequence of pre-lexemes.  The sequence
 of pre-lexemes is then scanned from left to right to produce
 a sequence of lexemes.  The sequence of lexemes is then subject to
-a left to right post-lexical scan to produce a final set of lexemes
+a left to right spelling scan to produce a final set of lexemes
 that is input for expression parsing.
 
 \subsection{Pre-Lexemes}
@@ -1138,19 +1138,13 @@ defining {\em numbers} are as follows.
 \begin{indpar}
 \key{number} ::= {\em real-number} $|$ {\em unit-number}
 				   $|$ {\em complex-number} \\[1ex]
-\key{real-number} ::= {\em unsigned-real-number}
-                  $|$ {\em sign} {\em unsigned-real-number}
-		      \\[1ex]
-\key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
-\key{unsigned-real-number} ::= {\em unexponented-number}
-		$|$ {\em unexponented-number} {\em exponent} \\[1ex]
-\key{unexponented-number} ::= {\em decimal-number}
-			  $|$ {\em decimal-ratio}
-			  $|$ {\em radixed-number}
+\key{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
+				           $|$ {\em ratio}
+				           $|$ {\em scientific-number}
 \end{indpar}
 
-\subsubsection{Real Decimal Numbers}
-\label{REAL-DECIMAL-NUMBERS}
+\subsubsection{Decimal Numbers}
+\label{DECIMAL-NUMBERS}
 
 Decimal numbers are sequences of digits with an optional decimal point
 and an optional exponent.
@@ -1160,12 +1154,15 @@ The syntax equations defining {\em decimal-numbers} and
 {\em decimal-ratios} are as follows.
 
 \begin{indpar}
-\key{decimal-number} \begin{tabular}[t]{rl}
-                     ::= & {\em decimal-natural} \\
-		     $|$ & {\em decimal-natural} \verb|.|
-		           {\em decimal-natural} \\
-		     $|$ & \verb|.| {\em decimal-natural}
-		     \end{tabular} \\[1ex]
+\key{decimal-number} ::= {\em unsigned-decimal-number}
+                     $|$ {\em sign} {\em unsigned-decimal-number} \\[1ex]
+\key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
+\key{unsigned-decimal-number} \begin{tabular}[t]{rl}
+                              ::= & {\em decimal-natural} \\
+		              $|$ & {\em decimal-natural} \verb|.|
+		                    {\em decimal-natural} \\
+		              $|$ & \verb|.| {\em decimal-natural}
+		              \end{tabular} \\[1ex]
 \key{decimal-natural} ::= {\em decimal-digits}
 		     $|$ {\em decimal-natural} \verb|,| {\em decimal-digits}
 		     \\[1ex]
@@ -1211,24 +1208,24 @@ Similarly there will be an error converting a {\em decimal-ratio} to a
 number if the denominator equals zero, but the ratio will still be a legal
 lexeme.  \verb|-53/000| is an example.
 
-\subsubsection{Radixed Numbers}
+\subsubsection{Radix Numbers}
 \label{RADIXED-NUMBERS}
 
-\ikey{Radixed-numbers}{radixed-number} permit binary, octal, or hexadecimal
+\ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
 radices to the used instead of decimal.  In fact, other number representation
 schemes are permitted.
 
 \begin{indpar}
-\key{radixed-number}::= {\em radix-indicator}
-		        \verb|`| {\em radixed-number-mark}
+\key{radix-number}::= {\em radix-indicator}
+		        \verb|`| {\em radix-number-mark}
 		        {\em radix-number-mark}$^\star$ \verb|'|
 		        \\[1ex]
 \key{radix-indicator} ::= {\em letter} {\em letter}$^\star$ \\[1ex]
-\key{radixed-number-mark} ::= {\em digit} $|$ {\em letter}
+\key{radix-number-mark} ::= {\em digit} $|$ {\em letter}
                       $|$ \verb|.| $|$ \verb|,| $|$ {\em sign}
 \end{indpar}
 
-Radixed Number Examples:
+Radix Number Examples:
 
 \begin{indpar}[0.1in]
 \tt
@@ -1258,26 +1255,62 @@ hexadecimal
 \end{tabular}
 \end{center}
 
-{\em Radixed-numbers} can be legal lexemes and still be unconvertable to
+{\em Radix-numbers} can be legal lexemes and still be unconvertable to
 numbers because their {\em radix-indicators} are undefined, they
 have digits not defined for the given {\em radix-indicator}, they
 have too many decimal points, and so forth.  These errors are detected
 when the lexemes are converted to numbers.  On the other hand, it
 is possible to define non-standard converters for converting
-{\em radixed-number} lexemes to numbers, and thereby increase the
+{\em radix-number} lexemes to numbers, and thereby increase the
 space of number representations.
+
+\subsubsection{Ratios}
+\label{RATIOS}
+
+A {\em ratio} consists of two strings of decimal digits, the numerator
+separated by a slash (`\verb|/|'), with an optional prefix sign.
+
+\begin{indpar}
+\key{ratio} ::= {\em unsigned-ratio}
+	    $|$ {\em sign} {\em unsigned-ratio} \\[1ex]
+\key{ratio} ::= {\em numerator} \verb|/| {\em denominator} \\[1ex]
+\key{numerator} ::= {\em decimal-natural} \\[1ex]
+\key{denominator} ::= {\em decimal-natural}
+\end{indpar}
+
+Ratio Examples:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\
+\end{tabular}
+\end{indpar}
+
+If the denominator equals zero, the ratio is still a legal lexeme, but
+will cause an error when it is interpreted as a number.
+\verb|-53/000| is an example.
 
 \subsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
 
-\ikey{Unit-numbers}{unit-number} are just {\em real-numbers} with a
-{\em unit-indicator} prefixed or postfixed.
+\ikey{Unit-numbers}{unit-number} are just {\em decimal-numbers} or {\em ratios}
+with a {\em unit-indicator} prefixed or postfixed.  A {\em sign} may be before
+or after a prefix {\em unit-indicator}.
 
 \begin{indpar}
-\key{unit-number} ::= {\em pre-unit-indicator} {\em real-number}
-		  $|$ {\em real-number} {\em post-unit-indicator} \\[1ex]
+\key{unit-number} \begin{tabular}[t]{rl}
+		  ::= & {\em pre-unit-indicator} {\em base-number} \\
+		  $|$ & {\em sign} {\em pre-unit-indicator}
+		  		   {\em unsigned-base-number} \\
+		  $|$ & {\em base-number} {\em post-unit-indicator}
+		  \end{tabular} \\[1ex]
+\key{base-number} ::= {\em decimal-number} $|$ {\em ratio} \\[1ex]
+\key{unsigned-base-number} ::= {\em unsigned-decimal-number}
+                           $|$ {\em unsigned-ratio} \\[1ex]
 \key{pre-unit-indicator} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
-\key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ $^\circ$ \\[1ex]
+\key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ \verb|%|
+                          $|$ $^\circ$ \\[1ex]
 \key{unit-indicator} ::= {\em pre-unit-indicator}
 		     $|$ {\em post-unit-indicator}
 \end{indpar}
