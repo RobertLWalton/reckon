@@ -167,7 +167,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 30, 2004}
+\date{April 13, 2004}
  
 \maketitle
 
@@ -1788,8 +1788,16 @@ dictionary and function.  These have the syntax:
 		     $|$ & {\em LEXEME-FUNCTION-DEFINITION}
 		     \end{tabular} \\[1ex]
 \ikey{LEXEME-DICTIONARY-DEFINITION}{lexeme-dictionary-definition} \\
-	\hspace*{0.5in}::= \verb|define lexeme dictionary|
-				{\em LEXEME-DICTIONARY-ENTRIES} \\[1ex]
+	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
+	                   \verb|define | & \verb|lexeme dictionary|
+                                            {\em DICTIONARY-NAME} \\
+				& {\em LEXEME-DICTIONARY-ENTRIES}
+		     \end{tabular} \\[1ex]
+\ikey{DICTIONARY-NAME}{dictionay-name} ::=
+	\verb|[|
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\verb|]| \\[1ex]
 \ikey{LEXEME-DICTIONARY-ENTRIES}{lexeme-dictionary-entries}
                     ::= \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
 		    \\[1ex]
@@ -1802,6 +1810,8 @@ dictionary and function.  These have the syntax:
 \ikey{LEXEME-DICTIONARY-ENTRY}{lexeme-dictionary-entry} ::=
 	\verb|[| {\em replaced-lexeme} \verb|=>| {\em replacing-lexemes}
 	\verb|]| \\[1ex]
+\key{replaced-lexeme} ::=
+	\{ {\em word} $|$ {\em separator} \} \\[1ex]
 \key{replacing-lexemes} ::=
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}$^\star$ \\[1ex]
@@ -1820,7 +1830,7 @@ which correspond to the expression definitions
 
 \begin{indpar}
 \begin{verbatim}
-define lexeme dictionary ENTRIES <== n-tuple ENTRIES
+define lexeme dictionary NAME ENTRIES <== n-tuple ENTRIES
 
 define lexeme function NAME <==
 \end{verbatim}
@@ -1863,14 +1873,51 @@ an appearance of the lexeme `\verb|fie|' will evaluate the
 expression `\verb|replace person fie|' which will return `\verb|false|'
 to avoid replacing the lexeme `\verb|fie|'.
 
+It is possible to temporarily void lexeme replacement definitions by
+placing cancelling undefinitions in the parsing stack.  These have the
+syntax:
+
+\begin{indpar}
+\ikey{LEXEME-UNDEFINITION}{lexeme-undefinition}
+		     \begin{tabular}[t]{rl}
+                     ::= & {\em LEXEME-DICTIONARY-UNDEFINITION} \\
+		     $|$ & {\em LEXEME-FUNCTION-UNDEFINITION}
+		     \end{tabular} \\[1ex]
+\ikey{LEXEME-DICTIONARY-UNDEFINITION}{lexeme-dictionary-undefinition} \\
+	\hspace*{0.5in}::= \verb|undefine lexeme dictionary|
+                                            {\em DICTIONARY-NAME} \\[1ex]
+\ikey{LEXEME-FUNCTION-UNDEFINITION}{lexeme-function-undefinition} \\
+	\hspace*{0.5in}::= \verb|undefine lexeme function|
+				{\em FUNCTION-NAME}
+\end{indpar}
+
+which correspond to the expression definitions
+(\secref{EXPRESSION-DEFINITIONS}):
+
+\begin{indpar}
+\begin{verbatim}
+undefine lexeme dictionary NAME <==
+
+undefine lexeme function NAME <==
+\end{verbatim}
+\end{indpar}
+
+The following standard lexeme dictionaries and functions have
+definitions in the initial parsing stack.  These are ordered in the
+stack so the first given below is at the top of the stack and is the
+first that replaces lexemes.
+
+\begin{list}{}{}
+
+\item
+\verb|define lexeme dictionary [standard lexeme dictionary]|
+
 TBD
 
+\end{list}
 
-
-
-
-\subsubsection{Possessive Splitting}
-\label{POSSESSIVE-SPLITTING}
+Lexeme replacement is \underline{not} recursive: the replacement lexemes are
+not themselves subject to replacement.
 
 \subsubsection{Number Unit Grouping}
 \label{NUMBER-UNIT-GROUPING}
