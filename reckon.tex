@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 5, 2003}
+\date{December 7, 2003}
  
 \maketitle
 
@@ -2218,13 +2218,13 @@ expression graphs:%
 e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
 1992, Cambridge University Press}
 
-\newcommand{\Glabel}[1]{{\tt #1}}
+\newcommand{\Glabel}[1]{\mbox{\tt #1}}
 \newcommand{\Gvariable}[1]{\fbox{\tt #1}}
 \newenvironment{Graph}%
     { \[ \left[ \begin{array}{l}}%
     {\end{array} \right] \]}
 \newenvironment{Gchild}[1]%
-    {{\tt #1}:
+    {\mbox{\tt #1}:
      \begin{array}{l}
      \rule{0in}{0in} \vspace{-0.15in} \\
      \left[ \begin{array}{l}}%
@@ -2364,8 +2364,16 @@ given the same argument index, in this case `\verb|1|'.  The argument
 after a \key{remainder mark} \ttkey{::>} is given the special argument index
 `\ttkey{-REST-}'.
 
-\subsection{Raw Expression Graphs}
-\label{RAW-EXPRESSION-GRAPHS}
+\subsection{Expression Graph Representation}
+\label{EXPRESSION-GRAPH-REPRESENTATION}
+
+Expression trees can be used to represent expression graphs.  This is
+done by defining conversion operators that convert expression trees
+to expression graphs, and vice versa.
+
+There are two kinds of such conversion operators: mnemonic and rigid.
+
+TBD
 
 
 \section{Expression Inference}
@@ -2378,16 +2386,16 @@ Expression inference is done for three reasons:
 {\bf Logic Inference}.\index{logic inference}The expression is
 inferred to discover whether the expression is true or false.
 
-{\bf Evaluation Inference}.\index{logic inference}The expression is
+{\bf Evaluation Inference}.\index{evaluation inference}The expression is
 inferred to discover a code block that is to be used to evaluate the expression.
 
-{\bf Reduction Inference}.\index{logic inference}The expression is
+{\bf Reduction Inference}.\index{reduction inference}The expression is
 inferred to discover a reduction of the expression, which is another
 expression that is substituted for the original expression.
 
 \end{indpar}
 
-All three forms of inference run a reduction/inference algorithm on the
+All three forms of inference run an inference algorithm on the
 expression and a set of inference rules.  This algorithm matches
 the expression to an inference rule, and then generates a new set of
 expressions that must be logically inferred in order for the matching
@@ -2410,7 +2418,7 @@ inference, a reduced expression associated with the reduction rule replaces
 the original expression.
 
 The third difference lies in what is done should inferrence fail.
-For logic inference, false is returned.  For evaluation inferrence, an
+For logic inference, false is returned.  For evaluation inferrence,
 the expression evaluates to an error value.
 For reduction inference, the original expression is left alone and not
 replaced, as if it reduced to itself.
@@ -2418,17 +2426,19 @@ replaced, as if it reduced to itself.
 The fourth difference is in what is done should an expression be inferrable
 in more than one way.  In logic inference, true is returned.  In evaluation
 inference, the code blocks of the separate inferences must be the same
-indentical code block, the expression evaluates to an error value.
-For reduction inference,
-the reduced expressions must be structurally the
-same (\ref{EXPRESSION-STRUCTURE}), else an error is
-signalled.
+indentical code block, else the expression evaluates to an error value.
+For reduction inference, the reduced expressions, an arbitrary
+one of the several reduced expressions is used to replace the original
+expression; it is up to PCASL programmers to code confluent%
+\footnote{`Confluent' means that all ways of recursively reducing
+an expression lead to the same final result.}
+reduction rules.
 
 \subsection{The Inference Algorithm}
 \label{INFERENCE-ALGORITHM}
 \label{INFERENCE-RULE}
 
-The inference algorithm inputs an expression to be inferred
+The \key{inference algorithm} inputs an expression to be inferred
 and a set of inference rules.
 
 Rules are collected into contexts.  An expression is
@@ -2450,7 +2460,8 @@ A goal is an expression that must be logically inferred to make
 inference involving the rule a success.  The intuition is that
 the head is true when all the goals are true, and if the head
 can be matched against the expression to be inferred, then
-the expression to be inferred is true if all the goals are true.
+the expression to be inferred is true if all the goals can be
+logically inferred.
 
 The head may contain variables that receive values during matching.
 The goals may contain these same variables which are replaced by
