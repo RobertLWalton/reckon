@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 20, 2004}
+\date{December 3, 2004}
  
 \maketitle
 
@@ -5284,12 +5284,28 @@ TBD: methods.
 \section{Side Effects}
 \label{SIDE-EFFECTS}
 
-Design:
+A \key{side effect} is an action that changes memory, inputs information from
+the outside world, or outputs information to the outside world.
+When an expression is evaluated, it may or may not have side effects.
 
-Operations that have side effects: input, output, object update
-(which is like object IO).
+The \key{side effect mode} controls the execution of side effects.
+It has three settings: {\tt execute}, {\tt delay}, and {\tt error}.
+In \ttkey{execute mode} a side effect simply executes.  In
+\ttkey{error mode} an attempt to execute a side effect raises an error,
+and the side effect is not executed.
 
-Operations that have side effects can be controlled by side effects modes.
+In \ttkey{delay mode} input and memory change side effects execute,
+and output side effects do not execute but are instead put on a
+{\tt todo} list.
+
+There are two lists maintained that permit side effects to be delayed
+or undone.  The \ttmkey{todo}{list} list is a list of delayed output
+actions that have been delayed.  The \ttmkey{undo}{list} list is
+a list of input and memory change actions that can be undone.
+The position of these lists can be recorded and an undo
+operation can be performed that backs up to previously recorded positions
+by deleting actions form the end of the {\tt todo} list and undoing
+actions on the end of the {\tt undo} list.
 
 They can be made illegal by setting the illegal-side-effects mode.
 
