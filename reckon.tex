@@ -4941,7 +4941,8 @@ The code of a block has the following syntax:
 \key{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
 \key{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
 \key{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
-\key{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
+\key{next-variable} ::= \ttkey{next} \verb|(| {\em variable-name} \verb|)|
+		\\[1ex]
 \key{variable-name} ::= {\em word} \\[1ex]
 \key{pattern-assignment-statement} ::=
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
@@ -5139,7 +5140,7 @@ terminates, no part of the group can be evaluated, even if another group
 later in the block defines that part's input variables.
 
 However, group evaluation is additionally modified by {\em statement-qualifiers}
-(\secref{DEFAULT-STATEMENTS}, \secref{BLOCK-ITERATION}).
+(\secref{DEFAULT-STATEMENTS}, \secref{ITERATION}).
 
 The \ikey{declarations}{declaration!evaluation} of a
 \mkey{declaration-group}{evaluation} are evaluated in order.  Evaluation of a
@@ -5176,7 +5177,7 @@ If a block finishes without producing a value for a variable named
 
 Block evaluation is additionally modified by {\em statement-qualifiers}
 and {\em next-variables}
-(\secref{DEFAULT-STATEMENTS} and \secref{BLOCK-ITERATION}).
+(\secref{DEFAULT-STATEMENTS} and \secref{ITERATION}).
 
 \subsection{Default Statements}
 \label{DEFAULT-STATEMENTS}
@@ -5215,57 +5216,69 @@ the value of the block is `{\tt true}' and the {\tt default}
 the {\tt default} {\em assignment-statement} becomes active and
 the value of the block is `{\tt false}'.
 
-\subsection{Block Iteration}
-\label{BLOCK-ITERATION}
-
-TBD
+\subsection{Iteration}
+\label{ITERATION}
 
 A block can \key{iterate}, meaning that it generates another block
 that is the next block in a sequence of blocks.  A block
 iterates if it does \underline{not} produce a value of a {\tt value}
-variable and if it does execute a \underline{non-{\tt default}}
-{\tt next} qualified {\em statement}.  The sequence of blocks are called the
+variable and if it does produce a value for a {\em next-variable}.
+The sequence of blocks are called the
 \skey{iteration}s of the sequence.  Evaluation of a block can always
 be thought of as producing a sequence of iterations, though this
 sequence might include only one block which does not iterate.
 
-The variable values computed by a \ttkey{next} qualified
-{\em statement} are not variable values in the current
-block, but are rather values for the current block's next block,
-if the current block iterates.  The next block starts with these
-variable values, so these variables must not be assigned in the next
-block.
+A {\em next-variable} is named by a {\em variable-name} that is the
+operand of a \ttkey{next} unary operator.  A {\em next-variable}
+is effectively a new variable with a name derived from the
+{\em variable-name}.  We will used the notation \verb|next(|$V$\verb|)|
+to denote the {\em next-variable} made from the variable name $V$.
+The value of \verb|next(|$V$\verb|)| at the end of execution of the
+current block iteration becomes the value of $V$ at the beginning
+of execution of the next block iteration.  In order for there to be
+a next iteration, the current iteration must compute the value of
+some {\em next-variable}, and the current iteration must not compute
+the value of the {\tt value} variable.
 
-If a {\em statement} is qualified by both {\tt next} and {\tt default},
-the {\em statement} becomes visible after all {\tt default}
-{\em statements} have become visible and executed if at this point
-the block is going to iterate, and if at this point none of the variables
-that can be assigned by the {\em statement} have values for the next iteration.
+{\em Next-variables} can be both output and input variables.
+When used as input variables they are just like other input variable.
+The {\tt next} operator can be applied to an expression that does not
+consist solely of a {\em variable-name}.  When this is done, it is
+as if the {\tt next} operator had instead been applied to every
+{\em variable-name} in the expression.  Thus `\verb|next(x+y)|' is
+the equivalent of `\verb|next(x) + next(y)|'.
+
+If a default statement outputs a {\em next-variable}, the statement
+cannot become active unless some other {\em next-variable} has already
+been given a value.  Thus the decision to iterate cannot be made inside
+a default statement.
 
 A statement of the form
 
 \begin{center}
-\verb|default| \verb|next| {\em variable-name} = {\em variable-name}
+\verb|default| \verb|next(|$V$\verb|)| = $V$
 \end{center}
 
-is implied for every inherited {\em variable-name} that is not
-defined by an explicit `{\tt default next}' statement in the code.
+is implied in the last group of a block
+for every inherited {\em variable-name} $V$ provided
+no other default statement in the last group of the block
+outputs \verb|next(|$V$\verb|)|.
 Thus inherited variables are normally propagated unchanged from
 one iteration to the next.
 
-If a `{\tt next}' qualified statement sets a variable to the value of
+If a {\em next-varible} is given the value of
 the expression `\ttkey{UNDEFINED}',\label{UNDEFINED}
 the variable will become undefined
 at the beginning of the next iteration.  Thus the statement
 
 \begin{center}
-\verb|default| \verb|next| {\em variable-name} = \verb|UNDEFINED|
+\verb|default| \verb|next(|$V$\verb|) = UNDEFINED|
 \end{center}
 
-for an inherited {\em variable-name} will keep the inherited
+for an inherited {\em variable-name} $V$ will keep the inherited
 variable from being propagated from one iteration to the next.
-The expression `{\tt UNDEFINED}' cannot be used to set a variable
-outside a `{\tt next}' qualified statement.
+The expression `{\tt UNDEFINED}' cannot be used to set a
+non-{\em next-variable}.
 
 A \ttkey{first} qualified {\em statement} is only visible in the
 first iteration of a block sequence.
@@ -5274,16 +5287,13 @@ An \ttkey{always} qualified {\em statement} is equivalent to the {\em statement}
 qualified by {\tt first} plus additional {\em statements} of the form
 
 \begin{center}
-\verb|default| \verb|next| {\em variable-name} = {\em variable-name}
+\verb|default| \verb|next(|$V$\verb|) = |$V$
 \end{center}
 
-for every {\em variable-name} that can be assigned by the
-{\tt always} qualified {\em statement}.  The intention is that the
+for every {\em variable-name} $V$ that can be assigned by the
+{\tt always} qualified {\em statement}.  Thus the
 {\tt always} qualified {\em statement} will assign values on the first
-iteration and these values will then be propagated to subsequent iterations.
-
-TBD: should {\tt next} qualify a variable name and not a statement?
-
+iteration, and these values will then be propagated to subsequent iterations.
 
 
 \section{Objects}
@@ -5316,7 +5326,7 @@ Objects are updated by adding code to them either permanently or temporarily.
 Whenever code is added to an object, the code executes as much as it
 can to define variable values that are then components of the object.
 When the code can execute no further (\secref{BLOCK-EVALUATION},
-\secref{DEFAULT-STATEMENTS}, \secref{BLOCK-ITERATION}), any
+\secref{DEFAULT-STATEMENTS}, \secref{ITERATION}), any
 variables that do not have values become undefined components.  If some of
 undefined components are given values later, any code that is a permanent
 part of the object may restart and produce additional variable values that
