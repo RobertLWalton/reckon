@@ -311,9 +311,9 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|> out = `The value of {<<<g>>> from (x = 1) to (x = 5)} is <<v>>.'| \\
 \verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|{sentence the value of| \\
+\verb|[sentence the value of| \\
 \verb|          {(integral (x ^ 2 * dx)) from (x = 1) to (x = 5)}| \\
-\verb|          is 124/3}|
+\verb|          is 124/3]|
 \end{indpar}
 
 Another kind of datum you can compute with in PCASL is
@@ -1143,7 +1143,7 @@ defining {\em numbers} are as follows.
 				           $|$ {\em scientific-number}
 \end{indpar}
 
-\subsubsection{Decimal Numbers}
+\subsubsubsection{Decimal Numbers}
 \label{DECIMAL-NUMBERS}
 
 Decimal numbers are sequences of digits with optional commas,
@@ -1193,7 +1193,7 @@ but is \underline{not} an error of lexeme formation.  The last line of
 examples above are therefore legal lexemes that will give errors when
 converted to numbers.
 
-\subsubsection{Radix Numbers}
+\subsubsubsection{Radix Numbers}
 \label{RADIXED-NUMBERS}
 
 \ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
@@ -1265,7 +1265,7 @@ is possible to define non-standard converters for converting
 {\em radix-number} lexemes to numbers, and thereby increase the
 space of number representations.
 
-\subsubsection{Ratios}
+\subsubsubsection{Ratios}
 \label{RATIOS}
 
 A {\em ratio} consists of two strings of decimal digits, the numerator
@@ -1293,7 +1293,7 @@ If the denominator equals zero, the ratio is still a legal lexeme, but
 will cause an error when it is interpreted as a number.
 \verb|-53/000| is an example.
 
-\subsubsection{Scientific Numbers}
+\subsubsubsection{Scientific Numbers}
 \label{SCIENTIFIC-NUMBERS}
 
 A {\em scientific-number} is a {\em decimal-number} or a {\em radix-number}
@@ -1327,7 +1327,7 @@ X\#a9\#e0	& B\#1011\#e-3	& O\#0.7753\#e-5
 
 Note that exponents cannot contain commas.
 
-\subsubsection{Unit Numbers}
+\subsubsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
 
 \ikey{Unit-numbers}{unit-number} are just {\em decimal-numbers} or {\em ratios}
@@ -1377,7 +1377,7 @@ Note that {\em ratios} and {\em scientific-numbers} cannot have units
 as part of their pre-lexeme.  This is to reduce confusion: the units can
 always be given separated by a space from the number, as in `\verb|5e3 %|'.
 
-\subsubsection{Complex Numbers}
+\subsubsubsection{Complex Numbers}
 \label{COMPLEX-NUMBERS}
 
 An {\em imaginary-number} is just a {\em decimal-number}, {\em radix-number},
@@ -1662,6 +1662,29 @@ hum \} y			& ; hum \} y \\
 \end{indpar}
 
 
+\subsection{Spelling Scan}
+\label{SPELLING-SCAN}
+
+After pre-lexemes are scanned to produce lexemes, the lexemes are
+scanned to perform the following:
+
+\begin{indpar}[1in]
+Spelling Regularization \\
+Possessive Splitting \\
+Number Unit Grouping
+\end{indpar}
+
+\subsubsection{Spelling Regularization}
+\label{SPELLING-REGULARIZATION}
+
+\subsubsection{Possessive Splitting}
+\label{POSSESSIVE-SPLITTING}
+
+\subsubsection{Number Unit Grouping}
+\label{NUMBER-UNIT-GROUPING}
+
+We will describe these in order.
+
 \section{Expression Parsing}\index{parsing}
 \label{EXPRESSION-PARSING}
 
@@ -1681,7 +1704,8 @@ in an argument list does not matter.
 
 Expressions containing operators are restructured, both by inserting
 implied parentheses and in other ways.  Subexpressions surrounded by
-particular matching lexemes, such as \verb|`'|, are restructured.
+particular matching lexemes, such as \verb|`'|, are restructured in
+special ways.
 
 The process of restructuring expressions is called \key{parsing}.
 Parsing takes an expression as input, and produces as output a raw
@@ -1703,27 +1727,34 @@ the following syntax equations.
 \end{indpar}
 
 {\bf Subexpression Rule.}\index{Subexpression Rule}
-The {\em opening-mark} lexeme that begins a subexpression
-must match (\ref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
+The {\em opening-mark} lexeme that begins a subexpression must lexically match
+(\ref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
 \subsection{Expression Structure}
 \label{EXPRESSION-STRUCTURE}
 
-Expression structure is affected by three special marks.
+Expression structure is affected by four special marks.
 The \key{reorder mark} (\ttkey{<:>}) separates arguments that can be
 reordered, as in the expression `\verb|element LIST <:> INDEX|', and is used in
 expression definitions.
 The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in an
-expression definition that represents the list of remainding arguments in a use
+expression definition that represents the list of remaining arguments in a use
 of the definition, as in the expression `\verb|max ::> ARGS|'
 where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
-The \key{qualifier mark} (\ttkey{@@}) signals that the following
-expression item is a qualifier, as in the expression
-`\verb|sort x @@ ascending|',
-and is implied by qualifiers (e.g. \verb|with|, \verb|has|,
-\verb|ascending|) in an expression.
+The \key{required qualifier mark}\index{qualifier mark!required}
+(\ttkey{@@}) signals that the following
+expression item is a required qualifier, as in the expression
+`\verb|sort x @@ with order ascending |',
+and is implied by qualifiers (e.g. \verb|with|, \verb|has|)
+in an expression.
+The \key{optional qualifier mark}\index{qualifier mark!optional}
+(\ttkey{??}) signals that the following
+expression item is an optional qualifier, as in the expression
+`\verb|sort X ?? with order O |'.  When default values are provided in
+definitions, required qualifier marks may be converted automatically to
+optional qualifier marks (\ref{TBD}).
 
 Expressions are restructured if they contain operators (e.g.,
 \verb|+|,
@@ -1739,7 +1770,7 @@ or certain matching lexemes.  A \key{raw expression}
 is a particular kind of expression that will not be
 restructured.  The only special marks that may be in a raw expression
 are the reorder mark (\verb|<:>|), the remainder mark (\verb|::>|),
-and the qualifier mark (\verb|@@|).
+and the qualifier marks (\verb|@@|, \verb|??|).
 Translating
 an expression into a raw expression is called \key{parsing}.
 
@@ -1747,21 +1778,30 @@ Matching lexemes may affect parsing.
 An informal summary of some of these is:
 
 \begin{center}
-\begin{tabular}{lll}
-Brackets   & Turns Off			& Turns On \\[1ex]
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
+		& \multicolumn{4}{c}{Turns} \\ \cline{2-5}
+		& operators	& \verb/|/	& \verb|<:> ::>| \\
+Brackets	& qualifiers	& text		& \verb|@@  ??|
+								& eval \\[1ex]
 
-\verb|[]|  & operators, qualifiers, \verb/|/, text
-					& \verb|<:>|, \verb|::>|, \verb|@@| \\
-\verb|[< >]|  & \verb/|/, text		& operators, qualifiers,
-					  \verb|<:>|, \verb|::>|, \verb|@@| \\
-\verb|()|  & nothing			& nothing \\
-\verb|{}|  & eval, \verb/|/, text	& operators, qualifiers,
-					  \verb|<:>|, \verb|::>|, \verb|@@| \\
-\verb|<<>>|  & \verb/|/, text		& eval, operators, qualifiers,
-					  \verb|<:>|, \verb|::>|, \verb|@@| \\
-\verb|`'|  & eval, operators, qualifiers,
-					& \verb/|/, text \\
-	   & \verb|<:>|, \verb|::>|, \verb|@@|
+\verb|(|\ldots\verb|)|
+		& --		& --		& --		& -- \\
+\verb|{|\ldots\verb|}|
+		& on		& off		& on		& off \\
+\verb|[|\ldots\verb|]|
+		& off		& off		& on		& off \\
+\verb|{{|\ldots\verb|}}|
+		& on		& off		& on		& -- \\
+\verb|[[|\ldots\verb|]]|
+		& off		& off		& on		& -- \\
+\verb|<<|\ldots\verb|>>|
+		& on		& off		& on		& on \\
+\verb|<<<|\ldots\verb|>>>|
+		& on		& off		& on		& on twice \\
+\verb|<<<<|\ldots\verb|>>>>|
+		& on		& off		& on		& on thrice \\
+\verb|`|\ldots\verb|'|
+		& off		& on		& off		& off \\
 \end{tabular}
 \end{center}
 
