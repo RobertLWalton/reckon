@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 15, 2003}
+\date{December 18, 2003}
  
 \maketitle
 
@@ -235,7 +235,7 @@ has lots of subtle interactions between its various features.  The
 hope is that with implementation and experimentation, a stable sensible
 version of PCASL integrating all its data types can be achieved.
 
-\section{Data}
+\section{Overview}
 
 PCASL has two major kinds of data: expressions and blocks.  Numbers are
 the simplest expressions.  More complex expressions are math
@@ -2379,7 +2379,8 @@ either succeeds and produces a unique expression
 graph as its result, or fails and produces no result.
 
 If X and Y are expression graphs then their unification, Z,
-is computed by the following \key{unification algorithm}.
+is computed by the following \key{unification algorithm}.%
+\label{UNIFICATION-ALGORITHM}.
 This algorithm assumes that all expression graphs are stored in
 a common graph memory that contains nodes and arrows, but
 each expression graph has its own distinct set of variables.
@@ -2441,7 +2442,9 @@ If either M or N is a labeled node and the other node is the
 source of some arrows, the unification algorithm fails.
 
 \item
-If there is an arrow label L such that one of the nodes M or N
+If
+\label{UNIFICATION-AMBIGUITY-FAILURE}
+there is an arrow label L such that one of the nodes M or N
 is the source of two or more arrows labeled L and the other node is the
 source of one or more arrows labeled L, the unification algorithm fails.
 Intuitively, when we try to match the arrows sourced at one of the
@@ -2577,7 +2580,7 @@ is represented by the expression tree
 	    \Glabel{weight}
 	\end{Gchild} \\
     \end{Gchild} \\
-    \begin{Gchild}{-REQUIRED-QUALIFITER-}
+    \begin{Gchild}{-REQUIRED-QUALIFIER-}
 	\begin{Gchild}{-ARITY-}
 	    \Glabel{2}
 	\end{Gchild} \\
@@ -2591,7 +2594,7 @@ is represented by the expression tree
 	    \Glabel{<}
 	\end{Gchild} \\
     \end{Gchild} \\
-    \begin{Gchild}{-OPTIONAL-QUALIFITER-}
+    \begin{Gchild}{-OPTIONAL-QUALIFIER-}
 	\begin{Gchild}{-ARITY-}
 	    \Glabel{0}
 	\end{Gchild} \\
@@ -2599,7 +2602,7 @@ is represented by the expression tree
 	    \Glabel{ascending}
 	\end{Gchild} \\
     \end{Gchild} \\
-\end{Graph}
+\end{Graph}\label{QUALIFIER-EXAMPLE}
 \end{center}
 
 Here each qualifier becomes the target of an arrow labeled
@@ -2908,6 +2911,89 @@ implicit conversion
 
 \end{tabular}
 \end{indpar}
+
+\subsection{Paths and Witnesses}
+\label{PATHS-AND-WITNESSES}
+
+A \ikey{non-empty path}{path!non-empty}
+is a sequence of one or more arrows in some expression graph,
+such that if A1 and A2 are consecutive
+arrows in the sequence, the target of A1 is the source of A2.
+The \mkey{path name}{of non-empty path}
+of the path is the
+sequence of words and separators that are the arrow labels of the
+arrows of the path.  The source node of the first arrow in the path
+is the \mkey{source}{of non-empty path} of the path.
+The target node of the last
+arrow in the path is the \mkey{target}{of non-empty path} of the path.
+Note that the path name and source node of a path are together
+not adequate to determine the path in all cases, since we allow
+a node to source several arrows with the same label.
+
+An \ikey{empty path}{path!empty} is just a node.  This node is both
+the \mkey{source}{of empty path} of the empty path and
+the \mkey{target}{of empty path} of the empty path.
+The \mkey{path name}{of empty path} of the path is the empty sequence.
+
+A \key{witness} is a path name and a node label.
+We use `{\em path-name}: {\em node-label}' to name the witness.
+A \mkey{witness}{of node} of a node S in an expression graph is witness
+with path name N and a node label L such that there is a path with source S,
+path name N, and target that has node label L.
+
+For example, consider the graph of
+
+\begin{center}
+\verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
+\end{center}
+
+on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|-ROOT-|
+variable has `\verb|0|: \verb|sort|' as one of its witnesses and
+`\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
+actually two distinct arrows corresponding to this second witness.
+
+Two witnesses are said to be \mkey{incompatible}{witness}
+if they have the same path name but have different labels.
+Two witnesses are said to be \mkey{compatible}{withness}
+if they are not incompatible: that is, if they have different path
+names, or if they have both the same path names and the same labels.
+For example, `\verb|0|: sort' and `\verb|1|: x' are compatible while
+`\verb|0|: sort' and `\verb|0|: switch' are incompatible.
+
+It can be proved that for any node S in any expression graph,
+all witnesses for S are compatible.
+
+Two nodes S1 and S2 in expression graphs (the same graph or different
+graphs) are said to be \key{witness compatible} if and only if every
+withness for S1 is compatible with every witness for S2.  Otherwise
+S1 and S2 are said to be \key{witness incompatible}.
+
+It can be proved that if two expression graphs can be unified
+(\ref{UNIFICATION}) then any two nodes that are merged during
+unification are witness compatible.
+
+For an integer N$\geq$0, an N-witness is a witness whose path name
+has at most N arrow labels.
+Two nodes S1 and S2 in expression graphs (the same graph or different
+graphs) are said to be \key{N-witness compatible} if and only if every
+N-witness for S1 is compatible with every N-witness for S2.  Otherwise
+S1 and S2 are said to be \key{N-witness incompatible}.
+
+Clearly if two expression graphs can be unified
+then any two nodes that are merged during
+unification are N-witness compatible, since they are witness compatible.
+
+In the unification algorithm (page~\pageref{UNIFICATION-ALGORITHM}),
+arrow labels are used to match arrows to be merged.  More specifically,
+when two nodes M and N are merged, arrows sourced at M are matched
+with arrows sourced at N by arrow label.  If this match cannot be done,
+step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
+causes unification to fail.  In order to merge qualifier nodes,
+we need to avoid this failure, and we do this by using some of the
+the 1-witnesses of the qualifier nodes to make the match.
+The 1-witnesses we use include the qualifier head, if that
+is a node with a label, and any unreordered non-rest
+qualifier argument that is simply a node with a label.
 
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
