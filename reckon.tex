@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 3, 2003}
+\date{December 5, 2003}
  
 \maketitle
 
@@ -2169,6 +2169,38 @@ The expression is returned as the result of parsing the expression.
 
 \end{enumerate}
 
+
+\subsubsection{Operator Definition Syntax}
+\label{OPERATOR-DEFINITION-SYNTAX}
+
+\section{Expression Graphs}
+\label{EXPRESSION-GRAPHS}
+
+Expression graphs store expressions.  An \key{expression graph}
+is a directed possibly cyclic graph with labels on all arcs and on some
+nodes, plus a set of graph node valued variables.  Labels and variable
+names must be single words or
+separators.  Labelled nodes cannot be the source of any arc.  There is
+always a variable named \ttkey{-ROOT-} that designates a graph node
+called the \mkey{root}{of expression graph} of the expression graph.
+All graph nodes are reachable from this root.  Several arcs with the
+same source node may have the same arc label.
+
+If there is only one variable, \verb|-ROOT-|, and no node is the destination
+of more than one arc, the graph is a tree.  In this case it is called
+an \key{expression tree}.
+
+There is a correspondence between raw expressions and expression trees
+that is one-to-one, except that two raw expressions differing only
+in the order of their qualifier clauses correspond to the same expression
+tree.
+
+There are several operations that convert expression trees into general
+expression graphs.  All these use a designated operator, which defaults
+to \ttkey{..::}, to identify expression graph variables and their values.
+The most commonly used conversion operation also uses the convention that
+words beginning with a capital letter designate
+expression graph variables.
 
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
