@@ -236,6 +236,18 @@ to students after a first course in programming, and the essence of
 such a language is the integration within it of many powerful and useful
 data types.
 
+The basic principles of the PCASL design were developed
+by the author while teaching the intended customers of
+PCASL.\footnote{Specifically, while teaching CS121 at Suffolk University.}
+The language should have as few parts as possible, to cut down
+on the amount of detail that must be remembered to use the language, but
+conversely, there is no limit to the conceptual complexity of any well-used
+part.\footnote{There was no problem teaching recursion, but it was better
+not to each many different looping constructs.}
+The language should have powerful data types, well integrated into
+the syntax of the language.  As much as possible, statement executions
+in the language should have visible effect.
+
 The current version of PCASL is not stable, because it has not been
 implemented, and because, unlike most programming languages, PCASL
 has lots of subtle important interactions between its various features.  The
@@ -3070,10 +3082,10 @@ The rest argument is not counted in the arity.
 \subsection{Call Nodes and the Call Check}
 \label{CALL-NODES-AND-CHECK}
 
-During expression inference (\ref{EXPRESSION-INFERENCE})
-and evaluation (\ref{EXPRESSION-EVALUATION})
-expressions are matched using a variant of unification called
-`call unification' (\ref{CALL-UNIFICATION}).
+During expression evaluation (\ref{EXPRESSION-EVALUATION})
+the expression being evaluated is unified with a pattern in an expression
+definition.  The unification used for this purpose is a
+a variant called `call unification' (\ref{CALL-UNIFICATION}).
 
 Call unification treats graph nodes called `call nodes'
 differently than pure unification (\ref{PURE-UNIFICATION}) does.
@@ -3271,7 +3283,7 @@ qualifier argument that is simply a node with a label.
 is a variant of pure unification (\ref{PURE-UNIFICATION}) that differs
 from pure unification when merging nodes that have qualifiers or that have
 optional, reordered, or rest arguments.  Call unification is
-used in the inference algorithm (\ref{INFERENCE-ALGORITHM}).
+used in the inference algorithm (\ref{EVALUATION-ALGORITHM}).
 
 Call unification is identical to pure unification (\ref{PURE-UNIFICATION})
 with two differences.  The first difference is that when one of two nodes
@@ -3698,50 +3710,78 @@ from that of its caller.
 \key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}$^\star$ \\[1ex]
 \key{guard} ::= {\em expression} \\[1ex]
 \key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\key{block} ::= \verb|{| {\em statement}$^\star$ \verb|}| \\[1ex]
+\key{block} ::= \verb|{| {\em statement}$^\star$ \verb|}|
 \end{indpar}
 
-An \key{inference step} takes as input one of the reduced goal-expressions
-in the goal set and one inference rule,
-such that the reduced goal-expression unifies with the
-consequent-expression of the inference rule.  The unification variables in the
-goal-set and inference-rule are replaced by their values computed
-by this unification.  The goal-expression is removed the goal set, and
-all the condition-expressions of the inference rule are added to the goal
-set.
+In use, the {\em pattern} is call unified (\ref{CALL-UNIFICATION})
+with the expression being
+evaluated.  If unification fails, the definition does not apply.  If
+unification succeeds, subexpressions bound to some of the variables in
+the {\em pattern} are evaluated and replaced by their values, and then
+the {\em guards} are evaluated.  If any of the {\em guards} evaluate
+to `\verb|false|', the definition does not apply.  If all evaluate to
+`\verb|true|', the definition applies.  Then if the definition has
+a {\em block}, that is evaluated and produces a value for the expression.
+If not, the value of the expression is `\verb|true|'.  If no definition
+that applies can be found, the value of the expression is `\verb|false|'.
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
-\label{INFERENCE-RULE}
 
-The \key{inference algorithm} inputs an expression to be inferred
-and a set of inference rules.
+The \key{evaluation algorithm} inputs an expression to be evaluated
+and a context.  The context (\ref{CONTEXTS}) provides a list of expression
+definitions that may be used to evaluate the expression.
 
-Rules are collected into contexts.  An expression is
-usually inferred in the context in which the expression occurs,
-though it is possible to explicitly designate the context in which an
-expression is to be inferred.
+An expression to be evaluated may contain variables that are assigned
+values during unification.  The output of evaluation is both a value for
+the expression and an assignment of values for these variables.
 
-An \key{inference rule} consists of single head and a possibly empty
-set of goals, in the format
+More than one definition may apply to evaluate an expression.
+More than one definition may apply to evaluate a guard of a definition,
+and different guard definitions may lead to different values of variables
+in the expression being evaluated.  In applying a definition, more than
+one argument order assignment (page~\pageref{ARGUMENT-ORDER-ASSIGNMENT})
+may allow the definition to be applied.  So expression
+evaluation is a search process with more than one possible choice that
+may lead to success.
 
-\begin{center}
-{\em head} \verb|<===| {\em goal}\verb|,| {\em goal}\verb|,|
-			\ldots\verb|,| {\em goal}
-\end{center}
+Note that the guards of an expression are always evaluted from left to
+right, so order of guard evaluation is not a choice.
 
-The head is
-an expression that is matched against the expression to be inferred.
-A goal is an expression that must be inferred to make
-inference involving the rule a success.  The intuition is that
-the head is true when all the goals are true, and if the head
-can be matched against the expression to be inferred, then
-the expression to be inferred is true if all the goals can be
-inferred.
+Evaluation may be done in any of the following modes:
 
-The head may contain variables that receive values during matching.
-The goals may contain these same variables which are replaced by
-their values before the goals are inferred.
+\begin{list}{}{}
+
+\item[\ttkey{first-value}]~~~~The first definitions in contexts and first
+argument order assignments tried that lead to success are the only ones
+used.  Definitions are tried in the order they are given in the contexts
+used in evaluation.
+The order in which argument order assignments are tried is implementation
+dependent.
+
+\item[\ttkey{all-values}]~~~~All possible choices are tried and the
+successful results are collected in a set of values.  Note that each
+value in this set consists of a value for the expression being evaluated
+and values for each variable in that expression.
+
+\item[\ttkey{consistent-values}]~~~~All possible choices are tried and the
+successful results are collected in a set of values.  Then these values
+are tested to see if they are pairwise equal.  If yes, one of these values
+is returned as the expression value.  If no, an error value describing
+the error is returned as the expression value.
+
+\item[\ttkey{consistent-reordering}]~~~~Definitions are 
+tried in the order they are given in the contexts used in evaluation,
+and the first definitions that apply are used.  However, for each definition
+all possible argument order assignments are tried.  The results are collected
+in a set of values that is tested for pairwise equality.  If all are equal,
+one of these values is returned as the expression value.  Otherwise, an
+error value describing the error is returned as the expression value.
+
+\end{list}
+
+TBD
+
 
 Expression inference consists of the following steps.
 
@@ -3768,17 +3808,22 @@ Logically infer each expanded goal.
 
 \end{enumerate}
 
+\subsection{Contexts}
+\label{CONTEXTS}
+
 
 
 \section{Debugging}
 
-Design: Input checkpointing is used to record all inputs to a computation
+Design: Th debugging design is based on the notion that almost all
+PCASL programs will run quickly.
+Input checkpointing is used to record all inputs to a computation
 so the computation can be deterministically rerun.  Detailed
 traces can be generated which explain for each value how it was generated.
 Values have a sequence number that identifies the point in the execution
 where they were generated.  It is therefore possible to ask for a detailed
 accounting of how any value was generated, provided the run is short enough
-to be repeated once or a few times so the compute can turn the history
+to be repeated once or a few times so the computer can turn the history
 tracing on appropriately.
 
 \section{Design Notes}
