@@ -830,13 +830,13 @@ See $\theta$ \\
 \verb|> update x to 40 degrees| \\
 See $\theta$ \\
 \verb|> increment x by -5 degrees| \\
-See $\theta$ \\
+See $\theta$
 \end{indpar} 
 
 In this example we first define a `constructor'
 of the form `{\tt a demo with angle X}' to make new {\tt demo} blocks,
 and then we define two `methods', namely `{\tt update THIS to X}' and
-`{\tt increment THIS by X}', to change a {\tt demo} block.  Changing
+`{\tt in\-cre\-ment THIS by X}', to change a {\tt demo} block.  Changing
 a {\tt demo} block is like iterating a loop to make a new block.
 
 Next we define how to display a {\tt demo} block.  Then we use the
@@ -1065,9 +1065,9 @@ the mirror of \verb|{| is \verb|}|,
 the mirror of \verb|[| is \verb|]|,
 the mirror of \verb|(| is \verb|)|,
 and the mirror of \verb|<| is \verb|>|.
-Each {\em closing-mark} must match exactly one
-{\em opening-mark} and the {\em opening-mark} must precede the
-{\em closing-mark}.
+Each {\em closing-mark} must match exactly one {\em opening-mark},
+each {\em opening-mark} must match exactly one {\em closing-mark},
+and an {\em opening-mark} must precede its matching {\em closing-mark}.
 
 Two lexemes are said to be \mkey{matched}{lexemes} if and only if
 they are matched opening and closing marks.
@@ -1172,6 +1172,8 @@ All {\em horizontal-space} characters preceding a {\em vertical-space}
 character are deleted.  Thus spaces at line ends are ignored.
 
 {\bf Carriage Return Rule.}\index{Carriage Return Rule}
+If the pre-lexeme contains a {\em carriage-return} but no
+{\em vertical-space-character}, it is in error.
 Each {\em carriage-return} and all {\em horizontal-spaces} preceding
 it are deleted.  Thus the pre-lexeme has no {\em carriage-returns}.
 
@@ -1181,10 +1183,20 @@ horizontal tab stops are set every 8 columns.
 Thus the pre-lexeme has no {\em horizontal-tabs}.
 
 Note that these rules do \underline{not} alter the printed appearance
-of the {\em white-space} pre-lexeme.
+of the {\em white-space} pre-lexeme, assuming that each
+{\em vertical-space-character} causes printing to return to the beginning
+of the line after the vertical space is executed.  The input may or may not
+contain {\em carriage-returns} before or after {\em vertical-space-characters}
+with no effect.
 
-After these rules are applied, a {\em white-space} pre-lexeme consists of
-only of {\em vertical-space-characters} followed by {\em space} characters.
+After these rules are applied, a {\em white-space} pre-lexeme consists
+of zero or more {\em vertical-space-characters} followed by
+zero or more {\em space} characters.  It is not possible to have an
+empty {\em white-space} pre-lexeme; the pre-lexeme either has a
+{\em vertical-space-character} which none of the above rules delete,
+or it has a {\em space} character which cannot be deleted because
+in the absence of a {\em vertical-space-character} the input
+to the pre-lexeme cannot have a {\em carriage-return}.
 
 {\em White-space} pre-lexemes are used to create indentation lexemes
 when pre-lexemes are converted to lexemes (\secref{INDENTATION-LEXEMES}).
@@ -1227,7 +1239,7 @@ The syntax equations defining a lexeme are:
 \end{indpar}
 
 {\em Post-separators} are single characters removed from the
-ends of {\em pre-words}.  A {\em Word} is what is left of
+ends of {\em pre-words}.  A {\em word} is what is left of
 a {\em pre-word} after any {\em post-separators}
 are removed from its end.
 {\em Words} and {\em post-separators} are defined
@@ -1261,8 +1273,7 @@ resulting from the split is a {\em number}.  Some of the syntax equations
 defining {\em numbers} are as follows.
 
 \begin{indpar}
-\key{number} ::= {\em real-number} $|$ {\em unit-number}
-				   $|$ {\em complex-number} \\[1ex]
+\key{number} ::= {\em real-number} $|$ {\em unit-number} \\[1ex]
 \key{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
 				           $|$ {\em ratio}
 				           $|$ {\em scientific-number}
@@ -1455,7 +1466,7 @@ Note that exponents cannot contain commas.
 \subsubsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
 
-\ikey{Unit-numbers}{unit-number} are just {\em decimal-numbers} or {\em ratios}
+\ikey{Unit-numbers}{unit-number} are just {\em decimal-numbers}
 with a {\em unit-indicator} prefixed or postfixed.  A {\em sign} may be before
 or after a prefix {\em unit-indicator}.
 
@@ -1466,12 +1477,12 @@ or after a prefix {\em unit-indicator}.
 		  		   {\em unsigned-unit-base-number} \\
 		  $|$ & {\em unit-base-number} {\em post-unit-indicator}
 		  \end{tabular} \\[1ex]
-\key{unit-base-number} ::= {\em decimal-number} $|$ {\em ratio} \\[1ex]
-\key{unsigned-unit-base-number} ::= {\em unsigned-decimal-number}
-                                $|$ {\em unsigned-ratio} \\[1ex]
+\key{unit-base-number} ::= {\em decimal-number} \\[1ex]
+\key{unsigned-unit-base-number} ::= {\em unsigned-decimal-number} \\[1ex]
 \key{pre-unit-indicator} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
-\key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ \verb|%|
-                          $|$ $^\circ$ \\[1ex]
+\key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ \verb|%| $|$ $^\circ$
+			  $|$ \verb|i| $|$ \verb|j| $|$ \verb|k|
+			      \\[1ex]
 \key{unit-indicator} ::= {\em pre-unit-indicator}
 		     $|$ {\em post-unit-indicator}
 \end{indpar}
@@ -1492,69 +1503,20 @@ Unit Number		& Lexeme Sequence	\\[1ex]
 \tt \$5.71		& \tt \$~~5.71 \\
 \tt \pounds -5.71	& \tt \pounds ~~-5.71 \\
 \tt 15'			& \tt 15~~' \\
-\tt -2.543e3"		& \tt -2.543e3~~" \\
+\tt -2.543"		& \tt -2.543~~" \\
 \tt 72\%		& \tt 72~~\% \\
-\tt X\#BE63\#$^\circ$	& \tt X\#BE63\#~~$^\circ$
+\tt 0.5i		& \tt 72~~i \\
 \end{tabular}
 \end{indpar}
 
-Note that {\em ratios} and {\em scientific-numbers} cannot have units
-as part of their pre-lexeme.  This is to reduce confusion: the units can
-always be given separated by a space from the number, as in `\verb|5e3 %|'.
+The units `\ttmkey{i}{as unit}', `\ttmkey{j}{as unit}', and
+`\ttmkey{k}{as unit}' are used to specify complex imaginary or quaternion
+numbers: see \pagref{IMAGINARY-UNITS}.
 
-\subsubsubsection{Complex Numbers}
-\label{COMPLEX-NUMBERS}
-
-An {\em imaginary-number} is just a {\em decimal-number}, {\em radix-number},
-or {\em scientific-number} with an
-{\em imaginary-indicator}, e.g.~\verb|j|, post-fixed.  A
-{\em complex-number} is either an {\em imaginary-number}
-or is a {\em decimal-number}, {\em radix-number}, or
-{\em scientific-number} followed by signed
-a {\em imaginary-number}.
-
-\begin{indpar}
-\key{complex-number} \begin{tabular}[t]{rl}
-		     ::= & {\em imaginary-number} \\
-		     $|$ & {\em complex-base-number}
-		         {\em sign} {\em unsigned-imaginary-number}
-		     \end{tabular} \\[1ex]
-\key{imaginary-number} \begin{tabular}[t]{rl}
-		     ::= & {\em unsigned-imaginary-number} \\
-		     $|$ & {\em sign} {\em unsigned-imaginary-number}
-		     \end{tabular} \\[1ex]
-\key{complex-base-number} \begin{tabular}[t]{rl}
-			  ::= & {\em unsigned-complex-base-number} \\
-			  $|$ & {\em sign} {\em unsigned-complex-base-number}
-			  \end{tabular} \\[1ex]
-\key{unsigned-imaginary-number} ::=
-		{\em unsigned-complex-base-number}
-		{\em imaginary-indicator} \\[1ex]
-\key{unsigned-complex-base-number} \begin{tabular}[t]{rl}
-			   ::= & {\em unsigned-decimal-number} \\
-			   $|$ & {\em unsigned-radix-number} \\
-			   $|$ & {\em unsigned-scientific-number}
-			   \end{tabular} \\[1ex]
-\key{imaginary-indicator} ::=     \verb|I|
-			      $|$ \verb|i|
-			      $|$ \verb|J|
-			      $|$ \verb|j|
-\end{indpar}
-
-Complex Number Examples:
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
-
-3i		& +3j		& -X'FE90.34D2'I		\\
-2+3i		& -3+3.345e10j	& 35-X'FE90.34D2'J		\\
-\end{tabular}
-\end{indpar}
-
-Note that {\em ratios} cannot be parts of complex numbers.
-This is to reduce confusion: the {\em imaginary-indicator} can be used
-as a separate unit lexeme as in `\verb|5 + 3/4 j|'.
+Note that {\em radix-numbers}, {\em ratios}, and {\em scientific-numbers}
+cannot have units as part of their pre-lexeme.  This is to reduce confusion:
+the units can always be given separated by a space from the number,
+as in `{\tt \pounds} \verb|O#7601#|', `\verb|$ 3/4|', and `\verb|5e3 i|'.
 
 \subsubsection{Post Separators}
 \label{POST-SEPARATORS}
