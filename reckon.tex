@@ -131,13 +131,13 @@
 
 \begin{document}
         
-\title{Personal Calculation and Simulation Language (PCASL)\\
+\title{Personal\\Calculation and Simulation\\Language\\[2ex]PCASL\\[2ex]
        (Draft 1a)}
 
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{July 1, 2003}
+\date{July 10, 2003}
  
 \maketitle
 
@@ -148,7 +148,7 @@ teaching courses at Suffolk University.}}
 \section{Introduction}
 
 This document describes PCASL, the Personal Calculation and Simulation
-Language, that is informally referred to as Personal Castle, or just
+Language, that is informally referred to as P-Castle, Personal Castle, or just
 Castle.
 
 PCASL is designed for naive programmers: that is, for people who may never
@@ -156,7 +156,7 @@ be able to program computers well.  It is a simple language that has
 powerful data types which make it easier to write small programs
 that do a variety of tasks that a person might want to do.  Generally
 the tasks fall into the categories of calculating things (taxes,
-statistics) or simulating things (a.k.a., computer games).  Included are:
+statistics) or simulating things (computer games).  Included are:
 
 \begin{center}
 \begin{tabular}{l}
@@ -177,9 +177,9 @@ them for a specific kind of computation.  PCASL tries to combine these.
 Some previous computer languages that have influenced PCASL are:
 
 \begin{center}
-\begin{tabular}{ll}
+\begin{tabular}{l@{\hspace{0.5in}}l}
 Various Spreadsheets	& Spreadsheets \\
-Matlab			& Matrics. \\
+Matlab			& Matrices. \\
 Mathematica		& Expressions \\
 LISP			& Words and Phrases \\
 TCL			& Character Strings and Lists \\
@@ -187,9 +187,82 @@ TCL			& Character Strings and Lists \\
 \end{center}
 
 PCASL is \underline{not} designed to be a computer-efficient language.
-It is designed to be person efficient, and to do small calculations
+It is designed to be person-efficient, and to do small calculations
 rapidly enough with inexpensive modern computers.
 
+\section{Data}
+
+PCASL has two major kinds of data: expressions and blocks.  Numbers are
+the simplest expressions.  More complex expressions are math
+expressions or document expressions.  Blocks are sets of variables
+each of which can have a value, which is an expression, and also
+a definition, which is another expression that is used to compute the
+value when the value is needed.  The definitions of a block, taken all
+together, are called the `code' of the block.
+
+You can use PCASL as a calculator by typing into it expressions to
+be evaluated and assignments of values and definitions to variables.
+Some examples involving numbers are:
+
+\begin{indpar}\begin{verbatim}
+> 9
+9
+> 9 + 8
+17
+> x = 9
+9
+> y = 9 + 8
+17
+> x + y
+26
+\end{verbatim}\end{indpar}
+
+Here the `\verb|> |' at the beginning of some lines is the PCASL \key{prompt}
+that tells you its OK to input an expression to be evaluated.
+
+At somewhat the opposite extreme from numbers are words, phrases, sentences,
+and paragraphs.  You can calculate with these `\skey{document expression}s' too:
+
+\begin{indpar}
+\verb|> g = `hello'| \\
+\verb|`|hello\verb|'| \\
+\verb|> `<g> there'| \\
+\verb|`|hello there\verb|'| \\
+\verb|> z = ``I thought he said `<g>'.''| \\
+\verb|``|I thought he said `hello'.\verb|''| \\
+\verb|> notice = ``This document is meant to be read.| \\
+\verb|             Reading this document is good, but...| \\
+\verb|             <z>.''| \\
+\verb|``|This document is meant to be read. \\
+\verb|  |Reading this document is good, but\ldots \\
+\verb|  |I thought he said `hello'.\verb|''| \\
+\verb|> `When you add <x> and <y> you get <x+y>.'| \\
+\verb|`|When you add 9 and 17 you get 26.\verb|'|
+\end{indpar}
+
+Modern math computes with expressions, and not just numbers.
+You can compute with \skey{math expression}s in PCASL too:
+
+\begin{indpar}
+\verb|> f = [10x^2 - 3.67x - 0.04]| \\
+\verb|[|$10x^2-3.67x-0.04$\verb|]| \\
+\verb|> h = [- 0.96 + 0.67x]| \\
+\verb|[|$-0.96+0.67x$\verb|]| \\
+\verb|> f + h| \\
+\verb|[|$10x^2-3x-1$\verb|]| \\
+\verb|> solve [f + h = 0]| \\
+\verb|[x = (-0.2, 0.5)]| \\
+\verb|> evaluate [f + h] at [x = (3, 4, 5)]| \\
+\verb|(78.95, 145.28, 231.61)| \\
+\verb|> g = [integral (x^2 dx)]| \\
+\verb|[|$\int x^2 dx$\verb|]| \\
+\verb|> simplify g| \\
+\verb|[|$\frac{1}{3} x^3$\verb|]| \\
+\verb|> v = evaluate g from [x=1] to [x=5]| \\
+\verb|41 1/3| \\
+\verb|> `The value of <definite g from [x=1] to [x=5]> is <v>.'| \\
+\verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'|
+\end{indpar}
 
 
 
