@@ -667,25 +667,25 @@ You can also change how an expression is displayed.
 \section{Lexemes}
 
 A PCASL program is a sequence of characters which is scanned from
-left to right to produce a sequence of primary lexemes.  The sequence
-of primary lexemes is then scanned from left to right to produce
+left to right to produce a sequence of pre-lexemes.  The sequence
+of pre-lexemes is then scanned from left to right to produce
 a sequence of lexemes.
 
-\subsection{Primary Lexemes}
+\subsection{Pre-Lexemes}
 
 Primarly lexemes are defined as follows:
 
 \begin{indpar}
-\key{primary-lexeme}
+\key{pre-lexeme}
 	\begin{tabular}[t]{rl}
-	::= & \key{primary-word} \\
+	::= & \key{pre-word} \\
 	$|$ & \key{separator} \\
 	$|$ & \key{left-quote} \\
 	$|$ & \key{right-quote} \\
 	$|$ & \key{white-space}
 	\end{tabular}
 	\\[1ex]
-\key{primary-word} ::= {\em word-character} {\em word-character}$^\star$ \\[1ex]
+\key{pre-word} ::= {\em word-character} {\em word-character}$^\star$ \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                        ::= & {\em letter} $|$ {\em digit} \\
 		       $|$ &    \verb|+|%
@@ -848,9 +848,9 @@ Primarly lexemes are defined as follows:
 \end{indpar}
 
 
-The following sections give rules involving primary lexemes.
+The following sections give rules involving pre-lexemes.
 
-\subsubsection{Matching and Context}
+\subsubsection{Matching and Pre-Lexical Context}
 \label{MATCHING}
 
 {\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}
@@ -870,14 +870,14 @@ in $P_2$ must be in between the lexemes of $P_1$.  In this case
 $P_2$ is said to be \mkey{nested}{lexemes} inside of $P_1$.
 
 During the scan a character $C$ is said to be in the
-\mkey{context}{of matched lexemes} of a pair $P$ of matched lexemes
+\key{pre-lexical context} of a pair $P$ of matched lexemes
 if and only if $C$ is between the matched lexemes of $P$,
 and $C$ is neither part of or between any other pair of matched
 lexemes that is nested inside of $P$.
 
 \subsubsection{Character Disambiguation Rules}
 
-Several characters in primary lexemes are ambiguous in the
+Several characters in pre-lexemes are ambiguous in the
 lexeme syntax equations.  The following rules disambiguate these
 characters.
 
@@ -896,7 +896,7 @@ Otherwise the potential {\em closing-quote-character}
 is a {\em word-character}.
 
 {\bf Format Separator Rule.}\index{Format Separator Rule}
-A {\em format-separator-character} must be in the context of
+A {\em format-separator-character} must be in the pre-lexical context of
 a pair of matching {\em quotes}.  Otherwise it is a {\em word-character}.
 
 {\bf Angle Rule.}\index{Angle Rule}
@@ -907,7 +907,7 @@ Quote Examples:
 
 \begin{indpar}[0.1in]
 \begin{tabular}{@{}l@{\hspace*{0.3in}}l}
-			& Primary Lexeme Sequence		\\
+			& Pre-Lexeme Sequence		\\
 Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \verb|I said `Hello'.|	& \tt `~~Hello~~'			\\
 \verb|Re`op 'tis.  But!|
@@ -931,7 +931,7 @@ Angle and Format Separator Examples:
 
 \begin{indpar}[0.1in]
 \begin{tabular}{@{}l@{\hspace*{0.6in}}l}
-			& Primary Lexeme Sequence		\\
+			& Pre-Lexeme Sequence		\\
 Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \verb|x <= y |		& \tt x \verb|_| \verb|<=| \verb|_| y	\\
 \verb|x <<= y |		& \tt x \verb|_| \verb|<<| = \verb|_| y	\\
@@ -944,7 +944,7 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \subsubsection{White Space Conversion}
 
 A \key{white-space} lexeme does not have exactly the same characters
-that were input to create it, unlike other primary lexemes.  The
+that were input to create it, unlike other pre-lexemes.  The
 sequence of {\em white-space-characters} input to create a
 {\em white-space} lexeme is modified as follows to create the lexeme:
 
@@ -966,27 +966,57 @@ of the {\em white-space} lexeme.
 
 After these rules are applied, a {\em white-space} lexeme consists of
 only of {\em vertical-space-characters} followed by {\em space} characters.
-{\em White-space} lexemes are only primary lexemes; they are deleted
-when primary lexemes are converted to lexemes.  The rules that
+{\em White-space} lexemes are only pre-lexemes; they are deleted
+when pre-lexemes are converted to lexemes.  The rules that
 form the lexeme sequence ensure that all
 {\em vertical-space} characters are equivalent: see \ref{TBD}.
 
 
 \subsection{Lexemes}
 
-The sequence of primary lexemes is converted to a sequence of lexemes
+The sequence of pre-lexemes is converted to a sequence of lexemes
 according to the following rules, which we will describe in the
 order given:
 
 \begin{indpar}[1in]
 Numbers \\
-Ambiguous Separators \\
-Indent Implied Lexemes
+Post Separators \\
+Indentation Lexemes
 \end{indpar}
 
-\subsubsection{Numbers}
+The syntax equations defining a lexeme are:
 
-The rule for spliting a {\em primary-word} into a {\em word}
+\begin{indpar}
+\key{lexeme} ::= {\em word} $|$ {\em separator}
+		$|$ {\em opening-lexeme}
+		$|$ {\em closing-lexeme} \\[1ex]
+\key{separator} ::= {\em format-separator}
+		$|$ {\em post-separator}
+		$|$ {\em indentation-lexeme}
+\end{indpar}
+
+{\em Ambigous-separators} are single characters removed from the
+ends of {\em pre-words}.  A {\em Word} is what is left of
+a {\em pre-word} after any {\em post-separator}
+is removed from its end.
+{\em Words} and {\em post-separators} are defined
+below in \ref{POST-SEPARATORS}.
+
+{\em Indentation-lexemes} are implied by indentation, and are defined below in
+\ref{INDENTATION-LEXEMES}.
+
+{\em White-space} pre-lexemes are used only to define indentation and
+create {\em indentation-lexemes}.
+Then {\em white-space} pre-lexemes are
+discarded: they are not {\em lexemes}.
+
+{\em Format-separators}, {\em opening-lexemes}, and {\em closing-lexemes}
+are both pre-lexemes and lexemes.
+
+\subsubsection{Number Lexemes}
+\label{NUMBER-LEXEMES}
+
+The rule for spliting a {\em pre-word} into a {\em word}
 and a {\em separator} makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
 resulting from the split is a {\em number}.  The syntax equations
@@ -995,51 +1025,36 @@ for defining {\em numbers} are as follows.
 \begin{indpar}
 \key{number} ::= {\em real-number} $|$ {\em unit-number}
 				   $|$ {\em complex-number} \\[1ex]
-\key{real-number} ::= {\em unsigned-real-number} $|$ {\em signed-real-number}
+\key{real-number} ::= {\em unsigned-real-number}
+                  $|$ {\em sign} {\em unsigned-real-number}
 		      \\[1ex]
-\key{signed-real-number} ::= {\em sign} {\em unsigned-real-number} \\[1ex]
 \key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
-\key{unsigned-real-number} ::= {\em unsigned-decimal}
-		$|$ {\em unsigned-decimal} {\em exponent} \\[1ex]
-\key{unsigned-decimal} ::= {\em unsigned-integer}
-		$|$ {\em unsigned-integer} {\em fraction}
-		$|$ {\em fraction} \\[1ex]
-\key{fraction} ::= \verb|.| {\em unsigned-integer} \\[1ex]
-\key{unsigned-integer} ::= {\em integer-digits}
-		       $|$ {\em unsigned-integer} \verb|,| {\em integer-digits}
-		       \\[1ex]
-\key{integer-digits} ::= {\em integer-digit} {\em integer-digit}$^\star$
-			 \\[1ex]
-\key{integer-digit} ::= {\em digit}%
-			$|$\verb|A|%
-			$|$\verb|B|%
-			$|$\verb|C|%
-			$|$\verb|D|%
-			$|$\verb|E|%
-			$|$\verb|F|%
-			$|$\verb|a|%
-			$|$\verb|b|%
-			$|$\verb|c|%
-			$|$\verb|d|%
-			$|$\verb|e|%
-			$|$\verb|f|
-			\\[1ex]
-\key{exponent} ::= {\em radix-indicator}
-		$|$ {\em radix-indicator} {\em integer} \\[1ex]
-\key{radix-indicator} ::= {\em decimal-radix-indicator} \\[1ex]
-\key{radix-indicator} \begin{tabular}[t]{rl}
-		     ::= & {\em binary-radix-indicator} \\
-		     $|$ & {\em octal-radix-indicator} \\
-		     $|$ & {\em decimal-radix-indicator} \\
-		     $|$ & {\em hexadecimal-radix-indicator} \\
+\key{unsigned-real-number} ::= {\em unexponented-number}
+		$|$ {\em unexponented-number} {\em exponent} \\[1ex]
+\key{unexponented-number} ::= {\em decimal-number}
+			  $|$ {\em radixed-number} \\[1ex]
+\key{radixed-number}::= {\em radix-indicator}
+		        \verb|`| {\em radixed-digmark}
+		        {\em radix-digmark}$^\star$ \verb|'|
+		        \\[1ex]
+\key{radix-indicator} ::= {\em letter} {\em letter}$^\star$ \\[1ex]
+\key{radixed-digmark} ::= {\em digit} $|$ {\em letter}
+                      $|$ \verb|.| $|$ \verb|,| \\[1ex]
+\key{decimal-number} \begin{tabular}[t]{rl}
+                     ::= & {\em decimal-integer} \\
+		     $|$ & {\em decimal-integer} \verb|.|
+		           {\em decimal-integer} \\
+		     $|$ & \verb|.| {\em decimal-integer}
 		     \end{tabular} \\[1ex]
-\key{binary-radix-indicator} ::= \verb|B| $|$ \verb|b| \\[1ex]
-\key{octal-radix-indicator} ::= \verb|O| $|$ \verb|o| \\[1ex]
-\key{decimal-radix-indicator} ::= \verb|D| $|$ \verb|d|
-			      $|$ \verb|E| $|$ \verb|e| \\[1ex]
-\key{hexadecimal-radix-indicator} ::= \verb|X| $|$ \verb|x| \\[1ex]
-\key{integer} ::= {\em unsigned-integer} $|$ {\em signed-integer} \\[1ex]
-\key{signed-integer} ::= {\em sign} {\em unsigned-integer} \\[1ex]
+\key{decimal-integer} ::= {\em decimal-digits}
+		     $|$ {\em decimal-integer} \verb|,| {\em decimal-digits}
+		     \\[1ex]
+\key{decimal-digits} ::= {\em digit} {\em digit}$^\star$ \\[1ex]
+\key{exponent} ::= {\em exponent-indicator}
+		   {\em exponent-digits} \\[1ex]
+\key{exponent-indicator} ::= \verb|e| $|$ \verb|E| $|$ \verb|^| \\[1ex]
+\key{exponent-digits} ::= {\em decimal-digits}
+			    $|$ {\em sign} {\em decimal-digits} \\[1ex]
 \key{unit-number} ::= {\em pre-unit} {\em real-number}
 		  $|$ {\em real-number} {\em post-unit} \\[1ex]
 \key{pre-unit} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
@@ -1058,32 +1073,48 @@ for defining {\em numbers} are as follows.
 			      $|$ \verb|j|
 \end{indpar}
 
-Some lexemes defined according to the above equations to be {\em numbers}
-are not in fact {\em numbers}.  To be a {\em number}, a lexeme must
-pass the following additional test:
 
-{\bf Number Digit Rule.}\index{Number Digit Rule}
-{\em Integer-digits} that are not {\em digits} are not permitted in a
-{\em number} unless a {\em hexadecimal-radix-indicator} is present
-in the {\em number}.
+Note that decimal points and commas in a {\em decimal-number}
+must be followed by a digit.  Commas in a {\em decimal-number}
+must be every 3 digits from the decimal point, or every three digits
+from the end if there is no decimal point.
+Incorrect numbers of digits between commas will result in an
+error when the lexeme is converted to a number,
+but is \underline{not} an error of lexeme formation.
 
-Note that decimal points and commas in a {\em number}
-must be followed by a digit.
-Also, although the hexadecimal digits \verb|A|-\verb|F| will be prohibited
-from non-hexadecimal numbers, digits outside the range of the radix are
-not prohibited from binary or octal numbers.  Use of such digits will
-result in an erroneous lexeme,
-but would not be an error of lexeme formation.
-Similarly, incorrect numbers of digits between commas will result in an
-erroneous lexeme, but will not be an error of lexeme formation.
+{\em Radixed-numbers} are converted to numbers in a context which defines
+ways of doing this for different {\em radix-indicators}: see \ref{TBD}.
+The following are standard:
 
-\subsubsection{Ambiguous Separators}
+\begin{center}
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+Radix	& Radix		 &			& Allowed Digits \\
+Name	& Indicators     & Allowed Digits	& Between Commas \\[1ex]
+binary	& \tt b~~~B	 & \tt 0 1		& 4 or 8 \\
+octal	& \tt o~~~O	 & \tt 0 1 2 3 4 5 6 7	& 4 or 8 \\
+decimal	& \tt d~~~D	 & \tt 0 1 2 3 4 5 6 7 8 9
+						& 3 \\
+hexadecimal
+	& \tt x~~~X	 & \tt 0 1 2 3 4 5 6 7 8 9
+						& 4 or 8 \\
+	&		 & \tt a b c d e f A B C D E F
+\end{tabular}
+\end{center}
 
-Informally, an ambiguous separator is a one character separator that immediately
+{\em Radixed-numbers} can be legal lexemes and still be unconvertable to
+numbers because their {\em radix-indicators} are undefined, they
+have digits not defined for the given {\em radix-indicator}, they
+have too many decimal points, and so forth.  These errors are detected
+when the lexemes are converted to numbers.
+
+\subsubsection{Post Separators}
+\label{POST-SEPARATORS}
+
+Informally, a post-separator is a one character separator that immediately
 follows a word, and could be part of the word.  Examples are the period
-and the exclamation point.  The Ambiguous Separator Rule
-given below tells when to split a {\em primary-word} that ends with an
-ambiguous separator character into a {\em word} and a one character
+and the exclamation point.  The Post Separator Rule
+given below tells when to split a {\em pre-word} that ends with an
+post-separator character into a {\em word} and a one character
 {\em separator}.  The rule makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
 resulting from the split is a {\em number}.
@@ -1092,36 +1123,44 @@ The formal definitions required are:
 
 \begin{indpar}
 \key{separator} ::= {\em format-separator}
-		$|$ {\em ambiguous-separator} \\[1ex]
-\key{ambiguous-separator} ::= {\em ambiguous-separator-character} \\[1ex]
-\key{ambiguous-separator-character} ::=     \verb|!|
+		$|$ {\em post-separator} \\[1ex]
+\key{post-separator} ::= {\em post-separator-character} \\[1ex]
+\key{post-separator-character} ::=     \verb|!|
 				        $|$ \verb|?|
 			                $|$ \verb|;|
 			                $|$ \verb|:|
 			                $|$ \verb|,|
 			                $|$ \verb|.|
 					\\[1ex]
-\key{primary-word} ::= {\em word}
-		$|$ {\em word} {\em ambiguous-separator}
+\key{pre-word} ::= {\em word}
+		$|$ {\em word} {\em post-separator}
+		$|$ {\em post-separator}
 \end{indpar}
 
-The following rule controls when to split a {\em primary-word}
-into a {\em word} and an {\em ambiguous-separator}.
+The following rule handles the case of 1-character {\em pre-words}.
 
-{\bf Ambiguous Separator Rule.}\index{Ambiguous Separator Rule}
-A {\em primary-word} that ends with an {\em ambigous-separator-character}
-is split into a {\em word} and an {\em ambiguous-separator} if the {\em word}
-does \underline{not} contain a copy of the {\em ambiguous-separator} character,
-or if the {\em ambiguous-separator} is a period
+{\bf Isolated Post Separator Rule.}\index{Isolated Post Separator Rule}
+A {\em pre-word} consists of a single {\em post-separator-character}
+is a {\em post-separator}.
+
+The following rule controls when to split a {\em pre-word}
+of 2 or more characters into a {\em word} and an {\em post-separator}.
+
+{\bf Post Separator Rule.}\index{Post Separator Rule}
+A {\em pre-word} or 2 or more characters
+that ends with an {\em post-separator-character}
+is split into a {\em word} and an {\em post-separator} if the {\em word}
+does \underline{not} contain a copy of the {\em post-separator} character,
+or if the {\em post-separator} is a period
 and the {\em word} is a {\em number}.
-Otherwise the {\em primary-word} is not split and becomes a {\em word}.
+Otherwise the {\em pre-word} is not split and becomes a {\em word}.
 
 
 Examples:
 
 \begin{indpar}[0.1in]
 \begin{tabular}{@{}l@{\hspace*{0.3in}}l@{~~~}l@{\hspace*{0.6in}}l}
-Primary-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
+Pre-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 							& Splits?	\\[1ex]
 \verb|hello.|		& \tt hello 		& .	& yes		\\
 \verb|h.e.l.l.o.|	& \tt h.e.l.l.o.	&	& no		\\
@@ -1131,6 +1170,70 @@ Primary-Word		& \multicolumn{2}{@{}l@{}}{Lexeme Sequence}
 \verb|!help!|		& \tt !help!		&	& no		\\
 \end{tabular}
 \end{indpar}
+
+\subsubsection{Indentation Lexemes}
+\label{INDENTATION-LEXEMES}
+
+{\em Indentation-lexemes} are implied by indentation.  The
+\mkey{indentation}{of line} of a line is the
+the number of {\em space} characters in the {\em white-space}
+pre-lexeme just before the first non-{\em white-space} pre-lexeme
+of the line.  Note that lines cannot be empty; such lines would
+be merged into a single {\em white-space} pre-lexeme.
+
+At any given point in the scan of pre-lexemes, there is a
+stack of indentation records, called the \key{indentation stack}.
+An \key{indentation record} is a number of
+columns, a pre-lexical context, and a flag.
+The number of columns is called the \key{indentation}.
+The flag is called the \key{implicit bracket flag}, and indicates whether
+or not an implied \verb|{| lexeme was inserted at the same time the
+indentation record was pushed onto the indentation stack.
+
+Initially the indentation stack contains a single indentation record with
+0 indentation, the outermost pre-lexical context,
+and an off implicit bracket flag.
+The stack cannot become empty; any operation that would
+pop the last indentation off the stack announces an error leaves the
+stack along.  The bottommost indentation on the stack is always
+the same.
+
+The indentation in the indentation record at the top of the indentation
+stack is called the \key{current indentation}, and the pre-lexical
+context in that record is calle the \key{current pre-lexical context}.
+
+{\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
+If the first non-{\em white-space} pre-lexeme of a line is neither
+\verb|{| nor \verb|}|, if the first pre-lexeme of the line is in
+the current pre-lexical context, and if the indentatoin of the line
+is the current indentation, then a \verb|;| implied lexeme is output
+before any lexemes generated by the line are output.
+
+{\bf Explicit-Bracket Rule.}\index{Explicit-Bracket Rule}
+If the last pre-lexeme of a line is \verb|{|, then an indentation record
+is pushed into the indentation stack just after the \verb|{| lexeme
+is output.  The indentation in the record is the indentation of the next
+list, the pre-lexical context is that of the \verb|{|,
+and the implicit bracket flag is off.
+The pushed indentation record is popped just after is pre-lexical context
+ends; that is, just after reading the \verb|}| pre-lexeme that matches the
+\verb|{| pre-lexeme that pushed the indentation record.
+
+{\bf Implicit-Bracket Rule.}\index{Implicit-Bracket Rule}
+If the last lexeme output for a line would be a post-separator \verb|:|,
+then a \verb|{| implied lexeme
+is output instead of the \verb|:|, and an indentation
+record is pushed into the indentation stack.  The indentation of the
+record is the indentation of the next line, and the implicit bracket flag
+or the record is on.
+The pre-lexical context of the record is that of the \verb|:|.
+The pushed record is popped just before the first line such that
+the line beginning pre-lexeme is in the record's pre-lexical context
+and the line indentation is equal to or less than the record's indentation.
+When the record is popped, a \verb|}| implied lexeme is output.
+
+Examples:
+
 
 \section{Expressions}
 
