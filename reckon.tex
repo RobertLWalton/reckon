@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 21, 2003}
+\date{November 26, 2003}
  
 \maketitle
 
@@ -1504,14 +1504,16 @@ ends a subexpression.
 
 Expression structure is affected by three special marks.
 The \key{reorder mark} (\ttkey{<:>}) separates arguments that can be
-reordered, as in \verb|element LIST <:> INDEX|, and is used in
+reordered, as in the expression `\verb|element LIST <:> INDEX|', and is used in
 expression definitions.
 The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in an
 expression definition that represents the list of remainding arguments in a use
-of the definition, as in \verb|max ::> ARGS| where \verb|ARGS| represents
+of the definition, as in the expression `\verb|max ::> ARGS|'
+where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
 The \key{qualifier mark} (\ttkey{@@@}) signals that the following
-expression item is a qualifier, as in \verb|sort x @@@ ascending|,
+expression item is a qualifier, as in the expression
+`\verb|sort x @@@ ascending|',
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|,
 \verb|ascending|) in an expression.
 
@@ -1559,35 +1561,40 @@ Other matching lexemes may be made to affect parsing by introducing
 operator definitions (\ref{OPERATOR-DEFINITIONS}).
 
 Parsing is controlled by the \key{parsing context}, which consists
-of a \key{parsing mode stack} and a \key{parsing definition stack}.
+of a \key{parsing parser stack} and a \key{parsing definition stack}.
 
-There are three kinds of \skey{parsing mode}s:
-the \ttkey{marks} mode where only the reorder mark(\verb|<:>|),
-remainder mark(\verb|::>|), and the qualifier mark (\verb|@@@|) are recognized,
-the \ttkey{operators} mode where these marks
+There are three standard \ikey{parsers}{parser!standard}:
+the \key{marks parser} \ttkey{-MARKS-PARSER-},
+where only the reorder mark (\verb|<:>|),
+remainder mark (\verb|::>|), and the qualifier mark (\verb|@@@|) are recognized,
+the \key{operators parser} \ttkey{-OPERATORS-PARSER-},
+where these marks
 are recognized along with operators and qualifiers,
-and the \ttkey{text} mode where only the format-separator (\verb/|/)
+and the \key{text parser} \ttkey{-TEXT-PARSER-},
+where only the format-separator (\verb/|/)
 is recognized.
-An opening mark may change the parsing mode by
-pushing a new parsing mode into a parsing
-mode stack whose top member is the effective parsing mode.
-The corresponding closing mark will pop the parsing mode
+An opening mark may change the parser by
+pushing a new parser into the parsing
+parser stack whose top member is the effective parser for subexpressions.
+The corresponding closing mark will pop the parsing parser
 stack.
 
 From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
-is turned on by \verb|`'| quotes, and does things like turn
+is done by the text parser, which is invoked by
+\verb|`'| quotes, and does things like turn
 \verb|`I am!'| into \verb|[sentence I am !]|.  A second kind of
-restructuring, which is on if and only if text restructuring is
-off, enforces the rule that the first item of an expression with no
+restructuring, which is done by all standard parsers,
+enforces the rule that the first item of an expression with no
 operators cannot be a subexpression or qualifier,
 by inserting the word \verb|-EMPTY-| at the
 beginning of the expression if necessary, as when
 \verb|((integral x) from 0)| is restructured as
-\verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators (\ref{OPERATORS})
+\verb|(-EMPTY- (integral x) from 0)|.  Lastly, operators (\ref{OPERATORS}),
+as recognized by the operators parser,
 can cause major restructuring of an expression,
 as when \verb|x + y - 5 * z| is restructured as \verb|[- [+ x y] [* 5 z]]|,
-and qualifiers
+and qualifiers, also recognized by the operators parser,
 can cause qualifier marks (\verb|@@@|) to be inserted, as when
 \verb|sort x| \verb|ascending|
 is restructured as
@@ -1616,6 +1623,9 @@ is at +1.
 
 Evaluation is also not part of parsing; the evaluation counter is
 used during expression evaluation, which occurs after expression parsing.
+Parsing does insert the wrappers (\ref{OPERATOR-WRAPPER})
+\ttkey{-EVAL-ON-} and \ttkey{-EVAL-OFF-} around expressions to inform
+the evaluator when to increment or decrement the evaluation counter.
 
 \subsection{Raw Expressions}
 \label{RAW-EXPRESSIONS}
@@ -1704,10 +1714,10 @@ Fixity \\
 Name \\
 Precedence \\
 Associativity \\
+Parser \\
 Control Flags \\
 Wrapper \\
-Definitions \\
-Parser
+Subdefinitions
 \end{indpar}
 
 
@@ -1765,7 +1775,8 @@ is `\verb/[|/' and the closing operator name is `\verb/|]/'.
 Opening and closing marks cannot be part of an operator name
 unless the operator is a matchfix operator.
 If opening and closing marks are part of a matchfix operator
-name, they must begin and end the name.
+name, they must begin and end the name, and they must not be
+parentheses \verb|()|.
 
 When a subexpression is tested
 for matchfix operators, any opening and closing marks that begin and
@@ -1790,17 +1801,19 @@ Only infix operators have precedence.
 
 \subsubsubsection{Operator Associativity}\ttmindex{associativity}{of operator}
 \label{OPERATOR-ASSOCIATIVITY}
-An infix operator has an {\em associativity} that
+An infix operator has an {\em associativity} that is
 a sequence of lexemes.
 Three associativities, {\tt left}, {\tt right}, and
 {\tt none}, have special meaning.  If an infix operator has some
 other associativity, it is said to have \key{named associativity}.
+Only infix operators have associativity.
 
 If more than one infix operator is selected in an expression by the operator
 selection algorithm\EOL (\ref{OPERATOR-SELECTION}),
 all the infix operators that are selected
-must have the same associativity, and this
-associativity must not be {\tt none}\ttmindex{none}{associativity}.
+must have the identical operator definitions except for operator names,
+and the associativity in these definitions
+must not be {\tt none}\ttmindex{none}{associativity}.
 
 If all operators are {\tt left} associative%
 \index{left associative@{\tt left} associative},
@@ -1808,20 +1821,60 @@ all the infix operators but the rightmost are deselected,
 so it is as if operators to the left had
 higher precedence than those to the right.
 
-If all operators are {\tt right} associative,
+If all operators are {\tt right} associative%
 \index{right associative@{\tt right} associative},
 all the infix operators but the leftmost are deselected,
 so it is as if operators to the right had
 higher precedence than those to the left.
 
-If all operators are of \key{named associativity}, all are recognized, and 
+If all operators are of \key{named associativity}, all remain selected, and 
 implicitly parenthesized subexpressions will be created between the
 operators as well as between the beginning of the expression and the
 first operator and between the last operator and the end of the expression.
 Then the associativity, as a lexeme sequence, is prepended to the expression.
 Thus if the infix operators \verb|<| and \verb|<=| have associativity
 \verb|-COMPARE-|, the expression \verb|0 < x - 3 <= 5| will
-be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
+be rewritten as \verb|[-COMPARE- 0 < (x - 3) <= 5]|.
+
+\subsubsubsection{Operator Parser}\ttmindex{parser}{of operator}
+\label{OPERATOR-PARSER}
+
+A parser is the name of the function that is called with a expression
+as its single argument in order to parse the expression.
+
+The parser used for subexpressions of an expression is the parser
+at the top of the \key{parsing parser stack}.
+
+The \verb|parser| of an operator definition is an optional word that
+names a parser.  If present, the word is pushed into the parsing parser
+stack before subexpressions are parsed, and then the parsing parser stack
+is popped after subexpressions have been parsed.
+
+The following are standard parsers:
+
+\begin{indpar}
+
+The \key{operators parser} \ttkey{-OPERATORS-PARSER-}.
+Operators, qualifiers, and the
+\verb|<:>| reorder, \verb|::>| remainder, and
+\verb|@@@| qualifier marks are recognized.  The special constructs
+of text parsing, e.g., the \verb/|/ format separator,
+are \underline{not} recognized.
+
+The \key{marks parser} \ttkey{-MARKS-PARSER-}.
+The \verb|<:>| reorder, \verb|::>| remainder, and
+\verb|@@@| qualifier marks are recognized.  Operators, qualifiers,
+and the special constructs
+of text parsing, e.g., the \verb/|/ format separator,
+are \underline{not} recognized.
+
+The \key{text parser} \ttkey{-TEXT-PARSER-}.
+The special constructs of text parsing (\ref{TEXT-PARSING}) are
+recognized.  Operators, qualifiers, and
+the \verb|<:>| reorder, \verb|::>| remainder, and
+\verb|@@@| qualifier marks are \underline{not} recognized.
+
+\end{indpar}
 
 \subsubsubsection{Operator Control Flags}\ttmindex{control flag}{of operator}
 \label{OPERATOR-CONTROL-FLAGS}
@@ -1830,28 +1883,6 @@ affect parsing of subexpressions of the operator.
 
 \begin{indpar}
 
-{\bf operators}\index{operators flag@{\tt operators} flag}\\
-{\bf marks}\index{marks flag@{\tt marks} flag}\\
-{\bf text}\index{text flag@{\tt text} flag}\\
-At most one of these flags may be given.  These flags push a new
-parsing context into the parsing context stack, parse the operands
-of the current expression, and then pop the parsing context stack.
-They are usually used only for matchfix operators, but may be used
-for other operators.
-
-The {\tt operators} flag turns on
-operator, reorder mark(\verb|<:>|),
-remainder mark(\verb|::>|),
-and qualifier mark(\verb|@@@|) parsing, and turns off text parsing.
-
-The {\tt marks} flag turns on parsing of
-reorder marks(\verb|<:>|), remainder marks(\verb|::>|),
-and qualifier marks(\verb|@@@|), and turns off operator and text parsing.
-
-The {\tt text} flag turns on
-text parsing, and turns off operator, reorder mark(\verb|<:>|),
-remainder mark(\verb|::>|), and qualifier mark(\verb|@@@|) parsing.
-
 {\bf definitions}\index{definitions flag@{\tt definitions} flag}\\
 This flag may only be given for a right associative infix operator.
 It causes the
@@ -1859,6 +1890,7 @@ left operand of the operator to be inspected to see if it is an
 operator or qualifier definition.  If no, nothing special is done.
 If yes, the expression containing
 the infix operator is replaced by just its right operand, the definition
+in the left operand
 is pushed onto the parsing definitions stack, the right operand is
 parsed, and then the definition is popped off the parsing definitions stack.
 
@@ -1867,18 +1899,15 @@ parsed, and then the definition is popped off the parsing definitions stack.
 \subsubsubsection{Operator Wrapper}\ttmindex{wrapper}{of operator}
 \label{OPERATOR-WRAPPER}
 
-An operator wrapper is an expression containing the lexeme `\verb|...|'.
-If operator selection for an expression selects an operator with a
+An operator wrapper is a raw expression containing the lexeme `\verb|...|'.
+If operator selection for an expression selects a single operator with a
 wrapper, the expression is restructured to be a copy of the wrapper
-with its `\verb|...|' lexeme replaced by the parenthesized expression
+with its `\verb|...|' lexeme replaced by the parse of the expression
 being restructured.
 
 For example, if the matchfix operator `\verb|<< ... >>|' has the
 wrapper `\verb|-EVAL-ON- ...|', then the expression `\verb|<<x>>|'
-will be restructured to be `\verb|-EVAL-ON- (x)|'.
-
-If operator sepelction for an expression selects several infix operators,
-and one has a wrapper, all must have that same wrapper, else it is an error.
+will be restructured to be `\verb|-EVAL-ON- x|'.
 
 \subsubsubsection{Operator Subdefinitions}\ttmindex{definition}{of operator}
 \label{OPERATOR-SUBDEFINITIONS}
@@ -1892,9 +1921,6 @@ are called \skey{subdefinition}s.
 Note that subdefinitions can include operator definitions, operator
 undefinitions, qualifier definitions, and qualifier undefinitions.
 
-\subsubsubsection{Operator Parser}\ttmindex{parser}{of operator}
-\label{OPERATOR-PARSER}
-
 \subsubsection{Operator Selection}
 \label{OPERATOR-SELECTION}
 
@@ -1903,11 +1929,11 @@ run.  This algorithm selects operators whose name appears in the expression,
 and then applies rules to deselect some selected operators.  If at the end
 of the algorithm there is exactly one operator selected, the definition
 of that operator is used to restructure the expression.  If there is more
-than one operator selected, it is an error, and if there are no operators
-selected, the expression is not restructured.
+than one operator selected, it is a parse error unless the definitions of
+all selected operators are identical except for operator names.
 
-The operator selection rule uses the current parsing definition stack
-to determine which operators are defined.  The important parts of each
+The operator selection algorithm uses the current parsing definition stack
+to determine which operators are defined.  The most important parts of each
 definition are the operator name and operator fixity.
 
 In the algorithm the concepts of prefix sequence and postfix sequence
@@ -1916,6 +1942,7 @@ names.  A \key{postfix sequence} is a sequence of defined postfix operator
 names.
 
 In the \key{operator selection algorithm}, which is defined as follows,
+the steps are executed in the order given, and
 each step is repeated until it does nothing.
 
 \begin{enumerate}
@@ -1935,26 +1962,27 @@ Thus if `\verb/[| ... |]/' and `\verb/[ ... ]/' are two selected
 matchfix operators, the second will be deselected.
 
 \item
-If more than one matchfix operator is still selected, it is an error.
+If more than one matchfix operator is still selected, the parse is in error.
 
 \item
 If a matchfix operator is selected, and the expression begins with
 a prefix sequence that is not shorter than the opening name of the
-matchfix operator, then it is an error.
+matchfix operator, the parse is in error.
 Similarly if a matchfix operator is selected, and the expression ends with
 a postfix sequence that is not shorter than the closing name of the
-matchfix operator, then it is an error.
+matchfix operator, the parse is in error.
 
 Thus if `\verb|- < ... > -|' is a defined matchfix operator and
 `\verb|-|' is a defined prefix operator, but there is no defined
 prefix operator whose name begins with the lexeme `\verb|<|',
-then there is no error.
+parses of expressions containing the matchfix operator
+will \underline{not} be in error.
 But if there is another defined prefix operator named `\verb|<|',
-the expression is in error.
+parses of these expressions will be in error.
 
 \item
 If a matchfix operator is selected, the algorithm terminates successfully
-at this point, which selecting any other operators.
+at this point, without selecting any other operators.
 The part of the expression between the opening operator name and closing
 operator name is the sole operand of the matchfix operator.  This operand
 is implicitly parenthesized, and may be empty.
@@ -1963,14 +1991,15 @@ is implicitly parenthesized, and may be empty.
 Select all defined infix operators that occur in the expression.
 
 \item
-Deselect any selected infix operator that overlaps or immediately follows
+Deselect any selected infix operator that overlaps or abuts
 a prefix sequence that begins the expression.
-Deselect any selected infix operator that overlaps or immediately precedes
+Deselect any selected infix operator that overlaps or abuts
 a postfix sequence that ends the expression.
 
 Note that the empty sequence is both a prefix and a postfix sequence,
 so infix operators that begin or end the expression are deselected.
-For example, in the expression `\verb|+ x * y|' the `\verb|+|' is
+For example, in the expression `\verb|+ x * y|' the prefix operator
+`\verb|+|' is
 deselected, and in the expression `\verb|+ + + x * y|' all the `\verb|+|'s are
 deselected.
 
@@ -1992,21 +2021,22 @@ Since the empty sequence is a prefix and postfix sequence, any infix operator
 that does not conflict with any other infix operator will still be selected
 at the end of this step.
 
-It is an error if the is an equivalence class of conflicting operators all
+The parse is in error if there is an equivalence class of
+conflicting operators all
 of whose members are deselected by this step.
+
+\item
+The parse is in error if two conflicting infix operators are still selected at
+this point.
 
 \item
 If two infix operators are selected, and the first has strictly lower
 precedence than the second, deselect the second.
 
 \item
-It is an error if two conflicting infix operators are still selected at
-this point.
-
-\item
 If several infix operators are still selected at this point, all these
 operators must have the same associativity, which must not be `\verb|none|'.
-Otherwise it is an error.
+Otherwise the parse is in error.
 
 \item
 If several infix operators are selected at this point and their common
@@ -2015,6 +2045,11 @@ are deselected.
 Similarly if several infix operators are selected at this point and their common
 associativity is `\verb|right|', all but the leftmost infix operator
 are deselected.
+
+\item
+If several infix operators are still selected at this point, all these
+operators must have the same definitions except for operator names.
+Otherwise the parse is in error.
 
 \item
 If any infix operators are still selected at this point, the algorithm
@@ -2029,8 +2064,8 @@ If the common associativity of the infix operators is not
 expression, before the first operator.
 
 \item
-Select any prefix operator that begins the expression, and any postfix
-operator that ends the expression.
+Select all prefix operators that begin the expression, and all postfix
+operators that end the expression.
 
 \item
 If two prefix operators are selected, and one is longer than the other,
@@ -2040,13 +2075,13 @@ and one is longer than the other,
 deselect the shorter.
 
 \item
-If more than one operator is selected at this point, it is an error.
+If more than one operator is selected at this point, the parse is in error.
 
 \item
 If one operator is selected at this point, and the operator name
 is the entire expression, deselect the operator.  Thus
 in the expression `\verb|x = (+)|', `\verb|+|' will be deselected
-when the subexpression `\verb|+|' is parsed.
+when the subexpression `\verb|(+)|' is parsed.
 
 \item
 The algorithm terminates successfully
@@ -2062,10 +2097,11 @@ parenthesized.  Note this operand cannot be empty.
 The rules just given produce a result that is often the same as the
 more common context free grammar rules for parsing expressions.  However,
 there is a difference: in PCASL an operator can change the parsing context
-used to parse its operand subexpressions.  See the sections on operator
-control flags (\ref{OPERATOR-CONTROL-FLAGS}),
-operator subdefinitions (\ref{OPERATOR-SUBDEFINITIONS}),
-and operator parsers (\ref{OPERATOR-PARSER}) above.
+used to parse its operand subexpressions.  See the sections on
+operator parsers (\ref{OPERATOR-PARSER}),
+operator control flags (\ref{OPERATOR-CONTROL-FLAGS}),
+and operator subdefinitions (\ref{OPERATOR-SUBDEFINITIONS})
+above.
 
 \subsubsection{Selection Post-Processing}
 \label{SELECTION-POST-PROCESSING}
