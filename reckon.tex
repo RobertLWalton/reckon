@@ -2713,11 +2713,6 @@ that matched arrows have the same arrow label, then we must get a
 unique answer.
 
 \item
-Replace M by a forwarding pointer that points at N.
-This means that henceforth any attempt to reference M will be forwarded
-to N, so M is effectively merged with N.
-
-\item
 If M is a labeled node with label L, and N is unlabeled, label N with L.
 
 \item
@@ -2727,6 +2722,11 @@ If N is not the source of an arrow labeled L,
 make a new arrow labeled L pointing from N to MT.
 But if N is the source of an arrow labelled L with target NT, add the
 merge pair (MT,NT) to the merge set.
+
+\item
+Replace M by a forwarding pointer that points at N.
+This means that henceforth any attempt to reference M will be forwarded
+to N, so M is effectively merged with N.
 
 \end{enumerate}
 
@@ -2982,9 +2982,15 @@ Arguments appearing after the \key{optional mark} \ttkey{?:?} are
 optional.  This is indicated by the arity `\verb|1-4|' that indicates
 that argument `\verb|1|' is the last required argument and there are
 `\verb|4|' arguments total.  In general, the arity can have the form
-`$m$\verb|-|$n$', where $0\leq m<n$, $m$ is the number of required arguments,
-$n$ is the total number of arguments, and $n-m$ is the number of optional
-arguments.
+`$m$\verb|-|$n$', where $0\leq m<n$, $m$ is the
+\skey{number of required argument}s, $n$ is the
+\skey{total number of argument}s,%
+\label{TOTAL-NUMBER-OF-ARGUMENTS}
+and $n-m$ is the number of optional arguments.
+
+If there are no optional arguments and the arity is just a natural
+number $n$, then $n$ is both the number of required arguments and the
+total number of arguments.
 
 Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} can
 be reordered.  These arguments are indicated by argument indices that
@@ -3064,11 +3070,13 @@ is either an unreordered argument arrow labeled $i$,
 or is a reordered argument arrow labeled $j$\verb|-|$k$
 where $j\leq i\leq k$.
 
-Such a mapping is called a \key{argument order assignment} of N.
+Such a mapping is called a \key{argument order assignment} of N.%
+\label{ARGUMENT-ORDER-ASSIGNMENT}
 If there are any reordered arguments of N, there will be
 more than one argument order assignment of N.
 
 \item
+\label{NULL-REST-ARGUMENT}
 N has at most one rest argument arrow.  If N has a rest argument
 arrow, the rest argument of N is a null node (a node with no label
 that is the source of no arrows).
@@ -3262,6 +3270,10 @@ the unification algorithm fails.
 Otherwise, if just N is of indeterminant arity, switch M and N so that
 only N is of determinant arity.
 
+Later in this call merge algorithm M will be replaced by a forwarding
+pointer to N, and N will not be given any optional, rest, or reordered
+arguments, so the result of the merge will be of determinant arity.
+
 \item
 If M is of determinant arity and the arities of M and N are not equal,
 the unification algorithm fails.
@@ -3270,44 +3282,64 @@ If M has more required arguments than N has arguments, the unification
 algorithm fails.
 
 \item
-TBD
-
-If M has a rest argument R, let MA be the arity of M and NA be the
-arity of N, and run the following \key{remainder merge subalgorithm}.
-
-\begin{enumerate}
+For the rest of this algorithm,  let MT be the total number of arguments
+(page~\pageref{TOTAL-NUMBER-OF-ARGUMENTS})
+of M and NT be the total number of arguments of N
 
 \item
-If MA is greater than NA, the unification algorithm fails.
-
-\item
-For each natural number I from MA$+$1 through NA, an arrow
-an arrow labeled I$-$MA is added that has R as its source and the
+If M has a rest argument R, then
+For each natural number I from MT$+$1 through NT, an arrow
+an arrow labeled I$-$MT is added that has R as its source and the
 I'th argument of N as its target.
-
-\end{enumerate}
+Note that before this is done R is a null node
+(step \ref{NULL-REST-ARGUMENT} of the call check algorithm on
+page~\pageref{NULL-REST-ARGUMENT}).
 
 \item
-Choose an argument order assignment for M.  For \verb|1|$\leq$I$\leq$A,
-let MI bet the assigned I'th argument of M and NI be the I'th argument
-of N, and add the merge pair (MI,NI) to the merge set.
+Choose an argument order assignment (page~\pageref{ARGUMENT-ORDER-ASSIGNMENT})
+for M.  For \verb|1|$\leq$I$\leq$MT, let MI let the assigned
+I'th argument of M.
+
+\item
+Let T be the minimum of MT and NT.
+For \verb|1|$\leq$I$\leq$T, let
+NI be the I'th argument of N,
+and add the merge pair (MI,NI) to the merge set.
+For T$<$I$\leq$NT (if T$<$NT), add an arrow labeled I from N to MI.
+
+\item
+Let MH be the head of M and NH be the head of N.  Add a merge pair
+(MH,NH) to the merge set.
+
+\item
+If there is any qualifier arrow of M whose target is
+is 1-witness compatible with the target of more than one qualifier arrow
+of N, the unification algorithm fails.  Ditto with M and N switched:
+if there is any qualifier arrow of N whose target is
+is 1-witness compatible with the target of more than one qualifier arrow
+of M, the unification algorithm fails.
+
+\item
+For each qualifier arrow MA of M whose target is 1-witness compatible with
+the target of exactly one qualifier arrow NA of N, let MQ be the target
+MA and NQ bet the target of NA.
+
+Then add (MQ,NQ) to the merge set.  Also, if NA is an optional
+qualifier arrow and MA is a required qualifier arrow, change
+the arrow label of NA to be \verb|-REQUIRED-QUALIFIER-|, making
+it a required qualifier arrow.
+
+\item
+For each qualifier arrow MA of M whose target is 1-witness compatible with
+the targets of no qualifier arrows N, let MQ be the target of MA,
+and make an arrow from N to MQ
+that has the same label as MA (\verb|-REQUIRED-QUALIFIER| or
+\verb|-OPTIONAL-QUALIFIER-|).
 
 \item
 Replace M by a forwarding pointer that points at N.
 This means that henceforth any attempt to reference M will be forwarded
 to N, so M is effectively merged with N.
-
-\item
-
-
-\item
-TBD
-For every arrow sourced at M do the following.
-Let the arrow be labeled L and point at target node MT.
-If N is not the source of an arrow labeled L,
-make a new arrow labeled L pointing from N to MT.
-But if N is the source of an arrow labelled L with target NT, add the
-merge pair (MT,NT) to the merge set.
 
 \end{enumerate}
 
