@@ -189,7 +189,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 17, 2004}
+\date{December 21, 2004}
  
 \maketitle
 
@@ -4824,16 +4824,27 @@ code for computing these values.
 The code of a block has the following syntax:
 
 \begin{indpar}
-\key{block} ::= \verb|{| {\em statement}
-                         \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
+\key{block} ::= \verb|{| {\em group}
+                         \{ {\em break} {\em group} \}\,$^\star$ \verb|}|
 			 \\[1ex]
-\key{statement} ::= {\em expression-definition}
-		$|$ {\em empty-statement}
-		$|$ {\em qualified-statement}
+\key{break} ::= \ttnbkey{---}\verb|-|$^\star$
+	(1 word consisting of 3 or more \verb|-|'s) \\[1ex]
+\key{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
+\key{declaration-group} ::= {\em declaration}
+    \{ \verb|;| {\em declaration} \}$^\star$ \\[1ex]
+\key{statement-group} ::= {\em statement}
+	\{ \verb|;| {\em statement} \}$^\star$ \\[1ex]
+\key{declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em expression-definition} \\
+    $|$ & {\em method-definition} \\
+    $|$ & {\em empty} \\
+    \end{tabular} \\[1ex]
 \key{expression-definition} ::= {\em EXPRESSION-DEFINITION} 
-				( see \pagref{EXPRESSION-DEFINITION}) \\[1ex]
-\key{empty-statement} ::= {\em empty} \\[1ex]
+				(see \pagref{EXPRESSION-DEFINITION}) \\[1ex]
+\key{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION} \\[1ex]
+\key{statement} ::= {\em qualified-statement} $|$ {\em empty} \\[1ex]
 \key{qualified-statement}
     \begin{tabular}[t]{rl}
     ::= & {\em assignment-statement} \\
@@ -4866,7 +4877,7 @@ The code of a block has the following syntax:
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
 \key{assignment-pattern} ::= {\em EXPRESSION} \\[1ex]
-\key{unguarded-subblock} ::= {\em block} \\[1ex]
+\key{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
 \key{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
 \key{if-statement} ::=
@@ -4882,8 +4893,7 @@ The code of a block has the following syntax:
 \key{when-statement} ::=
       \ttkey{when} {\em guard} {\em guarded-subblock} \\[1ex]
 \key{guard} ::= {\em right-side} \\[1ex]
-\key{guarded-subblock} ::= {\em block} \\[1ex]
-\key{subblock} ::= {\em guarded-subblock} $|$ {\em unguarded-subblock}
+\key{guarded-subblock} ::= \verb|{| {\em statement-group} \verb|}|
 \end{indpar}
 
 A block is parsed when the statement that contains it (typically
@@ -4904,7 +4914,8 @@ definition is parsed separately to produce a separate expression graph that
 has no expression graph variables (it does have variables in
 a different sense: see \secref{BLOCK-VARIABLE-NAMES}).
 Implicit conversion is not used for any part of {\em block} parsing,
-except for {\em assignment-patterns}, each of which becomes a separate
+except for {\em assignment-patterns}, {\em expression-definitions},
+and {\em method-definitions}, each of which becomes a separate
 expression graph with its own separate expression graph variables
 [TBD: how is this represented and done?].
 
@@ -4983,15 +4994,20 @@ TBD: Arrays and array element names.
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
 
-Evaluation of a {\em block} is driven by availability of variable values
-and not by the order of the {\em statements} in the {\em block}.
+{\em Blocks} are divided into \skey{statement group}s by
+{\em sequence-breaks}.
+Evaluation of a statement group is driven by availability of variable values
+and not by the order of the {\em statements} in the group.
+However each group in a block is completely evaluated before any subsequent
+groups in the block are evaluated.
+
 Each variable in a block can be assigned at most one value: it is
 an error if the variable is assigned more than one value.
 The \skey{input-variable}s of a {\em right-side-expression} are all
 variables in the expression that are not {\em output-variables} or
 {\em pattern-variables} of
 the {\em assignment-statement} or {\em guard} containing the expression.
-Each {\em right-side-expression} in a {\em block}
+Each {\em right-side-expression} in a statement group
 is evaluated only when all its input variables have values.
 When the {\em right-side-expression} of an {\em assignment-statement}
 is evaluated, the variables named on the left side of the statement and any
