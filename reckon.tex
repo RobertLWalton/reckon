@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{October 30, 2003}
+\date{November 5, 2003}
  
 \maketitle
 
@@ -1487,8 +1487,65 @@ The {\em opening-mark} lexeme that begins a subexpression
 must match (\ref{MATCHING}) the {\em closing-mark} lexeme that
 ends a subexpression.
 
-Besides subexpressions defined in this section, other implied subexpressions
-may be induced by operators (\ref{PARSING}).
+Expression structure is affected by two special marks:
+the reorder mark (\verb|<=>|) and the qualifier mark (\verb|@@@|).
+Expressions will be restructured if they contain operators (e.g.,
+\verb|+|,
+\verb|-|,
+\verb|*|,
+\verb|.|) or
+qualifiers (e.g.,
+\verb|with|,
+\verb|has|,
+\verb|ascending|).
+
+Note that there are several different types of matching lexemes
+that are used to bracket subexpressions.  The following informal guide may
+help keep them separate:
+
+\begin{center}
+\begin{tabular}{llll}
+	   & Turn	& Is Subexpression	& Subexpression \\
+Brackets   & Evaluation	& Restructured?		& Can Contain \\[1ex]
+
+\verb|[]|  & off	& no			& \verb|<=>|, \verb|@@@| \\
+\verb|`'|  & off	& yes			& \verb/|/ \\
+\verb|()|  & -		& sometimes		& \verb|<=>|, \verb|@@@|,
+						  operators, qualifiers \\
+\verb|{}|  & off	& sometimes		& \verb|<=>|, \verb|@@@|,
+						  operators, qualifiers \\
+\verb|<<>>|& on		& sometimes		& \verb|<=>|, \verb|@@@|,
+						  operators, qualifiers \\
+\end{tabular}
+\end{center}
+
+Operators and qualifiers, when present in an expression, always
+restructure the expression.  For example, \verb|x + y - 5 * z| is
+restructured as \verb|[+- x + y - [* 5 z]]|, and \verb|sort x| \verb|ascending|
+is restructured as \verb|[sort x @@@ ascending]|.
+
+In expressions that cannot contain operators
+or qualifiers, words and separators that would be recognized as operators
+or qualifiers elsewhere are not recognized as such.  Thus in
+\verb|[word +]| the \verb|+| is never recognized as an operator.
+
+A \verb|`'| quoted expression is typically restructured into a
+computational representation of a part of a document.  For example,
+\verb|`I am!'| is restructured to become \verb|[sentence I am !]|.
+
+A \verb|()|, \verb|{}|, or \verb|<<>>| bracketted
+expression that does not contain operators
+is restructured if its first item is a subexpression.
+For example, \verb|((integral x) from 0)| is restructured as
+\verb|(-EMPTY- (integral x) from 0)|.
+
+TBD evaluation on/off.
+
+\subsection{Raw Expressions}
+
+A raw expression is an expression that contains no operators or
+qualifiers that induce restructuring.  Raw expressions also contain
+no 
 
 \subsection{Parsing}
 \label{PARSING}
