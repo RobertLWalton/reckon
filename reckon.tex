@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 5, 2004}
+\date{January 7, 2004}
  
 \maketitle
 
@@ -740,7 +740,7 @@ A PCASL program is a sequence of characters which is scanned from
 left to right to produce a sequence of pre-lexemes.  The sequence
 of pre-lexemes is then scanned from left to right to produce
 a sequence of lexemes.  The sequence of lexemes is then subject to
-a left to right spelling scan to produce a final set of lexemes
+a left to right lexical parsing scan to produce a final set of lexemes
 that is input for expression parsing.
 
 \subsection{Pre-Lexemes}
@@ -1662,8 +1662,8 @@ hum \} y			& ; hum \} y \\
 \end{indpar}
 
 
-\subsection{Spelling Scan}
-\label{SPELLING-SCAN}
+\subsection{Lexical Parsing}
+\label{LEXICAL-PARSING}
 
 After pre-lexemes are scanned to produce lexemes, the lexemes are
 scanned to perform the following:
@@ -1674,6 +1674,16 @@ Possessive Splitting \\
 Number Unit Grouping
 \end{indpar}
 
+We describe these below in order.
+
+The scan that performs the above actions is called
+\key{lexical parsing}\index{parsing!lexical},
+because it does intial parse steps
+at the level of individual lexemes and short sequences of lexemes, and
+because it is controlled by definitions in the parsing stack
+
+(\pageref{PARSING-STACK}).
+
 \subsubsection{Spelling Regularization}
 \label{SPELLING-REGULARIZATION}
 
@@ -1683,9 +1693,7 @@ Number Unit Grouping
 \subsubsection{Number Unit Grouping}
 \label{NUMBER-UNIT-GROUPING}
 
-We will describe these in order.
-
-\section{Expression Parsing}\index{parsing}
+\section{Expression Parsing}\index{parsing!expression}
 \label{EXPRESSION-PARSING}
 
 An expression is a sequence of words, separators, and subexpressions.
@@ -1707,8 +1715,9 @@ implied parentheses and in other ways.  Subexpressions surrounded by
 particular matching lexemes, such as \verb|`'|, are restructured in
 special ways.
 
-The process of restructuring expressions is called \key{parsing}.
-Parsing takes an expression as input, and produces as output a raw
+The process of restructuring expressions is called
+\key{expression parsing}\index{parsing!expression}.
+Expression parsing takes an expression as input, and produces as output a raw
 expression that contains nothing that will trigger further restructuring.
 
 \subsection{Subexpressions}
@@ -1735,32 +1744,33 @@ ends a subexpression.
 \label{EXPRESSION-STRUCTURE-OVERVIEW}
 
 Expression structure is affected by five special marks.
-The \key{optional mark} (\ttkey{?:?}) is used in expression definitions
+The \key{optional argument mark} `\ttkey{?:?}' is used in expression
+definitions
 to separate arguments that are required from those that can be optional,
 as in the expression `\verb|find-max LIST ?:? COMPARATOR|', in which the
 the `\verb|LIST|' argument is required but the `\verb|COMPARATOR|' argument
 is optional.
-The \key{reorder mark} (\ttkey{<:>}) is used in expression definitions
+The \key{reorder mark} `\ttkey{<:>}' is used in expression definitions
 to separate arguments whose order can be switched,
 as in the expression `\verb|element LIST <:> INDEX|' in which the
-the `\verb|LIST|' and `\verb|INDEX|' argument can be reordered.
-The \key{remainder mark} (\ttkey{::>}) preceeds a final argument in an
+`\verb|LIST|' and `\verb|INDEX|' argument can be switched.
+The \key{remainder mark} `\ttkey{::>}' preceeds a final argument in an
 expression definition that represents the list of remaining arguments in a use
 of the definition, as in the expression `\verb|max ::> ARGS|',
 where \verb|ARGS| represents
 the list of all the arguments given to \verb|max|.
 The \key{required qualifier mark}\index{qualifier mark!required}
-(\ttkey{@@}) signals that the following
+`\ttkey{@@}' signals that the following
 expression item is a required qualifier, as in the expression
 `\verb|sort x @@ with order ascending |',
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|)
 in an expression.
 The \key{optional qualifier mark}\index{qualifier mark!optional}
-(\ttkey{??}) signals that the following
+`\ttkey{??}' signals that the following
 expression item is an optional qualifier, as in the expression
 `\verb|sort X ?? with order O|'.  When default values are provided in
 definitions, required qualifier marks may be converted automatically to
-optional qualifier marks and an optional mark may be inserted into an
+optional qualifier marks and an optional argument mark may be inserted into an
 argument list automatically (\ref{TBD}).
 
 Expressions are restructured if they contain operators (e.g.,
@@ -1777,7 +1787,7 @@ A \key{raw expression} (\ref{RAW-EXPRESSIONS})
 is a particular kind of expression that will not be
 restructured.  The only special marks that may be in a raw expression
 are the five special marks:
-the optional mark (\verb|?:?|), the reorder mark (\verb|<:>|),
+the optional argument mark (\verb|?:?|), the reorder mark (\verb|<:>|),
 the remainder mark (\verb|::>|),
 and the qualifier marks (\verb|@@|, \verb|??|).
 Translating
@@ -1785,7 +1795,8 @@ an expression into a raw expression is called \key{parsing}.
 
 Some operators are matchfix operators, which surround their single
 argument like parentheses.  Some matchfix operators have special
-affects on parsing.  An informal summary of a few of these is:
+affects on parsing.  An informal summary of the standard matchfix
+operators is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
@@ -1812,31 +1823,34 @@ Brackets	& qualifiers	& text		& \verb|@@  ??|
 		& on		& off		& on		& on thrice \\
 \verb|`|\ldots\verb|'|
 		& off		& on		& off		& off \\
+\verb|``|\ldots\verb|''|
+		& off		& on		& off		& off \\
+\verb|```|\ldots\verb|'''|
+		& off		& on		& off		& off \\
 \end{tabular}
 \end{center}
 
 Other matching lexemes may be made to affect parsing by introducing
 operator definitions (\ref{OPERATOR-DEFINITIONS}).
 
-Parsing is controlled by the \key{parsing context}, which is a stack
-that contains definitions of parsers, operators, qualifiers, and
+Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
+which contains definitions of parsers, operators, qualifiers, and
 qualifier shortcuts.  An operator may push definitions into the parsing
-context.  After the expression containing the operator has been parsed,
-these definitions will be popped from the parsing context.
+stack.  After the expression containing the operator has been parsed,
+these definitions will be popped from the parsing stack.
 
 A \key{parser definition} just names a parser.  The most recent parser
-definition in the parsing context names the parser used to parse expressions.
+definition in the parsing stack names the parser used to parse expressions.
 There are three standard \ikey{parsers}{parser!standard}:
 the \key{marks parser} \ttkey{-MARKS-PARSER-},
-where only the optional mark (\verb|?:?|), reorder mark (\verb|<:>|),
+where only the optional argument mark (\verb|?:?|), reorder mark (\verb|<:>|),
 remainder mark (\verb|::>|), required qualifier mark (\verb|@@|),
 and optional qualifier mark (\verb|??|), are recognized;
 the \key{operators parser} \ttkey{-OPERATORS-PARSER-},
 where these marks
 are recognized along with operators, qualifiers, and qualifier shortcuts;
 and the \key{text parser} \ttkey{-TEXT-PARSER-},
-where only the format-separator (\verb/|/)
-is recognized.
+where only the format-separator (\verb/|/) and punctuation are recognized.
 
 From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
@@ -1861,7 +1875,7 @@ in \verb|[item ascending]| \verb|ascending| is not recognized as
 a qualifier shortcut.
 
 Some of the matchfix operators above affect evaluation (eval).
-Evaluation differs from parsing context in that it is managed by a
+Evaluation differs from parsing in that it is managed by a
 counter and not a stack; if evaluation is
 turned off twice, it must be turned on twice to be in effect.
 Thus in a context in which evaluation is on, the \verb|X| in
@@ -1977,7 +1991,7 @@ can only occur in a pattern (\ref{CALL-UNIFICATION}).
 
 Operators restructure expressions in which they occur.  Operators
 are defined by operator definitions that can be added to the
-parsing context by some operators.
+parsing stack by some operators.
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
@@ -2379,7 +2393,7 @@ parenthesized.  Note this operand cannot be empty.
 
 The rules just given produce a result that is often the same as the
 more common context free grammar rules for parsing expressions.  However,
-there is a difference: in PCASL an operator can change the parsing context
+there is a difference: in PCASL an operator can change the parsing stack
 used to parse its operand subexpressions.  See the sections on
 operator parsers (\ref{OPERATOR-PARSER}),
 operator control flags (\ref{OPERATOR-CONTROL-FLAGS}),
@@ -2978,7 +2992,7 @@ which is represented by the expression tree
 \end{Graph}
 \end{center}
 
-Arguments appearing after the \key{optional mark} \ttkey{?:?} are
+Arguments appearing after the \key{optional argument mark} \ttkey{?:?} are
 optional.  This is indicated by the arity `\verb|1-4|' that indicates
 that argument `\verb|1|' is the last required argument and there are
 `\verb|4|' arguments total.  In general, the arity can have the form
