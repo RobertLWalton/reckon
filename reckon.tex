@@ -2538,7 +2538,7 @@ an \key{expression tree}.
 There is a correspondence between raw expressions and certain expression
 trees, called \skey{raw expression tree}s,
 that is one-to-one, except that two raw expressions differing only
-in the order of their qualifier clauses and the order of their reordered
+in the order of their qualifier clauses and the order of their reorderable
 arguments correspond to the same expression tree.
 
 There are several operations that convert expression trees into general
@@ -2725,7 +2725,7 @@ bracketted.  Thus the above example can also be rendered as:
 
 \end{center}
 
-\subsection{of nodes Pure Unification}
+\subsection{Pure Unification}
 \label{PURE-UNIFICATION}
 
 Informally, expression graph nodes may be thought of
@@ -2771,8 +2771,9 @@ X, or equivalently the node Y.
 
 It is possible to run unification with arbitrary initial merge sets.
 
-For pure unification the \key{node merge algorithm}.%
-\label{NODE-MERGE-ALGORITHM} applied to the merge pair (M,N) is as follows:
+For pure unification the \key{node merge algorithm}%
+\label{NODE-MERGE-ALGORITHM}
+applied to the merge pair (M,N) is as follows:
 
 \begin{enumerate}
 
@@ -2784,7 +2785,7 @@ If M and N are the same node, terminate the node merge algorithm.
 
 \item
 \label{UNIFICATION-LABEL-FAILURE}
-If and N are labeled nodes with different labels, the unification
+If M and N are labeled nodes with different labels, the unification
 algorithm fails.
 
 \item
@@ -2855,36 +2856,37 @@ T \left(
 \subsection{Raw Expression Trees}
 \label{RAW-EXPRESSION-TREES}
 
-Raw expressions represent expression trees.  For example, the expression
+Raw expressions represent certain expression trees called
+\skey{raw expression tree}s.  For example, the expression
 
 \begin{center}
 \verb|[max x y z]|
 \end{center}
 
-represents the expression tree
+represents the raw expression tree
 
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{3} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{max} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{1}
 	\Glabel{x} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2}
 	\Glabel{y} \\
-    \end{Gchild} \\
-    \begin{Gchild}{3}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{3}
 	\Glabel{z} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 \end{center}
 
-The raw expression is represented by the root node of an expression tree.
+The raw expression is represented by the root node of a raw expression tree.
 The raw expression head, `\verb|max|', is represented by a node labeled
 `\verb|max|' that is the target of an arrow labeled `\verb|0|' from the root.
 Here `\verb|0|' is called the \key{head index} of the root node, the
@@ -2896,10 +2898,10 @@ The three arguments become targets of three arrows from the root labeled
 Each argument in this case is a single
 word, and is represented by a node labeled with that word.
 Here non-zero natural numbers are
-\ikey{un-reordered argument indices}{un-reordered argument index} of the
+\ikey{un-reorderable argument indices}{un-reorderable argument index} of the
 root that label
-\skey{un-reordered argument arrow}s of the root, and the targets of these
-arrows are the \skey{un-reordered argument}s of the root.  Reordered
+\skey{un-reorderable argument arrow}s of the root, and the targets of these
+arrows are the \skey{un-reorderable argument}s of the root.  Reorderable
 and rest arguments are introduced below.
 
 An arrow labeled `\ttkey{-ARITY-}' is added to the root node to point
@@ -2914,47 +2916,47 @@ A second example is the expression
 \verb|[sort x @@ with key weight @@ with comparator]|
 \end{center}
 
-which is represented by the expression tree
+which is represented by the raw expression tree
 
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{1} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{sort} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{1}
 	\Glabel{x} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
     \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gchild}{-ARITY-}
+	\begin{Gsimplechild}{-ARITY-}
 	    \Glabel{2}
-	\end{Gchild} \\
-	\begin{Gchild}{0}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{0}
 	    \Glabel{with}
-	\end{Gchild} \\
-	\begin{Gchild}{1}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{1}
 	    \Glabel{key}
-	\end{Gchild} \\
-	\begin{Gchild}{2}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{2}
 	    \Glabel{weight}
-	\end{Gchild} \\
+	\end{Gsimplechild} \\
     \end{Gchild} \\
     \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gchild}{-ARITY-}
+	\begin{Gsimplechild}{-ARITY-}
 	    \Glabel{2}
-	\end{Gchild} \\
-	\begin{Gchild}{0}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{0}
 	    \Glabel{with}
-	\end{Gchild} \\
-	\begin{Gchild}{1}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{1}
 	    \Glabel{comparator}
-	\end{Gchild} \\
-	\begin{Gchild}{2}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{2}
 	    \Glabel{<}
-	\end{Gchild} \\
+	\end{Gsimplechild} \\
     \end{Gchild} \\
 \end{Graph}\label{QUALIFIER-EXAMPLE}
 \end{center}
@@ -2968,9 +2970,9 @@ The arrows with these labels are called \skey{qualifier arrow}s of the
 root node and their targets are called \skey{qualifier}s of the root.
 In this case there are two \skey{required qualifier arrow}s and
 two \skey{required qualifier}s.
-Each qualifier sources arity, head, and un-reordered argument arrows
+Each qualifier sources arity, head, and un-reorderable argument arrows
 analogous to those of the root node, and could source qualifier,
-reordered argument (see below), and rest argument (see below) arrows.
+reorderable argument (see below), and rest argument (see below) arrows.
 
 A third example is the expression
 
@@ -2978,47 +2980,47 @@ A third example is the expression
 \verb|[sort x @@ with key weight ?? with order X]|
 \end{center}
 
-which is represented by the expression tree
+which is represented by the raw expression tree
 
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{1} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{sort} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{1}
 	\Glabel{x} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
     \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gchild}{-ARITY-}
+	\begin{Gsimplechild}{-ARITY-}
 	    \Glabel{2}
-	\end{Gchild} \\
-	\begin{Gchild}{0}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{0}
 	    \Glabel{with}
-	\end{Gchild} \\
-	\begin{Gchild}{1}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{1}
 	    \Glabel{key}
-	\end{Gchild} \\
-	\begin{Gchild}{2}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{2}
 	    \Glabel{weight}
-	\end{Gchild} \\
+	\end{Gsimplechild} \\
     \end{Gchild} \\
     \begin{Gchild}{-OPTIONAL-QUALIFIER-}
-	\begin{Gchild}{-ARITY-}
+	\begin{Gsimplechild}{-ARITY-}
 	    \Glabel{2}
-	\end{Gchild} \\
-	\begin{Gchild}{0}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{0}
 	    \Glabel{with}
-	\end{Gchild} \\
-	\begin{Gchild}{1}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{1}
 	    \Glabel{order}
-	\end{Gchild} \\
-	\begin{Gchild}{2}
+	\end{Gsimplechild} \\
+	\begin{Gsimplechild}{2}
 	    \Glabel{X}
-	\end{Gchild} \\
+	\end{Gsimplechild} \\
     \end{Gchild} \\
 \end{Graph}
 \end{center}
@@ -3039,32 +3041,32 @@ A fourth example is the expression
 \verb|[fill Prefix ?:? Matrix <:> Value Postfix ::> Runs]|
 \end{center}
 
-which is represented by the expression tree
+which is represented by the raw expression tree
 
 \begin{center}
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{1-4} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{fill} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{1}
 	\Glabel{Prefix} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2-3}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2-3}
 	\Glabel{Matrix} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2-3}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2-3}
 	\Glabel{Value}
-    \end{Gchild} \\
-    \begin{Gchild}{4}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{4}
 	\Glabel{Postfix}
-    \end{Gchild} \\
-    \begin{Gchild}{-REST-}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{-REST-}
 	\Glabel{Runs}
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 \end{center}
 
@@ -3083,7 +3085,7 @@ number $n$, then $n$ is both the number of required arguments and the
 total number of arguments.
 
 Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} can
-be reordered.  These arguments are indicated by argument indices that
+be reorderable.  These arguments are indicated by argument indices that
 describe the positions the arguments can occur in.  Thus in the example
 the two arguments with index `\verb|2-3|' can each appear as either the
 2nd or 3rd argument.  In general,
@@ -3092,11 +3094,11 @@ an argument index that is a range of the form
 $n$ is the total number of arguments, indicates that the argument can
 be the $i$'th through $j$'th argument position.
 These argument indices are called the
-\ikey{reordered argument indices}{reordered argument index} of the
+\ikey{reorderable argument indices}{reorderable argument index} of the
 root node,
-the arrows they label are called \skey{reordered argument arrow}s
+the arrows they label are called \skey{reorderable argument arrow}s
 of the root,
-and the targets of these arrows are called \skey{reordered argument}s
+and the targets of these arrows are called \skey{reorderable argument}s
 of the root.
 
 Note that if an argument has index `$i$\verb|-|$j$', then the $i$'th
@@ -3151,18 +3153,18 @@ are natural numbers and $m<n$.  In either case $m$ is called the
 N has exactly one head arrow.
 
 \item
-There exists a 1-1 map between the set of un-reordered and reordered
+There exists a 1-1 map between the set of un-reorderable and reorderable
 (but not rest) argument arrows of N and the set of
 natural numbers from \verb|1| through $n$, where $n$ is the
 maximum arity of N, such that if $i$ is a natural number
 from \verb|1| through $n$, the arrow mapped to $i$
-is either an un-reordered argument arrow labeled $i$, 
-or is a reordered argument arrow labeled $j$\verb|-|$k$
+is either an un-reorderable argument arrow labeled $i$, 
+or is a reorderable argument arrow labeled $j$\verb|-|$k$
 where $j\leq i\leq k$.
 
 Such a mapping is called a \key{argument order assignment} of N.%
 \label{ARGUMENT-ORDER-ASSIGNMENT}
-If there are any reordered arguments of N, there will be
+If there are any reorderable arguments of N, there will be
 more than one argument order assignment of N.
 
 \item
@@ -3177,7 +3179,7 @@ N can have any number of qualifier arrows (required or optional).
 \item
 There are no arrows sourced at N other than those with labels
 enumerated above.  That is, any arrow sourced at N is either an arity
-arrow, a head arrow, an argument arrow (un-reordered, reordered, or rest),
+arrow, a head arrow, an argument arrow (un-reorderable, reorderable, or rest),
 or a qualifier arrow (required or optional).
 
 \item
@@ -3308,7 +3310,7 @@ we need to avoid this failure, and we do this in \ref{CALL-UNIFICATION}
 by using some of the
 the 1-witnesses of the qualifier nodes to make the match.
 The 1-witnesses we use include the qualifier head, if that
-is a node with a label, and any un-reordered non-rest
+is a node with a label, and any un-reorderable non-rest
 qualifier argument that is simply a node with a label.
 
 \subsection{Call Unification}
@@ -3317,7 +3319,7 @@ qualifier argument that is simply a node with a label.
 \ikey{Call unification}{call unification}\index{unification!call}
 is a variant of pure unification (\ref{PURE-UNIFICATION}) that differs
 from pure unification when merging nodes that have qualifiers or that have
-optional, reordered, or rest arguments.  Call unification is
+optional, reorderable, or rest arguments.  Call unification is
 used in the inference algorithm (\ref{EVALUATION-ALGORITHM}).
 
 Call unification is identical to pure unification (\ref{PURE-UNIFICATION})
@@ -3349,7 +3351,7 @@ If M and N are the same node, terminate the call merge algorithm.
 
 \item
 A call node is said to be of \key{indeterminate arity} if it has
-an optional, reordered, or rest argument.  Otherwise the node is said
+an optional, reorderable, or rest argument.  Otherwise the node is said
 to be of \key{determinant arity}.
 
 If \underline{both} M and N are of indeterminate arity,
@@ -3359,7 +3361,7 @@ Otherwise, if just N is of indeterminate arity, switch M and N so that
 only N is of determinant arity.
 
 Later in this call merge algorithm M will be replaced by a forwarding
-pointer to N, and N will not be given any optional, rest, or reordered
+pointer to N, and N will not be given any optional, rest, or reorderable
 arguments, so the result of the merge will be of determinant arity.
 
 \item
@@ -3578,19 +3580,19 @@ implicit conversion
 &
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{2} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{z} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
     \begin{Gchild}{1}
 	\Gvariable{X} \\
 	\Glabel{foo}
     \end{Gchild} \\
-    \begin{Gchild}{2}
+    \begin{Gsimplechild}{2}
 	\Gvariable{X} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 \end{tabular}
 
@@ -3604,19 +3606,19 @@ explicit conversion
 &
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{2} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{z} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
     \begin{Gchild}{1}
 	\Gvariable{X} \\
 	\Glabel{foo}
     \end{Gchild} \\
-    \begin{Gchild}{2}
+    \begin{Gsimplechild}{2}
 	\Glabel{X} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 \end{tabular}
 
@@ -3630,18 +3632,18 @@ implicit conversion
 &
 \begin{Graph}
     \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{-ARITY-}
+    \begin{Gsimplechild}{-ARITY-}
 	\Glabel{2} \\
-    \end{Gchild} \\
-    \begin{Gchild}{0}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{0}
 	\Glabel{z} \\
-    \end{Gchild} \\
-    \begin{Gchild}{1}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{1}
 	\Gvariable{X} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2}
 	\Gvariable{X} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 ~~~
 \begin{Graph}
@@ -3675,32 +3677,32 @@ implicit conversion
 	\Gvariable{X} \\
 	\Glabel{\$5} \\
     \end{Gchild} \\
-    \begin{Gchild}{fie}
+    \begin{Gsimplechild}{fie}
 	\Gvariable{X} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 \hspace{0.1in}
 \begin{Graph}
     \Gdefault{X} \\
-    \begin{Gchild}{1}
+    \begin{Gsimplechild}{1}
 	\Glabel{foe} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
+    \end{Gsimplechild} \\
+    \begin{Gsimplechild}{2}
 	\Glabel{fum} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
 \end{Graph}
 \\
 ~\\
 \begin{Graph}
     \Gvariable{Y} \\
     \Gdefault{Y} \\
-    \begin{Gchild}{1}
+    \begin{Gsimplechild}{1}
 	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-    \end{Gchild} \\
+    \end{Gsimplechild} \\
     \begin{Gchild}{2}
-	\begin{Gchild}{*}
+	\begin{Gsimplechild}{*}
 	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-	\end{Gchild} \\
+	\end{Gsimplechild} \\
     \end{Gchild} \\
 \end{Graph}
 \end{tabular}
