@@ -2512,7 +2512,8 @@ The expression is returned as the result of parsing the expression.
 
 Expression graphs store expressions.  An \key{expression graph}
 is a directed possibly cyclic graph with labels on all arrows and on some
-nodes, plus a root node, plus a set of graph node valued variables.
+nodes, with a designated root node, and with a possibly empty
+set of graph node valued variables.
 
 Expression graph arrow and node labels 
 must be single words or separators.  Labeled nodes cannot be the source
@@ -2522,33 +2523,31 @@ arrow label.
 A node that does not have a label and is not the source of any arrows
 is called a \key{null node}.
 
-An expression graph variable has a name, a value, and a default.
+An expression graph variable has a name, a value, and an optional default.
 Variable names must be single words or separators.
 Both the value and the default are graph nodes.  The default may be
 missing.  Variable values are often, but by no means always, null nodes.
 
-All graph nodes are reachable from from either the value or the default
-of some variable.
+All nodes in an expression graph are reachable from either the root or
+from the value or default of one of the graph's variables.
 
-There is always a variable named \ttkey{-ROOT-} whose value
-is a graph node called the \mkey{root}{of expression graph}
-of the expression graph.  The \verb|-ROOT-| variable does not have a default.
-
-If there is only one variable, \verb|-ROOT-|, and no node is the destination
+If there are no variables and no node is the destination
 of more than one arrow, the graph is a tree.  In this case it is called
 an \key{expression tree}.
 
-There is a correspondence between raw expressions and expression trees
+There is a correspondence between raw expressions and certain expression
+trees, called \skey{raw expression tree}s,
 that is one-to-one, except that two raw expressions differing only
 in the order of their qualifier clauses and the order of their reordered
 arguments correspond to the same expression tree.
 
 There are several operations that convert expression trees into general
-expression graphs.  All these use a designated operator, which defaults
-to \ttkey{//}, to identify expression graph variables and their values.
+expression graphs (\ref{EXPRESSION-GRAPH-REPRESENTATION}).
+All these use designated operators, such as
+`\verb|//|', to identify expression graph variables and their values.
 The most commonly used conversion operation also uses the convention that
-words beginning with a capital letter designate
-expression graph variables.
+words beginning with a capital letter or with `\verb|#|' followed by a
+capital letter name expression graph variables.
 
 \subsection{Expression Graph Notation}
 \label{EXPRESSION-GRAPH-NOTATION}
@@ -2582,7 +2581,7 @@ e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
 \begin{center}
 
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{fee}
 	\Gvariable{X} \\
 	\Glabel{\$5} \\
@@ -2627,16 +2626,22 @@ lines of the representation of the node.
 A variable name is boxed if the node is the value of
 a variable, and double boxed if the node is the default of the
 variable.
-In our example \Gvariable{-ROOT-}, \Gvariable{X}, and \Gvariable{Y}
+In our example, \Gvariable{X}, and \Gvariable{Y}
 designate nodes that are variable values and
 \Gdefault{X} and \Gdefault{Y} designate nodes that are variable defaults.
+The \key{root node} is treated
+as if it were the value of a variable named `\verb|{ROOT}|',
+and therefore designated by \Gvariable{\CurlyBra ROOT\CurlyKet} in our
+example.
 A single node can be the value or default of several variables: in the
 example one node is both the value and the default of \verb|Y|.
 
-The example expression graph has three variables, \verb|-ROOT-|, \verb|X|,
+TBD
+
+The example expression graph has three variables, \verb|{ROOT}|, \verb|X|,
 and \verb|Y|.  While all nodes in the expression graph must be reachable
 from the value or default of some variable in the graph, all nodes
-need not be reachable from the value of \verb|-ROOT-|.  The above example
+need not be reachable from the value of \verb|{ROOT}|.  The above example
 is a single expression graph with three variables, and \underline{not}
 three expression graphs.
 
@@ -2822,7 +2827,7 @@ represents the expression tree
 
 \begin{center}
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{3} \\
     \end{Gchild} \\
@@ -2875,7 +2880,7 @@ which is represented by the expression tree
 
 \begin{center}
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{1} \\
     \end{Gchild} \\
@@ -2939,7 +2944,7 @@ which is represented by the expression tree
 
 \begin{center}
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{1} \\
     \end{Gchild} \\
@@ -3000,7 +3005,7 @@ which is represented by the expression tree
 
 \begin{center}
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{1-4} \\
     \end{Gchild} \\
@@ -3189,7 +3194,7 @@ For example, consider the graph of
 \verb|[sort x @@ with key weight @@ with comparator]|
 \end{center}
 
-on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|-ROOT-|
+on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|{ROOT}|
 variable has `\verb|0|: \verb|sort|' as one of its witnesses and
 `\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
 actually two distinct paths corresponding to this second witness.
@@ -3208,7 +3213,7 @@ arrows with the same label.  In the example expression graph
 on page~\pageref{QUALIFIER-EXAMPLE},
 `\verb|-REQUIRED-QUALIFIER- 1|: \verb|key|' and
 `\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
-witnesses for the value of \verb|-ROOT-|.  However, for an expression
+witnesses for the value of \verb|{ROOT}|.  However, for an expression
 graph in which no node sources two arrows with the same label, it can
 be easily proved that all witnesses of every node are compatible.
 
@@ -3469,14 +3474,14 @@ result.
 
 Note that during creation of the expression tree before unification
 the roots of various subtrees are not treated as values of a variable
-named \verb|-ROOT-|.  More explicitly, no variable is permitted that
-has the name \verb|-ROOT-|, and tree roots are tracked by means other
+named \verb|{ROOT}|.  More explicitly, no variable is permitted that
+has the name \verb|{ROOT}|, and tree roots are tracked by means other
 than variables.  The resulting expression tree has a root but no
-\verb|-ROOT-| variable.  It is an error if any of the special expressions
-listed above specifies \verb|-ROOT-| as a variable name.
+\verb|{ROOT}| variable.  It is an error if any of the special expressions
+listed above specifies \verb|{ROOT}| as a variable name.
 
 After the expression tree is created,
-a \ttmkey{-ROOT-}{of conversion} variable is created
+a \ttmkey{\CurlyBra ROOT\CurlyKet}{of conversion} variable is created
 whose sole value is the root of the expression tree, and whose set of
 default values is empty.
 
@@ -3534,7 +3539,7 @@ implicit conversion
 \end{tabular}
 &
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{2} \\
     \end{Gchild} \\
@@ -3560,7 +3565,7 @@ explicit conversion
 \end{tabular}
 &
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{2} \\
     \end{Gchild} \\
@@ -3586,7 +3591,7 @@ implicit conversion
 \end{tabular}
 &
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{-ARITY-}
 	\Glabel{2} \\
     \end{Gchild} \\
@@ -3627,7 +3632,7 @@ implicit conversion
 &
 \begin{tabular}{@{}l@{}}
 \begin{Graph}
-    \Gvariable{-ROOT-} \\
+    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
     \begin{Gchild}{fee}
 	\Gvariable{X} \\
 	\Glabel{\$5} \\
