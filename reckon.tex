@@ -1908,7 +1908,7 @@ A raw expression is an expression that contains no operators,
 qualifiers, qualifier shortcuts, or text parsing contexts that
 induce restructuring.
 Raw expressions can be directly represented using the \verb|[]|
-matching lexemes and the \verb|?:?| optional,
+matching lexemes and the \verb|?:?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and \verb|??| optional qualifier marks.
 
@@ -1952,17 +1952,18 @@ The syntax of raw expressions is defined as follows:
 	      {\em raw-argument-remainder-option} \\
 	$|$ & \begin{tabular}[t]{@{}l}
 	      {\em raw-base-argument-list}
-	      {\em optional-mark}
-	      {\em raw-base-argument-list} \\
+	      {\em optional-argument-mark} \\
+	      {\em non-empty-raw-base-argument-list} \\
 	      {\em raw-argument-remainder-option}
 	      \end{tabular}
 	\end{tabular} \\[1ex]
-\key{optional-mark} ::= \verb|?:?| \\[1ex]
+\key{optional-argument-mark} ::= \verb|?:?| \\[1ex]
 \key{raw-base-argument-list}
+	::= {\em empty} $|$ {\em non-empty-raw-base-argument-list} \\[1ex]
+\key{raw-non-empty-base-argument-list}
         \begin{tabular}[t]{@{}rl}
-	::= & {\em empty} \\
-	$|$ & {\em raw-argument}
-	    \{ {\em reorder-mark-option} {\em raw-argument} \}$^\star$
+	::= & {\em raw-argument} \\
+	    & \{ {\em reorder-mark-option} {\em raw-argument} \}$^\star$
 	\end{tabular} \\[1ex]
 \key{reorder-mark-option} ::= {\em empty} $|$ \verb|<:>| \\[1ex]
 \key{reorder-argument-remainder-option} ::=
@@ -1981,7 +1982,7 @@ The syntax of raw expressions is defined as follows:
 The order of {\em raw-qualifier-phrases}
 in a {\em raw-expression} does not matter.
 The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
-not matter.  The {\em optional-mark} (\verb|?:?|),
+not matter.  The {\em optional-argument-mark} (\verb|?:?|),
 {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
 (\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
 can only occur in a pattern (\ref{CALL-UNIFICATION}).
@@ -1996,8 +1997,8 @@ parsing stack by some operators.
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
 
-The parsing definitions stack
-contains \skey{operator definition}s and qualifier definitions.
+\ikey{Operator definitions}{operator definition} can be pushed into
+the parsing stack, and are used by the operators parser.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
@@ -2066,7 +2067,7 @@ is `\verb/[|/' and the closing operator name is `\verb/|]/'.
 Opening and closing marks cannot be part of an operator name
 unless the operator is a matchfix operator.
 If opening and closing marks are part of a matchfix operator
-name, they must begin and end the name, and they must not be
+name, they must begin and end the name, and they must \underline{not} be
 parentheses \verb|()|.
 
 When a subexpression is tested
@@ -2075,8 +2076,9 @@ end the subexpression are included in the subexpression, unless they are
 parentheses \verb|()|, which are always removed (recursively) when they
 begin and end a subexpression, and are thus invisible.  Thus
 the matchfix operator `\verb/| ... |/' could be invoked by
-the expression `\verb/x + (| y |)/'.  Operator names are not permitted
-to include parentheses \verb|()|, so names such as `\verb/|( ... )|/'
+the expression `\verb/x + (| y |)/', but not by the expression
+`\verb/x + [| y |]/'.  Operator names are not permitted
+to include parentheses \verb|()|, so names such as `\verb/(| ... |)/'
 are erroneous.
 Generally, including extra pairs of parentheses
 \verb|()| has no affect on expression parsing or expression meaning,
@@ -2130,40 +2132,47 @@ be rewritten as \verb|[-COMPARE- 0 < (x - 3) <= 5]|.
 \subsubsubsection{Operator Parser}\ttmindex{parser}{of operator}
 \label{OPERATOR-PARSER}
 
-A parser is the name of the function that is called with a expression
+A parser is the name of the function that is called with an expression
 as its single argument in order to parse the expression.
 
+Parsers can be pushed into the parsing stack.
 The parser used for subexpressions of an expression is the parser
-at the top of the \key{parsing parser stack}.
+nearest the top of the parsing stack.
 
 The \verb|parser| of an operator definition is an optional word that
-names a parser.  If present, the word is pushed into the parsing parser
-stack before subexpressions are parsed, and then the parsing parser stack
-is popped after subexpressions have been parsed.
+names a parser.  If present, the word is pushed into the parsing
+stack before subexpressions are parsed, and popped from the parsing stack
+after subexpressions have been parsed.
 
 The following are standard parsers:
 
 \begin{indpar}
 
 The \key{operators parser} \ttkey{-OPERATORS-PARSER-}.
-Operators, qualifiers, and the
-\verb|<:>| reorder, \verb|::>| remainder, and
-\verb|@@| qualifier marks are recognized.  The special constructs
+Operators, qualifiers, qualifier shortcuts,
+and the \verb|?:?| optional argument,
+\verb|<:>| reorder, \verb|::>| remainder,
+\verb|@@| required qualifier, and
+\verb|??| optional qualifier marks are recognized.  The special constructs
 of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
 The \key{marks parser} \ttkey{-MARKS-PARSER-}.
-The \verb|<:>| reorder, \verb|::>| remainder, and
-\verb|@@| qualifier marks are recognized.  Operators, qualifiers,
-and the special constructs
+The \verb|?:?| optional argument,
+\verb|<:>| reorder, \verb|::>| remainder,
+\verb|@@| required qualifier, and
+\verb|??| optional qualifier marks are recognized.  Operators, qualifiers,
+qualifier shortcuts, and the special constructs
 of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
 The \key{text parser} \ttkey{-TEXT-PARSER-}.
 The special constructs of text parsing (\ref{TEXT-PARSING}) are
-recognized.  Operators, qualifiers, and
-the \verb|<:>| reorder, \verb|::>| remainder, and
-\verb|@@| qualifier marks are \underline{not} recognized.
+recognized.  Operators, qualifiers, qualifier shortcuts, and
+the \verb|?:?| optional argument,
+\verb|<:>| reorder, \verb|::>| remainder,
+\verb|@@| required qualifier, and
+\verb|??| optional qualifier marks are \underline{not} recognized.
 
 \end{indpar}
 
@@ -2174,16 +2183,19 @@ affect parsing of subexpressions of the operator.
 
 \begin{indpar}
 
-{\bf definitions}\index{definitions flag@{\tt definitions} flag}\\
+{\bf definitions}\index{definitions flag@{\tt definitions} flag}~~~~~
 This flag may only be given for a right associative infix operator.
 It causes the
-left operand of the operator to be inspected to see if it is an
-operator or qualifier definition.  If no, nothing special is done.
+left operand of the operator to be inspected to see if it is a definition
+that should be pushed into the parsing stack.  This can be an operator,
+qualifier, qualifier shortcut, or parser definition, or
+a lexical parsing definition (\ref{TBD}).
+If no, nothing special is done.
 If yes, the expression containing
 the infix operator is replaced by just its right operand, the definition
 in the left operand
-is pushed onto the parsing definitions stack, the right operand is
-parsed, and then the definition is popped off the parsing definitions stack.
+is pushed onto the parsing stack, the right operand is
+parsed, and then the definition is popped off the parsing stack.
 
 \end{indpar}
 
@@ -2204,13 +2216,16 @@ will be restructured to be `\verb|-EVAL-ON- x|'.
 \label{OPERATOR-SUBDEFINITIONS}
 
 An operator definition can contain a list of definitions
-that are pushed into the parsing definition stack before the subexpressions
+that are pushed into the parsing stack before the subexpressions
 of the operator are parsed, and are popped from the stack after the
 subexpressions are parsed.  To avoid name confusion, these definitions
 are called \skey{subdefinition}s.
 
-Note that subdefinitions can include operator definitions, operator
-undefinitions, qualifier definitions, and qualifier undefinitions.
+Note that subdefinitions can include any definitions that can be 
+pushed into the parsing stack, and can also include undefinitions, that
+inactivate all definitions with particular names in the stack
+(\ref{TBD}).
+
 
 \subsubsection{Operator Definition Syntax}
 \label{OPERATOR-DEFINITION-SYNTAX}
@@ -2231,7 +2246,7 @@ all selected operators are identical except for operator names.
 
 The operator selection algorithm uses the current parsing definition stack
 to determine which operators are defined.  The most important parts of each
-definition are the operator name and operator fixity.
+operator definition are the operator name and operator fixity.
 
 In the algorithm the concepts of prefix sequence and postfix sequence
 are used.  A \key{prefix sequence} is a sequence of defined prefix operator
@@ -2358,7 +2373,7 @@ If the common associativity of the infix operators is not
 `\verb|left|',
 `\verb|right|', or
 `\verb|none|', this associativity as a lexeme sequence is prepended to the
-expression, before the first operator.
+expression, before the first operand.
 
 \item
 Select all prefix operators that begin the expression, and all postfix
@@ -2372,7 +2387,14 @@ and one is longer than the other,
 deselect the shorter.
 
 \item
+If both prefix and postfix operators are selected at this point, the postfix
+operators are deselected.  Thus postfix operators are in effect
+given precedence over prefix operators.
+
+\item
 If more than one operator is selected at this point, the parse is in error.
+This would be the result of ambiguity amoung prefix operators, or ambituity
+among postfix operators.
 
 \item
 If one operator is selected at this point, and the operator name
@@ -2410,7 +2432,7 @@ whether or not any operators are selected.
 After operators are selected without a parse error, all the selected
 operators have identical definitions except for operator name.
 The common part of these definitions, which we will refer to as
-`the opertor definition', is used to control post operator selection
+`the operator definition', is used to control post operator selection
 processing of the expression containing the operators.  If no operators are
 selected, a definition containing no optional parts (no named associativity,
 no parser, no control flags, no wrapper, no subdefinitions) is used
@@ -2434,13 +2456,13 @@ Subexpressions are parsed left to right by calling the parser at the
 top of the parsing parser stack.  If the operator definition has the
 \ttmkey{definitions}{control flag} control flag (note the operator must
 be right associative), after the first subexpression is parsed,
-it is checked to see if it is an operator definition
-(\ref{OPERATOR-DEFINITION-SYNTAX}).  If yes, this operator definition is pushed
-into the parsing definition stack before the second subexpression is parsed.
+it is checked to see if it is an definition that can be pushed into the
+parsing stack.  If yes, this definition is pushed
+into the parsing stack before the second subexpression is parsed.
 
 \item
-If an operator definition in the first subexpression was pushed into
-the parsing definition stack, the expression is replaced by its parsed
+If a definition in the first subexpression was pushed into
+the parsing stack, the expression is replaced by its parsed
 second subexpression.  Otherwise all subexpressions in the expression
 are replaced by their parsed versions.
 
@@ -2454,8 +2476,8 @@ replaced by its wrapper with the word \verb|...| in the wrapper
 replaced by the expression.
 
 \item
-If anything was pushed into the parsing stacks above, these things
-are popped from the stacks.
+If anything was pushed into the parsing stack above, these things
+are popped from the stack.
 
 \item
 The expression is returned as the result of parsing the expression.
@@ -3340,7 +3362,7 @@ MA and NQ bet the target of NA.
 
 Then add (MQ,NQ) to the merge set.  Also, if NA is an optional
 qualifier arrow and MA is a required qualifier arrow, change
-the arrow label of NA to be \verb|-REQUIRED-QUALIFIER-|, making
+the arrow label of NA to be {\tt -REQUIRED-\EOL QUALIFIER-}, making
 it a required qualifier arrow.
 
 \item
