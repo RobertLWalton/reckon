@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{November 11, 2003}
+\date{November 12, 2003}
  
 \maketitle
 
@@ -1500,14 +1500,17 @@ The \key{qualifier mark} (\ttkey{@@@}) signals that the following
 expression item is a qualifier, as in \verb|sort x @@@ ascending|,
 and is implied by qualifiers (e.g. \verb|with|, \verb|has|,
 \verb|ascending|) in an expression.
+
 Expressions are restructured if they contain operators (e.g.,
 \verb|+|,
 \verb|-|,
 \verb|*|,
-\verb|/|).
+\verb|/|), or certain matching lexemes.  A \key{raw expression}
+is an expression that will not be restructured.  Translating
+an expression into a raw expression is called \key{parsing}.
 
-There are several different types of matching lexemes
-that are used to bracket subexpressions:
+Some matching lexemes
+that are used to bracket subexpressions affect parsing:
 
 \begin{center}
 \begin{tabular}{lll}
@@ -1526,6 +1529,9 @@ Brackets   & Turns Off			& Turns On \\[1ex]
 					& \verb/|/, text \\
 \end{tabular}
 \end{center}
+
+Other matching lexemes may be made to affect parsing by introducing
+operator definitions with controls (\ref{OPERATOR-CONTROL}).
 
 There are three kinds of \skey{parsing context}s:
 one where only the reorder mark (\verb|<=>|)
@@ -1697,12 +1703,13 @@ matchfix operators, which have two sequences of lexemes, an
 \key{opening operator name} that must begin the subexpression and
 a \key{closing operator name} that must end the subexpression.
 
-The two sequences of lexemes for a matchfix
-operator are represented by a single sequence of lexemes that contains
+The opening and closing names of a matchfix
+operator are bundled into a single operator name that is
+sequence of lexemes consisting of
 the opening operator name followed by a `\verb/.../' lexeme
 followed by the closing operator name.
-An example sequence of lexemes for a
-matchfix operator is `\verb/[ | ... | ]/' that permits subexpressions
+For example, the
+matchfix operator named `\verb/[ | ... | ]/' permits subexpressions
 like `\verb/[| x - 5 |]/'.  Here the opening operator name
 is `\verb/[|/' and the closing operator name is `\verb/|]/'.
 
@@ -1713,9 +1720,13 @@ end the subexpression are included in the subexpression, unless they are
 parentheses \verb|()|, which are always removed (recursively) when they
 begin and end a subexpression, and are thus invisible.  Thus
 the matchfix operator `\verb/| ... |/' could be invoked by
-the expression `\verb/x + (| y |)/'.  Inclusing of extra pairs of parentheses
-\verb|()| therefore has no affect on the raw representation of an expression
-or its meaning.
+the expression `\verb/x + (| y |)/'.  Operator names are not permitted
+to include parentheses \verb|()|, so names such as `\verb/|( ... )|/'
+are erroneous.
+Generally, including extra pairs of parentheses
+\verb|()| has no affect on expression parsing or expression meaning,
+though the explicit parentheses in `\verb/[(|x|)]/' will prevent 
+the matchfix operator `\verb/[| ... |]/' from being recognized.
 
 When an expression is checked for operators,
 only infix operators in the expression that have lowest precedence
@@ -1818,6 +1829,7 @@ Thus if the infix operators \verb|<| and \verb|<=| have associativity
 be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
 
 \subsubsubsection{Control}\ttmindex{control}{of operator}
+\label{OPERATOR-CONTROL}
 
 [TBD: add operator def flag to right associative operators.]
 
