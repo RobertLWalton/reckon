@@ -5343,6 +5343,16 @@ syntactically variables of code added permanently are
 \underline{not} components of the object,
 and are not visible outside the temporarily added code.
 
+TBD: need a way to declare an object component without otherwise referencing
+it in permanent code.
+
+The permanent code of an object all belongs to the same group.  Blocks
+of permanent code cannot have {\em sequence-breaks}, and therefore
+have only one {\em group}.  Code that is added temporarily
+to an object can have several groups, and the permanent code of the
+object behaves as
+if it were a separate group executed after the temporary code is executed.
+
 A statement of the form:
 
 \begin{indpar}
@@ -5368,7 +5378,7 @@ the temporary code is removed from the object.
 When code is added to an object and executes, the statement qualifier
 {\tt default} acts when execution stops to enable execution of {\tt default}
 statements, as per \secref{DEFAULT-STATEMENTS}.  Similarly
-the statement qualifier {\tt next} can be used to create iterations of the
+the {\tt next} operator can be used to create iterations of the
 object.  Each iteration replaces the previous iteration of the object
 wherever the object is referenced.  Thus if two variables equal
 the object, and one is used to cause the object to iterate, both variable
@@ -5377,24 +5387,23 @@ values will become the new iterated object.
 A statement of the form
 
 \begin{center}
-\verb|default| \verb|next| {\em component-name} = {\em component-name}
+\verb|default| \verb|next(|$C$\verb|) = |$C$
 \end{center}
 
-is implied for every {\em component-name} of an object that is not
-defined by an explicit `{\tt default next}' statement in the current
-(permanent plus temporary) code of the object.
-Thus components not explicitly changed propagate unchanged from
-one iteration of an object to the next.
-The statement
+is implied in the permanent code
+for every component name $C$ of an object, provided
+no other default statement in the permanent code
+outputs \verb|next(|$C$\verb|)|.
+Thus components are normally propagated unchanged from
+one object iteration to the next.  A statement of the form
 
 \begin{center}
-\verb|default| \verb|next| {\em component-name} = \verb|UNDEFINED|
+\verb|default| \verb|next(|$C$\verb|) = UNDEFINED|
 \end{center}
 
-(\pagref{UNDEFINED})
-can be used to change this behavior and make a component undefined when
-the next object iteration is created, in which case other permanent
-code may execute in that iteration to give the component a value.
+can be used to override this behavior to
+make $C$ have no value at the beginning of the next object
+iteration.
 
 When an iteration of an object is created by temporary code, the
 sequence of actions is:
@@ -5453,6 +5462,14 @@ A \key{side effect} is an action that changes memory, inputs information from
 the outside world, or outputs information to the outside world.
 When an expression is evaluated, it may or may not have side effects.
 
+The order in which side effects are executed is determined by
+{\em sequence-breaks} that divide a {\em block} into {\em groups}
+further (\secref{BLOCK-EVALUATION}).  A programmer typically writes code
+so there is at most one side effect per {\em group}, in order to
+ensure side effects execute in the desired order.
+
+TBD: could this last rule be enforced.
+
 The \key{side effect mode} controls the execution of side effects.
 It has three settings: {\tt execute}, {\tt delay}, and {\tt error}.
 In \ttkey{execute mode} a side effect simply executes.  In
@@ -5460,7 +5477,8 @@ In \ttkey{execute mode} a side effect simply executes.  In
 and the side effect is not executed.
 
 In \ttkey{delay mode} input and memory change side effects execute,
-and output side effects do not execute but are instead put on a
+but put operations on an {\tt undo} list that can undo their effects,
+while output side effects do not execute, but are instead put on a
 {\tt todo} list.
 
 There are two lists maintained that permit side effects to be delayed
@@ -5472,15 +5490,12 @@ operation can be performed that backs up to previously recorded positions
 by deleting actions form the end of the {\tt todo} list and undoing
 actions on the end of the {\tt undo} list.
 
-They can be made illegal by setting the illegal-side-effects mode.
+TBD
 
 They can be encapsulated in a dynamic block that makes included side effects
 legal even when side effects outside the block are not.  The included side
 effects are called invisible side effects, while those outside the block
 are called visible.
-
-Side effects can be delayed.  They are pushed to a FIFO, which can be executed
-all at once.
 
 \section{Debugging}
 
