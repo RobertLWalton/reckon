@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 18, 2003}
+\date{December 19, 2003}
  
 \maketitle
 
@@ -2537,14 +2537,26 @@ represents the expression tree
 The raw expression is represented by the root node of an expression tree.
 The raw expression head, `\verb|max|', is represented by a node labeled
 `\verb|max|' that is the target of an arrow labeled `\verb|0|' from the root.
-Here `\verb|0|' is called the \key{head index} of the root node, and is
-always the label on an arrow leading to a raw expression head.
-The three arguments become targets of arrows from the root labeled
-with the \ikey{argument indices}{argument index}
-`\verb|1|', `\verb|2|', `\verb|3|'.  Each argument in this case is a single
+Here `\verb|0|' is called the \key{head index} of the root node, the
+arrow it labels is called the \key{head arrow} of the root node,
+and the target of that arrow is called the \key{head} of the root node.
+
+The three arguments become targets of three arrows from the root labeled
+`\verb|1|', `\verb|2|', and `\verb|3|'.
+Each argument in this case is a single
 word, and is represented by a node labeled with that word.
+Here non-zero natural numbers are
+\ikey{unreordered argument indices}{unreordered argument index} of the
+root that label
+\skey{unreordered argument arrow}s of the root, and the targets of these
+arrows are the \skey{unreordered argument}s of the root.  Reordered
+and rest arguments are introduced below.
+
 An arrow labeled `\ttkey{-ARITY-}' is added to the root node to point
 at a node labeled with the number of arguments in the raw expression.
+This arrow is called the \key{arity arrow} of the root node,
+its target is called the \key{arity target} of the root, and
+the label of that target is called the \key{arity} of the root.
 
 A second example is the expression
 
@@ -2552,7 +2564,7 @@ A second example is the expression
 \verb|[sort x @@ with key weight @@ with comparator < ?? ascending]|
 \end{center}
 
-is represented by the expression tree
+which is represented by the expression tree
 
 \begin{center}
 \begin{Graph}
@@ -2610,10 +2622,14 @@ Here each qualifier becomes the target of an arrow labeled
 if the `\verb|@@|' \key{required-qualifier-mark} is used or
 `\ttkey{-OPTIONAL-QUALIFIER-}'
 if the `\verb|??|' \key{optional-qualifier-mark} is used.
-The qualifier node has arrows with the same
-labels as the root node: an arrow labeled `\verb|0|' for the
-qualifier head, arrows labeled `\verb|1|', `\verb|2|', etc. for the
-arguments, and an arrow labeled `\verb|-ARITY-|' for the number of arguments.
+The arrows with these labels are called \skey{qualifier arrow}s of the
+root node and their targets are called \skey{qualifier}s of the root.
+In this case there are two \skey{required qualifier arrow}s and
+two \skey{required qualifier}s, and one \key{optional qualifier arrow}
+with its one \key{required qualifier}.
+Each qualifier sources arity, head, and unreordered argument arrows
+analogous to those of the root node, and could source qualifier,
+reordered argument, and rest argument arrows.
 
 Another example is the expression
 
@@ -2621,7 +2637,7 @@ Another example is the expression
 \verb|[fill Prefix Matrix <:> Value Postfix ::> Runs]|
 \end{center}
 
-is represented by the expression tree
+which is represented by the expression tree
 
 \begin{center}
 \begin{Graph}
@@ -2651,15 +2667,28 @@ is represented by the expression tree
 \end{center}
 
 Consecutive arguments separated by the \key{reorder mark} \ttkey{<:>} are
-given the an argument index that is actually a range of the form
+given an argument index that is a range of the form
 `$m$\verb|-|$n$', where $m$ is the number of the first of the consecutive
 arguments and $n$ is the number of the last.  Thus in our example, arguments
 2 and 3 are consecutive arguments separated by \verb|<:>|, so
 they both get the argument index `\verb|2-3|'.
+These argument indices are called the
+\ikey{reordered argument indices}{reordered argument index} of the
+root node,
+the arrows they label are called \skey{reordered argument arrow}s
+of the root,
+and the targets of these arrows are called \skey{reordered argument}s
+of the root.
 
 The argument after a \key{remainder mark} \ttkey{::>} is
 given the special argument index `\ttkey{-REST-}'.  This argument
-is not counted in the `\verb|-ARITY-|'.
+is not counted in the `\verb|-ARITY-|'.  Here \verb|-REST-|
+is called the \key{rest argument index} of the root node, the arrow it labels
+is called the \key{rest argument arrow} of the root, 
+and the target of this arrow is called the \key{rest argument} of the
+root.
+
+TBD: optional arguments.
 
 \subsection{Expression Graph Representation}
 \label{EXPRESSION-GRAPH-REPRESENTATION}
@@ -2935,11 +2964,14 @@ the \mkey{source}{of empty path} of the empty path and
 the \mkey{target}{of empty path} of the empty path.
 The \mkey{path name}{of empty path} of the path is the empty sequence.
 
+A \key{path name} is just a possibly empty sequence of words or separators.
+A \key{node label} is just any word or separator.
+
 A \key{witness} is a path name and a node label.
 We use `{\em path-name}: {\em node-label}' to name the witness.
-A \mkey{witness}{of node} of a node S in an expression graph is witness
-with path name N and a node label L such that there is a path with source S,
-path name N, and target that has node label L.
+A \mkey{witness}{of node} of a node S in an expression graph is a witness
+P:~L with path name P and node label L such that there is a path with source S,
+path name P, and target that has node label L.
 
 For example, consider the graph of
 
@@ -2950,40 +2982,67 @@ For example, consider the graph of
 on page~\pageref{QUALIFIER-EXAMPLE}.  The value of the \verb|-ROOT-|
 variable has `\verb|0|: \verb|sort|' as one of its witnesses and
 `\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
-actually two distinct arrows corresponding to this second witness.
+actually two distinct paths corresponding to this second witness.
 
 Two witnesses are said to be \mkey{incompatible}{witness}
 if they have the same path name but have different labels.
-Two witnesses are said to be \mkey{compatible}{withness}
+Two witnesses are said to be \mkey{compatible}{witness}
 if they are not incompatible: that is, if they have different path
 names, or if they have both the same path names and the same labels.
 For example, `\verb|0|: sort' and `\verb|1|: x' are compatible while
 `\verb|0|: sort' and `\verb|0|: switch' are incompatible.
 
-It can be proved that for any node S in any expression graph,
-all witnesses for S are compatible.
+It is not true that all witnesses for a node in an expression graph
+are compatible.  This is because we allow one node to source several
+arrows with the same label.  In the example expression graph
+on page~\pageref{QUALIFIER-EXAMPLE},
+`\verb|-REQUIRED-QUALIFIER- 1|: \verb|key|' and
+`\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
+witnesses for the value of \verb|-ROOT-|.  However, for an expression
+graph in which no node sources two arrows with the same label, it can
+be easily proved that all withnesses of every node are compatible.
 
-Two nodes S1 and S2 in expression graphs (the same graph or different
-graphs) are said to be \key{witness compatible} if and only if every
-withness for S1 is compatible with every witness for S2.  Otherwise
+Two expression graph nodes, S1 and S2, possibly the same node, and possibly
+in different expression graphs,
+are said to be \key{witness compatible} if and only if every
+witness for S1 is compatible with every witness for S2.  Otherwise
 S1 and S2 are said to be \key{witness incompatible}.
-
-It can be proved that if two expression graphs can be unified
-(\ref{UNIFICATION}) then any two nodes that are merged during
-unification are witness compatible.
 
 For an integer N$\geq$0, an N-witness is a witness whose path name
 has at most N arrow labels.
-Two nodes S1 and S2 in expression graphs (the same graph or different
-graphs) are said to be \key{N-witness compatible} if and only if every
+Two expression graph nodes, S1 and S2,
+are said to be \key{N-witness compatible} if and only if every
 N-witness for S1 is compatible with every N-witness for S2.  Otherwise
 S1 and S2 are said to be \key{N-witness incompatible}.
 
-Clearly if two expression graphs can be unified
-then any two nodes that are merged during
-unification are N-witness compatible, since they are witness compatible.
+It is possible for
+a node to be 1-witness incompatible with itself, without being witness
+incompatible with many other nodes.  For example, a node whose only
+witnesses are the incompatible witnesses `\verb|1|:~\verb|fee|' and
+`\verb|1|:~\verb|fie|' would be witness compatible with any
+node that was not the source of any arrow with arrow label `\verb|1|'.
 
-In the unification algorithm (page~\pageref{UNIFICATION-ALGORITHM}),
+It can be easily proved that if two expression graphs can be unified
+(\ref{UNIFICATION}) then any two nodes that are merged during
+unification are 1-witness compatible.  This is because
+step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm
+prohibits mergers where one node contributes incompatible 1-witnesses
+while the other node contributes at least one 1-witness.
+
+It can even be proved that if two expression graphs can be unified
+(\ref{UNIFICATION}) then any two nodes that are merged during
+unification are witness compatible.  This is because
+if there are two incompatible witnesses of the two nodes, there
+would be two paths corresponding to the two nodes with the consecutive
+nodes on the two paths being merged, because of the nature of
+the unification algorithm.  The two paths would end at two nodes that
+would have different labels, but would have to be merged, causing
+the unification algorithm to fail.
+Step (\ref{UNIFICATION-AMBIGUITY-FAILURE}) of the unification algorithm,
+requires that along each of the two paths each node sources exactly
+one arrow with the next arrow label on the path.
+
+In the unification algorithm,
 arrow labels are used to match arrows to be merged.  More specifically,
 when two nodes M and N are merged, arrows sourced at M are matched
 with arrows sourced at N by arrow label.  If this match cannot be done,
