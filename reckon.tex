@@ -2418,7 +2418,7 @@ neither YD or XD is missing, add the merge pair (XD,YD) to the merge set.
 
 \item
 For each merge pair (M,N) in the merge set,
-perform the following \key{pair merge algorithm}.
+perform the following \key{node merge algorithm}.
 Do this recursively until the merge set is empty.
 
 \begin{enumerate}
@@ -2427,7 +2427,7 @@ Do this recursively until the merge set is empty.
 Remove (M,N) from the merge set.
 
 \item
-If M and N are the same node, terminate the pair merge algorithm.
+If M and N are the same node, terminate the node merge algorithm.
 
 \item
 If M and N are labeled nodes with different labels, the merge
@@ -2474,7 +2474,7 @@ T_2(\mbox{number of nodes in X} + \mbox{number of nodes in Y}) \\
 \]
 
 where $T_1$ and $T_2$ are small constant times (typically a few microseconds).
-The total number of nodes in X and Y bounds the number of pair merge
+The total number of nodes in X and Y bounds the number of node merge
 operations, and the
 last factor bounds the time to form the union of the arrow labels of
 any two nodes that are being merged.  The bound just given is typically
@@ -3017,84 +3017,122 @@ Logically infer each expanded goal.
 \subsection{Inference Matching}
 \label{INFERENCE-MATCHING}
 
+\ikey{Inference matching}{inference matching}\index{matching!inference}
+is a variant on unification (\ref{UNIFICATION}).  What is changed is
+the way two nodes are merged if one or both nodes are the source of
+an arrow labeled \ttmkey{-ARITY-}{merge}.  The alterred merge algorithm is
+called the \key{arity merge algorithm}.
+
+The arity merge algorithm performs \skey{arith check}s on the nodes it
+is merging.  A node N passes an arity check if and only if
+all of the following are true:
+
+\begin{enumerate}
+
+\item
+N is the source of exactly one arrow labeled
+`\ttmkey{-ARITY-}{check}' whose target is a node labeled A, where A is
+a natural number (string of decimal digits with no high order zeroes).
+
+\item
+For every natural number I from `\verb|0|' through A
+there is exactly one arrow sourced at N such that either
+the arrow label is I or the arrow label is `J\verb|-|K' where
+J and K are natural numbers and J$<$K, J$\leq$I$\leq$K.
+
+\item
+There is at most one arrow sourced at N labeled
+`\ttmkey{-REST-}{arity check}', and the target R of that arrow, if the
+arrow exists, is a node with no label that is the source of no arrows.
+
+\item
+There may be any number of arrows sourced N labeled
+\ttmkey{-QUALIFIER-}{arity check}.  If Q is the target of such an
+arrow, then Q satisfies the arity check recursively.  The arity check
+algorithm must allow cycles in the graph, e.g. the case that N and Q are the
+same node.
+
+\item
+There are no arrows sourced at N other than those enumerated above.
+
+\end{enumerate}
+
+
+The \key{arity merge algorithm} makes choices during its execution.  Each
+set of possible choices over the whole matching algorithm that contains
+arity merges leads to a separate matching algorithm execution that
+either succeeds or fails.
+
+The \key{arity merge algorithm} for a merge pair (M,N) in the merge set,
+where either M or N or both is the source of an arrow labeled
+`\verb|-ARITY-|', and with a particular set of choices, is as follows.
+
+\begin{enumerate}
+
+\item
+If either M or N fails to pass an arity check, the arity merge algorithm
+fails.
+
+\item
+Remove (M,N) from the merge set.
+
+\item
+If M and N are the same node, terminate the arity merge algorithm.
+
+\item
+If one of M or N is the source of an arrow labelled `\verb|-REST-|',
+the following \key{remainder merge subalgorithm is executed}.  In
+our description of this algorithm we will assume that M is the source
+of an arrow labeled `\verb|-REST-|' with target node R, that M is
+the source of of an arrow labeled `\verb|-ARITY-|' with target node MA,
+and that N the source of of an arrow labeled `\verb|-ARITY-|'
+with target node NA.  The remainder merge subalgorithm is run with
+M and N switched if these assumptions do not apply.
+
+\begin{enumerate}
+
+\item
+If N is also the source of an arrow labeled `\verb|-REST-|',
+or of an arrow with label of the form `J\verb|-|K',
+the arity merge alogrithm fails.
+
+\item
+If MA is greater than NA, the arity merge algorithm fails.
+
+\item
+For each natural number I from MA+1 through NA, an arrow
+an arrow labeled I-MA is added with source R and destination NI,
+where NI is the target of the arrow labeled I with source N.
+
+\end{enumerate}
+
+\item
 TBD
 
-Expressions are externally represented as sequences of lexemes and
-subexpressions, but internally they are represented as directed graphs whose
-arrows are labelled by lexemes from the expression, and
-whose nodes are unlabelled.  For example, the expression
+\item
+A 1-1 mapping is chosen between nodes of N labeled with natural
+numbers
+For each natural number I from `\verb|0|' through MA,
 
-\begin{center}
-\verb|sort x ascending with key weight with comparator <|
-\end{center}
 
-represents the tree
+\item
+Replace M by a forwarding pointer that points at N.
+This means that henceforth any attempt to reference M will be forwarded
+to N, so M is effectively merged with N.
 
-\[
-    \verb|sort| \left[
-	\begin{array}{l}
-        \verb|1| \left[ \verb|x| \right. \\
-        \verb|2| \left[ \verb|ascending| \right. \\
-        \verb|3| \left[ \verb|with| \left[
-	    \begin{array}{l}
-	    \verb|1| \left[ \verb|key| \right. \\
-	    \verb|2| \left[ \verb|weight| \right. \\
-           \end{array} \right. \right. \\
-        \verb|4| \left[ \verb|with| \left[
-	    \begin{array}{l}
-	    \verb|1| \left[ \verb|comparator| \right. \\
-	    \verb|2| \left[ \verb|<| \right. \\
-           \end{array} \right. \right. \\
-       \end{array} \right.
-\]
+\item
+If M is a labeled node with label L, and N is unlabeled, label N with L.
 
-while
+\item
+For every arrow sourced at M do the following.
+Let the arrow be labeled L and point at target node MT.
+If N is not the source of an arrow labeled L,
+make a new arrow labeled L pointing from N to MT.
+But if N is the source of an arrow labelled L with target NT, add the
+merge pair (MT,NT) to the merge set.
 
-\begin{center}
-\verb|x = 7 * y + 5|
-\end{center}
+\end{enumerate}
 
-represents the tree
-
-\[
-    \verb|=| \left[
-        \begin{array}{l}
-	\verb|1| \left[ \verb|x| \right. \\
-        \verb|2| \left[ \verb|+| \left[
-	    \begin{array}{l}
-	    \verb|1| \left[ \verb|*| \left[
-	        \begin{array}{l}
-		\verb|1| \left[ \verb|7| \right. \\
-		\verb|2| \left[ \verb|y| \right. \\
-		\end{array} \right. \right. \\
-	    \verb|2| \left[ \verb|5| \right. \\
-	    \end{array} \right. \right. \\
-	\end{array} \right.
-\]
-
-and
-
-\begin{center}
-\verb|0 < x <= y <= 100|
-\end{center}
-
-represents the tree
-
-\[
-    \verb|<| \left[
-        \begin{array}{l}
-	\verb|1| \left[ \verb|0| \right. \\
-        \verb|-REST-| \left[ \verb|<=| \left[
-	    \begin{array}{l}
-	    \verb|1| \left[ \verb|x| \right. \\
-	    \verb|-REST-| \left[ \verb|<=| \left[
-		\begin{array}{l}
-		\verb|1| \left[ \verb|y| \right. \\
-		\verb|2| \left[ \verb|100| \right. \\
-		\end{array} \right. \right. \\
-	    \end{array} \right. \right. \\
-	\end{array} \right.
-\]
 
 \subsection{Inference Rules}
 \label{INFERENCE-RULES}
