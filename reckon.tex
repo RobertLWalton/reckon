@@ -157,7 +157,7 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{December 13, 2003}
+\date{December 14, 2003}
  
 \maketitle
 
@@ -2430,16 +2430,16 @@ Remove (M,N) from the merge set.
 If M and N are the same node, terminate the node merge algorithm.
 
 \item
-If M and N are labeled nodes with different labels, the merge
+If M and N are labeled nodes with different labels, the unification
 algorithm fails.
 
 \item
 If either M or N is a labeled node and the other node is the
-source of some arrows, the merge algorithm fails.
+source of some arrows, the unification algorithm fails.
 
 \item
 If either M or N is a node that is the source of two or more arrows
-with the same label, the merge algorithm fails.
+with the same label, the unification algorithm fails.
 
 \item
 Replace M by a forwarding pointer that points at N.
@@ -3032,44 +3032,80 @@ all of the following are true:
 \begin{enumerate}
 
 \item
-N is the source of exactly one arrow labeled
-`\ttmkey{-ARITY-}{check}' whose target is a node labeled A, where A is
+N is the source of exactly one arrow labeled `\ttmkey{-ARITY-}{check}'.
+This arrow is called the \key{arity arrow} of N, and its target is
+called the \mkey{arity target}{of node} of N.
+
+\item
+The arity target of N is a node labeled A, where A is
 a natural number (string of decimal digits with no high order zeroes).
+A is called the \mkey{arity}{of node} of N.
 
 \item
 N is the source of exactly one arrow labeled `\verb|0|'.
+This arrow is called the \key{head arrow} of N, and its target is
+called the \mkey{head}{of node} of N.
 
 \item
 If an arrow sourced at N has a non-zero natural number label I, then
 \verb|1|$\leq$I$\leq$A, and there is exactly one arrow labeled I sourced at N.
+These arrows are called the \skey{unreordered argument arrow}s of N,
+and their targets are called
+\ikey{unreordered arguments}{unreordered argument!of node} of N.
+The target of the arrow labeled I is called the \key{I'th argument} of N.
 
 \item
 If an arrow sourced at N has a label of the form `J\verb|-|K', for
 natural numbers J and K, then 1$\leq$J$<$K$\leq$A, and there are exactly
 K$-$J$+1$ arrows sourced at N with this label.
+These arrows are called the \skey{reordered argument arrow}s of N,
+and their targets are called
+\ikey{reordered arguments}{reordered argument!of node} of N.
 
 \item
-There is at least one 1-1 mapping from the integers
-1 through A onto arrows whose labels are either
-non-zero natural numbers or are of the form `J\verb|-|K' for natural
-numbers J and K, such that integer I is mapped to an arrow that either
+There is a 1-1 mapping between the integers
+1 through A and the unreordered and ordered
+argument arrows of N
+such that for 1$\leq$I$\leq$A,
+I is mapped to an arrow that either
 has label I or has label `J\verb|-|K' with J$\leq$I$\leq$K.
+Every unreordered and ordered argument arrow must be mapped to
+some integer by this mapping.
+The arrow mapped to I is called the \key{assigned I'th argument arrow}
+of N, and the target of this arrow is called the
+\key{assigned I'th argument} of N.
+
+Such a mapping is called a \key{argument order assignment} of N.
+If there are any reordered arguments of N, there will be
+more than one argument order assignment of N.
 
 \item
 There is at most one arrow sourced at N labeled
-`\ttmkey{-REST-}{arity check}', and the target R of that arrow, if the
-arrow exists, is a node with no label that is the source of no arrows.
+`\ttmkey{-REST-}{arity check}'.
+This arrow is called the \key{rest argument arrow} of N, and its target R is
+called the \mkey{rest argument}{of node} of N.
+
+\item
+If N has a rest argument R,
+R is a node with no label and is the source of no arrows.
 
 \item
 There may be any number of arrows sourced at N labeled
-\ttmkey{-QUALIFIER-}{arity check}.  If Q is the target of such an
-arrow, then Q satisfies the arity check recursively.  The arity check
-algorithm must allow cycles in the graph, e.g. the case that N and Q are the
-same node.
+\ttmkey{-QUALIFIER-}{arity check}.  These arrows are called the
+\skey{qualifier arrow}s of N, and their targets are called the
+\ikey{qualifiers}{qualifier!of node} of N.
 
 \item
 There are no arrows sourced at N other than those with labels
-enumerated above.
+enumerated above.  That is, any arrow sourced at N is either an arity
+arrow, a head arrow, an argument arrow (unreordered, reordered, or rest),
+or a qualifier arrow.
+
+\item
+The qualifiers of N (targets of qualifier arrows)
+satisfy the arity check recursively.  The arity check
+algorithm allows cycles in the graph, e.g. the case that N and one
+of its qualifiers are the same node.
 
 \end{enumerate}
 
@@ -3086,50 +3122,47 @@ where either M or N or both is the source of an arrow labeled
 \begin{enumerate}
 
 \item
-If either M or N fails to pass an arity check, the arity merge algorithm
-fails.
+Remove (M,N) from the merge set.
 
 \item
-Remove (M,N) from the merge set.
+If either M or N fails to pass an arity check, the unification algorithm
+fails.
 
 \item
 If M and N are the same node, terminate the arity merge algorithm.
 
 \item
-If one of M or N is the source of an arrow labelled `\verb|-REST-|',
-the following \key{remainder merge subalgorithm is executed}.  In
-our description of this algorithm we will assume that M is the source
-of an arrow labeled `\verb|-REST-|' with target node R, that M is
-the source of of an arrow labeled `\verb|-ARITY-|' with target node MA,
-and that N the source of of an arrow labeled `\verb|-ARITY-|'
-with target node NA.  The remainder merge subalgorithm is run with
-M and N switched if these assumptions do not apply.
+If both M and N may have a reordered or rest argument, the
+unification algorithm fails.
+
+\item
+If N has a reordered or rest argument, swithch M and N, so only M
+has a reordered or rest argument.
+
+\item
+If M has does not have a rest argument R and MA does not equal NA,
+the unification algorithm fails.
+
+\item
+If M has a rest argument R, let MA be the arity of M and NA be the
+arity of N, and run the following \key{remainder merge subalgorithm}.
 
 \begin{enumerate}
 
 \item
-If N is also the source of an arrow labeled `\verb|-REST-|',
-or of an arrow with label of the form `J\verb|-|K',
-the arity merge alogrithm fails.
+If MA is greater than NA, the unification algorithm fails.
 
 \item
-If MA is greater than NA, the arity merge algorithm fails.
-
-\item
-For each natural number I from MA+1 through NA, an arrow
-an arrow labeled I-MA is added with source R and destination NI,
-where NI is the target of the arrow labeled I with source N.
+For each natural number I from MA$+$1 through NA, an arrow
+an arrow labeled I$-$MA is added that has R as its source and the
+I'th argument of N as its target.
 
 \end{enumerate}
 
 \item
-TBD
-
-\item
-A 1-1 mapping is chosen between nodes of N labeled with natural
-numbers
-For each natural number I from `\verb|0|' through MA,
-
+Choose an argument order assignment for M.  For \verb|1|$\leq$I$\leq$A,
+let MI bet the assigned I'th argument of M and NI be the I'th argument
+of N, and add the merge pair (MI,NI) to the merge set.
 
 \item
 Replace M by a forwarding pointer that points at N.
@@ -3137,9 +3170,10 @@ This means that henceforth any attempt to reference M will be forwarded
 to N, so M is effectively merged with N.
 
 \item
-If M is a labeled node with label L, and N is unlabeled, label N with L.
+
 
 \item
+TBD
 For every arrow sourced at M do the following.
 Let the arrow be labeled L and point at target node MT.
 If N is not the source of an arrow labeled L,
