@@ -15,6 +15,8 @@
 \setlength{\textwidth}{6.5in}
 \raggedbottom
 
+\setlength{\unitlength}{1in}
+
 \pagestyle{headings}
 \setlength{\parindent}{0.0in}
 \setlength{\parskip}{1ex}
@@ -137,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{July 19, 2003}
+\date{August 03, 2003}
  
 \maketitle
 
@@ -184,7 +186,7 @@ the data types they particularly support, are:
 \begin{tabular}{l@{\hspace{0.5in}}l}
 Various Spreadsheets		& Spreadsheets \\
 Various Data Base Languages	& Data Bases \\
-Matlab				& Matrices. \\
+Matlab				& Matrices \\
 Mathematica			& Expressions \\
 TCL				& Character Strings and Lists \\
 Lisp				& Words and Phrases \\
@@ -269,11 +271,11 @@ You can compute with \skey{math expression}s in PCASL too:
 \verb|> out = `The value of <definite g from [x=1] to [x=5]> is <v>.'| \\
 \verb|`|The value of $\int_{x=1}^{x=5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|[sentence [the value of [definite integral [x^2*dx]| \\
+\verb|[sentence [the value of [definite [integral [x^2*dx]]| \\
 \verb|                                  from [x=1] to [x=5]] is 124/3]]|
 \end{indpar}
 
-There is one last type of datum you can compute with in PCASL, which is
+Another kind of datum you can compute with in PCASL, which is
 the \key{block}:
 
 \begin{indpar}
@@ -426,7 +428,8 @@ iteration:
 \verb|+         next sum = sum + X| \\
 \verb|+         next X = X + 1| \\
 \verb|+     else:| \\
-\verb|+         value = sum }| \\
+\verb|+         value = sum| \\
+\verb|+     next Y = Y }| \\
 \verb|> the sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all sums from X through Y| \\
@@ -450,29 +453,27 @@ iteration:
 \end{tabular}
 \end{indpar}
 
-One can also iterate over data.  Here we use recursion, which tends to
-produce more compact code in simple cases.
+One can also iterate over data.
 
 \begin{indpar}
 \verb|> define (the average weight of X)| \\
 \verb|+         -: tuple X of persons {| \\
-\verb|+     define (the sums of X)| \\
-\verb|+             -: tuple of persons X {| \\
-\verb|+         # Returns (count,sum) where| \\
-\verb|+         # count is the number of persons in the tuple | \\
-\verb|+         # and sum is the sum of their weights.| \\
-\verb|+         if ( X = () ):| \\
-\verb|+             value = (0,0)| \\
+\verb|+     first count = 0| \\
+\verb|+     first sum = 0| \\
+\verb|+     if X = ():| \\
+\verb|+         if count = 0:| \\
+\verb|+             value = error `Cannot average 0 things.'| \\
 \verb|+         else:| \\
-\verb|+             value = (1,the weight of (first X))| \\
-\verb|+                   + the sums of (rest X) }| \\
-\verb|+     (count, sum) = the sums of X| \\
-\verb|+     value = sum / count }| \\
+\verb|+             value = sum / count| \\
+\verb|+     else:| \\
+\verb|+         next count = count + 1| \\
+\verb|+         next sum = sum + the weight of (first X)| \\
+\verb|+         next X = rest X }| \\
 \verb|> the average weight of (all persons)| \\
 \verb|116.5 lbs|
 \end{indpar}
 
-In case you wonder how some of this works, here are some hints.
+In case you wonder how some of the above works, here are some hints.
 
 PCASL tends to ignore word endings: thus `{\tt person}' and
 `{\tt persons}' are to PCASL the same word.
@@ -545,6 +546,21 @@ compute such tuples are \key{flattened}:
 \verb|3| \\
 \verb|> rest 9| \\
 \verb|()|
+\end{indpar}
+
+\newpage
+
+In addition to the above PCASL also supports pictorial data.
+
+\begin{indpar}
+\verb|> x = [circle 0.4]| \\
+\begin{picture}(0.4,0.4)
+\put(0.2,0.2){\circle{0.4}}
+\end{picture} \\
+\verb|> x = [rectangle (0.4,0.2)]| \\
+\begin{picture}(0.4,0.2)
+\put(0,0){\framebox(0.4,0.2){}}
+\end{picture}
 \end{indpar}
 
 
