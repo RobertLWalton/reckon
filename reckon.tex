@@ -139,7 +139,7 @@
 \author{Robert L. Walton\thanks{This document is was partly inspired
 teaching courses at Suffolk University.}}
 
-\date{September 5, 2003}
+\date{September 6, 2003}
  
 \maketitle
 
@@ -1426,15 +1426,56 @@ Expressions and subexpressions are defined by the following syntax equations.
 \end{indpar}
 
 {\bf Subexpression Rule.}\index{Subexpression Rule}
-The {\em opening-mark} lexeme that begins an expression
+The {\em opening-mark} lexeme that begins an subexpression
 must match (see \ref{MATCHING}) the {\em closing-mark} lexeme that
-ends an expression.
+ends an subexpression.
 
 Besides subexpressions defined in this section, other implied subexpressions
 may be induced by operators: see \ref{OPERATORS}.
 
 \subsection{Operators}
 \label{OPERATORS}
+
+Expressions in PCASL are evaluated top-down, meaning that the code
+that evaluates one expression has control of evaluating subexpressions,
+and can choose how each subexpression is evaluated.
+
+Normally one of the first steps in expression evaluation is
+\key{operator parsing}.  This scans the expressions for \skey{operator}s
+and if any are found, inserts implied parentheses to re-parse the expression,
+introducing new subexpressions, and changing the sequence of words, separators,
+and subexpressions that constitute the expression.
+
+Operator parsing is
+done under the control of the \key{operator context}, which is defined by the
+code that is evaluating the expression to be parsed.  The operator context
+defines operators and specifies their precedence and other properties.
+
+\subsubsection{Operator Definitions}
+\label{OPERATOR-DEFINITIONS}
+
+An operator context consists of a set of \skey{operator definition}s.
+An operator definition specifies for each operator the following:
+
+\begin{indpar}[1in]
+Lexemes \\
+Fixity \\
+Precedence \\
+Associativity
+\end{indpar}
+
+{\bf Fixity.}\ttmindex{fixity}{of operator}
+An operator has one or more of the following fixities:
+
+\begin{indpar}
+\begin{tabular}{@{}p{1in}@{~~~}p{4in}@{}}
+\ttkey{infix}		& \\
+\ttkey{prefix}		& \\
+\ttkey{postfix}		& \\
+\ttkey{matchfix}	& \\
+\end{tabular}
+\end{indpar}
+
 
 \section{Design Notes}
 
