@@ -173,7 +173,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 20, 2004}
+\date{June 9, 2004}
  
 \maketitle
 
@@ -4363,11 +4363,12 @@ required to have no visible side effects.
 \key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}$^\star$ \\[1ex]
 \key{guard} ::= {\em expression} \\[1ex]
 \key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\key{block} ::= \verb|{| {\em statement}$^\star$ \verb|}|
+\key{block} ::= \verb|{| {\em statement}
+                         \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
 \end{indpar}
 
 {\em Blocks} and {\em statements} are further defined in
-\secref{BLOCK-EVALUATION}.
+\secref{BLOCKS}.
 
 In use, the expression definition is copied, and the copy's {\em pattern}
 is call unified (\secref{CALL-UNIFICATION}) with the expression being
@@ -4502,7 +4503,7 @@ permitted to have visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
 \item
 If the definition applies, but has no block, the value of the expression
 is `\verb|true|'.  If the definition applies and has a block, the block
-is evaluated (\secref{BLOCK-EVALUATION}) to determine the value of the
+is evaluated (\secref{BLOCKS}) to determine the value of the
 expression.
 
 \item
@@ -4527,8 +4528,54 @@ Context elements can be expression definitions or pointers at contexts (mutable
 or immutable).
 
 
-\section{Block Evaluation}
-\label{BLOCK-EVALUATION}
+\section{Blocks}
+\label{BLOCKS}
+
+A block is a set of variables, values for some of the variables, and
+code for computing these values.  The code has the following syntax:
+
+\begin{indpar}
+\key{block} ::= \verb|{| {\em statement}
+                         \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
+			 \\[1ex]
+\key{statement} ::= {\em empty-statement}
+		$|$ {\em assignment-statement}
+		$|$ {\em guarded-statement}
+			 \\[1ex]
+\key{empty-statement} ::= {\em empty} \\[1ex]
+\key{assignment-statement}
+	\begin{tabular}[t]{rl}
+	::= & {\em variable-assignment-statement} \\
+	$|$ & {\em pattern-assignment-statement}
+	\end{tabular} \\[1ex]
+\key{variable-assignment-statement} ::=
+	{\em variable} \ttkey{=} {\em expression} \\[1ex]
+\key{variable} ::=
+	{\em word} \{ {\em word} $|$ {\em separator} \}$^\star$ \\[1ex]
+\key{pattern-assignment-statement} ::=
+	{\em assignment-pattern} \ttkey{\Tilde} {\em expression} \\[1ex]
+\key{assignment-pattern} ::= {\em expression} \\[1ex]
+\key{guarded-statement} ::= \ttkey{if} {\em statement-guard} {\em block} \\[1ex]
+\key{statement-guard} ::= {\em expression}
+\end{indpar}
+
+Blocks are parsed when the statement that contains them (typically
+a definition) is parsed, and in addition to {\em statements}, a block
+can contain definitions that control parsing but do not become part of the
+parsed block.  Such definitions are omitted from the above syntax.
+
+After parsing, the {\em variables} in a block are identified.  Each
+{\em variable} is a subexpression consisting of a sequence of one or
+more {\em words}, but not all such subexpressions are variables.
+Some variables may be \mkey{inherited}{variable}
+from the statement containing the block.
+Some are left sides of {\em variable-assignment-statements}.
+Some are parts of {\em assignment-patterns}.  All the {\em variables}
+in the block are inherited or can be identified by looking at the left
+sides of {\em assignment-statements}.
+
+TBD
+
 
 \section{Side Effects}
 \label{SIDE-EFFECTS}
