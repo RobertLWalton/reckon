@@ -85,6 +85,8 @@
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
+\newcommand{\opt}{$^!$}
+
 \newcommand{\secref}[1]{\ref{#1}{ p\pageref{#1}}}
 \newcommand{\Secref}[1]{\ref{#1}{(p\pageref{#1})}}
 \newcommand{\stepref}[1]{\ref{#1}{(p\pageref{#1})}}
@@ -4691,20 +4693,23 @@ are not undone.
 \subsection{Contexts}
 \label{CONTEXTS}
 
-An expression is evaluated in a context.  A \key{context} is just a list
-of expression definitions and other contexts.  The context is searched
+An expression is evaluated in a context.  The context is searched
 for an expression definition whose pattern matches the expression being
 evaluated, and that definition is then used to evaluate the expression.
 
-The search of a context is in list order.  If a list element that is another
-context is encountered, that context is searched completely before
-continuing to the next element of the list.
+A \key{context} is either a list or a set of expression definitions and
+other contexts.  Context elements that are expression definitions are
+matched to the expression being evaluated.  Context elements that are
+themselves contexts are searched recursively.
 
-An \key{expression definition} consists
-of an {\em EXPRESSION-DEFINITION} (\pagref{EXPRESSION-DEFINITION}) and
-a context in which the expression defined is executed.  An
-{\em EXPRESSION-DEFINITION} expression computes an expression definition
-object of type \ttkey{expression-definition} that has no context.
+Lists are searched in order.  Sets are searched exhaustively,
+and it is always an error if matching definitions are found in more than
+one element of a set.
+
+An expression definition object consists of a pattern, a list of guards,
+an optional block, and an optional context.  An
+{\em EXPRESSION-DEFINITION} expression (\pagref{EXPRESSION-DEFINITION})
+computes an {\tt expression-definition} that has no context.
 A context can be added to such an object later by executing:
 
 \begin{indpar}
@@ -4718,7 +4723,7 @@ A new expression definition can be made from an old one by
 the expression:
 
 \begin{indpar}
-	\verb|an expression-definition|
+	\verb|an| \ttkey{expression-definition}
 	      {\em EXPRESSION-DEFINITION}
 	      {\em CONTEXT}
 \end{indpar}
@@ -4731,36 +4736,42 @@ the second argument, than the first argument does.  The expression
 	      {\em EXPRESSION-DEFINITION}
 \end{indpar}
 
-makes a new expression definition whose definition part is the same as
+makes a new expression definition whose pattern, guards, and block
+are the same as
 its argument but whose context part is missing and can be set later.
 
-There are two kinds of contexts: immutable and mutable.
+There are two kinds of contexts: immutable and mutable.  Each kind can
+be either a set or a list.
 
 An \key{immutable context}\label{IMMUTABLE-CONTEXT}
 may not be modified.  It can be created by:
 
 \begin{indpar}
-\verb|a context (| {\em CONTEXT-ITEM} \{ \verb|,| {\em CONTEXT-ITEM} \} \verb|)|
+\verb|a| \ttkey{context}
+    \begin{tabular}[t]{@{}l@{}}
+    \verb|(| {\em CONTEXT-ELEMENT} \{ \verb|,| {\em CONTEXT-ELEMENT} \}
+	\verb|)|
+    \\
+    \begin{tabular}[t]{@{}rl@{}}
+    [ & \ttmkey{is list}{of context!of {\tt context}} {\em IS-LIST-BOOLEAN} \\
+    $|$ & \ttmkey{with contexts set}{of context!of {\tt context}}
+           {\em WITH-CONTEXTS-SET-BOOLEAN} ]\opt
+    \end{tabular}
+    \end{tabular}
 \end{indpar}
 
-in which each {\em CONTEXT-ITEM} is either an expression definition or
-a context.  If any of the {\em CONTEXT-ITEMs} are expression definitions
-that do not have their contexts set, their contexts are set to the context
-being created.  Thus a set of expression definitions can be created
-which can reference each other.
+in which each {\em CONTEXT-ELEMENT} is either an expression definition or
+a context,
+{\em IS-LIST-BOOLEAN} is either `{\tt false}' (the default) or `{\tt true}',
+{\em WITH-CONTEXTS-SET-BOOLEAN} is either `{\tt false}' or `{\tt true}'
+(the default).  `{\tt is list}' means the context is a list; otherwise
+it is a set.  `{\tt with contexts set}' means any expression definitions
+that are {\em CONTEXT-ELEMENTs} and that do not have their contexts set
+will have them set equal to the context being created.  Thus the default
+if given a expression definitions that do not have their contexts set
+is to create a context set whose expression defintions have the new
+context and therefore can reference each other.
 
-The expression
-
-\begin{indpar}
-\verb|a context (| {\em CONTEXT-ITEM} \{ \verb|,| {\em CONTEXT-ITEM} \} \verb|)|
-\verb|with context setting false|
-\end{indpar}
-
-makes an immutable context without setting the contexts of any expression
-definition {\em CONTEXT-ITEMs}.  This gives the flexibility to set these
-contexts later.
-
-TBD problem with conflicts among definitions in one list
 
 The above expressions are defined by the
 expression definitions (\secref{EXPRESSION-DEFINITIONS}):
@@ -4776,8 +4787,8 @@ an expression-definition {
     on set SELF context CONTEXT <-- context CONTEXT
 }
 a context {
-    on a context CONTEXT-ITEM-TUPLE <--
-              list CONTEXT-ITEM-TUPLE of context-items
+    on a context CONTEXT-ELEMENT-LIST <--
+              list CONTEXT-ELEMENT-LIST of context-items
 }
 context-item X <-- expression-definition X
 context-item X <-- context X
