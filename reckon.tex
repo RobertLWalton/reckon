@@ -157,9 +157,16 @@
 \author{Robert L. Walton\thanks{This document was partly inspired
 by teaching courses at Suffolk University.}}
 
-\date{January 7, 2004}
+\date{January 8, 2004}
  
 \maketitle
+
+\newpage
+\begin{center}
+\large \bf Table of Contents
+\end{center}
+
+\bigskip
 
 \tableofcontents 
 
@@ -3659,60 +3666,11 @@ implicit conversion
 \section{Expression Inference}
 \label{EXPRESSION-INFERENCE}
 
-Expression inference is done for three reasons:
-
-\begin{indpar}
-
-{\bf Logic Inference}.\index{logic inference}The expression is
-inferred to discover whether the expression is true or false.
-
-{\bf Evaluation Inference}.\index{evaluation inference}The expression is
-inferred to discover a code block that is to be used to evaluate the expression.
-
-{\bf Reduction Inference}.\index{reduction inference}The expression is
-inferred to discover a reduction of the expression, which is another
-expression that is substituted for the original expression.
-
-\end{indpar}
-
-All three forms of inference run an inference algorithm on the
-expression and a set of inference rules.  This algorithm matches
-the expression to an inference rule, and then generates a new set of
-expressions that must be logically inferred in order for the matching
+Expression inference is part of expression evaluation and is done by
+running an inference algorithm on an expression and a set of inference rules.
+This algorithm matches the expression to an inference rule, and then generates
+a new set of expressions that must be inferred in order for the matching
 to be a success.
-
-There are four differences between the three kinds of inference.
-The first is in which inference rules are checked against the expression
-to be inferred.  There are logic rules, evaluation rules, and reduction
-rules.  An expression to be logically inferred is matched only against
-logic rules; an expression to be evaluated is matched only against
-evaluation rules; and an expression to be reduced is matched only
-against reduction rules.  Note that if a matching is successful and a new set
-expressions is generated to be logically inferred, these secondary
-expressions must be logically inferred using only logic rules.
-
-The second difference lies in what is done after inferrence succeeds.
-For logic inference, true is returned.  For evaluation inference, a code
-block assoicated with the matching rule is evaluated.  For reduction
-inference, a reduced expression associated with the reduction rule replaces
-the original expression.
-
-The third difference lies in what is done should inferrence fail.
-For logic inference, false is returned.  For evaluation inferrence,
-the expression evaluates to an error value.
-For reduction inference, the original expression is left alone and not
-replaced, as if it reduced to itself.
-
-The fourth difference is in what is done should an expression be inferrable
-in more than one way.  In logic inference, true is returned.  In evaluation
-inference, the code blocks of the separate inferences must be the same
-indentical code block, else the expression evaluates to an error value.
-For reduction inference, the reduced expressions, an arbitrary
-one of the several reduced expressions is used to replace the original
-expression; it is up to PCASL programmers to code confluent%
-\footnote{`Confluent' means that all ways of recursively reducing
-an expression lead to the same final result.}
-reduction rules.
 
 \subsection{The Inference Algorithm}
 \label{INFERENCE-ALGORITHM}
@@ -3736,32 +3694,20 @@ set of goals, in the format
 
 The head is
 an expression that is matched against the expression to be inferred.
-A goal is an expression that must be logically inferred to make
+A goal is an expression that must be inferred to make
 inference involving the rule a success.  The intuition is that
 the head is true when all the goals are true, and if the head
 can be matched against the expression to be inferred, then
 the expression to be inferred is true if all the goals can be
-logically inferred.
+inferred.
 
 The head may contain variables that receive values during matching.
 The goals may contain these same variables which are replaced by
-their values before the goals are logically inferred.
+their values before the goals are inferred.
 
 Expression inference consists of the following steps.
 
 \begin{enumerate}
-
-\item Reduce the expression.  Initially, all subexpressions of the
-expression are marked as reducible.  For logic and evaluation inferences,
-the expression itself is considered to be a subexpression, but this is
-not done for reduction inferences.  The reduction algorithm
-selects a reducible subexpression S that does not contain any reducible
-subexpression, and reduces S using reduction inference.  If S is successfully
-reduced, it is replace in the original expression by its reduction, and
-the reduction and all its subexpressions are marked reducible.  If S is
-not successfully reduced, its `reducible mark' is removed, so it becomes
-irreducible.  This step is repeated until there are no reducible subexpressions
-left (including the entire expression itself).
 
 \item
 
@@ -3769,6 +3715,10 @@ Match the expression to the head of some inference rule of suitable type
 (logic, evaluation, or reduction).  Matching assigns values to variables
 in the expression being inferred and to variables in the head of the
 inference rule.
+
+\item
+Evaluate the values of variables which have been assigned values,
+unless these variables are marked as holding unevaluated argument values.
 
 \item
 Expand the goal expressions of the inference rule whose head matched,
@@ -3829,6 +3779,17 @@ itself.
 
 \section{Expression Evaluation}
 \label{EXPRESSION-EVALUATION}
+
+\section{Debugging}
+
+Design: Input checkpointing is used to record all inputs to a computation
+so the computation can be deterministically rerun.  Detailed
+traces can be generated which explain for each value how it was generated.
+Values have a sequence number that identifies the point in the execution
+where they were generated.  It is therefore possible to ask for a detailed
+accounting of how any value was generated, provided the run is short enough
+to be repeated once or a few times so the compute can turn the history
+tracing on appropriately.
 
 \section{Design Notes}
 
