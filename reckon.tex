@@ -1515,6 +1515,8 @@ Brackets   & Turns Off			& Turns On \\[1ex]
 
 \verb|[]|  & operators, qualifiers, \verb/|/, text
 					& \verb|<=>|, \verb|@@@| \\
+\verb|[< >]|  & \verb/|/, text		& operators, qualifiers,
+					  \verb|<=>|, \verb|@@@| \\
 \verb|()|  & nothing			& nothing \\
 \verb|{}|  & eval, \verb/|/, text	& operators, qualifiers,
 					  \verb|<=>|, \verb|@@@| \\
@@ -1643,9 +1645,8 @@ not matter.
 \label{OPERATORS}
 
 Operators restructure expressions in which they occur.  Operators
-are defined by operator definitions that are added to the current
-lexical context.
-
+are defined by operator definitions that can be added to the current
+lexical context by some operators.
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
@@ -1655,35 +1656,14 @@ contains a set of \skey{operator definition}s.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
-Lexemes \\
 Fixity \\
+Lexemes \\
 Precedence \\
-Associativity
+Associativity \\
+Control
 \end{indpar}
 
-{\bf Lexemes.}\ttmindex{lexemes}{of operator}
-An operator definition has a sequence of lexemes.  The operator
-inside a subexpression is just this sequence of lexemes, except for
-{\tt matchfix} operators, which have two sequences of lexemes, one
-of which must begin the subexpression and one of which must end the
-subexpression.
-
-The two sequences of lexemes for a {\tt matchfix}
-operator are represented by a single sequence of lexemes that contains
-the subexpression beginning lexemes followed by a `\verb/.../' lexeme
-followed by the subexpression ending lexemes.   The beginning sequence
-of lexemes must include the {\em opening-mark} that begins a subexpression
-and the closing sequence of lexemes must include the {\em closing-mark}
-that ends the subexpression.  An example sequence of lexemes for a
-{\tt matchfix} operator is `\verb/[ | ... | ]/' that permits subexpressions
-like `\verb/[| x - 5 |]/'.
-
-Two different operators may have the same sequence of lexemes.  For example,
-`\verb|-|' is the lexeme sequence of a {\tt prefix} operator and also of
-a distinct {\tt infix} operator.
-
-
-{\bf Fixity.}\ttmindex{fixity}{of operator}
+\subsubsubsection{Fixity}\ttmindex{fixity}{of operator}
 An operator has one of the following fixities:
 
 \begin{indpar}
@@ -1695,7 +1675,46 @@ An operator has one of the following fixities:
 \end{tabular}
 \end{indpar}
 
-{\bf Precedence.}\ttmindex{precedence}{of operator}
+An \verb|infix| operator is placed between its two operands;
+a \verb|prefix| operator is placed before its one operand;
+a \verb|postfix| operator is placed after its one operand;
+and a \verb|matchfix| operator surrounds its one operand.
+
+\subsubsubsection{Lexemes}\ttmindex{lexemes}{of operator}
+An operator definition has a sequence of lexemes.  The operator
+inside a subexpression is just this sequence of lexemes, except for
+{\tt matchfix} operators, which have two sequences of lexemes, one
+of which must begin the subexpression and one of which must end the
+subexpression.
+
+The two sequences of lexemes for a {\tt matchfix}
+operator are represented by a single sequence of lexemes that contains
+the subexpression beginning lexemes followed by a `\verb/.../' lexeme
+followed by the subexpression ending lexemes.   The beginning sequence
+of lexemes must begin with the {\em opening-mark} that begins a subexpression
+and the closing sequence of lexemes must end with the {\em closing-mark}
+that ends the subexpression.  An example sequence of lexemes for a
+{\tt matchfix} operator is `\verb/[ | ... | ]/' that permits subexpressions
+like `\verb/[| x - 5 |]/'.
+
+Two different operators may have the same sequence of lexemes provided
+they have different fixities and neither is \verb|matchfix|.  For example,
+`\verb|-|' is the lexeme sequence of a {\tt prefix} operator and also of
+a distinct {\tt infix} operator.  No three operators may have the same
+set of lexemes.
+
+Two different \verb|matchfix| operators X and Y may be such that the beginning
+lexemes of X are a proper prefix of the beginning lexemes of Y, and the
+ending lexemes of X are a proper prefix of the ending lexemes of Y.  In this
+case we say that X is more general than Y, and Y is more specific
+than X.  For example,
+\verb|[ ... ]| is more general than \verb/[| ... |]/.  
+More specific \verb|matchfix| operators are tested for before more general
+\verb|matchfix| operators, so the most specific \verb|matchfix| operator
+that works for a given expression will be the one recognized.
+
+
+\subsubsubsection{Precedence}\ttmindex{precedence}{of operator}
 The precedence of an operator is an integer.  Precedence is used in
 selecting which infix operators in an expression will be used to form
 implicitly parenthized subexpressions.  Only infix operators have
@@ -1710,9 +1729,11 @@ are inserted, higher precedence infix operators, prefix operators, and
 postfix operators will be recognized when
 the resulting subexpressions are parsed recursively.
 
-{\bf Associativity.}\ttmindex{associativity}{of operator}
-A infix operator may be \ttkey{left} or \ttkey{right} associative, or
-\ttkey{non-associative}.
+\subsubsubsection{Associativity}\ttmindex{associativity}{of operator}
+An {\tt infix} operator may be \ttkey{left} or \ttkey{right} associative, or
+it may have some other associativity that is named by any lexeme other
+that {\tt left} or {\tt right}.  The last kind of {\tt infix} operator
+is said to have \key{named associativity}.
 
 If more than one infix operator with lowest precedence appears in an expression,
 all the operators that appear must have the same associativity.
@@ -1725,11 +1746,20 @@ If all operators are right associative, only the leftmost operator is used to
 insert implied parentheses, so it is as if operators to the right had
 higher precedence than those to the left.
 
-If all operators are non-associative, all are recognized, and 
+If all operators are of named associativity, all are recognized, and 
 implicitly parenthesized subexpressions will be created between the
 operators as well as possibly at the beginning and end of the whole expression.
+Then the name of the associativity is prepended to the expression.
+Thus if the {\tt infix} operators \verb|<| and \verb|<=| have associativity
+\verb|-COMPARE-| and the expression \verb|0 < x - 3 <= 5| will
+be rewritten as \verb|[-COMPARE- 0 < [< x - 3 >] <= 5]|.
+
+\subsubsubsection{Control}\ttmindex{control}{of operator}
 
 [TBD: add operator def flag to right associative operators.]
+
+[TBD: matchfix operators can turn evaluation, text, operators and qualifiers
+on and off.]
 
 
 \subsubsection{Implicit Parenthesis Insertion}
