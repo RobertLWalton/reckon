@@ -1,6 +1,6 @@
-% Personal Calculation and Simulation Langauge (PCASL)
+% Calculation and Simulation Total Language Environment (CASTLE)
 %
-% File:         pcasl.tex
+% File:         castle.tex
 % Author:       Bob Walton (walton@deas.harvard.edu)
 % Date:		See \date below.
   
@@ -179,7 +179,9 @@
 
 \begin{document}
         
-\title{Personal\\Calculation and Simulation\\Language\\[2ex]PCASL\\[2ex]
+\title{Calculation and Simulation\\
+       Total Language Environment\\[2ex]
+       CASTLE\\[2ex]
        (Draft 1a)}
 
 \author{Robert L. Walton\thanks{Copyright 2004 Robert L. Walton.
@@ -188,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 4, 2005}
+\date{May 22, 2005}
  
 \maketitle
 
@@ -205,11 +207,11 @@ Cheatham and Stuart Shieber.}}
 
 \section{Introduction}
 
-This document describes PCASL, the Personal Calculation and Simulation
-Language, that is informally referred to as P-Castle, Personal Castle, or just
-Castle.
+This document describes the programming language CASTLE.  CASTLE,
+for what its worth, stands for `Calculation and Simulation Total Language
+Environment', which hints at its purpose.
 
-PCASL is designed for naive programmers: that is, for people who may never
+CASTLE is designed for naive programmers: that is, for people who may never
 be able to program computers well.  It is a simple language with
 powerful data types that make it easier to write small programs
 that do a variety of tasks a person might want to do.  Generally
@@ -234,8 +236,8 @@ Solving problems in elementary logic. \\
 \end{center}
 
 There are many computer languages that have some powerful data type that adapts
-them for a specific kind of computation.  PCASL tries to combine these.
-Some previous computer languages that have influenced PCASL, and
+them for a specific kind of computation.  CASTLE tries to combine these.
+Some previous computer languages that have influenced CASTLE, and
 the data types they particularly support, are:
 
 \begin{center}
@@ -251,13 +253,13 @@ PROLOG				& Logical Expressions \\
 \end{tabular}
 \end{center}
 
-PCASL is \underline{not} designed to be a computer-efficient language.
+CASTLE is \underline{not} designed to be a computer-efficient language.
 It is designed to be person-efficient, and to do small calculations
 rapidly enough with inexpensive modern computers.
 
 \section{Remarks}
 
-PCASL was created as an answer to the question: what programming language
+CASTLE was created as an answer to the question: what programming language
 should you teach beginning programming students who do not have the talent
 or inclination to become good programmers?  The initial answer, that it does
 not matter provided you implement some powerful types of data in the
@@ -268,9 +270,10 @@ to students after a first course in programming, and the essence of
 such a language is the integration within it of many powerful and useful
 data types.
 
-The basic principles of the PCASL design were developed
+The basic principles of the CASTLE design were developed
 by the author while teaching the intended customers of
-PCASL.\footnote{Specifically, while teaching CS121 at Suffolk University.}
+CASTLE.\footnote{Specifically, while teaching CS121 at Suffolk University
+using the C programming language.}
 The language should have as few parts as possible, to cut down
 on the amount of detail that must be remembered to use the language, but
 conversely, there is no limit to the conceptual complexity of any well-used
@@ -280,26 +283,27 @@ The language should have powerful data types, well integrated into
 the syntax of the language.  As much as possible, statement executions
 in the language should have visible effect.
 
-The current version of PCASL is not stable, because it has not been
-implemented, and because, unlike most programming languages, PCASL
+The current version of CASTLE is not stable, because it has not been
+implemented, and because, unlike most programming languages, CASTLE
 has lots of subtle important interactions between its various features.  The
 hope is that with implementation and experimentation, a stable sensible
-version of PCASL integrating all its data types can be achieved.
+version of CASTLE, integrating all its data types, can be achieved.
 
 \section{Overview}
 
-PCASL has two major kinds of data: expressions and blocks.  Numbers are
+CASTLE has two major kinds of data: expressions and blocks.  Numbers are
 the simplest expressions.  More complex expressions are math
-expressions or document expressions.  Blocks are sets of variables
-each of which can have a value, which is an expression, and also
-a definition, which is a set of guarded expressions.
-Each guarded expression consists of a guard, which is an expression that
-evaluates to true or false, and a value expression, which is an expression
-that is evaluated if the guard is true to produce the value of the variable.
-The definitions of a block, taken all
-together, are called the `code' of the block.
+expressions or document expressions.  A block is a set of variables
+and an piece of code.  Each variable can have a value, which is an expression.
+The code contains expressions that can be evaluated under appropriate
+circumstances to produce values for variables.
 
-You can use PCASL as a calculator by typing into it expressions to
+In CASTLE an `object' is a block that has an associated `type'.  For
+example, there may be an object `george' with type `person'.  All blocks
+of the same type have the same code, and many of the same variables,
+but typically have different variable values.
+
+You can use CASTLE as a calculator by typing into it expressions to
 be evaluated, assignments of values to variables, and definitions
 of functions and predicates.  Some examples involving numbers are:
 
@@ -316,7 +320,7 @@ of functions and predicates.  Some examples involving numbers are:
 26
 \end{verbatim}\end{indpar}
 
-Here the `\verb|> |' at the beginning of some lines is the PCASL \key{prompt}
+Here the `\verb|> |' at the beginning of some lines is the CASTLE \key{prompt}
 that tells you its OK to input an expression to be evaluated.
 
 At somewhat the opposite extreme from numbers are words, phrases, sentences,
@@ -327,7 +331,7 @@ and paragraphs.  You can calculate with these `\skey{document expression}s'.
 \verb|`|hello\verb|'| \\
 \verb|> `<<g>> there'| \\
 \verb|`|hello there\verb|'| \\
-\verb|> z = ``I thought he said `<<g>>'.''| \\
+\verb|> z = ``I thought he said `<<<g>>>'.''| \\
 \verb|``|I thought he said `hello'.\verb|''| \\
 \verb/> notice = ``|This document is meant to be read./ \\
 \verb/+            |Reading this document is good, but.../ \\
@@ -340,7 +344,7 @@ and paragraphs.  You can calculate with these `\skey{document expression}s'.
 \end{indpar}
 
 Modern math computes with expressions, and not just numbers.
-You can compute with \skey{math expression}s in PCASL.
+You can compute with \skey{math expression}s in CASTLE.
 
 \begin{indpar}
 \verb|> f = {10x^2 - 3.67x - 0.04}| \\
@@ -364,11 +368,22 @@ You can compute with \skey{math expression}s in PCASL.
 \verb|> raw out| \\
 \verb|[sentence the value of| \\
 \verb|          {(integral (x ^ 2 * dx)) from (x = 1) to (x = 5)}| \\
-\verb|          is 124/3]|
+\verb|          is 124/3 .]|
 \end{indpar}
 
-Another kind of datum you can compute with in PCASL is
-the \key{block}:
+[TBD: Can you overload \verb|{}| as both math expression brackets
+and code brackets?]
+
+Another kind of datum you can compute with in CASTLE is
+the block.  A \key{block} contains a set of variables, each of which
+can have a value which is an expression.  A block can also
+have code, which contains expressions that are evaluated under appropriate
+circumstances to produce values for the block's variables.
+
+In CASTLE an \key{object} is a block that has an associated \key{type}.  For
+example, there may be an object named `Jack' with type `person'.  All objects
+of the same type have the same code, and many of the same variables,
+but typically have different variable values.  For example:
 
 \begin{indpar}
 \verb|> a person {| \\
@@ -376,15 +391,16 @@ the \key{block}:
 \verb|+     weight = 123 lb| \\
 \verb|+     height = 5' 9"| \\
 \verb|+     age = 23 yr 2 mo }| \\
-\begin{tabular}{|r|l|r|r|r|}
+\begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
 \hline
 \end{tabular} \\
 \verb|> a person {| \\
@@ -392,40 +408,43 @@ the \key{block}:
 \verb|+     weight = 110 lb| \\
 \verb|+     height = 5' 7"| \\
 \verb|+     age = 21 yr 8 mo }| \\
-\begin{tabular}{|r|l|r|r|r|}
+\begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000001 & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
 \hline
 \end{tabular} \\
 \verb|> all persons| \\
-\begin{tabular}{|r|l|r|r|r|}
+\begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
-\tt @1000001 & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
 \hline
 \end{tabular} \\
 \verb|> the person Jack| \\
-\begin{tabular}{|r|l|r|r|r|}
+\begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
 \hline
 \end{tabular} \\
 \verb|> the person named Jack's height| \\
@@ -433,39 +452,45 @@ the \key{block}:
 \verb|> the weight of the person named Jack| \\
 \verb|123 lb| \\
 \verb|> @1000001| \\
-\begin{tabular}{|r|l|r|r|r|}
+\begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000001 & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
 \hline
 \end{tabular} \\
 \verb|> the weight of @1000001| \\
 \verb|110 lb|
 \end{indpar}
 
-It is possible to add code to a type such as `{\tt person}':
+It is possible to add code to a type such as `{\tt person}'.  This has
+the affect of adding the code to all blocks that are objects of that type.
+For example:
 
 \begin{indpar}
 \verb|> for every person <-- {| \\
 \verb|+     body-mass-index = 703.06958 * weight in lbs| \\
 \verb|+                     / (height in inches)^2 }| \\
 \verb|> all persons| \\
-\begin{tabular}{|r|l|r|r|r|r|}
+\begin{tabular}{|r|l|l|r|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
 \multicolumn{1}{|c}{\bf name} &
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} &
 \multicolumn{1}{|c|}{\bf \shortstack{body-mass-\\index}} \\
 \hline
-\tt @1000000 & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo & \tt 18.163738 \\
-\tt @1000001 & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo & \tt 17.228258 \\
+\tt @1000000 & person & Jack
+	     & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo & \tt 18.163738 \\
+\tt @1000001 & person & Jill
+	     & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo & \tt 17.228258 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -585,9 +610,9 @@ One can also iterate over data.
 
 In case you wonder how some of the above works, here are some hints.
 
-PCASL tends to ignore word endings: thus `{\tt person}' and
-`{\tt persons}' are to PCASL the same word.
-PCASL can even be told that `{\tt person}'
+CASTLE tends to ignore word endings: thus `{\tt person}' and
+`{\tt persons}' are to CASTLE the same word.
+CASTLE can even be told that `{\tt person}'
 and `{\tt people}' are the same word.
 `{\tt Jack's}', on the other hand, is treated an abbreviation
 of two separate words `{\tt Jack}' and `{\tt 's}', where `{\tt 's}' is
@@ -660,9 +685,9 @@ compute such lists are \key{flattened}:
 \verb|()|
 \end{indpar}
 
-For this reason PCASL lists are sometimes called `\skey{flat list}s'.
+For this reason CASTLE lists are sometimes called `\skey{flat list}s'.
 
-PCASL has many different kinds of quotes or brackets.  Some of these,
+CASTLE has many different kinds of quotes or brackets.  Some of these,
 \verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|, and \verb|{{|\ldots\verb|}}|,
 turn evaluation off, while \verb|<<|\ldots\verb|>>|,
 \verb|<<<|\ldots\verb|>>>|, \verb|<<<<|\ldots\verb|>>>>|, etc.
@@ -676,7 +701,7 @@ turn recognition of operators on.
 \verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.
 also do other things, like insert implicit operations (e.g., \verb|sentence|).
 
-PCASL stores information as expressions.  For example:
+CASTLE stores information as expressions.  For example:
 
 \begin{indpar}
 \verb|> (a person named `Jack') is husband of (a person named `Jill') <--| \\
@@ -697,7 +722,7 @@ PCASL stores information as expressions.  For example:
 \verb|false|
 \end{indpar}
 
-PCASL also supports pictorial data
+CASTLE also supports pictorial data
 that are computed like expressions.
 
 \begin{indpar}
@@ -872,12 +897,12 @@ is to be printed, `See $\theta$' is printed instead.
 
 TBD: example of a simple game.
 
-The rest of this document is a reference manual for PCASL.
+The rest of this document is a reference manual for CASTLE.
 
 
 \section{Lexical Scans}
 
-A PCASL program is a sequence of characters which is scanned from
+A CASTLE program is a sequence of characters which is scanned from
 left to right to produce a sequence of pre-lexemes.  The sequence
 of pre-lexemes is then scanned from left to right to produce
 a sequence of lexemes.  The sequence of lexemes is then subject to
@@ -1172,7 +1197,7 @@ Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
 \end{tabular}
 \end{indpar}
 
-Other rules of PCASL (\secref{LEXEMES})
+Other rules of CASTLE (\secref{LEXEMES})
 limit the semantic content
 of {\em white-space}, so that there is no problem putting
 space between the \verb|``| and \verb|`| in the last example.
@@ -1843,7 +1868,7 @@ dictionary and function.  These have the syntax:
 
 \begin{indpar}
 \ikey{LEXEME-DEFINITION}{lexeme-definition}\,\footnote{Capitalized syntactic
-categories represent PCASL expressions defined by expression
+categories represent CASTLE expressions defined by expression
 definitions (\secref{EXPRESSION-DEFINITIONS}).}
 		     \begin{tabular}[t]{rl}
                      ::= & {\em LEXEME-DICTIONARY-DEFINITION} \\
@@ -2012,10 +2037,10 @@ Some example translations are:
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
 not themselves subject to replacement.
 
-Because PCASL, outside the context of quotes,
+Because CASTLE, outside the context of quotes,
 insists on mapping different forms of a word to a single
 word, some subtleties of language are lost.  For example, `\verb|people|'
-can be a singular word referring to a group of people, but PCASL will
+can be a singular word referring to a group of people, but CASTLE will
 standardly confuse it with `\verb|person|'.
 
 \subsubsection{Number Unit Grouping}
@@ -2152,7 +2177,7 @@ marks.  Below we introduce subexpressions with operators that have implicit
 parentheses as their opening and closing marks.
 
 The syntactic category name {\em EXPRESSION} is capitalized because in
-this document syntactic categories representing PCASL {\em EXPRESSIONs}
+this document syntactic categories representing CASTLE {\em EXPRESSIONs}
 are given completely capitalized names.
 
 \subsection{Expression Structure Overview}
@@ -2812,12 +2837,12 @@ operator definition are the operator name and operator fixity.
 
 The operator selection algorithm produces a result that is often
 the same as the more common operator precedence rules for parsing expressions.
-However, in PCASL an operator can change the parsing stack
-used to parse its operand subexpressions, and this allows PCASL to
+However, in CASTLE an operator can change the parsing stack
+used to parse its operand subexpressions, and this allows CASTLE to
 to use arbitrary grammars for subexpressions.\footnote{In practice
 we expect this may be equivalent to using an operator precedence grammar
 to parse everything outside explicit opening and closing marks, and only
-permitting matchfix operators to change grammars.  But PCASL currently
+permitting matchfix operators to change grammars.  But CASTLE currently
 has more capabilities than this, and it is a matter or experiment to
 see whether these extra capabilities are useful.}
 
@@ -3489,12 +3514,12 @@ two nodes is then a node whose information content
 is the least upper bound of the information content of each of
 the two nodes taken separately.
 
-PCASL uses two forms of expression graph node unification.
+CASTLE uses two forms of expression graph node unification.
 The pure form, called `\key{pure unification}',
 is just the standard labeled graph unification
 algorithm, and is specified in this section.  The other form, which
 has a special merge operation for nodes representing calls on
-functions or builtin PCASL operations, is called `call unification',
+functions or builtin CASTLE operations, is called `call unification',
 and is described in \secref{CALL-UNIFICATION}.
 
 Unification of two expression graph nodes
@@ -4471,9 +4496,9 @@ implicit conversion
 \label{EXPRESSION-GRAPH-IMPLEMENTATION}
 
 In this section we give ideas that may or may not be used to
-implement PCASL expression graphs.
+implement CASTLE expression graphs.
 
-PCASL may have a single memory of nodes and arrows that holds all expression
+CASTLE may have a single memory of nodes and arrows that holds all expression
 graphs.  We will call this the expression graph memory.
 
 There may be at most one node in expression graph memory that has a given
@@ -4514,19 +4539,19 @@ An arrow target may not be an immutable node unless that node
 is never forwarded and arrows are never added to the node.  Instead the
 arrow target be a node reference coupled to the immutable node.
 
-In PCASL things can be arranged so the nodes to be evaluated,
+In CASTLE things can be arranged so the nodes to be evaluated,
 which are guard nodes in expression definitions or nodes in expression
 definition blocks, are never forwarded.  They are determinant
 (\pagref{DETERMINATE}), and in any call unification at most one node is
 being evaluated, while the other
-is the expression defined by an expression definition.  However, in PCASL
+is the expression defined by an expression definition.  However, in CASTLE
 arrows may be added to an expression being evaluated (Step~\ref{ADD-ARROW-STEP}
 \pagref{ADD-ARROW-STEP}).
-So in PCASL probably no immutable node can
-point directly at another immutable node.\footnote{PCASL differs from
+So in CASTLE probably no immutable node can
+point directly at another immutable node.\footnote{CASTLE differs from
 PROLOG in that in PROLOG arrows are not added to nodes during unification
 so immutable guard nodes can point directly at other immutable guard nodes.}
-Luckily PCASL is not intended to run large programs.  However, it should be
+Luckily CASTLE is not intended to run large programs.  However, it should be
 possible to compile code that will check whether an expression defined by
 a given definition unifies with an arbitrary expression to be evaluated.
 Call unification is just a specification for a kind of pattern matching,
@@ -5056,7 +5081,7 @@ When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 {\em subblock} of the {\em block} are treated as if they
 were in the {\em block} proper.  Thus variables named in the
 {\em subblock} are variables named in the {\em block}.\footnote{
-PCASL does not have the notion of name space nesting, because the
+CASTLE does not have the notion of name space nesting, because the
 {\tt \CurlyBra\CurlyKet} brackets that would
 indicate nesting can be implied by the {\tt :} construction.}
 
@@ -5590,7 +5615,7 @@ the current list positions.  When removing an element from the end of the
 Design:
 
 Debugging is based on the notion that almost all
-PCASL programs will run quickly.
+CASTLE programs will run quickly.
 Input checkpointing is used to record all inputs to a computation
 so the computation can be deterministically rerun.  Detailed
 traces can be generated which explain for each value how it was generated.
@@ -5631,7 +5656,7 @@ Qualifier Shortcut Definition\label{QUALIFIER-SHORTCUT-DEFINITION}
 Automatic Optional Marks\label{AUTOMATIC-OPTIONAL-MARKS}
 
 \bibliographystyle{plain}
-\bibliography{pcasl}
+\bibliography{castle}
 
 \printindex
 
