@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 24, 2005}
+\date{May 25, 2005}
  
 \maketitle
 
@@ -716,11 +716,17 @@ turn recognition of operators on.  Quotes --
 \verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~--
 also do other things, like insert implicit operations (e.g., \verb|sentence|).
 
-CASTLE stores information as expressions.  For example:
+CASTLE can store information as expressions.  For example:
 
 \begin{indpar}
 \verb|> (a person named `Jack') is husband of (a person named `Jill') <--| \\
-\verb|> Y is wife of X <-- X is husband of Y| \\
+\verb|> Y is wife of X <-- X is husband of Y|
+\end{indpar}
+
+Here `\verb|<--|' means `is asserted' or `is asserted if'.
+All the assertions that have been made can be queried:
+
+\begin{indpar}
 \verb|> (a person named `Jill') is wife of (a person named `Jack') ?| \\
 \verb|true| \\
 \verb|> (a person named `Jack') is wife of (a person named `Jill') ?| \\
@@ -737,8 +743,8 @@ CASTLE stores information as expressions.  For example:
 \verb|false|
 \end{indpar}
 
-CASTLE also supports pictorial data
-that are computed like expressions.
+CASTLE supports pictorial data
+that are expressions displayed as pictures:
 
 \begin{indpar}
 \verb|> x = {circle 0.4}| \\
@@ -824,12 +830,13 @@ Displays can be used to make demonstrations:
 \verb|>     on a demo with angle X <-- {| \\
 \verb|+         angle = X } }| \\
 \verb|> x = a demo with angle 30 degrees| \\
-\begin{tabular}{|r|r|}
+\begin{tabular}{|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
-\multicolumn{1}{|c|}{\bf value} \\
+\multicolumn{1}{|c}{\bf type} &
+\multicolumn{1}{|c|}{\bf angle} \\
 \hline
-\tt @1000043 & 30 degrees \\
+\tt @1000043 & demo & 30 degrees \\
 \hline
 \end{tabular} \\
 \verb|> for every demo {| \\
@@ -838,21 +845,23 @@ Displays can be used to make demonstrations:
 \verb|+     on increment THIS by X <-- {| \\
 \verb|+         next angle = angle + X } }| \\
 \verb|> update x to 40 degrees| \\
-\begin{tabular}{|r|r|}
+\begin{tabular}{|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
-\multicolumn{1}{|c|}{\bf value} \\
+\multicolumn{1}{|c}{\bf type} &
+\multicolumn{1}{|c|}{\bf angle} \\
 \hline
-\tt @1000044 & 40 degrees \\
+\tt @1000044 & demo & 40 degrees \\
 \hline
 \end{tabular} \\
 \verb|> increment x by 5 degrees| \\
-\begin{tabular}{|r|r|}
+\begin{tabular}{|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
-\multicolumn{1}{|c|}{\bf value} \\
+\multicolumn{1}{|c}{\bf type} &
+\multicolumn{1}{|c|}{\bf angle} \\
 \hline
-\tt @1000045 & 45 degrees \\
+\tt @1000045 & demo & 45 degrees \\
 \hline
 \end{tabular} \\
 \verb|> display ( D ) <-- demo ( D ) with angle ( X ) {| \\
@@ -896,17 +905,17 @@ See $\theta$
 \end{indpar} 
 
 In this example we first define a `constructor'
-of the form `{\tt a demo with angle X}' to make new {\tt demo} blocks,
+of the form `{\tt a demo with angle X}' to make new {\tt demo} objects,
 and then we define two `methods', namely `{\tt update THIS to X}' and
-`{\tt in\-cre\-ment THIS by X}', to change a {\tt demo} block.  Changing
-a {\tt demo} block is like iterating a loop to make a new block.
+`{\tt in\-cre\-ment THIS by X}', to change a {\tt demo} object.  Changing
+a {\tt demo} object is like iterating a loop to make a new object.
 
-Next we define how to display a {\tt demo} block.  Then we use the
+Next we define how to display a {\tt demo} object.  Then we use the
 `{\tt show x label {\ttbrackets \{Greek th\}}}' command
-to cause the {\tt demo} block value of {\tt x}
+to cause the {\tt demo} object value of {\tt x}
 to be displayed in a separate window labeled `$\theta$'.
-Every time this {\tt demo} block
-changes, the $\theta$ window is updated, and every time the block
+Every time this {\tt demo} object
+changes, the $\theta$ window is updated, and every time the object
 is to be printed, `See $\theta$' is printed instead.
 
 
@@ -5657,6 +5666,8 @@ as in \verb|41 1/3|.
 \end{list}
 
 \section{To Do}
+
+Expressions to be evaluated can have sets of possible values.
 
 Imaginary Units\label{IMAGINARY-UNITS}
 
