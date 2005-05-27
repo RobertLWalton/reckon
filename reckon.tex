@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 25, 2005}
+\date{May 27, 2005}
  
 \maketitle
 
@@ -920,6 +920,40 @@ is to be printed, `See $\theta$' is printed instead.
 
 
 TBD: example of a simple game.
+
+\begin{boxedfigure}
+
+\begin{verbatim}
+for every board:
+    on a board of dimension X <--:
+        size = X
+        size-of-value-array = (X,X)
+        foreach subscript (I,J):
+            value (I,J) = `empty'
+    on build from (I1,J1) to (I2,J2) <--:
+        dI = I1 - I2
+        dJ = J1 - J2
+        if (     abs(dI) != abs(dJ)
+             AND dI != 0
+             AND dJ != 0 ):
+            value = error `illegal build XXX'
+        type = max ( abs(dI), abs(dJ) )
+        if ( dI > 0 ): dI = 1
+        else if ( dI < 0 ): dI = -1 
+        if ( dJ > 0 ): dJ = 1
+        else if ( dJ < 0 ): dJ = -1 
+        for I = I1 to I2 step dI:
+            for J = J1 to J2 step dJ:
+                if ( value (I,J) != `empty' ):
+                    value = error `XXX'
+                value(I,J) = type
+
+    on attack (I,J) <--:
+\end{verbatim}
+
+\caption{Code for the Battleship Game}
+\label{CODE-FOR-BATTLESHIP}
+\end{boxedfigure}
 
 The rest of this document is a reference manual for CASTLE.
 
