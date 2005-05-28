@@ -925,34 +925,60 @@ TBD: example of a simple game.
 
 \begin{verbatim}
 for every board:
-    on a board of dimension X <--:
-        size = X
-        size-of-value-array = (X,X)
-        foreach subscript (I,J):
-            value (I,J) = `empty'
-    on build from (I1,J1) to (I2,J2) <--:
+    on a board of dimension S <--:
+        `make a board of size SxS'
+        size = S
+        array square size (S,S) initially `empty'
+        `allowed vessels have lengths 2 (destroyer), 3 (cruiser),
+         4 (battleship); vessels(L) is number of length L'
+        array vessels size 5 initially 0
+        `maximum-vessels(L) is maximum number of vessels of
+         length L'
+        array maximum-vessels size 5 initially 0
+        maximum-vessels(2) = 5
+        maximum-vessels(3) = 2
+        maximum-vessels(1) = 1
+	`hit(I,J) is true iff shell has hit square (I,J)'
+        array hit size (S,S) initially `false'
+\end{verbatim}
+
+\caption{Code for the Battleship Game, Part I}
+\label{CODE-FOR-BATTLESHIP-1}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{verbatim}
+    on vessel from (I1,J1) to (I2,J2) <--:
+        `draw a vessel with endpoints (I1,J1) and (I2,J2)'
         dI = I1 - I2
         dJ = J1 - J2
         if (     abs(dI) != abs(dJ)
-             AND dI != 0
-             AND dJ != 0 ):
-            value = error `illegal build XXX'
-        type = max ( abs(dI), abs(dJ) )
-        if ( dI > 0 ): dI = 1
-        else if ( dI < 0 ): dI = -1 
-        if ( dJ > 0 ): dJ = 1
-        else if ( dJ < 0 ): dJ = -1 
-        for I = I1 to I2 step dI:
-            for J = J1 to J2 step dJ:
-                if ( value (I,J) != `empty' ):
-                    value = error `XXX'
-                value(I,J) = type
+             AND dI != 0 AND dJ != 0 ):
+            value = error `illegal vessel, not horizontal or vertical
+                           or diagonal'
 
-    on attack (I,J) <--:
+        length = max ( abs(dI), abs(dJ) )
+        if ( length < 2 ):
+            value = error `illegal vessel, too short'
+        else if ( length > 4 ):
+            value = error `illegal vessel, too long'
+        if ( vessels(length) >= maximum-vessels(length) ):
+            value = error `illegal vessel, too many of that type'
+
+	`set squares occupied by vessel to length of vessel'
+        sI = sign dI
+        sJ = sign dJ
+        for (I,J) = (I1,J1) to (I2,J2) step (sI,sJ):
+            if ( square (I,J) != `empty' ):
+                value = error `illegal vessel, overlaps an
+                               existing vessel'
+        for (I,J) = (I1,J1) to (I2,J2) step (sI,sJ):
+            square (I,J) = length
 \end{verbatim}
 
-\caption{Code for the Battleship Game}
-\label{CODE-FOR-BATTLESHIP}
+\caption{Code for the Battleship Game, Part II}
+\label{CODE-FOR-BATTLESHIP-2}
 \end{boxedfigure}
 
 The rest of this document is a reference manual for CASTLE.
@@ -970,9 +996,10 @@ that is input for expression parsing.
 For example, the input `{\tt x = 7' 5.5";}' contains the pre-lexeme
 `{\tt 5.5";}', which is split into 3 lexemes `{\tt 5.5 " ;}', and
 then during lexical parsing `{\tt *}' operators are inserted before
-or after units and `{\tt +}' operators with parentheses are inserted
-between consecutive numbers, to produce from the input the
-following string of 12 lexemes:
+or after units, and `{\tt +}' operators are inserted
+between consecutive numbers with different units, and parentheses
+are inserted around sequences of consecutive numbers with different units,
+to produce from the input the following string of 12 lexemes:
 
 \begin{center}
 \tt x = ( 7 * ' + 5.5 * " ) ;
