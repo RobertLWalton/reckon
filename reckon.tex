@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 27, 2005}
+\date{May 31, 2005}
  
 \maketitle
 
@@ -1409,10 +1409,7 @@ below in \secref{POST-SEPARATORS}.
 
 
 The {\em indentation-lexemes} are lexemes implied by indentation, and
-are not distinguishable from explicit lexemes.  The indentation
-lexemes are the post-separator
-`\verb|;|', the {\em opening-mark} `\verb|{|', and the {\em closing-mark}
-`\verb|}|'.  They are defined below in
+are not distinguishable from explicit lexemes.  They are defined below in
 \secref{INDENTATION-LEXEMES}.
 
 {\em White-space} pre-lexemes become lexemes if they appear
@@ -1459,9 +1456,7 @@ an optional decimal point, and an optional sign.
 \key{decimal-natural} ::= {\em decimal-digits}
 		     $|$ {\em decimal-natural} \verb|,| {\em decimal-digits}
 		     \\[1ex]
-\key{decimal-digits} ::= {\em digit} {\em digit}\,$^\star$ \\[1ex]
-\key{decimal-ratio} ::= {\em decimal-natural} \verb|/|
-			{\em decimal-natural}
+\key{decimal-digits} ::= {\em digit} {\em digit}\,$^\star$
 \end{indpar}
 
 Decimal Number Examples:
@@ -1470,8 +1465,10 @@ Decimal Number Examples:
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 123	& -123		& +123		& 1,234		& -1,234,567 \\
-123.0	& -.123		& +0.0		& +.000		& 1,234.987,654 \\
-1,2	& -1.86,54	& 1,234567.89	& 12345.678,9	& +1.234567,892
+123.0	& -.123		& +0.0		& 1,234.987654	& 1,234.987,654 \\
+1,2	& -1.86,54	& 1,234567.89	& 12345.678,9	& +1.234567,892 \\[1ex]
+\multicolumn{5}{l}{\normalfont (Lexemes in
+the last line give errors when converted to numbers.)}
 \end{tabular}
 \end{indpar}
 
@@ -1521,7 +1518,9 @@ Radix Number Examples:
 B\#10110100\#	& O\#77534201\# & D\#19758\#	& X\#FE8A932B\# \\
 B\#101101\#	& O\#0.7753\#	& D\#197.58\#	& X\#0.fe8a932b\# \\
 B\#10,1101\#	& O\#12,3456\#  & D\#0.123,5\#	& X\#FE8A,932B.7CCD,83\# \\
-B\#a5,7b63\#	& O\#12/3456\#	& D\#+0.1\#	& X\#F.E8A932B.7CCD\# \\
+B\#a5,7b63\#	& O\#12/3456\#	& D\#+0.1\#	& X\#F.E8A932B.7CCD\# \\[1ex]
+\multicolumn{4}{l}{\normalfont (Lexemes in
+the last line give errors when converted to numbers.)}
 \end{tabular}
 \end{indpar}
 
@@ -1543,7 +1542,10 @@ hexadecimal
 \end{tabular}
 \end{center}
 
-The rules for comma location are the same as for {\em decimal-numbers}
+Standard {\em radix-indicators} permit a single decimal point, which must
+be followed by a digit.
+Standard {\em radix-indicator}
+rules for comma location are the same as for {\em decimal-numbers}
 (\secref{DECIMAL-NUMBERS}), except the number of digits between commas may
 be 4 or 8 instead of 3.
 
@@ -1584,7 +1586,9 @@ Ratio Examples:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\
+1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\[1ex]
+\multicolumn{5}{l}{\normalfont (The last lexeme
+gives an error when converted to a number.)}
 \end{tabular}
 \end{indpar}
 
@@ -1672,6 +1676,7 @@ Unit Number Examples:
 Unit Number		& Lexeme Sequence	\\[1ex]
 \tt \$5.71		& \tt \$~~5.71 \\
 \tt \pounds -5.71	& \tt \pounds ~~-5.71 \\
+\tt -\$2.20		& \tt \$ -2.20 \\
 \tt 15'			& \tt 15~~' \\
 \tt -2.543"		& \tt -2.543~~" \\
 \tt 72\%		& \tt 72~~\% \\
@@ -1679,6 +1684,8 @@ Unit Number		& Lexeme Sequence	\\[1ex]
 \end{tabular}
 \end{indpar}
 
+A sign immediately before a {\em pre-unit-indicator} is moved to
+the {\em real-number} part; \verb|-$2.20| becomes \verb|$ -2.20|.
 The units `\ttmkey{i}{as unit}', `\ttmkey{j}{as unit}', and
 `\ttmkey{k}{as unit}' are used to specify complex imaginary or quaternion
 numbers: see \pagref{IMAGINARY-UNITS}.
