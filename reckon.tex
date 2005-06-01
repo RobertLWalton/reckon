@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 31, 2005}
+\date{June 1, 2005}
  
 \maketitle
 
@@ -987,10 +987,10 @@ The rest of this document is a reference manual for CASTLE.
 \section{Lexical Scans}
 
 A CASTLE program is a sequence of characters which is scanned from
-left to right to produce a sequence of pre-lexemes.  The sequence
+left to right to produce a sequence of \skey{pre-lexeme}s.  The sequence
 of pre-lexemes is then scanned from left to right to produce
-a sequence of lexemes.  The sequence of lexemes is then subject to
-a left to right lexical parsing scan to produce a final set of lexemes
+a sequence of \skey{lexeme}s.  The sequence of lexemes is then subject to
+a left to right \key{lexical parsing} scan to produce a final set of lexemes
 that is input for expression parsing.
 
 For example, the input `{\tt x = 7' 5.5";}' contains the pre-lexeme
@@ -1007,7 +1007,7 @@ to produce from the input the following string of 12 lexemes:
 
 \subsection{Pre-Lexemes}
 
-Pre-lexemes are defined as follows:
+\ikey{Pre-lexemes}{pre-lexeme} are defined as follows:
 
 \begin{indpar}
 \key{pre-lexeme}
@@ -1197,7 +1197,7 @@ sequence are the same as rules for matching lexemes in a lexeme sequence.
 Here we will state the rules for lexemes, and leave it to the reader
 to reformulate them for pre-lexemes.
 
-{\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}
+{\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}\index{matching!lexemes}
 An {\em opening-mark} with $N$ characters $C$
 must have a matching {\em closing-mark} with $N$ characters each the
 mirror of $C$.  Here
@@ -1377,7 +1377,7 @@ after a {\em format-separator} are retained literally.
 \subsection{Lexemes}
 \label{LEXEMES}
 
-The sequence of pre-lexemes is converted to a sequence of lexemes
+The sequence of pre-lexemes is converted to a sequence of \skey{lexeme}s
 according to the following rules, which we will describe in order:
 
 \begin{indpar}[1in]
@@ -1427,7 +1427,7 @@ The rule for splitting a {\em pre-word} into a {\em word}
 and a {\em separator} makes reference to {\em words} that are
 {\em numbers}, saying that splitting is preferred if the {\em word}
 resulting from the split is a {\em number}.  Some of the syntax equations
-defining {\em numbers} are as follows.
+defining \skey{number}s are as follows.
 
 \begin{indpar}
 \key{number} ::= {\em real-number} $|$ {\em unit-number} \\[1ex]
@@ -1440,7 +1440,8 @@ defining {\em numbers} are as follows.
 \subsubsubsection{Decimal Numbers}
 \label{DECIMAL-NUMBERS}
 
-Decimal numbers are sequences of digits with optional commas,
+\ikey{Decimal numbers}{decimal number}
+are sequences of digits with optional commas,
 an optional decimal point, and an optional sign.
 
 \begin{indpar}
@@ -1569,7 +1570,7 @@ set of legal number representations.
 \subsubsubsection{Ratios}
 \label{RATIOS}
 
-A {\em ratio} consists of two strings of decimal digits, the numerator
+A \key{ratio} consists of two strings of decimal digits, the numerator
 and denominator, separated by a slash (`\verb|/|'),
 with an optional sign.
 
@@ -1698,10 +1699,15 @@ as in `{\tt \pounds~}\verb|O#7601#|', `\verb|$ 3/4|', and `\verb|5e3 i|'.
 \subsubsection{Post Separators}
 \label{POST-SEPARATORS}
 
-Informally, a post-separator is a 1-character separator that immediately
-follows a word and could be part of that word.  Examples are the comma, period,
-and the exclamation point.  There are two kinds of post separators:
-weak and strong.  The Post Separator Rule
+Informally, a \key{post-separator} is a 1-character separator that immediately
+follows a word without intervening space.  Examples are the comma, period,
+and the exclamation point.  A word and any following post-separators
+are all part of a single pre-word.  For example, `\verb|Hello!|' is a
+pre-word containing the word `\verb|Hello|' and the post-separator `\verb|!|'.
+
+There are two kinds of post separators:
+\ttmkey{weak}{post-separator} and \ttmkey{strong}{post-separator}.
+The Post Separator Rule
 given below tells when a {\em pre-word} ending
 in a {\em post-separator-character}
 must be split into a smaller {\em pre-word} and a 1-character
@@ -1823,15 +1829,16 @@ would be in that pre-lexical context.  One may think of a \key{line beginning}
 as being a position on a line just before the first pre-lexeme on the line.
 
 {\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
-If the first non-{\em white-space} pre-lexeme of a line is not \verb|}|,
-if the beginning of the line is in the current indentation context,
-if the indentation of the line is the current indentation,
-and if the last lexeme output was not
-a \verb|;| {\em separator} lexeme or a \verb|{| {\em opening-mark}
+If the beginning of the line is in the current indentation context,
+and if the indentation of the line is the current indentation,
+then a \verb|;| implied {\em separator} lexeme is output
+before any lexemes generated by the line are output, unless
+(1) the last lexeme output before the line
+was a \verb|;| {\em separator} lexeme,
+(2) the last lexeme output was a \verb|{| {\em opening-mark}
 lexeme (including an implied {\em opening-mark} as in the
-Implicit-Bracket Rule below), then a \verb|;| implied {\em separator}
-lexeme is output
-before any lexemes generated by the line are output.
+Implicit-Bracket Rule below), or
+(3) the first non-{\em white-space} pre-lexeme of a line is \verb|}|.
 
 {\bf Explicit-Bracket Rule.}\index{Explicit-Bracket Rule}
 If the last pre-lexeme of a line is \verb|{|, then an indentation record
@@ -1890,7 +1897,7 @@ hi \{				& hi \{ \\
 \tt \ttbrackets
 \begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
 hi				& hi \\
-\{				& \{ \\
+\{				& ; \{ \\
 ~~~~x				& x \\
 ~~~~y z				& ; y z \\
 ~~~~w				& ; w \\
