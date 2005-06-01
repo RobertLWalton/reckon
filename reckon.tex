@@ -1685,6 +1685,9 @@ Unit Number		& Lexeme Sequence	\\[1ex]
 \end{tabular}
 \end{indpar}
 
+Here \verb|15'| splits to produce \verb|'| as a 1-character
+\underline{word} lexeme, and not as a closing quote lexeme.
+
 A sign immediately before a {\em pre-unit-indicator} is moved to
 the {\em real-number} part; \verb|-$2.20| becomes \verb|$ -2.20|.
 The units `\ttmkey{i}{as unit}', `\ttmkey{j}{as unit}', and
@@ -1978,8 +1981,12 @@ dictionary and function.  These have the syntax:
 
 \begin{indpar}
 \ikey{LEXEME-DEFINITION}{lexeme-definition}\,\footnote{Capitalized syntactic
-categories represent CASTLE expressions defined by expression
-definitions (\secref{EXPRESSION-DEFINITIONS}).}
+categories represent CASTLE expressions (\secref{EXPRESSION-PARSING})
+that are evaluated (\secref{EXPRESSION-EVALUATION}).  The syntax given
+for these categories represents either the syntax recognized by the
+expression definitions (\secref{EXPRESSION-DEFINITIONS}) that define
+the expressions, or the syntax that can be used to produce a value of
+the type required after the expression is evaluated.}
 		     \begin{tabular}[t]{rl}
                      ::= & {\em LEXEME-DICTIONARY-DEFINITION} \\
 		     $|$ & {\em LEXEME-FUNCTION-DEFINITION}
@@ -1999,18 +2006,18 @@ definitions (\secref{EXPRESSION-DEFINITIONS}).}
                     ::= \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
 		    \\[1ex]
 \key{lexeme-dictionary-entry-list} \\
-		     \hspace*{0.5in}\begin{tabular}[t]{rl}
+		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
                      ::= & {\em LEXEME-DICTIONARY-ENTRY} \\
 		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
 		           {\em LEXEME-DICTIONARY-ENTRY}
 		     \end{tabular} \\[1ex]
-\ikey{LEXEME-DICTIONARY-ENTRY}{lexeme-dictionary-entry} ::=
+\ikey{LEXEME-DICTIONARY-ENTRY}{lexeme-dictionary-entry} \\
+    \hspace*{0.5in}::=
 	\verb|[| {\em replaced-lexeme} \verb|==>| {\em replacing-lexemes}
 	\verb|]| \\[1ex]
 \key{replaced-lexeme} ::=
 	\{ {\em word} $|$ {\em separator} \} \\[1ex]
 \key{replacing-lexemes} ::=
-	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$ \\[1ex]
 \ikey{LEXEME-FUNCTION-DEFINITION}{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
@@ -2060,7 +2067,7 @@ and the expression definition
 \begin{indpar}
 \begin{verbatim}
 replace people X <-- {
-    if X == people:
+    if X == [people]:
         value = [person]
     else:
         value = false }
@@ -2099,6 +2106,9 @@ undefine lexeme dictionary NAME <--
 undefine lexeme function NAME <--
 \end{verbatim}
 \end{indpar}
+
+Lexeme replacement is \underline{not} recursive: the replacement lexemes are
+not themselves subject to replacement.
 
 The following lexeme dictionaries and functions are
 defined in the initial parsing stack.  Their definitions are ordered in the
@@ -2144,9 +2154,6 @@ Some example translations are:
 
 \end{list}
 
-Lexeme replacement is \underline{not} recursive: the replacement lexemes are
-not themselves subject to replacement.
-
 Because CASTLE, outside the context of quotes,
 insists on mapping different forms of a word to a single
 word, some subtleties of language are lost.  For example, `\verb|people|'
@@ -2163,7 +2170,8 @@ and a {\em unit-specifier}.
 The syntax equations are:
 
 \begin{indpar}
-\key{number-unit-group} ::= {\em number-unit-pair}\,$^\star$ \\[1ex]
+\key{number-unit-group} ::= {\em number-unit-pair}
+			    {\em number-unit-pair}\,$^\star$ \\[1ex]
 \key{number-unit-pair} \begin{tabular}[t]{rl}
                      ::= & {\em prefix-unit-specifier} {\em real-number} \\
                      $|$ & {\em real-number} {\em postfix-unit-specifier} \\
@@ -2185,7 +2193,8 @@ must be defined as a {\em UNIT-SPECIFIER-NAME} by the following:
 	    {\em UNIT-SPECIFIER-NAME}
 	    \end{tabular} \\[1ex]
 \ikey{UNIT-SPECIFIER-FIXITY}{unit-specifier-fixity} ::=
-	\ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
+	\verb|[| \ttkey{prefix} \verb|]|
+	$|$ \verb|[| \ttkey{postfix} \verb|]| \\[1ex]
 \ikey{UNIT-SPECIFIER-NAME}{unit-specifier-name} ::=
 	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
 \end{indpar}%
