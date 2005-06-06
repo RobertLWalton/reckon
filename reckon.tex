@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 2, 2005}
+\date{June 6, 2005}
  
 \maketitle
 
@@ -366,9 +366,9 @@ You can compute with \skey{math expression}s in CASTLE.
 \verb|> out = `The value of {<<<g>>> from (x = 1) to (x = 5)} is <<v>>.'| \\
 \verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
 \verb|> raw out| \\
-\verb|[sentence the value of| \\
-\verb|          {(integral (x ^ 2 * dx)) from (x = 1) to (x = 5)}| \\
-\verb|          is 124/3 .]|
+\verb|[-SENTENCE- the value of| \\
+\verb|            {(integral (x ^ 2 * dx)) from (x = 1) to (x = 5)}| \\
+\verb|            is 124/3 .]|
 \end{indpar}
 
 [TBD: Can you overload \verb|{}| as both math expression brackets
@@ -714,7 +714,8 @@ turn recognition of operators (e.g., \verb|+| and \verb|=|) off, while others,
 turn recognition of operators on.  Quotes --
 \verb|`|\ldots\verb|'|,
 \verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~--
-also do other things, like insert implicit operations (e.g., \verb|sentence|).
+also do other things, like insert implicit operations
+(e.g., \verb|-SENTENCE-|).
 
 CASTLE can store information as expressions.  For example:
 
@@ -989,11 +990,13 @@ The rest of this document is a reference manual for CASTLE.
 A CASTLE program is a sequence of characters which is scanned from
 left to right to produce a sequence of \skey{pre-lexeme}s.  The sequence
 of pre-lexemes is then scanned from left to right to produce
-a sequence of \skey{lexeme}s.  The sequence of lexemes is then subject to
+a sequence of \skey{lexeme}s.  The sequence of lexemes may then be subject to
 a left to right \key{lexical parsing} scan to produce a final set of lexemes
-that is input for expression parsing.
+that is input for expression parsing.  Lexical parsing is suppressed in
+certain contexts, e.g., within quotes.
 
-For example, the input `{\tt x = 7' 5.5";}' contains the pre-lexeme
+For example, the input `{\tt x = 7' 5.5";}' (here the `' quotes are
+\underline{not} part of the input) contains the pre-lexeme
 `{\tt 5.5";}', which is split into 3 lexemes `{\tt 5.5 " ;}', and
 then during lexical parsing `{\tt *}' operators are inserted before
 or after units, and `{\tt +}' operators are inserted
@@ -1945,8 +1948,7 @@ hum \} y			& ; hum \} y \\
 \subsection{Lexical Parsing}
 \label{LEXICAL-PARSING}
 
-After pre-lexemes are scanned to produce lexemes, lexemes that are
-not in the lexical context of a pair of matched {\em quotes} are
+After pre-lexemes are scanned to produce lexemes, lexemes may be
 scanned to perform the following:
 
 \begin{indpar}[1in]
@@ -1965,8 +1967,9 @@ at the level of individual lexemes and short sequences of lexemes, and
 because it is controlled by definitions in the parsing stack
 (\pagref{PARSING-STACK}).
 
-Note that lexical parsing is \underline{not} performed on lexemes that
-are in the lexical context of a pair of matched {\em quotes}.
+Lexical parsing is \underline{not} performed in certain
+contexts, such as in the lexical context of a pair of matched {\em quotes}
+(see the table on \pagref{CONTEXT-SWITCHES}).
 
 \subsubsection{Lexeme Replacement}
 \label{LEXEME-REPLACEMENT}
@@ -2364,7 +2367,7 @@ operators is:
 Brackets	& and qualifiers
 				& parsing
 					& text	& \verb|@@  ??|
-							& eval \\[1ex]
+							& evaluation \\[1ex]
 
 \verb|(|\ldots\verb|)|
 		& --		& --    & --	& --	& -- \\
@@ -2388,7 +2391,7 @@ Brackets	& and qualifiers
 		& off		& off	& on	& off	& off \\
 \verb|```|\ldots\verb|'''|
 		& off		& off	& on	& off	& off \\
-\end{tabular}
+\end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
 Other matching lexemes may be made to affect parsing by introducing
@@ -2412,8 +2415,8 @@ the \mkey{parsing stack}{kinds of definition in}:%
 \begin{tabular}{ll}
 parser & \secref{PARSER-DEFINITION} \\
 operator & \secref{OPERATOR-DEFINITIONS} \\
-qualifier & \ref{QUALIFIER-DEFINITION} \\
-qualifier shortcut & \ref{QUALIFIER-SHORTCUT-DEFINITION} \\
+qualifier & \secref{QUALIFIER-DEFINITION} \\
+qualifier shortcut & \secref{QUALIFIER-SHORTCUT-DEFINITION} \\
 lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
 \end{tabular}
@@ -2436,9 +2439,12 @@ placing canceling undefinitions in the parsing stack.  These have the
 syntax:
 
 \begin{indpar}
-\ikey{PARSER-UNDEFINITION}{parser-undefinition} \\
-	\hspace*{0.5in}::= \verb|undefine parser| {\em PARSER-NAME}
+\ikey{PARSER-UNDEFINITION}{parser-undefinition} ::= \verb|undefine parser|
 \end{indpar}
+
+This undefinition, as long as it is in the stack, cancels the effect 
+of the parser definition that would be used if the undefinition were not
+in the stack.
 
 There are three standard \ikey{parsers}{parser!standard}:
 the \key{marks parser} \ttkey{-MARKS-PARSER-},
@@ -2456,7 +2462,7 @@ From the parsing point of view there are several types of
 expression restructuring that can occur.  One, text restructuring,
 is done by the text parser (\secref{TEXT-PARSING}), which is invoked by
 \verb|`'| quotes, and does things like turn
-\verb|`I am!'| into \verb|[sentence I am !]|.  Other kinds of
+\verb|`I am!'| into \verb|[-SENTENCE- I am !]|.  Other kinds of
 restructuring are done by the operators parser (\secref{OPERATORS}).
 The operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
 \verb|x + y - 5 * z| cause this expression to be restructured as
@@ -2476,7 +2482,7 @@ qualifiers, or qualifier shortcuts are not recognized as such.  Thus in
 in \verb|[item ascending]| \verb|ascending| is not recognized as
 a qualifier shortcut.
 
-Some of the matchfix operators above affect evaluation (eval).
+Some of the matchfix operators above affect evaluation.
 Evaluation differs from parsing in that it is managed by a
 counter and not a stack; if evaluation is
 turned off twice, it must be turned on twice to be in effect.
@@ -2515,7 +2521,7 @@ matching lexemes and the \verb|::?| optional argument,
 \verb|@@| required qualifier, and \verb|??| optional qualifier marks.
 
 When an expression is parsed, the output is a raw expression.
-The following are examples, all of which are assumed to
+The following are examples, in which the input expressions are assumed to
 appear in the context of \verb|{}| matching lexemes (so
 operators, qualifiers, and qualifier shortcuts
 are turned on and text parsing is turned off):
@@ -2523,15 +2529,17 @@ are turned on and text parsing is turned off):
 \begin{center}
 \begin{tabular}{ll}
 Input Expression	& Raw Expression Equivalent \\[1ex]
+\verb|x|		& \verb|x| \\
+\verb|(+)|		& \verb|+| \\
 \verb|3 * x * x + 5|	& \verb|[+ [* [* 3 x] x] 5]| \\
 \verb|x = y = 10|	& \verb|[= x [= y 10]]| \\
 \verb|0 < x <= 5 |	& \verb|[-COMPARE- 0 < x <= 5]| \\
 \verb|x = `Hello <<y>>.' |
 			& \begin{tabular}[t]{@{}l}
 	    \verb|[= x [-EVAL-OFF-| \\
-	    \verb|      [sentence Hello| \\
-	    \verb|                [-EVAL-ON- y]| \\
-	    \verb|                .]]]| \\
+	    \verb|      [-SENTENCE- Hello| \\
+	    \verb|                  [-EVAL-ON- y]| \\
+	    \verb|                  .]]]| \\
 	    \end{tabular}
 \end{tabular}
 \end{center}
@@ -2587,14 +2595,16 @@ The order of arguments separated by {\em reorder-marks} (\verb|<:>|) does
 not matter.  The {\em optional-argument-mark} (\verb|::?|),
 {\em reorder-mark} (\verb|<:>|), {\em remain\-der-mark}
 (\verb|::>|), and {\em optional-qualifier-mark} (\verb|??|)
-can only occur in a pattern (\secref{PATTERN}).
+appear in patterns (\secref{PATTERN}), but not in evaluatable expressions.
 
 \subsection{Operators}
 \label{OPERATORS}
 
 Operators restructure expressions in which they occur.  Operators
 are defined by operator definitions that can be added to the
-parsing stack by some operators.
+parsing stack.  Certain operators are `definitional'
+(\pagref{DEFINITIONAL}), and it is just these operators which accept
+definitions to be pushed into the parsing stack.
 
 \subsubsection{Operator Definitions}
 \label{OPERATOR-DEFINITIONS}
@@ -2701,6 +2711,8 @@ must have the identical operator definitions except for operator names,
 and the associativity in these definitions
 must not be {\tt none}\ttmindex{none}{associativity}.
 
+In this situation we consider the following subcases.
+
 If all operators are {\tt left} associative%
 \index{left associative@{\tt left} associative},
 all the infix operators but the rightmost are deselected,
@@ -2720,7 +2732,8 @@ first operator and between the last operator and the end of the expression.
 Then the associativity, as a lexeme sequence, is prepended to the expression.
 Thus if the infix operators \verb|<| and \verb|<=| have associativity
 \verb|-COMPARE-|, the expression \verb|0 < x - 3 <= 5| will
-be rewritten as \verb|[-COMPARE- 0 < (x - 3) <= 5]|.
+be rewritten first as \verb|[-COMPARE- 0 < (x - 3) <= 5]|,
+and then finally as \verb|[-COMPARE- 0 < [- x 3] <= 5]|.
 
 \subsubsubsection{Operator Parser}\ttmindex{parser}{of operator}
 \label{OPERATOR-PARSER}
@@ -2733,7 +2746,8 @@ The parser used for subexpressions of an expression is the parser
 nearest the top of the parsing stack.
 
 The \verb|parser| of an operator definition is an optional word that
-names a parser.  If present, the word is pushed onto the parsing
+names a parser.  If present, a {\em PARSER-DEFINITION}
+(\pagref{PARSER-DEFINITION}) naming the parser is pushed onto the parsing
 stack before subexpressions are parsed, and popped from the parsing stack
 after subexpressions have been parsed.
 
@@ -2741,29 +2755,32 @@ The following are standard parsers:
 
 \begin{indpar}
 
-The \key{operators parser} \ttkey{-OPERATORS-PARSER-}.
-Operators, qualifiers, qualifier shortcuts,
+The \key{operators parser}, \ttkey{-OPERATORS-PARSER-}.
+Lexical parsing is done.
+Then operators, qualifiers, qualifier shortcuts,
 and the \verb|::?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
-\verb|??| optional qualifier marks are recognized.  The special constructs
-of text parsing, e.g., the \verb/|/ format separator,
+\verb|??| optional qualifier marks are recognized.
+The special constructs of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
-The \key{marks parser} \ttkey{-MARKS-PARSER-}.
+The \key{marks parser}, \ttkey{-MARKS-PARSER-}.
+Lexical parsing is \underline{not} done.
 The \verb|::?| optional argument,
 \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
-\verb|??| optional qualifier marks are recognized.  Operators, qualifiers,
-qualifier shortcuts, and the special constructs
+\verb|??| optional qualifier marks are recognized.
+Operators, qualifiers, qualifier shortcuts, and the special constructs
 of text parsing, e.g., the \verb/|/ format separator,
 are \underline{not} recognized.
 
-The \key{text parser} \ttkey{-TEXT-PARSER-}.
+The \key{text parser}, \ttkey{-TEXT-PARSER-}.
+Lexical parsing is \underline{not} done.
 The special constructs of text parsing (\secref{TEXT-PARSING}) are
-recognized.  Operators, qualifiers, qualifier shortcuts, and
-the \verb|::?| optional argument,
-\verb|<:>| reorder, \verb|::>| remainder,
+recognized.
+Operators, qualifiers, qualifier shortcuts, and the \verb|::?| optional
+argument, \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
 \verb|??| optional qualifier marks are \underline{not} recognized.
 
@@ -2811,6 +2828,7 @@ being restructured.
 For example, if the matchfix operator `\verb|<< ... >>|' has the
 wrapper `\verb|[-EVAL-ON- ...]|', then the expression `\verb|<<x>>|'
 will be restructured to be `\verb|[-EVAL-ON- x]|'.
+See \pagref{WRAPPER-PROCESSING}.
 
 \subsubsubsection{Operator Subdefinitions}\ttmindex{definition}{of operator}
 \label{OPERATOR-SUBDEFINITIONS}
@@ -2818,7 +2836,7 @@ will be restructured to be `\verb|[-EVAL-ON- x]|'.
 An operator definition can contain a list of definitions
 that are pushed onto the parsing stack before the subexpressions
 of the operator are parsed, and are popped from the stack after the
-subexpressions are parsed.  To avoid name confusion, these definitions
+subexpressions are parsed.  To avoid confusion, these definitions
 are called \skey{subdefinition}s.
 
 Note that subdefinitions can include any definitions that can be 
@@ -3207,7 +3225,8 @@ parse is in error.
 \end{enumerate}
 
 \item
-If the operator definition has a wrapper, it is processed as follows:
+If the operator definition has a wrapper,\label{WRAPPER-PROCESSING}
+it is processed as follows:
 
 \begin{enumerate}
 
@@ -3304,19 +3323,19 @@ possibly followed by a phrase.
 The syntax of the result is:
 
 \begin{indpar}
-\key{section} ::= \verb|[section| {\em paragraph} {\em paragraph}\,$^\star$
+\key{section} ::= \verb|[-SECTION-| {\em paragraph} {\em paragraph}\,$^\star$
                   \verb|]| \\[1ex]
 \key{paragraph}
 	\begin{tabular}[t]{rl}
-	::= &  \verb|[paragraph| {\em sentence} {\em sentence}\,$^\star$
+	::= &  \verb|[-PARAGRAPH-| {\em sentence} {\em sentence}\,$^\star$
 	       \verb|]| \\
-	$|$ &  \verb|[paragraph| {\em sentence}\,$^\star$ {\em phrase}
+	$|$ &  \verb|[-PARAGRAPH-| {\em sentence}\,$^\star$ {\em phrase}
 	       \verb|]|
 	\end{tabular} \\[1ex]
-\key{sentence} ::= \verb|[sentence| {\em sentence-non-terminator}\,$^\star$
+\key{sentence} ::= \verb|[-SENTENCE-| {\em sentence-non-terminator}\,$^\star$
                                     {\em sentence-terminator}
                   \verb|]| \\[1ex]
-\key{phrase} ::= \verb|[phrase| {\em sentence-non-terminator}
+\key{phrase} ::= \verb|[-PHRASE-| {\em sentence-non-terminator}
                                     {\em sentence-non-terminator}\,$^\star$
                   \verb|]| \\[1ex]
 \key{sentence-terminator} ::= \verb|.| $|$
@@ -3362,11 +3381,11 @@ Some examples follow:
 
 \verb|`the wife of Bob'|
 & parses as &
-\verb|[phrase the wife of Bob]|
+\verb|[-PHRASE- the wife of Bob]|
 \\[2ex]
 \verb|`She hit the ball.'|
 & parses as &
-\verb|[sentence she hit the ball .]|
+\verb|[-SENTENCE- she hit the ball .]|
 \\[2ex]
 \begin{tabular}{@{}l@{}}
 \verb|``^Bill swung.| \\
@@ -3374,8 +3393,8 @@ Some examples follow:
 \end{tabular}
 & parses as &
 \begin{tabular}{@{}l@{}}
-\verb|[paragraph [sentence Bill swung .]| \\
-\verb|           [sentence but he missed !]]|
+\verb|[-PARAGRAPH- [-SENTENCE- Bill swung .]| \\
+\verb|             [-SENTENCE- but he missed !]]|
 \end{tabular}
 \\[5ex]
 \begin{tabular}{@{}l@{}}
@@ -3387,11 +3406,12 @@ Some examples follow:
 \end{tabular}
 & parses as &
 \begin{tabular}{@{}l@{}}
-\verb|[section| \\
-\verb|   [paragraph [sentence I liked the| \\
-\verb|                        party .]]| \\
-\verb|   [paragraph [sentence later , we caught| \\
-\verb|                        the bus .]]]| \\
+\verb|[-SECTION-| \\
+\verb|   [-PARAGRAPH-| \\
+\verb|      [-SENTENCE- I liked the party .]]| \\
+\verb|   [-PARAGRAPH-| \\
+\verb|      [-SENTENCE- later , we caught the| \\
+\verb|                  bus .]]]| \\
 \end{tabular}
 
 \end{tabular}
