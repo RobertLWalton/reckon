@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 6, 2005}
+\date{June 17, 2005}
  
 \maketitle
 
@@ -2856,7 +2856,7 @@ The syntax of operator definitions is:
 	\hspace*{0.5in}::= \ttkey{define operator}
 	    \begin{tabular}[t]{l}
 	    {\em OPERATOR-FIXITY} ~ {\em OPERATOR-NAME} \\
-	    {\em operator-definition-option}\,$^\star$
+	    {\em operator-definition-qualifier}\,$^\star$
 	    \end{tabular} \\[1ex]
 \ikey{OPERATOR-FIXITY}{operator-fixity} ::=
 	\ttkey{prefix} $|$ \ttkey{infix} $|$ \ttkey{postfix}
@@ -2866,17 +2866,17 @@ The syntax of operator definitions is:
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
 	\verb|]| \\[1ex]
-\key{operator-definition-option} \begin{tabular}[t]{rl}
-                     ::= &  {\em operator-precedence-option} \\
-                     $|$ &  {\em operator-associativity-option} \\
-                     $|$ &  {\em operator-parser-option} \\
-                     $|$ &  {\em operator-flags-option} \\
-                     $|$ &  {\em operator-wrapper-option} \\
-                     $|$ &  {\em operator-subdefinition-option} \\
+\key{operator-definition-qualifier} \begin{tabular}[t]{rl}
+                     ::= &  {\em operator-precedence-qualifier} \\
+                     $|$ &  {\em operator-associativity-qualifier} \\
+                     $|$ &  {\em operator-parser-qualifier} \\
+                     $|$ &  {\em operator-flags-qualifier} \\
+                     $|$ &  {\em operator-wrapper-qualifier} \\
+                     $|$ &  {\em operator-subdefinition-qualifier} \\
 		     \end{tabular} \\[1ex]
-\key{operator-precedence-option} ::=
+\key{operator-precedence-qualifier} ::=
 	\ttkey{with precedence} {\em INTEGER} \\[1ex]
-\key{operator-associativity-option} \\
+\key{operator-associativity-qualifier} \\
 	\hspace*{0.5in}\begin{tabular}[t]{rl}
 	::= &  \ttkey{with associativity} {\em OPERATOR-ASSOCIATIVITY} \\
 	$|$ &  \ttkey{left} \\
@@ -2888,14 +2888,14 @@ The syntax of operator definitions is:
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
 	\verb|]| \\[1ex]
-\key{operator-parser-option} ::=
+\key{operator-parser-qualifier} ::=
 	\ttkey{with parser} {\em PARSER-NAME} \\[1ex]
 \ikey{PARSER-NAME}{parser-name} ::=
 	\verb|[|
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
 	\verb|]| \\[1ex]
-\key{operator-flags-option} \\
+\key{operator-flags-qualifier} \\
 	\hspace*{0.5in}\begin{tabular}[t]{rl}
 	::= &  \ttkey{with flags} {\em OPERATOR-FLAGS} \\
 	$|$ &  \ttkey{definitional}
@@ -2905,15 +2905,18 @@ The syntax of operator definitions is:
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
 	\verb|]| \\[1ex]
-\key{operator-wrapper-option} ::=
+\key{operator-wrapper-qualifier} ::=
 	\ttkey{with wrapper} {\em OPERATOR-WRAPPER} \\[1ex]
 \ikey{OPERATOR-WRAPPER}{operator-wrapper} ::=
 	\verb|[|
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
 	\verb|]| \\[1ex]
-\key{operator-subdefinitions-option} ::=
-	\ttkey{with subdefinitions} {\em block}
+\key{operator-subdefinitions-qualifier} ::=
+	\ttkey{with subdefinitions} {\em subdefinitions-block} \\[1ex]
+\key{subdefinitions-block} ::=
+	\verb|{| {\em declaration-group} \verb|}| \\[1ex]
+\key{declaration-group} ::= see \pagref{DECLARATION-GROUP}
 \end{indpar}
 
 which correspond to the definitions
@@ -3251,6 +3254,11 @@ are popped from the stack.
 The expression is returned as the result of parsing the expression.
 
 \end{enumerate}
+
+\subsection{Qualifiers}
+\label{QUALIFIERS}
+
+TBD
 
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
@@ -5111,7 +5119,7 @@ The code of a block has the following syntax:
 	(1 word consisting of 3 or more \verb|-|'s) \\[1ex]
 \key{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
-\key{declaration-group} ::= {\em declaration}
+\key{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}
     \{ \verb|;| {\em declaration} \}$^\star$ \\[1ex]
 \key{statement-group} ::= {\em statement}
 	\{ \verb|;| {\em statement} \}$^\star$ \\[1ex]
