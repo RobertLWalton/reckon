@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 17, 2005}
+\date{June 18, 2005}
  
 \maketitle
 
@@ -2852,20 +2852,22 @@ definition that may be pushed into the parsing stack.
 The syntax of operator definitions is:
 
 \begin{indpar}
-\ikey{OPERATOR-DEFINITION}{operator-definition} \\
+\key{OPERATOR-DEFINITION} \\
 	\hspace*{0.5in}::= \ttkey{define operator}
-	    \begin{tabular}[t]{l}
-	    {\em OPERATOR-FIXITY} ~ {\em OPERATOR-NAME} \\
+	    {\em OPERATOR-LABEL}
 	    {\em operator-definition-qualifier}\,$^\star$
-	    \end{tabular} \\[1ex]
-\ikey{OPERATOR-FIXITY}{operator-fixity} ::=
+	    \\[1ex]
+\key{OPERATOR-LABEL} ::=
+	\verb|[|
+	{\em operator-fixity} {\em operator-name}
+	\verb|]| \\[1ex]
+\key{operator-fixity} ::=
 	\ttkey{prefix} $|$ \ttkey{infix} $|$ \ttkey{postfix}
 	$|$ \ttkey{matchfix} \\[1ex]
-\ikey{OPERATOR-NAME}{operator-name} ::=
-	\verb|[|
+\key{operator-name} ::=
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]| \\[1ex]
+	\\[1ex]
 \key{operator-definition-qualifier} \begin{tabular}[t]{rl}
                      ::= &  {\em operator-precedence-qualifier} \\
                      $|$ &  {\em operator-associativity-qualifier} \\
@@ -2907,7 +2909,7 @@ The syntax of operator definitions is:
 	\verb|]| \\[1ex]
 \key{operator-wrapper-qualifier} ::=
 	\ttkey{with wrapper} {\em OPERATOR-WRAPPER} \\[1ex]
-\ikey{OPERATOR-WRAPPER}{operator-wrapper} ::=
+\key{OPERATOR-WRAPPER} ::=
 	\verb|[|
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
@@ -2927,18 +2929,18 @@ which correspond to the definitions
 define qualifier with
 
 define qualifier shortcuts
-       ( [left => with associativity left],
-         [right => with associativity right],
-         [definitional => with flags definitional] )
+       ( [left => with associativity [left]],
+         [right => with associativity [right]],
+         [definitional => with flags [definitional]] )
 
-define operator FIXITY NAME
+define define operator LABEL
        ?? with precedence PRECEDENCE
        ?? with associativity ASSOCIATIVITY
        ?? with parser PARSER
        ?? with flags FLAGS
        ?? with wrapper WRAPPER
        ?? with subdefinitions SUBDEFINITIONS
-       <-- missing(PRECEDENCE) or integer(PRECEDENCE)
+       <--
 \end{verbatim}
 \end{indpar}
 
@@ -5791,6 +5793,20 @@ as in \verb|41 1/3|.
 \end{list}
 
 \section{To Do}
+
+Aren't there problems with evaluating `\verb|[x [y]]|' in that
+the inner `\verb|[y]|' gets an \verb|-EVAL-OFF-|.
+
+Why doesn't `\verb|define qualifier xxx|' mean define expressions equal
+to `\verb|qualifier xxx|'.
+
+\verb|missing(#X)| is true if \verb|#X| is a null node.
+\verb|integer(#X)| is true if \verb|#X| is an integer.
+
+Qualifier shortcuts should be conditioned on the first words of
+the expression being qualified.  E.g., if these words are
+`\verb|define operator|' the shortcut `\verb|left => |{\tt with
+associativity [left]}' would be defined.
 
 Expressions to be evaluated can have sets of possible values.
 
