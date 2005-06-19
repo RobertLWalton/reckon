@@ -190,7 +190,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 18, 2005}
+\date{June 19, 2005}
  
 \maketitle
 
@@ -2978,7 +2978,7 @@ The operator selection algorithm produces a result that is often
 the same as the more common operator precedence rules for parsing expressions.
 However, in CASTLE an operator can change the parsing stack
 used to parse its operand subexpressions, and this allows CASTLE to
-to use arbitrary grammars for subexpressions.\footnote{In practice
+to use various grammars for subexpressions.\footnote{In practice
 we expect this may be equivalent to using an operator precedence grammar
 to parse everything outside explicit opening and closing marks, and only
 permitting matchfix operators to change grammars.  But CASTLE currently
@@ -2989,7 +2989,7 @@ In the operator selection algorithm the concepts of
 prefix sequence and postfix sequence
 are used.  A \key{prefix sequence} is a sequence of defined prefix operator
 names.  A \key{postfix sequence} is a sequence of defined postfix operator
-names.
+names.  Either a prefix or postfix sequence may be empty.
 
 The \key{operator selection algorithm} executes the following
 steps in the order given, repeating each step until it does nothing new
@@ -3046,31 +3046,30 @@ so infix operators that begin or end the expression are deselected.
 For example, in the expression `\verb|+ x * y|' the infix operator
 `\verb|+|' is
 deselected, in the expression `\verb|+ + + x * y|' all infix `\verb|+|'s are
-deselected, and in the expression
+deselected as `\verb|+|' is both an infix \underline{and} a prefix operator,
+and in the expression
 `\verb|+ / x * y|' the `\verb|/|' would be deselected as an infix operator,
 and in consequence the expression as a whole might not parse.
 
 \item
 On the set of selected infix operators define the \key{infix conflict relation}
-to be the smallest equivalence relation such that two selected infix operators
-conflict if they overlap or abut.
+to be the smallest equivalence relation such that two selected infix
+operators conflict if they overlap or abut.
 
 \item
-De-select any infix operator if it is not followed by a prefix sequence that
-contains all other infix operators that conflict with the infix operator.
-De-select any infix operator if it is not preceded by a postfix sequence that
-contains all other infix operators that conflict with the infix operator.
+De-select any infix operator that is followed by another infix operator whose
+first lexeme is not also the first lexeme of a prefix sequence.
+De-select any infix operator that is preceded by another infix operator whose
+last lexeme is not also the last lexeme of a postfix sequence.
+Note that the prefix and postfix sequences considered here may be in the
+middle of an expression.
 In checking for conflicting operators, check any infix operator selected
 at the end of the previous step, whether or not it has been deselected
 by repetitions of this step.
 
-Since the empty sequence is a prefix and postfix sequence, any infix operator
-that does not conflict with any other infix operator will still be selected
-at the end of this step.
-
-The parse is in error if there is an equivalence class of
-conflicting operators all
-of whose members are deselected by repetitions of this step.
+The parse is in error if any equivalence class of
+conflicting operators does not have exactly one member that is
+\underline{not} deselected by this step.
 
 Thus in the expression `\verb|x + - y|', the `\verb|-|' would be deselected
 as an infix operator by this step, as `\verb|+|'
@@ -3079,12 +3078,8 @@ would not be deselected, as although `\verb|-|' conflicts with it,
 `\verb|-|' is a prefix sequence.
 
 \item
-The parse is in error if two conflicting infix operators are still selected at
-this point.
-
-\item
-If two infix operators are selected, and the first has strictly lower
-precedence than the second, de-select the second.
+If two infix operators are selected, and one has strictly lower
+precedence than another, de-select the operator with higher precedence.
 
 \item
 If several infix operators are still selected at this point, all these
@@ -3110,11 +3105,6 @@ terminates successfully.
 The parts of the expression between the operators, before the first
 operator, and after the last operator are the operands, and are
 implicitly parenthesized.  No operand is empty.
-If the common associativity of the infix operators is not
-`\verb|left|',
-`\verb|right|', or
-`\verb|none|', this associativity as a lexeme sequence is prepended to the
-expression, before the first operand.
 
 \item
 Select all prefix operators that begin the expression, and all postfix
@@ -3157,7 +3147,7 @@ As noted above, the parsing stack can be changed before subexpressions
 are parsed, but the definitions of prefix, postfix, and infix operators
 before the change affect operator selection.  It is possible for
 parsing stack changes to produce anomalous seeming results.  For
-example, if a parsing stack change introduced by the operator
+example, if a parsing stack change introduced by the infix operator
 \verb|+*+| defines a new prefix operator named \verb|*|,
 where \verb|*| was previously as just an infix operator,
 then the expression `\verb|x +*+ * y|' would be illegal, because
