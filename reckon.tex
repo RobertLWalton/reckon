@@ -177,6 +177,9 @@
 	 \item}%
 	{\end{list}}
 
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+
 \begin{document}
         
 \title{Calculation and Simulation\\
@@ -190,7 +193,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 19, 2005}
+\date{June 20, 2005}
  
 \maketitle
 
@@ -3077,7 +3080,7 @@ conflicts with `\verb|-|' and is not a postfix operator.  The `\verb|+|'
 would not be deselected, as although `\verb|-|' conflicts with it,
 `\verb|-|' is a prefix sequence.
 
-\item
+\item\label{LOWER-PRECEDENCE-STEP}
 If two infix operators are selected, and one has strictly lower
 precedence than another, de-select the operator with higher precedence.
 
@@ -3246,6 +3249,119 @@ are popped from the stack.
 The expression is returned as the result of parsing the expression.
 
 \end{enumerate}
+
+\subsubsection{Equivalence to Classical Parsing}
+\label{EQUIVALENCE-TO-CLASSICAL-PARSING}
+
+In this section we prove that the operator selection algorithm of
+\secref{OPERATOR-SELECTION} is equivalent to the classical expression
+parsing algorithm in typical circumstances.
+
+First we define classical parsing.  This is parsing according to
+the syntax equations:
+
+\begin{indpar}
+{\em expression} ::= {\em expression$_0$} \\[1ex]
+{\em expression$_n$} ::= {\em expression$_{n+1}$}
+	\{ {\em infix-operator$_n$} {\em expression$_{n+1}$} \}$^\star$
+	~~~ ( $0\leq n\leq M$ ) \\[1ex]
+{\em expression$_{M+1}$} ::=
+	{\em prefix-operator}$^\star$
+	{\em expression$_{M+2}$} \\[1ex]
+{\em expression$_{M+2}$} ::=
+	{\em expression$_{M+3}$}
+	{\em postfix-operator}$^\star$
+	\\[1ex]
+{\em expression$_{M+3}$} ::= {\em non-operator} $|$
+	\verb|(| {\em expression} \verb|)|
+\end{indpar}
+
+We also make the following
+\skey{non-overlap assumption}s\index{overlap!non-overlap assumption}:
+
+\begin{enumerate}
+
+\item Two distinct operators cannot overlap.  (This is trivial if
+all operators are just a single lexeme).  In applying this
+rule one operator may be both prefix and infix, both postfix
+and infix, both prefix and postfix, or all three.
+
+\item No operator can overlap a non-operator.
+
+\end{enumerate}
+
+We want to show that the parse of any expression which has an unambiguous
+classical parse is obtained by the operator selection algorithm of
+\secref{OPERATOR-SELECTION}, and conversely, that if the operator selection
+algorithm obtains a parse, that parse is an unambiguous classical parse.
+
+Actually this last statement is not true unless we make the following
+additional \key{non-allfix assumption}:
+
+\begin{list}{}{}
+
+\item No operator is prefix, postfix, \underline{and} infix (all three).
+
+\end{list}
+
+
+Now we can prove:
+
+\begin{lemma}
+In the classical parse of an {\em expression}:
+\begin{list}{}{}
+\item[(a)] the {\em expression} is not empty,
+\item[(b)] the {\em expression} does not end with a {\em prefix-operator},
+\item[(c)] the {\em expression} does not begin with a {\em postfix-operator},
+\item[(d)] the {\em expression} does not contain
+a {\em postfix-operator} followed by a {\em prefix-operator}.
+\end{list}
+\end{lemma}
+
+Proof: By simultaneous induction on the syntax equations.
+
+\begin{lemma}
+In the classical parse of an {\em expression}:
+\begin{list}{}{}
+
+\item[(a)] the {\em expression} does not begin or end with
+an {\em infix-operator},
+\item[(b)] the {\em expression} does not contain
+a {\em prefix-operator} followed by an {\em infix-operator},
+\item[(c)] the {\em expression} does not contain
+an {\em infix-operator} followed by
+a {\em post-operator},
+\item[(d)] the {\em expression} does not contain
+an {\em infix-operator} followed by
+an {\em infix-operator}.
+
+\end{list}
+\end{lemma}
+
+Proof: Each statement can be proved by induction using the previous
+lemma and previous statements.
+
+TBD
+
+\begin{theorem}
+If an {\em expression} has a unique unambiguous classical parse,
+the operator selection algorithm of \secref{OPERATOR-SELECTION} will
+produce exactly this parse, provided the non-overlap and non-allfix
+assumptions hold, and provided the parse stack has the appropriate operator
+definitions and is not changed during the parse.
+\end{theorem}
+
+Proof: By induction on the classical syntax equations.  The main step is
+proving that given
+
+\begin{center}
+{\em expression$_n$} ::= {\em expression$_{n+1}$}
+	\{ {\em infix-operator$_n$} {\em expression$_{n+1}$} \}$^\star$
+\end{center}
+
+the {\em infix-operator$_n$}'s are exactly the operators selected at the
+end of step \ref{LOWER-PRECEDENCE-STEP} of the operator selection
+algorithm.  TBD
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
