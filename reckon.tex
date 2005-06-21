@@ -178,6 +178,7 @@
 	{\end{list}}
 
 \newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
 
 \begin{document}
@@ -193,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 20, 2005}
+\date{June 21, 2005}
  
 \maketitle
 
@@ -3257,8 +3258,8 @@ In this section we prove that the operator selection algorithm of
 \secref{OPERATOR-SELECTION} is equivalent to the classical expression
 parsing algorithm in typical circumstances.
 
-First we define classical parsing.  This is parsing according to
-the syntax equations:
+First we define classical parsing.  A \key{classical parse}
+is a parse according to the syntax equations:
 
 \begin{indpar}
 {\em expression} ::= {\em expression$_0$} \\[1ex]
@@ -3273,67 +3274,103 @@ the syntax equations:
 	{\em postfix-operator}$^\star$
 	\\[1ex]
 {\em expression$_{M+3}$} ::= {\em non-operator} $|$
-	\verb|(| {\em expression} \verb|)|
+	\verb|(| {\em expression} \verb|)| \\[1ex]
+{\em infix-operator$_n$} ::= infix operator of precedence $n$
+	~~~ ( $0\leq n\leq M$ ) \\[1ex]
+{\em infix-operator} ::= {\em infix-operator$_0$} $|$ \ldots $|$
+	{\em infix-operator$_M$} \\[1ex]
+{\em operator} ::= {\em prefix-operator} $|$ {\em postfix-operator}
+	$|$ {\em infix-operator}
 \end{indpar}
-
-We also make the following
-\skey{non-overlap assumption}s\index{overlap!non-overlap assumption}:
-
-\begin{enumerate}
-
-\item Two distinct operators cannot overlap.  (This is trivial if
-all operators are just a single lexeme).  In applying this
-rule one operator may be both prefix and infix, both postfix
-and infix, both prefix and postfix, or all three.
-
-\item No operator can overlap a non-operator.
-
-\end{enumerate}
 
 We want to show that the parse of any expression which has an unambiguous
 classical parse is obtained by the operator selection algorithm of
 \secref{OPERATOR-SELECTION}, and conversely, that if the operator selection
 algorithm obtains a parse, that parse is an unambiguous classical parse.
 
-Actually this last statement is not true unless we make the following
-additional \key{non-allfix assumption}:
+Overlapping operators are not treated classically, so in this
+section we make the following
+\skey{non-overlap assumption}s\index{overlap!non-overlap assumption}:
 
 \begin{list}{}{}
 
-\item No operator is prefix, postfix, \underline{and} infix (all three).
+\item[A1.] The representations of two operators as sequences of lexemes
+can be identical, but otherwise cannot overlap.  (This is trivial if
+all operators are just a single lexeme).
+
+\item[A2.] No operator can overlap a non-operator.
 
 \end{list}
+
+Actually this last statement is not true unless we make the following
+additional \skey{fixity assumption}s:
+
+\begin{list}{}{}
+
+\item[A3.] No operator can be an infix operator with more than one
+precedence.
+
+\item[A4.] No operator is both prefix and postfix.
+
+\end{list}
+
+It will be convenient to use the following alternative parsing.
+A \key{semi-classical parse} is a parse according to the syntax
+equations:
+
+\begin{indpar}
+{\em expression} ::= {\em primitive-expression}
+	\{ {\em infix-operator} {\em primitive-expression} \}$^\star$ \\[1ex]
+{\em primitive-expression} ::= {\em prefix-operator}$^\star$
+	{\em atomic-expression} {\em postfix-operator}$^\star$ \\[1ex]
+{\em atomic-expression} ::= {\em non-operator} $|$
+	\verb|(| {\em expression} \verb|)|
+\end{indpar}
+
+One can then prove the following:
+
+\begin{lemma}
+There is a 1-1 correspondence between classical and semi-classical
+parses of an expression such that corresponding parses have exactly the same
+{\em infix-operators}, {\em prefix-operators}, and {\em postfix-operators}.
+\end{lemma}
+
+Proof: By induction on the size of the parse trees.
+
+\begin{corollary}
+If an expression has two different classical parses, some operator in the
+expression must have different fixities in the two parses.
+\end{corollary}
+
+Proof: Two semi-classical parses of the expression that have the
+same operators with the same fixities must be identical.
 
 
 Now we can prove:
 
-\begin{lemma}
+\begin{lemma}\label{ENDS-LEMMA}
 In the classical parse of an {\em expression}:
 \begin{list}{}{}
 \item[(a)] the {\em expression} is not empty,
-\item[(b)] the {\em expression} does not end with a {\em prefix-operator},
-\item[(c)] the {\em expression} does not begin with a {\em postfix-operator},
-\item[(d)] the {\em expression} does not contain
-a {\em postfix-operator} followed by a {\em prefix-operator}.
+\item[(b)] the {\em expression} does not end with an {\em operator}
+that is not a {\em postfix-operator},
+\item[(c)] the {\em expression} does not begin with an {\em operator}
+that is not a {\em prefix-operator},
 \end{list}
 \end{lemma}
 
-Proof: By simultaneous induction on the syntax equations.
+Proof: Each part can be proved separately by induction on the syntax equations.
 
-\begin{lemma}
+\begin{lemma}\label{ADJACENCY-LEMMA}
 In the classical parse of an {\em expression}:
 \begin{list}{}{}
 
-\item[(a)] the {\em expression} does not begin or end with
-an {\em infix-operator},
-\item[(b)] the {\em expression} does not contain
-a {\em prefix-operator} followed by an {\em infix-operator},
-\item[(c)] the {\em expression} does not contain
-an {\em infix-operator} followed by
-a {\em post-operator},
-\item[(d)] the {\em expression} does not contain
-an {\em infix-operator} followed by
-an {\em infix-operator}.
+\item[(a)] each {\em prefix-operator} is preceded by the
+beginning of the expression, or by an {\em infix-operator}, or
+by a {\em prefix-operator},
+\item[(b)] each {\em postfix-operator} is followed by the
+end of the expression, or by an {\em infix-operator}, or
+by a {\em postfix-operator}.
 
 \end{list}
 \end{lemma}
@@ -3346,7 +3383,7 @@ TBD
 \begin{theorem}
 If an {\em expression} has a unique unambiguous classical parse,
 the operator selection algorithm of \secref{OPERATOR-SELECTION} will
-produce exactly this parse, provided the non-overlap and non-allfix
+produce exactly this parse, provided the non-overlap and fixity
 assumptions hold, and provided the parse stack has the appropriate operator
 definitions and is not changed during the parse.
 \end{theorem}
@@ -3363,13 +3400,17 @@ the {\em infix-operator$_n$}'s are exactly the operators selected at the
 end of step~\ref{LOWER-PRECEDENCE-STEP} of the operator selection
 algorithm.
 Each {\em infix-operator$_n$} is preceeded by an
-{\em expression$_{n+1}$} that cannot end in a prefix or infix operator
+{\em expression$_{n+1}$} that by Lemma~\ref{ENDS-LEMMA}
+cannot end in a prefix or infix operator
 that is not also a postfix operator.
 And each {\em infix-operator$_n$} is followed by an
-{\em expression$_{n+1}$} that cannot begin with a postfix or infix operator
+{\em expression$_{n+1}$} that by Lemma~\ref{ENDS-LEMMA}
+cannot begin with a postfix or infix operator
 that is not also a prefix operator.
 So no {\em infix-operator$_n$} is deselected by
 step~\ref{} of the operator selection algorithm.
+It remains to show that no {\em expression$_{n+1}$} contains an infix
+operator outside parentheses that is not deselected by step~\ref{}.
 
 No {\em expression$_{n+1}$} can contain an infix operator of precedence
 below $n+1$ outside parentheses.  But these subexpressions might contain
@@ -3378,24 +3419,26 @@ if that operator is prefix or postfix in the classical parse,
 and we must show that these are deselected by step~\ref{} of the operator
 selection algorithm.
 
-Let us show something a bit more general: that every prefix operator of
-the classical parse of {\em expression$_n$} that can also be an infix
-operator is deselected by step~\ref{}
-of the operator selection algorithm.
-By Lemma~\ref{} a prefix operator outside parentheses is preceded by
+We will show that every {\em prefix-operator} or {\em postfix-operator} of
+the classical parse of {\em expression$_n$} that is outside parentheses
+and that can also be an infix operator is deselected by step~\ref{}
+of the operator selection algorithm.  We will give the argument for
+{\em prefix-operators} and leave the symmetical argument for
+{\em postfix-operators} to the reader.
+
+By Lemma~\ref{ADJACENCY-LEMMA}
+a prefix operator outside parentheses is preceded by
 the beginning of the expression, or by an infix operator, or by another
 prefix operator.  If it is preceded by the beginning of expression or
 by another prefix operator, it must be deselected by step~\ref{},
-as by the non-fix assumption a prefix operator cannot be a postfix operator.
+as by the fixity
+assumptions a prefix operator cannot be a postfix operator.
 If it is preceded by an infix operator that is a postfix operator, when
 we have a sequence of two infix operators, the first of which can also be
 a postfix operator, and the second of which can also be a prefix operator.
 But by Lemma~\ref{} this would make the classical parse of the expression
 ambiguous, which is disallowed, so this case cannot happen.
 
-By a similarl argument every postfix operator of the classical parse
-of {\em expression$_n$} that can also be an infix operator is deselected
-by step~\ref{} of the operator selection algorithm.
 
 QED
 
