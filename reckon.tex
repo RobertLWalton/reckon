@@ -3241,7 +3241,7 @@ replaced by the expression.
 \item
 \label{POP-PARSING-STACK}
 If anything was pushed onto the parsing stack
-by steps \ref{PARSER-PUSH} and \ref{SUBDEFINITION-PUSH}
+by steps~\ref{PARSER-PUSH} and \ref{SUBDEFINITION-PUSH}
 above, these things
 are popped from the stack.
 
@@ -3360,8 +3360,46 @@ proving that given
 \end{center}
 
 the {\em infix-operator$_n$}'s are exactly the operators selected at the
-end of step \ref{LOWER-PRECEDENCE-STEP} of the operator selection
-algorithm.  TBD
+end of step~\ref{LOWER-PRECEDENCE-STEP} of the operator selection
+algorithm.
+Each {\em infix-operator$_n$} is preceeded by an
+{\em expression$_{n+1}$} that cannot end in a prefix or infix operator
+that is not also a postfix operator.
+And each {\em infix-operator$_n$} is followed by an
+{\em expression$_{n+1}$} that cannot begin with a postfix or infix operator
+that is not also a prefix operator.
+So no {\em infix-operator$_n$} is deselected by
+step~\ref{} of the operator selection algorithm.
+
+No {\em expression$_{n+1}$} can contain an infix operator of precedence
+below $n+1$ outside parentheses.  But these subexpressions might contain
+an infix operator of precedence below $n+1$ outside parentheses
+if that operator is prefix or postfix in the classical parse,
+and we must show that these are deselected by step~\ref{} of the operator
+selection algorithm.
+
+Let us show something a bit more general: that every prefix operator of
+the classical parse of {\em expression$_n$} that can also be an infix
+operator is deselected by step~\ref{}
+of the operator selection algorithm.
+By Lemma~\ref{} a prefix operator outside parentheses is preceded by
+the beginning of the expression, or by an infix operator, or by another
+prefix operator.  If it is preceded by the beginning of expression or
+by another prefix operator, it must be deselected by step~\ref{},
+as by the non-fix assumption a prefix operator cannot be a postfix operator.
+If it is preceded by an infix operator that is a postfix operator, when
+we have a sequence of two infix operators, the first of which can also be
+a postfix operator, and the second of which can also be a prefix operator.
+But by Lemma~\ref{} this would make the classical parse of the expression
+ambiguous, which is disallowed, so this case cannot happen.
+
+By a similarl argument every postfix operator of the classical parse
+of {\em expression$_n$} that can also be an infix operator is deselected
+by step~\ref{} of the operator selection algorithm.
+
+QED
+
+TBD
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
