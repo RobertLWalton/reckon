@@ -88,7 +88,7 @@
 \newcommand{\opt}{$^!$}
 
 \newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}\,$^{p\pageref{#1}}$}
 \newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 22, 2005}
+\date{June 23, 2005}
  
 \maketitle
 
@@ -3035,7 +3035,7 @@ The part of the expression between the opening operator name and closing
 operator name is the sole operand of the matchfix operator.  This operand
 is implicitly parenthesized, and may be empty.
 
-\item
+\item\label{INFIX-SELECTION-STEP}
 Select all defined infix operators that occur in the expression.
 
 \item
@@ -3062,7 +3062,8 @@ preceded by an postfix operator that is proceeded by an infix operator.
 However `\verb|+|' would not be deselected, as it is not preceded by
 an operator or expression beginning.
 
-\item The parse is in error if two consecutive or overlapping
+\item\label{INFIX-OVERLAP-STEP}
+The parse is in error if two consecutive or overlapping
 infix operators are still selected at this point, or if a still
 selected infix operator begins or ends the expression.
 
@@ -3095,7 +3096,7 @@ The parts of the expression between the operators, before the first
 operator, and after the last operator are the operands, and are
 implicitly parenthesized.  No operand is empty.
 
-\item
+\item\label{PREFIX-POSTFIX-SELECTION-STEP}
 Select all prefix operators that begin the expression, and all postfix
 operators that end the expression.
 
@@ -3116,13 +3117,20 @@ If more than one operator is selected at this point, the parse is in error.
 This would be the result of ambiguity among prefix operators, or ambiguity
 among postfix operators.
 
-\item
+\item\label{TOTAL-OPERATOR-STEP}
 If one operator is selected at this point, and the operator name
 is the entire expression, de-select the operator.  Thus
 in the expression `\verb|x = (+)|', `\verb|+|' will be deselected
 when the subexpression `\verb|(+)|' is parsed.
 
-\item
+\item\label{MISPLACED-OPERATOR-STEP}
+If zero operators are selected at this point, and if the expression
+contains an operator, but the operator name is not the entire expression,
+the parse is in error.  This can happen, for example,
+if the only operator in the expression is an prefix operator not at the
+beginning of the expression, or a postfix operator not at the end.
+
+\item\label{END-STEP}
 The algorithm terminates successfully
 at this point with zero operators selected,
 or with one prefix or postfix operator selected.
@@ -3324,7 +3332,7 @@ parses of an expression such that corresponding parses have exactly the same
 
 Proof: By induction on the size of the parse trees.
 
-\begin{corollary}
+\begin{corollary}\label{FIXITY-COROLLARY}
 If an expression has two different classical parses, some operator in the
 expression must have different fixities in the two parses.
 \end{corollary}
@@ -3369,25 +3377,57 @@ In a semi-classical parse of an {\em expression}:
 
 Proof: Each part can be proved separately by induction on the syntax equations.
 
-\begin{lemma}\label{CLASSICAL-PARSE-AMBIGUITY-LEMMA}
-If an {\em expression} has a classical parse and also contains a sequence
-`$X$ $Y$' of two operators such that $X$ can be either postfix or infix
-and $Y$ can be either infix or prefix, then the {\em expression} has
-more than one distinct classical parse (or in other words, has an
-`\key{ambiguous}' classical parse).
-\end{lemma}
+\begin{theorem}\label{CLASSICAL-PARSE-AMBIGUITY-THEOREM}
+Under assumptions A1-A5,
+if an {\em expression} has a classical parse, the {\em expression} has
+two or more distinct classical parses (or in other words, has an
+`\key{ambiguous}' classical parse) if and only if the {\em expression}
+contains a sequence `$X$ $Y$' of two operators such that $X$ can be
+postfix or infix and $Y$ can be prefix or infix.
+\end{theorem}
 
-Proof:  The {\em expression} has a semi-classical parse and must by
-Lemma~\ref{SEMI-CLASSICAL-PARSE-CONTEXT-LEMMA} be of the form:
+Proof: If the {\em expression} has two classical parses,
+these cannot have identical
+infix operators, is if they did, the fixities assigned to operators by
+the two parses would be the same, since the fixities assigned to an operator
+in a {\em primitive-expression} depends solely whether the operator is
+before or after the {\em non-operators} in the {\em primitive-expression}.
+Then by corollary~\ref{FIXITY-COROLLARY} the two classical parses
+could not be distinct.
+
+Therefore if the {\em expression} has two classical parses, some infix
+operator in the one parse must not be an infix operator in the other parse.
+Without loss of generality assume this operator is outside parentheses,
+is an infix operator in the first parse, and is a prefix operator in the
+second parse (the postfix case being handled by a symmetric argument).
+Take the first operator $Y$ in the {\em expression} that has this property.
+$Y$ cannot be at the beginning of the {\em expression}, for it is an infix
+operator in the first parse.  Therefore $Y$ must be preceeded by an infix
+or prefix operator $X$ in the second parse.  But $X$
+cannot be an infix or prefix operator in the first parse, so it must be
+a postfix operator in the first parse.  Since $X$ is postfix in the first
+parse, and must be prefix or infix in the second parse, it must be
+infix in the second parse by A5.  So the {\em expression} contains a
+sequence of operators `$X$ $Y$' such that $X$ can be postfix or infix and
+$Y$ can be prefix or infix.
+
+Conversely, if the {\em expression} has a classical parse
+it has a semi-classical parse, and if it has a sequence `$X$ $Y$' of operators
+the first of which may be infix or postfix and the second infix or prefix,
+it must by Lemma~\ref{SEMI-CLASSICAL-PARSE-CONTEXT-LEMMA} be of the form:
 
 \begin{center}
 \ldots {\em primitive-expression} $X$ $Y$ {\em primitive-expression} \ldots
 \end{center}
 
-This permits $X$ to be an infix operator and $Y$ to be a prefix operator,
+as $X$ must be preceded and $Y$ followed by a {\em primitive-expression}.
+Then we can either take $X$ to be an infix operator and $Y$ to be a
+prefix operator,
 or $X$ to be a postfix operator and $Y$ to be an infix operator, giving
-two semi-classical parses, which in turn give two distinct classical
-parses.  QED
+two distinct semi-classical parses, which in turn give two distinct classical
+parses.
+
+QED
 
 \begin{theorem}
 If an {\em expression} has a unique unambiguous classical parse,
@@ -3444,10 +3484,10 @@ prefix operator.  If it is preceded by the beginning of expression or
 by another prefix operator, it must be deselected by
 step~\stepref{INFIX-DESELECTION-STEP}, as by assumption A5
 a prefix operator cannot be a postfix operator.
-If it is preceded by an infix operator that is a postfix operator, then
+If it is preceded by an infix operator that can be a postfix operator, then
 we have a sequence of two infix operators, the first of which can also be
 a postfix operator, and the second of which can also be a prefix operator.
-But by Lemma~\ref{CLASSICAL-PARSE-AMBIGUITY-LEMMA}
+But by Theorem~\ref{CLASSICAL-PARSE-AMBIGUITY-THEOREM}
 this would make the classical parse of the expression
 ambiguous, which is disallowed, so this case cannot happen.
 
@@ -3461,7 +3501,7 @@ during a successful parse of an expression
 by the operator selection algorithm, then it
 will be deselected by step~\stepref{INFIX-DESELECTION-STEP} when any
 subexpression of the expression is parsed by a recursive call made
-during the operator selection algorithm.
+to the operator selection algorithm.
 \end{lemma}
 
 Proof: Suppose the operator was deselected because it was a prefix
@@ -3472,17 +3512,41 @@ in the subexpression, though any preceding operator may be replaced
 by a subexpression beginning.  A symmetrical argument applies to
 deselected postfix operators.  QED
 
+Note that use of assumptions A1-A5 in this proof could be replaced by
+the assumption that no infix operator that is not deselected
+overlaps a fractional part of another operator.  This keeps operators
+from crossing the boundaries of subexpressions.
+
 \begin{theorem}
 If a sequence of lexemes is successfully
 parsed by the operator selection algorithm under assumptions A1-A5,
-the resulting parse is the unique classical parse of the sequence.
+the resulting parse is the unique classical parse of the sequence, provided
+the resulting parse does not contain a subexpression consisting of just
+an operator (see step~\stepref{TOTAL-OPERATOR-STEP} of the algorithm).
 \end{theorem}
 
-Proof:  By induction on the length of the sequence of lexemes,
-any parse produced by the operator selection algorithm that contains
-all the operators in the lexeme sequence is a classical parse.
+Proof: By steps~\stepref{INFIX-SELECTION-STEP}
+through~\stepref{INFIX-OVERLAP-STEP}
+and Lemma~\ref{SUBEXPRESSION-DESELECTION-LEMMA}
+the algorithm divides the expression
+into non-empty subexpressions separated by infix operators.
+By steps~\stepref{PREFIX-POSTFIX-SELECTION-STEP}
+through~\stepref{END-STEP} each subexpression is a {\em primitive-expression}.
+Therefore the parse produced is a semi-classical parse.  And by the various
+steps that select only one operator during each iteration of the algorithm,
+the result is a classical parse.
 
-TBD
+The classical parse can be shown to be unique by showing the {\em expression}
+does not contain a sequence of operators `$X$ $Y$' such that $X$ can be
+infix and postfix and $Y$ can be infix and prefix.  If the {\em expression}
+contained such a sequence, both $X$ and $Y$ would \underline{not}
+be deselected by step~\stepref{INFIX-DESELECTION-STEP}, and the parse would
+be in error by step~\stepref{INFIX-OVERLAP-STEP}.  Since the {\em expression}
+cannot contain such a sequence, by
+Theorem~\ref{CLASSICAL-PARSE-AMBIGUITY-THEOREM} the classical parse is
+unique.
+
+QED
 
 \subsection{Qualifiers}
 \label{QUALIFIERS}
