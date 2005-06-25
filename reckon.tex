@@ -290,7 +290,7 @@ in the language should have visible effect.
 The current version of CASTLE is not stable, because it has not been
 implemented, and because, unlike most programming languages, CASTLE
 has lots of subtle important interactions between its various features.  The
-hope is that with implementation and experimentation, a stable sensible
+hope is that after implementation and experimentation a stable sensible
 version of CASTLE, integrating all its data types, can be achieved.
 
 \section{Overview}
@@ -931,59 +931,90 @@ TBD: example of a simple game.
 \begin{verbatim}
 for every board:
     on a board of dimension S <--:
-        `make a board of size SxS'
+        `Make a board of size SxS.'
         size = S
-        array square size (S,S) initially `empty'
-        `allowed vessels have lengths 2 (destroyer), 3 (cruiser),
-         4 (battleship); vessels(L) is number of length L'
-        array vessels size 5 initially 0
+        `Allowed vessels have lengths 2 (destroyer), 3 (cruiser),
+         5 (battleship).  vessels(L) is number of length L.'
+        array vessels of size 5 with initial element 0
         `maximum-vessels(L) is maximum number of vessels of
-         length L'
-        array maximum-vessels size 5 initially 0
+         length L.'
+        array maximum-vessels of size 5 with initial element 0
         maximum-vessels(2) = 5
         maximum-vessels(3) = 2
-        maximum-vessels(1) = 1
-	`hit(I,J) is true iff shell has hit square (I,J)'
-        array hit size (S,S) initially `false'
+        maximum-vessels(5) = 1
+        `state(I,J) is `none', `miss', or `hit' iff shell has not
+         struck square (I,J), struck square (I,J) but that square
+         had no ship, or struck square (I,J) and hit a ship at
+         that square.'
+        array hit of size (S,S) with initial element `none'
+        `vessel(I,J) is the vessel at (I,J)'
+        array vessel of size (S,S) with initial element `none'
 \end{verbatim}
 
 \caption{Code for the Battleship Game, Part I}
 \label{CODE-FOR-BATTLESHIP-1}
 \end{boxedfigure}
 
+
 \begin{boxedfigure}
 
 \begin{verbatim}
-    on vessel from (I1,J1) to (I2,J2) <--:
-        `draw a vessel with endpoints (I1,J1) and (I2,J2)'
-        dI = I1 - I2
-        dJ = J1 - J2
-        if (     abs(dI) != abs(dJ)
-             AND dI != 0 AND dJ != 0 ):
-            value = error `illegal vessel, not horizontal or vertical
-                           or diagonal'
-
-        length = max ( abs(dI), abs(dJ) )
-        if ( length < 2 ):
-            value = error `illegal vessel, too short'
-        else if ( length > 4 ):
-            value = error `illegal vessel, too long'
-        if ( vessels(length) >= maximum-vessels(length) ):
-            value = error `illegal vessel, too many of that type'
-
-	`set squares occupied by vessel to length of vessel'
-        sI = sign dI
-        sJ = sign dJ
-        for (I,J) = (I1,J1) to (I2,J2) step (sI,sJ):
-            if ( square (I,J) != `empty' ):
-                value = error `illegal vessel, overlaps an
-                               existing vessel'
-        for (I,J) = (I1,J1) to (I2,J2) step (sI,sJ):
-            square (I,J) = length
+direction vector of D <--:
+    `given a direction N, NE, E, SE, S, SW, W, NW, return a vector
+     with unit components in the given direction.'
+    if D == `N':
+        value = (1,0)
+    else if D == `NE':
+        value = (1,1)
+    else if D == `E':
+        value = (1,0)
+    else if D == `SE':
+        value = (1,-1)
+    else if D == `S':
+        value = (0,-1)
+    else if D == `SW':
+        value = (-1,-1)
+    else if D == `W':
+        value = (-1,0)
+    else if D == `NW':
+        value = (-1,1)
 \end{verbatim}
 
 \caption{Code for the Battleship Game, Part II}
 \label{CODE-FOR-BATTLESHIP-2}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{verbatim}
+for every vessel:
+    on a vessel of length L with direction D from (I,J) on B
+        `make a vessel of length L positioned in direction D
+         from origin (I,J) on boards B; directions are N,
+         NE, E, SE, S, SW, W, NW'
+        length = L
+        direction = D
+        origin = (I,J)
+        vector = direction vector of D
+        destination = L * vector + origin
+        board = B
+        conflict =:
+            first p = origin
+            first k = 0
+            next k = k + 1
+            next p = p + vector
+            TBD
+        if L < 2 or L > 5:
+            value = error `bad length <<L>>'
+        else if maximum-vessels(L) of B >= vessels(L) of B:
+            value = error `two many vessels of length <<L>>
+                           on board <<B>>'
+        else:
+            vessels(L) of B += 1
+\end{verbatim}
+
+\caption{Code for the Battleship Game, Part III}
+\label{CODE-FOR-BATTLESHIP-3}
 \end{boxedfigure}
 
 The rest of this document is a reference manual for CASTLE.
