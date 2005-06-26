@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 24, 2005}
+\date{June 26, 2005}
  
 \maketitle
 
@@ -3672,7 +3672,7 @@ Text parsing is normally done in the context of a pair of matched
 {\em quotes}, and in this context {\em white-space} pre-lexemes
 become lexemes.  Note that {\em white-space} lexemes all consist
 of zero or more {\em vertical space} characters followed by zero or
-more {\em single-space} characters (see \secref{WHITE-SPACE-CONVERSION}).
+more {\em single-space} characters (\secref{WHITE-SPACE-CONVERSION}).
 There are three kinds of {\em white-space} lexemes
 used by text parsing:
 
@@ -3720,7 +3720,7 @@ non-empty sequence
 of lexemes or subexpressions following the last sentence terminator
 is made into a phrase.
 The paragraph is then a sequence of zero or more sentences 
-possibly followed by a phrase.
+possibly followed by a phrase.  However, a paragraph cannot be empty.
 
 The syntax of the result is:
 
@@ -3737,9 +3737,15 @@ The syntax of the result is:
 \key{sentence} ::= \verb|[-SENTENCE-| {\em sentence-non-terminator}\,$^\star$
                                     {\em sentence-terminator}
                   \verb|]| \\[1ex]
-\key{phrase} ::= \verb|[-PHRASE-| {\em sentence-non-terminator}
-                                    {\em sentence-non-terminator}\,$^\star$
-                  \verb|]| \\[1ex]
+\key{phrase}
+	\begin{tabular}[t]{rl}
+	::= &  \verb|[| \begin{tabular}[t]{@{}l@{}}
+			{\em sentence-non-terminator}
+			{\em sentence-non-terminator} \\
+		        {\em sentence-non-terminator}\,$^\star$ \verb|]|
+			\end{tabular} \\
+	$|$ &  {\em sentence-non-terminator}
+	\end{tabular} \\[1ex]
 \key{sentence-terminator} ::= \verb|.| $|$
                               \verb|?| $|$
                               \verb|!| \\[1ex]
@@ -3747,6 +3753,10 @@ The syntax of the result is:
                                   {\em separator} $|$
                                   {\em subexpression}
 \end{indpar}
+
+Note that a {\em phrase} with more than one {\em sentence-non-terminator}
+is a list, but a {\em phrase} with just one {\em sentence-non-terminator}
+is not a list, but just the single {\em sentence-non-terminator} by itself.
 
 There are several rules that modify the description just given:
 
@@ -6201,6 +6211,9 @@ the expression being qualified.  E.g., if these words are
 associativity [left]}' would be defined.
 
 Expressions to be evaluated can have sets of possible values.
+
+How does one know that an expression is a definition, in
+\secref{POST-OPERATOR-SELECTION-PROCESSING}.
 
 Imaginary Units\label{IMAGINARY-UNITS}
 
