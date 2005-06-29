@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 28, 2005}
+\date{June 29, 2005}
  
 \maketitle
 
@@ -2539,15 +2539,14 @@ to a list inside a list, flattening is used to merge the lists.  Thus
 if \verb|Y| has the value \verb|`a banana'| when the last expression
 is evaluated, the result will be the same as evaluating
 \verb|`Let X be a banana.'|, and \underline{not}
-\verb|`Let X be [a banana].'|.
+\verb|`Let X be (a banana).'|.
 
 Also note that matchfix operators that turn evaluation off (or on)
 do not produce \verb|-EVAL-OFF-| (or \verb|-EVAL-ON-|) wrappers if
 they are used in a context where the evaluation mode is already off
 (or on).  Thus if \verb|`Let X be a `<<Y>>'.'| is evaluated when \verb|Y|
 is \verb|`banana'|, the result is the same as evaluating
-\verb|`Let X be a `banana'.'|, which happens to be the same as
-evaluating \verb|`Let X be a [banana].'|.\footnote{Classical programming
+\verb|`Let X be a `banana'.'|.\footnote{Classical programming
 languages would require that {\tt `Let X be a `<< <<Y>> >>'.'} be evaluated
 to get this result.  Two nested {\tt << >>}'s would be needed to overcome the
 two nested {\tt ` '}.}
@@ -2595,11 +2594,13 @@ The syntax of raw expressions is defined as follows:
 \begin{indpar}
 \key{RAW-EXPRESSION} ::= {\em word} $|$ {\em separator}
 				     $|$ {\em raw-subexpression} \\[1ex]
-\key{raw-subexpression} ::=
-	\begin{tabular}[t]{@{}ll}
-	\verb|[| & {\em raw-expression-head} \\
-		 & {\em raw-argument-list} \\
-		 & {\em raw-qualifier-phrase}\,$^\star$ \verb|]| \\
+\key{raw-subexpression} \\
+	\hspace*{0.5in}\begin{tabular}[t]{@{}rl}
+	::= & \verb|[| {\em raw-expression-head}
+		       {\em raw-argument}\,$^\star$ \verb|]| \\
+	$|$ & \verb|[[| {\em raw-expression-head}
+	                {\em raw-argument-list}
+	                {\em raw-qualifier-phrase}\,$^\star$ \verb|]]| \\
 	\end{tabular} \\[1ex]
 \key{raw-expression-head} ::= {\em RAW-EXPRESSION} \\[1ex]
 \key{raw-argument-list}
@@ -2617,7 +2618,7 @@ The syntax of raw expressions is defined as follows:
 \key{raw-base-argument-list}
 	::= {\em empty} $|$ {\em non-empty-raw-base-argument-list} \\[1ex]
 \key{raw-non-empty-base-argument-list} \\
-	\hspace*{0.5in}\begin{tabular}[t]{rl}
+	\hspace*{0.5in}\begin{tabular}[t]{@{}rl}
 	::= & {\em raw-argument} \\
 	    & \{ {\em reorder-mark-option} {\em raw-argument} \}\,$^\star$
 	\end{tabular} \\[1ex]
@@ -2634,6 +2635,10 @@ The syntax of raw expressions is defined as follows:
 \key{optional-qualifier-mark} ::= \ttnbkey{??} \\[1ex]
 \key{raw-qualifier-head} ::= {\em RAW-EXPRESSION}
 \end{indpar}
+
+Special marks are recognized only if \verb|[[ ]]| surround a
+{\em raw-subexpressions}, and not if \verb|[ ]| surround the
+subexpression.
 
 The order of {\em raw-qualifier-phrases}
 in a {\em RAW-EXPRESSION} does not matter.
