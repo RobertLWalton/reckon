@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 1, 2005}
+\date{July 2, 2005}
  
 \maketitle
 
@@ -3094,25 +3094,25 @@ Select all defined infix operators that occur in the expression.
 
 \item
 If two selected infix operators overlap, and one includes and is longer
-than the other, deselect the shorter included operator.
+than the other, deselect the shorter operator.
 
 \item\label{TOTAL-OPERATOR-STEP-1}
 If one operator is selected at this point, and the operator name
-is the entire expression, de-select the operator.  Thus
-in the expression `\verb|x = (*)|', `\verb|*|' will be deselected
+is the entire expression, de-select the operator and terminate the algorithm.
+Thus in the expression `\verb|x = (*)|', `\verb|*|' will be deselected
 when the subexpression `\verb|(*)|' is parsed.
 
 \item\label{INFIX-DESELECTION-STEP}
 De-select any infix operator that is included in a prefix sequence
 and not preceded by a non-empty postfix sequence if the infix operator is
 preceded by the beginning of the expression, by an infix operator selected
-by the last step,
+at the end of the last step,
 or by a non-empty part of a prefix sequence that includes the infix operator.
 
 De-select any infix operator that is included in a postfix sequence
 and not followed by a non-empty prefix sequence if the infix operator is
-followed by the end of the expression, by an infix operator selected by the
-last step,
+followed by the end of the expression, by an infix operator selected
+at the end of the last step,
 or by a non-empty part of a postfix sequence that includes
 the infix operator.
 
@@ -3179,7 +3179,8 @@ among postfix operators.
 
 \item\label{TOTAL-OPERATOR-STEP-2}
 If one operator is selected at this point, and the operator name
-is the entire expression, de-select the operator.  Thus
+is the entire expression, de-select the operator and terminate the
+algorithm.  Thus
 in the expression `\verb|x = (+)|', `\verb|+|' will be deselected
 when the subexpression `\verb|(+)|' is parsed.
 
@@ -3192,10 +3193,11 @@ parenthesized.  Note this operand cannot be empty.
 
 \item\label{MISPLACED-OPERATOR-STEP}
 Zero operators are selected at this point.  If the expression
-contains an operator, but the operator name is not the entire expression,
-the parse is in error.  This can happen, for example,
+contains any operator the parse is in error.  This can happen, for example,
 if the only operator in the expression is an prefix operator not at the
 beginning of the expression, or a postfix operator not at the end.
+It can also happen in an expression like `\verb|* x|' in which the infix
+operator `\verb|*|' was deselected because it begins an expression.
 
 \item\label{END-STEP}
 The algorithm terminates successfully
@@ -3311,7 +3313,7 @@ The expression is returned as the result of parsing the expression.
 \subsubsection{Equivalence to Classical Parsing}
 \label{EQUIVALENCE-TO-CLASSICAL-PARSING}
 
-In this section we prove that the operator selection algorithm of
+In this section we prove that parsing using the operator selection algorithm of
 \secref{OPERATOR-SELECTION} is equivalent to the classical expression
 parsing algorithm in typical circumstances.
 
@@ -3366,7 +3368,7 @@ they behave just like parentheses).
 \item[A5.]\index{Assumption A5}\label{AFIVE}
 No operator is both prefix and postfix.
 
-%% Warning: A1-A5 and A5 are referenced below.
+%% Warning: A1-A5, A4, and A5 are referenced below.
 
 \end{list}
 \newcommand{\AALL}{A1-A5\,$^{p\pageref{AONE}}$}
@@ -3508,8 +3510,9 @@ QED
 
 \begin{theorem}
 If an {\em expression} has a unique unambiguous classical parse,
+a parse using
 the operator selection algorithm of \secref{OPERATOR-SELECTION} will
-produce exactly this parse, provided assumptions \AALL hold.
+produce exactly this classical parse, provided assumptions \AALL hold.
 \end{theorem}
 
 Proof: By induction on the classical syntax equations.  The main step is
@@ -3540,7 +3543,7 @@ step~\stepref{LOWER-PRECEDENCE-STEP}.
 
 No {\em expression$_{n+1}$} can contain an infix operator of precedence
 below $n+1$ outside parentheses, by Lemma~\ref{CLASSICAL-PARSE-CONTEXT-LEMMA}.
-But these subexpressions might contain
+But an {\em expression$_{n+1}$} might contain
 an infix operator of precedence below $n+1$ outside parentheses
 if that operator is prefix or postfix in the classical parse,
 and we must show that these are deselected by
@@ -3595,7 +3598,7 @@ when the algorithm is run for the subexpression,
 though any preceding operator may be replaced
 by a subexpression beginning.  A symmetrical argument applies to
 deselected postfix operators.  So infix operators deselected when the
-algorithm is run on the expression are also deselected when the
+algorithm is run on the whole expression are also deselected when the
 algorithm is run on the subexpression.
 
 Now suppose an operator $Y$ is deselected
@@ -3628,14 +3631,14 @@ algorithm is run on the whole expression.
 
 QED
 
-Note that use of assumptions A1-A5 in this proof could be replaced by
+Note that use of assumptions A1-A4 in this proof could be replaced by
 the assumption that no infix operator that is not deselected
 overlaps a fractional part of another operator.  This keeps operators
 from crossing the boundaries of subexpressions.
 
 \begin{theorem}
 If a sequence of lexemes is successfully
-parsed by the operator selection algorithm under assumptions \AALL,
+parsed using the operator selection algorithm, and assumptions \AALL hold,
 the resulting parse is the unique classical parse of the sequence, provided
 the resulting parse does not contain a subexpression consisting of just
 an operator (see steps~\stepref{TOTAL-OPERATOR-STEP-1}
