@@ -188,13 +188,13 @@
        CASTLE\\[2ex]
        (Draft 1a)}
 
-\author{Robert L. Walton\thanks{Copyright 2004 Robert L. Walton.
+\author{Robert L. Walton\thanks{Copyright 2007 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 2, 2005}
+\date{July 12, 2007}
  
 \maketitle
 
@@ -2282,29 +2282,31 @@ becomes
 \section{Expression Parsing}\index{parsing!expression}
 \label{EXPRESSION-PARSING}
 
-An expression is a sequence of words, separators, and subexpressions.
-A subexpression is a pair of matched lexemes and all the lexemes in
-between.
+An \key{expression} is a sequence of words, separators, and subexpressions.
+A \key{subexpression} is a pair of matched lexemes, e.g.~\verb|()| or
+\verb|`'|, and all the lexemes in between.
 
-Expressions and subexpressions can contain operators.  When they do,
-matched implied parentheses are inserted into the expressions or subexpressions
-according to rules of operator precedence and associativity, and these
+Expressions and subexpressions can contain lexemes called
+\skey{operator}s.  When they do,
+matched \ikey{implied parentheses}{implied parenthesis}
+are inserted into the expressions or subexpressions
+according to rules of operator precedence, and these
 implied parentheses create new subexpressions.
 
-Expressions and subexpressions that do not contain operators may contain
-argument lists and qualifying phrases.  The order in which qualifying
-phrases appear does not matter, and sometimes the order of arguments
-in an argument list does not matter.
+Subexpressions can be \mkey{restructured}{expression}.  Matching lexemes,
+such as \verb|`'|, control how a subexpression they surround is
+restructured.  They also control the set of operators recognized
+in this subexpression.
 
-Expressions containing operators are restructured, both by inserting
-implied parentheses and in other ways.  Subexpressions surrounded by
-particular matching lexemes, such as \verb|`'|, are restructured in
-special ways.
+Certain lexemes, such as `{\tt ,}' and `{\tt ;}', are used to separate
+elements of lists.  These are called \skey{element separator}s, and
+are treated as if they were operators.
 
-The process of restructuring expressions is called
+The process of inserting implied parentheses and
+restructuring expressions is called
 \key{expression parsing}\index{parsing!expression}.
-Expression parsing takes an expression as input, and produces as output a raw
-expression that contains nothing that will trigger further restructuring.
+Expression parsing takes an expression as input, and produces as output an
+expression that contains nothing that will trigger further parsing.
 
 \subsection{Subexpressions}
 \label{SUBEXPRESSIONS}
@@ -2324,7 +2326,8 @@ the following syntax equations.
 {\bf Subexpression Rule.}\index{Subexpression Rule}
 The {\em opening-mark} lexeme that begins a subexpression must lexically match
 (\secref{LEXICAL-MATCHING}) the {\em closing-mark} lexeme that
-ends a subexpression.
+ends a subexpression.  These marks are call the
+\skey{bracket mark}s of the subexpression.
 
 The subexpressions identified by this rule have explicit opening and closing
 marks.  Below we introduce subexpressions with operators that have implicit
@@ -2337,100 +2340,42 @@ are given completely capitalized names.
 \subsection{Expression Structure Overview}
 \label{EXPRESSION-STRUCTURE-OVERVIEW}
 
-Expression structure is affected by five special marks.
-The \key{optional argument mark} `\ttnbkey{::?}' is used in expression
-definitions
-to separate arguments that are required from those that can be optional,
-as in the expression `\verb|find-max LIST ::? COMPARATOR|', in which the
-the `\verb|LIST|' argument is required but the `\verb|COMPARATOR|' argument
-is optional.
-The \key{reorder mark} `\ttnbkey{<:>}' is used in expression definitions
-to separate arguments whose order can be switched,
-as in the expression `\verb|element LIST <:> INDEX|' in which the
-`\verb|LIST|' and `\verb|INDEX|' argument can be switched.
-The \key{remainder mark} `\ttnbkey{::>}' precedes a final argument in an
-expression definition that represents the list of remaining arguments in a use
-of the definition, as in the expression `\verb|max ::> ARGS|',
-where \verb|ARGS| represents
-the list of all the arguments given to \verb|max|.
-The \key{required qualifier mark}\index{qualifier mark!required}
-`\ttkey{@@}' in an expression signals that the following
-expression item is a required qualifier, as in the expression
-`\verb|sort x @@ with order ascending |',
-and is implied by qualifiers (e.g. \verb|with|, \verb|has|)
-in an expression.
-The \key{optional qualifier mark}\index{qualifier mark!optional}
-`\ttnbkey{??}' in an expression signals that the following
-expression item is an optional qualifier, as in the expression
-`\verb|sort X ?? with order O|'.  When default values are provided in
-definitions, required qualifier marks may be converted automatically to
-optional qualifier marks and an optional argument mark may be inserted into an
-argument list automatically (\secref{AUTOMATIC-OPTIONAL-MARKS}).
-
-Expressions are restructured if they contain operators (e.g.,
-\verb|+|,
-\verb|-|,
-\verb|*|,
-\verb|/|),
-qualifiers (e.g.,
-\verb|with|,
-\verb|has|),
-or qualifier shortcuts (e.g., \verb|ascending|, which is a shortcut for
-`{\tt with order ascending}').
-A \key{raw expression} (\secref{RAW-EXPRESSIONS})
-is a particular kind of expression that will not be
-restructured.  The only special marks that may be in a raw expression
-are the five special marks:
-the optional argument mark (\verb|::?|), the reorder mark (\verb|<:>|),
-the remainder mark (\verb|::>|),
-and the qualifier marks (\verb|@@|, \verb|??|).
-Translating an expression into a raw expression is called
-\key{expression parsing}\index{parsing!expression}.
-
-Some operators are matchfix operators, which surround their single
-argument like parentheses.  Some matchfix operators have special
-affects on parsing.  An informal summary of the standard matchfix
-operators is:
+The bracket marks that surround a subexpression
+can have special affects on parsing.
+An informal summary of the affects of the standard bracket marks is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-		& \multicolumn{5}{c}{Turns} \\ \cline{2-6} \\
-		& operators
-				& lexical
-					& \verb/|/
-						& \verb|<:> ::> ::?| \\
-Brackets	& and qualifiers
-				& parsing
-					& text	& \verb|@@  ??|
-							& evaluation \\[1ex]
+	& Matching  & Turns	  & Turns    & Sets	& \\
+In	& Bracket   & Operator	  & Lexical  & Parser	& Turns \\
+Parser	& Marks	    & Recognition & Parsing  & To	& Evaluation
+\\[1ex]
+any & \verb|(|\ldots\verb|)|
 
-\verb|(|\ldots\verb|)|
-		& --		& --    & --	& --	& -- \\
-\verb|{|\ldots\verb|}|
-		& --		& --	& --	& --	& off \\
-\verb|[|\ldots\verb|]|
-		& off		& off	& off	& off	& off \\
-\verb|[[|\ldots\verb|]]|
-		& off		& off	& off	& on	& off \\
-\verb|<<|\ldots\verb|>>|
-		& on		& on	& off	& on	& on \\
-\verb|`|\ldots\verb|'|
-		& off		& off	& on	& off	& off \\
-\verb|``|\ldots\verb|''|
-		& off		& off	& on	& off	& off \\
-\verb|```|\ldots\verb|'''|
-		& off		& off	& on	& off	& off \\
+		    & --	  & --       & --	& -- \\
+any & \verb|{|\ldots\verb|}|
+		    & --	  & --       & --	& off \\
+non-text & \verb|[|\ldots\verb|]|
+		    & off         & off      & none	& off \\
+text & \verb|[|\ldots\verb|]|
+		    & on          & on       & none	& on \\
+any & \verb|`|\ldots\verb|'|
+		    & off         & off      & text	& off \\
+any & \verb|``|\ldots\verb|''|
+		    & off         & off      & text	& off \\
+any & \verb|```|\ldots\verb|'''|
+		    & off         & off      & text	& off \\
 \end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
-Other matching lexemes may be made to affect parsing by introducing
+Other matching bracket marks may be made to affect parsing by introducing
 operator definitions (\secref{OPERATOR-DEFINITIONS}).
 
 Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
-which contains definitions of parsers, operators, qualifiers, and
-qualifier shortcuts, as well as definitions related to
-lexical parsing.
-An definitional operator (\pagref{DEFINITIONAL})
+which contains definitions of parsers and operators, and
+lexeme replacement and unit specifier
+definitions related to lexical parsing.
+A definitional operator (\pagref{DEFINITIONAL})
 may push definitions onto the parsing
 stack.  After the expression containing the operator has been parsed,
 these definitions will be popped from the parsing stack.
@@ -2444,8 +2389,6 @@ the \mkey{parsing stack}{kinds of definition in}:%
 \begin{tabular}{ll}
 parser & \secref{PARSER-DEFINITION} \\
 operator & \secref{OPERATOR-DEFINITIONS} \\
-qualifier & \secref{QUALIFIER-DEFINITION} \\
-qualifier shortcut & \secref{QUALIFIER-SHORTCUT-DEFINITION} \\
 lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
 \end{tabular}
@@ -2515,7 +2458,7 @@ qualifiers, or qualifier shortcuts are not recognized as such.  Thus in
 in \verb|[item ascending]| \verb|ascending| is not recognized as
 a qualifier shortcut.
 
-Some of the matchfix operators above affect evaluation.
+Some of the standard bracket marks affect evaluation.
 Evaluation differs from parsing in that it is controlled by
 the `wrapper functions' \verb|-EVAL-ON-| and \verb|-EVAL-OFF-|
 that are inserted automatically during parsing when the evaluation
@@ -2541,7 +2484,7 @@ is evaluated, the result will be the same as evaluating
 \verb|`Let X be a banana.'|, and \underline{not}
 \verb|`Let X be (a banana).'|.
 
-Also note that matchfix operators that turn evaluation off (or on)
+Also note that bracket marks that turn evaluation off (or on)
 do not produce \verb|-EVAL-OFF-| (or \verb|-EVAL-ON-|) wrappers if
 they are used in a context where the evaluation mode is already off
 (or on).  Thus if \verb|`Let X be a `<<Y>>'.'| is evaluated when \verb|Y|
