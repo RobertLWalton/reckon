@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 12, 2007}
+\date{July 27, 2007}
  
 \maketitle
 
@@ -370,15 +370,8 @@ You can compute with \skey{math expression}s in CASTLE.
 \verb|> v = g from (x = 1) to (x = 5)| \\
 \verb|41 1/3| \\
 \verb|> out = `The value of {[[g]] from (x = 1) to (x = 5)} is [v].'| \\
-\verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'| \\
-\verb|> raw out| \\
-\verb|[-SENTENCE- the value of| \\
-\verb|            {(integral (x ^ 2 * dx)) from (x = 1) to (x = 5)}| \\
-\verb|            is 124/3 .]|
+\verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'|
 \end{indpar}
-
-[TBD: Can you overload \verb|{}| as both math expression brackets
-and code brackets?]
 
 Another kind of datum you can compute with in CASTLE is
 the block.  A \key{block} contains a set of variables, each of which
@@ -392,11 +385,11 @@ of the same type have the same code, and many of the same variables,
 but typically have different variable values.  For example:
 
 \begin{indpar}
-\verb|> a person {| \\
+\verb|> a person:| \\
 \verb|+     name = `Jack'| \\
 \verb|+     weight = 123 lb| \\
 \verb|+     height = 5' 9"| \\
-\verb|+     age = 23 yr 2 mo }| \\
+\verb|+     age = 23 yr 2 mo| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
@@ -409,11 +402,11 @@ but typically have different variable values.  For example:
 \tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
 \hline
 \end{tabular} \\
-\verb|> a person {| \\
+\verb|> a person:| \\
 \verb|+     name = `Jill'| \\
 \verb|+     weight = 110 lb| \\
 \verb|+     height = 5' 7"| \\
-\verb|+     age = 21 yr 8 mo }| \\
+\verb|+     age = 21 yr 8 mo| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
@@ -479,9 +472,9 @@ the affect of adding the code to all blocks that are objects of that type.
 For example:
 
 \begin{indpar}
-\verb|> for every person <-- {| \\
+\verb|> for every person:| \\
 \verb|+     body-mass-index = 703.06958 * weight in lbs| \\
-\verb|+                     / (height in inches)^2 }| \\
+\verb|+                     / (height in inches)^2| \\
 \verb|> all persons| \\
 \begin{tabular}{|r|l|l|r|r|r|r|}
 \hline
@@ -504,12 +497,12 @@ For example:
 One can use definitions to define expressions that compute values:
 
 \begin{indpar}
-\verb|> sum from X through Y <-- integer X, integer Y {| \\
+\verb|> sum from X through Y <-- integer X, integer Y:| \\
 \verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     if ( X > Y ):| \\
 \verb|+         value = 0| \\
 \verb|+     else:| \\
-\verb|+         value = X + sum (X+1) through Y }| \\
+\verb|+         value = X + sum (X+1) through Y| \\
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all (sums from X through Y)| \\
@@ -564,14 +557,14 @@ one adds 5 to the sum of 6 through 10.  One can also compute sums by
 iteration.
 
 \begin{indpar}
-\verb|> sum from X through Y <-- integer X, integer Y {| \\
+\verb|> sum from X through Y <-- integer X, integer Y:| \\
 \verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     first sum = 0| \\
 \verb|+     if ( X <= Y ):| \\
 \verb|+         next sum = sum + X| \\
 \verb|+         next X = X + 1| \\
 \verb|+     else:| \\
-\verb|+         value = sum }| \\
+\verb|+         value = sum| \\
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all (sums from X through Y)| \\
@@ -606,7 +599,7 @@ iteration.
 One can also iterate over data.
 
 \begin{indpar}
-\verb|> average weight of X <-- list X of persons {| \\
+\verb|> average weight of X <-- list X of persons:| \\
 \verb|+     first count = 0| \\
 \verb|+     first sum = 0| \\
 \verb|+     if X = ():| \\
@@ -617,7 +610,7 @@ One can also iterate over data.
 \verb|+     else:| \\
 \verb|+         next count = count + 1| \\
 \verb|+         next sum = sum + the weight of (first X)| \\
-\verb|+         next X = rest X }| \\
+\verb|+         next X = rest X| \\
 \verb|> average weight of (all persons)| \\
 \verb|116.5 lbs|
 \end{indpar}
@@ -708,20 +701,18 @@ compute such lists are \key{flattened}:
 
 For this reason CASTLE lists are sometimes called `\skey{flat list}s'.
 
-CASTLE has many different kinds of quotes or brackets.  Some of these,
-\verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|, and \verb|{{|\ldots\verb|}}|,
-turn evaluation off, while \verb|[|\ldots\verb|]|,
-\verb|[[|\ldots\verb|]]|, \verb|[[[|\ldots\verb|]]]|, etc.
-turn evaluation on.
-Some,
-\verb|`|\ldots\verb|'| and \verb|{{|\ldots\verb|}}|,
-turn recognition of operators (e.g., \verb|+| and \verb|=|) off, while others,
-\verb|[|\ldots\verb|]| and \verb|{|\ldots\verb|}|,
-turn recognition of operators on.  Quotes --
-\verb|`|\ldots\verb|'|,
-\verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~--
-also do other things, like insert implicit operations
-(e.g., \verb|-SENTENCE-|).
+CASTLE has different kinds of quotes or brackets.  The brackets
+\verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|,
+\verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~turn
+evaluation off, while \verb|[|\ldots\verb|]|,
+\verb|[[|\ldots\verb|]]|, \verb|[[[|\ldots\verb|]]]|, etc.~turn
+evaluation on.
+The brackets \verb|`|\ldots\verb|'|,
+\verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~turn
+recognition of operators (e.g., \verb|+| and \verb|=|) off, and turn
+recognition of whitespace on, while
+\verb|[|\ldots\verb|]| and \verb|{|\ldots\verb|}|
+turn recognition of operators on, and turn recognition of whitespace off.
 
 CASTLE can store information as expressions.  For example:
 
@@ -809,8 +800,8 @@ You can also change how an expression is displayed.
 \newlength{\ovalraise}
 \setlength{\ovalraise}{-0.1in}
 \addtolength{\ovalraise}{0.8ex}
-\verb|> display ( P ) <-- person ( P ) has name ( X ) {| \\
-\verb|>     value = {oval (0.4,0.2) labeled [X]} }| \\
+\verb|> display ( P ) <-- person ( P ) has name ( X ):| \\
+\verb|>     value = {oval (0.4,0.2) labeled [X]}| \\
 \verb|> (a person named `Jack')| \\
 \begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
@@ -833,9 +824,9 @@ You can also change how an expression is displayed.
 Displays can be used to make demonstrations:
 
 \begin{indpar}
-\verb|> for every demo {| \\
-\verb|>     on a demo with angle X <-- {| \\
-\verb|+         angle = X } }| \\
+\verb|> for every demo:| \\
+\verb|>     on a demo with angle X:| \\
+\verb|+         angle = X| \\
 \verb|> x = a demo with angle 30 degrees| \\
 \begin{tabular}{|r|r|r|}
 \hline
@@ -846,11 +837,11 @@ Displays can be used to make demonstrations:
 \tt @1000043 & demo & 30 degrees \\
 \hline
 \end{tabular} \\
-\verb|> for every demo {| \\
-\verb|+     on update THIS to X <-- {| \\
-\verb|+         next angle = X }| \\
-\verb|+     on increment THIS by X <-- {| \\
-\verb|+         next angle = angle + X } }| \\
+\verb|> for every demo:| \\
+\verb|+     on update THIS to X:|\\
+\verb|+         next angle = X| \\
+\verb|+     on increment THIS by X:| \\
+\verb|+         next angle = angle + X| \\
 \verb|> update x to 40 degrees| \\
 \begin{tabular}{|r|r|r|}
 \hline
@@ -871,7 +862,7 @@ Displays can be used to make demonstrations:
 \tt @1000045 & demo & 45 degrees \\
 \hline
 \end{tabular} \\
-\verb|> display ( D ) <-- demo ( D ) with angle ( X ) {| \\
+\verb|> display ( D ) <-- demo ( D ) with angle ( X ):| \\
 \verb|+     c = {circle 1.0 dotted center (0.0,0.0)}| \\
 \verb|+     x-axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
 \verb|+     y-axis = {arrow from (0.0,-0.75) to (0.0,0.75)}| \\
@@ -885,7 +876,7 @@ Displays can be used to make demonstrations:
 \verb|+                  [y-axis] labeled `Y Axis',| \\
 \verb|+                  [line],| \\
 \verb|+                  [arc] labeled `[theta]' ),| \\
-\verb|+                label `Depiction of Angle [theta]' ) } } | \\
+\verb|+                label `Depiction of Angle [theta]' ) }| \\
 \verb|> x| \\
 \begin{picture}(4.0,1.9)
 \put(1.0,0.95){\qbezier[40](0.5,0.0)(0.46,0.46)(0.0,0.5)}
@@ -932,7 +923,7 @@ TBD: example of a simple game.
 
 \begin{verbatim}
 for every board:
-    on a board of dimension S <--:
+    on a board of dimension S:
         `Make a board of size SxS.'
         size = S
         `Allowed vessels have lengths 2 (destroyer), 3 (cruiser),
@@ -961,7 +952,7 @@ for every board:
 \begin{boxedfigure}
 
 \begin{verbatim}
-direction vector of D <--:
+direction vector of D:
     `given a direction N, NE, E, SE, S, SW, W, NW, return a vector
      with unit components in the given direction.'
     if D == `N':
@@ -990,7 +981,7 @@ direction vector of D <--:
 
 \begin{verbatim}
 for every vessel:
-    on a vessel of length L with direction D from (I,J) on B
+    on a vessel of length L with direction D from (I,J) on B:
         `make a vessel of length L positioned in direction D
          from origin (I,J) on boards B; directions are N,
          NE, E, SE, S, SW, W, NW'
@@ -2285,8 +2276,8 @@ becomes
 \label{EXPRESSION-PARSING}
 
 An \key{expression} is a sequence of words, separators, and subexpressions.
-A \key{subexpression} is a pair of matched lexemes, e.g.~\verb|()| or
-\verb|`'|, and all the lexemes in between.
+A \key{subexpression} is a pair of matched lexemes, e.g.~\verb|( )| or
+\verb|` '|, and all the lexemes in between.
 
 Expressions and subexpressions can contain lexemes called
 \skey{operator}s.  When they do,
@@ -2294,21 +2285,20 @@ matched \ikey{implied parentheses}{implied parenthesis}
 are inserted into the expressions or subexpressions
 according to rules of operator precedence, and these
 implied parentheses create new subexpressions.
+Certain lexemes, such as `{\tt ,}' and `{\tt ;}', used to separate
+elements of lists, are treated as operators during parsing.
 
-Subexpressions can be \mkey{restructured}{expression}.  Matching lexemes,
-such as \verb|`'|, control how a subexpression they surround is
-restructured.  They also control the set of operators recognized
-in this subexpression.
+Matching lexemes, such as \verb|` '|, control the parser used
+to parse the subexpression they surround.  If the parser recognizes
+operators, the set of recognized operators and their precedence is
+controlled.
 
-Certain lexemes, such as `{\tt ,}' and `{\tt ;}', are used to separate
-elements of lists.  These are called \skey{element separator}s, and
-are treated as if they were operators.
+Matching lexemes such as \verb|`` ''| invoke a text parser that
+inserts parentheses around sentences, paragraphs, etc., turning these
+into lists of words, lists of sentences, etc.
 
-The process of inserting implied parentheses and
-restructuring expressions is called
+The process of inserting implied parentheses is called
 \key{expression parsing}\index{parsing!expression}.
-Expression parsing takes an expression as input, and produces as output an
-expression that contains nothing that will trigger further parsing.
 
 \subsection{Subexpressions}
 \label{SUBEXPRESSIONS}
@@ -2344,34 +2334,37 @@ are given completely capitalized names.
 
 The bracket marks that surround a subexpression
 can have special affects on parsing.
-An informal summary of the affects of the standard bracket marks is:
+An summary of some of the affects of the standard bracket marks is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	& Matching  & Turns	  & Turns    & Sets	& \\
-In	& Bracket   & Operator	  & Lexical  & Parser	& Turns \\
-Parser	& Marks	    & Recognition & Parsing  & To	& Evaluation
-\\[1ex]
+	& Matching  & Sets	&            &            & Does \\
+In	& Bracket   & Parser	& Recognizes & Recognizes & Lexical	\\
+Parser	& Marks	    & To	& Separators & Operators  & Parsing	\\[1ex]
 any & \verb|(|\ldots\verb|)|
 
-		    & --	  & --       & --	& -- \\
+		    & --	& --         & --	  & -- \\
 any & \verb|{|\ldots\verb|}|
-		    & --	  & --       & --	& off \\
-non-text & \verb|[|\ldots\verb|]|
-		    & off         & off      & none	& off \\
+		    & operator	& yes        & yes        & yes \\
+operator & \verb|[|\ldots\verb|]|
+		    & list	& yes        & no         & yes \\
+list & \verb|[|\ldots\verb|]|
+		    & list	& yes        & no         & yes \\
 text & \verb|[|\ldots\verb|]|
-		    & on          & on       & none	& on \\
+		    & operator	& yes        & yes        & yes \\
 any & \verb|`|\ldots\verb|'|
-		    & off         & off      & text	& off \\
+		    & text      & no         & no         & no	\\
 any & \verb|``|\ldots\verb|''|
-		    & off         & off      & text	& off \\
+		    & text      & no         & no         & no	\\
 any & \verb|```|\ldots\verb|'''|
-		    & off         & off      & text	& off \\
+		    & text      & no         & no         & no	\\
 \end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
-Other matching bracket marks may be made to affect parsing by introducing
-matching bracket definitions (\secref{MATCHING-BRACKET-DEFINITIONS}).
+The text parser recognizes sentences, paragraphs, and so forth, but not
+operators.  The list parser only recognizes separators, as if they were
+operators.  The operator parser recognizes both operators and separators,
+but not sentences, etc.
 
 Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
 which contains definitions of parsers and operators, and
