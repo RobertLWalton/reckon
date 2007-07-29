@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 27, 2007}
+\date{July 29, 2007}
  
 \maketitle
 
@@ -2293,7 +2293,7 @@ to parse the subexpression they surround.  If the parser recognizes
 operators, the set of recognized operators and their precedence is
 controlled.
 
-Matching lexemes such as \verb|`` ''| invoke a text parser that
+Matching lexemes such as \verb|` '| invoke a text parser that
 inserts parentheses around sentences, paragraphs, etc., turning these
 into lists of words, lists of sentences, etc.
 
@@ -2304,8 +2304,8 @@ The process of inserting implied parentheses is called
 \label{SUBEXPRESSIONS}
 
 The first step in expression parsing is to identify \skey{subexpression}s within
-an expression, without restructuring the expression, by applying
-the following syntax equations.
+an expression, without inserting any implied parentheses,
+by applying the following syntax equations.
 
 \begin{indpar}
 \key{EXPRESSION} ::= {\em expression-item}\,$^\star$ \\[1ex]
@@ -2321,9 +2321,9 @@ The {\em opening-mark} lexeme that begins a subexpression must lexically match
 ends a subexpression.  These marks are call the
 \skey{bracket mark}s of the subexpression.
 
-The subexpressions identified by this rule have explicit opening and closing
+The subexpressions identified by this rule have explicit bracket
 marks.  Below we introduce subexpressions with operators that have implicit
-parentheses as their opening and closing marks.
+bracket marks as their opening and closing marks.
 
 The syntactic category name {\em EXPRESSION} is capitalized because in
 this document syntactic categories representing CASTLE expressions
@@ -2334,7 +2334,7 @@ are given completely capitalized names.
 
 The bracket marks that surround a subexpression
 can have special affects on parsing.
-An summary of some of the affects of the standard bracket marks is:
+A summary of some of the affects of the standard bracket marks is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
@@ -2390,19 +2390,15 @@ unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
 \end{center}
 
 A \key{parser definition}\label{PARSER-DEFINITION}
-names a parser and gives an optional evaluation mode.  The most recent parser
+names a parser.  The most recent parser
 definition in the parsing stack names the parser used to parse expressions.
 Parser definitions have the syntax:
 
 \begin{indpar}
 \key{PARSER-DEFINITION} \\
-	\hspace*{0.5in}::= \verb|define parser| {\em PARSER-NAME}
-		{\em evaluation-mode-option} \\[1ex]
+	\hspace*{0.5in}::= \verb|define parser| {\em PARSER-NAME} \\[1ex]
 \key{PARSER-NAME} ::=
-	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]| \\[1ex]
-\key{evaluation-mode-option} ::= {\em empty} $|$
-	\verb|with| \verb|evaluation| {\em evaluation-mode} \\[1ex]
-\key{evaluation-mode} ::= \verb|on| $|$ \verb|off|
+	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
 \end{indpar}
 
 It is possible to temporarily void parser definitions by
@@ -2421,37 +2417,59 @@ in the stack.  The optional {\em PARSER-NAME}, if present,
 must match the name of the canceled parser, and is only used for error
 checking.
 
-There are two standard \ikey{parsers}{parser!standard}:
+There are three standard \ikey{parsers}{parser!standard}:
 the \key{operators parser}, \ttnbbkey{OPERATORS PARSER},
-that recognizes operators;
+that recognizes operators and separators;
+the \key{list parser}, \ttnbbkey{LIST PARSER},
+that recognizes just separators;
 and the \key{text parser}, \ttnbbkey{TEXT PARSER},
-where the format-separator (\verb/|/) and punctuation are recognized.
+that recognizes the format-separator (\verb/|/) and punctuation.
 
-From the parsing point of view there are several types of
-expression restructuring that can occur.  One, text restructuring,
-is done by the text parser (\secref{TEXT-PARSING}), which is invoked by
-\verb|`'| quotes, and does things like turn
-\verb|`I am!'| into \verb|[-SENTENCE- I am !]|.  Other kinds of
-restructuring are done by the operators parser (\secref{OPERATORS}).
-The operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
-\verb|x + y - 5 * z| cause this expression to be restructured as
-\verb|[- [+ x y] [* 5 z]]|.  The qualifier `\verb|with|' in the
-expression \verb|sort x with order ascending| causes this expression
-to be restructured as \verb|[sort x @@ with order ascending]|.
-The qualifier shortcut `\verb|ascending|' in the expression
-\verb|sort x| \verb|ascending| causes this expression to be
-restructured as \verb|[sort x @@ with order ascending]|.
+\ikey{Implicit parentheses}{implicit parentheses} introduced by parsers
+can also be represented explicitly, though this is mostly done
+for purposes of debugging.  For example, the implicit parentheses
+introduced by operators or separators are represented by \verb@(| |)@.
+Other kinds of implicit parentheses are introduced by the text parser.
+Here is a complete list of implicit parentheses and the kinds of subexpressions
+they surround:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l}
+\verb@(| |)@	& Operator subexpressions and list elements. \\
+\verb@<| |>@	& Phrases inside sentences or phrases. \\
+\verb@<* *>@	& Sentences. \\
+\verb@(* *)@	& Paragraphs. \\
+\verb@[* *]@	& Sections, sub-sections, sub-sub-sections, etc. \\
+\verb@{* *}@	& Chapters.
+\end{tabular}
+\end{center}
+
+
+The operators parser (\secref{OPERATORS}) recognizes
+the operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
+\verb|x + y - 5 * z| and turns this expression into
+\verb@x + y - (| 5 * z |)@.
+The list parser is similar, but only recognizes separators.  It turns
+\verb|[george, betty sue, bill]| into
+\begin{center}
+\verb@[ george, (| betty sue |), bill ]@
+\end{center}
 In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
-by the operators parser.
+by the operators and list parsers.
+The text parser (\secref{TEXT-PARSING}), which is invoked by
+\verb|`'| quotes, turns
+\verb|``I think!  Therefore, I am!''| into
+\begin{center}
+\verb@(* <* I think ! *> <* Therefore , <| I am |> ! *> *)@
+\end{center}
 
-In expressions that cannot contain operators,
-words and separators that would be recognized elsewhere as operators,
-qualifiers, or qualifier shortcuts are not recognized as such.  Thus in
-\verb|[word +]| the \verb|+| is not recognized as an operator, and
-in \verb|[item ascending]| \verb|ascending| is not recognized as
-a qualifier shortcut.
+Some of the standard bracket marks affect evaluation, as is indicated
+in the table on~\pagref{CONTEXT-SWITCHES}.  However, evaluation has
+nothing directly to do with parsing.
 
-Some of the standard bracket marks affect evaluation.
+
+TBD
+
 Evaluation differs from parsing in that it is controlled by
 the `wrapper functions' \verb|-EVAL-ON-| and \verb|-EVAL-OFF-|
 that are inserted automatically during parsing when the evaluation
