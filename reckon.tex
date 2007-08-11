@@ -197,7 +197,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 29, 2007}
+\date{August 11, 2007}
  
 \maketitle
 
@@ -2012,63 +2012,57 @@ There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
 
 \begin{indpar}
-\key{LEXEME-DEFINITION}\,\footnote{Capitalized syntactic
-categories represent CASTLE expressions (\secref{EXPRESSION-PARSING}).}
+\key{lexeme-definition}\,
 		     \begin{tabular}[t]{rl}
-                     ::= & {\em LEXEME-DICTIONARY-DEFINITION} \\
-		     $|$ & {\em LEXEME-FUNCTION-DEFINITION}
+                     ::= & {\em lexeme-dictionary-definition} \\
+		     $|$ & {\em lexeme-function-definition}
 		     \end{tabular} \\[1ex]
-\ikey{LEXEME-DICTIONARY-DEFINITION}{LEXEME-DICTIONARY-!DEFINITION} \\
+\ikey{lexeme-dictionary-definition}{lexeme-dictionary-!definition} \\
 	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
 	                   \verb|define | & \verb|lexeme dictionary|
-                                            {\em DICTIONARY-NAME} \\
-				& {\em LEXEME-DICTIONARY-ENTRIES}
+                                            {\em dictionary-name}
+					    {\em parsing-selectors} \\
+				& {\em lexeme-dictionary-entries}
 		     \end{tabular} \\[1ex]
-\key{DICTIONARY-NAME} ::=
-	\verb|[|
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]| \\[1ex]
-\key{LEXEME-DICTIONARY-ENTRIES}
+\key{dictionary-name} ::= {\em word} {\em word}\,$^\star$
+	\\[1ex]
+\key{parsing-selectors}\,
+                    \begin{tabular}[t]{rl}
+		    ::= & {\em empty} \\
+                    $|$ & \verb|[| {\em parsing-selector-list} \verb|]|
+		    \end{tabular} \\[1ex]
+\key{parsing-selector-list} \\
+		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
+                     ::= & {\em parsing-selector} \\
+		     $|$ & {\em parsing-selector-list} \verb|,|
+		           {\em parsing-selector}
+		     \end{tabular} \\[1ex]
+\key{parsing-selector} ::= {\em word} {\em word}\,$^\star$
+	\\[1ex]
+\key{lexeme-dictionary-entries}
                     ::= \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
 		    \\[1ex]
 \key{lexeme-dictionary-entry-list} \\
 		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-                     ::= & {\em LEXEME-DICTIONARY-ENTRY} \\
+                     ::= & {\em lexeme-dictionary-entry} \\
 		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
-		           {\em LEXEME-DICTIONARY-ENTRY}
+		           {\em lexeme-dictionary-entry}
 		     \end{tabular} \\[1ex]
-\key{LEXEME-DICTIONARY-ENTRY} \\
+\key{lexeme-dictionary-entry} \\
     \hspace*{0.5in}::=
-	\verb|[| {\em replaced-lexeme} \verb|==>| {\em replacing-lexemes}
-	\verb|]| \\[1ex]
+	{\em replaced-lexeme} \verb|==>| {\em replacing-lexemes}
+	\\[1ex]
 \key{replaced-lexeme} ::=
 	\{ {\em word} $|$ {\em separator} \} \\[1ex]
 \key{replacing-lexemes} ::=
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$ \\[1ex]
-\key{LEXEME-FUNCTION-DEFINITION} \\
+\key{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
-				{\em FUNCTION-NAME} \\[1ex]
-\key{FUNCTION-NAME} ::=
-	\verb|[|
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]|
+				{\em function-name} \\[1ex]
+\key{function-name} ::=
+	{\em word} {\em word}\,$^\star$
 \end{indpar}%
 \label{LEXEME-REPLACEMENT-DEFINITION}
-
-which correspond to the expression definitions
-(\secref{EXPRESSION-DEFINITIONS}):\footnote{These particular dictionary
-entries tell us that {\tt NAME} and {\tt ENTIRES} are \underline{evaluated}
-arguments (\secref{EXPRESSION-EVALUATION}).}
-
-\begin{indpar}
-\begin{verbatim}
-define lexeme dictionary NAME ENTRIES <-- list ENTRIES
-
-define lexeme function NAME <--
-\end{verbatim}
-\end{indpar}
 
 A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
@@ -2545,12 +2539,17 @@ has two subsequences of lexemes, an
 a \key{closing bracket name}, separated by 
 a `\verb/.../' lexeme.
 
+If there are any opening or closing
+lexemes in the name, they must be in matching pairs.
+Thus \verb|[ (* ... *) ]| and \verb|[ $($ ... $)$ ]| are legal,
+but \verb![ << ... | ]! is not.
+
 By abuse of language, 
 `\key{opening bracket}\,'
 is used as a synonym for `opening bracket name' and `\key{closing bracket}\,'
 is used as a synonym for `closing bracket name'.
 
-When a subexpression is surrounded by brackets, the barckets
+When a subexpression is surrounded by brackets, the brackets
 are included in the subexpression.
 
 \subsubsubsection{Bracket Parser}\ttmindex{parser}{of bracket}
