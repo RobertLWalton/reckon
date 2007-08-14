@@ -147,6 +147,60 @@
     \renewcommand{\{}{\CurlyBra}%
     \renewcommand{\}}{\CurlyKet}}
 
+\newsavebox{\TILDEBOX}
+\begin{lrbox}{\TILDEBOX}
+\verb|~|
+\end{lrbox}
+\newcommand{\TILDE}{\usebox{\TILDEBOX}}
+
+\newsavebox{\BACKSLASHBOX}
+\begin{lrbox}{\BACKSLASHBOX}
+\verb|\|
+\end{lrbox}
+\newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
+
+\newsavebox{\LEFTBRACKETBOX}
+\begin{lrbox}{\LEFTBRACKETBOX}
+\verb|{|
+\end{lrbox}
+\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
+
+\newsavebox{\RIGHTBRACKETBOX}
+\begin{lrbox}{\RIGHTBRACKETBOX}
+\verb|}|
+\end{lrbox}
+\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
+
+\newsavebox{\UNDERLINEBOX}
+\begin{lrbox}{\UNDERLINEBOX}
+\verb|_|
+\end{lrbox}
+\newcommand{\UNDERLINE}{\usebox{\UNDERLINEBOX}}
+
+\newsavebox{\CIRCUMFLEXBOX}
+\begin{lrbox}{\CIRCUMFLEXBOX}
+\verb|^|
+\end{lrbox}
+\newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
+
+\newsavebox{\BARBOX}
+\begin{lrbox}{\BARBOX}
+\verb/|/
+\end{lrbox}
+\newcommand{\BAR}{\usebox{\BARBOX}}
+
+\newsavebox{\LESSTHANBOX}
+\begin{lrbox}{\LESSTHANBOX}
+\verb/</
+\end{lrbox}
+\newcommand{\LESSTHAN}{\usebox{\LESSTHANBOX}}
+
+\newsavebox{\GREATERTHANBOX}
+\begin{lrbox}{\GREATERTHANBOX}
+\verb/>/
+\end{lrbox}
+\newcommand{\GREATERTHAN}{\usebox{\GREATERTHANBOX}}
+
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
 \addtolength{\figurewidth}{-0.40in}
@@ -2040,12 +2094,14 @@ dictionary and function.  These have the syntax:
 \key{parsing-selector} ::= {\em word} {\em word}\,$^\star$
 	\\[1ex]
 \key{lexeme-dictionary-entries}
-                    ::= \verb|(| {\em lexeme-dictionary-entry-list} \verb|)|
+                    ::= \underline{\LEFTBRACKET}
+		        {\em lexeme-dictionary-entry-list}
+			\underline{\RIGHTBRACKET}
 		    \\[1ex]
 \key{lexeme-dictionary-entry-list} \\
 		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
                      ::= & {\em lexeme-dictionary-entry} \\
-		     $|$ & {\em lexeme-dictionary-entry-list} \verb|,|
+		     $|$ & {\em lexeme-dictionary-entry-list} \verb|;|
 		           {\em lexeme-dictionary-entry}
 		     \end{tabular} \\[1ex]
 \key{lexeme-dictionary-entry} \\
@@ -2058,7 +2114,8 @@ dictionary and function.  These have the syntax:
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$ \\[1ex]
 \key{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
-				{\em function-name} \\[1ex]
+				{\em function-name}
+				{\em parsing-selectors} \\[1ex]
 \key{function-name} ::=
 	{\em word} {\em word}\,$^\star$
 \end{indpar}%
@@ -2101,34 +2158,6 @@ an appearance of the lexeme `\verb|fie|' will evaluate the
 expression `\verb|replace people fie|' which will return `\verb|false|'
 to avoid replacing the lexeme `\verb|fie|'.
 
-It is possible to temporarily void lexeme replacement definitions by
-placing canceling undefinitions in the parsing stack.  These have the
-syntax:
-
-\begin{indpar}
-\key{LEXEME-UNDEFINITION}
-		     \begin{tabular}[t]{rl}
-                     ::= & {\em LEXEME-DICTIONARY-UNDEFINITION} \\
-		     $|$ & {\em LEXEME-FUNCTION-UNDEFINITION}
-		     \end{tabular} \\[1ex]
-\ikey{LEXEME-DICTIONARY-UNDEFINITION}{LEXEME-DICTIONARY-!UNDEFINITION} \\
-	\hspace*{0.5in}::= \verb|undefine lexeme dictionary|
-                                            {\em DICTIONARY-NAME} \\[1ex]
-\ikey{LEXEME-FUNCTION-UNDEFINITION}{LEXEME-FUNCTION-!UNDEFINITION} \\
-	\hspace*{0.5in}::= \verb|undefine lexeme function|
-				{\em FUNCTION-NAME}
-\end{indpar}
-
-which correspond to the expression definitions
-(\secref{EXPRESSION-DEFINITIONS}):
-
-\begin{indpar}
-\begin{verbatim}
-undefine lexeme dictionary NAME <--
-
-undefine lexeme function NAME <--
-\end{verbatim}
-\end{indpar}
 
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
 not themselves subject to replacement.
