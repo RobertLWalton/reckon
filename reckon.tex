@@ -2119,7 +2119,8 @@ dictionary and function.  These have the syntax:
 \key{function-name} ::=
 	{\em word} {\em word}\,$^\star$
 \end{indpar}%
-\label{LEXEME-REPLACEMENT-DEFINITION}
+\label{LEXEME-REPLACEMENT-DEFINITION}%
+\label{PARSING-SELECTORS-SYNTAX}
 
 A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
@@ -2166,7 +2167,7 @@ The {\em parsing-selectors} are used to specify the parsing contexts in
 which a lexeme replacement definition is active.  The standard parsing
 selectors for lexeme replacement definitions
 are `{\tt operator}' and `{\tt list}'.
-See~\secref{PARSING-SELECTOR} for details.
+See~\secref{PARSING-SELECTORS} for details.
 
 The following lexeme dictionaries and functions are
 defined in the initial parsing stack.  Their definitions are ordered in the
@@ -2414,35 +2415,40 @@ definition in the parsing stack names the parser used to parse expressions.
 Parser definitions have the syntax:
 
 \begin{indpar}
-\key{PARSER-DEFINITION} \\
-	\hspace*{0.5in}::= \verb|define parser| {\em PARSER-NAME} \\[1ex]
-\key{PARSER-NAME} ::=
-	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
+\key{parser-definition}
+	::= \verb|define parser| {\em parser-name}
+				{\em parsing-selectors} \\[1ex]
+\key{parser-name} ::= {\em word} {\em word}\,$^\star$
 \end{indpar}
-
-It is possible to temporarily void parser definitions by
-placing canceling undefinitions in the parsing stack.  These have the
-syntax:
-
-\begin{indpar}
-\key{PARSER-UNDEFINITION} ::= \verb|undefine parser| {\em PARSER-NAME-option}
-	\\[1ex]
-{\em PARSER-NAME-option} ::= {\em empty} $|$ {\em PARSER-NAME}
-\end{indpar}
-
-This undefinition, as long as it is in the stack, cancels the effect 
-of the parser definition that would be used if the undefinition were not
-in the stack.  The optional {\em PARSER-NAME}, if present,
-must match the name of the canceled parser, and is only used for error
-checking.
 
 There are three standard \ikey{parsers}{parser!standard}:
-the \key{operators parser}, \ttnbbkey{OPERATORS PARSER},
+the \ttkey{operator parser},
 that recognizes operators and separators;
-the \key{list parser}, \ttnbbkey{LIST PARSER},
+the \ttkey{list parser},
 that recognizes just separators;
-and the \key{text parser}, \ttnbbkey{TEXT PARSER},
+and the \ttkey{text parser},
 that recognizes the format-separator (\verb/|/) and punctuation.
+
+The \emkey{parsing-selectors}\label{PARSING-SELECTORS} (see
+\pagref{PARSING-SELECTORS-SYNTAX} for syntax) select which
+parsing stack definitions are active (used),
+and which are inactive (unused in the current context).
+The topmost {\em parser-definition} in the stack is always active,
+and other {\em parser-definitions} in the stack are always inactive.
+Other kinds of definition are active if and only if they share
+a {\em parsing-selector} with the active {\em parser-definition}.
+
+Thus if the parser definition:
+
+\begin{center}
+\verb|define parser operator [operator]|
+\end{center}
+
+is active, all non-{\em parser-definitions} with the \verb|operator|
+selector will be active, and all without this selector will be inactive.
+
+
+
 
 \ikey{Implicit parentheses}{implicit parentheses} introduced by parsers
 can also be represented explicitly, though this is mostly done
