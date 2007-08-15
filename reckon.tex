@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 11, 2007}
+\date{August 15, 2007}
  
 \maketitle
 
@@ -2125,7 +2125,7 @@ A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
 
 \begin{center}
-\verb|[ people ==> person ]|
+\verb|people ==> person|
 \end{center}
 
 causes the word `\verb|people|' to be replaced by the word `\verb|person|'.
@@ -2138,7 +2138,7 @@ lexeme function definition
 
 \begin{indpar}
 \begin{verbatim}
-define lexeme function [replace people]
+define lexeme function replace people
 \end{verbatim}
 \end{indpar}
 
@@ -2146,11 +2146,11 @@ and the expression definition
 
 \begin{indpar}
 \begin{verbatim}
-replace people X <-- {
+replace people X <--:
     if X == [people]:
         value = [person]
     else:
-        value = false }
+        value = false
 \end{verbatim}
 \end{indpar}
 
@@ -2162,6 +2162,12 @@ to avoid replacing the lexeme `\verb|fie|'.
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
 not themselves subject to replacement.
 
+The {\em parsing-selectors} are used to specify the parsing contexts in
+which a lexeme replacement definition is active.  The standard parsing
+selectors for lexeme replacement definitions
+are `{\tt operator}' and `{\tt list}'.
+See~\secref{PARSING-SELECTOR} for details.
+
 The following lexeme dictionaries and functions are
 defined in the initial parsing stack.  Their definitions are ordered in the
 stack so the first given below is at the top of the stack and is the
@@ -2170,7 +2176,7 @@ first that replaces lexemes.
 \begin{list}{}{}
 
 \item
-\verb|define lexeme dictionary [english lexeme dictionary]|~~
+\verb|define lexeme dictionary english lexeme dictionary [operator list]|\\[1ex]
 This dictionary translates common English irregular plurals,
 to their singular form, and decomposes
 irregular possessives to their singular decomposed form.
@@ -2189,7 +2195,7 @@ Some example translations are:
 \end{center}
 
 \item
-\verb|define lexeme function [english lexeme function]|~~
+\verb|define lexeme function english lexeme function [operator list]|\\[1ex]
 This function translates common English standard plurals
 to their singular form, and decomposes
 standard possessives to their singular decomposed form.
@@ -2235,32 +2241,18 @@ The syntax equations are:
 \end{indpar}
 
 In order to be recognized as a {\em unit-specifier} a {\em word} sequence
-must be defined as a {\em UNIT-SPECIFIER-NAME} by the following:
+must be defined as a {\em unit-specifier-name} by the following:
 
 \begin{indpar}
-\key{UNIT-SPECIFIER-DEFINITION} \\
+\key{unit-specifier-definition} \\
 	\hspace*{0.5in}::= \verb|define unit specifier|
 	    \begin{tabular}[t]{l}
-	    {\em UNIT-SPECIFIER-FIXITY} \\
-	    {\em UNIT-SPECIFIER-NAME}
+	    {\em unit-specifier-fixity} \\
+	    {\em unit-specifier} {\em parsing-selectors}
 	    \end{tabular} \\[1ex]
-\key{UNIT-SPECIFIER-FIXITY}
-	\verb|[| \ttkey{prefix} \verb|]|
-	$|$ \verb|[| \ttkey{postfix} \verb|]| \\[1ex]
-\key{UNIT-SPECIFIER-NAME}
-	\verb|[| {\em word} {\em word}\,$^\star$ \verb|]|
+\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
 \end{indpar}%
 \label{UNIT-SPECIFIER-DEFINITION}
-
-It is possible to temporarily void unit specifier definitions by
-placing canceling undefinitions in the parsing stack.  These have the
-syntax:
-
-\begin{indpar}
-\key{UNIT-SPECIFIER-UNDEFINITION} \\
-	\hspace*{0.5in}::= \verb|undefine unit specifier|
-	    {\em UNIT-SPECIFIER-NAME}
-\end{indpar}
 
 The \key{number unit grouping} phase of lexical
 parsing recognizes {\em number-unit-groups} containing more than
