@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 15, 2007}
+\date{August 31, 2007}
  
 \maketitle
 
@@ -2251,7 +2251,7 @@ must be defined as a {\em unit-specifier-name} by the following:
 	    {\em unit-specifier-fixity} \\
 	    {\em unit-specifier} {\em parsing-selectors}
 	    \end{tabular} \\[1ex]
-\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
+\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix}
 \end{indpar}%
 \label{UNIT-SPECIFIER-DEFINITION}
 
@@ -2549,15 +2549,52 @@ can be used by a parser.
 A bracket definition specifies for each bracket pair the following:
 
 \begin{indpar}[1in]
-Name \\
-Flags \\
-Parser \\
-Evaluator \\
-Subdefinitions
+Name and Parsing Selectors \\
+Parser and Parsing Selectors \\
+Reformatter \\
+Evaluator
+\end{indpar}
+
+\subsubsection{Bracket Definition Syntax}
+\label{BRACKET-DEFINITION-SYNTAX}
+
+The syntax of bracket definitions is:
+
+\begin{indpar}
+\key{bracket-definition} \\
+	\hspace*{0.5in}::= \ttkey{define bracket}
+	    \begin{tabular}[t]{@{}l@{}}
+	    {\em bracket-name} {\em parsing-selectors} \\
+	    {}[\verb|with|] \verb|parser|
+	        {\em parser-name} {\em parsing-selectors} \\
+	    {}[ [\verb|with|] \verb|reformatter|
+	        {\em reformatter-name} ] \\
+	    {}[\verb|with|] \verb|evaluator| {\em evaluator-name} \\
+	    \end{tabular}
+	    \\[1ex]
+\key{bracket-name} ::=
+	{\em opening-bracket-name}
+	\verb|...|
+	{\em closing-bracket-name}
+	\\[1ex]
+\key{opening-bracket-name} ::=
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\\[1ex]
+\key{closing-bracket-name} ::=
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\\[1ex]
+\key{reformatter-name} ::= {\em function-name }
+	\\[1ex]
+\key{evaluator-name} ::= {\em function-name }
+	\\[1ex]
+\key{function-name} ::=
+	{\em word} {\em word}\,$^\star$
 \end{indpar}
 
 
-\subsubsubsection{Bracket Name}\ttmindex{name}{of bracket}
+\subsubsection{Bracket Name}\ttmindex{name}{of bracket}
 \label{BRACKET-NAME}
 A bracket definition has a sequence of lexemes that is the
 {\em name} of the brackets.  This name
@@ -2579,175 +2616,86 @@ is used as a synonym for `closing bracket name'.
 When a subexpression is surrounded by brackets, the brackets
 are included in the subexpression.
 
-\subsubsubsection{Bracket Parser}\ttmindex{parser}{of bracket}
+The {\em parsing-selectors} provided with the {\em backet-name} determine when
+the {\em bracket-definition} will be active (see~\secref{PARSING-SELECTORS}).
+
+\subsubsection{Bracket Parser}\ttmindex{parser}{of bracket}
 \label{BRACKET-PARSER}
 
-A parser is the name of the function that is called with an expression
-as its single argument in order to parse the expression.
+A {\em parser-name}
+is the name of the function that is called with an expression
+as its single argument in order to parse the expression.  The parser
+returns the parsed expression as its result.
 
-Parsers can be pushed onto the parsing stack.
-The parser used for subexpressions of an expression is the parser
-nearest the top of the parsing stack.
+The {\em parser-name} and the {\em parsing-selectors} that follow it,
+if present, cause the parsing definition:
 
-The \verb|parser| of a bracket definition is an optional \verb|[ ]|
-bracketted list that names a parser.  If present, a {\em PARSER-DEFINITION}
-(\pagref{PARSER-DEFINITION}) naming the parser is pushed onto the parsing
-stack before subexpressions are parsed, and popped from the parsing stack
-after subexpressions have been parsed.
+\begin{center}
+{\tt define parser} {\em parser-name} {\em parsing-selectors}
+\end{center}
+
+to be pushed into the parsing stack before parsing the subexpression
+surrounded by the brackets.  This definition is then popped from the
+parsing stack after the subexpression is parsed.
+
+The {\em parsing-selectors} provided with the {\em parser-name} determine
+which non-{\em parser-definitions} in the parsing stack are active when
+the parser is being used (see~\secref{PARSING-SELECTORS}).
 
 The following are standard parsers:
 
 \begin{indpar}
 
-The \key{operators parser}, \ttnbbkey{OPERATORS PARSER}.
-All parsing definitions with the \ttnbflagkey{OPERA\-TOR} are recognized.
+The \ttkey{operator parser}.  When used with the `{\tt operator}'
+and `{\tt separator}' parsing selectors,
+this parser recognizes operators and separators.
+When used with just the `{\tt separator}' parsing selector,
+this parser recognizes only separators.
 
-The \key{list parser}, \ttnbbkey{LIST PARSER}.
-All parsing definitions with the \ttnbflagkey{LIST} are recognized.
-
-The \key{text parser}, \ttnbbkey{TEXT PARSER}.
-All parsing definitions with the \ttnbflagkey{TEXT} are recognized.
+The \ttkey{text parser}.  Normally used with the `{\tt text}'
+parsing selector, although by default no parsing definitions have
+this selector.
 The special constructs of text parsing (\secref{TEXT-PARSING}) are
 recognized.
 
 \end{indpar}
 
-\subsubsubsection{Bracket Evaluator}\ttmindex{evaluator}{of bracket}
+\subsubsection{Bracket Reformatter}\ttmindex{reformatter}{of bracket}
+\label{BRACKET-REFORMATTER}
+
+
+A {\em reformatter-name}
+is the name of the function that is called with a parsed expression
+as its single argument in order to reformat the expression.  The reformatter
+returns the reformatted expression as its result.
+
+Reformatting occurs immediately after parsing, and can be considered as
+a second stage of parsing.  Different reformatters can be used with the
+same parser.
+
+\subsubsection{Bracket Evaluator}\ttmindex{evaluator}{of bracket}
 \label{BRACKET-EVALUATOR}
 
-An operator wrapper is a raw expression containing the lexeme `\verb|...|'.
-If operator selection for an expression selects a single operator with a
-wrapper, the expression is restructured to be a copy of the wrapper
-with its `\verb|...|' lexeme replaced by the parse of the expression
-being restructured.
 
-For example, if the matchfix operator `\verb|(* ... *)|' has the
-wrapper `\verb|[try ...]|', then the expression `\verb|(* x + y *)|'
-will be restructured to be `\verb|[try (x + y)]|'.
-See \pagref{WRAPPER-PROCESSING}.
+An {\em evaluator-name}
+is the name of the function that is called with a reformatted expression
+as its single argument in order to evaluate the expression.  The evaluator
+returns the value of the expression as its result.  There will generally
+be side effects of evaluation.
 
-\subsubsubsection{Operator Subdefinitions}\ttmindex{definition}{of operator}
-\label{OPERATOR-SUBDEFINITIONS}
+Evaluation occurs at a completely different time than parsing occurs.
+During parsing, the evaluator function name is just added to the attributes
+of the parsed expression.
 
-An operator definition can contain a list of definitions
-that are pushed onto the parsing stack before the subexpressions
-of the operator are parsed, and are popped from the stack after the
-subexpressions are parsed.  To avoid confusion, these definitions
-are called \skey{subdefinition}s.
-
-Note that subdefinitions can include any definitions that can be 
-pushed onto the parsing stack, and can also include undefinitions, that
-inactivate all definitions with particular names in the stack.
-See \pagref{PARSING-STACK-DEFINITION-KINDS} for a list of the kinds of
-definition that may be pushed into the parsing stack.
-
-
-\subsubsection{Operator Definition Syntax}
-\label{OPERATOR-DEFINITION-SYNTAX}
-
-The syntax of operator definitions is:
+The following are standard evaluators:
 
 \begin{indpar}
-\key{OPERATOR-DEFINITION} \\
-	\hspace*{0.5in}::= \ttkey{define operator}
-	    {\em OPERATOR-LABEL}
-	    {\em operator-definition-qualifier}\,$^\star$
-	    \\[1ex]
-\key{OPERATOR-LABEL} ::=
-	\verb|[|
-	{\em operator-fixity} {\em operator-name}
-	\verb|]| \\[1ex]
-\key{operator-fixity} ::=
-	\ttkey{prefix} $|$ \ttkey{infix} $|$ \ttkey{postfix}
-	$|$ \ttkey{matchfix} \\[1ex]
-\key{operator-name} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\\[1ex]
-\key{operator-definition-qualifier} \begin{tabular}[t]{rl}
-                     ::= &  {\em operator-precedence-qualifier} \\
-                     $|$ &  {\em operator-associativity-qualifier} \\
-                     $|$ &  {\em operator-parser-qualifier} \\
-                     $|$ &  {\em operator-flags-qualifier} \\
-                     $|$ &  {\em operator-wrapper-qualifier} \\
-                     $|$ &  {\em operator-subdefinition-qualifier} \\
-		     \end{tabular} \\[1ex]
-\key{operator-precedence-qualifier} ::=
-	\ttkey{with precedence} {\em INTEGER} \\[1ex]
-\key{operator-associativity-qualifier} \\
-	\hspace*{0.5in}\begin{tabular}[t]{rl}
-	::= &  \ttkey{with associativity} {\em OPERATOR-ASSOCIATIVITY} \\
-	$|$ &  \ttkey{left} \\
-	$|$ &  \ttkey{right}
-	\end{tabular} \\[1ex]
-\key{OPERATOR-ASSOCIATIVITY} \\
-        \hspace*{0.5in}::=
-	\verb|[|
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]| \\[1ex]
-\key{operator-parser-qualifier} ::=
-	\ttkey{with parser} {\em PARSER-NAME} \\[1ex]
-\key{PARSER-NAME} ::=
-	\verb|[|
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]| \\[1ex]
-\key{operator-flags-qualifier} \\
-	\hspace*{0.5in}\begin{tabular}[t]{rl}
-	::= &  \ttkey{with flags} {\em OPERATOR-FLAGS} \\
-	$|$ &  \ttkey{definitional}
-	\end{tabular} \\[1ex]
-\key{OPERATOR-FLAGS} ::=
-	\verb|[|
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]| \\[1ex]
-\key{operator-wrapper-qualifier} ::=
-	\ttkey{with wrapper} {\em OPERATOR-WRAPPER} \\[1ex]
-\key{OPERATOR-WRAPPER} ::=
-	\verb|[|
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-	\verb|]| \\[1ex]
-\key{operator-subdefinitions-qualifier} ::=
-	\ttkey{with subdefinitions} {\em subdefinitions-block} \\[1ex]
-\key{subdefinitions-block} ::=
-	\verb|{| {\em declaration-group} \verb|}| \\[1ex]
-\key{declaration-group} ::= see \pagref{DECLARATION-GROUP}
-\end{indpar}
 
-which correspond to the definitions
-(\secref{EXPRESSION-DEFINITIONS}):
+The \ttkey{standard evaluator}.  Calls functions.
 
-\begin{indpar}
-\begin{verbatim}
-define qualifier with
+The \ttkey{quote evaluator}.  Does not evaluate the expression, but
+may evaluate \verb|[ ]| bracketted subexpressions.  See TBD.
 
-define qualifier shortcuts
-       ( [left => with associativity [left]],
-         [right => with associativity [right]],
-         [definitional => with flags [definitional]] )
-
-define define operator LABEL
-       ?? with precedence PRECEDENCE
-       ?? with associativity ASSOCIATIVITY
-       ?? with parser PARSER
-       ?? with flags FLAGS
-       ?? with wrapper WRAPPER
-       ?? with subdefinitions SUBDEFINITIONS
-       <--
-\end{verbatim}
-\end{indpar}
-
-It is possible to temporarily void an operator definition by
-placing a canceling undefinition in the parsing stack.  This has the
-syntax:
-
-\begin{indpar}
-\key{OPERATOR-UNDEFINITION} \\
-	\hspace*{0.5in}::= \verb|undefine operator|
-	~ {\em OPERATOR-FIXITY} ~ {\em OPERATOR-NAME}
 \end{indpar}
 
 \subsection{Operators}
@@ -2767,38 +2715,50 @@ the parsing stack, and are used by the operators parser.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
-Name \\
+Name and Selectors \\
 Precedence \\
-Control Flags
+Control Flags \\
+Reformatter \\
+Evaluator
 \end{indpar}
 
+\subsubsection{Operator Definition Syntax}
+\label{OPERATOR-DEFINITION-SYNTAX}
 
-\subsubsubsection{Operator Fixity}\ttmindex{fixity}{of operator}
-\label{OPERATOR-FIXITY}
-An operator has one of the following fixities:
+The syntax of operator definitions is:
 
 \begin{indpar}
-\begin{tabular}{@{}p{1in}@{~~~}p{4in}@{}}
-\ttkey{infix}		& E.g., \verb|+| in \verb|x + 5|.\\
-\ttkey{prefix}		& E.g., \verb|-| in \verb|- 5|.\\
-\ttkey{postfix}		& E.g., \verb|!| in \verb|x!|.\\
-\ttkey{matchfix}	& E.g., \verb/[| |]/ in \verb/[| x - 5 |]/.
-\end{tabular}
+\key{operator-definition} \\
+	\hspace*{0.5in}::= \ttkey{define operator}
+	    \begin{tabular}[t]{@{}l@{}}
+	    {\em operator-name} {\em parsing-selectors} \\
+	    {}[\verb|with|] \verb|precedence| {\em precedence} \\
+	    {}[\verb|definitional|] \\
+	    {}[ [\verb|with|] \verb|reformatter|
+	        {\em reformatter-name} ] \\
+	    {}[\verb|with|] \verb|evaluator| {\em evaluator-name} \\
+	    \end{tabular}
+	    \\[1ex]
+\key{bracket-name} ::=
+	{\em opening-bracket-name}
+	\verb|...|
+	{\em closing-bracket-name}
+	\\[1ex]
+\key{opening-bracket-name} ::=
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\\[1ex]
+\key{closing-bracket-name} ::=
+	\{ {\em word} $|$ {\em separator} \}
+	\{ {\em word} $|$ {\em separator} \}$^\star$
+	\\[1ex]
+\key{reformatter-name} ::= {\em function-name }
+	\\[1ex]
+\key{evaluator-name} ::= {\em function-name }
+	\\[1ex]
+\key{function-name} ::=
+	{\em word} {\em word}\,$^\star$
 \end{indpar}
-
-An infix operator is placed between its two operands;
-a prefix operator is placed before its one operand;
-a postfix operator is placed after its one operand;
-and a matchfix operator surrounds its one operand.
-Operands of prefix, infix, and postfix
-operators may not be empty; but the operand of a matchfix operator
-may be empty.
-An infix operator may not begin or end an expression;
-a prefix operator must begin an expression;
-a postfix operator must end an expression;
-and a matchfix operator has two parts: an opening operator
-that must begin an expression and a closing operator that must end
-the same expression.
 
 \subsubsubsection{Operator Name}\ttmindex{name}{of operator}
 \label{OPERATOR-NAME}
