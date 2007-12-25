@@ -2048,7 +2048,7 @@ The scan that performs the above actions is called
 because it does initial parse steps
 at the level of individual lexemes and short sequences of lexemes, and
 because it is controlled by definitions in the parsing stack
-(\pagref{PARSING-STACK}).
+(\pagref{PARSING-DEFINITION-STACK}).
 
 Lexical parsing is \underline{not} performed in certain
 contexts, such as in the lexical context of a pair of matched {\em quotes}
@@ -2060,7 +2060,7 @@ contexts, such as in the lexical context of a pair of matched {\em quotes}
 The lexeme replacement process replaces one lexeme by a string of zero or
 more lexemes.  Replacement may be done by either a dictionary or a function.
 Replacement is controlled by \skey{lexeme replacement definition}s
-in the parsing stack (\pagref{PARSING-STACK}).
+in the parsing definition stack (\pagref{PARSING-DEFINITION-STACK}).
 
 There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
@@ -2366,26 +2366,26 @@ can have special affects on parsing.
 A summary of the standard affects of brackets is:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	& With      &           & Sets		& Sets \\
-In	& Parsing   & Matching  & Parser	& Parsing \\
-Parser	& Selector  & Brackets  & To		& Selectors To \\[1ex]
-any     & -	    & \verb|(|\ldots\verb|)|
-		                & [no change]	& [no change] \\
-any	& -	    & \verb|{|\ldots\verb|}|
-				& operator	& operator \\
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
+	& With      &           & Sets \\
+In	& Parsing   &		& Parsing \\
+Parser	& Selector  & Brackets  & Selectors To \\[1ex]
+{}[any] & -	    & \verb|(|\ldots\verb|)|
+		                & [no change] \\
+{}[any]	& -	    & \verb|{|\ldots\verb|}|
+				& operator \\
 operator & operator & \verb|[|\ldots\verb|]|
-				& operator	& list \\
+				& list \\
 operator & list	    & \verb|[|\ldots\verb|]|
-		    		& operator	& list \\
+		    		& list \\
 text    & text      & \verb|[|\ldots\verb|]|
-				& operator 	& operator \\
-any	& -	    & \verb|`|\ldots\verb|'|
-		    		& text		& text     \\
-any	& -	    & \verb|``|\ldots\verb|''|
-		    		& text		& text     \\
-any	& -	    & \verb|```|\ldots\verb|'''|
-		    		& text		& text     \\
+				& operator \\
+{}[any]	& -	    & \verb|`|\ldots\verb|'|
+		    		& text     \\
+{}[any]	& -	    & \verb|``|\ldots\verb|''|
+		    		& text     \\
+{}[any]	& -	    & \verb|```|\ldots\verb|'''|
+		    		& text     \\
 \end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
@@ -2402,25 +2402,42 @@ text     & yes	      & no         & yes        & yes \\
 \end{tabular}
 \end{center}
 
-During parsing there are also parsing selectors which determine
+During parsing, parsing selectors are used to determine
 which definitions in the parsing stack are used.  The `operator'
-parser may run with either the `operator' or `list' parsing selectors.
-In the former case, all operators are standardly recognized, whereas
+parser standardly runs with either the `operator' or `list' parsing selectors.
+In the former case, all operators and separators
+are standardly recognized, whereas
 in the later case, only separators are standardly recognized.
+The text parser standardly runs with the `text' selector.
 
 The text parser recognizes sentences, paragraphs, and so forth, but not
-operators.  The list parser only recognizes separators, as if they were
 operators.  The operator parser recognizes both operators and separators,
-but not sentences, etc.
+but not sentences, etc.  Both parsers recognize brackets and do lexical
+parsing, but the most standard bracket definitions and all standard
+lexical parsing definitions do not have the `text' parsing selector,
+and therefore are ignored by standard text parsing.
 
-Parsing is controlled by the \key{parsing stack},\label{PARSING-STACK}
-which contains definitions of parsers and operators, and
-lexeme replacement and unit specifier
-definitions related to lexical parsing.
+Parsing is controlled by a parsing definition
+stack and a parsing selector set stack.
+The \key{parsing definition stack},\label{PARSING-DEFINITION-STACK}
+contains definitions of parsers, brackets, operators, lexeme replacements,
+and unit specifiers.
+The \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK}
+contains parsing selector sets.  A \key{parsing selector} is
+a sequence of one or more words used to name sets of parsing definitions.
+A \key{parsing selector set}
+is a set of parsing selectors that names the set of parsing stack definitions
+which share at least one parsing selector with the set.
+
+If a subexpression begins and ends with matched brackets, a parsing selector
+set determined by the bracket definition may be pushed into the parsing
+selector set stack before parsing the subexpression.  At the end of
+the subexpression parsing, this selector set is popped from the stack.
+
 A definitional operator (\pagref{DEFINITIONAL})
-may push definitions onto the parsing
-stack.  After the expression containing the operator has been parsed,
-these definitions will be popped from the parsing stack.
+may push parsing definitions onto the parsing
+definition stack.  After the expression containing the operator has been parsed,
+these definitions will be popped from the stack.
 
 The following is a list of the kinds of
 \ikey{definitions}{definition!in parsing stack} that may be in
