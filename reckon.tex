@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 24, 2007}
+\date{December 26, 2007}
  
 \maketitle
 
@@ -2121,7 +2121,7 @@ dictionary and function.  These have the syntax:
 	{\em word} {\em word}\,$^\star$
 \end{indpar}%
 \label{LEXEME-REPLACEMENT-DEFINITION}%
-\label{PARSING-SELECTORS-SYNTAX}
+\label{PARSING-SELECTORS}
 
 A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
@@ -2256,7 +2256,7 @@ must be defined as a {\em unit-specifier-name} by the following:
 \end{indpar}%
 \label{UNIT-SPECIFIER-DEFINITION}
 
-The \key{number unit grouping} phase of lexical
+The \key{number unit grouping}\label{NUMBER-UNIT-GROUPING} phase of lexical
 parsing recognizes {\em number-unit-groups} containing more than
 one {\em number-unit-pair}, places
 implied parentheses around them, and places implied `\verb|+|' operators
@@ -2265,7 +2265,8 @@ between their {\em number-unit-pairs}.  This is done after lexeme replacement
 
 For example, `\verb|7 ' 30 "|' is a {\em number-unit-group} containing
 2 {\em number-unit-pairs} that number unit grouping transforms into
-`\verb|( 7 ' + 30 " )|'.
+`\verb/(| 7 ' + 30 " |)/', where \verb/(| |)/ are implied brackets
+(\pagref{IMPLIED-BRACKETS}).
 
 \subsubsection{Unit Multiplier Insertion}
 \label{UNIT-MULTIPLIER-INSERTION}
@@ -2348,7 +2349,7 @@ by applying the following syntax equations.
 
 The {\em opening-bracket} and {\em closing-bracket} of a subexpression
 are a matched pair of brackets specified by a bracket definition
-(\secref{BRACKET-DEFINITIONS}).
+(\secref{BRACKET-DEFINITION}).
 
 The subexpressions identified by this rule have explicit
 brackets.  Below we introduce subexpressions with operators that have implicit
@@ -2366,30 +2367,22 @@ can have special affects on parsing.
 A summary of the standard affects of brackets is:
 
 \begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	& With      &           & Sets \\
-In	& Parsing   &		& Parsing \\
-Parser	& Selector  & Brackets  & Selectors To \\[1ex]
-{}[any] & -	    & \verb|(|\ldots\verb|)|
-		                & [no change] \\
-{}[any]	& -	    & \verb|{|\ldots\verb|}|
-				& operator \\
-operator & operator & \verb|[|\ldots\verb|]|
-				& list \\
-operator & list	    & \verb|[|\ldots\verb|]|
-		    		& list \\
-text    & text      & \verb|[|\ldots\verb|]|
-				& operator \\
-{}[any]	& -	    & \verb|`|\ldots\verb|'|
-		    		& text     \\
-{}[any]	& -	    & \verb|``|\ldots\verb|''|
-		    		& text     \\
-{}[any]	& -	    & \verb|```|\ldots\verb|'''|
-		    		& text     \\
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
+With      &           			& Sets \\
+Parsing   &				& Parsing \\
+Selector  & Brackets  & Selectors To \\[1ex]
+-	  & \verb|(|\ldots\verb|)|	& [no change] \\
+-	  & \verb|{|\ldots\verb|}|	& operator \\
+operator  & \verb|[|\ldots\verb|]|	& list \\
+list	  & \verb|[|\ldots\verb|]|	& list \\
+text      & \verb|[|\ldots\verb|]|	& operator \\
+-	  & \verb|`|\ldots\verb|'|	& text     \\
+-	  & \verb|``|\ldots\verb|''|	& text     \\
+-	  & \verb|```|\ldots\verb|'''|	& text     \\
 \end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
-A summary of the behavior of parsers is:
+A summary of the behavior of standard parsers is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
@@ -2428,9 +2421,14 @@ a sequence of one or more words used to name sets of parsing definitions.
 A \key{parsing selector set}
 is a set of parsing selectors that names the set of parsing stack definitions
 which share at least one parsing selector with the set.
+The parsing selector set at the top of the parsing selector set stack is
+called the \key{current parsing selector set}, and the parsing stack
+definitions it selects are call the \skey{current parsing definition}s.%
+\label{CURRENT-PARSING-DEFINITION}
 
 If a subexpression begins and ends with matched brackets, a parsing selector
-set determined by the bracket definition may be pushed into the parsing
+set determined by the bracket definition (\secref{BRACKET-DEFINITION})
+may be pushed into the parsing
 selector set stack before parsing the subexpression.  At the end of
 the subexpression parsing, this selector set is popped from the stack.
 
@@ -2440,66 +2438,54 @@ definition stack.  After the expression containing the operator has been parsed,
 these definitions will be popped from the stack.
 
 The following is a list of the kinds of
-\ikey{definitions}{definition!in parsing stack} that may be in
-the \mkey{parsing stack}{kinds of definition in}:%
+\skey{parsing definition}s that may be in
+the \mkey{parsing definition stack}{kinds of definition in}:%
 \label{PARSING-STACK-DEFINITION-KINDS}
 
 \begin{center}
 \begin{tabular}{ll}
 parser & \secref{PARSER-DEFINITION} \\
-operator & \secref{OPERATOR-DEFINITIONS} \\
+bracket & \secref{BRACKET-DEFINITION} \\
+operator & \secref{OPERATOR-DEFINITION} \\
 lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
 \end{tabular}
 \end{center}
 
 A \key{parser definition}\label{PARSER-DEFINITION}
-names a parser.  The most recent parser
-definition in the parsing stack names the parser used to parse expressions.
+names a parser.  The most recent current parser definition
+(\pagref{CURRENT-PARSING-DEFINITION})
+in the parsing stack names the parser used to parse expressions.
 Parser definitions have the syntax:
 
 \begin{indpar}
 \key{parser-definition}
 	::= \verb|define parser| {\em parser-name}
 				{\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em word} {\em word}\,$^\star$
+\key{parser-name} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
+{\em parser-selectors} ::= [see \pagref{PARSING-SELECTORS}]
 \end{indpar}
 
-There are three standard \ikey{parsers}{parser!standard}:
-the \ttkey{operator parser},
-that recognizes operators and separators;
-the \ttkey{list parser},
-that recognizes just separators;
-and the \ttkey{text parser},
-that recognizes the format-separator (\verb/|/) and punctuation.
+There are two standard \ikey{parsers}{parser!standard},
+the \key{operator parser} and the \key{text parser}, that have the
+definitions:
 
-The \emkey{parsing-selectors}\label{PARSING-SELECTORS} (see
-\pagref{PARSING-SELECTORS-SYNTAX} for syntax) select which
-parsing stack definitions are active (used),
-and which are inactive (unused in the current context).
-The topmost {\em parser-definition} in the stack is always active,
-and other {\em parser-definitions} in the stack are always inactive.
-Other kinds of definition are active if and only if they share
-a {\em parsing-selector} with the active {\em parser-definition}.
+\begin{indpar}\begin{verbatim}
+define parser -OPERATOR-PARSER- [operator]
+define parser -TEXT-PARSER- [text]
+\end{verbatim}\end{indpar}
 
-Thus if the parser definition:
-
-\begin{center}
-\verb|define parser operator [operator]|
-\end{center}
-
-is active, all non-{\em parser-definitions} with the \verb|operator|
-selector will be active, and all without this selector will be inactive.
+The difference between these two parsers is that only the operator
+parser recognizes operators, and only the text parser recognizes paragraphs,
+sentences, etc.
 
 
-
-
-\ikey{Implicit parentheses}{implicit parentheses} introduced by parsers
+\ikey{Implicit brackets}{implicit brackets} introduced by parsers
 can also be represented explicitly, though this is mostly done
 for purposes of debugging.  For example, the implicit parentheses
 introduced by operators or separators are represented by \verb@(| |)@.
-Other kinds of implicit parentheses are introduced by the text parser.
-Here is a complete list of implicit parentheses and the kinds of subexpressions
+Other kinds of implicit brackets are introduced by the text parser.
+Here is a complete list of implicit brackets and the kinds of subexpressions
 they surround:
 
 \begin{center}
@@ -2511,7 +2497,7 @@ they surround:
 \verb@[* *]@	& Sections, sub-sections, sub-sub-sections, etc. \\
 \verb@{* *}@	& Chapters.
 \end{tabular}
-\end{center}
+\end{center}\label{IMPLIED-BRACKETS}
 
 
 The operators parser (\secref{OPERATORS}) recognizes
@@ -2523,58 +2509,26 @@ The list parser is similar, but only recognizes separators.  It turns
 \begin{center}
 \verb@[ george, (| betty sue |), bill ]@
 \end{center}
-In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
-by the operators and list parsers.
 The text parser (\secref{TEXT-PARSING}), which is invoked by
 \verb|`'| quotes, turns
-\verb|``I think!  Therefore, I am!''| into
+\begin{center}
+\verb|``I think!  Therefore, I am!''|
+\end{center}
+into
 \begin{center}
 \verb@(* <* I think ! *> <* Therefore , <| I am |> ! *> *)@
 \end{center}
 
-Some of the standard brackets affect evaluation, as is indicated
-in the table on~\pagref{CONTEXT-SWITCHES}.  However, evaluation has
-nothing directly to do with parsing.
+In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
+by parsers, though lexical parsing definitions standardly do not have
+the `text' selector and are therefore standardly not active during
+text parsing.  During lexical parsing, number unit grouping
+(\pagref{NUMBER-UNIT-GROUPING}) can insert implied brackets.
 
-
-TBD
-
-Evaluation differs from parsing in that it is controlled by
-the `wrapper functions' \verb|-EVAL-ON-| and \verb|-EVAL-OFF-|
-that are inserted automatically during parsing when the evaluation
-mode is changed (\secref{POST-OPERATOR-SELECTION-PROCESSING}).
-Thus in a context in which evaluation is on, the \verb|Y| in
-\verb|`Let X be [Y].'| will be evaluated but \verb|X| will not be,
-because \verb|` '| turns evaluation off, while \verb|[ ]| turns it
-back on.  The mechanism for this is that the expression
-\verb|`Let X be [Y].'| is parsed to become
-
-\begin{center}
-\verb|[-EVAL-OFF- [-SENTENCE- let X be [-EVAL-ON- Y] .]]|
-\end{center}
-
-and the evaluator, running during program execution, sees the
-\verb|-EVAL-OFF-|, and does not evaluate the following subexpression,
-except for parts that have \verb|-EVAL-ON-|.
-
-Note also that if the expression designated by \verb|-EVAL-ON-| evaluates
-to a list inside a list, flattening is used to merge the lists.  Thus
-if \verb|Y| has the value \verb|`a banana'| when the last expression
-is evaluated, the result will be the same as evaluating
-\verb|`Let X be a banana.'|, and \underline{not}
-\verb|`Let X be (a banana).'|.
-
-Also note that brackets that turn evaluation off (or on)
-do not produce \verb|-EVAL-OFF-| (or \verb|-EVAL-ON-|) wrappers if
-they are used in a context where the evaluation mode is already off
-(or on).  Thus if \verb|`Let X be a `[Y]'.'| is evaluated when \verb|Y|
-is \verb|`banana'|, the result is the same as evaluating
-\verb|`Let X be a `banana'.'|.\footnote{Classical programming
-languages would require that {\tt `Let X be a `[ [Y] ]'.'} be evaluated
-to get this result.  Two nested {\tt [ ]}'s would be needed to overcome the
-two nested {\tt ` '}.}
-
-[TBD: Does this last example need work?]
+Bracket and operator definitions may specify reformatters
+that are functions which reformat subexpressions after they haver
+been normally parsed.  These definitions may also specify evaluators
+that are functions called to evaluate parsed subexpressions.
 
 
 \subsection{Brackets}
@@ -2585,7 +2539,7 @@ to parse the subexpression, and which operators, separators, and brackets
 are recognized by that parser.
 
 \subsubsection{Bracket Definitions}
-\label{BRACKET-DEFINITIONS}
+\label{BRACKET-DEFINITION}
 
 \ikey{Bracket definitions}{bracket definition} can be pushed onto
 the parsing stack, and definitions in the stack
@@ -2752,7 +2706,7 @@ parsing stack.  Certain operators are `definitional'
 definitions to be pushed into the parsing stack.
 
 \subsubsection{Operator Definitions}
-\label{OPERATOR-DEFINITIONS}
+\label{OPERATOR-DEFINITION}
 
 \ikey{Operator definitions}{operator definition} can be pushed onto
 the parsing stack, and are used by the operators parser.
@@ -2983,7 +2937,7 @@ will be restructured to be `\verb|[try (x + y)]|'.
 See \pagref{WRAPPER-PROCESSING}.
 
 \subsubsubsection{Operator Subdefinitions}\ttmindex{definition}{of operator}
-\label{OPERATOR-SUBDEFINITIONS}
+\label{OPERATOR-SUBDEFINITION}
 
 An operator definition can contain a list of definitions
 that are pushed onto the parsing stack before the subexpressions
@@ -3074,7 +3028,7 @@ The syntax of operator definitions is:
 \end{indpar}
 
 which correspond to the definitions
-(\secref{EXPRESSION-DEFINITIONS}):
+(\secref{EXPRESSION-DEFINITION}):
 
 \begin{indpar}
 \begin{verbatim}
@@ -5301,7 +5255,7 @@ definitions continues.
 Evaluations of guard blocks are required to have no visible side effects.
 
 \subsection{Expression Definitions}
-\label{EXPRESSION-DEFINITIONS}
+\label{EXPRESSION-DEFINITION}
 
 \ikey{Expression definitions}{expression definition} have the syntax:
 
@@ -5438,7 +5392,7 @@ choose an argument order.
 \item
 
 Call unify (\secref{CALL-UNIFICATION})
-the pattern (\secref{EXPRESSION-DEFINITIONS})
+the pattern (\secref{EXPRESSION-DEFINITION})
 from the definition copy with the expression to be matched,
 using the chosen argument order if any.
 If the unification fails, the definition does not match.  If the
@@ -5602,7 +5556,7 @@ If mutable, altering the list object will alter its containing context
 object, and this is in fact the only way to mutate a mutable context.
 
 The above expressions are defined by the
-expression definitions (\secref{EXPRESSION-DEFINITIONS}):
+expression definitions (\secref{EXPRESSION-DEFINITION}):
 
 \begin{indpar}
 \begin{verbatim}
