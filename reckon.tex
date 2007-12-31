@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 26, 2007}
+\date{December 31, 2007}
  
 \maketitle
 
@@ -2302,7 +2302,7 @@ There are many kinds of brackets: for example, \skey{square bracket}s
 \verb|[ ]|, \skey{curly bracket}s \verb|{ }|, \key{parentheses} \verb|( )|,
 and \skey{quote}s \verb|` '|.
 
-Expressions and subexpressions can contain lexemes called
+Expressions and subexpressions can contain lexeme sequences called
 \skey{operator}s.  When they do,
 matched \ikey{implied parentheses}{implied parenthesis}
 are inserted into the expressions or subexpressions
@@ -2345,70 +2345,22 @@ by applying the following syntax equations.
 \key{closing-bracket} ::=
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}\,$^\star$
-\end{indpar}
+\end{indpar}\label{EXPRESSION-ITEM}
 
 The {\em opening-bracket} and {\em closing-bracket} of a subexpression
 are a matched pair of brackets specified by a bracket definition
 (\secref{BRACKET-DEFINITION}).
 
 The subexpressions identified by this rule have explicit
-brackets.  Below we introduce subexpressions with operators that have implicit
-brackets.
+brackets.  Below we introduce subexpressions with operators
+that have implicit brackets.
 
 The syntactic category name {\em EXPRESSION} is capitalized because in
 this document syntactic categories representing CASTLE expressions
 are given completely capitalized names.
 
-\subsection{Expression Structure Overview}
-\label{EXPRESSION-STRUCTURE-OVERVIEW}
-
-The brackets that surround a subexpression
-can have special affects on parsing.
-A summary of the standard affects of brackets is:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
-With      &           			& Sets \\
-Parsing   &				& Parsing \\
-Selector  & Brackets  & Selectors To \\[1ex]
--	  & \verb|(|\ldots\verb|)|	& [no change] \\
--	  & \verb|{|\ldots\verb|}|	& operator \\
-operator  & \verb|[|\ldots\verb|]|	& list \\
-list	  & \verb|[|\ldots\verb|]|	& list \\
-text      & \verb|[|\ldots\verb|]|	& operator \\
--	  & \verb|`|\ldots\verb|'|	& text     \\
--	  & \verb|``|\ldots\verb|''|	& text     \\
--	  & \verb|```|\ldots\verb|'''|	& text     \\
-\end{tabular}\label{CONTEXT-SWITCHES}
-\end{center}
-
-A summary of the behavior of standard parsers is:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	 &            &            & Does	& Does \\
-	 & Recognizes & Recognizes & Lexical	& Text \\
-Parser	 & Brackets   & Operators  & Parsing	& Parsing \\[1ex]
-
-operator & yes	      & yes        & yes 	& no \\
-text     & yes	      & no         & yes        & yes \\
-\end{tabular}
-\end{center}
-
-During parsing, parsing selectors are used to determine
-which definitions in the parsing stack are used.  The `operator'
-parser standardly runs with either the `operator' or `list' parsing selectors.
-In the former case, all operators and separators
-are standardly recognized, whereas
-in the later case, only separators are standardly recognized.
-The text parser standardly runs with the `text' selector.
-
-The text parser recognizes sentences, paragraphs, and so forth, but not
-operators.  The operator parser recognizes both operators and separators,
-but not sentences, etc.  Both parsers recognize brackets and do lexical
-parsing, but the most standard bracket definitions and all standard
-lexical parsing definitions do not have the `text' parsing selector,
-and therefore are ignored by standard text parsing.
+\subsection{Parsing Overview}
+\label{PARSING-OVERVIEW}
 
 Parsing is controlled by a parsing definition
 stack and a parsing selector set stack.
@@ -2432,6 +2384,58 @@ may be pushed into the parsing
 selector set stack before parsing the subexpression.  At the end of
 the subexpression parsing, this selector set is popped from the stack.
 
+A summary of the standard affects of brackets is:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
+With      &           			& Sets \\
+Parsing   &				& Parsing \\
+Selector  & Brackets  			& Selectors To \\[1ex]
+-	  & \verb|(|\ldots\verb|)|	& [no change] \\
+-	  & \verb|{|\ldots\verb|}|	& operator \\
+operator  & \verb|[|\ldots\verb|]|	& list \\
+list	  & \verb|[|\ldots\verb|]|	& list \\
+text      & \verb|[|\ldots\verb|]|	& operator \\
+-	  & \verb|`|\ldots\verb|'|	& text     \\
+-	  & \verb|``|\ldots\verb|''|	& text     \\
+-	  & \verb|```|\ldots\verb|'''|	& text     \\
+\end{tabular}\label{CONTEXT-SWITCHES}
+\end{center}
+
+Thus the \verb|{ }| brackets, whose definition is always current
+(signified by `-' in the above table), pushes into the parsing
+selector set stack the set whose only member is the `operator'
+parsing selector.  There are two \verb|[ ]| bracket definitions, 
+one selected by the `operator' and `list' selectors that pushes
+the selector set whose only member is `list', and one selected
+by the `text' selector that pushes the selector set whose only
+member is `operator'.
+
+There are two standard parsers:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
+	 &            &            & Does	& Does \\
+	 & Recognizes & Recognizes & Lexical	& Text \\
+Parser	 & Brackets   & Operators  & Parsing	& Parsing \\[1ex]
+
+operator & yes	      & yes        & yes 	& no \\
+text     & yes	      & no         & yes        & yes \\
+\end{tabular}
+\end{center}
+
+The `operator' parser has a definition selected by either the `operator'
+or `list' parsing selectors, and recognizes any
+operators or separators whose definitions are current, whereas
+and the `text' parser has a definition selected
+by the `text' selector, does not recognize operator or separator
+definitions even if they are current, and does special text parsing
+that identifies sections, paragraphs, sentences, and phrases.
+Both operator and text parsers recognize brackets and do lexical
+parsing, but the most standard bracket definitions and all standard
+lexical parsing definitions do not have the `text' parsing selector,
+and therefore are ignored by standard text parsing.
+
 A definitional operator (\pagref{DEFINITIONAL})
 may push parsing definitions onto the parsing
 definition stack.  After the expression containing the operator has been parsed,
@@ -2451,33 +2455,6 @@ lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
 \end{tabular}
 \end{center}
-
-A \key{parser definition}\label{PARSER-DEFINITION}
-names a parser.  The most recent current parser definition
-(\pagref{CURRENT-PARSING-DEFINITION})
-in the parsing stack names the parser used to parse expressions.
-Parser definitions have the syntax:
-
-\begin{indpar}
-\key{parser-definition}
-	::= \verb|define parser| {\em parser-name}
-				{\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
-{\em parser-selectors} ::= [see \pagref{PARSING-SELECTORS}]
-\end{indpar}
-
-There are two standard \ikey{parsers}{parser!standard},
-the \key{operator parser} and the \key{text parser}, that have the
-definitions:
-
-\begin{indpar}\begin{verbatim}
-define parser -OPERATOR-PARSER- [operator]
-define parser -TEXT-PARSER- [text]
-\end{verbatim}\end{indpar}
-
-The difference between these two parsers is that only the operator
-parser recognizes operators, and only the text parser recognizes paragraphs,
-sentences, etc.
 
 
 \ikey{Implicit brackets}{implicit brackets} introduced by parsers
@@ -2523,13 +2500,49 @@ In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
 by parsers, though lexical parsing definitions standardly do not have
 the `text' selector and are therefore standardly not active during
 text parsing.  During lexical parsing, number unit grouping
-(\pagref{NUMBER-UNIT-GROUPING}) can insert implied brackets.
+(\pagref{NUMBER-UNIT-GROUPING}) can insert implied parentheses.
 
 Bracket and operator definitions may specify reformatters
 that are functions which reformat subexpressions after they haver
 been normally parsed.  These definitions may also specify evaluators
 that are functions called to evaluate parsed subexpressions.
 
+
+\subsection{Parsers}
+\label{PARSERS}
+
+A \key{parser} is a function which when called with a subexpression that
+is just a list of lexemes returns the parsed subexpression, which
+is a list of {\em expresion-items} (\pagref{EXPRESSION-ITEM}).
+
+Parsers are defined by
+\skey{parser definition}s\label{PARSER-DEFINITION}.
+The most recent current parser definition
+(\pagref{CURRENT-PARSING-DEFINITION})
+in the parsing stack names the parser used to parse expressions.
+
+Parser definitions have the syntax:
+
+\begin{indpar}
+\key{parser-definition}
+	::= \verb|define parser| {\em parser-name}
+				{\em parsing-selectors} \\[1ex]
+\key{parser-name} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
+{\em parser-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+\end{indpar}
+
+There are two standard \ikey{parsers}{parser!standard},
+the \key{operator parser} and the \key{text parser}, that have the
+definitions:
+
+\begin{indpar}\begin{verbatim}
+define parser -OPERATOR-PARSER- [operator]
+define parser -TEXT-PARSER- [text]
+\end{verbatim}\end{indpar}
+
+The difference between these two parsers is that only the operator
+parser recognizes current operator and separator definitions,
+and only the text parser recognizes paragraphs, sentences, etc.
 
 \subsection{Brackets}
 \label{BRACKETS}
