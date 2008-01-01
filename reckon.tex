@@ -1,4 +1,4 @@
-% Calculation and Simulation Total Language Environment (CASTLE)
+%  Calculation and Simulation Total Language Environment (CASTLE)
 %
 % File:         castle.tex
 % Author:       Bob Walton (walton@deas.harvard.edu)
@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 31, 2007}
+\date{January 1, 2008}
  
 \maketitle
 
@@ -2121,7 +2121,8 @@ dictionary and function.  These have the syntax:
 	{\em word} {\em word}\,$^\star$
 \end{indpar}%
 \label{LEXEME-REPLACEMENT-DEFINITION}%
-\label{PARSING-SELECTORS}
+\label{PARSING-SELECTORS}%
+\label{PARSING-SELECTOR-LIST}
 
 A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
@@ -2365,17 +2366,20 @@ are given completely capitalized names.
 Parsing is controlled by a parsing definition
 stack and a parsing selector set stack.
 The \key{parsing definition stack},\label{PARSING-DEFINITION-STACK}
-contains definitions of parsers, brackets, operators, lexeme replacements,
+contains definitions of parsers, brackets, operators, phrase separators,
+sentence terminators, section initiators, lexeme replacements,
 and unit specifiers.
 The \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK}
 contains parsing selector sets.  A \key{parsing selector} is
-a sequence of one or more words used to name sets of parsing definitions.
+a sequence of one or more words that can be attached to parsing definitions.
 A \key{parsing selector set}
-is a set of parsing selectors that names the set of parsing stack definitions
+is a set of parsing selectors that selects those parsing stack definitions
 which share at least one parsing selector with the set.
-The parsing selector set at the top of the parsing selector set stack is
-called the \key{current parsing selector set}, and the parsing stack
-definitions it selects are call the \skey{current parsing definition}s.%
+The set at the top of the parsing selector set stack is
+called the \key{current parsing selector set}, its members are called
+\skey{current parsing selector}s, and the parsing stack
+definitions the set selects
+are call the \skey{current parsing definition}s.%
 \label{CURRENT-PARSING-DEFINITION}
 
 If a subexpression begins and ends with matched brackets, a parsing selector
@@ -2411,7 +2415,28 @@ the selector set whose only member is `list', and one selected
 by the `text' selector that pushes the selector set whose only
 member is `operator'.
 
-There are two standard parsers:
+The following is a list of the kinds of
+\skey{parsing definition}s that may be in
+the \mkey{parsing definition stack}{kinds of definition in}:%
+\label{PARSING-STACK-DEFINITION-KINDS}
+
+\begin{center}
+\begin{tabular}{ll}
+parser & \secref{PARSER-DEFINITION} \\
+bracket & \secref{BRACKET-DEFINITION} \\
+operator & \secref{OPERATOR-DEFINITION} \\
+lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
+unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
+phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
+sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
+section initiator & \secref{SECTION-INITIATOR-DEFINITION}
+\end{tabular}
+\end{center}
+
+A parser is a function that is called with a list of lexemes and
+returns a parsed expression.  At any time there can be only one
+current parser definition, and that is used to select the current
+parser.  There are two standard parsers:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
@@ -2426,11 +2451,16 @@ text     & yes	      & no         & yes        & yes \\
 
 The `operator' parser has a definition selected by either the `operator'
 or `list' parsing selectors, and recognizes any
-operators or separators whose definitions are current, whereas
-and the `text' parser has a definition selected
-by the `text' selector, does not recognize operator or separator
-definitions even if they are current, and does special text parsing
-that identifies sections, paragraphs, sentences, and phrases.
+operators whose definitions are current
+(list separators are treated as operators),
+whereas the `text' parser has a definition selected
+by the `text' selector, and recognizes phrase separators, sentence
+terminators, and section initiators whose definitions are current.
+The 'operator' praser does \underline{not} recognize
+any phrase separators, sentence terminators, or section initiators,
+and the `text'
+parser does \underline{not} recognize any operator
+definitions.
 Both operator and text parsers recognize brackets and do lexical
 parsing, but the most standard bracket definitions and all standard
 lexical parsing definitions do not have the `text' parsing selector,
@@ -2441,26 +2471,11 @@ may push parsing definitions onto the parsing
 definition stack.  After the expression containing the operator has been parsed,
 these definitions will be popped from the stack.
 
-The following is a list of the kinds of
-\skey{parsing definition}s that may be in
-the \mkey{parsing definition stack}{kinds of definition in}:%
-\label{PARSING-STACK-DEFINITION-KINDS}
-
-\begin{center}
-\begin{tabular}{ll}
-parser & \secref{PARSER-DEFINITION} \\
-bracket & \secref{BRACKET-DEFINITION} \\
-operator & \secref{OPERATOR-DEFINITION} \\
-lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
-unit specifier & \secref{UNIT-SPECIFIER-DEFINITION}
-\end{tabular}
-\end{center}
-
 
 \ikey{Implicit brackets}{implicit brackets} introduced by parsers
 can also be represented explicitly, though this is mostly done
 for purposes of debugging.  For example, the implicit parentheses
-introduced by operators or separators are represented by \verb@(| |)@.
+introduced by operators are represented by \verb@(| |)@.
 Other kinds of implicit brackets are introduced by the text parser.
 Here is a complete list of implicit brackets and the kinds of subexpressions
 they surround:
@@ -2477,17 +2492,27 @@ they surround:
 \end{center}\label{IMPLIED-BRACKETS}
 
 
-The operators parser (\secref{OPERATORS}) recognizes
+The operators parser with the `operators' parsing selector recognizes
 the operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
-\verb|x + y - 5 * z| and turns this expression into
+\begin{center}
+\verb|x + y - 5 * z|
+\end{center}
+and turns this expression into
+\begin{center}
 \verb@x + y - (| 5 * z |)@.
-The list parser is similar, but only recognizes separators.  It turns
-\verb|[george, betty sue, bill]| into
+\end{center}
+The operator parser with the `list' selector only recognizes separators,
+and turns
+\begin{center}
+\verb|[george, betty sue, bill]|
+\end{center}
+into
 \begin{center}
 \verb@[ george, (| betty sue |), bill ]@
 \end{center}
-The text parser (\secref{TEXT-PARSING}), which is invoked by
-\verb|`'| quotes, turns
+The text parser, which is invoked by
+\verb|`'| quotes, recognizes the phrase separator `\verb|,|' and
+the sentence terminator `\verb|!|' and turns
 \begin{center}
 \verb|``I think!  Therefore, I am!''|
 \end{center}
@@ -2511,13 +2536,13 @@ that are functions called to evaluate parsed subexpressions.
 \subsection{Parsers}
 \label{PARSERS}
 
-A \key{parser} is a function which when called with a subexpression that
-is just a list of lexemes returns the parsed subexpression, which
+A \key{parser} is a function which when called with
+a list of lexemes returns the parsed subexpression, which
 is a list of {\em expresion-items} (\pagref{EXPRESSION-ITEM}).
 
 Parsers are defined by
 \skey{parser definition}s\label{PARSER-DEFINITION}.
-The most recent current parser definition
+The topmost current parser definition
 (\pagref{CURRENT-PARSING-DEFINITION})
 in the parsing stack names the parser used to parse expressions.
 
@@ -2528,7 +2553,7 @@ Parser definitions have the syntax:
 	::= \verb|define parser| {\em parser-name}
 				{\em parsing-selectors} \\[1ex]
 \key{parser-name} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
-{\em parser-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
 \end{indpar}
 
 There are two standard \ikey{parsers}{parser!standard},
@@ -2536,20 +2561,20 @@ the \key{operator parser} and the \key{text parser}, that have the
 definitions:
 
 \begin{indpar}\begin{verbatim}
-define parser -OPERATOR-PARSER- [operator]
+define parser -OPERATOR-PARSER- [operator,list]
 define parser -TEXT-PARSER- [text]
 \end{verbatim}\end{indpar}
 
 The difference between these two parsers is that only the operator
-parser recognizes current operator and separator definitions,
-and only the text parser recognizes paragraphs, sentences, etc.
+parser recognizes current operator definitions,
+and only the text parser recognizes phrase separator, sentence
+terminator, and section initiator definitions.
 
 \subsection{Brackets}
 \label{BRACKETS}
 
-Brackets surround a subexpression and control which the parser is used
-to parse the subexpression, and which operators, separators, and brackets
-are recognized by that parser.
+Brackets surround a subexpression and can specify the parsing
+selector set that determines how the subexpression is parsed.
 
 \subsubsection{Bracket Definitions}
 \label{BRACKET-DEFINITION}
@@ -2561,7 +2586,7 @@ A bracket definition specifies for each bracket pair the following:
 
 \begin{indpar}[1in]
 Name and Parsing Selectors \\
-Parser and Parsing Selectors \\
+New Parsing Selectors \\
 Reformatter \\
 Evaluator
 \end{indpar}
@@ -2576,11 +2601,11 @@ The syntax of bracket definitions is:
 	\hspace*{0.5in}::= \ttkey{define bracket}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em bracket-name} {\em parsing-selectors} \\
-	    {}[\verb|with|] \verb|parser|
-	        {\em parser-name} {\em parsing-selectors} \\
+	    {}[ [\verb|with|] \verb|parsing-selectors|
+	        {\em new-parsing-selectors} ] \\
 	    {}[ [\verb|with|] \verb|reformatter|
 	        {\em reformatter-name} ] \\
-	    {}[\verb|with|] \verb|evaluator| {\em evaluator-name} \\
+	    {}[ [\verb|with|] \verb|evaluator| {\em evaluator-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
 \key{bracket-name} ::=
@@ -2602,6 +2627,11 @@ The syntax of bracket definitions is:
 	\\[1ex]
 \key{function-name} ::=
 	{\em word} {\em word}\,$^\star$
+	\\[1ex]
+{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+	\\[1ex]
+{\em new-parsing-selectors} ::= {\em parsing-selector-list}
+			[see \pagref{PARSING-SELECTOR-LIST}]
 \end{indpar}
 
 
