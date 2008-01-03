@@ -2586,8 +2586,8 @@ selector set that determines how the subexpression is parsed.
 \label{BRACKET-DEFINITION}
 
 \ikey{Bracket definitions}{bracket definition} can be pushed onto
-the parsing stack, and definitions in the stack
-can be used by a parser.
+the parsing stack, and are used by both the operators and text
+parsers.
 A bracket definition specifies for each bracket pair the following:
 
 \begin{indpar}[1in]
@@ -2727,13 +2727,15 @@ definitions to be pushed into the parsing stack.
 \label{OPERATOR-DEFINITION}
 
 \ikey{Operator definitions}{operator definition} can be pushed onto
-the parsing stack, and are used by the operators parser.
+the parsing stack, and are used by the operators parser, but
+\underline{not} by the text parser.  List separators are treated
+during parsing as operators, and have operator definitions.
 An operator definition specifies for each operator the following:
 
 \begin{indpar}[1in]
 Name and Selectors \\
 Precedence \\
-Control Flags \\
+Operator Flags \\
 Reformatter \\
 Evaluator
 \end{indpar}
@@ -2748,11 +2750,10 @@ The syntax of operator definitions is:
 	\hspace*{0.5in}::= \ttkey{define operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
-	    {}[\verb|with|] \verb|precedence| {\em precedence} \\
-	    {}[\verb|definitional|] \\
-	    {}[ [\verb|with|] \verb|reformatter|
-	        {\em reformatter-name} ] \\
-	    {}[\verb|with|] \verb|evaluator| {\em evaluator-name} \\
+	    {\em operator-flag}$^\star$ \\
+	    {}[ \verb|with precedence| {\em precedence} ] \\
+	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
+	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
 \key{bracket-name} ::=
@@ -2768,6 +2769,11 @@ The syntax of operator definitions is:
 	\{ {\em word} $|$ {\em separator} \}
 	\{ {\em word} $|$ {\em separator} \}$^\star$
 	\\[1ex]
+\key{operator-flag} ::= \ttmkey{definitional}{operator flag}
+                    $|$ \ttmkey{prefix}{operator flag}
+                    $|$ \ttmkey{infix}{operator flag}
+                    $|$ \ttmkey{postfix}{operator flag}
+	\\[1ex]
 \key{reformatter-name} ::= {\em function-name }
 	\\[1ex]
 \key{evaluator-name} ::= {\em function-name }
@@ -2780,36 +2786,49 @@ The syntax of operator definitions is:
 \label{OPERATOR-NAME}
 An operator definition has a sequence of lexemes that is the
 {\em name} of the operator.  The operator
-inside a subexpression is just this sequence of lexemes, except for
-matchfix operators, which have two sequences of lexemes, an
-\key{opening operator name} that must begin the subexpression and
-a \key{closing operator name} that must end the subexpression.
-
+inside a subexpression is just this sequence of lexemes.
 By abuse of language, the term `\key{operator}' is often used
-as a synonym for `operator name'.  Similarly `\key{opening operator}'
-is used as a synonym for `opening operator name' and `\key{closing operator}'
-is used as a synonym for `closing operator name'.
+as a synonym for `operator name'.
 
-The opening and closing names of a matchfix
-operator are bundled into a single operator name that is
-sequence of lexemes consisting of
-the opening operator name followed by a `\verb/.../' lexeme
-followed by the closing operator name.
-For example, the
-matchfix operator named `\verb/[ | ... | ]/' permits subexpressions
-like `\verb/[| x - 5 |]/'.  Here the opening operator name
-is `\verb/[|/' and the closing operator name is `\verb/|]/'.
+\subsubsubsection{Operator Flags}\ttmindex{flag}{of operator}
+\label{OPERATOR-FLAGS}
+Operators can have \skey{operator flag}s that
+affect parsing of subexpressions of the operator.  These are:
 
-A matchfix operator name must begin with an opening mark and end with
-a matching closing mark.  Non-matchfix
-operator names cannot contain opening or closing marks.
+\begin{indpar}
 
-When a subexpression is tested
-for matchfix operators, any explicit opening and closing marks that begin and
-end the subexpression are included in the subexpression.  Implicit
-parentheses, are not included.  Thus a matchfix operator
-such as `\verb/(| ... |)/' can only be invoked with explicit parentheses,
-and not with implicit parentheses.
+{\bf definitional}\index{definitional flag@{\tt definitional} flag}%
+\label{DEFINITIONAL}~~~~~
+This flag may only be given for a right associative infix operator.
+It causes the left operand of the operator to be inspected to see if it is
+an expression beginning with the word `\ttkey{define}' or `\ttkey{undefine}'.
+Such an expression
+is called a \key{definition}, and is assumed to push a definition into
+the parsing stack.
+See \pagref{PARSING-STACK-DEFINITION-KINDS} for a list of the kinds of
+definition that may be pushed into the parsing stack.
+
+If its left operand is not a definition, nothing special is done by
+a definitional operator.
+
+If its left operand is a definition,
+the left operand is executed by the parser and
+may push definitions into the parsing stack, the expression containing
+the infix operator is replaced by just its right operand,
+the right operand is parsed, and then any definitions pushed while
+executing the left operand are popped off the parsing stack.
+
+{\bf prefix}\index{prefix flag@{\tt prefix} flag}%
+\label{PREFIX}~~~~~
+{\bf infix}\index{infix flag@{\tt infix} flag}%
+\label{INFIX}~~~~~
+{\bf postfix}\index{postfix flag@{\tt postfix} flag}%
+\label{POSTFIX}~~~~~
+These flags determine whether the operator is treated as
+a prefix, infix, or postfix operator.  The operator can be two
+out of these three.  By default an operator is infix only.
+
+\end{indpar}
 
 \subsubsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
 \label{OPERATOR-PRECEDENCE}
@@ -2817,47 +2836,6 @@ The precedence of an operator is an integer.  Precedence is used in
 selecting which infix operators in an expression to consider
 (\secref{OPERATOR-SELECTION}).
 Only infix operators have precedence.
-
-\subsubsubsection{Operator Associativity}\ttmindex{associativity}{of operator}
-\label{OPERATOR-ASSOCIATIVITY}
-An infix operator has an {\em associativity} that is
-a sequence of lexemes.
-Three associativities, {\tt left}, {\tt right}, and
-{\tt none}, have special meaning.  If an infix operator has some
-other associativity, it is said to have \key{named associativity}.
-Only infix operators have associativity.
-
-If more than one infix operator of lowest precedence
-is selected in an expression by the operator
-selection algorithm\EOL (\secref{OPERATOR-SELECTION}),
-all the infix operators that are selected
-must have the identical operator definitions except for operator names,
-and the associativity in these definitions
-must not be {\tt none}\ttmindex{none}{associativity}.
-
-In this situation we consider the following subcases.
-
-If all operators are {\tt left} associative%
-\index{left associative@{\tt left} associative},
-all the infix operators but the rightmost are deselected,
-so it is as if operators to the left had
-higher precedence than those to the right.
-
-If all operators are {\tt right} associative%
-\index{right associative@{\tt right} associative},
-all the infix operators but the leftmost are deselected,
-so it is as if operators to the right had
-higher precedence than those to the left.
-
-If all operators are of \key{named associativity}, all remain selected, and 
-implicitly parenthesized subexpressions will be created between the
-operators as well as between the beginning of the expression and the
-first operator and between the last operator and the end of the expression.
-Then the associativity, as a lexeme sequence, is prepended to the expression.
-Thus if the infix operators \verb|<| and \verb|<=| have associativity
-\verb|-COMPARE-|, the expression \verb|0 < x - 3 <= 5| will
-be rewritten first as \verb|[-COMPARE- 0 < (x - 3) <= 5]|,
-and then finally as \verb|[-COMPARE- 0 < [- x 3] <= 5]|.
 
 \subsubsubsection{Operator Parser}\ttmindex{parser}{of operator}
 \label{OPERATOR-PARSER}
@@ -2907,36 +2885,6 @@ Operators, qualifiers, qualifier shortcuts, and the \verb|::?| optional
 argument, \verb|<:>| reorder, \verb|::>| remainder,
 \verb|@@| required qualifier, and
 \verb|??| optional qualifier marks are \underline{not} recognized.
-
-\end{indpar}
-
-\subsubsubsection{Operator Control Flags}\ttmindex{control flag}{of operator}
-\label{OPERATOR-CONTROL-FLAGS}
-Operators can be associated with \skey{operator control flag}s that
-affect parsing of subexpressions of the operator.
-
-\begin{indpar}
-
-{\bf definitional}\index{definitional flag@{\tt definitional} flag}%
-\label{DEFINITIONAL}~~~~~
-This flag may only be given for a right associative infix operator.
-It causes the left operand of the operator to be inspected to see if it is
-an expression beginning with the word `\ttkey{define}' or `\ttkey{undefine}'.
-Such an expression
-is called a \key{definition}, and is assumed to push a definition into
-the parsing stack.
-See \pagref{PARSING-STACK-DEFINITION-KINDS} for a list of the kinds of
-definition that may be pushed into the parsing stack.
-
-If its left operand is not a definition, nothing special is done by
-a definitional operator.
-
-If its left operand is a definition,
-the left operand is executed by the parser and
-may push definitions into the parsing stack, the expression containing
-the infix operator is replaced by just its right operand,
-the right operand is parsed, and then any definitions pushed while
-executing the left operand are popped off the parsing stack.
 
 \end{indpar}
 
