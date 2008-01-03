@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 1, 2008}
+\date{January 3, 2008}
  
 \maketitle
 
@@ -2528,8 +2528,14 @@ text parsing.  During lexical parsing, number unit grouping
 (\pagref{NUMBER-UNIT-GROUPING}) can insert implied parentheses.
 
 Bracket and operator definitions may specify reformatters
-that are functions which reformat subexpressions after they haver
-been normally parsed.  These definitions may also specify evaluators
+which reformat subexpressions after they have been normally parsed.
+A \key{reformatter}\label{REFORMATTER} is a function that
+is called with the parsed
+subexpression that is surrounded by brackets or that has the
+operator as its lead operator.  The reformatter returns
+the reformatted subexpression.
+
+These definitions may also specify evaluators
 that are functions called to evaluate parsed subexpressions.
 
 
@@ -2586,7 +2592,7 @@ A bracket definition specifies for each bracket pair the following:
 
 \begin{indpar}[1in]
 Name and Parsing Selectors \\
-New Parsing Selectors \\
+New Parsing Selector Set \\
 Reformatter \\
 Evaluator
 \end{indpar}
@@ -2601,11 +2607,11 @@ The syntax of bracket definitions is:
 	\hspace*{0.5in}::= \ttkey{define bracket}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em bracket-name} {\em parsing-selectors} \\
-	    {}[ [\verb|with|] \verb|parsing-selectors|
-	        {\em new-parsing-selectors} ] \\
-	    {}[ [\verb|with|] \verb|reformatter|
+	    {}[ \verb|with parsing-selectors|
+	        {\em new-parsing-selector-set} ] \\
+	    {}[ \verb|with reformatter|
 	        {\em reformatter-name} ] \\
-	    {}[ [\verb|with|] \verb|evaluator| {\em evaluator-name} ] \\
+	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
 \key{bracket-name} ::=
@@ -2630,7 +2636,7 @@ The syntax of bracket definitions is:
 	\\[1ex]
 {\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
 	\\[1ex]
-{\em new-parsing-selectors} ::= {\em parsing-selector-list}
+{\em new-parsing-selector-set} ::= {\em parsing-selector-list}
 			[see \pagref{PARSING-SELECTOR-LIST}]
 \end{indpar}
 
@@ -2658,48 +2664,21 @@ When a subexpression is surrounded by brackets, the brackets
 are included in the subexpression.
 
 The {\em parsing-selectors} provided with the {\em backet-name} determine when
-the {\em bracket-definition} will be active (see~\secref{PARSING-SELECTORS}).
+the {\em bracket-definition} will be active (\secref{PARSING-SELECTORS}).
 
-\subsubsection{Bracket Parser}\ttmindex{parser}{of bracket}
-\label{BRACKET-PARSER}
+\subsubsection{Bracket New Parsing Selector Set}%
+\label{BRACKET-NEW-PARSING-SELECTOR-SET}
 
-A {\em parser-name}
-is the name of the function that is called with an expression
-as its single argument in order to parse the expression.  The parser
-returns the parsed expression as its result.
+If given in the bracket definition, the
+\emkey{new-parsing-selector-set}\index{parsing selector set!of bracket}
+is pushed into the parsing selector set stack
+(\pagref{PARSING-SELECTOR-SET-STACK}) just before a subexpression
+beginning and ending with the defined brackets is parsed, and then
+this set is popped off the stack after the subexpression is parsed.
+The selector set controls that parsing definitions used to parse
+the subexpression, and thereby determines the parser used
+(\secref{PARSING-OVERVIEW}).
 
-The {\em parser-name} and the {\em parsing-selectors} that follow it,
-if present, cause the parsing definition:
-
-\begin{center}
-{\tt define parser} {\em parser-name} {\em parsing-selectors}
-\end{center}
-
-to be pushed into the parsing stack before parsing the subexpression
-surrounded by the brackets.  This definition is then popped from the
-parsing stack after the subexpression is parsed.
-
-The {\em parsing-selectors} provided with the {\em parser-name} determine
-which non-{\em parser-definitions} in the parsing stack are active when
-the parser is being used (see~\secref{PARSING-SELECTORS}).
-
-The following are standard parsers:
-
-\begin{indpar}
-
-The \ttkey{operator parser}.  When used with the `{\tt operator}'
-and `{\tt separator}' parsing selectors,
-this parser recognizes operators and separators.
-When used with just the `{\tt separator}' parsing selector,
-this parser recognizes only separators.
-
-The \ttkey{text parser}.  Normally used with the `{\tt text}'
-parsing selector, although by default no parsing definitions have
-this selector.
-The special constructs of text parsing (\secref{TEXT-PARSING}) are
-recognized.
-
-\end{indpar}
 
 \subsubsection{Bracket Reformatter}\ttmindex{reformatter}{of bracket}
 \label{BRACKET-REFORMATTER}
@@ -2707,12 +2686,8 @@ recognized.
 
 A {\em reformatter-name}
 is the name of the function that is called with a parsed expression
-as its single argument in order to reformat the expression.  The reformatter
-returns the reformatted expression as its result.
-
-Reformatting occurs immediately after parsing, and can be considered as
-a second stage of parsing.  Different reformatters can be used with the
-same parser.
+as its single argument in order to reformat the expression
+(\pagref{REFORMATTER}).  The reformatter is optional.
 
 \subsubsection{Bracket Evaluator}\ttmindex{evaluator}{of bracket}
 \label{BRACKET-EVALUATOR}
