@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 7, 2008}
+\date{January 8, 2008}
  
 \maketitle
 
@@ -2797,10 +2797,46 @@ affect parsing of subexpressions of the operator.  These are:
 
 \begin{indpar}
 
+{\bf prefix}\index{prefix flag@{\tt prefix} flag}%
+\label{PREFIX},
+{\bf infix}\index{infix flag@{\tt infix} flag}%
+\label{INFIX},
+{\bf postfix}\index{postfix flag@{\tt postfix} flag}%
+\label{POSTFIX},
+{\bf nofix}\index{nofix flag@{\tt nofix} flag}%
+\label{POSTFIX}~~~~~
+These flags determine the operator
+\key{fixity}.  By default an operator is nofix.
+
+An \key{infix} operator must be between two non-empty operands,
+while a \key{prefix} operator must precede a non-empty operand,
+and a \key{postfix} operator must follow a non-empty operand.
+
+A \key{nofix} operator is like an infix operator but may have
+empty operands.  It may appear at the beginning or ending of
+an expression, or two nofix operators may be consecutive.
+
+Inside an expression, an operator that can be prefix if it
+begins an expression,
+follows an opening bracket, or or follows another operator that is not
+postfix.  An operator can be postfix if it ends an
+expression, precedes a closing bracket, or
+precedes another operator that is not prefix.  
+An operator can be infix if it does not begin an expression,
+follow an opening bracket, follow an operator that is prefix,
+precede an expression end, 
+precede a closing bracket, or precede an operator that is postfix.
+
+An operator cannot be both infix and nofix, but can be any other
+combination of fixity.  Ambiguities in parsing are possible and
+are treated as parsing errors.  For example, if an operator that
+can be postfix or infix precedes an operator that can be infix
+or prefix, there is an ambiguity.
+
 {\bf definitional}\index{definitional flag@{\tt definitional} flag}%
 \label{DEFINITIONAL}~~~~~
 This flag may only be given for an infix or nofix operator.
-It causes operands preceeding the operator to be inspected to see if they are
+It causes operands preceding the operator to be inspected to see if they are
 an expressions beginning with the word `\ttkey{define}' or `\ttkey{undefine}'.
 Such an expression is called a \key{definition}, and is pushed into
 the parsing stack.
@@ -2814,47 +2850,23 @@ parsed.
 If an operand is not a definition, nothing special is done by
 a definitional operator during parsing.
 
-{\bf prefix}\index{prefix flag@{\tt prefix} flag}%
-\label{PREFIX},
-{\bf infix}\index{infix flag@{\tt infix} flag}%
-\label{INFIX},
-{\bf postfix}\index{postfix flag@{\tt postfix} flag}%
-\label{POSTFIX},
-{\bf nofix}\index{nofix flag@{\tt nofix} flag}%
-\label{POSTFIX}~~~~~
-These flags determine whether the operator the operator
-\key{fixity}.  By default an operator is nofix.
-
-An \key{infix} operator must be between two non-empty operands,
-while a \key{prefix} operator must preceed a non-empty operand,
-and a \key{postfix} operator must follow a non-empty operand.
-
-A \key{nofix} operator is like an infix operator but may have
-empty operands.  It may appear at the beginning or ending of
-an expression, or two nofix operators may be consecutive.
-
-Inside an expression, an operator that can be a prefix if it
-follows an opening bracket or another operator that is not
-postfix.  An operator can be postfix if it preceeds a closing
-bracket or another operator that is not prefix.  
-An operator can be infix if it does not follow an opening
-bracket or an operator that is prefix, and also it does not
-preceed a closing bracket or an operator that is postfix.
-
-An operator cannot be both infix and nofix, but can be any other
-combination of fixity.  Ambiguities in parsing are possible and
-are treated as parsing errors.  For example, if an operator that
-can be postfix or infix preceeds an operator that can be infix
-or prefix, there is an ambiguity.
-
 \end{indpar}
 
 \subsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
 \label{OPERATOR-PRECEDENCE}
-The precedence of an operator is an integer.  Precedence is used in
-selecting which infix operators in an expression to consider
-(\secref{OPERATOR-SELECTION}).
-Only infix operators have precedence.
+The precedence of an operator is an integer.  Precedence is used to
+determine which operators are inside and outside implicit parentheses.
+Operators with higher precedence are placed inside the implicit
+parentheses that surround operands of operators of lower precedence.
+
+The precedence
+in an operator definition applies only to the operator when it is used
+as an infix or nofix operator; prefix and postfix operators are always
+treated as having precedence higher than any infix or nofix operator.
+If several prefix and postfix operators apply to a single operand,
+the prefix operators are all inside the implied parentheses surrounding
+the postfix operator operands (i.e., the prefix operators are
+`executed first').
 
 \subsubsection{Operator Parser}\ttmindex{parser}{of operator}
 \label{OPERATOR-PARSER}
