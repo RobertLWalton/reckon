@@ -245,13 +245,13 @@
        CASTLE\\[2ex]
        (Draft 1a)}
 
-\author{Robert L. Walton\thanks{Copyright 2007 Robert L. Walton.
+\author{Robert L. Walton\thanks{Copyright 2008 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 8, 2008}
+\date{January 9, 2008}
  
 \maketitle
 
@@ -2827,8 +2827,9 @@ follow an opening bracket, follow an operator that is prefix,
 precede an expression end, 
 precede a closing bracket, or precede an operator that is postfix.
 
-An operator cannot be both infix and nofix, but can be any other
-combination of fixity.  Ambiguities in parsing are possible and
+A nofix operator cannot be infix, prefix, or postfix, but otherwise
+any combination of fixity is permitted.
+Ambiguities in parsing are possible and
 are treated as parsing errors.  For example, if an operator that
 can be postfix or infix precedes an operator that can be infix
 or prefix, there is an ambiguity.
@@ -3112,7 +3113,8 @@ given the following explict arguments:
 \begin{center}
 \begin{tabular}{l}
 a list of lexemes to parse \\
-an optional bracket definition \\
+an optional (closing) bracket definition \\
+an optional (terminating) operator precedence \\
 \end{tabular}
 \end{center}
 
@@ -3120,6 +3122,10 @@ The bracket definition, if given, specifies a closing bracket
 which must appear in the list of lexemes.  When the parser
 finds this bracket outside other brackets, the parser terminates
 the parse.
+
+The operator precedence, if given, specifies that infix or
+nofix operators of this and lower precedence will terminate the parsing if
+they are encountered in the list of lexemes.
 
 In addition the parser is given the following implicit
 arguments:
@@ -3136,12 +3142,19 @@ The parser returns
 \begin{center}
 \begin{tabular}{l}
 the parsed expression \\
-a list of all lexemes after the found closing bracket \\
+the unparsed final segment of the input lexeme list
 \end{tabular}
 \end{center}
 
-If no bracket definition argument is given as input, the list
-of lexemes returned is empty.
+When parsing is terminated by finding a closing bracket matching
+the closing bracket definition argument, then the part of the
+input lexeme list after this closing bracket is returned as the
+unparsed final segment of the input lexeme list.  When parsing is
+terminated by finding a terminating operator of precedence equal to or lower
+than an operator precedence argument, the part of the input
+lexeme list beginning with this terminating operator is returned as the
+unparsed final segment of the input lexeme list.  Otherwise the
+returned unparsed final segment of the input lexeme list is empty.
 
 There are two standard kinds of parser: the operator parser
 and the text parser.  These use somewhat different algorithms.
@@ -3149,22 +3162,44 @@ and the text parser.  These use somewhat different algorithms.
 \subsubsection{The Operator Parser}
 \label{THE-OPERATOR-PARSER}
 
-The operator parser removes lexemes from the beginning of an
-input list, which it initialized to the parser's
-lexeme list input argument, and adds {\em expression-items}
-to the end of an output list, that becomes the parser's
-output parsed expression.  The parser then executes a
-\key{parsing loop} that repeats the following:
+The operator parser uses an input list which is initialized to the parser's
+lexeme list input argument, and an output list which is initially
+empty.  The parser executes a parsing loop that removes lexemes
+from the beginning of the input list and adds {\em expression-items}
+to the end of the output list.  When the parser terminates, the output
+list becomes the returned parsed expression, and what is left of the input
+list becomes the returned unparsed lexeme list.
+
+During the execution of the algorithm below, a \key{closing bracket}
+is defined to be an instance of the closing bracket of the closing bracket
+definition, if that definition is given.  A \key{terminating operator}
+is defined to be an instance of an operator whose definition is current
+and whose precedence is equal to or below that of the terminating precedence,
+if that is given.
+A \key{parsing terminator} is defined to be a closing bracket, a terminating
+operator, or the end of the input list.
+
+Also during the execution of this algorithm a list of {\em expression-items}
+may be \ikey{reformatted}{reformat}
+by a reformatter.  This is done by calling the reformatter,
+which is a function, with the list as its input argument, replacing the
+list by the returned result, which is also a list of {\em expression-items}.
+
+
+The \key{parsing loop} repeats the following:
 
 \begin{enumerate}
 
-\item If there is no bracket definition input argument
+\item If there is no closing bracket definition argument
 and the input list is empty, the parsing loop terminates.
 
-\item If there is a bracket definition input argument, and the
-closing bracket from that definition is at the beginning of
+\item If a closing bracket is at the beginning of
 the input list, this bracket is removed from the beginning of
-the lexeme list, and the parsing loop terminates.
+the input list, and the parsing loop terminates.
+
+\item If a terminating operator at the beginning of the input list,
+the parsing loop terminates (\underline{without} removing the
+operator from the input list).
 
 \item If there an opening bracket from a current bracket definition
 at the beginning of the input list, then:
@@ -3177,20 +3212,20 @@ at the beginning of the input list, then:
 that is pushed into the parsing selector set stack.
 
 \item The current parser is called with the input list as its input
-lexeme list argument and the bracket definition as an argument.
+lexeme list argument, the closing bracket definition as an argument,
+and no terminating precedence.
 
-\item The input list is set to the lexeme list returned by the
+\item The input list is set to the unparsed lexeme list returned by the
 parser call.
 
-\item If the bracket definition has a reformatter, it is called with
-the parsed expression returned by the parser call as it argument,
-and the value it returns is pushed to the end of the output list.  Otherwise
-the parsed expression returned by the parser call is pushed to the end of the
+\item If the bracket definition has a reformatter, it is used to reformat
+the parsed expression returned by the parser call.  Then this parsed
+expression is pushed as a single {\em expression-item} to the end of the
 output list.
 
-\item The parsing selector stack is popped if necessary to restore
-it to its state when the bracket was removed from the beginning of
-the input list.
+\item If a {\em new-parsing-selector-set} from the bracket definition
+was previously pushed onto the parsing selector stack,
+that is now popped from this stack.
 
 \end{enumerate}
 
@@ -3199,21 +3234,86 @@ at the beginning of the input list, then:
 
 \begin{enumerate}
 
-\item If this is the first operator encountered, it is made the
-\key{lead operator} of the output list, and:
+\item
+If the output list has more than one {\em expression-item}, then
+the entire output list becomes an operand, and the output list is
+replaced by a list whose only {\em expression-item} is this operand.
+This effectively inserts implied parentheses around the output list.
 
+\item If the output list is empty
+and the operator cannot be nofix or prefix, then an error operand
+is inserted into the output list, and a parsing error is announced.
+
+\item If the output list is non-empty
+and the operator cannot be nofix, infix, or postfix,
+then an error infix operator is inserted at the \underline{beginning}
+of the \underline{input list}, a parsing error is announced, and
+the error operator replaces the operator previously at the beginning
+of the input list in what follows.
+
+\item The fixity of the operator is determined as follows:
 
 \begin{enumerate}
 
+\item If the output list is empty, the operator is designated to be
+either prefix if it has the prefix flag or nofix if it has the
+nofix flag (it cannot have both flags).
+
+\item If the output list is non-empty and the operator does not have
+the postfix flag, the operator is designated to be
+either infix if it has the infix flag or nofix if it has the
+nofix flag (it cannot have both flags).
+
+\item If the output list is non-empty and the operator has the postfix
+flag but not the infix flag, the operator is designated to be postfix.
+
+\item If the output list is non-empty, the operator has the postfix
+flag and the infix flag, and the operator is followed by a parsing
+terminator or by another operator that cannot be prefix or nofix,
+the operator is designated to be postfix.
+
+
+\end{enumerate}
+
+\item The operator is removed from the input list and copied
+to the output list.
+
+\item The current parser is called with the input list as its lexeme
+list, the prefix operator precedence as its operator precedence argument,
+and a copy of the closing bracket definition argument.
+
+\item Upon return from the parser call
+the returned lexeme list becomes the input list and the returned
+parsed expression becomes the current operand.
+
+\item If the prefix operator definition has a reformatter, it is
+used to reformat the operand.
+
+\item The operand is pushed into the output list.
+
+\item If the output list is not empty or the operator can be a nofix
+operator, then:
+
+\begin{enumerate}
+
+\item 
+
 \item
-The operator definition becomes the lead operator definition of
-the parser.
+If the operator can be nofix or postfix and it is 
+is pushed into the output list.
+
+\item
+The operator at the beginning of the input list is made into the
+lead operator, and its definition becomes the lead operator
+definition.
 
 \end{enumerate}
 
 
 \item
 The operator lexemes are removed from the input list and
+added to the end of the output list.
+
 \end{enumerate}
 
 \end{enumerate}
