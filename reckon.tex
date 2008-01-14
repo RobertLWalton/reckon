@@ -251,7 +251,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 12, 2008}
+\date{January 14, 2008}
  
 \maketitle
 
@@ -2827,12 +2827,13 @@ follow an opening bracket, follow an operator that is prefix,
 precede an expression end, 
 precede a closing bracket, or precede an operator that is postfix.
 
-A nofix operator cannot be infix, prefix, or postfix, but otherwise
-any combination of fixity is permitted.
-Ambiguities in parsing are possible and
-are treated as parsing errors.  For example, if an operator that
-can be postfix or infix precedes an operator that can be infix
-or prefix, there is an ambiguity.
+A nofix operator cannot be infix, prefix, or postfix, and a postfix
+operator cannot be infix.  An operator may be only nofix, only infix,
+only prefix, only postfix, prefix and postfix, or prefix and infix.
+An operator that can be prefix
+and either postfix or infix is taken to be prefix if and only if it follows
+an expression beginning, an opening bracket, or a prefix, infix, or
+nofix operator.
 
 {\bf definitional}\index{definitional flag@{\tt definitional} flag}%
 \label{DEFINITIONAL}~~~~~
@@ -3336,12 +3337,9 @@ parsed expression becomes the current operand.
 used to reformat the operand.
 
 \item The operand is pushed into the output list.
-\begin{enumerate}
 
 \item If the output list is not empty or the operator can be a nofix
 operator, then:
-
-\begin{enumerate}
 
 \item 
 
