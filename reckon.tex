@@ -74,8 +74,10 @@
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+\newcommand{\ttikey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttnbikey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttbkey}[1]{{\tt \bf [#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttnbbkey}[1]{{\tt [#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
@@ -234,6 +236,17 @@
 	 \item}%
 	{\end{list}}
 
+\newenvironment{labpar}[2][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item[#2]}%
+	{\end{list}}
+
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
@@ -251,7 +264,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 14, 2008}
+\date{January 15, 2008}
  
 \maketitle
 
@@ -2797,14 +2810,11 @@ affect parsing of subexpressions of the operator.  These are:
 
 \begin{indpar}
 
-{\bf prefix}\index{prefix flag@{\tt prefix} flag}%
-\label{PREFIX},
-{\bf infix}\index{infix flag@{\tt infix} flag}%
-\label{INFIX},
-{\bf postfix}\index{postfix flag@{\tt postfix} flag}%
-\label{POSTFIX},
-{\bf nofix}\index{nofix flag@{\tt nofix} flag}%
-\label{POSTFIX}~~~~~
+\begin{labpar}[0.1in]{{\bf prefix}, {\bf infix}, {\bf postfix}, {\bf nofix}}%
+    \index{prefix flag@{\tt prefix} flag}\label{PREFIX}%
+    \index{infix flag@{\tt infix} flag}\label{INFIX}%
+    \index{postfix flag@{\tt postfix} flag}\label{POSTFIX}%
+    \index{nofix flag@{\tt nofix} flag}\label{POSTFIX}
 These flags determine the operator
 \key{fixity}.  By default an operator is nofix.
 
@@ -2832,10 +2842,13 @@ operator cannot be infix.  An operator may be only nofix, only infix,
 only prefix, only postfix, prefix and postfix, or prefix and infix.
 An operator that can be prefix
 and either postfix or infix is taken to be prefix if and only if it follows
-an expression beginning, an opening bracket, or a prefix, infix, or
-nofix operator.
+an expression beginning, an opening bracket, or an operator previously
+determined in a left-to-right scan to be prefix, infix, or nofix.
 
-{\bf definitional}\index{definitional flag@{\tt definitional} flag}%
+\end{labpar}
+
+\begin{labpar}[0.1in]{\bf definitional}%
+\index{definitional flag@{\tt definitional} flag}%
 \label{DEFINITIONAL}~~~~~
 This flag may only be given for an infix or nofix operator.
 It causes operands preceding the operator to be inspected to see if they are
@@ -2851,6 +2864,8 @@ parsed.
 
 If an operand is not a definition, nothing special is done by
 a definitional operator during parsing.
+
+\end{labpar}
 
 \end{indpar}
 
@@ -3272,8 +3287,8 @@ is inserted into the output list, and a parsing error is announced.
 and the operator cannot be nofix, infix, or postfix,
 then an error nofix operator is inserted at the \underline{beginning}
 of the \underline{input list}, a parsing error is announced, and
-the error operator replaces the operator previously at the beginning
-of the input list in what follows.
+the parsing loop repeats (permitting the error operator to be a
+terminating operator).
 
 \item The fixity of the operator is determined as follows:
 
@@ -3289,23 +3304,7 @@ either infix if it has the infix flag or nofix if it has the
 nofix flag (it cannot have both flags).
 
 \item If the output list is non-empty and the operator has the postfix
-flag but not the infix flag, the operator is designated to be postfix.
-
-\item If the output list is non-empty, the operator has the postfix
-flag and the infix flag, and the operator is followed by a parsing
-terminator, or by another operator that cannot be prefix or nofix,
-or by a nofix operator of lower precedence,
-or by a lexeme that is not part of a parsing terminator or a current
-operator, then
-the operator is designated to be postfix.
-
-\item If the output list is non-empty, the operator has the postfix
-flag and the infix flag, and the operator is followed by
-an operator that can be prefix but cannot be postfix or infix,
-then the operator is designated to be infix.
-
-\item TBD: error
-
+flag, the operator is designated to be postfix.
 
 \end{enumerate}
 
@@ -3320,7 +3319,7 @@ postfix.
 to the output list.
 
 \item
-If the operator was not determined to be postfix, then a
+If the operator is prefix, infix, or nofix, then a
 \key{parsing subloop} that repeats the following is executed:
 
 \begin{enumerate}
@@ -3330,40 +3329,75 @@ list, the operator precedence as its terminating precedence argument,
 and a copy of the closing bracket definition argument.
 
 \item Upon return from the parser call
-the returned lexeme list becomes the input list and the returned
-parsed expression becomes the current operand.
+the returned lexeme list becomes the input list.
 
-\item If the prefix operator definition has a reformatter, it is
-used to reformat the operand.
+\item If the returned parsed expression is the empty list, and
+the operator is prefix or infix, the returned parsed expression is
+replaced by an error operand, and a parsing error is announced.
 
-\item The operand is pushed into the output list.
+\item If the returned parsed expression contains zero or one element,
+it is added by concatenation to the end of the output list.
+If it contains more than one element, it is pushed as a single
+{\em expression-item} to the end of the output list.
 
-\item If the output list is not empty or the operator can be a nofix
-operator, then:
+\item If the operator was a prefix operator, or if
+the input list now begins with a parsing terminator, the
+parsing subloop terminates.
 
-\item 
-
-\item
-If the operator can be nofix or postfix and it is 
-is pushed into the output list.
-
-\item
-The operator at the beginning of the input list is made into the
-lead operator, and its definition becomes the lead operator
-definition.
+\item The input list must now begin with a current operator whose
+precedence equals the operator precedence.  That operator is moved
+from the input list to the output list and the parsing subloop repeats.
 
 \end{enumerate}
 
-
-\item
-The operator lexemes are removed from the input list and
-added to the end of the output list.
-
-\end{enumerate}
+\item When the parsing subloop ends (or if it is never executed),
+if the operator definition has a reformatter, that is applied to reformat
+the output list.
 
 \end{enumerate}
 
+\item If the input list does not begin with a current operator,
+open bracket, or parsing terminator, the lexeme at the beginning
+of the input list is moved to the end of the output list.
 
+\end{enumerate}
+
+When the parsing loop terminates, the input and output lists are
+returned to the caller of the parser as the remaining lexeme list and 
+the parsed expression, respectively.
+
+\subsubsection{The Text Parser}
+\label{THE-TEXT-PARSER}
+
+The text parser divides the input into paragraphs that are separated by
+blank lines.
+
+Paragraphs are classified as tabular or free-form according
+to whether their first line is a tabular format line.  A
+\key{tabular format line} contains optional whitespace characters,
+followed by a `\ttnbikey{+}{in tabular format line}', followed
+by any number of `{\tt +}' or
+`\ttnbikey{-}{in tabular format line}' characters,
+followed by a `{\tt +}' that ends the line, except that superfluous
+whitespace characters are allowed after the `line ending' {\tt+}.
+An example of a tabular paragraph is:
+
+
+\begin{indpar}\begin{verbatim}
++------------------------+--------+------+
+ ice melt                 40 lbs    $4.50
+ 2x4's, 8'                10       $27.70
+ 16d nails                 2 lbs     3.21
+\end{verbatim}\end{indpar}
+
+
+A paragraph that is not tabular is \ikey{free-form}{paragraph}.
+Each free-form paragraph is scanned for explicitly bracketted subexpressions,
+phrase separators, and sentence terminators.  The paragraph is divided into
+sentences using sentence terminators outside parentheses, and each sentence
+is given \verb|<* *>| implicit brackets.
+Each sentence is then divided into
+phrases if it has any phrase separators, and 
 
 
 
