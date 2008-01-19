@@ -77,7 +77,8 @@
 \newcommand{\ttikey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttnbikey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttinbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttbkey}[1]{{\tt \bf [#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttnbbkey}[1]{{\tt [#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
@@ -95,6 +96,7 @@
 \newcommand{\secref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\stepref}[1]{\ref{#1}\,$^{p\pageref{#1}}$}
 \newcommand{\appref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
+\newcommand{\figref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -264,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 15, 2008}
+\date{January 19, 2008}
  
 \maketitle
 
@@ -3375,9 +3377,9 @@ blank lines.
 Paragraphs are classified as tabular or free-form according
 to whether their first line is a tabular format line.  A
 \key{tabular format line} contains optional whitespace characters,
-followed by a `\ttnbikey{+}{in tabular format line}', followed
+followed by a `\ttinbkey{+}{in tabular format line}', followed
 by any number of `{\tt +}' or
-`\ttnbikey{-}{in tabular format line}' characters,
+`\ttinbkey{-}{in tabular format line}' characters,
 followed by a `{\tt +}' that ends the line, except that superfluous
 whitespace characters are allowed after the `line ending' {\tt+}.
 An example of a tabular paragraph is:
@@ -3401,1278 +3403,1592 @@ phrases if it has any phrase separators, and
 
 
 
-\section{Expression Graphs}
-\label{EXPRESSION-GRAPHS}
-
-Expression graphs store expressions.  An \key{expression graph}
-is a directed possibly cyclic graph with labels on all arrows and on some
-nodes, with a designated root node, and with a possibly empty
-set of graph node valued variables.
-
-Expression graph arrow and node labels 
-must be single words or separators.  Labeled nodes cannot be the source
-of any arrow.  Several arrows with the same source node may have the same
-arrow label.
-
-A node that does not have a label and is not the source of any arrows
-is called a \key{null node}.\label{NULL-NODE}
-
-An expression graph variable has a name, a value, and an optional default.
-Variable names must be single words or separators.
-Both the value and the default are graph nodes.  The default may be
-missing.  Variable values are often, but by no means always, null nodes.
-
-All nodes in an expression graph are reachable from either the root or
-from the value or default of one of the graph's variables.
-
-If there are no variables and no node is the destination
-of more than one arrow, the graph is a tree.  In this case it is called
-an \key{expression tree}.
-
-There is a correspondence between raw expressions and certain expression
-trees, called \skey{raw expression tree}s,
-that is one-to-one, except that two raw expressions differing only
-in the order of their qualifier clauses and the order of their reorderable
-arguments correspond to the same expression tree.
-
-There are several operations that convert raw expression trees into general
-expression graphs (\secref{EXPRESSION-GRAPH-REPRESENTATION}).
-All these use designated operators, such as
-`\verb|//|', to identify expression graph variables and their values.
-The most commonly used conversion operation also uses the convention that
-words beginning with a capital letter or with `\verb|#|' followed by a
-capital letter name expression graph variables.
-
-\subsection{Expression Graph Notation}
-\label{EXPRESSION-GRAPH-NOTATION}
-
-The following is an example of the notation we will use to represent
-expression graphs:%
-\footnote{This notation is standard for feature structures:
-e.g., see Bob Carpenter, {\em The Logic of Typed Feature Structures},
-1992, Cambridge University Press}
-
-\newcommand{\Glabel}[1]{\mbox{\tt #1}}
-\newcommand{\Gvariable}[1]{\fbox{\tt #1}}
-\newsavebox{\Gfbox}
-\newcommand{\Gdefault}[1]{%
-    \sbox{\Gfbox}{\fbox{\tt #1}}%
-    {\setlength{\fboxsep}{0.01in}%
-     \fbox{\usebox{\Gfbox}}%
-    }}
-\newenvironment{Graph}%
-    { \( \left[ \begin{array}{l}}%
-    {\end{array} \right] \) }
-\newenvironment{Gchild}[1]%
-    {\mbox{\tt #1}:
-     \begin{array}{l}
-     \rule{0in}{0in} \vspace{-0.15in} \\
-     \left[ \begin{array}{l}}%
-    {\end{array} \right] \\
-     \rule{0in}{0in} \vspace{-0.15in}
-     \end{array}}
-% Gsingle is Gchild with only one thing in its brackets so
-% the brackets can be eliminated.
-\newenvironment{Gsingle}[1]%
-    {\mbox{\tt #1}:
-     \begin{array}{l}
-     \rule{0in}{0in} \vspace{-0.15in} \\
-     \begin{array}{l}}%
-    {\end{array} \\
-     \rule{0in}{0in} \vspace{-0.15in}
-     \end{array}}
-
-\begin{center}
-
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{fee}
-	\Gvariable{X} \\
-	\Glabel{51} \\
-    \end{Gchild} \\
-    \begin{Gchild}{fie}
-	\Gvariable{X} \\
-    \end{Gchild} \\
-\end{Graph}
-\hspace{0.3in}
-\begin{Graph}
-    \Gdefault{X} \\
-    \begin{Gchild}{1}
-	\Glabel{foe} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
-	\Glabel{fum} \\
-    \end{Gchild} \\
-\end{Graph}
-\hspace{0.3in}
-\begin{Graph}
-    \Gvariable{Y} \\
-    \Gdefault{Y} \\
-    \begin{Gchild}{1}
-	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-    \end{Gchild} \\
-    \begin{Gchild}{2}
-	\begin{Gchild}{*}
-	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-	\end{Gchild} \\
-    \end{Gchild} \\
-\end{Graph}
-
-
-\end{center}
-
-In this notation, the representation of a graph node is a set of lines
-enclosed in [~] brackets.
-
-If the node is the value or default of some variables,
-the names of those variables, each enclosed in a box or double box, are the top
-lines of the representation of the node.
-A variable name is boxed if the node is the value of
-a variable, and double boxed if the node is the default of the
-variable.
-In our example, \Gvariable{X}, and \Gvariable{Y}
-designate nodes that are variable values and
-\Gdefault{X} and \Gdefault{Y} designate nodes that are variable defaults.
-The \key{root node} is treated
-as if it were the value of a variable named `\verb|{ROOT}|',
-and is therefore designated by \Gvariable{\CurlyBra ROOT\CurlyKet} in our
-example.
-A single node can be the value or default of several variables: in the
-example one node is both the value and the default of \verb|Y|.
-
-The example expression graph has two variables, \verb|X|
-and \verb|Y|.  While all nodes in the expression graph must be reachable
-from the root or from the value or default of some variable in the graph,
-all nodes need not be reachable from the root,  The above example
-is a single expression graph with a root and two variables, and \underline{not}
-three expression graphs.
-
-Two nodes with the same boxed name in their representation
-are actually the same node in the graph, and
-similarly two nodes with the same doubly boxed name in their
-representation are actually the same node in the graph.  When several
-nodes are the same in this sense, all but one of these must have only
-boxed or doubly boxed names in its representation.
-
-Sometimes it is necessary to indicate that two nodes are the same for
-a node that is not the root or the value or default of any variable.
-This is done by creating an
-\key{expression graph pseudo-variable}\index{pseudo-variable!expression graph}%
-\label{PSEUDO-VARIABLES}
-whose name is a word or separator in curly brackets.  In the example,
-\verb|{1}| is such a pseudo-variable name, and of course \verb|{ROOT}|
-is a pseudo-variable name.  Pseudo-variable names are always boxed, and
-never double boxed.
-
-If a node has a label, that is the last line in the node's representation,
-and is
-immediately below any boxed or doubly boxed names.
-There are no other lines in the representation.
-In the above example, \Glabel{51} labels
-the node that is the value of the variable \verb|X|.
-
-If a node is the source of arrows in the directed graph,
-representations of each arrow appear below any boxed or doubly
-boxed variable names in the
-representation of the node.  Each arrow representation consists of the
-label of the arrow followed by a colon (:) followed by
-a representation of the target node of the arrow.  This later
-is of course surrounded by [] brackets.
-
-It is permitted to omit the [] brackets when only one thing is
-bracketed.  Thus the above example can also be rendered as:
-
-\begin{center}
-
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{fee}
-	\Gvariable{X} \\
-	\Glabel{51} \\
-    \end{Gchild} \\
-    \begin{Gsingle}{fie}
-	\Gvariable{X} \\
-    \end{Gsingle} \\
-\end{Graph}
-\hspace{0.3in}
-\begin{Graph}
-    \Gdefault{X} \\
-    \begin{Gsingle}{1}
-	\Glabel{foe} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2}
-	\Glabel{fum} \\
-    \end{Gsingle} \\
-\end{Graph}
-\hspace{0.3in}
-\begin{Graph}
-    \Gvariable{Y} \\
-    \Gdefault{Y} \\
-    \begin{Gsingle}{1}
-	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2}
-	\begin{Gsingle}{*}
-	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-	\end{Gsingle} \\
-    \end{Gsingle} \\
-\end{Graph}
-
-
-\end{center}
-
-\subsection{Pure Unification}
-\label{PURE-UNIFICATION}
-
-Informally, expression graph nodes represent expressions that
-may be thought of as containing information, and the unification of
-two nodes is then a node whose information content
-is the least upper bound of the information content of each of
-the two nodes taken separately.
-
-CASTLE uses two forms of expression graph node unification.
-The pure form, called `\key{pure unification}',
-is just the standard labeled graph unification
-algorithm, and is specified in this section.  The other form, which
-has a special merge operation for nodes representing calls on
-functions or builtin CASTLE operations, is called `call unification',
-and is described in \secref{CALL-UNIFICATION}.
-
-Unification of two expression graph nodes
-either succeeds and produces a unique expression
-graph node as its result, or fails and produces no result.
-
-Unification algorithms use a set called the \key{merge set}
-of node pairs called \skey{merge pair}s.  For pure unification of
-two nodes, X and Y, this is initialized to the set containing
-only the one merge pair, (X,Y).
-
-A unification algorithm simply extracts a merge pair (M,N) from the
-merge set, merges the two nodes named, M and N, and does this
-repeatedly until the merge set is empty.  The algorithm succeeds if
-every pair of nodes that must be merged can be merged.  When two nodes
-are merged, they become the same node.  Merging two nodes can
-create new merge pairs.  However, merging two nodes that are identical
-does nothing, and since expression graph memory is finite,
-the algorithm must terminate after all nodes are merged, if it does not
-terminate before then.
-
-In merging two nodes M and N, one of these nodes, say M, is replaced by
-a forwarding pointer to the other node, say N, so every reference to M
-becomes a reference to N.  N may also be modified by giving it a label
-or creating arrows that it sources.  And as mentioned above, new merge
-pairs may be created.
-
-If a unification algorithm is unsuccessful, all changes to expression
-graph memory are undone.
-
-For pure unification of two nodes X and Y, the merge set is initially
-the single pair (X,Y).  If unification is successful, X and Y are merged,
-and the result of the unification is the merged node, i.e., the node
-X, or equivalently the node Y.
-
-It is possible to run unification with arbitrary initial merge sets.
-
-For pure unification the \key{node merge algorithm}%
-\label{NODE-MERGE-ALGORITHM}
-applied to the merge pair (M,N) is as follows:
-
-\begin{enumerate}
-
-\item
-Remove (M,N) from the merge set.
-
-\item
-If M and N are the same node, terminate the node merge algorithm.
-
-\item
-\label{UNIFICATION-LABEL-FAILURE}
-If M and N are labeled nodes with different labels, the unification
-algorithm fails.
-
-\item
-If either M or N is a labeled node and the other node is the
-source of some arrows, the unification algorithm fails.
-
-\item
-\label{UNIFICATION-AMBIGUITY-FAILURE}
-If there is an arrow label L such that one of the nodes M or N
-is the source of two or more arrows labeled L and the other node is the
-source of one or more arrows labeled L, the unification algorithm fails.
-Intuitively, when we try to match the arrows sourced at one of the
-two nodes with arrows sourced at the other of the two nodes so
-that matched arrows have the same arrow label, then we must get a
-unique answer.
-
-\item
-If M is a labeled node with label L, and N is unlabeled, label N with L.
-
-\item
-For every arrow sourced at M do the following.
-Let the arrow be labeled L and point at target node MT.
-If N is not the source of an arrow labeled L,
-make a new arrow labeled L pointing from N to MT.
-But if N is the source of an arrow labeled L with target NT, add the
-merge pair (MT,NT) to the merge set.
-
-\item
-Replace M by a forwarding pointer that points at N.
-This means that henceforth any attempt to reference M will be forwarded
-to N, so M is effectively merged with N.
-
-\end{enumerate}
-
-Note that the running time of the pure unification algorithm is bounded by
-
-\[
-\begin{array}{c}
-T(\mbox{number of nodes reachable from nodes in the initial merge set}) \\
-\times \\
-(\mbox{number of arrows sourced at these nodes})^2
-\end{array}
-\]
-
-where $T$ is a small constant time (typically a few microseconds).
-The total number of nodes reachable from nodes in the initial merge set
-bounds the number of node merge
-operations, and the
-last factor bounds the time to form the union of the arrow labels of
-any two nodes that are being merged.  The bound just given is typically
-a substantial overestimate, and can be improved to:
-
-\[
-\begin{array}{c}
-T \left(
-   \begin{array}{c}
-   \mbox{number of nodes reachable from nodes in the initial merge set} \\
-    - \\
-  \mbox{number of nodes reachable from these nodes after unification} \\
-  \end{array}
-  \right) \\
-\times \\
-(\mbox{maximum number of arrows sourced at any one node reachable
-       after unification})^2
-\end{array}
-\]
-
-\subsection{Raw Expression Trees}
-\label{RAW-EXPRESSION-TREES}
-
-Raw expressions represent certain expression trees called
-\skey{raw expression tree}s.  For example, the expression
-
-\begin{center}
-\verb|[max x y z]|
-\end{center}
-
-represents the raw expression tree
-
-\begin{center}
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{3} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{max} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{1}
-	\Glabel{x} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2}
-	\Glabel{y} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{3}
-	\Glabel{z} \\
-    \end{Gsingle} \\
-\end{Graph}
-\end{center}
-
-The raw expression is represented by the root node of a raw expression tree.
-The raw expression head, `\verb|max|', is represented by a node labeled
-`\verb|max|' that is the target of an arrow labeled `\verb|0|' from the root.
-Here `\verb|0|' is called the \key{head index} of the root node, the
-arrow it labels is called the \key{head arrow} of the root node,
-and the target of that arrow is called the \key{head} of the root node.
-
-The three arguments become targets of three arrows from the root labeled
-`\verb|1|', `\verb|2|', and `\verb|3|'.
-Each argument in this example is a single
-word, and is represented by a node labeled with that word.
-Here non-zero natural numbers are
-\ikey{un-reorderable argument indices}{un-reorderable argument index} of the
-root that label
-\skey{un-reorderable argument arrow}s of the root, and the targets of these
-arrows are the \skey{un-reorderable argument}s of the root.  Reorderable
-and rest arguments are introduced below.
-
-An arrow labeled `\ttkey{-ARITY-}' is added to the root node to point
-at a node labeled with the number of arguments in the raw expression.
-This arrow is called the \key{arity arrow} of the root node,
-its target is called the \key{arity target} of the root, and
-the label of that target is called the \key{arity} of the root.
-
-A second example is the expression
-
-\begin{center}
-\verb|[sort x @@ with key weight @@ with comparator <]|
-\end{center}
-
-which is represented by the raw expression tree
-
-\begin{center}
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{1} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{sort} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{1}
-	\Glabel{x} \\
-    \end{Gsingle} \\
-    \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gsingle}{-ARITY-}
-	    \Glabel{2}
-	\end{Gsingle} \\
-	\begin{Gsingle}{0}
-	    \Glabel{with}
-	\end{Gsingle} \\
-	\begin{Gsingle}{1}
-	    \Glabel{key}
-	\end{Gsingle} \\
-	\begin{Gsingle}{2}
-	    \Glabel{weight}
-	\end{Gsingle} \\
-    \end{Gchild} \\
-    \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gsingle}{-ARITY-}
-	    \Glabel{2}
-	\end{Gsingle} \\
-	\begin{Gsingle}{0}
-	    \Glabel{with}
-	\end{Gsingle} \\
-	\begin{Gsingle}{1}
-	    \Glabel{comparator}
-	\end{Gsingle} \\
-	\begin{Gsingle}{2}
-	    \Glabel{<}
-	\end{Gsingle} \\
-    \end{Gchild} \\
-\end{Graph}\label{QUALIFIER-EXAMPLE}
-\end{center}
-
-Here each qualifier becomes the target of an arrow labeled
-`\ttkey{-REQUIRED-QUALIFIER-}' because
-the `\verb|@@|' \key{required-qualifier-mark} is used (the arrow label
-would be `{\tt -OPTIONAL-\EOL QUALIFIER-}' if the `\verb|??|'
-optional-qualifier-mark had been used).
-The arrows with these labels are called \skey{qualifier arrow}s of the
-root node and their targets are called \skey{qualifier}s of the root.
-In this case there are two \skey{required qualifier arrow}s and
-two \skey{required qualifier}s.
-Each qualifier sources arity, head, and un-reorderable argument arrows
-analogous to those of the root node, and could source qualifier,
-reorderable argument (see below), and rest argument (see below) arrows.
-
-A third example is the expression
-
-\begin{center}
-\verb|[sort x @@ with key weight ?? with order X]|
-\end{center}
-
-which is represented by the raw expression tree
-
-\begin{center}
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{1} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{sort} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{1}
-	\Glabel{x} \\
-    \end{Gsingle} \\
-    \begin{Gchild}{-REQUIRED-QUALIFIER-}
-	\begin{Gsingle}{-ARITY-}
-	    \Glabel{2}
-	\end{Gsingle} \\
-	\begin{Gsingle}{0}
-	    \Glabel{with}
-	\end{Gsingle} \\
-	\begin{Gsingle}{1}
-	    \Glabel{key}
-	\end{Gsingle} \\
-	\begin{Gsingle}{2}
-	    \Glabel{weight}
-	\end{Gsingle} \\
-    \end{Gchild} \\
-    \begin{Gchild}{-OPTIONAL-QUALIFIER-}
-	\begin{Gsingle}{-ARITY-}
-	    \Glabel{2}
-	\end{Gsingle} \\
-	\begin{Gsingle}{0}
-	    \Glabel{with}
-	\end{Gsingle} \\
-	\begin{Gsingle}{1}
-	    \Glabel{order}
-	\end{Gsingle} \\
-	\begin{Gsingle}{2}
-	    \Glabel{X}
-	\end{Gsingle} \\
-    \end{Gchild} \\
-\end{Graph}
-\end{center}
-
-This is similar to the last example except one qualifier is an
-`\ttkey{-OPTIONAL-QUALIFIER-}' because the
-`\verb|??|' \key{optional-qualifier-mark} is used.
-In this case there is one \skey{required qualifier arrow},
-one \skey{required qualifier}, one \key{optional qualifier arrow}, and
-one \key{optional qualifier}.  The only difference between
-required and optional qualifiers is the label on the arrow to the qualifier
-node, which is either `\ttkey{-REQUIRED-QUALIFIER-}'
-or `\ttkey{-OPTIONAL-QUALIFIER-}'.
-
-A fourth example is the expression
-
-\begin{center}
-\verb|[fill Prefix ::? Matrix <:> Value Postfix ::> Runs]|
-\end{center}
-
-which is represented by the raw expression tree
-
-\begin{center}
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{1-4} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{fill} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{1}
-	\Glabel{Prefix} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2-3}
-	\Glabel{Matrix} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2-3}
-	\Glabel{Value}
-    \end{Gsingle} \\
-    \begin{Gsingle}{4}
-	\Glabel{Postfix}
-    \end{Gsingle} \\
-    \begin{Gsingle}{-REST-}
-	\Glabel{Runs}
-    \end{Gsingle} \\
-\end{Graph}
-\end{center}
-
-Arguments appearing after the \key{optional argument mark} \ttnbkey{::?} are
-optional.  This is indicated by the arity `\verb|1-4|' that indicates
-that argument `\verb|1|' is the last required argument and there are
-`\verb|4|' arguments total.  In general, the arity can have the form
-`$m$\verb|-|$n$', where $0\leq m<n$, $m$ is the
-\skey{number of required argument}s, $n$ is the
-\skey{total number of argument}s,%
-\label{TOTAL-NUMBER-OF-ARGUMENTS}
-and $n-m$ is the number of optional arguments.
-
-If there are no optional arguments and the arity is just a natural
-number $n$, then $n$ is both the number of required arguments and the
-total number of arguments.
-
-Consecutive arguments separated by the \key{reorder mark} \ttnbkey{<:>} are
-reorderable.  These arguments are indicated by argument indices that
-describe the positions the arguments can occur in.  Thus in the example
-the two arguments with index `\verb|2-3|' can each appear as either the
-2nd or 3rd argument.  In general,
-an argument index that is a range of the form
-`$i$\verb|-|$j$', where $1\leq i<j\leq n$, and
-$n$ is the total number of arguments, indicates that the argument can
-be the $i$'th through $j$'th argument position.
-These argument indices are called the
-\ikey{reorderable argument indices}{reorderable argument index} of the
-root node,
-the arrows they label are called \skey{reorderable argument arrow}s
-of the root,
-and the targets of these arrows are called \skey{reorderable argument}s
-of the root.
-
-Note that if an argument has index `$i$\verb|-|$j$', then the $i$'th
-and $j$'th argument must be either both required or both optional.
-That is, if there are optional arguments and
-$m$ is the number of required arguments, either
-$j\leq m$ or $m<i$.
-
-The argument after a \key{remainder mark} \ttnbkey{::>} is
-given the special argument index `\ttkey{-REST-}' and names a list of
-all arguments that occur after the total number of arguments specified
-by the arity.  Here \verb|-REST-|
-is called the \key{rest argument index} of the root node, the arrow it labels
-is called the \key{rest argument arrow} of the root, 
-and the target of this arrow is called the \key{rest argument}.
-The rest argument is not counted in the arity.
-
-\subsection{Call Nodes and the Call Check}
-\label{CALL-NODES-AND-CHECK}
-
-During expression evaluation (\secref{EXPRESSION-EVALUATION})
-the expression being evaluated is unified with a pattern in an expression
-definition.  The unification used for this purpose is
-a variant called `call unification' (\secref{CALL-UNIFICATION}).
-
-Call unification treats graph nodes called `call nodes'
-differently than pure unification (\secref{PURE-UNIFICATION}) does.
-A \key{call node} is a node that has
-an \mkey{arity arrow}{of call node}.
-That is, it is the source of an arrow labeled
-\ttmkey{-ARITY-}{of call node}.  Call unification
-replaces the node merge algorithm
-(\pagref{NODE-MERGE-ALGORITHM})
-with the call merge algorithm described below if one of the nodes
-being merged is a call node and the other is not a
-null node.
-
-The call merge algorithm performs a subalgorithm called
-the \key{call check algorithm} that checks whether a call node
-is legal.  Specifically, a call node N passes the call check
-algorithm if and only if the following are true:
-
-\begin{enumerate}
-
-\item
-The arity of N is either a natural number $n$ (string of digits without
-high order zeros) or has the form $m$\verb|-|$n$ where $m$ and $n$
-are natural numbers and $m<n$.  In the second case $m$ is called the
-\key{minimum arity} of N and $n$ is called the
-\key{maximum arity} of N.  In the first case $n$ is both the minimum
-and the maximum arity of N.
-
-\item
-N has exactly one head arrow.
-
-\item
-There exists a 1-1 map between the set of un-reorderable and reorderable
-(but not rest) argument arrows of N and the set of
-natural numbers from \verb|1| through $n$, where $n$ is the
-maximum arity of N, such that if $i$ is a natural number
-from \verb|1| through $n$, the arrow mapped to $i$
-is either an un-reorderable argument arrow labeled $i$, 
-or is a reorderable argument arrow labeled $j$\verb|-|$k$
-where $j\leq i\leq k$.
-
-Such a mapping is called a \key{argument order assignment} of N.%
-\label{ARGUMENT-ORDER-ASSIGNMENT}
-If there are any reorderable arguments of N, there will be
-more than one argument order assignment of N.
-
-\item
-\label{NULL-REST-ARGUMENT}
-N has at most one rest argument arrow.  If N has a rest argument
-arrow, the rest argument of N is a null node (a node with no label
-that is the source of no arrows).
-
-\item
-N can have any number of qualifier arrows (required or optional).
-
-\item
-There are no arrows sourced at N other than those with labels
-enumerated above.  That is, any arrow sourced at N is either an arity
-arrow, a head arrow, an argument arrow (un-reorderable, reorderable, or rest),
-or a qualifier arrow (required or optional).
-
-\item
-The qualifiers of N (targets of qualifier arrows)
-pass the call check algorithm recursively.  The call check
-algorithm allows cycles in the graph, e.g. the case that N and one
-of its qualifiers are the same node.
-
-Note that raw expressions cannot represent call nodes that have
-qualifiers which in turn have qualifiers, but the conversions
-of \secref{EXPRESSION-GRAPH-REPRESENTATION} can represent such call nodes.
-Because of the difficulty of representing them, such call nodes are
-of mostly theoretical interest.
-
-\end{enumerate}
-
-\subsection{Paths and Witnesses}
-\label{PATHS-AND-WITNESSES}
-
-A \ikey{non-empty path}{path!non-empty}
-is a sequence of one or more arrows in some expression graph,
-such that if A1 and A2 are consecutive
-arrows in the sequence, the target of A1 is the source of A2.
-The \mkey{path name}{of non-empty path}
-of the path is the
-sequence of words and separators that are the arrow labels of the
-arrows of the path.  The source node of the first arrow in the path
-is the \mkey{source}{of non-empty path} of the path.
-The target node of the last
-arrow in the path is the \mkey{target}{of non-empty path} of the path.
-Note that the path name and source node of a path are together
-not adequate to determine the path in all cases, since we allow
-a node to source several arrows with the same label.
-
-An \ikey{empty path}{path!empty} is just a node.  This node is both
-the \mkey{source}{of empty path} of the empty path and
-the \mkey{target}{of empty path} of the empty path.
-The \mkey{path name}{of empty path} of the path is the empty sequence.
-
-A \key{path name} is just a possibly empty sequence of words or separators.
-A \key{node label} is just any word or separator.
-
-A \key{witness} is a path name and a node label.
-We use `{\em path-name}\,: {\em node-label}\,' to name the witness.
-A \mkey{witness}{of node} of a node S in an expression graph is a witness
-P:~L with path name P and node label L such that there is a path with source S,
-path name P, and target that has node label L.
-
-For example, consider the expression graph of
-
-\begin{center}
-\verb|[sort x @@ with key weight @@ with comparator <]|
-\end{center}
-
-on \pagref{QUALIFIER-EXAMPLE}.  The root of this expression graph
-has `\verb|0|: \verb|sort|' as one of its witnesses and
-`\verb|-REQUIRED-QUALIFIER- 0|: \verb|with|' as another.  There are
-actually two distinct paths corresponding to this second witness.
-
-Two witnesses are said to be \mkey{incompatible}{witness}
-if they have the same path name but have different labels.
-Two witnesses are said to be \mkey{compatible}{witness}
-if they are not incompatible: that is, if they have different path
-names, or if they have both the same path names and the same labels.
-For example, `\verb|0|: sort' and `\verb|1|: x' are compatible while
-`\verb|0|: sort' and `\verb|0|: switch' are incompatible.
-
-It is not true that all witnesses for a node in an expression graph
-are compatible.  This is because we allow one node to source several
-arrows with the same label.  In the example expression graph
-on \pagref{QUALIFIER-EXAMPLE},
-`\verb|-REQUIRED-QUALIFIER- 1|: \verb|key|' and
-`\verb|-REQUIRED-QUALIFIER- 1|: \verb|comparator|' are incompatible
-witnesses for the value of \verb|{ROOT}|.  However, for an expression
-graph in which no node sources two arrows with the same arrow label, it can
-be easily proved that all witnesses of every node are compatible.
-
-Two expression graph nodes, S1 and S2, possibly the same node, and possibly
-in different expression graphs,
-are said to be \key{witness compatible} if and only if every
-witness for S1 is compatible with every witness for S2.  Otherwise
-S1 and S2 are said to be \key{witness incompatible}.
-
-For an integer N$\geq$0, an N-witness is a witness whose path name
-has at most N arrow labels.
-Two expression graph nodes, S1 and S2,
-are said to be \key{N-witness compatible} if and only if every
-N-witness for S1 is compatible with every N-witness for S2.  Otherwise
-S1 and S2 are said to be \key{N-witness incompatible}.
-
-It is possible for
-a node to be 1-witness incompatible with itself, without being witness
-incompatible with many other nodes.  For example, a node whose only
-witnesses are the incompatible witnesses `\verb|1|:~\verb|fee|' and
-`\verb|1|:~\verb|fie|' would be witness compatible with any
-node that was not the source of any arrow with arrow label `\verb|1|'.
-
-It can be easily proved that if two expression graphs can be unified
-by pure unification (\secref{PURE-UNIFICATION}),
-then any two nodes that are merged during
-unification are 1-witness compatible.  This is because
-step \stepref{UNIFICATION-AMBIGUITY-FAILURE} of the node merge algorithm
-(\pagref{NODE-MERGE-ALGORITHM})
-means that if the nodes have incompatible 1-witnesses then the nodes each
-source only one arrow with the witness arrow label, and therefore
-the targets of these two arrows must merge, which is forbidden by
-step \stepref{UNIFICATION-LABEL-FAILURE} as according to the incompatible
-1-witnesses the targets have unequal labels.
-
-It can even be proved that if two expression graphs can be unified
-by pure unification (\secref{PURE-UNIFICATION}),
-then any two nodes that are merged during
-unification are witness compatible.  This is because
-if there are two incompatible witnesses of the two nodes, there
-would be two paths with the same path name,
-one for each witness, with consecutive
-nodes on the two paths being merged, because
-step \stepref{UNIFICATION-AMBIGUITY-FAILURE}
-requires that along each of the two paths each node sources exactly
-one arrow with the next arrow label on the paths.
-The two paths would end at two nodes that
-would have different labels, but would have to be merged, causing
-the unification algorithm to fail by step \stepref{UNIFICATION-LABEL-FAILURE}.
-
-In the unification algorithm,
-arrow labels are used to match arrows to be merged.  More specifically,
-when two nodes M and N are merged, arrows sourced at M are matched
-with arrows sourced at N by arrow label.  If this match cannot be done,
-step \stepref{UNIFICATION-AMBIGUITY-FAILURE} of the unification algorithm
-causes unification to fail.  In order to merge qualifier nodes,
-we need to avoid this failure, and we do this in \secref{CALL-UNIFICATION}
-by using some of the
-the 1-witnesses of the qualifier nodes to make the match.
-The 1-witnesses we use include the qualifier head, if that
-is a node with a label, and any un-reorderable non-rest
-qualifier argument that is simply a node with a label.
-
-\subsection{Call Unification}
-\label{CALL-UNIFICATION}
-
-\ikey{Call unification}{call unification}\index{unification!call}
-is a variant of pure unification (\secref{PURE-UNIFICATION}) that differs
-from pure unification when merging nodes one of which is a call node
-and the other of which is not a null node (node with no label that sources
-no arrows).  Call unification is
-used in the expression evaluation algorithm (\secref{EVALUATION-ALGORITHM}).
-
-Call unification is identical to pure unification (\secref{PURE-UNIFICATION})
-with two differences.  The first difference is that when one of two nodes
-being merged is a call node (\secref{CALL-NODES-AND-CHECK}), and the other
-node is not a null node, call unification
-replaces the node merge algorithm (\pagref{NODE-MERGE-ALGORITHM})
-with the call merge algorithm described below.
-
-The second difference is that call unification makes choices during its
-execution, because the call merge algorithm makes choices.  Each
-set of possible choices over the whole call unification algorithm
-leads to a separate algorithm execution that either succeeds or fails.
-
-The \key{call merge algorithm} for a merge pair (M,N) in the merge set,
-where either M or N or both is a call node, and neither is a null node,
-with a particular choice, is as follows.
-
-\begin{enumerate}
-
-\item
-Remove (M,N) from the merge set.
-
-\item
-If either M or N fails to pass a call check, the unification algorithm
-fails.
-
-\item
-If M and N are the same node, terminate the call merge algorithm.
-
-\item\label{DETERMINATE}
-A call node is said to be \key{indeterminate} if it has
-an optional, reorderable, or rest argument or an optional qualifier.
-Otherwise the node is said to be \key{determinate}.
-
-If \underline{both} M and N are indeterminate,
-the unification algorithm fails.
-
-Otherwise, if just N is indeterminate, switch M and N so that
-N is always determinate.
-
-Later in this call merge algorithm M will be replaced by a forwarding
-pointer to N, and N will not be given any optional, rest, or reorderable
-arguments, so the result of the merge will be determinate.
-
-\item
-If M is determinate and the arities of M and N are not equal,
-the unification algorithm fails.
-
-If M has more required arguments than N has arguments, the unification
-algorithm fails.
-
-\item
-For the rest of this algorithm,  let MT be the total number of arguments
-(\pagref{TOTAL-NUMBER-OF-ARGUMENTS})
-of M and NT be the total number of arguments of N.
-
-\item
-If M has a rest argument R, then
-For each natural number I from MT$+$1 through NT,
-an arrow labeled I$-$MT is added that has R as its source and the
-I'th argument of N as its target.
-Note that before this is done R is a null node
-(step \stepref{NULL-REST-ARGUMENT} of the call check algorithm on
-\pagref{NULL-REST-ARGUMENT}).
-If NT$\leq$MT, this step does nothing (R remains a null node).
-
-\item
-Choose an argument order assignment (\pagref{ARGUMENT-ORDER-ASSIGNMENT})
-for M.  For \verb|1|$\leq$I$\leq$MT, let MI let the assigned
-I'th argument of M.
-
-\item
-Let T be the minimum of MT and NT.
-For \verb|1|$\leq$I$\leq$T, let
-NI be the I'th argument of N,
-and add the merge pair (MI,NI) to the merge set.
-For T$<$I$\leq$MT (if T$<$MT), add an arrow labeled I from N to MI.
-
-\item
-Let MH be the head of M and NH be the head of N.  Add a merge pair
-(MH,NH) to the merge set.
-
-\item
-If there is any qualifier arrow of M whose target is
-is 1-witness compatible with the target of more than one qualifier arrow
-of N, the unification algorithm fails.  Ditto with M and N switched:
-if there is any qualifier arrow of N whose target
-is 1-witness compatible with the target of more than one qualifier arrow
-of M, the unification algorithm fails.
-
-\item
-For each qualifier arrow MA of M whose target is 1-witness compatible with
-the target of exactly one qualifier arrow NA of N, let MQ be the target
-of MA and NQ be the target of NA.  Add (MQ,NQ) to the merge set.
-
-\item\label{ADD-ARROW-STEP}
-For each qualifier arrow MA of M whose target is 1-witness compatible with
-the targets of no qualifier arrows N, let MQ be the target of MA,
-and make an arrow from N to MQ
-that has the arrow label \verb|-REQUIRED-QUALIFIER|.
-
-\item
-Replace M by a forwarding pointer that points at N.
-This means that henceforth any attempt to reference M will be forwarded
-to N, so M is effectively merged with N.
-
-\end{enumerate}
-
-\subsection{Expression Graph Representation}
-\label{EXPRESSION-GRAPH-REPRESENTATION}
-
-Raw expressions can be used to represent expression graphs.  This is
-done by defining \skey{graph creation conversion}s that convert
-raw expression trees to expression graphs.
-
-A graph creation conversion is performed
-by first converting the raw expression to an expression tree plus
-a set of variables where each variable has not a single value or
-single optional default, but instead has a set of one or more values
-and zero or more defaults.  Then all the values of each variable
-are unified using pure unification, and all the defaults of each
-variable with defaults are similarly unified.  The result after
-unification is an expression graph.
-
-There are two kinds of graph creation conversion: explicit and implicit.
-In implicit conversion words beginning with a capital letter or
-with `\verb|#|' followed
-by a capital letter are taken to be variable names if they appear where
-a node label would appear.  In explicit conversion such words are not
-given special treatment.
-
-In converting a raw expression to an expression tree,
-the rules for representing raw expressions as expression trees
-(\secref{RAW-EXPRESSION-TREES})
-are followed, with the following exceptions:
+\section{Data}
+
+A \key{datum} in MIN is either an atom, an object, or an arrow.
+
+An \key{atom} is either a symbol (word, mark, separator, or quoted string) or a
+number.
+
+An object is just a place in memory, and is like a dot on a blank page.
+It can be the source or target of arrows, and it is different from
+every other object and from every atom.  But it is nothing more.
+
+However, as a place in memory, an object has a name.  Objects are assigned
+\skey{raw object name}s
+of the form `\ttmnbkey{\#\#}{in raw object name}$I$' where $I$
+is an integer.  Raw object names of this form are assigned only to objects
+that must be named in an output stream (e.g., printed output).
+The first object named in output stream is assigned the name
+\verb|##1|, the second object named in output the name \verb|##2|,
+and so forth.  The same object may be assigned different names in different
+output streams.\footnote{A possible implementation is to give objects that
+have been assigned names in an output stream a hidden system defined output
+stream specific attribute (\pagref{ATTRIBUTE})
+equal to the object's name integer.  Another implementation uses a
+hash table per stream.}
+
+There are two kinds of arrows: single and double.
+
+A \key{single arrow} is an arrow from an object to either another object
+or to an atom.  The arrow has a label, which is a sequence of zero or
+more atoms.
+
+A \key{double arrow} is a double headed arrow between two objects.
+It has a separate label for each direction, with each label being a
+sequence of zero or more atoms.  A double arrow is equivalent to a
+\underline{related pair}
+of single arrows going in opposite directions between the same two objects.
+The difference between a double arrow and a pair of single arrows is that
+it is possible to delete only one direction of a pair of single arrows, but 
+when deleting a double arrow, both directions are deleted.
+
+An \key{arrow label} is a sequence of zero or more atoms.
+Two arrows leaving the same object may have the same label.  Thus
+an object and an arrow label together name
+a set of arrows sourced at the object.
+
+\ikey{Arrow flags}{arrow flag} may be attached to arrow labels.
+More precisely, a set of arrow flags is defined for each object
+and each arrow label, and these flags apply to all arrows sourced at the
+object that have the given label.
+The standard flags are the \key{dot flag} (\ttmkey{.}{dot flag}),
+and the \key{maybe flag} (\ttmkey{?}{maybe flag}).
+Arrows with a dot flagged label are not to be output when their source
+is output.
+Targets of arrows with a maybe flagged label may be garbage collected
+(made to disappear automatically, see \secref{GARBAGE-COLLECTION})
+if they cannot be reached except by traversing arrows whose labels
+have maybe flags.
+
+We will give examples in the next section along with a basic way of
+representing sets of objects in text.  In the rest of this document
+arrows are called \skey{attribute}s,\label{ATTRIBUTE} arrow labels are called
+\skey{attribute name}s, arrow flags are called \skey{attribute flag}s,
+and arrow targets are called \skey{attribute value}s.
+Also `\ikey{attribute L of object O}{attribute!of an object}'
+denotes the set of all values (arrow targets) of attributes
+of object O (arrows sourced at O) which have the attribute label
+(arrow label) L.
+
+A double arrow is called a \key{double attribute}.  When viewed from
+an object at one end of the double arrow, the double arrow is an
+attribute of that object, the label of the arrow directed away from that object
+is the \mkey{attribute label}{of double attribute} of the double attribute,
+and the label of the arrow directed toward the object is the
+\mkey{reverse attribute label}{of double attribute} of the double attribute.
+
+
+\subsection{Raw Representations}
+\label{RAW-REPRESENTATIONS}
+
+A set of objects can be written to a text file or read from a text file.
+When this is done, a textual representation of the object set is used
+in the file.  The simplest representation is the raw representation,
+which we now describe.
+
+The format of a \key{raw representation} is:
 
 \begin{indpar}
+\begin{tabular}{l}
+\emkey{raw-representation} ::= {\em raw-object-representation} \ldots
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-object-representation} ::=
+    {\em raw-object-header}
+    {\em raw-attribute-representation} \ldots
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-object-header}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em object-name} \ttmkey{::}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>|{\tt \bf :}%
+          \ttmindex{>:}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>>|{\tt \bf :}%
+          \ttmindex{>>:}{in {\em raw-object-header}} \\
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em raw-single-attribute-representation} \\
+    $|$ & {\em raw-double-attribute-representation}
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-single-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em single-attribute-value}
+	\ttmkey{;;}{in {\em raw-single-attribute}!{\em -representation}}
+\end{tabular}%
+\index{value!attribute}
+
+\begin{tabular}{l}
+\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-double-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em double-attribute-value}
+\\\hspace*{1in}
+	{\em attribute-label-initiator} {\em reverse-attribute-label}
+	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{double-attribute-value} ::= {\em object-name}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{object-name} ::=
+	\ttmnbkey{\#\#}{in {\em object-name}} {\em non-negative-integer}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-label} ::= {\em atom} \ldots
+\end{tabular}%
+\index{label!attribute}
+
+\begin{tabular}{l}
+\emkey{reverse-attribute-label} ::= {\em attribute-label}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-label-terminator} ::=
+	{\em flag-character}\ldots{\tt \bf :}%
+	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
+	attribute-label-terminator}~~~~~(a mark)
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-label-initiator} ::=
+	{\tt \bf :}{\em flag-character}\ldots%
+	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
+	attribute-label-initiator}~~~~~(a mark)
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{flag-character} ::= {\em mark-character}
+		except \verb|:|, \verb|<|, or \verb|>|
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{atom} ::= {\em non-special-lexeme}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{special-lexeme}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;;| \\
+    $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
+    \end{tabular}
+\end{tabular}
+\end{indpar}
+
+A simple example of the raw representation of a set of objects is:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    type: woman;;|\\
+\verb|    name: Jill;;|\\
+\verb|    husband: ##2 :wife;;|\\
+\verb|##2::|\\
+\verb|    type: man;;|\\
+\verb|    name: Jack;;|\\
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.7,1.15){\oval(0.8,0.3)}
+\put(0.5,1.00){\vector(0,-1){0.5}}
+\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
+\put(0.5,0.4){\makebox(0,0){\tt woman}}
+\put(0.9,1.00){\vector(0,-1){0.7}}
+\put(0.95,0.55){\makebox(0,0)[l]{\tt name}}
+\put(0.9,0.2){\makebox(0,0){\tt Jill}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(2.3,1.15){\oval(0.8,0.3)}
+\put(2.1,1.00){\vector(0,-1){0.5}}
+\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
+\put(2.1,0.4){\makebox(0,0){\tt man}}
+\put(2.5,1.00){\vector(0,-1){0.7}}
+\put(2.55,0.55){\makebox(0,0)[l]{\tt name}}
+\put(2.5,0.2){\makebox(0,0){\tt Jack}}
+\put(1.1,1.17){\vector(1,0){0.8}}
+\put(1.9,1.13){\vector(-1,0){0.8}}
+\put(1.5,1.15){\oval(0.07,0.12)}
+\put(1.5,1.30){\makebox(0,0){\tt husband}}
+\put(1.5,1.00){\makebox(0,0){\tt wife}}
+\end{picture}
+\end{center}
+
+This represents two objects.
+There are two single attributes of object \verb|##1| (arrows sourced
+at \verb|##1|),
+one attribute labeled {\tt type} whose value (target) is the atom {\tt woman},
+and one attribute labeled {\tt name} whose value is the atom {\tt Jill}.
+There are two similar single attributes from object \verb|##2|.
+There is a double attribute (double arrow)
+between the two objects which has the
+label {\tt husband} when going from \verb|##1| to \verb|##2|
+and the label {\tt wife} when going in the reverse direction.
+
+In order to permit \verb|:| to be used in an attribute label, the following
+\key{quote representation rule} is applied to representations.
+A quoted symbol cannot be recognized as an atom that has special
+meaning in a representation, such as the \verb|::|, \verb|:|,
+\verb|##|, or \verb|;;| atoms in raw representations.  Thus if any
+of these atoms are to be part of an attribute label or value, they should
+be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
+Other than this rule, there is no
+distinction between quoted and unquoted representations of unquoted atoms.
+
+The double-semi-colons (\verb|;;|) at the ends of attribute representations
+may be omitted according to the \key{double-semi-colon representation rule}.
+This rule says that the \ttmkey{;;}{omitting} at the end of an attribute
+representation may be omitted provided the next non-blank line is not
+indented with respect to the first non-white-space character of the
+attribute representation with the omitted \verb|;;|,
+or alternatively if there are no following non-blank lines in the text
+(e.g., in the file).
+Thus the \verb|;;|'s in the example just given may be omitted.
+To detect errors, if a line of an attribute representation is indented by
+just one column with respect to the first non-white-space character of the
+attribute representation, the line is considered to be in error.
+Thus indentations must be by at least two columns.
+
+It is possible to place \skey{attribute flag}s on attribute labels
+by putting flag characters
+before or after the \verb|:| that follows or precedes an attribute label.
+The following is the same as the above example except that flags
+have been added to some of the attributes:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    type: woman;;|\\
+\verb|    name-: Jill;;|\\
+\verb|    husband@: ##2 :@wife;;|\\
+\verb|##2::|\\
+\verb|    type: man;;|\\
+\verb|    name+: Jack;;|\\
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.7,1.15){\oval(0.8,0.3)}
+\put(0.5,1.00){\vector(0,-1){0.5}}
+\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
+\put(0.5,0.4){\makebox(0,0){\tt woman}}
+\put(0.9,1.00){\vector(0,-1){0.7}}
+\put(0.95,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt -}}$}}
+\put(0.9,0.2){\makebox(0,0){\tt Jill}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(2.3,1.15){\oval(0.8,0.3)}
+\put(2.1,1.00){\vector(0,-1){0.5}}
+\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
+\put(2.1,0.4){\makebox(0,0){\tt man}}
+\put(2.5,1.00){\vector(0,-1){0.7}}
+\put(2.55,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt +}}$}}
+\put(2.5,0.2){\makebox(0,0){\tt Jack}}
+\put(1.1,1.17){\vector(1,0){0.8}}
+\put(1.9,1.13){\vector(-1,0){0.8}}
+\put(1.5,1.15){\oval(0.07,0.12)}
+\put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt @}}$}}
+\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt @}}$}}
+\end{picture}
+\end{center}
+
+In the picture the attribute flags have been added as superscripts on the
+attribute labels, and in the text the flags have been added before or after the
+\verb|:| that follows or precedes the attribute label.
+
+Several attributes of the same object (arrows sourced at the object)
+may have the same attribute
+label.  An example of this, in which object \verb|##1| has two
+attributes labeled \verb|child|, is:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    child: ##2 :parent;;|\\
+\verb|    child: ##3 :parent;;|\\
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(2.4,0.3){\tt \#\#1}}
+\put(1.5,1.15){\oval(2.4,0.3)}
+\put(0.65,1.00){\vector(0,-1){0.6}}
+\put(0.60,0.80){\makebox(0,0)[r]{\tt child}}
+\put(0.75,0.40){\vector(0,1){0.6}}
+\put(0.80,0.55){\makebox(0,0)[l]{\tt parent}}
+\put(2.25,1.00){\vector(0,-1){0.6}}
+\put(2.20,0.80){\makebox(0,0)[r]{\tt child}}
+\put(2.35,0.40){\vector(0,1){0.6}}
+\put(2.40,0.55){\makebox(0,0)[l]{\tt parent}}
+\put(0.3,0.10){\makebox(0.8,0.3){\tt \#\#2}}
+\put(0.7,0.25){\oval(0.8,0.3)}
+\put(1.9,0.10){\makebox(0.8,0.3){\tt \#\#3}}
+\put(2.3,0.25){\oval(0.8,0.3)}
+\end{picture}
+\end{center}
+
+We say that the value of the \verb|child| attribute of \verb|##1| is
+the set to two elements, \verb|##2| and \verb|##3|.
+
+Differences between \ttnbkey{::}, \ttnbkey{>:}, are \ttnbkey{>>:} relate
+to what is done when an object or attribute label previously exists.
+
+\verb|::| indicates that the object being represented should not previously
+exist, or if it does exist, must not have been defined by any previous
+object representation (it may have been defined as the value of an
+attribute).  Second, any attribute label represented in the object
+representation, if it previously exists, must be represented with exactly
+the same flags as it already has.
+
+At the other extreme, \verb|>>:| adds to existing objects.
+The object being represented can previously exist.  Any attribute
+representation in the object representation creates a new attribute value.
+Any flags on an attribute label are added to the flags of the label if
+that label already exists.
+
+\verb|>:| is like \verb|>>:| except that the object representation cannot
+add new values to previously existing attributes of the object represented.
+More precisely, the attribute label of any attribute representation in
+the object representation must not have previously (before the object
+representation is read) been an attribute label of the represented object.
+Thus \verb|>:| is used to introduce new attributes to an existing object.
+Note that reverse attribute labels are not attribute labels in the sense
+of this paragraph.
+
+Double attributes must have only one representation.  If they
+are given two representations, one for each end of the attribute
+(double headed arrow),
+\underline{two} identical double attributes (two double headed arrows with the
+same end points and labels) will be created.
+Usually one end of a double attribute is
+thought of as the primary end, and its object representation is used to
+include the sole representation of the double attribute.
+
+The {\em object-name} \ttnbkey{\#\#0} is special; it always names
+a particular object, the \ttkey{.GLOBAL} object,
+whose its attributes are called \skey{global variables}.  One of the global
+variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
+object itself, a situation which can be achieved by the data representation:
+
+\begin{indpar}\begin{verbatim}
+##0>:
+    .GLOBAL: ##0
+\end{verbatim}\end{indpar}
+
+Words beginning with `\ttkey{.}' are reserved for use by
+the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
+is an example of such a word.
+
+
+
+\subsection{Cooked Representations}
+
+In contrast to the raw representation of a set of objects there is the
+cooked representation, that is much easier to read and write, but more
+long winded to explain.
+
+The main thing that the cooked representation does is take certain objects
+that are organized like lists and represent them as lists.
+
+For example,
+
+\begin{indpar}\begin{verbatim}
+##93:: This is a sentence.
+\end{verbatim}\end{indpar}
+
+is the cooked representation of the object
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##93::|\\
+\verb|    1: this|\\
+\verb|    2: is|\\
+\verb|    3: a|\\
+\verb|    4: sentence|\\
+\verb|    .terminator: "."|\\
+\verb|    .initiator: capital|\\
+\end{tabular}
+~~~~~
+\begin{picture}(4.1,1.5)
+\put(0,0){\framebox(4.1,1.5){}}
+\put(0.3,1.00){\makebox(3.4,0.3){\tt \#\#93}}
+\put(2.0,1.15){\oval(3.4,0.3)}
+\put(1.00,1.00){\vector(0,-1){0.4}}
+\put(0.95,0.85){\makebox(0,0)[r]{\tt .initiator}}
+\put(1.00,0.50){\makebox(0,0)[c]{\tt capital}}
+\put(1.50,1.00){\vector(0,-1){0.6}}
+\put(1.45,0.85){\makebox(0,0)[r]{\tt 1}}
+\put(1.50,0.30){\makebox(0,0)[c]{\tt this}}
+\put(1.85,1.00){\vector(0,-1){0.6}}
+\put(1.80,0.85){\makebox(0,0)[r]{\tt 2}}
+\put(1.85,0.30){\makebox(0,0)[c]{\tt is}}
+\put(2.10,1.00){\vector(0,-1){0.6}}
+\put(2.05,0.85){\makebox(0,0)[r]{\tt 3}}
+\put(2.10,0.30){\makebox(0,0)[c]{\tt a}}
+\put(2.60,1.00){\vector(0,-1){0.6}}
+\put(2.55,0.85){\makebox(0,0)[r]{\tt 4}}
+\put(2.60,0.30){\makebox(0,0)[c]{\tt sentence}}
+\put(3.00,1.00){\vector(0,-1){0.4}}
+\put(3.00,0.50){\makebox(0,0)[c]{\tt "."}}
+\put(3.05,0.85){\makebox(0,0)[l]{\tt .terminator}}
+\end{picture}
+\end{center}
+
+The following is a second example in which parentheses \verb|( )|
+are used to permit the operator \verb|+| to be recognized, so that
+
+\begin{indpar}\begin{verbatim}
+##45:: straight 3.2; left; straight (y + 9.4)
+\end{verbatim}\end{indpar}
+
+is the cooked representation of the objects
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##42::|\\
+\verb|    1: straight|\\
+\verb|    2: 3.2|\\
+\verb|##43::|\\
+\verb|    1: "+"|\\
+\verb|    2: y|\\
+\verb|    3: 9.4|\\
+\verb|    initiator: "("|\\
+\verb|    terminator: ")"|\\
+\verb|##44:: |\\
+\verb|    1: straight|\\
+\verb|    2: ##43|\\
+\verb|##45::|\\
+\verb|    1: ##42|\\
+\verb|    2: left|\\
+\verb|    3: ##44|\\
+\verb|    .separator: ";"|\\
+\end{tabular}
+~~~~~
+\begin{picture}(4.1,3.2)
+\put(0,0){\framebox(4.1,3.2){}}
+\put(1.4,0.0){
+\put(0.0,0.90){\makebox(2.0,0.3){\tt \#\#43}}
+\put(1.0,1.05){\oval(2.0,0.3)}
+\put(0.40,0.90){\vector(0,-1){0.4}}
+\put(0.35,0.75){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.40){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,0.90){\vector(0,-1){0.6}}
+\put(0.65,0.75){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.20){\makebox(0,0)[c]{\tt "+"}}
+\put(1.00,0.90){\vector(0,-1){0.6}}
+\put(0.95,0.75){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.20){\makebox(0,0)[c]{\tt y}}
+\put(1.30,0.90){\vector(0,-1){0.6}}
+\put(1.25,0.75){\makebox(0,0)[r]{\tt 3}}
+\put(1.30,0.20){\makebox(0,0)[c]{\tt 9.4}}
+\put(1.60,0.90){\vector(0,-1){0.4}}
+\put(1.60,0.40){\makebox(0,0)[c]{\tt ")"}}
+\put(1.65,0.75){\makebox(0,0)[l]{\tt .terminator}}
+}
+\put(0.2,1.3){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#42}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.3}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
+\put(0.90,0.50){\vector(0,-1){0.3}}
+\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
+\put(0.90,0.10){\makebox(0,0)[c]{\tt 3.2}}
+}
+\put(2.2,1.3){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#44}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.3}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
+\put(0.90,0.50){\vector(0,-1){0.6}}
+\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
+}
+\put(0.2,2.2){
+\put(0.0,0.50){\makebox(3.2,0.3){\tt \#\#45}}
+\put(1.60,0.65){\oval(3.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.6}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(1.30,0.50){\vector(0,-1){0.3}}
+\put(1.25,0.35){\makebox(0,0)[r]{\tt 2}}
+\put(1.30,0.10){\makebox(0,0)[c]{\tt left}}
+\put(2.30,0.50){\vector(0,-1){0.6}}
+\put(2.25,0.35){\makebox(0,0)[r]{\tt 3}}
+\put(2.80,0.50){\vector(0,-1){0.3}}
+\put(2.85,0.35){\makebox(0,0)[l]{\tt .separator}}
+\put(2.80,0.10){\makebox(0,0)[c]{\tt ";"}}
+}
+\end{picture}
+\end{center}
+
+Next is a third example in which
+curly brackets (\verb|{ }|) are used with multiple
+lines and indentation to represent code, so that
+
+\begin{indpar}\begin{verbatim}
+##138:: function (x,y)
+        {
+           if (x > y):
+               return y
+           else:
+               return x
+        }
+\end{verbatim}\end{indpar}
+
+is the cooked representation of the object in
+Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
+
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}[t]{@{}l@{}}
+\verb|##130::|\\
+\verb|    1: x|\\
+\verb|    2: y|\\
+\verb|    .separator: ","|\\
+\verb|    .initiator: "("|\\
+\verb|    .terminator: ")"|\\
+\verb|##131::|\\
+\verb|    1: ">"|\\
+\verb|    2: x|\\
+\verb|    3: y|\\
+\verb|    .initiator: "("|\\
+\verb|    .terminator: ")"|\\
+\verb|##132::|\\
+\verb|    1: return|\\
+\verb|    2: y|\\
+\verb|    .initiator: ":"|\\
+\verb|##133::|\\
+\verb|    1: if|\\
+\verb|    2: ##131|\\
+\verb|    3: ##132|\\
+\verb|##134::|\\
+\verb|    1: return|\\
+\verb|    2: x|\\
+\verb|    .initiator: ":"|\\
+\verb|##135::|\\
+\verb|    1: else|\\
+\verb|    2: ##134|\\
+\verb|##136::|\\
+\verb|    1: ##133|\\
+\verb|    2: ##135|\\
+\verb|    .initiator: "{"|\\
+\verb|    .terminator: "}"|\\
+\end{tabular}
+~~~~~
+\begin{tabular}[t]{@{}l@{}}
+\verb|##137::|\\
+\verb|    1: function|\\
+\verb|    2: ##130|\\
+\verb|    3: ##136|\\[2ex]
+\begin{picture}(4.0,5.5)
+\put(0,0){\framebox(4.0,5.5){}}
+\put(0.6,0.0){
+\put(0.0,0.50){\makebox(2.0,0.3){\tt \#\#131}}
+\put(1.0,0.65){\oval(2.0,0.3)}
+\put(0.40,0.50){\vector(0,-1){0.25}}
+\put(0.35,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.15){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt ">"}}
+\put(1.00,0.50){\vector(0,-1){0.25}}
+\put(0.95,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.15){\makebox(0,0)[c]{\tt x}}
+\put(1.30,0.50){\vector(0,-1){0.25}}
+\put(1.25,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.30,0.15){\makebox(0,0)[c]{\tt y}}
+\put(1.60,0.50){\vector(0,-1){0.25}}
+\put(1.65,0.40){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.60,0.15){\makebox(0,0)[c]{\tt ")"}}
+}
+\put(1.4,1.4){
+\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#132}}
+\put(0.65,0.65){\oval(1.3,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
+\put(1.10,0.50){\vector(0,-1){0.25}}
+\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.10,0.15){\makebox(0,0)[c]{\tt y}}
+}
+\put(2.6,0.7){
+\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#134}}
+\put(0.65,0.65){\oval(1.3,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
+\put(1.10,0.50){\vector(0,-1){0.25}}
+\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.10,0.15){\makebox(0,0)[c]{\tt x}}
+}
+\put(0.2,2.0){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#133}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.25}}
+\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.15){\makebox(0,0)[c]{\tt if}}
+\put(0.60,0.50){\line(0,-1){0.45}}
+\put(0.50,0.05){\oval(0.2,0.2)[br]}
+\put(0.50,-0.05){\line(-1,0){0.40}}
+\put(0.10,-0.15){\oval(0.2,0.2)[tl]}
+\put(0.00,-0.15){\line(0,-1){1.10}}
+\put(0.10,-1.25){\oval(0.2,0.2)[bl]}
+\put(0.10,-1.35){\vector(1,0){0.30}}
+\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(0.90,0.50){\line(0,-1){0.35}}
+\put(1.00,0.15){\oval(0.2,0.2)[bl]}
+\put(1.00,0.05){\vector(1,0){0.2}}
+\put(0.85,0.40){\makebox(0,0)[r]{\tt 3}}
+}
+\put(2.8,2.0){
+\put(0.0,0.50){\makebox(0.8,0.3){\tt \#\#135}}
+\put(0.40,0.65){\oval(0.8,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt else}}
+\put(0.60,0.50){\vector(0,-1){1.0}}
+\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
+}
+\put(1.5,2.4){
+\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#136}}
+\put(0.85,1.15){\oval(1.3,0.3)}
+\put(0.40,1.00){\vector(0,-1){0.25}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "\LEFTBRACKET"}}
+\put(0.70,1.00){\line(0,-1){0.65}}
+\put(0.60,0.35){\oval(0.2,0.2)[br]}
+\put(0.60,0.25){\vector(-1,0){0.70}}
+\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
+\put(1.00,1.00){\line(0,-1){0.65}}
+\put(1.10,0.35){\oval(0.2,0.2)[bl]}
+\put(1.10,0.25){\vector(1,0){0.20}}
+\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
+\put(1.30,1.00){\vector(0,-1){0.25}}
+\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt "\RIGHTBRACKET"}}
+}
+\put(0.6,3.2){
+\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#130}}
+\put(0.85,1.15){\oval(1.3,0.3)}
+\put(0.40,1.00){\vector(0,-1){0.25}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,1.00){\vector(0,-1){0.25}}
+\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.65){\makebox(0,0)[c]{\tt x}}
+\put(1.00,1.00){\vector(0,-1){0.25}}
+\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.65){\makebox(0,0)[c]{\tt y}}
+\put(1.30,1.00){\vector(0,-1){0.25}}
+\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt ")"}}
+\put(1.50,1.15){\vector(1,0){1.0}}
+\put(1.55,1.20){\makebox(0,0)[l]{\tt .separator}}
+\put(2.55,1.15){\makebox(0,0)[l]{\tt ","}}
+}
+\put(0.2,4.5){
+\put(0.0,0.50){\makebox(3.6,0.30){\tt \#\#137}}
+\put(1.80,0.65){\oval(3.6,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.25}}
+\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.15){\makebox(0,0)[c]{\tt function}}
+\put(1.25,0.50){\vector(0,-1){0.5}}
+\put(1.20,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(3.40,0.50){\line(0,-1){1.35}}
+\put(3.30,-0.85){\oval(0.2,0.2)[br]}
+\put(3.30,-0.95){\vector(-1,0){0.5}}
+\put(3.35,0.40){\makebox(0,0)[r]{\tt 3}}
+}
+\end{picture}
+\end{tabular}
+\end{center}
+
+\caption{Example Code Object Representation}
+\label{EXAMPLE-CODE-OBJECT-REPRESENTATION}
+\end{boxedfigure}
+
+Cooked representations may replace raw object names in the
+description of other objects, as in
+
+\begin{indpar}\begin{verbatim}
+##291:: text: This is a sentence.
+        outline: straight 3.2, left, straight (y + 9.4)
+        min: function (x,y)
+             {
+                if (x > y):
+                    return y
+                else:
+                    return x
+             }
+\end{verbatim}\end{indpar}
+
+which is the cooked representation of the object
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text: ##93
+    outline: ##45
+    min: ##137
+\end{verbatim}\end{indpar}
+
+given the above examples.
+
+One question left unanswered by the discussion so far is whether
+
+\begin{indpar}\begin{verbatim}
+##291:: text A: This is a sentence.
+        text B: This is a sentence.
+\end{verbatim}\end{indpar}
+
+represents
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text A: ##93
+    text B: ##93
+\end{verbatim}\end{indpar}
+
+or instead
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text A: ##93
+    text B: ##999
+\end{verbatim}\end{indpar}
+
+where object \verb|##999| happens to have the same structure as
+object \verb|##93|.  The default is to make both \verb|text A|
+and \verb|text B| be the same object, \verb|##93|, and to make
+that object `immutable', meaning that it cannot be changed.  The
+rule is that unless otherwise indicated, only immutable objects
+have the property that their cooked representations can replace
+their raw object names in the cooked representations of other
+objects.
+
+The following are generalizations about certain attribute names.
+First, the strictly positive integers \verb|1|, \verb|2|,
+\verb|3|, \ldots are used to name the elements of a list.  Second,
+some attribute names beginning with `\verb|.|' have special
+meaning for object representation.  Examples above are
+\verb|.separator|, \verb|.initiator|, and \verb|.terminator|.
+Recall that words beginning with `\verb|.|' are reserved for
+use by the MIN system, and should not be defined by MIN users.
+
+In the following sections we describe cooked representations
+precisely.
+
+\subsection{Syntax}
+
+A cooked data representation has the syntax given
+in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
+special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
+
+\begin{boxedfigure}
+
+\begin{center}
+
+Ad Hoc Special Lexemes
+
+\bigskip
+
+\begin{tabular}{ll@{\hspace*{5em}}ll}
+\ttkey{::} & object assignment &
+\ttnbkey{>:} & object addition \\
+\ttkey{:} & attribute assignment &
+\ttkey{:} & code indicator \\
+\end{tabular}
+
+\bigskip
+
+Brackets
+
+\bigskip
+
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
+brackets	& meaning	& parsing mode
+\\[1ex]
+\ttnbkey{(}~~~\ttnbkey{)}	& parentheses		& expression \\
+\ttnbkey{[}~~~\ttnbkey{]}	& square brackets	& expression \\
+\ttnbkey{\CurlyBra}~~~\ttnbkey{\CurlyKet}
+				& curly brackets	& code \\
+\ttnbkey{`}~~~\ttnbkey{'}	& single quotes		& text \\
+\end{tabular}
+
+\bigskip
+
+Standard Operators
+
+\bigskip
+
+\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+priority & parser	& operators	& meaning 
+\\[2ex]
+-5000 & \ttkey{sentence} &  \ttnbkey{.} ~~~ \ttnbkey{!} ~~~ \ttnbkey{?}
+	& sentence terminators \\
+-4000 & \ttkey{subsentence} &  \ttnbkey{;} & subsentence separator \\
+-3000 & \ttkey{phrase} &  \ttnbkey{,} & phrase separator \\
++0000 & \ttkey{assign} &  \ttnbkey{<-} ~~~ \ttkey{BECOMES} & assignment \\
++1000 & \ttkey{logical} &  \ttkey{AND} ~~~ \ttkey{OR} ~~~ \ttkey{NOT}
+	& logical and, or, not \\
++2000 & \ttkey{compare} &  \ttnbkey{=} ~~~ \ttnbkey{/=} ~~~
+        \ttnbkey{!=} 			& equal, not equal, ditto \\
+      &		      & \ttnbkey{<} ~~~ \ttnbkey{<=} ~~~ \ttnbkey{=<}
+      & less than, less than or \\
+      &		      &		&
+      equal, ditto \\
+      &		      & \ttnbkey{>} ~~~ \ttnbkey{>=} ~~~ \ttnbkey{=>}
+      & greater than, greater \\
+      &		      &		&
+      than or equal, ditto \\
++3000 & \ttkey{sum} &  \ttnbkey{+} ~~~ \ttnbkey{-}
+	& addition, subtraction \\
++3100 & \ttkey{product} &  \ttnbkey{*} ~~~ \ttnbkey{/} 
+	& multiplication, division \\
++9999 & \ttkey{objname} &  \ttnbkey{\#\#}
+	& object name \\
+\end{tabular}
+
+\end{center}
+
+\caption{Special Lexemes}
+\label{SPECIAL-LEXEMES}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}{l}
+\key{data-representation} ::= {\em object-representation} \ldots
+\\[1ex]
+\key{object-representation} ::=
+\\\hspace*{1in}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+        & {\em object-header} {\em attribute-representation} \ldots \\
+    $|$ & {\em object-header} {\em text-expression}
+	  \ttmkey{;;}{in {\em object-representation}}
+    	  {\em attribute-representation} \ldots \\[1ex]
+    \end{tabular}
+\\[1ex]
+\key{object-header}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
+    $|$ & {\em object-name} \ttmnbkey{>:}{in {\em object-header}} \\
+    $|$ & {\em object-name} \ttmnbkey{>>:}{in {\em object-header}} \\[1ex]
+    \end{tabular}
+\\[1ex]
+\key{attribute-representation}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & {\em raw-attribute-representation} \\
+    $|$ & {\em cooked-single-attribute-representation} \\
+    $|$ & {\em cooked-double-attribute-representation} \\[1ex]
+    \end{tabular}
+\\[1ex]
+\key{cooked-single-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em text-expression}
+	\ttmkey{;;}{in {\em cooked-single-attribute}!{\em -representation}}
+\\[1ex]
+\key{cooked-double-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+\\\hspace*{1in}
+	{\em double-attribute-value}
+	{\em double-attribute-value}\ldots
+\\\hspace*{1in}
+	{\em attribute-label-initiator} {\em attribute-label}
+	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
+\\[1ex]
+\key{text-expression} ::= {\em expression} in text mode
+\\[1ex]
+\key{expression} ::= {\em expression(-9999)}
+\\[1ex]
+\key{expression}{\em ($N$)} ::=
+	\{ {\em expression($N+1$)} $|$ {\em operator($N$)} \}\ldots
+\\[1ex]
+\key{operator}{\em ($N$)} ::= operator of priority $N$:
+			      see Figure~\figref{SPECIAL-LEXEMES}
+\\[1ex]
+\key{expression}{\em (10000)} ::= {\em atom} $|$ {\em bracketed-expression}
+\\[1ex]
+\key{bracketed-expression} \begin{tabular}[t]{@{}r@{~}l@{}}
+			    ::= & \verb|(| {\em expression} \verb|)| \\
+			    $|$ & \verb|[| {\em expression} \verb|]| \\
+			    $|$ & \verb|{| {\em code-block} \verb|}| \\
+			    $|$ & \verb|`| {\em text-expression} \verb|'| \\[1ex]
+			    \end{tabular}
+\\[1ex]
+\key{code-block} ::= {\em expression} in code mode
+\\[1ex]
+See \pagref{RAW-ATTRIBUTE-REPRESENTATION} for rest of equations
+(e.g., for {\em raw-attribute-representation}).
+\end{tabular}
+\end{center}%
+\index{label!attribute}%
+\index{name!object}
+
+\caption{Data Representation Syntax}
+\label{DATA-REPRESENTATION-SYNTAX}
+\end{boxedfigure}
+
+The difference between cooked data and raw data is the presence
+of expressions.  An expression is parsed to produce an atom or
+an object which is called the \key{parsed expression}.
+If the expression is part of a
+{\em cooked-attribute-representation}, the atom or object becomes
+a value of the attribute.  For example, the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: This is a sentence.
+    expression B: ( x + 8 )
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: ##402
+    expression B: ##403
+##402::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+##403::
+    1: "+"
+    2: x
+    3: 8
+    .initiator: ")"
+    .terminator: "("
+\end{verbatim}\end{indpar}
+
+If the expression immediately follows
+an {\em object-header}, and is before any {\em attribute-representa\-tions}
+in the {\em object-representation}, then if the parsed expression is
+an object, the attributes of the object produced are copied to become
+attributes of the object represented, and if the parsed expression is
+an atom, the atom becomes the value of the represented object attribute
+named `\ttmkey{1}{defined in cooked representation}'.  For example,
+the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##410:: This is a sentence.
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##410::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+    x: 5
+\end{verbatim}\end{indpar}
+
+and the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##411:: hi
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##411::
+    1: hi
+    x: 5
+\end{verbatim}\end{indpar}
+
+The precise algorithm used in parsing is described below in
+\secref{PARSING}.
+
+
+\subsection{Parsing Modes}
+\label{PARSING-MODES}
+
+There are three \skey{parsing mode}s: text, expression, and code.
+The parsing mode of any lexeme is determined by the innermost
+brackets containing the lexeme, according to Figure~\figref{SPECIAL-LEXEMES}.
+Thus if there are no innermost brackets,
+or if the innermost brackets are \verb|` '|, the parsing mode is `text'.
+If the innermost brackets are \verb|( )| or \verb|[ ]|
+the mode is `expression'.  If the innermost brackets are \verb|{ }|
+the mode is `code'.  Thus it is as if \verb|` '| changes to text mode,
+\verb|( )| and \verb|[ ]| to expression mode, and \verb|{ }| to code mode.
+
+In \key{expression mode}\label{EXPRESSION-MODE} all operators are recognized,
+line feeds and indentation are treated like any other white-space, and
+`\verb|:|' is not recognized as a code indicator.
+
+\ikey{Text mode}{text mode} is the same as expression mode except that
+only some operators are recognized.  Operators with zero or negative
+priority are recognized.  Operators of positive priority are only recognized
+within subexpressions of operators of zero priority.
+
+Thus if the lexeme sequence `\verb|move 5 * y, x <- x + 1|' is parsed in
+text mode, the \verb|+| is recognized as an operator because it is in a
+subexpression of the zero priority \verb|<-| operator, while the
+\verb|*| is not recognized as an operator
+because it is not in such a subexpression.  To recognize the \verb|*| as
+an operator, one should put \verb|5 * y| in parentheses, as in
+`\verb|move ( 5 * y ), x <- x + 1|'.
+
+In \key{code mode}\label{CODE-MODE} all operators are recognized,
+while line feeds, indentation, and the code indicator `\verb|:|' are
+used to sequence statements within the code block and to indicate
+code subblocks, according to the following rules:
+
+\begin{enumerate}
+\item
+The column of the first non-white-space character inside \verb|{}| brackets
+defines the initial column of the \key{code block} enclosed by the
+brackets.
+
+\item No line inside a code block may be indented by less than its
+initial column.
+Any line indented by more than the initial column must be indented by at
+least 2 columns more than the initial column.
+
+If the code block
+terminating \verb|}| is the first lexeme on its line, its line is
+\underline{not} considered to be inside the code block.  If the
+terminating \verb|}| is \underline{not} the first lexeme on its line, 
+its line is considered to be inside the code block.
+
+\item A code block is organized as a sequence of statements such that
+each non-white-space character in the code block initial column begins a new
+statement, and statements so begun are the only statements in the code block.
+
+\item
+If a statement contains a `\verb|:|' \key{code indicator}\label{CODE-INDICATOR}
+mark as the last
+lexeme of a line, the first column of the next lexeme in the statement
+begins a \key{code subblock} that includes the rest of the statement.  The
+first column of that next lexeme is the initial column of the code
+subblock.  The subblock obeys rules 2 and 3 just given for code blocks.
+
+\item
+A code block and its surrounding \verb|{ }| brackets represent a list of
+zero or more statements with
+list \verb|.initiator| \verb|"{"| and list \verb|.terminator| \verb|"}"|.
+
+\item
+A code subblock and its preceding code indicator `\verb|:|'
+represents a list of zero or more statements with
+list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
+
+\end{enumerate}
+
+
+\subsection{Parsing}
+\label{PARSING}
+
+Parsing a sequence of lexemes is done in four phases:
+
 \begin{list}{}{}
+\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}%
+				 \index{scanning!lexeme}~~~~
+The sequence of lexemes is represented as an object
+that is a list whose elements (values of the attributes
+named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
+and objects representing bracketed sublists of lexemes.  Quoted
+atoms are specially represented by a list with one element and the
+{\tt .initiator} attribute value `{\tt quoted}'.
 
-\item[{\tt [}{\tt //} {\em variable-name} {\em variable-value}{\tt]}]~\\
-This expression converts to the same tree that the {\em variable-value}
-converts to, and adds the root node of this tree to the value set of
-the named variable.
+\item[(2)] \ikey{Operator Scanning}{operator scanning}%
+				   \index{scanning!operator}~~~~
+The object representation is scanned for operators
+and modified by replacing subsequences of elements representing
+subexpressions with implied parentheses with sublists, and by
+adding {\tt .parser} attribute values to some of the list objects.
 
-\item[{\tt [}\ttkey{//} {\em variable-name}{\tt]}]~\\
-This expression converts to a tree consisting of a single null root
-node, and adds this node to the value set of the named variable.
-
-\item[{\em variable-name}]~\\
-For implicit conversion this is
-treated as the equivalent of `\verb|[// |{\em variable-name}\verb|]|'
-if {\em variable-name} begins with a capital letter or with
-`\verb|#|' followed by a capital letter.
-Otherwise this converts to a tree with a single node
-labeled with a word that is not in general a variable name.
-
-\item[{\tt [\Tilde\Tilde}\index{~~@{\tt \protect\Tilde\protect\Tilde}}
-           {\em variable-name} {\em variable-default} {\tt]}]~\\
-This expression converts to the same tree that the {\em variable-default}
-converts to, and adds the root node of this tree to the default set of
-the named variable.  Thus \verb|~~| is like \verb|//| except that the node is
-added to the default set instead of the value set of the variable.
-
-\item[{\tt [}\ttkey{\#\#\#\#}
-      \{ {\em arrow-label} {\em target-value} \}\,$^\star${\tt]}]~\\
-This expression converts to a tree whose root is an unlabeled node
-that is the source of arrows labeled with the {\em arrow-labels}.
-The target of each arrow is the tree obtained by converting
-the {\em target-value} raw expression that follows the arrow's
-{\em arrow-label}.
-
-\item[{\tt [}\ttkey{++++}
-      {\em expression-graph} {\em expression-graph}\,$^\star${\tt]}]~\\
-This expression converts to the tree that the first {\em expression-graph}
-converts to.  The other {\em expression-graphs} are also converted to trees.
-All the {\em expression-graphs} may contribute variables, variable values,
-and variable defaults, and the values and defaults for each variable
-will be merged by the unification at the end of the conversion.
+\item[(3)] \ikey{Parser Expansion}{parser expansion}%
+				  \index{expansion!parser}~~~~
+The object representation is evaluated by calling the parsers.
 
 \end{list}
-\end{indpar}
 
-After the expression tree is created, its root node becomes the root
-of the expression graph resulting from conversion.
+\subsubsection{Lexeme Scanning}
+\label{LEXEME-SCANNING}
 
-Then pure unification is performed as
-described in \secref{PURE-UNIFICATION}, except that the merge set is initialized
-to merge pairs that merge the values of each variable and the
-defaults of each variable.  It is a conversion error if this
-unification fails or if any variable has an empty set of values
-before unification is attempted.  After unification a variable has a default
-if and only if its set of default values before unification was non-empty.
+The \key{lexeme scanning} algorithm inputs a sequence of lexemes
+and outputs an object representing the sequence.  The object has
+list elements which are attributes labeled {\tt 1}, {\tt 2}, \ldots.
+The object may have an {\tt .initiator} and/or {\tt .terminator}
+attribute.
 
-There are two kinds of graph creation conversions: explicit and implicit.
-In \ikey{implicit conversions}{implicit conversion!to expression graph}%
-\label{IMPLICIT-CONVERSION}
-what appear to be nodes labeled by a word L beginning with
-a capital letter or with `\ttkey{\#}' followed by a capital
-letter are treated as the equivalent of `\verb|[// |L\verb|]|'.
-Thus L is a variable name, and when used like a node label
-in the raw expression, L
-represents a null node that is a value of the variable named L.
-For \ikey{explicit conversions}{explicit conversion!to expression graph}
-no such special provision is made for words that are used like node labels.
+The rules for computing the object from the lexeme sequence are:
 
-The exact operation names used in graph creation conversions may be different
-from those given above.  The names to be used are given as arguments to the
-conversion operations, with the names used above as defaults.  These
-default names and the descriptive names of the operations are:
+\begin{enumerate}
+
+\item The lexeme sequence is examined to identify matching brackets.
+It is an error if there are unmatched brackets (bracket characters
+in quoted strings do not count as brackets).
+
+Then the first of the following rules which can be applied is applied,
+unless no rule can be applied.
+
+\begin{enumerate}
+
+\item If the lexeme sequence begins and ends with matching brackets, these
+are removed from the sequence, and become the {\tt .initiator} and
+{\tt .terminator} attributes of the object being computed.
+
+\item If the lexeme sequence begins with a `\verb|:|' code indicator mark
+(\pagref{CODE-INDICATOR}), this
+is removed from the sequence, and becomes the {\tt .initiator}
+attribute of the object being computed.
+
+\end{enumerate}
+
+\item The remaining
+lexeme sequence is then scanned from right to left to produce
+the list elements of the object being computed (these become the
+values of the attributes named {\tt 1}, {\tt 2}, {\tt 3}, \ldots).
+At each stage of the
+scan, lexemes are input and another list element is produced according
+to the first of the following rules that can be applied.
+
+\begin{enumerate}
+
+\item If the next lexeme is the beginning of a statement within a code
+block (\pagref{CODE-MODE}),
+the subsequence of lexemes that is the statement (including any
+subblocks) becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next lexeme is an opening bracket (\verb|{|, \verb|(|,
+\verb|[|, or \verb|`|), the subsequence of lexemes beginning
+with the bracket and ending with the matching bracket becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next lexeme is a `\verb|:|' code indicator mark
+(\pagref{CODE-INDICATOR}), the subsequence of lexemes consisting of
+the code indicator mark and the following subblock becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next lexeme is a quoted string, the lexeme by itself
+becomes the input, and the next list element is an
+object whose only attributes are an attribute named {\tt 1} whose value
+is the quoted string atom
+and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
+
+\item If the next lexeme is a word, mark, separator, or number,
+the lexeme by itself becomes the input, and the word, mark, separator,
+or number becomes the next list element.
+
+\end{enumerate}
+
+\end{enumerate}
+
+For example, given the input
 
 \begin{center}
-\begin{tabular}{l@{~~~~~}l}
-\verb|//|	& \key{graph variable value operation} \\
-\verb|~~|	& \key{graph variable default operation} \\
-\verb|####|	& \key{graph source construction operation} \\
-\verb|++++|	& \key{graph concatenation operation} \\
-\end{tabular}
+\verb|`The "+" in (x + 5 * y) is an operator.'|
 \end{center}
 
-\ikey{Pseudo-variable}{expression graph pseudo-variable}%
-\index{pseudo-variable!expression graph}
-names (\pagref{PSEUDO-VARIABLES})
-of the form `\verb|{|{\em word-or-separator}\verb|}|' can be used
-with the `\verb|//|' operation
-to merge nodes that are not the value or default of any real variable.
-This use simply
-creates variables with names that are not single words or separators,
-and these variables are discarded at the end of conversion.
-The pseudo-variable `\verb|{ROOT}|' is always given
-the root node of the expression tree as one of its values, but may
-be given other values by this method.
-Pseudo-variables cannot be given defaults.
+the lexical scanning algorithm outputs object \verb|##1| in the
+following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
 
-Some examples of expression trees represented by raw expressions and the
-expression graphs they convert to are as follows:
+\begin{indpar}\begin{verbatim}
+##1::
+    1 : The
+    2 : ##2
+    3 : in
+    4 : ##3
+    5 : is
+    6 : an
+    7 : operator
+    8 : .
+    .initiator: "`"
+    .terminator: "'"
+##2::
+    1: "+"
+    .initiator: quoted
+##3::
+    1 : x
+    2 : "+"
+    3 : 5
+    4 : "*"
+    5 : y
+    .initiator: "("
+    .terminator: ")"
+\end{verbatim}\end{indpar}
 
-\begin{indpar}
+Recall that within objects there is no difference between
+a quoted string representation of a mark and the mark, as both are
+the same atom, but in textual representations of objects the quoted
+string representation of marks that can be operators is used
+to keep the marks from being misread as operators.
+Thus \verb|"+"| is used in the textual
+object representation above to denote the 1 character atom \verb|+|,
+and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
+also denote 1 character atoms.
 
-\begin{tabular}{p{2.5in}@{~~~~~}l}
-\begin{tabular}{l}
-\verb|[z [// X foo] X]| \\
-implicit conversion
+Differences between expression mode (\pagref{EXPRESSION-MODE})
+and code mode (\pagref{CODE-MODE}) are all
+handled during lexical scanning, and thereafter these two modes behave
+the same.
+
+\subsubsection{Operator Scanning}
+\label{OPERATOR-SCANNING}
+
+The \key{operator scanning} algorithm inputs an object output
+by the lexical scanning algorithm and rearranges its contents according
+to the operators it contains.
+Specifically, subsequences of list elements between operators
+are regrouped into sublists to represent subexpressions,
+and {\tt .parser} attributes are added to
+objects in preparation for expansion.
+
+The operator scanning algorithm takes as input both an object and a parsing
+mode.  The parsing mode is either text or expression (\pagref{PARSING-MODES}).
+Code mode is handled elsewhere, during lexical scanning, and is treated as
+equivalent to expression mode during operator scanning.  The output of
+the algorithm is the input object which may be modified.
+The operator scanning algorithm applies the following actions to the
+object:
+
+\begin{enumerate}
+
+\item If the object has an 
+an {\tt .initiator} attribute equal to `{\tt quoted}', the
+scanning algorithm terminates without modifying the object.
+
+\item
+If the object has an {\tt .initiator} attribute,
+the parsing mode argument to the algorithm is changed as follows:
+
+\begin{center}
+\begin{tabular}{lll}
+\tt .initiator	& \tt .terminator	& new parsing mode \\[1ex]
+\tt `		& \tt '			& text \\
+\tt (		& \tt )			& expression \\
+\tt [		& \tt ]			& expression \\
+\LEFTBRACKET	& \RIGHTBRACKET		& expression \\
+\tt :		& 			& expression \\
 \end{tabular}
-&
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{2} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{z} \\
-    \end{Gsingle} \\
-    \begin{Gchild}{1}
-	\Gvariable{X} \\
-	\Glabel{foo}
-    \end{Gchild} \\
-    \begin{Gsingle}{2}
-	\Gvariable{X} \\
-    \end{Gsingle} \\
-\end{Graph}
-\end{tabular}
+\end{center}
+	
+\item The object list elements are inspected to see if any are operators.
+An operator is an atom equal to an operator that is recognized according
+to the current parsing mode (see \pagref{PARSING-MODES},
+Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DECLARATION}).
 
-\medskip
+If there are operators among the list elements, those with the lowest
+priority L are selected.  Then any non-empty sequences of list elements between
+selected operators are replaced by a single object listing the replaced
+elements.  However sequences with only one element are not replaced.
+Then, the current object is given a {\tt .parser}
+attribute equal to the parser associated with priority level L
+(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DECLARATION}).
 
-\begin{tabular}{p{2.5in}@{~~~~~}l}
-\begin{tabular}{l}
-\verb|[z [// X foo] X]| \\
-explicit conversion
-\end{tabular}
-&
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{2} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{z} \\
-    \end{Gsingle} \\
-    \begin{Gchild}{1}
-	\Gvariable{X} \\
-	\Glabel{foo}
-    \end{Gchild} \\
-    \begin{Gsingle}{2}
-	\Glabel{X} \\
-    \end{Gsingle} \\
-\end{Graph}
-\end{tabular}
+Lastly, if the current parsing mode is text and L equals zero, the parsing
+mode is changed to expression.
 
-\medskip
+\item
+The operator scanning algorithm is called recursively on each element
+of the current object's list that is an object and not an atom.  In making
+this recursive call, the current parsing mode is passed as an argument
+to the recursive algorithm execution.
 
-\begin{tabular}{p{2.5in}@{~~~~~}l}
-\begin{tabular}{@{}l@{}}
-\verb|[++++| \\
-\verb|  [z X X]| \\
-\verb|  [~~ X foo]]| \\[1ex]
-implicit conversion
-\end{tabular}
-&
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gsingle}{-ARITY-}
-	\Glabel{2} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{0}
-	\Glabel{z} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{1}
-	\Gvariable{X} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2}
-	\Gvariable{X} \\
-    \end{Gsingle} \\
-\end{Graph}
-~~~
-\begin{Graph}
-    \Gdefault{X} \\
-    \Glabel{foo} \\
-\end{Graph}
-\end{tabular}
 
-\medskip
+\end{enumerate}
 
-\begin{tabular}{p{2.5in}@{~~~~~}l}
-\begin{tabular}{@{}l@{}}
-\verb|[++++| \\
-\verb|  [#### fee X fie X]| \\
-\verb|  [// X 51]| \\
-\verb|  [~~ X [#### 1 foe 2 fum]]| \\
-\verb|  [~~ Y| \\
-\verb|    [// Y| \\
-\verb|      [#### 1 [// {1}]| \\
-\verb|            2 [####| \\
-\verb|                *| \\
-\verb|                [// {1}]]| \\
-\verb|            ]]]]| \\[1ex]
-implicit conversion
-\end{tabular}
-&
-\begin{tabular}{@{}l@{}}
-\begin{Graph}
-    \Gvariable{\CurlyBra ROOT\CurlyKet} \\
-    \begin{Gchild}{fee}
-	\Gvariable{X} \\
-	\Glabel{51} \\
-    \end{Gchild} \\
-    \begin{Gsingle}{fie}
-	\Gvariable{X} \\
-    \end{Gsingle} \\
-\end{Graph}
-\hspace{0.1in}
-\begin{Graph}
-    \Gdefault{X} \\
-    \begin{Gsingle}{1}
-	\Glabel{foe} \\
-    \end{Gsingle} \\
-    \begin{Gsingle}{2}
-	\Glabel{fum} \\
-    \end{Gsingle} \\
-\end{Graph}
-\\
-~\\
-\begin{Graph}
-    \Gvariable{Y} \\
-    \Gdefault{Y} \\
-    \begin{Gsingle}{1}
-	\Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-    \end{Gsingle} \\
-    \begin{Gchild}{2}
-	\begin{Gsingle}{*}
-	    \Gvariable{\protect\CurlyBra 1\protect\CurlyKet} \\
-	\end{Gsingle} \\
-    \end{Gchild} \\
-\end{Graph}
-\end{tabular}
+Given the the lexical scanning output on
+\pagref{LEXICAL-SCANNING-EXAMPLE-OUTPUT},
+which was derived from the lexeme sequence,
 
-\end{tabular}
+\begin{center}
+\verb|`The "+" in (x + 5 * y) is an operator.'|
+\end{center}
+
+operator scanning returns:
+
+\begin{indpar}\begin{verbatim}
+##1::
+    1 : ##4
+    2 : .
+    .initiator: "`"
+    .terminator: "'"
+    .parser: sentence
+##4::
+    1 : The
+    2 : ##2
+    3 : in
+    4 : ##3
+    5 : is
+    6 : an
+    7 : operator
+##2::
+    1: "+"
+    .initiator: quoted
+##3::
+    1 : x
+    2 : "+"
+    3 : ##5
+    .initiator: "("
+    .terminator: ")"
+    .parser: sum
+##5::
+    1 : 5
+    2 : "*"
+    3 : y
+    .parser: product
+\end{verbatim}\end{indpar}
+
+Note that classical programming language prefix and postfix operators are
+not supported by MIN.  Examples are given with descriptions of parsers
+in the next section.\footnote{Classical prefix and postfix operators could be
+supported by MIN, but seem to the author to be no more intuitive than
+the MIN approach.  In particular, `{\tt x<y~AND NOT~y<z}' fails classically
+but works in MIN.}
+
+\subsubsection{Parser Expansion}
+\label{PARSER-EXPANSION}
+
+The \key{parser expansion} algorithm inputs an object output
+by the operator scanning algorithm and outputs an
+expanded object that replaces the input object.
+The parser expansion algorithm goes through its input
+looking for objects with a {\tt .parser} attribute, and for each
+such object, calls its {\tt .parser} attribute value as a function with
+the object as input and the function output as the expansion of the input
+object.  The expansion algorithm works only on the top level: when the
+algorithm calls the {\tt .parser} attribute function of an expression,
+the algorithm leaves it up to that function to call the {\tt .parser}
+attribute functions of subexpressions.  The standard parsers do this
+first, thus effecting a bottom up algorithm, similar to expression
+evaluation.
+
+A {\tt .parser} attribute value is known as a \key{parser}, and is associated
+with an operator priority level
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
+Immediately below are the standard parsers and their effects.
+
+In describing effects, we use notation such as
+
+\begin{center}
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{center}
+
+Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
+parentheses introduced by the rewrite are \underline{implicit},
+which means that the lists they bracket have \underline{no}
+\verb|.initiator| or \verb|.terminator|, and the parentheses are
+merely written here to indicate sublists in the expression structure.
+
+\newpage
+
+\begin{indpar}[1em]
+
+\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
+\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
+\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
+
+\bigskip
+
+\ttmkey{sentence}{parser} \hfill
+	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
+
+\begin{indpar}[0.5em]
+Terminators may not be consecutive, may not begin an expression,
+and must end an expression.  Thus each between-terminator subexpression
+is non-empty and is followed by a terminator.
+Each between-terminator subexpression is converted if necessary
+to a list.  Then a \ttmkey{.terminator}{produced by parsing}
+attribute is added to this list whose value is the terminator following the
+subexpression.  If there is only one subexpression, the list it produces
+is the parse result.  Otherwise the result is the list of all the subexpression
+lists.
 \end{indpar}
 
-\subsection{Expression Graph Implementation}
-\label{EXPRESSION-GRAPH-IMPLEMENTATION}
+\bigskip
 
-In this section we give ideas that may or may not be used to
-implement CASTLE expression graphs.
 
-CASTLE may have a single memory of nodes and arrows that holds all expression
-graphs.  We will call this the expression graph memory.
+\ttmkey{subsentence}{parser} \hfill
+	\key{subsentence separator}: \NBOP{;} \\
+\ttmkey{phrase}{parser} \hfill
+	\key{phrase separator}: \NBOP{,}
 
-There may be at most one node in expression graph memory that has a given
-label L.  That is, all nodes labeled L, for a particular L, are the same
-node.
+\begin{indpar}[0.5em]
+Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
+priority levels and different parsers, and so cannot appear together
+in the same expression.
 
-Giving a null node a label L is then implemented by forwarding the null node
-to the node with label L.
+A list of all between-separator subexpressions is made, with empty
+between-separator subexpressions being represented by objects with
+no attributes.  There will be at least two subexpressions: one following
+the last separator and one preceding the first separator.
+The list of subexpressions is given a
+\ttmkey{.separator}{produced by parsing}
+attribute with value of the separator (\verb|";"| or \verb|","|),
+and is returned as the result of the parse.
+\end{indpar}
 
-A frequent operation is copying expression graphs as part of expression
-evaluation (\secref{EVALUATION-ALGORITHM}).  To make this more efficient,
-an expression graph can be separated into two parts: an immutable part,
-and a mutable part.  The mutable part is just a vector of node references,
-one per node if the expression graph.
-The immutable part is just a set of immutable nodes, with
-associated arrows, except that arrow targets may be indices of node references
-in the mutable vector.  Thus there are now two kinds of nodes in memory:
-normal nodes, which include those that are labeled and those that are
-mutable in the normal way, and immutable nodes.  The latter can only be
-pointed at by a node reference in a mutable vector.
+\bigskip
 
-Node references in mutable vectors are like nodes.  They can be null, forwarded,
-or point at an immutable node associated with the mutable vector.  In the
-last case, the node reference and immutable node together behave like a
-mutable node, and we say the node reference is `\key{coupled}' to the
-immutable node.
+\ttmkey{assign}{parser} \hfill
+	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
 
-During unification arrows are sometimes added to a node.  To make this
-work for a node reference coupled to an immutable node, a node reference may
-also point to a structure that stores a pointer to an immutable node plus
-a list of extra arrows added to that node.  The node reference is still
-coupled to the immutable node, but the node reference now represents
-a new node that has more arrows than the immutable node.
+\begin{indpar}[0.5em]
+Assign operators may not be consecutive and may not begin or end an expression.
+The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
+may not be mixed in the same expression.
+The results are rewritten using the two-argument assignment function \verb|<-|,
+making multiple assignments from right to left.
 
-An arrow target can be a normal node,
-that is, either a labeled node or a normal mutable node.
-An arrow target may not be an immutable node unless that node
-is never forwarded and arrows are never added to the node.  Instead the
-arrow target be a node reference coupled to the immutable node.
+\begin{indpar}[0.5em]
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))| \\
+\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{indpar}
+\end{indpar}
 
-In CASTLE things can be arranged so the nodes to be evaluated,
-which are guard nodes in expression definitions or nodes in expression
-definition blocks, are never forwarded.  They are determinant
-(\pagref{DETERMINATE}), and in any call unification at most one node is
-being evaluated, while the other
-is the expression defined by an expression definition.  However, in CASTLE
-arrows may be added to an expression being evaluated (Step~\ref{ADD-ARROW-STEP}
-\pagref{ADD-ARROW-STEP}).
-So in CASTLE probably no immutable node can
-point directly at another immutable node.\footnote{CASTLE differs from
-PROLOG in that in PROLOG arrows are not added to nodes during unification
-so immutable guard nodes can point directly at other immutable guard nodes.}
-Luckily CASTLE is not intended to run large programs.  However, it should be
-possible to compile code that will check whether an expression defined by
-a given definition unifies with an arbitrary expression to be evaluated.
-Call unification is just a specification for a kind of pattern matching,
-and pattern matching specifications can be compiled into classical
-imperative code.
+\bigskip
+
+\ttmkey{logical}{parser} \hfill
+	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
+
+\begin{indpar}[0.5em]
+One expression cannot have both {\tt AND} and {\tt OR} operators
+outside explicitly bracketed subexpressions.  The {\tt NOT} operator
+can only occur at the beginning of an expression or just after {\tt AND}
+or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
+before a {\tt NOT}, which must always be empty.
+
+The expression is rewritten using a multi-argument {\tt AND}
+or {\tt OR} function and a single argument {\tt NOT} function.
+
+\begin{indpar}[0.5em]
+\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
+\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (NOT x) (NOT y) z w| \\
+\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
+\\\hspace*{1in}
+\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
+\end{indpar}
+
+Note that {\tt NOT} is not a classical prefix operator, which would have
+higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
+and {\tt OR} may not be used in the same logical expression without using
+explicit parentheses.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{compare}{parser} \hfill
+	\skey{compare operator}s:
+	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
+	\NBOP{/=} ~ \NBOP{!=} ~
+	\NBOP{=>} ~ \NBOP{>=} ~
+	\NBOP{=<} ~ \NBOP{<=}
+
+\begin{indpar}[0.5em]
+Subexpressions cannot be empty, and a compare operator may not
+begin or end an expression.
+The expression is rewritten using a multi-argument {\tt AND}
+function and two-argument compare functions.  Temporary variables
+(\secref{TEMPORARY-VARIABLES})
+are used to name intermediate expression values to
+avoid recomputing arguments.
+
+\begin{indpar}[0.5em]
+\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z))| \\
+\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
+\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
+	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
+			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
+			  & \verb|(<= (.tmp 58) x)| \\
+	       \end{tabular}
+\end{indpar}
+
+Note that sequences of comparison operators are treated as they are
+in mathematics and not as they are in classical programming languages.
+E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
+\verb|(x<y)<z|.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{sum}{parser} \hfill
+	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
+
+\begin{indpar}[0.5em]
+Addition operators may not be consecutive and may not end an expression.
+The results are rewritten using the multi-argument summation function \verb|+|
+and the unary negation function \verb|-|.
+
+\begin{indpar}[0.5em]
+\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
+\verb|+ (- x) y z (- w)|
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{product}{parser} \hfill
+	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
+
+\begin{indpar}[0.5em]
+The two different kinds of multiplication operators, \verb|*| and \verb|/|,
+cannot be mixed in the same expression.
+Multiplication operators may not be consecutive and may neither begin
+nor end an expression.  The division operator \verb|/| must have exactly
+two operands.  The results are rewritten using
+the multi-argument multiplication function \verb|*| or the binary
+division function \verb|/|.  E.g.:
+
+\begin{indpar}[0.5em]
+\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
+\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
+
+\end{indpar}
+\end{indpar}
+
+
+\end{indpar}
+
 
 
 \section{Expression Evaluation}
