@@ -1106,24 +1106,30 @@ to produce from the input the following string of 12 lexemes:
 \tt x = ( 7 * ' + 5.5 * " ) ;
 \end{center}
 
-\subsection{Pre-Lexemes}
+\subsection{Lexemes}
 
-\ikey{Pre-lexemes}{pre-lexeme} are defined as follows:
+\ikey{Lexemes}{lexeme} are defined as follows:
 
 \begin{indpar}
-\key{pre-lexeme}
-	\begin{tabular}[t]{rl}
-	::= & \key{pre-word} \\
-	$|$ & \key{opening-mark} \\
-	$|$ & \key{closing-mark} \\
-	$|$ & \key{format-separator} \\
-	$|$ & \key{white-space}
-	\end{tabular}
+\key{lexeme}
+	::= {\em word}
+	$|$ {\em mark}
+	$|$ {\em separator}
+	$|$ {\em number}
+	$|$ {\em quoted-string}
+	$|$ {\em white-space}
 	\\[1ex]
-\key{pre-word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
-\key{word-character} \begin{tabular}[t]{rl}
-                       ::= & {\em letter} $|$ {\em digit} \\
-		       $|$ &    \verb|+|%
+\key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
+\key{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
+\key{separator} ::= {\em separator-character} \\[1ex]
+\key{number} ::= {\em number-character} {\em number-character}\,$^\star$ \\[1ex]
+\key{quoted-string} ::=
+    \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
+\key{white-space} ::= {\em white-space-character}
+                     {\em white-space-character}\,$^\star$ \\[1ex]
+\key{word-character} ::= {\em letter} \\[1ex]
+\key{mark-character} \begin{tabular}[t]{rl}
+		     ::= &      \verb|+|%
 		             $|$\verb|-|%
 		             $|$\verb|*|%
 		             $|$\verb|/|%
@@ -1140,16 +1146,43 @@ to produce from the input the following string of 12 lexemes:
 		             $|$\verb|<|%
 		             $|$\verb|>|%
 		             $|$\verb|_|%
-		             $|$\verb|"|%
-		             $|$\verb|`|%
-		             $|$\verb|'|%
 		             $|$\verb|!|%
 		             $|$\verb|?|%
-			     $|$\verb|;|%
-			     $|$\verb|:|%
-			     $|$\verb|,|%
-		             $|$\verb|.|
+			     $|$\verb|:| \\
+		     $|$ & \verb|'| not followed {\em white-space}
+		     		    or {\em separator} \\
+		     $|$ & \verb|.| not followed {\em digit} \\
 			\end{tabular}\\[1ex]
+\key{separator-character} \begin{tabular}[t]{rl}
+		::= &   \verb|(|
+	       	    $|$ \verb|)|
+	       	    $|$ \verb|[|
+	       	    $|$ \verb|]|
+	       	    $|$ \verb|{|
+	       	    $|$ \verb|}|
+	       	    $|$ \verb|;|
+	       	    $|$ \verb|`| \\
+		$|$ & \verb|'| followed by {\em white-space}
+				or {\em separator} \\
+		$|$ & \verb|,| not followed by {\em digit} \\
+		    \end{tabular}\\[1ex]
+\key{number-character} \begin{tabular}[t]{rl}
+		::= &   {\em digit} \\
+		$|$ & \verb|.| followed by {\em digit } \\
+		$|$ & \verb|,| followed by {\em digit} \\
+		    \end{tabular}\\[1ex]
+\key{character-representative}
+    ::= see Figure~\figref{CHARACTER-REPRESENTATIVES} \\[1ex]
+\key{white-space-character}
+    \begin{tabular}[t]{rl}
+    ::= & {\em horizontal-space-character} \\
+    $|$ & {\em vertical-space-character}
+    \end{tabular}
+    \\[1ex]
+\key{horizontal-space-character} ::=
+    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
+\key{vertical-space-character} ::=
+    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed} \\[1ex]
 \key{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
 \key{lower-case-letter} ::=    \verb|a|%
 			    $|$\verb|b|%
@@ -1215,76 +1248,46 @@ to produce from the input the following string of 12 lexemes:
 		$|$\verb|7|%
 		$|$\verb|8|%
 		$|$\verb|9|
-		\\[1ex]
-\key{opening-mark} ::=     \verb|(|
-	       	       $|$ \verb|[|
-	       	       $|$ \verb|{|
-	       	       $|$ {\em opening-quote}
-	       	       $|$ {\em opening-angle}
-	       	       \\[1ex]
-\key{closing-mark} ::=     \verb|)|
-	       	       $|$ \verb|]|
-	       	       $|$ \verb|}|
-	       	       $|$ {\em closing-quote}
-	       	       $|$ {\em closing-angle}
-	       	       \\[1ex]
-\key{opening-quote} \begin{tabular}[t]{rl}
-		     ::= & {\em opening-quote-character}
-		           {\em opening-quote-character}\,$^\star$ \\
-		     \end{tabular}
-		     \\[1ex]
-\key{opening-quote-character} ::= \verb|`| \\[1ex]
-\key{closing-quote} \begin{tabular}[t]{rl}
-		     ::= & {\em closing-quote-character}
-		           {\em closing-quote-character}\,$^\star$ \\
-		     \end{tabular}
-		     \\[1ex]
-\key{closing-quote-character} ::= \verb|'| \\[1ex]
-\key{quote} ::= {\em opening-quote} $|$ {\em closing-quote} \\[1ex]
-\key{opening-angle} \begin{tabular}[t]{rl}
-		     ::= & {\em opening-angle-character}
-		           {\em opening-angle-character} \\
-		         & {\em opening-angle-character}\,$^\star$ \\
-		     \end{tabular}
-		     \\[1ex]
-\key{opening-angle-character} ::= \verb|<| \\[1ex]
-\key{closing-angle} \begin{tabular}[t]{rl}
-		     ::= & {\em closing-angle-character}
-		           {\em closing-angle-character} \\
-		         & {\em closing-angle-character}\,$^\star$ \\
-		     \end{tabular}
-		     \\[1ex]
-\key{closing-angle-character} ::= \verb|>| \\[1ex]
-\key{angle-character} ::= \verb|<| $|$ \verb|>| \\[1ex]
-\key{opening-character} ::=     \verb|(|
-		            $|$ \verb|[|
-		            $|$ \verb|{|
-		            $|$ \verb|`|
-		            $|$ \verb|<|
-			    \\[1ex]
-\key{closing-character} ::=     \verb|)|
-		            $|$ \verb|]|
-		            $|$ \verb|}|
-		            $|$ \verb|'|
-		            $|$ \verb|>|
-			    \\[1ex]
-\key{format-separator} ::= {\em format-separator-character}
-			   {\em format-separator-character}\,$^\star$ \\[1ex]
-\key{format-separator-character} ::=    \verb\|\
-				        \\[1ex]
-\key{white-space} ::= {\em white-space-character}
-                     {\em white-space-character}\,$^\star$ \\[1ex]
-\key{white-space-character}
-    \begin{tabular}[t]{rl}
-    ::= & {\em horizontal-space-character} \\
-    $|$ & {\em vertical-space-character}
-    \end{tabular}
-    \\[1ex]
-\key{horizontal-space-character} ::=
-    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
-\key{vertical-space-character} ::=
-    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
 \end{indpar}
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}{lp{4in}}
+\verb|\n| & new line \\
+\verb|\r| & carriage return \\
+\verb|\t| & horizontal tab \\
+\verb|\b| & backspace \\
+\verb|\f| & form feed \\
+\verb|\v| & vertical tab \\
+\verb|\\| & \verb|\| \\
+\verb|\"| & \verb|"| \\[1ex]
+\verb|\x|$hh$ & character with ASCII code $hh$ as a 2 digit
+		hexadecimal number \\[1ex]
+\verb|\|$ooo$ & character with ASCII code $ooo$ as a
+		3 digit octal number \\[1ex]
+\verb|\|{\em white-space}\verb|\|
+		& the backslash, white space, and second backslash
+		  are deleted; this allows continuation across
+		  line ends
+\end{tabular}
+\end{center}%
+\index{n@{\tt \BACKSLASH n}}%
+\index{r@{\tt \BACKSLASH r}}%
+\index{t@{\tt \BACKSLASH t}}%
+\index{b@{\tt \BACKSLASH b}}%
+\index{f@{\tt \BACKSLASH f}}%
+\index{v@{\tt \BACKSLASH v}}%
+\index{\\2@{\BACKSLASH\BACKSLASH}}%
+\index{""2@{\tt \BACKSLASH""}}%
+\index{space character 2@{\BACKSLASH{\em space}}}%
+\index{x@{\tt \BACKSLASH x}$hh$}%
+\index{digit@{\BACKSLASH{\em digit}}}%
+\index{whitespace@{\BACKSLASH{\em white-space}\BACKSLASH}}
+
+\caption{Character Representatives}
+\label{CHARACTER-REPRESENTATIVES}
+\end{boxedfigure}
 
 
 The following sections give rules involving pre-lexemes.
