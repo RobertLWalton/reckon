@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 19, 2008}
+\date{January 20, 2008}
  
 \maketitle
 
@@ -1127,7 +1127,11 @@ to produce from the input the following string of 12 lexemes:
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
 \key{white-space} ::= {\em white-space-character}
                      {\em white-space-character}\,$^\star$ \\[1ex]
-\key{word-character} ::= {\em letter} \\[1ex]
+\key{word-character} \begin{tabular}[t]{rl}
+                     ::= & {\em letter} \\
+		     $|$ & \verb|'| followed by a letter \\
+		     \end{tabular}
+		     \\[1ex]
 \key{mark-character} \begin{tabular}[t]{rl}
 		     ::= &      \verb|+|%
 		             $|$\verb|-|%
@@ -1149,8 +1153,6 @@ to produce from the input the following string of 12 lexemes:
 		             $|$\verb|!|%
 		             $|$\verb|?|%
 			     $|$\verb|:| \\
-		     $|$ & \verb|'| not followed {\em white-space}
-		     		    or {\em separator} \\
 		     $|$ & \verb|.| not followed {\em digit} \\
 			\end{tabular}\\[1ex]
 \key{separator-character} \begin{tabular}[t]{rl}
@@ -1162,14 +1164,13 @@ to produce from the input the following string of 12 lexemes:
 	       	    $|$ \verb|}|
 	       	    $|$ \verb|;|
 	       	    $|$ \verb|`| \\
-		$|$ & \verb|'| followed by {\em white-space}
-				or {\em separator} \\
-		$|$ & \verb|,| not followed by {\em digit} \\
+		$|$ & \verb|'| not followed by a {\em letter} \\
+		$|$ & \verb|,| not surrounded by {\em digits} \\
 		    \end{tabular}\\[1ex]
 \key{number-character} \begin{tabular}[t]{rl}
 		::= &   {\em digit} \\
 		$|$ & \verb|.| followed by {\em digit } \\
-		$|$ & \verb|,| followed by {\em digit} \\
+		$|$ & \verb|,| surrounded by {\em digits} \\
 		    \end{tabular}\\[1ex]
 \key{character-representative}
     ::= see Figure~\figref{CHARACTER-REPRESENTATIVES} \\[1ex]
@@ -1289,131 +1290,36 @@ to produce from the input the following string of 12 lexemes:
 \label{CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
 
+A \key{word} is a sequence of letters that may include
+a \verb|'| if it is followed by a letter.  A \key{mark} is a
+sequence of mark characters (e.g., \verb|+| and \verb|-|).
+A \key{separator} is a \underline{single} separator character.
+A \key{number} is a sequence of digits, decimal points
+which are always followed by a digit, and commas that are
+both preceeded and followed by digits.  A quoted string is
+a sequence of {\em character representatives} surrounded by
+the double quote character (\verb|"|), where most characters
+are their own representatives (\verb|A|, \verb|B|, \verb|0|,
+etc.) but other characters are represented by a sequences of
+characters that begin with a backslash (e.g., \verb|\n| represents
+a new line character).  A \key{white-space} lexeme is a sequence
+of white-space characters (single space, horizontal tab, form
+feed, etc.).
 
-The following sections give rules involving pre-lexemes.
+A \verb|'| is a word character if it is followed by a letter,
+and a separator otherwise.  A \verb|.| is a number character
+(decimal point) if it
+is followed by a digit, and a mark character otherwise.  A
+\verb|,| is a number character if surrounded by digits, and
+a separator otherwise.
 
-\subsubsection{Lexical Matching and Pre-Lexical Context}
-\label{LEXICAL-MATCHING}
 
-{\em Opening-marks} and {\em closing-marks} are both pre-lexemes
-and also lexemes.  Rules for matching pre-lexemes in a pre-lexeme
-sequence are the same as rules for matching lexemes in a lexeme sequence.
-Here we will state the rules for lexemes, and leave it to the reader
-to reformulate them for pre-lexemes.
-
-{\bf Lexeme Matching Rule.}\index{Lexeme Matching Rule}\index{matching!lexemes}
-An {\em opening-mark} with $N$ characters $C$
-must have a matching {\em closing-mark} with $N$ characters each the
-mirror of $C$.  Here
-the mirror of \verb|`| is \verb|'|,
-the mirror of \verb|{| is \verb|}|,
-the mirror of \verb|[| is \verb|]|,
-the mirror of \verb|(| is \verb|)|,
-and the mirror of \verb|<| is \verb|>|.
-Each {\em closing-mark} must match exactly one {\em opening-mark},
-each {\em opening-mark} must match exactly one {\em closing-mark},
-and an {\em opening-mark} must precede its matching {\em closing-mark}.
-
-Two lexemes are said to be \mkey{matched}{lexemes} if and only if
-they are matched opening and closing marks.
-
-{\bf Matched Lexeme Nesting Rule.}\index{Matched Lexeme Nesting Rule}
-If one lexeme in a pair $P_2$ of matched lexemes is in between the
-lexemes of another pair $P_1$ of matched lexemes, then both lexemes
-in $P_2$ must be in between the lexemes of $P_1$.  In this case
-$P_2$ is said to be \mkey{nested}{lexemes} inside of $P_1$.
-
-During the scan a character $C$ is said to be in the
-\key{lexical context} of a pair $P$ of matched lexemes
-if and only if $C$ is between the matched lexemes of $P$,
-and $C$ is not between any other pair of matched
-lexemes that is nested inside of $P$.  For example,
-in \verb|{ x [ y ] z }|, \verb|{ }| are in the outermost lexical
-context, \verb|x [ ] z| are in the middle lexical context whose
-matched lexemes are \verb|{ }|, and
-\verb|y| is in the innermost lexical context whose matched lexemes
-are \verb|[ ]|.\label{LEXICAL-CONTEXT}
-
-For a sequence of pre-lexemes, \mkey{matched}{pre-lexemes} pre-lexemes
-and \key{pre-lexical context} are defined as for a sequence of lexemes.
-
-\subsubsection{Character Disambiguation Rules}
-
-Several characters in pre-lexemes are ambiguous in the
-pre-lexeme syntax equations.  The following rules disambiguate these
-characters.
-
-{\bf Opening Quote Rule.}\index{Opening Quote Rule}
-An \key{opening-quote-character} must be preceded by a
-{\em white-space-character},
-an {\em opening-character}, or a {\em format-separator-character}.
-Otherwise it is a {\em word-character}.
-
-{\bf Closing Quote Rule.}\index{Closing Quote Rule}
-A \key{closing-quote-character} must be part of a sequence of
-{\em closing-quote-characters} that is of exactly the right length to be the
-matching pre-lexeme for the last previous unmatched {\em opening-mark},
-which must be an {\em opening-quote}.
-Otherwise the potential {\em closing-quote-character}
-is a {\em word-character}.
-
-{\bf Format Separator Rule.}\index{Format Separator Rule}
-A {\em format-separator-character} must be in the pre-lexical context of
-a pair of matched {\em quotes}.  Otherwise it is a {\em word-character}.
-
-{\bf Angle Rule.}\index{Angle Rule}
-An {\em angle-character} must be either preceded by or followed by a copy
-of itself.  Otherwise it is a {\em word-character}.
-
-\subsubsection{Pre-Lexeme Examples}
-
-Quote Examples:
-
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}l@{\hspace*{0.3in}}l}
-			& Pre-Lexeme Sequence		\\
-Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
-\verb|I said `Hello'.|	& \tt I~~\verb|_|~~said~~\verb|_|~~`~~Hello~~'~~.	\\
-\verb|Re`op 'tis.  But!|
-			& \tt Re`op~~\verb|_|~~'tis.%
-			  ~~\verb|__|~~But! \\
-\verb|`Like 'tis'.|	& \tt `~~Like~~\verb|_|~~'~~tis'.	\\
-\verb|``Like 'tis''.|	& \tt ``~~Like~~\verb|_|~~'tis~~''~~.	\\
-\verb|`Like me''.|	& \tt `~~Like~~\verb|_|~~me''.		\\
-\verb|`` `Hello' is a word.''|
-			& \tt ``~~\verb|_|~~`~~Hello~~'~~\verb|_|~~is%
-			  ~~\verb|_|~~a~~\verb|_|~~word.~~'' \\
-\end{tabular}
-\end{indpar}
-
-Other rules of CASTLE
-limit the semantic content of {\em white-space}.
-In particular, there is no problem putting
-space between the \verb|``| and \verb|`| in the last example
-(\secref{SECTION-PARAGRAPH-AND-SENTENCE-PARSING}).
-
-Angle and Format Separator Examples:
-
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}l@{\hspace*{0.6in}}l}
-			& Pre-Lexeme Sequence		\\
-Input String		& with {\em spaces} represented by \verb|_|'s \\[1ex]
-\verb|x <= y |		& \tt x~~\verb|_|~~\verb|<=|~~\verb|_|~~y	\\
-\verb|x <<= y |		& \tt x~~\verb|_|~~\verb|<<|~~=~~\verb|_|~~y
-			~~ Note \verb|<<| is unmatched {\em opening-mark}. \\
-\verb/x = y|z/		& \tt x~~\verb|_|~~=~~\verb|_|~~\verb/y|z/ \\
-\verb/x = `y|z'/	& \tt x~~\verb|_|~~=~~\verb|_|~~%
-                              \verb|`|~~y~~\verb/|/~~z~~\verb|'|~~\\
-\end{tabular}
-\end{indpar}
-
-\subsubsection{White Space Conversion}
-\label{WHITE-SPACE-CONVERSION}
-
-A \key{white-space} pre-lexeme does not have exactly the same characters
-that were input to create it, unlike other pre-lexemes.  The
+A \key{white-space} lexeme does not have exactly the same characters
+that were input to create it, unlike other lexemes.  The
 sequence of {\em white-space-characters} input to create a
-{\em white-space} pre-lexeme is modified as follows to create the pre-lexeme:
+{\em white-space} lexeme is modified as follows to create the lexeme:
+
+\begin{indpar}
 
 {\bf Line End Spaces Rule.}\index{Line End Spaces Rule}
 All {\em horizontal-space} characters preceding a {\em vertical-space}
@@ -1421,62 +1327,36 @@ character are deleted.  Thus spaces at line ends are ignored.
 
 {\bf Carriage Return Rule.}\index{Carriage Return Rule}%
 \label{CARRIAGE-RETURN-RULE}
-If the pre-lexeme contains a {\em carriage-return} but no
+If the lexeme contains a {\em carriage-return} but no
 {\em vertical-space-character}, it is in error.
 Each {\em carriage-return} and all {\em horizontal-spaces} preceding
-it are deleted.  Thus the pre-lexeme has no {\em carriage-returns}.
+it are deleted.  Thus the lexeme has no {\em carriage-returns}.
 
 {\bf Horizontal Tab Rule.}\index{Horizontal Tab Rule}
 Each {\em horizontal-tab} is replaced by {\em spaces} assuming that
 horizontal tab stops are set every 8 columns after applying the
 Carriage Return Rule (\pagref{CARRIAGE-RETURN-RULE}).
-Thus the pre-lexeme has no {\em horizontal-tabs}.
+Thus the lexeme has no {\em horizontal-tabs}.
+
+\end{indpar}
 
 Note that these rules do \underline{not} alter the printed appearance
-of the {\em white-space} pre-lexeme, assuming that each
+of the {\em white-space} lexeme, assuming that each
 {\em vertical-space-character} causes printing to return to the beginning
 of the line after the vertical space is executed.  The input may or may not
 contain {\em carriage-returns} immediately before or after
 {\em vertical-space-characters} with no effect.
 
-After these rules are applied, a {\em white-space} pre-lexeme consists
+After these rules are applied, a {\em white-space} lexeme consists
 of zero or more {\em vertical-space-characters} followed by
 zero or more {\em space} characters.\label{WHITE-SPACE-PRE-LEXEMES}
 It is not possible to have an
-empty {\em white-space} pre-lexeme; the pre-lexeme either has a
+empty {\em white-space} lexeme; the lexeme either has a
 {\em vertical-space-character}, which none of the above rules can delete,
 or it has a {\em space} character which cannot be deleted, because,
 in the absence of a {\em vertical-space-character}, the input
-to the pre-lexeme cannot have a {\em carriage-return},
+to the lexeme cannot have a {\em carriage-return},
 and therefore {\em horizontal-space-characters} cannot be deleted by the rules.
-
-{\em White-space} pre-lexemes in the pre-lexical context of
-a pair of matched {\em quotes} become lexemes.
-{\em White-space} pre-lexemes
-that are not in the pre-lexical context of a pair of matched {\em quotes}
-are discarded, and do not become lexemes, but in certain pre-lexical contexts
-they may be used to create indentation lexemes (\secref{INDENTATION-LEXEMES}).
-
-The rules for forming lexemes from pre-lexemes ensure that all
-non-empty sequences of {\em vertical-space} characters are equivalent outside
-the pre-lexical context of a pair of matched {\em quotes}.
-
-Inside matched
-{\em quotes} that have no {\em format-separator} the only distinction made
-between non-empty sequences of {\em vertical-space} characters concerns
-whether or not they represent blank lines.
-A {\em white-space} lexeme whose only {\em vertical-space} character is
-a single {\em line-feed} represents just the end of a non-blank line,
-with no following blank lines.
-A {\em white-space} lexeme with some other sequence of {\em vertical-space}
-characters represents the end of a non-blank line that is followed by one
-or more blank lines.  Thus all sequences of {\em vertical-space} characters
-that consist of other than just a single {\em line-feed} are equivalent,
-inside matched quotes without a {\em format-separator}.
-
-Inside matched {\em quotes} {\em white-space} lexemes
-after a {\em format-separator} are retained literally.
-
 
 \subsection{Lexemes}
 \label{LEXEMES}
