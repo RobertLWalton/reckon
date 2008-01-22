@@ -1112,18 +1112,21 @@ to produce from the input the following string of 12 lexemes:
 
 \begin{indpar}
 \key{lexeme}
+	::= {\em symbol}
+	$|$ {\em separator}
+	\\[1ex]
+\key{symbol}
 	::= {\em word}
 	$|$ {\em mark}
-	$|$ {\em separator}
 	$|$ {\em number}
 	$|$ {\em quoted-string}
 	\\[1ex]
 \key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
 \key{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
-\key{separator} ::= {\em separator-character} \\[1ex]
 \key{number} ::= {\em number-character} {\em number-character}\,$^\star$ \\[1ex]
 \key{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
+\key{separator} ::= {\em separator-character} \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
 		     $|$ & \verb|'| followed by a letter \\
@@ -1150,7 +1153,7 @@ to produce from the input the following string of 12 lexemes:
 		             $|$\verb|!|%
 		             $|$\verb|?|%
 			     $|$\verb|:| \\
-		     $|$ & \verb|.| not followed {\em digit} \\
+		     $|$ & \verb|.| not followed by a {\em digit} \\
 			\end{tabular}\\[1ex]
 \key{separator-character} \begin{tabular}[t]{rl}
 		::= &   \verb|(|
@@ -1166,7 +1169,7 @@ to produce from the input the following string of 12 lexemes:
 		    \end{tabular}\\[1ex]
 \key{number-character} \begin{tabular}[t]{rl}
 		::= &   {\em digit} \\
-		$|$ & \verb|.| followed by {\em digit } \\
+		$|$ & \verb|.| followed by by a {\em digit } \\
 		$|$ & \verb|,| surrounded by {\em digits} \\
 		    \end{tabular}\\[1ex]
 \key{character-representative}
@@ -1318,6 +1321,16 @@ In order to indicate spacing, each lexeme is
 tagged with the column, line, and page number of its first character.
 This can be used to determine the indentation and extent of the lexeme.
 
+Words, marks, numbers, and quoted strings are called \skey{symbol}s,
+to distinguish them from separators.
+In many contexts an unquoted symbol may be quoted without changing
+its meaning; i.e., \verb|fie| and \verb|5.9| mean the same thing
+as \verb|"fie"| and \verb|"5.9"|.  However, to be a symbol a separator
+must be quoted (e.g., \verb|","|), and to protect a symbol from
+a special interpretation by a parser the symbol should be quoted
+(e.g., \verb|"+"| will not be recognized as an operator in a context
+in which \verb|+| would be).
+
 \subsection{Lexical Parsing}
 \label{LEXICAL-PARSING}
 
@@ -1345,8 +1358,13 @@ We describe these below in order.
 \subsubsection{Lexeme Replacement}
 \label{LEXEME-REPLACEMENT}
 
-The lexeme replacement process replaces one lexeme by a string of zero or
-more lexemes.  Replacement may be done by either a dictionary or a function.
+The \key{lexeme replacement}
+process replaces one lexeme by a string of zero or
+more lexemes.  Lexeme replacement is done before all other steps of
+lexical parsing, so these other steps operate on the lexeme sequence
+after lexeme replacements have been made.
+
+Lexeme replacement may be done by either a dictionary or a function.
 Replacement is controlled by \skey{lexeme replacement definition}s
 in the parsing definition stack (\pagref{PARSING-DEFINITION-STACK}).
 
@@ -1512,15 +1530,13 @@ standardly confuse it with `\verb|person|'.
 \subsubsection{Indentation Lexemes}
 \label{INDENTATION-LEXEMES}
 
-{\em Indentation-lexemes} are implied by indentation.  The
+\ikey{Indentation-lexemes}{indentation-lexeme}
+are implied by indentation.  The
 \mkey{indentation}{of line} of a line is the
-the number of {\em space} characters in the {\em white-space}
-pre-lexeme just before the first non-{\em white-space} pre-lexeme
-of the line.  Note that lines cannot be empty; empty lines are
-merged into {\em white-space} pre-lexemes.  Recall that
-{\em white-space} pre-lexemes each consist
-of zero or more {\em vertical-space-characters} followed by
-zero or more {\em space} characters (\pagref{WHITE-SPACE-PRE-LEXEMES}).
+number of empty columns to the left of the
+first non-white-space character in the line.
+
+
 
 At any given point in the scan converting pre-lexemes to lexemes, there is a
 stack of indentation records, called the \key{indentation stack}.
@@ -2336,6 +2352,10 @@ The syntax of bracket definitions is:
 	    {}[ \verb|with reformatter|
 	        {\em reformatter-name} ] \\
 	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
+	    {}[ \verb|with indentation separator|
+		{\em indentation-separator} ] \\
+	    {}[ \verb|with indentation indicator|
+		{\em indentation-indicator} ] \\
 	    \end{tabular}
 	    \\[1ex]
 \key{bracket-name} ::=
@@ -2344,24 +2364,27 @@ The syntax of bracket definitions is:
 	{\em closing-bracket-name}
 	\\[1ex]
 \key{opening-bracket-name} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}$^\star$
+	{\em symbol} {\em symbol}$^\star$
 	\\[1ex]
 \key{closing-bracket-name} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}$^\star$
+	{\em symbol} {\em symbol}$^\star$
+	\\[1ex]
+{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+	\\[1ex]
+\key{new-parsing-selector-set} ::= {\em parsing-selector-list}
+			[see \pagref{PARSING-SELECTOR-LIST}]
 	\\[1ex]
 \key{reformatter-name} ::= {\em function-name }
 	\\[1ex]
 \key{evaluator-name} ::= {\em function-name }
 	\\[1ex]
 \key{function-name} ::=
-	{\em word} {\em word}\,$^\star$
+	{\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
-{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+\key{indentation-separator} ::=
+	{\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
-{\em new-parsing-selector-set} ::= {\em parsing-selector-list}
-			[see \pagref{PARSING-SELECTOR-LIST}]
+\key{indentation-indicator} ::= {\em mark}
 \end{indpar}
 
 
@@ -2486,12 +2509,10 @@ The syntax of operator definitions is:
 	{\em closing-bracket-name}
 	\\[1ex]
 \key{opening-bracket-name} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}$^\star$
+	{\em symbol} {\em symbol}$^\star$
 	\\[1ex]
 \key{closing-bracket-name} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}$^\star$
+	{\em symbol} {\em symbol}$^\star$
 	\\[1ex]
 \key{operator-flag} ::= \ttmkey{definitional}{operator flag}
                     $|$ \ttmkey{prefix}{operator flag}
@@ -2503,7 +2524,7 @@ The syntax of operator definitions is:
 \key{evaluator-name} ::= {\em function-name }
 	\\[1ex]
 \key{function-name} ::=
-	{\em word} {\em word}\,$^\star$
+	{\em symbol} {\em symbol}$^\star$
 \end{indpar}
 
 \subsubsection{Operator Name}\ttmindex{name}{of operator}
@@ -2742,8 +2763,7 @@ The syntax of the result is:
 \key{sentence-terminator} ::= \verb|.| $|$
                               \verb|?| $|$
                               \verb|!| \\[1ex]
-\key{sentence-non-terminator} ::= {\em word} $|$
-                                  {\em separator} $|$
+\key{sentence-non-terminator} ::= {\em symbol} $|$
                                   {\em subexpression}
 \end{indpar}
 
