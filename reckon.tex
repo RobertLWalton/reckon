@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 20, 2008}
+\date{January 22, 2008}
  
 \maketitle
 
@@ -1117,7 +1117,6 @@ to produce from the input the following string of 12 lexemes:
 	$|$ {\em separator}
 	$|$ {\em number}
 	$|$ {\em quoted-string}
-	$|$ {\em white-space}
 	\\[1ex]
 \key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
 \key{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
@@ -1125,8 +1124,6 @@ to produce from the input the following string of 12 lexemes:
 \key{number} ::= {\em number-character} {\em number-character}\,$^\star$ \\[1ex]
 \key{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
-\key{white-space} ::= {\em white-space-character}
-                     {\em white-space-character}\,$^\star$ \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
 		     $|$ & \verb|'| followed by a letter \\
@@ -1174,16 +1171,6 @@ to produce from the input the following string of 12 lexemes:
 		    \end{tabular}\\[1ex]
 \key{character-representative}
     ::= see Figure~\figref{CHARACTER-REPRESENTATIVES} \\[1ex]
-\key{white-space-character}
-    \begin{tabular}[t]{rl}
-    ::= & {\em horizontal-space-character} \\
-    $|$ & {\em vertical-space-character}
-    \end{tabular}
-    \\[1ex]
-\key{horizontal-space-character} ::=
-    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
-\key{vertical-space-character} ::=
-    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed} \\[1ex]
 \key{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
 \key{lower-case-letter} ::=    \verb|a|%
 			    $|$\verb|b|%
@@ -1249,6 +1236,19 @@ to produce from the input the following string of 12 lexemes:
 		$|$\verb|7|%
 		$|$\verb|8|%
 		$|$\verb|9|
+		\\[1ex]
+\key{white-space} ::= {\em white-space-character}
+                     {\em white-space-character}\,$^\star$ \\[1ex]
+\key{white-space-character}
+    \begin{tabular}[t]{rl}
+    ::= & {\em horizontal-space-character} \\
+    $|$ & {\em vertical-space-character}
+    \end{tabular}
+    \\[1ex]
+\key{horizontal-space-character} ::=
+    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
+\key{vertical-space-character} ::=
+    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
 \end{indpar}
 
 \begin{boxedfigure}
@@ -1302,9 +1302,7 @@ the double quote character (\verb|"|), where most characters
 are their own representatives (\verb|A|, \verb|B|, \verb|0|,
 etc.) but other characters are represented by a sequences of
 characters that begin with a backslash (e.g., \verb|\n| represents
-a new line character).  A \key{white-space} lexeme is a sequence
-of white-space characters (single space, horizontal tab, form
-feed, etc.).
+a new line character).
 
 A \verb|'| is a word character if it is followed by a letter,
 and a separator otherwise.  A \verb|.| is a number character
@@ -1313,50 +1311,12 @@ is followed by a digit, and a mark character otherwise.  A
 \verb|,| is a number character if surrounded by digits, and
 a separator otherwise.
 
-
-A \key{white-space} lexeme does not have exactly the same characters
-that were input to create it, unlike other lexemes.  The
-sequence of {\em white-space-characters} input to create a
-{\em white-space} lexeme is modified as follows to create the lexeme:
-
-\begin{indpar}
-
-{\bf Line End Spaces Rule.}\index{Line End Spaces Rule}
-All {\em horizontal-space} characters preceding a {\em vertical-space}
-character are deleted.  Thus spaces at line ends are ignored.
-
-{\bf Carriage Return Rule.}\index{Carriage Return Rule}%
-\label{CARRIAGE-RETURN-RULE}
-If the lexeme contains a {\em carriage-return} but no
-{\em vertical-space-character}, it is in error.
-Each {\em carriage-return} and all {\em horizontal-spaces} preceding
-it are deleted.  Thus the lexeme has no {\em carriage-returns}.
-
-{\bf Horizontal Tab Rule.}\index{Horizontal Tab Rule}
-Each {\em horizontal-tab} is replaced by {\em spaces} assuming that
-horizontal tab stops are set every 8 columns after applying the
-Carriage Return Rule (\pagref{CARRIAGE-RETURN-RULE}).
-Thus the lexeme has no {\em horizontal-tabs}.
-
-\end{indpar}
-
-Note that these rules do \underline{not} alter the printed appearance
-of the {\em white-space} lexeme, assuming that each
-{\em vertical-space-character} causes printing to return to the beginning
-of the line after the vertical space is executed.  The input may or may not
-contain {\em carriage-returns} immediately before or after
-{\em vertical-space-characters} with no effect.
-
-After these rules are applied, a {\em white-space} lexeme consists
-of zero or more {\em vertical-space-characters} followed by
-zero or more {\em space} characters.\label{WHITE-SPACE-PRE-LEXEMES}
-It is not possible to have an
-empty {\em white-space} lexeme; the lexeme either has a
-{\em vertical-space-character}, which none of the above rules can delete,
-or it has a {\em space} character which cannot be deleted, because,
-in the absence of a {\em vertical-space-character}, the input
-to the lexeme cannot have a {\em carriage-return},
-and therefore {\em horizontal-space-characters} cannot be deleted by the rules.
+Lexemes may be separatated by \key{white-space}, which
+is a sequence of white-space characters (single space, horizontal tab, form
+feed, etc.), but is not itself a lexeme.
+In order to indicate spacing, each lexeme is
+tagged with the column, line, and page number of its first character.
+This can be used to determine the indentation and extent of the lexeme.
 
 \subsection{Lexemes}
 \label{LEXEMES}
