@@ -1300,18 +1300,18 @@ A \key{separator} is a \underline{single} separator character.
 A \key{number} is a sequence of digits, decimal points
 which are always followed by a digit, and commas that are
 both preceeded and followed by digits.  A quoted string is
-a sequence of {\em character representatives} surrounded by
-the double quote character (\verb|"|), where most characters
+a sequence of \skey{character representative}s surrounded by
+the double quote character (\ttnbkey{"}), where most characters
 are their own representatives (\verb|A|, \verb|B|, \verb|0|,
 etc.) but other characters are represented by a sequences of
 characters that begin with a backslash (e.g., \verb|\n| represents
 a new line character).
 
-A \verb|'| is a word character if it is followed by a letter,
+A \ttnbkey{'} is a word character if it is followed by a letter,
 and a separator otherwise.  A \verb|.| is a number character
 (decimal point) if it
 is followed by a digit, and a mark character otherwise.  A
-\verb|,| is a number character if surrounded by digits, and
+\ttnbkey{,} is a number character if surrounded by digits, and
 a separator otherwise.
 
 Lexemes may be separatated by \key{white-space}, which
@@ -1323,11 +1323,11 @@ This can be used to determine the indentation and extent of the lexeme.
 
 Words, marks, numbers, and quoted strings are called \skey{symbol}s,
 to distinguish them from separators.
-In many contexts an unquoted symbol may be quoted without changing
+Unless specified otherwise, a unquoted symbol may be quoted without changing
 its meaning; i.e., \verb|fie| and \verb|5.9| mean the same thing
 as \verb|"fie"| and \verb|"5.9"|.  However, to be a symbol a separator
 must be quoted (e.g., \verb|","|), and to protect a symbol from
-a special interpretation by a parser the symbol should be quoted
+a special interpretation by a parser the symbol must be quoted
 (e.g., \verb|"+"| will not be recognized as an operator in a context
 in which \verb|+| would be).
 
@@ -1384,7 +1384,7 @@ dictionary and function.  These have the syntax:
 					    {\em parsing-selectors} \\
 				& {\em lexeme-dictionary-entries}
 		     \end{tabular} \\[1ex]
-\key{dictionary-name} ::= {\em word} {\em word}\,$^\star$
+\key{dictionary-name} ::= {\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
 \key{parsing-selectors}\,
                     \begin{tabular}[t]{rl}
@@ -1397,7 +1397,7 @@ dictionary and function.  These have the syntax:
 		     $|$ & {\em parsing-selector-list} \verb|,|
 		           {\em parsing-selector}
 		     \end{tabular} \\[1ex]
-\key{parsing-selector} ::= {\em word} {\em word}\,$^\star$
+\key{parsing-selector} ::= {\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
 \key{lexeme-dictionary-entries}
                     ::= \underline{\LEFTBRACKET}
@@ -1415,16 +1415,15 @@ dictionary and function.  These have the syntax:
 	{\em replaced-lexemes} \verb|==>| {\em replacing-lexemes}
 	\\[1ex]
 \key{replaced-lexemes} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$ \\[1ex]
+	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 \key{replacing-lexemes} ::=
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$ \\[1ex]
+	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 \key{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
 				{\em function-name}
 				{\em parsing-selectors} \\[1ex]
 \key{function-name} ::=
-	{\em word} {\em word}\,$^\star$
+	{\em symbol} {\em symbol}\,$^\star$
 \end{indpar}%
 \label{LEXEME-REPLACEMENT-DEFINITION}%
 \label{PARSING-SELECTORS}%
@@ -1470,6 +1469,11 @@ to avoid replacing the lexeme `\verb|fie|'.
 
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
 not themselves subject to replacement.
+
+A quoted string in a {\em replaced-lexemes} or {\em replacing-lexemes}
+sequence of lexemes denotes the lexeme made by removing its outer quotes.
+Thus \verb|","| denotes the separator
+\verb|,| and \verb|"\",\""| denotes the quoted string \verb|","|.
 
 The {\em parsing-selectors} are used to specify the parsing contexts in
 which a lexeme replacement definition is active.  The standard parsing
@@ -1538,22 +1542,32 @@ first non-white-space character in the line.
 
 
 
-At any given point in the scan converting pre-lexemes to lexemes, there is a
+At any given point during lexical parsing, there is a
 stack of indentation records, called the \key{indentation stack}.
-An \key{indentation record} is a number of
-columns, a pre-lexical context (\pagref{LEXICAL-CONTEXT}), and a flag.
+An \key{indentation record} is a number of columns, a bracket nesting depth,
+a pointer to a bracket definition, and a flag.
 The number of columns is called the \key{indentation}.
 The flag is called the \key{implicit bracket flag}, and indicates whether
-or not an implied \verb|{| lexeme was inserted at the same time the
+or not an implied opening bracket lexeme was inserted at the same time the
 indentation record was pushed onto the indentation stack.
 
 Initially the indentation stack contains a single indentation record with
-0 indentation, the outermost pre-lexical context,
+0 indentation, 0 bracket nesting depth, a pointer to the bracket definition
+
+
+\begin{indpar}\begin{verbatim}
+define bracket "{" ... "}" [operator]
+       with indentation separator ";"
+       with indentation indicator ":"; 
+\end{verbatim}\end{indpar}
+
 and an off implicit bracket flag.
 The stack cannot become empty; any operation that would
 pop the last indentation off the stack announces an error and leaves the
 stack alone.  Thus the bottommost indentation on the stack is always
 the same.
+
+TBD
 
 The indentation in the indentation record at the top of the indentation
 stack is called the \key{current indentation}, and the pre-lexical
