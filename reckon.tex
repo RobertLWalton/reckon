@@ -1800,7 +1800,6 @@ The following are the top level syntax equations for numbers.
 \begin{indpar}
 \key{number} ::= {\em real-number} $|$ {\em unit-number} \\[1ex]
 \key{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
-				           $|$ {\em ratio}
 				           $|$ {\em scientific-number}
 \end{indpar}%
 \label{REAL-NUMBER}\label{NUMBER}
@@ -1835,16 +1834,15 @@ Decimal Number Examples:
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 123	& 1,234		& 12,345	& 1,234,567 \\
 123.0	& .123		& 0.0		& 1,234.987654	& 1,234.987,654 \\
-1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892 \\[1ex]
-\multicolumn{5}{l}{\normalfont (Lexemes in
-the last line give errors when converted to numbers.)}
 \end{tabular}
 \end{indpar}
 
-In a {\em decimal-number}, the decimal point must be followed by
+In a number lexeme, and therefore in a {\em decimal-number},
+the decimal point must be followed by
 a digit, and commas must be surrounded by digits.
 
-Not all number lexemes are legal decimal numbers.
+Some number lexemes are \skey{illegal decimal number}s, meaning
+that they are number lexemes that cannot be converted to numbers.
 To be legal, a decimal number must contain at most one decimal point.
 In addition, commas must be located
 every 3 digits from the decimal point, or every 3 digits
@@ -1855,9 +1853,16 @@ or may contain commas every 3 digits.
 Failure to follow the rules of this paragraph will result in an
 error when the lexeme is converted to a number,
 but is \underline{not} an error of lexeme formation, and
-is \underline{not} a parsing error.  The last line of
-examples above are therefore legal lexemes that will give errors when
-converted to numbers.
+is \underline{not} a parsing error.
+
+The following are examples of illegal decimal numbers:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892
+\end{tabular}
+\end{indpar}
 
 \subsubsubsection{Radix Numbers}
 \label{RADIXED-NUMBERS}
@@ -1877,21 +1882,18 @@ schemes are permitted.
 ~~~~~ [See Figure \figref{CHARACTER-REPRESENTATIVES}]
 \end{indpar}
 
-Radix Number Examples:
+A {\em radix-number} is thus a {\em radix-indicator} followed by
+any quoted string.  Some examples of legal {\em radix-numbers}
+using standard {\em radix-indicators} are:
 
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-
 B"10110100"	& O"7534201" & D"9758"	& X"E8A932B" \\
 B"01101"	& O".7753"	& D"97.58"	& X".fe8a932b" \\
 B"0,1101"	& O"2,3456"  & D".123,5"	& X"E8A,932B.7CCD,83" \\
-B"5,7b63"	& O"2/3456"	& D"-0.1"	& X".E8A932B.7CCD" \\[1ex]
-\multicolumn{4}{l}{\normalfont (Numbers in
-the last line give errors when converted to internal numbers.)}
 \end{tabular}
 \end{indpar}
-
 
 The following {\em radix-indicators} are standard.
 
@@ -1917,8 +1919,16 @@ rules for comma location are the same as for {\em decimal-numbers}
 (\secref{DECIMAL-NUMBERS}), except the number of digits between commas may
 be 3 or 4, depending on the {\em radix-indicator}.
 
-{\em Radix-numbers} can be legal lexemes and still be unconvertible to
-numbers.
+{\em Radix-numbers} may be unconvertible to numbers.  Such are
+called \skey{illegal radix number}s.  The following are some examples
+using standard {\em radix-indicators}:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+B"5,7b63"	& O"2/3456"	& D"-0.1"	& X".E8A932B.7CCD"
+\end{tabular}
+\end{indpar}
 
 When a {\em radix-number} is encountered during number lexical parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
@@ -1943,40 +1953,15 @@ it is surrounded by \verb|(# #)| implicit brackets.  Thus if
 \key{function-name} ::= {\em symbol} {\em symbol}\,$^\star$
 \end{indpar}
 
+Given such a definition, the defined {\em radix-indicator}
+will be recognized as such whenever it is followed by a quoted
+string in the input.
+
 The conversion function is passed the quoted string from a
 {\em radix-number} as its only argument, and must return
 either a number if conversion is successful, or an error message
 otherwise.
 
-\subsubsubsection{Ratios}
-\label{RATIOS}
-
-A \key{ratio} consists of two strings of decimal digits, the numerator
-and denominator, separated by a slash (`\verb|/|'),
-with an optional sign.
-
-\begin{indpar}
-\key{ratio} ::= {\em unsigned-ratio}
-	    $|$ {\em sign} {\em unsigned-ratio} \\[1ex]
-\key{unsigned-ratio} ::= {\em numerator} \verb|/| {\em denominator} \\[1ex]
-\key{numerator} ::= {\em decimal-natural} \\[1ex]
-\key{denominator} ::= {\em decimal-natural}
-\end{indpar}
-
-Ratio Examples:
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-1/2	& -3/4		& +1,234/5	& 1,234/5,432	& -53/000 \\[1ex]
-\multicolumn{5}{l}{\normalfont (The last lexeme
-gives an error when converted to a number.)}
-\end{tabular}
-\end{indpar}
-
-If the denominator equals zero, the ratio is still a legal lexeme, but
-will cause an error when it is interpreted as a number.
-\verb|-53/000| is an example.
 
 \subsubsubsection{Scientific Numbers}
 \label{SCIENTIFIC-NUMBERS}
@@ -1996,7 +1981,8 @@ followed by an exponent.
 			    $|$ {\em sign} {\em decimal-digits}
 \end{indpar}
 
-Scientific Number Examples:
+The following are examples of legal {\em scientific-numbers} using
+standard radix indicators:
 
 \begin{indpar}[0.1in]
 \tt
@@ -2017,7 +2003,15 @@ a radix indicator such as {\tt B} or {\tt X} that indicates a different
 radix.  However, the interpretation of the exponent depends upon the
 radix indicator.  Standard radix indicators interpret the exponent as
 multiplication by their radix to the exponent power.  Thus
-{\tt B\#1101\#e-2} and {\tt B\#11.01\#} are both equal to {\tt 3.25}.
+{\tt B"1101"e-2} and {\tt B"11.01"} are both equal to {\tt 3.25}.
+
+When a {\em scientific} is encountered during number lexical parsing,
+it is surrounded by \verb|(# #)| implicit brackets.  Thus if
+\verb|B"1101"e-2| is input to number lexical parsing,
+\begin{center}
+\verb|(# (# B "10011" #) e - 2 #)|
+\end{center}
+will be output.
 
 \subsubsubsection{Unit Numbers}
 \label{UNIT-NUMBERS}
