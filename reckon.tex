@@ -1868,7 +1868,7 @@ schemes are permitted.
 
 \begin{indpar}
 \key{radix-number} \\
-	\hspace*{0.5in}::= {\em radix-indicator} \verb|#|
+	\hspace*{0.5in}::= {\em radix-indicator}
 		        \verb|"| {\em radix-number-mark}
 		        {\em radix-number-mark}\,$^\star$ \verb|"|
 		        \\[1ex]
@@ -1883,10 +1883,10 @@ Radix Number Examples:
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 
-B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
-B\#"01101"	& O\#".7753"	& D\#"97.58"	& X\#".fe8a932b" \\
-B\#"0,1101"	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A,932B.7CCD,83" \\
-B\#"5,7b63"	& O\#"2/3456"	& D\#"-0.1"	& X\#".E8A932B.7CCD" \\[1ex]
+B"10110100"	& O"7534201" & D"9758"	& X"E8A932B" \\
+B"01101"	& O".7753"	& D"97.58"	& X".fe8a932b" \\
+B"0,1101"	& O"2,3456"  & D".123,5"	& X"E8A,932B.7CCD,83" \\
+B"5,7b63"	& O"2/3456"	& D"-0.1"	& X".E8A932B.7CCD" \\[1ex]
 \multicolumn{4}{l}{\normalfont (Numbers in
 the last line give errors when converted to internal numbers.)}
 \end{tabular}
@@ -1915,24 +1915,38 @@ be followed by a digit.
 Standard {\em radix-indicator}
 rules for comma location are the same as for {\em decimal-numbers}
 (\secref{DECIMAL-NUMBERS}), except the number of digits between commas may
-be 4 or 8 instead of 3.
+be 3 or 4, depending on the {\em radix-indicator}.
 
 {\em Radix-numbers} can be legal lexemes and still be unconvertible to
-numbers because their {\em radix-indicators} are undefined, they
-have {\em radix-number-marks} (e.g., digits)
-not defined for the given {\em radix-indicator}, they
-have too many decimal points, and so forth.
-These errors are detected when the lexemes are converted to numbers.
-The last line of {\em radix-number} examples above are legal lexemes that
-will give errors when converted to numbers.
-Note that standard radix indicators only allow commas, a decimal point,
-digits, and letters that are hexadecimal digits
-as {\em radix-number-marks}.
+numbers.
 
-On the other hand, it
-is possible to define non-standard converters for converting
-{\em radix-number} lexemes to numbers, and thereby increase the
-set of legal number representations.
+When a {\em radix-number} is encountered during number lexical parsing,
+it is surrounded by \verb|(# #)| implicit brackets.  Thus if
+\verb|B"10011"| is input to number lexical parsing,
+\verb|(# B "10011" #)| will be output.
+
+{\em Radix-indicators} are defined by \skey{radix indicator definition}s:
+
+\begin{indpar}
+\ikey{radix-indicator-definition}{radix-indicator!definition} \\
+	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
+	                   \verb|define | & \verb|radix indicator|
+                                            {\em radix-indicator}
+					    {\em parsing-selectors} \\
+	    			& \verb|with conversion function|
+				    {\em function-name} \\
+		     \end{tabular} \\[1ex]
+\key{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$
+	\\[1ex]
+{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
+	\\[1ex]
+\key{function-name} ::= {\em symbol} {\em symbol}\,$^\star$
+\end{indpar}
+
+The conversion function is passed the quoted string from a
+{\em radix-number} as its only argument, and must return
+either a number if conversion is successful, or an error message
+otherwise.
 
 \subsubsubsection{Ratios}
 \label{RATIOS}
