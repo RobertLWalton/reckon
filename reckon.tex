@@ -93,10 +93,10 @@
 
 \newcommand{\opt}{$^!$}
 
-\newcommand{\secref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
-\newcommand{\stepref}[1]{\ref{#1}\,$^{p\pageref{#1}}$}
-\newcommand{\appref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
-\newcommand{\figref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
+\newcommand{\secref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}\,$^{p\,\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
+\newcommand{\figref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 22, 2008}
+\date{January 25, 2008}
  
 \maketitle
 
@@ -1289,6 +1289,16 @@ to produce from the input the following string of 12 lexemes:
 \index{digit@{\BACKSLASH{\em digit}}}%
 \index{whitespace@{\BACKSLASH{\em white-space}\BACKSLASH}}
 
+Characters that represent themselves:
+
+\begin{indpar}
+non-control, non-whitespace characters other than \verb|\| and \verb|"| \\
+the single space character \\
+\verb|\| when not followed by \verb|"|, \verb|\|, a digit,
+    a lower case letter, or white-space
+\end{indpar}
+
+
 \caption{Character Representatives}
 \label{CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
@@ -1302,7 +1312,7 @@ which are always followed by a digit, and commas that are
 both preceeded and followed by digits.  A quoted string is
 a sequence of \skey{character representative}s surrounded by
 the double quote character (\ttnbkey{"}), where most characters
-are their own representatives (\verb|A|, \verb|B|, \verb|0|,
+are their own representatives (\verb|A|, \verb|B|, \verb|0|, \verb|1|,
 etc.) but other characters are represented by a sequences of
 characters that begin with a backslash (e.g., \verb|\n| represents
 a new line character).
@@ -1338,7 +1348,7 @@ After input text is converted to a sequence of lexemes, the lexemes
 are read from left to right by an expression parser
 (\secref{EXPRESSION-PARSING}).  During this process some lexemes
 may be inserted or replaced by a process called \key{lexical parsing}.
-Lexical parsing only affects at short sequences of lexemes, and is
+Lexical parsing only affects short sequences of lexemes, and is
 thereby distinguished from expression parsing, which affects arbitrarily
 long sequences of lexemes.
 
@@ -1372,7 +1382,7 @@ There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
 
 \begin{indpar}
-\key{lexeme-definition}\,
+\key{lexeme-replacement-definition}\,
 		     \begin{tabular}[t]{rl}
                      ::= & {\em lexeme-dictionary-definition} \\
 		     $|$ & {\em lexeme-function-definition}
@@ -1446,17 +1456,17 @@ lexeme function definition
 
 \begin{indpar}
 \begin{verbatim}
-define lexeme function replace people
+define lexeme function replace people [operator]
 \end{verbatim}
 \end{indpar}
 
-and the expression definition
+and the function definition
 
 \begin{indpar}
 \begin{verbatim}
 replace people X <--:
-    if X == [people]:
-        value = [person]
+    if X == people:
+        value = person
     else:
         value = false
 \end{verbatim}
@@ -1481,8 +1491,14 @@ selectors for lexeme replacement definitions
 are `{\tt operator}' and `{\tt list}'.
 See~\secref{PARSING-SELECTORS} for details.
 
+If several different lexeme replacement definitions could be used to
+replace lexemes at the beginning of a lexeme sequence, the definition
+closest to the top of the parsing definition stack
+(\pagref{PARSING-DEFINITION-STACK}) is used.
+
 The following lexeme dictionaries and functions are
-defined in the initial parsing stack.  Their definitions are ordered in the
+defined in the initial parsing definition stack.
+Their definitions are ordered in the
 stack so the first given below is at the top of the stack and is the
 first that replaces lexemes.
 
@@ -1537,104 +1553,182 @@ standardly confuse it with `\verb|person|'.
 \ikey{Indentation-lexemes}{indentation-lexeme}
 are implied by indentation.  The
 \mkey{indentation}{of line} of a line is the
-number of empty columns to the left of the
-first non-white-space character in the line.
+column number of the first non-white-space character in the line.
 
-
-
-At any given point during lexical parsing, there is a
-stack of indentation records, called the \key{indentation stack}.
-An \key{indentation record} is a number of columns, a bracket nesting depth,
-a pointer to a bracket definition, and a flag.
-The number of columns is called the \key{indentation}.
-The flag is called the \key{implicit bracket flag}, and indicates whether
-or not an implied opening bracket lexeme was inserted at the same time the
-indentation record was pushed onto the indentation stack.
-
-Initially the indentation stack contains a single indentation record with
-0 indentation, 0 bracket nesting depth, a pointer to the bracket definition
-
+Indentation lexemes are controled by bracket definitions
+(\secref{BRACKET-DEFINITION}).  An example bracket definition is
 
 \begin{indpar}\begin{verbatim}
 define bracket "{" ... "}" [operator]
        with indentation separator ";"
-       with indentation indicator ":"; 
+       with indentation indicator * ":"; 
 \end{verbatim}\end{indpar}
 
+This specifies that inside the scope of \verb|{ }| brackets,
+implied \verb|;| separators will be inserted between non-indented lines.
+The definition further specifies that given a line ending in
+a lexeme that ends with \verb|:|, the \verb|:| will be removed,
+and the next group of indented lines will be surrounded by
+implied \verb|{ }| brackets.  We proceed to describe the specific
+details of this process.
+
+
+At any given point during lexical parsing, there is a
+stack of indentation records, called the \key{indentation stack}.
+An \key{indentation record} is an \key{indentation} (column number),
+a bracket nesting depth,
+a pointer to a bracket definition, and an \key{implicit bracket flag}.
+The bracket definition specifies an \key{indentation opening bracket},
+an \key{indentation closing bracket}, an \key{indentation separator},
+and an \key{indentation indicator}, which in the above definition are
+respectively \verb|"{"|, \verb|"}"|, \verb|";"|, and \verb|* ":"|.
+The implicit bracket flag indicates whether
+or not an implied opening bracket lexeme was inserted at the same time the
+indentation record was pushed onto the indentation stack.
+
+The \verb|*| in the indentation indicator \verb|* ":"| specifies that
+any lexeme that ends with \verb|:| is an indentation indicator.  If
+the \verb|*| were missing, only the 1-character lexeme \verb|:| would
+be an indentation indicator.
+
+Initially the indentation stack contains a single indentation record with
+0 indentation, 0 bracket nesting depth, a pointer to the bracket definition
+given above at the beginning of this section,
 and an off implicit bracket flag.
 The stack cannot become empty; any operation that would
 pop the last indentation off the stack announces an error and leaves the
 stack alone.  Thus the bottommost indentation on the stack is always
 the same.
 
-TBD
-
 The indentation in the indentation record at the top of the indentation
-stack is called the \key{current indentation}, and the pre-lexical
-context in that record is called the \key{current indentation context}.
+stack is called the \key{current indentation record}, and its components
+are referred to as `current' (e.g., `current indentation', `current
+indentation opening bracket').
 
-The rules for creating indentation records are such that the pre-lexical
-contexts in such records are either pre-lexical contexts of some \verb|{ }|
-bracket pair, or are the outermost pre-lexical context, which therefore behaves
-like the context of a \verb|{ }| bracket pair as far as indentation is
-concerned.  A line beginning is said to be in a particular pre-lexical
-context if the first lexeme on the line, were it not a {\em closing-mark},
-would be in that pre-lexical context.  One may think of a \key{line beginning}
-as being a position on a line just before the first pre-lexeme on the line.
+Indentation lexemes are then inserted during lexical parsing
+by the following \key{indentation lexeme algorithm}.  This algorithm is 
+applied to the lexeme stream immediately after lexical replacement, and
+executes the following steps in order before passing
+lexemes onto the next stage in lexical parsing.
 
-{\bf Semi-Colon Rule.}\index{Semi-Colon Rule}
-If the beginning of the line is in the current indentation context,
-and if the indentation of the line is the current indentation,
-then a \verb|;| implied {\em separator} lexeme is output
-before any lexemes generated by the line are output, unless
-(1) the last lexeme output before the line
-was a \verb|;| {\em separator} lexeme,
-(2) the last lexeme output was a \verb|{| {\em opening-mark}
-lexeme (including an implied {\em opening-mark} as in the
-Implicit-Bracket Rule below), or
-(3) the first non-{\em white-space} pre-lexeme of a line is \verb|}|.
+\begin{indpar}
 
-{\bf Explicit-Bracket Rule.}\index{Explicit-Bracket Rule}
-If the last pre-lexeme of a line is \verb|{|, then an indentation record
-is pushed onto the indentation stack just after the \verb|{| lexeme
-is output.  The indentation in the record is the indentation of the next
-line, the pre-lexical context is that in effect just after the \verb|{|,
-and the implicit bracket flag is off.
-The pushed indentation record is popped just after its pre-lexical context
-ends; that is, just before reading the \verb|}| pre-lexeme that matches the
-\verb|{| pre-lexeme that pushed the indentation record.
+{\bf Indentation Error Step.}\index{Indentation Error Step}
+\begin{indpar}
+When the first lexeme of a line is encountered, if
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] there is a current indentation separator or
+	   the current implicit bracket flag is on, and
+\item[(2)] the indentation of this first lexeme in a line
+is 1 less than or 1 greater
+than the current indentation,
+\end{list}
+then a lexical parsing error is announced.
+This ensures that when indentation is
+used to insert implicit lexemes, important indentation
+differences must be by at least
+2 columns, and cannot be just 1 column.
+\end{indpar}
 
-{\bf Implicit-Bracket Rule.}\index{Implicit-Bracket Rule}
-If the last lexeme output for a line would be a separator \verb|:| in
-the current indentation context,
-then a \verb|{| implied {\em opening-mark} lexeme
-is output instead of the \verb|:|, and an indentation
-record is pushed onto the indentation stack.  The indentation of the
-record is the indentation of the next line, the implicit bracket flag
-of the record is on, and the
-pre-lexical context of the record is that of the \verb|:|.
-The pushed record is popped (1) just before the first line such that
-the line beginning is in the record's pre-lexical context
-and the line's indentation is less than the record's indentation,
-or (2) at the end of the input pre-lexeme stream.
-When the record is popped, a \verb|}| implied {\em closing-mark}
-lexeme is output.  It is an error if this implied {\em closing-mark}
-does not match the implied {\em opening-mark} associated with the popped
-record, because of intervening explicit opening and closing marks.
+{\bf Indentation Separator Step.}\index{Indentation Separator Step}
+\begin{indpar}
+When the first lexeme of a line is encountered, if
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] there is a current indentation separator,
+\item[(2)] the indentation of the lexeme of a line equals the current
+indentation,
+\item[(3)] this lexeme is not the first encountered after
+the current indentation record was created, and
+\item[(4)] the lexeme
+previous to this lexeme (the last on the previous non-blank line)
+does not equal the indentation separator,
+\end{list}
+then a copy of the indentation separator is inserted before the first
+lexeme of the line (or equivalently, is inserted at the end of the
+previous line).
+\end{indpar}
 
-In order to avoid subtle errors created by indentation, there
-is a {\tt minimum-indentation} parameter and the following rule.
+{\bf Implicit Closing Bracket Step.}\index{Implicit Closing Bracket Step}
+\begin{indpar}
+When the first lexeme of a line is encountered, if
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] the current implicit bracket flag is on, and
+\item[(2)] the indentation of this first lexeme is 2 or more columns
+less than the current indentation,
+\end{list}
+then a copy of the current indentation closing bracket is inserted before
+the first lexeme of the line and
+the current indentation record is popped from the indentation
+record stack.
+\end{indpar}
 
-{\bf Minimum-Indentation Rule.}\index{Minimum-Indentation Rule}
-The indentation of any line whose beginning is in the current indentation
-context (the first pre-lexeme of the line would be in the current indentation
-context if it did not end a sub-context) must equal the current indentation
-or differ from it by at least the value of the
-\ttkey{minimum-indentation} parameter.  The {\tt minimum-indentation}
-parameter defaults to {\tt 4}.
+{\bf Implicit Bracket Step.}\index{Implicit Bracket Step}
+\begin{indpar}
+If the last lexeme of a line is encountered that
+ends a lexeme that matches the indentation indicator of some
+current bracket definition
+(see current parsing definitions, \pagref{CURRENT-PARSING-DEFINITION},
+and bracket definition indentation indicators,
+\pagref{INDENTATION-INDICATOR}),
+then the indentation indicator is removed from the end of this lexeme
+and a new indentation record is pushed into the stack.
 
+If the lexeme from which the indicator as removed becomes empty, it is
+deleted from the lexeme stream.
 
-Indentation Lexeme Examples:
+The indentation of the new indentation record is the indentation of
+the next lexeme (which is the indentation of the first non-white-space
+character on the next non-blank line).
+The implicit bracket flag is on.  The record
+points at the bracket definition containing the indentation indicator.
+\end{indpar}
+
+{\bf Explicit Opening Bracket Step.}\index{Explicit Opening Bracket Step}
+\begin{indpar}
+If an opening bracket from a
+current bracket definition
+(see current parsing definitions, \pagref{CURRENT-PARSING-DEFINITION})
+is encountered, then
+a new indentation record is pushed into the stack.
+
+The indentation of the new indentation record is the indentation of
+the next lexeme.  The implicit bracket flag is off.  The record
+points at the bracket definition containing the opening bracket.
+\end{indpar}
+
+{\bf Explicit Closing Bracket Step.}\index{Explicit Closing Bracket Step}
+\begin{indpar}
+If the current indentation closing bracket is encountered, and the
+current implicit bracket flag is off, then
+the current indentation record is popped from the stack.
+\end{indpar}
+
+\end{indpar}
+
+Note that when an indentation record is pushed, the bracket definition
+it points at may specify a {\em new-parsing-selector-set}, which will
+be pushed into the parsing selector set stack:
+see \secref{BRACKET-NEW-PARSING-SELECTOR-SET}.   If this happens, the
+parsing selector set will be popped from its stack when the indentation
+record is popped from its stack.
+
+The following are example inputs and outputs from the indentation lexical
+parsing algorithm.
 
 \begin{indpar}[0.1in]
 \tt \ttbrackets
@@ -1674,8 +1768,7 @@ hi:				& hi \{ \\
 hi \{				& hi \{ \\
 ~~~~x				& x \\
 ~~~~y `this			& ; y ` this \\
-is another pre-lexical		& is another pre-lexical \\
-context.			& context . \\
+is another context.		& is another context . \\
 ' foo bar			& ' foo bar \\
 ~~~~w \}			& ; w \}
 \end{tabular}
@@ -1692,14 +1785,17 @@ hum \} y			& ; hum \} y \\
 \end{tabular}
 \end{indpar}
 
-\subsubsection{Number Lexemes}
-\label{NUMBER-LEXEMES}
+\subsubsection{Numbers}
+\label{NUMBERS}
 
-The rule for splitting a {\em pre-word} into a {\em word}
-and a {\em separator} makes reference to {\em words} that are
-{\em numbers}, saying that splitting is preferred if the {\em word}
-resulting from the split is a {\em number}.  Some of the syntax equations
-defining \skey{number}s are as follows.
+Number lexemes are decimal numbers with an optional decimal point
+and optional commas every 3 digits.  \ikey{Numbers}{number} are sequences of
+lexemes that are identified during \key{lexical number parsing},
+which is applied to the output of the indentation lexeme algorithm. 
+When a number contains more than one lexeme, it is surrounded by
+the implicit \verb|(# #)| brackets.
+
+The following are the top level syntax equations for numbers.
 
 \begin{indpar}
 \key{number} ::= {\em real-number} $|$ {\em unit-number} \\[1ex]
@@ -1707,20 +1803,20 @@ defining \skey{number}s are as follows.
 				           $|$ {\em ratio}
 				           $|$ {\em scientific-number}
 \end{indpar}%
-\label{REAL-NUMBER}
+\label{REAL-NUMBER}\label{NUMBER}
+
+Note that numbers are all unsigned.  Signs are all considered to
+be arithmetic operators (except for exponent signs).
 
 \subsubsubsection{Decimal Numbers}
 \label{DECIMAL-NUMBERS}
 
-\ikey{Decimal numbers}{decimal number}
-are sequences of digits with optional commas,
-an optional decimal point, and an optional sign.
+\ikey{Decimal numbers}{decimal number} are just number lexemes, which
+are sequences of digits with optional commas and
+an optional decimal point.
 
 \begin{indpar}
-\key{decimal-number} ::= {\em unsigned-decimal-number}
-                     $|$ {\em sign} {\em unsigned-decimal-number} \\[1ex]
-\key{sign} ::= \verb|+| $|$ \verb|-| \\[1ex]
-\key{unsigned-decimal-number} \begin{tabular}[t]{rl}
+\key{decimal-number} \begin{tabular}[t]{rl}
                               ::= & {\em decimal-natural} \\
 		              $|$ & {\em decimal-natural} \verb|.|
 		                    {\em decimal-natural} \\
@@ -1737,17 +1833,19 @@ Decimal Number Examples:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-123	& -123		& +123		& 1,234		& -1,234,567 \\
-123.0	& -.123		& +0.0		& 1,234.987654	& 1,234.987,654 \\
-1,2	& -1.86,54	& 1,234567.89	& 12345.678,9	& +1.234567,892 \\[1ex]
+123	& 1,234		& 12,345	& 1,234,567 \\
+123.0	& .123		& 0.0		& 1,234.987654	& 1,234.987,654 \\
+1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892 \\[1ex]
 \multicolumn{5}{l}{\normalfont (Lexemes in
 the last line give errors when converted to numbers.)}
 \end{tabular}
 \end{indpar}
 
-In a {\em decimal-number} lexeme, the decimal point must be followed by
+In a {\em decimal-number}, the decimal point must be followed by
 a digit, and commas must be surrounded by digits.
 
+Not all number lexemes are legal decimal numbers.
+To be legal, a decimal number must contain at most one decimal point.
 In addition, commas must be located
 every 3 digits from the decimal point, or every 3 digits
 from the right end if there is no decimal point.
@@ -1756,7 +1854,8 @@ in the integer part, while the fraction part may be comma free,
 or may contain commas every 3 digits.
 Failure to follow the rules of this paragraph will result in an
 error when the lexeme is converted to a number,
-but is \underline{not} an error of lexeme formation.  The last line of
+but is \underline{not} an error of lexeme formation, and
+is \underline{not} a parsing error.  The last line of
 examples above are therefore legal lexemes that will give errors when
 converted to numbers.
 
@@ -1768,18 +1867,14 @@ radi\-ces to the used instead of decimal.  In fact, other number representation
 schemes are permitted.
 
 \begin{indpar}
-\key{radix-number} ::= {\em unsigned-radix-number}
-		   $|$ {\em sign} {\em unsigned-radix-number} \\[1ex]
-\key{unsigned-radix-number} \\
-	\hspace*{0.5in}::= {\em radix-indicator}
-		        \verb|#| {\em radix-number-mark}
-		        {\em radix-number-mark}\,$^\star$ \verb|#|
+\key{radix-number} \\
+	\hspace*{0.5in}::= {\em radix-indicator} \verb|#|
+		        \verb|"| {\em radix-number-mark}
+		        {\em radix-number-mark}\,$^\star$ \verb|"|
 		        \\[1ex]
-\key{radix-indicator} ::= {\em letter} {\em letter-or-digit}\,$^\star$ \\[1ex]
-\key{letter-or-digit} ::= {\em letter} $|$ {\em digit} \\[1ex]
-\key{radix-number-mark} ::= {\em word-character} except
-	\{ \verb|#| $|$ \verb/|/ $|$ \verb|<| $|$ \verb|>|
-	            $|$ \verb|`| $|$ \verb|'| \}
+\key{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+\key{radix-number-mark} ::= {\em character-representative}
+~~~~~ [See Figure \figref{CHARACTER-REPRESENTATIVES}]
 \end{indpar}
 
 Radix Number Examples:
@@ -1788,12 +1883,12 @@ Radix Number Examples:
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 
-B\#10110100\#	& O\#77534201\# & D\#19758\#	& X\#FE8A932B\# \\
-B\#101101\#	& O\#0.7753\#	& D\#197.58\#	& X\#0.fe8a932b\# \\
-B\#10,1101\#	& O\#12,3456\#  & D\#0.123,5\#	& X\#FE8A,932B.7CCD,83\# \\
-B\#a5,7b63\#	& O\#12/3456\#	& D\#+0.1\#	& X\#F.E8A932B.7CCD\# \\[1ex]
-\multicolumn{4}{l}{\normalfont (Lexemes in
-the last line give errors when converted to numbers.)}
+B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
+B\#"01101"	& O\#".7753"	& D\#"97.58"	& X\#".fe8a932b" \\
+B\#"0,1101"	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A,932B.7CCD,83" \\
+B\#"5,7b63"	& O\#"2/3456"	& D\#"-0.1"	& X\#".E8A932B.7CCD" \\[1ex]
+\multicolumn{4}{l}{\normalfont (Numbers in
+the last line give errors when converted to internal numbers.)}
 \end{tabular}
 \end{indpar}
 
@@ -1802,15 +1897,15 @@ The following {\em radix-indicators} are standard.
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-Radix	& Radix		 &			& Allowed Digits \\
-Name	& Indicators     & Allowed Digits	& Between Commas \\[1ex]
-binary	& \tt b~~~B	 & \tt 0 1		& 4 or 8 \\
+Radix	& Radix		 & Allowed Number	& Allowed Digits \\
+Name	& Indicators     & Marks (Digits)	& Between Commas \\[1ex]
+binary	& \tt b~~~B	 & \tt 0 1		& 3 or 4 \\
 octal	& \tt o~~~O	 & \tt 0 1 2 3 4 5 6 7	& 3 \\
 decimal	& \tt d~~~D	 & \tt 0 1 2 3 4 5 6 7 8 9
 						& 3 \\
 hexadecimal
 	& \tt x~~~X	 & \tt 0 1 2 3 4 5 6 7 8 9
-						& 4 or 8 \\
+						& 4 \\
 	&		 & \tt a b c d e f A B C D E F
 \end{tabular}
 \end{center}
