@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 25, 2008}
+\date{January 26, 2008}
  
 \maketitle
 
@@ -1352,18 +1352,23 @@ Lexical parsing only affects short sequences of lexemes, and is
 thereby distinguished from expression parsing, which affects arbitrarily
 long sequences of lexemes.
 
-Lexical Parsing includes the following:
+Lexical parsing consists of the following steps which are done in
+the order given:
 
 \begin{indpar}[0.8in]
 Lexeme Replacement (Spelling Regularization, Possessive Splitting)
     (\secref{LEXEME-REPLACEMENT}) \\
 Indentation Lexemes (\secref{INDENTATION-LEXEMES}) \\
-Number Recognition (\secref{NUMBER-RECOGNITION}) \\
+Radix Numbers (\secref{RADIX-NUMBERS}) \\
+Scientific Numbers (\secref{SCIENTIFIC-NUMBERS}) \\
 Number Unit Grouping (\secref{NUMBER-UNIT-GROUPING}) \\
 Unit Multiplier Insertion (\secref{UNIT-MULTIPLIER-INSERTION})
 \end{indpar}
 
-We describe these below in order.
+Thus the output of the lexeme replacement lexical parsing
+algorithm is the input to the indentation lexeme lexical parsing
+algorithm, and so forth.
+
 
 \subsubsection{Lexeme Replacement}
 \label{LEXEME-REPLACEMENT}
@@ -1865,7 +1870,7 @@ The following are examples of illegal decimal numbers:
 \end{indpar}
 
 \subsubsubsection{Radix Numbers}
-\label{RADIXED-NUMBERS}
+\label{RADIX-NUMBERS}
 
 \ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
 radi\-ces to the used instead of decimal.  In fact, other number representation
@@ -1934,6 +1939,9 @@ When a {\em radix-number} is encountered during number lexical parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
 \verb|B"10011"| is input to number lexical parsing,
 \verb|(# B "10011" #)| will be output.
+
+Radix numbers are recognized after indentation lexemes have been
+inserted.
 
 {\em Radix-indicators} are defined by \skey{radix indicator definition}s:
 
@@ -2013,73 +2021,14 @@ it is surrounded by \verb|(# #)| implicit brackets.  Thus if
 \end{center}
 will be output.
 
-\subsubsubsection{Unit Numbers}
-\label{UNIT-NUMBERS}
+Scientific numbers are recognized after radix numbers have been
+recognized.
 
-\ikey{Unit-numbers}{unit-number} are just {\em decimal-numbers}
-with a {\em unit-indica\-tor} prefixed or postfixed.  A {\em sign} may be before
-or after a prefix {\em unit-indicator}.
-
-\begin{indpar}
-\key{unit-number} \begin{tabular}[t]{rl}
-		  ::= & {\em pre-unit-indicator} {\em unit-base-number} \\
-		  $|$ & {\em sign} {\em pre-unit-indicator}
-		  		   {\em unsigned-unit-base-number} \\
-		  $|$ & {\em unit-base-number} {\em post-unit-indicator}
-		  \end{tabular} \\[1ex]
-\key{unit-base-number} ::= {\em decimal-number} \\[1ex]
-\key{unsigned-unit-base-number} ::= {\em unsigned-decimal-number} \\[1ex]
-\key{pre-unit-indicator} ::= \verb|$| $|$ {\tt \pounds} \\[1ex]
-\key{post-unit-indicator} ::= \verb|'| $|$ \verb|"| $|$ \verb|%| $|$ $^\circ$
-			  $|$ \verb|i| $|$ \verb|j| $|$ \verb|k|
-			      \\[1ex]
-\key{unit-indicator} ::= {\em pre-unit-indicator}
-		     $|$ {\em post-unit-indicator}
-\end{indpar}
-
-However, unit numbers are not lexemes.
-
-{\bf Unit Number Rule.}\index{Unit Number Rule}
-If a {\em unit-number} is to be output as a {\em word} lexeme, then instead
-the {\em unit-number} is split into two {\em word} lexemes, one of which
-is the {\em real-number} part and the other of which is a 1-character
-{\em word} consisting of the {\em unit-indicator}.
-
-Unit Number Examples:
-
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}l@{\hspace*{0.3in}}l}
-Unit Number		& Lexeme Sequence	\\[1ex]
-\tt \$5.71		& \tt \$~~5.71 \\
-\tt \pounds -5.71	& \tt \pounds ~~-5.71 \\
-\tt -\$2.20		& \tt \$ -2.20 \\
-\tt 15'			& \tt 15~~' \\
-\tt -2.543"		& \tt -2.543~~" \\
-\tt 72\%		& \tt 72~~\% \\
-\tt 0.5i		& \tt 72~~i \\
-\end{tabular}
-\end{indpar}
-
-Here \verb|15'| splits to produce \verb|'| as a 1-character
-\underline{word} lexeme, and not as a closing quote lexeme.
-
-A sign immediately before a {\em pre-unit-indicator} is moved to
-the {\em real-number} part; \verb|-$2.20| becomes \verb|$ -2.20|.
-The units `\ttmkey{i}{as unit}', `\ttmkey{j}{as unit}', and
-`\ttmkey{k}{as unit}' are used to specify complex imaginary or quaternion
-numbers: see \pagref{IMAGINARY-UNITS}.
-
-Note that {\em radix-numbers}, {\em ratios}, and {\em scientific-numbers}
-cannot have units as part of their pre-lexeme.  This is to reduce confusion:
-the units can always be given separated by a space from the number,
-as in `{\tt \pounds~}\verb|O#7601#|', `\verb|$ 3/4|', and `\verb|5e3 i|'.
-
-\subsubsection{Number Unit Grouping}
+\subsubsubsection{Number Unit Grouping}
 \label{NUMBER-UNIT-GROUPING}
 
 A {\em number-unit-group} is a sequence of one or more {\em number-unit-pairs}
-each of which consists of two lexemes: a {\em real-number} (number
-without {\em unit-indicator}, \pagref{REAL-NUMBER}),
+each of which consists of two lexemes: a {\em real-number}
 and a {\em unit-specifier}.
 The syntax equations are:
 
@@ -2090,13 +2039,13 @@ The syntax equations are:
                      ::= & {\em prefix-unit-specifier} {\em real-number} \\
                      $|$ & {\em real-number} {\em postfix-unit-specifier} \\
 		     \end{tabular} \\[1ex]
-\key{prefix-unit-specifier} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
-\key{postfix-unit-specifier} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
+\key{prefix-unit-specifier} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+\key{postfix-unit-specifier} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 \key{unit-specifier} ::= {\em prefix-unit-specifier} $|$
                          {\em postfix-unit-specifier}
 \end{indpar}
 
-In order to be recognized as a {\em unit-specifier} a {\em word} sequence
+In order to be recognized as a {\em unit-specifier} a {\em symbol} sequence
 must be defined as a {\em unit-specifier-name} by the following:
 
 \begin{indpar}
@@ -2117,12 +2066,15 @@ implied parentheses around them, and places implied `\verb|+|' operators
 between their {\em number-unit-pairs}.  This is done after lexeme replacement
 (\secref{LEXEME-REPLACEMENT}).
 
-For example, `\verb|7 ' 30 "|' is a {\em number-unit-group} containing
+For example, `\verb|7 hr 30 min|' is a {\em number-unit-group} containing
 2 {\em number-unit-pairs} that number unit grouping transforms into
-`\verb/(| 7 ' + 30 " |)/', where \verb/(| |)/ are implied brackets
+`\verb/(# 7 hr + 30 min #)/', where \verb/(# #)/ are implied brackets
 (\pagref{IMPLIED-BRACKETS}).
 
-\subsubsection{Unit Multiplier Insertion}
+Number unit groups are recognized after scientific numbers have been
+recognized.
+
+\subsubsubsection{Unit Multiplier Insertion}
 \label{UNIT-MULTIPLIER-INSERTION}
 
 The \key{unit multiplier insertion} phase of lexical
@@ -2136,16 +2088,20 @@ grouping (\secref{NUMBER-UNIT-GROUPING}).
 For example, if `\verb|sec|', `\verb|ft|', and `\verb|lb|'
 are {\em postfix-unit-specifiers},
 then
-\begin{center}
-\verb|some function ( 3 ft / sec, 9 ft ^ 2 lb / sec )|
-\end{center}
+\begin{indpar}\begin{verbatim}
+some function ( 3 ft 2 in / sec,
+                9 ft ^ 2 lb / sec,
+                $3.50 )
+\end{verbatim}\end{indpar}
 becomes
-\begin{center}
-\verb|some function ( 3 * ft / sec, 9 * ft ^ 2 * lb / sec )|
-\end{center}
+\begin{indpar}\begin{verbatim}
+some function ( (# 3 * ft + 2 * in #) / sec,
+                9 * ft ^ 2 * lb / sec,
+                $ * 3.50 )
+\end{verbatim}\end{indpar}
 
-
-
+Unit multiplier insertion is done after number unit groups have been
+recognized.
 
 \section{Expression Parsing}\index{parsing!expression}
 \label{EXPRESSION-PARSING}
@@ -4556,7 +4512,7 @@ the parsing mode argument to the algorithm is changed as follows:
 \item The object list elements are inspected to see if any are operators.
 An operator is an atom equal to an operator that is recognized according
 to the current parsing mode (see \pagref{PARSING-MODES},
-Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DECLARATION}).
+Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DEFINITION}).
 
 If there are operators among the list elements, those with the lowest
 priority L are selected.  Then any non-empty sequences of list elements between
@@ -4564,7 +4520,7 @@ selected operators are replaced by a single object listing the replaced
 elements.  However sequences with only one element are not replaced.
 Then, the current object is given a {\tt .parser}
 attribute equal to the parser associated with priority level L
-(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DECLARATION}).
+(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DEFINITION}).
 
 Lastly, if the current parsing mode is text and L equals zero, the parsing
 mode is changed to expression.
@@ -4646,7 +4602,7 @@ evaluation.
 
 A {\tt .parser} attribute value is known as a \key{parser}, and is associated
 with an operator priority level
-(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DEFINITION}).
 Immediately below are the standard parsers and their effects.
 
 In describing effects, we use notation such as
