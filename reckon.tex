@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 26, 2008}
+\date{January 31, 2008}
  
 \maketitle
 
@@ -288,7 +288,7 @@ for what its worth, stands for `Calculation and Simulation Total Language
 Environment', which hints at its purpose.
 
 CASTLE is designed for naive programmers: that is, for people who may never
-be able to program computers well.  It is a simple language with
+be able to program computers well.  It is a fairly simple language with
 powerful data types that make it easier to write small programs
 that do a variety of tasks a person might want to do.  Generally
 the tasks fall into the categories of calculating things (taxes,
@@ -304,6 +304,7 @@ Simulating popular board games and creating new ones. \\
 Creating simple computer games, including dialog games. \\
 Computing and analyzing documents. \\
 Doing elementary algebra and calculus problems. \\
+Doing matrix calculations. \\ 
 Calculating basic probabilities and statistics. \\
 Simulating two and three dimensional objects. \\
 Simulating simple electrical, mechanical, chemical, and biological systems.\\
@@ -398,6 +399,8 @@ of functions and predicates.  Some examples involving numbers are:
 
 Here the `\verb|> |' at the beginning of some lines is the CASTLE \key{prompt}
 that tells you its OK to input an expression to be evaluated.
+Except for this prompt, lines beginning with `\verb|> |' are input lines to
+a CASTLE interpreter, and other lines are output lines.
 
 At somewhat the opposite extreme from numbers are words, phrases, sentences,
 and paragraphs.  You can calculate with these `\skey{document expression}s'.
@@ -458,7 +461,7 @@ but typically have different variable values.  For example:
 \verb|> a person:| \\
 \verb|+     name = `Jack'| \\
 \verb|+     weight = 123 lb| \\
-\verb|+     height = 5' 9"| \\
+\verb|+     height = 5 ft 9 in| \\
 \verb|+     age = 23 yr 2 mo| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
@@ -469,13 +472,13 @@ but typically have different variable values.  For example:
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> a person:| \\
 \verb|+     name = `Jill'| \\
 \verb|+     weight = 110 lb| \\
-\verb|+     height = 5' 7"| \\
+\verb|+     height = 5 ft 7 in| \\
 \verb|+     age = 21 yr 8 mo| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
@@ -486,9 +489,9 @@ but typically have different variable values.  For example:
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> all persons| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
@@ -499,10 +502,10 @@ but typically have different variable values.  For example:
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
-\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> the person Jack| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
@@ -513,11 +516,11 @@ but typically have different variable values.  For example:
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> the person named Jack's height| \\
-\verb|5' 9"| \\
+\verb|5 ft 9 in| \\
 \verb|> the weight of the person named Jack| \\
 \verb|123 lb| \\
 \verb|> @1000001| \\
@@ -530,9 +533,9 @@ but typically have different variable values.  For example:
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> the weight of @1000001| \\
 \verb|110 lb|
 \end{indpar}
@@ -557,9 +560,9 @@ For example:
 \multicolumn{1}{|c|}{\bf \shortstack{body-mass-\\index}} \\
 \hline
 \tt @1000000 & person & Jack
-	     & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo & \tt 18.163738 \\
+	     & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo & \tt 18.163738 \\
 \tt @1000001 & person & Jill
-	     & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo & \tt 17.228258 \\
+	     & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo & \tt 17.228258 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -591,7 +594,7 @@ One can use definitions to define expressions that compute values:
 \tt @1000007 & \tt 10	& \tt	10	& \tt 10 \\
 \tt @1000008 & \tt 11	& \tt	10	& \tt 0 \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> sum from 1 through 2| \\
 \verb|3| \\
 \verb|> all (sums from X through Y)| \\
@@ -713,10 +716,10 @@ separated lists in parentheses.  Thus
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
-\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> (the person named Jack, the person named Jill)| \\
 \begin{tabular}{|r|l|l|r|r|r|}
 \hline
@@ -727,10 +730,10 @@ separated lists in parentheses.  Thus
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} \\
 \hline
-\tt @1000000 & person & Jack & \tt 123 lb & \tt 5' 9" & \tt 23 yr 2 mo \\
-\tt @1000001 & person & Jill & \tt 110 lb & \tt 5' 7" & \tt 21 yr 8 mo \\
+\tt @1000000 & person & Jack & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo \\
+\tt @1000001 & person & Jill & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> raw (all persons)| \\
 \verb|(the person named Jack, the person named Jill)| \\
 \verb|> really raw (all persons)| \\
@@ -773,16 +776,16 @@ For this reason CASTLE lists are sometimes called `\skey{flat list}s'.
 
 CASTLE has different kinds of quotes or brackets.  The brackets
 \verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|,
-\verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~turn
-evaluation off, while \verb|[|\ldots\verb|]|,
-\verb|[[|\ldots\verb|]]|, \verb|[[[|\ldots\verb|]]]|, etc.~turn
-evaluation on.
+\verb|``|\ldots\verb|''| turn
+evaluation off, while \verb|[|\ldots\verb|]| turns evaluation on.
 The brackets \verb|`|\ldots\verb|'|,
-\verb|``|\ldots\verb|''|, \verb|```|\ldots\verb|'''|, etc.~turn
+\verb|``|\ldots\verb|''| turn
 recognition of operators (e.g., \verb|+| and \verb|=|) off, and turn
-recognition of whitespace on, while
+recognition of phrase sepators (e.g., `\verb|,|' and `\verb|;|') and
+sentence terminators (e.g., `\verb|.|' and `\verb|?|') on, while
 \verb|[|\ldots\verb|]| and \verb|{|\ldots\verb|}|
-turn recognition of operators on, and turn recognition of whitespace off.
+turn recognition of operators on, and turn recognition of phrase
+separators and sentence terminators off.
 
 CASTLE can store information as expressions.  For example:
 
@@ -906,7 +909,7 @@ Displays can be used to make demonstrations:
 \hline
 \tt @1000043 & demo & 30 degrees \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> for every demo:| \\
 \verb|+     on update THIS to X:|\\
 \verb|+         next angle = X| \\
@@ -921,7 +924,7 @@ Displays can be used to make demonstrations:
 \hline
 \tt @1000044 & demo & 40 degrees \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> increment x by 5 degrees| \\
 \begin{tabular}{|r|r|r|}
 \hline
@@ -931,7 +934,7 @@ Displays can be used to make demonstrations:
 \hline
 \tt @1000045 & demo & 45 degrees \\
 \hline
-\end{tabular} \\
+\end{tabular} \\[0.5ex]
 \verb|> display ( D ) <-- demo ( D ) with angle ( X ):| \\
 \verb|+     c = {circle 1.0 dotted center (0.0,0.0)}| \\
 \verb|+     x-axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
@@ -945,8 +948,8 @@ Displays can be used to make demonstrations:
 \verb|+                  [x-axis] labeled `X Axis',| \\
 \verb|+                  [y-axis] labeled `Y Axis',| \\
 \verb|+                  [line],| \\
-\verb|+                  [arc] labeled `[theta]' ),| \\
-\verb|+                label `Depiction of Angle [theta]' ) }| \\
+\verb|+                  [arc] labeled `[[theta]]' ),| \\
+\verb|+                label `Depiction of Angle [[theta]]' ) }| \\
 \verb|> x| \\
 \begin{picture}(4.0,1.9)
 \put(1.0,0.95){\qbezier[40](0.5,0.0)(0.46,0.46)(0.0,0.5)}
@@ -1083,32 +1086,31 @@ for every vessel:
 The rest of this document is a reference manual for CASTLE.
 
 
-\section{Lexical Scans}
+\section{Lexemes}
 
-A CASTLE program is a sequence of characters which is scanned from
-left to right to produce a sequence of \skey{pre-lexeme}s.  The sequence
-of pre-lexemes is then scanned from left to right to produce
-a sequence of \skey{lexeme}s.  The sequence of lexemes may then be subject to
-a left to right \key{lexical parsing} scan to produce a final set of lexemes
-that is input for expression parsing.  Lexical parsing is suppressed in
-certain contexts, e.g., within quotes.
+Input text is a sequence of characters.  This is scanned from
+left to right and top to bottom to produce a sequence of lexemes,
+which include words, marks, separators, numbers, and quoted strings.
 
-For example, the input `{\tt x = 7' 5.5";}' (here the `' quotes are
-\underline{not} part of the input) contains the pre-lexeme
-`{\tt 5.5";}', which is split into 3 lexemes `{\tt 5.5 " ;}', and
-then during lexical parsing `{\tt *}' operators are inserted before
-or after units, and `{\tt +}' operators are inserted
-between consecutive numbers with different units, and parentheses
-are inserted around sequences of consecutive numbers with different units,
-to produce from the input the following string of 12 lexemes:
-
+For example, the input
 \begin{center}
-\tt x = ( 7 * ' + 5.5 * " ) ;
+\verb|x = 7ft 1 3/4in;|
+\end{center}
+contains in order the following lexemes:
+\begin{center}
+\begin{tabular}{ll}
+\tt x	& word \\
+\tt =	& mark \\
+\tt 7	& number \\
+\tt ft	& word \\
+\tt 1	& number \\
+\tt 3/4	& number \\
+\tt in	& word \\
+\tt ;	& separator \\
+\end{tabular}
 \end{center}
 
-\subsection{Lexemes}
-
-\ikey{Lexemes}{lexeme} are defined as follows:
+\ikey{Lexemes}{lexeme} are defined more specifically as follows:
 
 \begin{indpar}
 \key{lexeme}
@@ -1126,6 +1128,10 @@ to produce from the input the following string of 12 lexemes:
 \key{number} ::= {\em number-character} {\em number-character}\,$^\star$ \\[1ex]
 \key{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
+\key{quote} \begin{tabular}[t]{rl}
+	    ::= & \verb|`| \verb|`|\,$^\star$  \\
+	    $|$ & \verb|'|$^\star$ \verb|'| not followed by a letter
+	    \end{tabular} \\[1ex]
 \key{separator} ::= {\em separator-character} \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
@@ -1154,6 +1160,7 @@ to produce from the input the following string of 12 lexemes:
 		             $|$\verb|?|%
 			     $|$\verb|:| \\
 		     $|$ & \verb|.| not followed by a {\em digit} \\
+		     $|$ & \verb|/| not surrounded by {\em digits} \\
 			\end{tabular}\\[1ex]
 \key{separator-character} \begin{tabular}[t]{rl}
 		::= &   \verb|(|
@@ -1162,15 +1169,14 @@ to produce from the input the following string of 12 lexemes:
 	       	    $|$ \verb|]|
 	       	    $|$ \verb|{|
 	       	    $|$ \verb|}|
-	       	    $|$ \verb|;|
-	       	    $|$ \verb|`| \\
-		$|$ & \verb|'| not followed by a {\em letter} \\
+	       	    $|$ \verb|;| \\
 		$|$ & \verb|,| not surrounded by {\em digits} \\
 		    \end{tabular}\\[1ex]
 \key{number-character} \begin{tabular}[t]{rl}
 		::= &   {\em digit} \\
 		$|$ & \verb|.| followed by by a {\em digit } \\
 		$|$ & \verb|,| surrounded by {\em digits} \\
+		$|$ & \verb|/| surrounded by {\em digits} \\
 		    \end{tabular}\\[1ex]
 \key{character-representative}
     ::= see Figure~\figref{CHARACTER-REPRESENTATIVES} \\[1ex]
@@ -1308,8 +1314,11 @@ a \verb|'| if it is followed by a letter.  A \key{mark} is a
 sequence of mark characters (e.g., \verb|+| and \verb|-|).
 A \key{separator} is a \underline{single} separator character.
 A \key{number} is a sequence of digits, decimal points
-which are always followed by a digit, and commas that are
-both preceeded and followed by digits.  A quoted string is
+which are always followed by a digit, commas that are
+both preceeded and followed by digits, and slashes that are
+both preceeded and followed by digits.  A \key{quote} is either a sequence
+of \verb|`| characters or a sequence of \verb|'| characters, but in the latter
+case, the quote must not be followed by a letter.  A quoted string is
 a sequence of \skey{character representative}s surrounded by
 the double quote character (\ttnbkey{"}), where most characters
 are their own representatives (\verb|A|, \verb|B|, \verb|0|, \verb|1|,
@@ -1318,10 +1327,12 @@ characters that begin with a backslash (e.g., \verb|\n| represents
 a new line character).
 
 A \ttnbkey{'} is a word character if it is followed by a letter,
-and a separator otherwise.  A \verb|.| is a number character
-(decimal point) if it
-is followed by a digit, and a mark character otherwise.  A
-\ttnbkey{,} is a number character if surrounded by digits, and
+and part of a quote otherwise.
+A \verb|.| is a number character (decimal point) if it
+is followed by a digit, and a mark character otherwise.
+A \ttnbkey{,} is a number character if surrounded by digits, and
+a separator otherwise.
+A \ttnbkey{/} is a number character if surrounded by digits, and
 a separator otherwise.
 
 Lexemes may be separatated by \key{white-space}, which
@@ -1336,12 +1347,13 @@ to distinguish them from separators.
 Unless specified otherwise, a unquoted symbol may be quoted without changing
 its meaning; i.e., \verb|fie| and \verb|5.9| mean the same thing
 as \verb|"fie"| and \verb|"5.9"|.  However, to be a symbol a separator
-must be quoted (e.g., \verb|","|), and to protect a symbol from
+or quote
+must be quoted (e.g., \verb|","| and \verb|"`"|), and to protect a symbol from
 a special interpretation by a parser the symbol must be quoted
 (e.g., \verb|"+"| will not be recognized as an operator in a context
 in which \verb|+| would be).
 
-\subsection{Lexical Parsing}
+\section{Lexical Parsing}
 \label{LEXICAL-PARSING}
 
 After input text is converted to a sequence of lexemes, the lexemes
@@ -1370,7 +1382,7 @@ algorithm is the input to the indentation lexeme lexical parsing
 algorithm, and so forth.
 
 
-\subsubsection{Lexeme Replacement}
+\subsection{Lexeme Replacement}
 \label{LEXEME-REPLACEMENT}
 
 The \key{lexeme replacement}
@@ -1552,7 +1564,7 @@ word, some subtleties of language are lost.  For example, `\verb|people|'
 can be a singular word referring to a group of people, but CASTLE will
 standardly confuse it with `\verb|person|'.
 
-\subsubsection{Indentation Lexemes}
+\subsection{Indentation Lexemes}
 \label{INDENTATION-LEXEMES}
 
 \ikey{Indentation-lexemes}{indentation-lexeme}
@@ -1790,7 +1802,7 @@ hum \} y			& ; hum \} y \\
 \end{tabular}
 \end{indpar}
 
-\subsubsection{Numbers}
+\subsection{Numbers}
 \label{NUMBERS}
 
 Number lexemes are decimal numbers with an optional decimal point
@@ -1812,7 +1824,7 @@ The following are the top level syntax equations for numbers.
 Note that numbers are all unsigned.  Signs are all considered to
 be arithmetic operators (except for exponent signs).
 
-\subsubsubsection{Decimal Numbers}
+\subsubsection{Decimal Numbers}
 \label{DECIMAL-NUMBERS}
 
 \ikey{Decimal numbers}{decimal number} are just number lexemes, which
@@ -1869,7 +1881,7 @@ The following are examples of illegal decimal numbers:
 \end{tabular}
 \end{indpar}
 
-\subsubsubsection{Radix Numbers}
+\subsubsection{Radix Numbers}
 \label{RADIX-NUMBERS}
 
 \ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
@@ -1971,7 +1983,7 @@ either a number if conversion is successful, or an error message
 otherwise.
 
 
-\subsubsubsection{Scientific Numbers}
+\subsubsection{Scientific Numbers}
 \label{SCIENTIFIC-NUMBERS}
 
 A {\em scientific-number} is a {\em decimal-number} or a {\em radix-number}
@@ -2024,7 +2036,7 @@ will be output.
 Scientific numbers are recognized after radix numbers have been
 recognized.
 
-\subsubsubsection{Number Unit Grouping}
+\subsubsection{Number Unit Grouping}
 \label{NUMBER-UNIT-GROUPING}
 
 A {\em number-unit-group} is a sequence of one or more {\em number-unit-pairs}
@@ -2074,7 +2086,7 @@ For example, `\verb|7 hr 30 min|' is a {\em number-unit-group} containing
 Number unit groups are recognized after scientific numbers have been
 recognized.
 
-\subsubsubsection{Unit Multiplier Insertion}
+\subsubsection{Unit Multiplier Insertion}
 \label{UNIT-MULTIPLIER-INSERTION}
 
 The \key{unit multiplier insertion} phase of lexical
@@ -3190,7 +3202,7 @@ An example of a tabular paragraph is:
 \begin{indpar}\begin{verbatim}
 +------------------------+--------+------+
  ice melt                 40 lbs    $4.50
- 2x4's, 8'                10       $27.70
+ 2x4's, 8ft               10       $27.70
  16d nails                 2 lbs     3.21
 \end{verbatim}\end{indpar}
 
