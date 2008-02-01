@@ -1595,12 +1595,12 @@ details of this process.
 At any given point during lexical parsing, there is a
 stack of indentation records, called the \key{indentation stack}.
 An \key{indentation record} is an \key{indentation} (column number),
-a bracket nesting depth,
 a pointer to a bracket definition, and an \key{implicit bracket flag}.
 The bracket definition specifies an \key{indentation opening bracket},
 an \key{indentation closing bracket}, an \key{indentation separator},
 and an \key{indentation indicator}, which in the above definition are
 respectively \verb|"{"|, \verb|"}"|, \verb|";"|, and \verb|* ":"|.
+All these bracket definition components are optional.
 The implicit bracket flag indicates whether
 or not an implied opening bracket lexeme was inserted at the same time the
 indentation record was pushed onto the indentation stack.
@@ -1611,18 +1611,22 @@ the \verb|*| were missing, only the 1-character lexeme \verb|:| would
 be an indentation indicator.
 
 Initially the indentation stack contains a single indentation record with
-0 indentation, 0 bracket nesting depth, a pointer to the bracket definition
-given above at the beginning of this section,
+1 indentation, a pointer to the bracket definition:
+\begin{indpar}\begin{verbatim}
+define bracket [operator]
+       with indentation separator ";"
+\end{verbatim}\end{indpar}
 and an off implicit bracket flag.
-The stack cannot become empty; any operation that would
-pop the last indentation off the stack announces an error and leaves the
-stack alone.  Thus the bottommost indentation on the stack is always
-the same.
+Note all the components of the bracket definition are missing except
+the indentation separator, which specified that a semi-colon is to
+be inserted between non-indented lines.
+The stack cannot become empty;
+the bottommost indentation record on the stack is always the same.
 
 The indentation in the indentation record at the top of the indentation
 stack is called the \key{current indentation record}, and its components
-are referred to as `current' (e.g., `current indentation', `current
-indentation opening bracket').
+are referred to as `current' (e.g., `\key{current indentation}', `\key{current
+indentation opening bracket}').
 
 Indentation lexemes are then inserted during lexical parsing
 by the following \key{indentation lexeme insertion algorithm}.
@@ -1652,7 +1656,7 @@ then a lexical parsing error is announced.
 This ensures that when indentation is
 used to insert implicit lexemes, important indentation
 differences must be by at least
-2 columns, and cannot be just 1 column.
+2 columns, and cannot be by just 1 column.
 \end{indpar}
 
 {\bf Indentation Separator Step.}\index{Indentation Separator Step}
@@ -1672,6 +1676,9 @@ the current indentation record was created, and
 \item[(4)] the lexeme
 previous to this lexeme (the last on the previous non-blank line)
 does not equal the indentation separator,
+\item[(5)] the lexeme is not the first of a sequence of lexemes
+that matches the current indentation closing bracket, or the current
+implicit bracket flag is on
 \end{list}
 then a copy of the indentation separator is inserted before the first
 lexeme of the line (or equivalently, is inserted at the end of the
@@ -1700,22 +1707,41 @@ record stack.
 {\bf Implicit Bracket Step.}\index{Implicit Bracket Step}
 \begin{indpar}
 If the last lexeme of a line is encountered that
-ends a lexeme that matches the indentation indicator of some
+matches the indentation indicator of some
 current bracket definition
 (see current parsing definitions, \pagref{CURRENT-PARSING-DEFINITION},
 and bracket definition indentation indicators,
 \pagref{INDENTATION-INDICATOR}),
-then the indentation indicator is removed from the end of this lexeme
-and a new indentation record is pushed into the stack.
+this bracket definition is called the \key{matched bracket definition}
+and the following are done:
 
-If the lexeme from which the indicator as removed becomes empty, it is
-deleted from the lexeme stream.
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] 
+The indentation indicator is removed from the end of this lexeme.
+If the lexeme becomes emtpy, it is deleted from the lexeme stream.
 
-The indentation of the new indentation record is the indentation of
-the next lexeme (which is the indentation of the first non-white-space
-character on the next non-blank line).
-The implicit bracket flag is on.  The record
-points at the bracket definition containing the indentation indicator.
+\item[(2)] If the indentation of the first lexeme of the next line
+is not greater than the current indentation, or there is no next
+line, both the opening and closing brackets from the matched
+bracket definition are output at the end of the current line.
+
+\item[(3)] If the indentation of the first lexeme of the next line
+is 1 greater than the current indentation, an error is announced.
+
+\item[(4)] If the indentation of the first lexeme of the next line
+is greater than the current indentation, the opening bracket
+from the matched bracket definition is output at the end of the
+current line, and a new indentation record is pushed into the
+indentation stack.  The new record has the indentation of the
+next lexeme, a pointer to the matched bracket definition, and
+an on implicit bracket flag.
+\end{list}
+
 \end{indpar}
 
 {\bf Explicit Opening Bracket Step.}\index{Explicit Opening Bracket Step}
@@ -1748,7 +1774,8 @@ parsing selector set will be popped from its stack when the indentation
 record is popped from its stack.
 
 The following are example inputs and outputs from the indentation lexeme
-insertion parsing algorithm.
+insertion parsing algorithm using the bracket definitions given in this
+section.
 
 \begin{indpar}[0.1in]
 \tt \ttbrackets
@@ -1809,6 +1836,7 @@ hum \} y			& ; hum \} y \\
 \label{NUMBERS}
 
 Number lexemes are decimal numbers with an optional decimal point
+or slash
 and optional commas every 3 digits.  \ikey{Numbers}{number} are sequences of
 lexemes that are identified during \key{lexical number parsing},
 which is applied to the output of the indentation lexeme insertion algorithm. 
@@ -1818,29 +1846,36 @@ the implicit \verb|(# #)| brackets.
 The following are the top level syntax equations for numbers.
 
 \begin{indpar}
-\key{number} ::= {\em real-number} $|$ {\em unit-number} \\[1ex]
+\key{number} ::= {\em real-number} $|$ {\em number-unit-group} \\[1ex]
 \key{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
 				           $|$ {\em scientific-number}
 \end{indpar}%
 \label{REAL-NUMBER}\label{NUMBER}
 
 Note that numbers are all unsigned.  Signs are all considered to
-be arithmetic operators (except for exponent signs).
+be arithmetic operators (except for exponent signs in
+{\em scientific-numbers}).
 
 \subsubsection{Decimal Numbers}
 \label{DECIMAL-NUMBERS}
 
 \ikey{Decimal numbers}{decimal number} are just number lexemes, which
 are sequences of digits with optional commas and
-an optional decimal point.
+an optional decimal point or slash.
 
 \begin{indpar}
 \key{decimal-number} \begin{tabular}[t]{rl}
-                              ::= & {\em decimal-natural} \\
-		              $|$ & {\em decimal-natural} \verb|.|
-		                    {\em decimal-natural} \\
-		              $|$ & \verb|.| {\em decimal-natural}
+                              ::= & {\em decimal-integer} \\
+		              $|$ & {\em decimal-integer} \verb|.|
+		                    {\em decimal-fraction} \\
+		              $|$ & \verb|.| {\em decimal-fraction} \\
+		              $|$ & {\em decimal-numerator} \verb|/|
+		                    {\em decimal-denominator} \\
 		              \end{tabular} \\[1ex]
+\key{decimal-integer} ::= {\em decimal-natural} \\[1ex]
+\key{decimal-fraction} ::= {\em decimal-natural} \\[1ex]
+\key{decimal-numerator} ::= {\em decimal-natural} \\[1ex]
+\key{decimal-denominator} ::= {\em decimal-natural} \\[1ex]
 \key{decimal-natural} ::= {\em decimal-digits}
 		     $|$ {\em decimal-natural} \verb|,| {\em decimal-digits}
 		     \\[1ex]
@@ -1854,22 +1889,27 @@ Decimal Number Examples:
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 123	& 1,234		& 12,345	& 1,234,567 \\
 123.0	& .123		& 0.0		& 1,234.987654	& 1,234.987,654 \\
+1/2	& 134/874	& 1,345/3	& 1234/987654   & 1,234/987,645
 \end{tabular}
 \end{indpar}
 
 In a number lexeme, and therefore in a {\em decimal-number},
-the decimal point must be followed by
-a digit, and commas must be surrounded by digits.
+a decimal point must be followed by
+a digit, commas must be surrounded by digits, and slashes must be surrounded
+by digits.
 
 Some number lexemes are \skey{illegal decimal number}s, meaning
 that they are number lexemes that cannot be converted to numbers.
-To be legal, a decimal number must contain at most one decimal point.
-In addition, commas must be located
-every 3 digits from the decimal point, or every 3 digits
-from the right end if there is no decimal point.
-If there are any commas at all, there must be commas every 3 digits
-in the integer part, while the fraction part may be comma free,
-or may contain commas every 3 digits.
+A number lexeme with more than one decimal point, more than one
+slash, or both a decimal point and a slash is illegal.
+In addition, commas must be located every 3 digits from the right
+end of a {\em decimal-integer}, {\em decimal-denominator}, or
+{\em decimal-numberator}, or from the left end of a {\em decimal-fraction}.
+Commas are optional, but if present in a {\em decimal-fraction} or
+{\em decimal-denomintor}, they must also be used in any
+{\em decimal-integer} or {\em decimal-numerator} that is part of the
+same number lexeme.  Lastly, a {\em decimal-denominator} may not
+be zero.
 Failure to follow the rules of this paragraph will result in an
 error when the lexeme is converted to a number,
 but is \underline{not} an error of lexeme formation, and
@@ -1880,7 +1920,8 @@ The following are examples of illegal decimal numbers:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892
+1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892 \\
+3/4/5   & 1.45/3        & 1000/3,000    & 5/0
 \end{tabular}
 \end{indpar}
 
