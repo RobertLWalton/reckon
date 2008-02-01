@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 31, 2008}
+\date{February 1, 2008}
  
 \maketitle
 
@@ -1370,15 +1370,15 @@ the order given:
 \begin{indpar}[0.8in]
 Lexeme Replacement (Spelling Regularization, Possessive Splitting)
     (\secref{LEXEME-REPLACEMENT}) \\
-Indentation Lexemes (\secref{INDENTATION-LEXEMES}) \\
-Radix Numbers (\secref{RADIX-NUMBERS}) \\
-Scientific Numbers (\secref{SCIENTIFIC-NUMBERS}) \\
+Indentation Lexeme Insertion (\secref{INDENTATION-LEXEME-INSERTION}) \\
+Radix Number Identification (\secref{RADIX-NUMBER-IDENTIFICATION}) \\
+Scientific Number Identification (\secref{SCIENTIFIC-NUMBER-IDENTIFICATION}) \\
 Number Unit Grouping (\secref{NUMBER-UNIT-GROUPING}) \\
 Unit Multiplier Insertion (\secref{UNIT-MULTIPLIER-INSERTION})
 \end{indpar}
 
 Thus the output of the lexeme replacement lexical parsing
-algorithm is the input to the indentation lexeme lexical parsing
+algorithm is the input to the indentation lexeme insertion lexical parsing
 algorithm, and so forth.
 
 
@@ -1386,7 +1386,7 @@ algorithm, and so forth.
 \label{LEXEME-REPLACEMENT}
 
 The \key{lexeme replacement}
-process replaces one lexeme by a string of zero or
+process replaces a string of one or more lexemes by a string of zero or
 more lexemes.  Lexeme replacement is done before all other steps of
 lexical parsing, so these other steps operate on the lexeme sequence
 after lexeme replacements have been made.
@@ -1456,7 +1456,8 @@ dictionary and function.  These have the syntax:
 \label{PARSING-SELECTORS}%
 \label{PARSING-SELECTOR-LIST}
 
-A \key{lexeme dictionary entry} gives a lexeme that is to be replaced
+A \key{lexeme dictionary entry} gives a sequence of lexemes
+that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
 
 \begin{center}
@@ -1482,8 +1483,8 @@ and the function definition
 \begin{indpar}
 \begin{verbatim}
 replace people X <--:
-    if X == people:
-        value = person
+    if X == `people':
+        value = `person'
     else:
         value = false
 \end{verbatim}
@@ -1509,7 +1510,9 @@ are `{\tt operator}' and `{\tt list}'.
 See~\secref{PARSING-SELECTORS} for details.
 
 If several different lexeme replacement definitions could be used to
-replace lexemes at the beginning of a lexeme sequence, the definition
+replace lexemes at the beginning of a lexeme sequence, definitions
+replacing the longest string of lexemes are used.  If there are
+several such definitions, the definition
 closest to the top of the parsing definition stack
 (\pagref{PARSING-DEFINITION-STACK}) is used.
 
@@ -1551,7 +1554,6 @@ Some example translations are:
 \begin{tabular}{l}
 \verb|boys| $\longrightarrow$ \verb|[boy]| \\
 \verb|boy's| $\longrightarrow$ \verb|[boy 's]| \\
-\verb|boys'| $\longrightarrow$ \verb|[boy 's]| \\
 \verb|boxes| $\longrightarrow$ \verb|[box]| \\
 \end{tabular}
 \end{center}
@@ -1564,8 +1566,8 @@ word, some subtleties of language are lost.  For example, `\verb|people|'
 can be a singular word referring to a group of people, but CASTLE will
 standardly confuse it with `\verb|person|'.
 
-\subsection{Indentation Lexemes}
-\label{INDENTATION-LEXEMES}
+\subsection{Indentation Lexeme Insertion}
+\label{INDENTATION-LEXEME-INSERTION}
 
 \ikey{Indentation-lexemes}{indentation-lexeme}
 are implied by indentation.  The
@@ -1623,7 +1625,8 @@ are referred to as `current' (e.g., `current indentation', `current
 indentation opening bracket').
 
 Indentation lexemes are then inserted during lexical parsing
-by the following \key{indentation lexeme algorithm}.  This algorithm is 
+by the following \key{indentation lexeme insertion algorithm}.
+This algorithm is 
 applied to the lexeme stream immediately after lexical replacement, and
 executes the following steps in order before passing
 lexemes onto the next stage in lexical parsing.
@@ -1744,8 +1747,8 @@ see \secref{BRACKET-NEW-PARSING-SELECTOR-SET}.   If this happens, the
 parsing selector set will be popped from its stack when the indentation
 record is popped from its stack.
 
-The following are example inputs and outputs from the indentation lexical
-parsing algorithm.
+The following are example inputs and outputs from the indentation lexeme
+insertion parsing algorithm.
 
 \begin{indpar}[0.1in]
 \tt \ttbrackets
@@ -1808,7 +1811,7 @@ hum \} y			& ; hum \} y \\
 Number lexemes are decimal numbers with an optional decimal point
 and optional commas every 3 digits.  \ikey{Numbers}{number} are sequences of
 lexemes that are identified during \key{lexical number parsing},
-which is applied to the output of the indentation lexeme algorithm. 
+which is applied to the output of the indentation lexeme insertion algorithm. 
 When a number contains more than one lexeme, it is surrounded by
 the implicit \verb|(# #)| brackets.
 
@@ -1881,8 +1884,8 @@ The following are examples of illegal decimal numbers:
 \end{tabular}
 \end{indpar}
 
-\subsubsection{Radix Numbers}
-\label{RADIX-NUMBERS}
+\subsubsection{Radix Number Identification}
+\label{RADIX-NUMBER-IDENTIFICATION}
 
 \ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
 radi\-ces to the used instead of decimal.  In fact, other number representation
@@ -1983,8 +1986,8 @@ either a number if conversion is successful, or an error message
 otherwise.
 
 
-\subsubsection{Scientific Numbers}
-\label{SCIENTIFIC-NUMBERS}
+\subsubsection{Scientific Number Identification}
+\label{SCIENTIFIC-NUMBER-IDENTIFICATION}
 
 A {\em scientific-number} is a {\em decimal-number} or a {\em radix-number}
 followed by an exponent.
