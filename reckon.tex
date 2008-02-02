@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 1, 2008}
+\date{February 2, 2008}
  
 \maketitle
 
@@ -1371,10 +1371,11 @@ the order given:
 Lexeme Replacement (Spelling Regularization, Possessive Splitting)
     (\secref{LEXEME-REPLACEMENT}) \\
 Indentation Lexeme Insertion (\secref{INDENTATION-LEXEME-INSERTION}) \\
-Radix Number Identification (\secref{RADIX-NUMBER-IDENTIFICATION}) \\
-Scientific Number Identification (\secref{SCIENTIFIC-NUMBER-IDENTIFICATION}) \\
+Radix Number Recognition (\secref{RADIX-NUMBER-RECOGNITION}) \\
+Scientific Number Recognition (\secref{SCIENTIFIC-NUMBER-RECOGNITION}) \\
+Number Pair Recognition (\secref{NUMBER-PAIR-RECOGNITION}) \\
 Number Unit Grouping (\secref{NUMBER-UNIT-GROUPING}) \\
-Unit Multiplier Insertion (\secref{UNIT-MULTIPLIER-INSERTION})
+Unit Multiplication Insertion (\secref{UNIT-MULTIPLICATION-INSERTION})
 \end{indpar}
 
 Thus the output of the lexeme replacement lexical parsing
@@ -1403,7 +1404,9 @@ dictionary and function.  These have the syntax:
 		     \begin{tabular}[t]{rl}
                      ::= & {\em lexeme-dictionary-definition} \\
 		     $|$ & {\em lexeme-function-definition}
-		     \end{tabular} \\[1ex]
+		     \end{tabular}
+\label{LEXEME-REPLACEMENT-DEFINITION}%
+		     \\[1ex]
 \ikey{lexeme-dictionary-definition}{lexeme-dictionary-!definition} \\
 	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
 	                   \verb|define | & \verb|lexeme dictionary|
@@ -1417,13 +1420,18 @@ dictionary and function.  These have the syntax:
                     \begin{tabular}[t]{rl}
 		    ::= & {\em empty} \\
                     $|$ & \verb|[| {\em parsing-selector-list} \verb|]|
-		    \end{tabular} \\[1ex]
-\key{parsing-selector-list} \\
+		    \end{tabular}
+\label{PARSING-SELECTORS}%
+		    \\[1ex]
+\key{parsing-selector-list}
+\label{PARSING-SELECTOR-LIST}%
+		     \\
 		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
                      ::= & {\em parsing-selector} \\
 		     $|$ & {\em parsing-selector-list} \verb|,|
 		           {\em parsing-selector}
-		     \end{tabular} \\[1ex]
+		     \end{tabular}
+		     \\[1ex]
 \key{parsing-selector} ::= {\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
 \key{lexeme-dictionary-entries}
@@ -1451,10 +1459,8 @@ dictionary and function.  These have the syntax:
 				{\em parsing-selectors} \\[1ex]
 \key{function-name} ::=
 	{\em symbol} {\em symbol}\,$^\star$
-\end{indpar}%
-\label{LEXEME-REPLACEMENT-DEFINITION}%
-\label{PARSING-SELECTORS}%
-\label{PARSING-SELECTOR-LIST}
+\label{FUNCTION-NAME}
+\end{indpar}
 
 A \key{lexeme dictionary entry} gives a sequence of lexemes
 that is to be replaced
@@ -1849,6 +1855,7 @@ The following are the top level syntax equations for numbers.
 \key{number} ::= {\em real-number} $|$ {\em number-unit-group} \\[1ex]
 \key{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
 				           $|$ {\em scientific-number}
+				           $|$ {\em number-pair}
 \end{indpar}%
 \label{REAL-NUMBER}\label{NUMBER}
 
@@ -1872,10 +1879,18 @@ an optional decimal point or slash.
 		              $|$ & {\em decimal-numerator} \verb|/|
 		                    {\em decimal-denominator} \\
 		              \end{tabular} \\[1ex]
-\key{decimal-integer} ::= {\em decimal-natural} \\[1ex]
-\key{decimal-fraction} ::= {\em decimal-natural} \\[1ex]
-\key{decimal-numerator} ::= {\em decimal-natural} \\[1ex]
-\key{decimal-denominator} ::= {\em decimal-natural} \\[1ex]
+\key{decimal-integer} ::= {\em decimal-natural}
+\label{DECIMAL-INTEGER}
+\\[1ex]
+\key{decimal-fraction} ::= {\em decimal-natural}
+\label{DECIMAL-FRACTION}
+\\[1ex]
+\key{decimal-numerator} ::= {\em decimal-natural}
+\label{DECIMAL-NUMERATOR}
+\\[1ex]
+\key{decimal-denominator} ::= {\em decimal-natural}
+\label{DECIMAL-DENOMINATOR}
+\\[1ex]
 \key{decimal-natural} ::= {\em decimal-digits}
 		     $|$ {\em decimal-natural} \verb|,| {\em decimal-digits}
 		     \\[1ex]
@@ -1902,14 +1917,14 @@ Some number lexemes are \skey{illegal decimal number}s, meaning
 that they are number lexemes that cannot be converted to numbers.
 A number lexeme with more than one decimal point, more than one
 slash, or both a decimal point and a slash is illegal.
-In addition, commas must be located every 3 digits from the right
-end of a {\em decimal-integer}, {\em decimal-denominator}, or
-{\em decimal-numberator}, or from the left end of a {\em decimal-fraction}.
 Commas are optional, but if present in a {\em decimal-fraction} or
 {\em decimal-denomintor}, they must also be used in any
 {\em decimal-integer} or {\em decimal-numerator} that is part of the
-same number lexeme.  Lastly, a {\em decimal-denominator} may not
-be zero.
+same number lexeme.
+In addition, commas if present must be located every 3 digits from the right
+end of a {\em decimal-integer}, {\em decimal-denominator}, or
+{\em decimal-numerator}, or from the left end of a {\em decimal-fraction}.
+Lastly, a {\em decimal-denominator} may not be zero.
 Failure to follow the rules of this paragraph will result in an
 error when the lexeme is converted to a number,
 but is \underline{not} an error of lexeme formation, and
@@ -1921,12 +1936,12 @@ The following are examples of illegal decimal numbers:
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892 \\
-3/4/5   & 1.45/3        & 1000/3,000    & 5/0
+3/4/5   & 3/0.5         & 1.45/3        & 1000/3,000    & 5/0
 \end{tabular}
 \end{indpar}
 
-\subsubsection{Radix Number Identification}
-\label{RADIX-NUMBER-IDENTIFICATION}
+\subsubsection{Radix Number Recognition}
+\label{RADIX-NUMBER-RECOGNITION}
 
 \ikey{Radix-numbers}{radix-number} permit binary, octal, or hexadecimal
 radi\-ces to the used instead of decimal.  In fact, other number representation
@@ -1950,9 +1965,9 @@ using standard {\em radix-indicators} are:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-B"10110100"	& O"7534201" & D"9758"	& X"E8A932B" \\
-B"01101"	& O".7753"	& D"97.58"	& X".fe8a932b" \\
-B"0,1101"	& O"2,3456"  & D".123,5"	& X"E8A,932B.7CCD,83" \\
+B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
+B\#"01101"	& O\#".7753"   & D\#"97.58"	& X\#".fe8a932b" \\
+B\#"0,1101"	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A,932B.7CCD,83" \\
 \end{tabular}
 \end{indpar}
 
@@ -1962,23 +1977,26 @@ The following {\em radix-indicators} are standard.
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 Radix	& Radix		 & Allowed Number	& Allowed Digits \\
 Name	& Indicators     & Marks (Digits)	& Between Commas \\[1ex]
-binary	& \tt b~~~B	 & \tt 0 1		& 3 or 4 \\
-octal	& \tt o~~~O	 & \tt 0 1 2 3 4 5 6 7	& 3 \\
-decimal	& \tt d~~~D	 & \tt 0 1 2 3 4 5 6 7 8 9
+binary	& \tt b\#~~~B\#	 & \tt 0 1		& 3 or 4 \\
+octal	& \tt o\#~~~O\#	 & \tt 0 1 2 3 4 5 6 7	& 3 \\
+decimal	& \tt d\#~~~D\#	 & \tt 0 1 2 3 4 5 6 7 8 9
 						& 3 \\
 hexadecimal
-	& \tt x~~~X	 & \tt 0 1 2 3 4 5 6 7 8 9
+	& \tt x\#~~~X\#	 & \tt 0 1 2 3 4 5 6 7 8 9
 						& 4 \\
 	&		 & \tt a b c d e f A B C D E F
 \end{tabular}
 \end{center}
 
 Standard {\em radix-indicators} permit a single decimal point, which must
-be followed by a digit.
+be followed by a digit, or alternatively, as single slash, which must
+be surrounded by digits.
 Standard {\em radix-indicator}
 rules for comma location are the same as for {\em decimal-numbers}
 (\secref{DECIMAL-NUMBERS}), except the number of digits between commas may
-be 3 or 4, depending on the {\em radix-indicator}.
+be 3 or 4, depending on the {\em radix-indicator}.  You cannot mix two
+different inter-comma distances, i.e.~both 3 and 4,
+in the same {\em radix-number}.
 
 {\em Radix-numbers} may be unconvertible to numbers.  Such are
 called \skey{illegal radix number}s.  The following are some examples
@@ -1987,14 +2005,14 @@ using standard {\em radix-indicators}:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-B"5,7b63"	& O"2/3456"	& D"-0.1"	& X".E8A932B.7CCD"
+B\#"5,7b63"	& O\#"2/3.456"	& D\#"-0.1"	& X\#".E8A932B.7CCD"
 \end{tabular}
 \end{indpar}
 
 When a {\em radix-number} is encountered during number lexical parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
-\verb|B"10011"| is input to number lexical parsing,
-\verb|(# B "10011" #)| will be output.
+\verb|B#"10011"| is input to number lexical parsing,
+\verb|(# B # "10011" #)| will be output.
 
 Radix numbers are recognized after indentation lexemes have been
 inserted.
@@ -2014,7 +2032,7 @@ inserted.
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
-\key{function-name} ::= {\em symbol} {\em symbol}\,$^\star$
+{\em function-name} ::= see \pagref{FUNCTION-NAME}
 \end{indpar}
 
 Given such a definition, the defined {\em radix-indicator}
@@ -2027,8 +2045,8 @@ either a number if conversion is successful, or an error message
 otherwise.
 
 
-\subsubsection{Scientific Number Identification}
-\label{SCIENTIFIC-NUMBER-IDENTIFICATION}
+\subsubsection{Scientific Number Recognition}
+\label{SCIENTIFIC-NUMBER-RECOGNITION}
 
 A {\em scientific-number} is a {\em decimal-number} or a {\em radix-number}
 followed by an exponent.
@@ -2051,33 +2069,84 @@ standard radix indicators:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-123e0		& -123e+2	& +123e-321	& 1,234e9 \\
-123E0		& -123E+2	& +123E-321	& -0.123,456e-3	\\
-.123\verb|e|0	& -.123\verb|e|+2
-				& -0.123,456e-3 & -1,234.567890\verb|e|6 \\
-X\#a9\#e0	& B\#1011\#e-3	& O\#0.7753\#e-5
-					    & X\#0.FE8A,932B,E\#\verb|e|+5 \\
+123e0		& 123e+2	& 123e-321	& 1,234e9 \\
+123E0		& 123E+2	& 123E-321	& 0.123,456e-3	\\
+.123e0	& .123e+2
+				& 0.123,456e-3 & 1,234.567890e6 \\
+X\#"a9"e0	& B\#"1011"e-3	& O\#"0.7753"e-5
+					    & X\#"0.FE8A,932B,E"e+5 \\
 \end{tabular}
 \end{indpar}
 
 Note that exponents cannot contain commas.
 
 The digits in an exponent are always decimal, even when the number has
-a radix indicator such as {\tt B} or {\tt X} that indicates a different
+a radix indicator such as {\tt B\#} or {\tt X\#} that indicates a different
 radix.  However, the interpretation of the exponent depends upon the
 radix indicator.  Standard radix indicators interpret the exponent as
 multiplication by their radix to the exponent power.  Thus
-{\tt B"1101"e-2} and {\tt B"11.01"} are both equal to {\tt 3.25}.
+{\tt B\#"1101"e-2} and {\tt B\#"11.01"} are both equal to {\tt 3.25}.
 
-When a {\em scientific} is encountered during number lexical parsing,
+When a {\em scientific-number} is encountered during number lexical parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
-\verb|B"1101"e-2| is input to number lexical parsing,
+\verb|B\#"1101"e-2| is input to number lexical parsing,
 \begin{center}
-\verb|(# (# B "10011" #) e - 2 #)|
+\verb|(# (# B # "10011" #) e - 2 #)|
 \end{center}
 will be output.
 
+An \key{illegal scientific number} is a {\em scientific number}
+that cannot be converted to a number.  These include
+{\em scientific numbers} whose number lexemes are illegal,
+and {\em scientific numbers} with no or standard radix indicators
+whose number lexemes contain a slash (\verb|/|).
+The following are some examples of illegal scientific numbers:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+1,23e6	& 3/4e2	& B\#"5,7b63"e32  & O\#"2/3"e-2	& X\#".E.7"e-4
+\end{tabular}
+\end{indpar}
+
 Scientific numbers are recognized after radix numbers have been
+recognized.
+
+\subsubsection{Number Pair Recognition}
+\label{NUMBER-PAIR-RECOGNITION}
+
+A \key{number pair} is a pair of {\em decimal-numbers}, the first
+of which is in integer and the second of which is a fraction
+containing a slash.
+
+\begin{indpar}
+\key{number-pair} ::= {\em decimal-integer}
+		   {\em decimal-numerator} \verb|/| {\em decimal-denominator}
+		   \\[1ex]
+{\em decimal-integer} ::= see \pagref{DECIMAL-INTEGER} \\[1ex]
+{\em decimal-numerator} ::= see \pagref{DECIMAL-NUMERATOR} \\[1ex]
+{\em decimal-denominator} ::= see \pagref{DECIMAL-DENOMINATOR}
+\end{indpar}
+
+Some examples of number pairs are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~~~~~~~~}l@{~~~~~~~~~~}l@{~~~~~~~~~~}l}
+1 1/2	& 55 3/4	& 174 15/16  & 1,234,567 2,875/3,408
+\end{tabular}
+\end{indpar}
+
+When a {\em number-pair} is encountered during number lexical parsing,
+it is surrounded by \verb|(# #)| implicit brackets and a \verb|+| is
+inserted between its two parts.  Thus if
+\verb|41 3/4| is input to number lexical parsing,
+\verb|(# 41 + 3/4 #)|
+will be output.
+
+A number pair is illegal if either of its two parts is illegal.
+
+Number pairs are recognized after scientific numbers have been
 recognized.
 
 \subsubsection{Number Unit Grouping}
@@ -2111,29 +2180,40 @@ must be defined as a {\em unit-specifier-name} by the following:
 	    {\em unit-specifier-fixity} \\
 	    {\em unit-specifier} {\em parsing-selectors}
 	    \end{tabular} \\[1ex]
-\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix}
+\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
+{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}%
 \label{UNIT-SPECIFIER-DEFINITION}
 
-The \key{number unit grouping}\label{NUMBER-UNIT-GROUPING} phase of lexical
+The \key{number unit grouping} phase of lexical
 parsing recognizes {\em number-unit-groups} containing more than
 one {\em number-unit-pair}, places
-implied parentheses around them, and places implied `\verb|+|' operators
+\verb|(# #)| implied brackets around them,
+and places implied `\verb|+|' operators
 between their {\em number-unit-pairs}.  This is done after lexeme replacement
 (\secref{LEXEME-REPLACEMENT}).
 
-For example, `\verb|7 hr 30 min|' is a {\em number-unit-group} containing
+For example, if `\verb|hr|' and `\verb|min|'
+are {\em postfix-unit-specifiers},
+`\verb|7 hr 30 min|' is a {\em number-unit-group} containing
 2 {\em number-unit-pairs} that number unit grouping transforms into
-`\verb/(# 7 hr + 30 min #)/', where \verb/(# #)/ are implied brackets
-(\pagref{IMPLIED-BRACKETS}).
+\begin{center}
+\verb/(# 7 hr + 30 min #)/
+\end{center}
+As another example,
+if `\verb|ft|' and `\verb|in|' are {\em postfix-unit-specifiers},
+`\verb|12ft 11 3/4in|' becomes
+\begin{center}
+\verb|(# 12 ft + (# 11 + 3/4 #) in #)|
+\end{center}
 
-Number unit groups are recognized after scientific numbers have been
+Number unit groups are recognized after number pairs have been
 recognized.
 
-\subsubsection{Unit Multiplier Insertion}
-\label{UNIT-MULTIPLIER-INSERTION}
+\subsubsection{Unit Multiplication Insertion}
+\label{UNIT-MULTIPLICATION-INSERTION}
 
-The \key{unit multiplier insertion} phase of lexical
+The \key{unit multiplication insertion} phase of lexical
 parsing inserts a multiplication operator lexeme, `\verb|*|',
 before a {\em postfix-unit-specifier}, and
 after a {\em prefix-unit-specifier}, unless the point at which the
@@ -2145,18 +2225,18 @@ For example, if `\verb|sec|', `\verb|ft|', and `\verb|lb|'
 are {\em postfix-unit-specifiers},
 then
 \begin{indpar}\begin{verbatim}
-some function ( 3 ft 2 in / sec,
+some function ( 3 ft 2 1/4 in / sec,
                 9 ft ^ 2 lb / sec,
                 $3.50 )
 \end{verbatim}\end{indpar}
 becomes
 \begin{indpar}\begin{verbatim}
-some function ( (# 3 * ft + 2 * in #) / sec,
+some function ( (# 3 * ft + (# 2 + 1/4 #) * in #) / sec,
                 9 * ft ^ 2 * lb / sec,
                 $ * 3.50 )
 \end{verbatim}\end{indpar}
 
-Unit multiplier insertion is done after number unit groups have been
+Unit multiplication insertion is done after number unit groups have been
 recognized.
 
 \section{Expression Parsing}\index{parsing!expression}
