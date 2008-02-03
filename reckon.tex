@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 2, 2008}
+\date{February 3, 2008}
  
 \maketitle
 
@@ -2242,17 +2242,18 @@ recognized.
 \section{Expression Parsing}\index{parsing!expression}
 \label{EXPRESSION-PARSING}
 
-An \key{expression} is a sequence of words, separators, and subexpressions.
-A \key{subexpression} is a pair of matched lexemes called
+An \key{expression} is a sequence of symbols, separators, and subexpressions.
+A \key{subexpression} is a pair of matched lexeme sequences called
 \skey{bracket}s, e.g.~\verb|( )| or
 \verb|` '|, and all the lexemes in between.
 There are many kinds of brackets: for example, \skey{square bracket}s
 \verb|[ ]|, \skey{curly bracket}s \verb|{ }|, \key{parentheses} \verb|( )|,
-and \skey{quote}s \verb|` '|.
+\key{implied parentheses} \verb/(| |)/, and
+\skey{quote}s \verb|` '|.
 
-Expressions and subexpressions can contain lexeme sequences called
+Some expressions and subexpressions can contain lexeme sequences called
 \skey{operator}s.  When they do,
-matched \ikey{implied parentheses}{implied parenthesis}
+matched \ikey{implied parentheses}{implied parenthesis} \verb/(| |)/
 are inserted into the expressions or subexpressions
 according to rules of operator precedence, and these
 implied parentheses create new subexpressions.
@@ -2260,39 +2261,48 @@ Certain lexemes used to separate elements of lists,
 such as `{\tt ,}' and `{\tt ;}',
 are treated as operators during parsing.
 
+Some expressions and subexpressions can contain lexeme sequences called
+\skey{sentence terminator}s and \skey{phrase separator}s.  When they do,
+matched \ikey{implied brackets}{implied brackets} are inserted around
+paragraphs, sentences, and phrases.  A paragraph becomes a list of
+sentences surrounded by the implied \verb|(* *)| brackets, a sentence
+becomes a list of symbols, separators, subexpressions, and phrases
+surrounded by the implied \verb|<* *>| brackets, and so forth.
+
 A process called \key{expression parsing}\index{parsing!expression}
-inserts implied parentheses into expressions,
+inserts implied brackets into expressions,
 further reformats some expressions,
 and associates evaluators with some subexpressions.
 The evaluator of a subexpression
 is a function that is eventually called to evaluate the subexpression.
 
-Brackets control the parser used
+Explicit brackets control the parser used
 to parse the subexpression they surround.  The set of backets and operators
 this parser recognizes is also controlled.
-For example, \verb|` '| invokes a text parser that
-inserts parentheses around sentences, paragraphs, etc., turning these
-into lists of words, lists of sentences, etc.
+For example, \verb|` '| invokes the text parser that
+recognizes sentence terminators and phrase separators, while
+\verb|{ }| invokes the operator parser that recognizes operators
+and list separators.
 
 \subsection{Subexpressions}
 \label{SUBEXPRESSIONS}
 
 The first step in expression parsing is to identify \skey{subexpression}s within
-an expression, without inserting any implied parentheses,
+an expression, without inserting any implied brackets,
 by applying the following syntax equations.
 
 \begin{indpar}
 \key{EXPRESSION} ::= {\em expression-item}\,$^\star$ \\[1ex]
-\key{expression-item} ::= {\em word} $|$ {\em separator}
+\key{expression-item} ::= {\em symbol} $|$ {\em separator}
 				     $|$ {\em subexpression} \\[1ex]
 \key{subexpression} ::= {\em opening-bracket} {\em EXPRESSION}
 			{\em closing-bracket} \\[1ex]
 \key{opening-bracket} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$ \\[1ex]
+	\{ {\em symbol} $|$ {\em separator} \}
+	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$ \\[1ex]
 \key{closing-bracket} ::=
-	\{ {\em word} $|$ {\em separator} \}
-	\{ {\em word} $|$ {\em separator} \}\,$^\star$
+	\{ {\em symbol} $|$ {\em separator} \}
+	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$
 \end{indpar}\label{EXPRESSION-ITEM}
 
 The {\em opening-bracket} and {\em closing-bracket} of a subexpression
@@ -2300,7 +2310,9 @@ are a matched pair of brackets specified by a bracket definition
 (\secref{BRACKET-DEFINITION}).
 
 The subexpressions identified by this rule have explicit
-brackets.  Below we introduce subexpressions with operators
+brackets.  These subexpressions are actually identified by the
+indentation lexeme insertion algorithm (\secref{INDENTATION-LEXEME-INSERTION}).
+Below we introduce subexpressions with operators
 that have implicit brackets.
 
 The syntactic category name {\em EXPRESSION} is capitalized because in
@@ -2318,7 +2330,7 @@ sentence terminators, section initiators, lexeme replacements,
 and unit specifiers.
 The \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK}
 contains parsing selector sets.  A \key{parsing selector} is
-a sequence of one or more words that can be attached to parsing definitions.
+a sequence of one or more symbols that can be attached to parsing definitions.
 A \key{parsing selector set}
 is a set of parsing selectors that selects those parsing stack definitions
 which share at least one parsing selector with the set.
@@ -2505,7 +2517,7 @@ Parser definitions have the syntax:
 \key{parser-definition}
 	::= \verb|define parser| {\em parser-name}
 				{\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em word} {\em word}\,$^\star$ \\[1ex]
+\key{parser-name} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 {\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
 \end{indpar}
 
@@ -2836,7 +2848,7 @@ Parsers can be pushed onto the parsing stack.
 The parser used for subexpressions of an expression is the parser
 nearest the top of the parsing stack.
 
-The \verb|parser| of an operator definition is an optional word that
+The \verb|parser| of an operator definition is an optional symbol sequence that
 names a parser.  If present, a {\em PARSER-DEFINITION}
 (\pagref{PARSER-DEFINITION}) naming the parser is pushed onto the parsing
 stack before subexpressions are parsed, and popped from the parsing stack
