@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 3, 2008}
+\date{February 5, 2008}
  
 \maketitle
 
@@ -410,14 +410,14 @@ and paragraphs.  You can calculate with these `\skey{document expression}s'.
 \verb|`|hello\verb|'| \\
 \verb|> `[g] there'| \\
 \verb|`|hello there\verb|'| \\
-\verb|> z = ``I thought he said `[[g]]'.''| \\
-\verb|``|I thought he said `hello'.\verb|''| \\
-\verb/> notice = ``|This document is meant to be read./ \\
-\verb/+            |Reading this document is good, but.../ \\
-\verb/+            |[z].''/ \\
-\verb|``|This document is meant to be read. \\
-\verb|  |Reading this document is good, but\ldots \\
-\verb|  |I thought he said `hello'.\verb|''| \\
+\verb|> z = `I thought he said `[[g]]'.'| \\
+\verb|`|I thought he said `hello'.\verb|'| \\
+\verb/> notice = `|This document is meant to be read./ \\
+\verb/+           |Reading this document is good, but.../ \\
+\verb/+           |[z].'/ \\
+\verb|`|This document is meant to be read. \\
+\verb| |Reading this document is good, but\ldots \\
+\verb| |I thought he said `hello'.\verb|'| \\
 \verb|> `When you add [x] and [y] you get [x+y].'| \\
 \verb|`|When you add 9 and 17 you get 26.\verb|'|
 \end{indpar}
@@ -776,10 +776,9 @@ For this reason CASTLE lists are sometimes called `\skey{flat list}s'.
 
 CASTLE has different kinds of quotes or brackets.  The brackets
 \verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|,
-\verb|``|\ldots\verb|''| turn
+turn
 evaluation off, while \verb|[|\ldots\verb|]| turns evaluation on.
-The brackets \verb|`|\ldots\verb|'|,
-\verb|``|\ldots\verb|''| turn
+The brackets \verb|`|\ldots\verb|'| turn
 recognition of operators (e.g., \verb|+| and \verb|=|) off, and turn
 recognition of phrase sepators (e.g., `\verb|,|' and `\verb|;|') and
 sentence terminators (e.g., `\verb|.|' and `\verb|?|') on, while
@@ -880,8 +879,8 @@ You can also change how an expression is displayed.
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture} \\
-\verb|> ``(a person named `Jill') is wife of (a person named `Jack')''| \\
-\verb|``|
+\verb|> `(a person named `Jill') is wife of (a person named `Jack')'| \\
+\verb|`|
 \raisebox{\ovalraise}{\begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jill}}
@@ -891,7 +890,7 @@ You can also change how an expression is displayed.
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture}}
-\verb|''|
+\verb|'|
 \end{indpar}
 
 Displays can be used to make demonstrations:
@@ -1128,10 +1127,6 @@ contains in order the following lexemes:
 \key{number} ::= {\em number-character} {\em number-character}\,$^\star$ \\[1ex]
 \key{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
-\key{quote} \begin{tabular}[t]{rl}
-	    ::= & \verb|`| \verb|`|\,$^\star$  \\
-	    $|$ & \verb|'|$^\star$ \verb|'| not followed by a letter
-	    \end{tabular} \\[1ex]
 \key{separator} ::= {\em separator-character} \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
@@ -1169,8 +1164,10 @@ contains in order the following lexemes:
 	       	    $|$ \verb|]|
 	       	    $|$ \verb|{|
 	       	    $|$ \verb|}|
-	       	    $|$ \verb|;| \\
+	       	    $|$ \verb|;|
+	       	    $|$ \verb|`| \\
 		$|$ & \verb|,| not surrounded by {\em digits} \\
+		$|$ & \verb|'| not followed by a letter 
 		    \end{tabular}\\[1ex]
 \key{number-character} \begin{tabular}[t]{rl}
 		::= &   {\em digit} \\
@@ -1316,9 +1313,8 @@ A \key{separator} is a \underline{single} separator character.
 A \key{number} is a sequence of digits, decimal points
 which are always followed by a digit, commas that are
 both preceeded and followed by digits, and slashes that are
-both preceeded and followed by digits.  A \key{quote} is either a sequence
-of \verb|`| characters or a sequence of \verb|'| characters, but in the latter
-case, the quote must not be followed by a letter.  A quoted string is
+both preceeded and followed by digits.
+A quoted string is
 a sequence of \skey{character representative}s surrounded by
 the double quote character (\ttnbkey{"}), where most characters
 are their own representatives (\verb|A|, \verb|B|, \verb|0|, \verb|1|,
@@ -1327,13 +1323,13 @@ characters that begin with a backslash (e.g., \verb|\n| represents
 a new line character).
 
 A \ttnbkey{'} is a word character if it is followed by a letter,
-and part of a quote otherwise.
+and a separator character otherwise.
 A \verb|.| is a number character (decimal point) if it
 is followed by a digit, and a mark character otherwise.
 A \ttnbkey{,} is a number character if surrounded by digits, and
-a separator otherwise.
+a separator character otherwise.
 A \ttnbkey{/} is a number character if surrounded by digits, and
-a separator otherwise.
+a mark character otherwise.
 
 Lexemes may be separatated by \key{white-space}, which
 is a sequence of white-space characters (single space, horizontal tab, form
@@ -1347,7 +1343,6 @@ to distinguish them from separators.
 Unless specified otherwise, a unquoted symbol may be quoted without changing
 its meaning; i.e., \verb|fie| and \verb|5.9| mean the same thing
 as \verb|"fie"| and \verb|"5.9"|.  However, to be a symbol a separator
-or quote
 must be quoted (e.g., \verb|","| and \verb|"`"|), and to protect a symbol from
 a special interpretation by a parser the symbol must be quoted
 (e.g., \verb|"+"| will not be recognized as an operator in a context
@@ -2027,7 +2022,9 @@ inserted.
 					    {\em parsing-selectors} \\
 	    			& \verb|with conversion function|
 				    {\em function-name} \\
-		     \end{tabular} \\[1ex]
+		     \end{tabular}
+\label{RADIX-INDICATOR-DEFINITION}
+		     \\[1ex]
 \key{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
@@ -2179,11 +2176,12 @@ must be defined as a {\em unit-specifier-name} by the following:
 	    \begin{tabular}[t]{l}
 	    {\em unit-specifier-fixity} \\
 	    {\em unit-specifier} {\em parsing-selectors}
-	    \end{tabular} \\[1ex]
+	    \end{tabular}
+\label{UNIT-SPECIFIER-DEFINITION}
+	    \\[1ex]
 \key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
-\end{indpar}%
-\label{UNIT-SPECIFIER-DEFINITION}
+\end{indpar}
 
 The \key{number unit grouping} phase of lexical
 parsing recognizes {\em number-unit-groups} containing more than
@@ -2248,29 +2246,28 @@ A \key{subexpression} is a pair of matched lexeme sequences called
 \verb|` '|, and all the lexemes in between.
 There are many kinds of brackets: for example, \skey{square bracket}s
 \verb|[ ]|, \skey{curly bracket}s \verb|{ }|, \key{parentheses} \verb|( )|,
-\key{implied parentheses} \verb/(| |)/, and
-\skey{quote}s \verb|` '|.
+and \skey{quote}s \verb|` '|.
 
 Some expressions and subexpressions can contain lexeme sequences called
 \skey{operator}s.  When they do,
-matched \ikey{implied parentheses}{implied parenthesis} \verb/(| |)/
+matched \ikey{implicit brackets}{implicit brackets} \verb/(| |)/
 are inserted into the expressions or subexpressions
 according to rules of operator precedence, and these
-implied parentheses create new subexpressions.
+implicit brackets create new subexpressions.
 Certain lexemes used to separate elements of lists,
 such as `{\tt ,}' and `{\tt ;}',
 are treated as operators during parsing.
 
 Some expressions and subexpressions can contain lexeme sequences called
 \skey{sentence terminator}s and \skey{phrase separator}s.  When they do,
-matched \ikey{implied brackets}{implied brackets} are inserted around
+matched \ikey{implicit brackets}{implicit brackets} are inserted around
 paragraphs, sentences, and phrases.  A paragraph becomes a list of
-sentences surrounded by the implied \verb|(* *)| brackets, a sentence
+sentences surrounded by implicit \verb|(* *)| brackets, a sentence
 becomes a list of symbols, separators, subexpressions, and phrases
-surrounded by the implied \verb|<* *>| brackets, and so forth.
+surrounded by implicit \verb|<* *>| brackets, and so forth.
 
 A process called \key{expression parsing}\index{parsing!expression}
-inserts implied brackets into expressions,
+inserts implicit brackets into expressions,
 further reformats some expressions,
 and associates evaluators with some subexpressions.
 The evaluator of a subexpression
@@ -2288,7 +2285,7 @@ and list separators.
 \label{SUBEXPRESSIONS}
 
 The first step in expression parsing is to identify \skey{subexpression}s within
-an expression, without inserting any implied brackets,
+an expression, without inserting any implicit brackets,
 by applying the following syntax equations.
 
 \begin{indpar}
@@ -2341,7 +2338,8 @@ definitions the set selects
 are call the \skey{current parsing definition}s.%
 \label{CURRENT-PARSING-DEFINITION}
 
-If a subexpression begins and ends with matched brackets, a parsing selector
+If a subexpression begins and ends with matched explicit
+brackets, a parsing selector
 set determined by the bracket definition (\secref{BRACKET-DEFINITION})
 may be pushed into the parsing
 selector set stack before parsing the subexpression.  At the end of
@@ -2360,8 +2358,6 @@ operator  & \verb|[|\ldots\verb|]|	& list \\
 list	  & \verb|[|\ldots\verb|]|	& list \\
 text      & \verb|[|\ldots\verb|]|	& operator \\
 -	  & \verb|`|\ldots\verb|'|	& text     \\
--	  & \verb|``|\ldots\verb|''|	& text     \\
--	  & \verb|```|\ldots\verb|'''|	& text     \\
 \end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
@@ -2385,6 +2381,7 @@ parser & \secref{PARSER-DEFINITION} \\
 bracket & \secref{BRACKET-DEFINITION} \\
 operator & \secref{OPERATOR-DEFINITION} \\
 lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
+radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
 phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
 sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
@@ -2399,9 +2396,9 @@ parser.  There are two standard parsers:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	 &            &            & Does	& Does \\
-	 & Recognizes & Recognizes & Lexical	& Text \\
-Parser	 & Brackets   & Operators  & Parsing	& Parsing \\[1ex]
+	 &            &            & Does	& Recognizes \\
+	 & Recognizes & Recognizes & Lexical	& Sentences, \\
+Parser	 & Brackets   & Operators  & Parsing	& Phrases, etc. \\[1ex]
 
 operator & yes	      & yes        & yes 	& no \\
 text     & yes	      & no         & yes        & yes \\
@@ -2415,13 +2412,13 @@ operators whose definitions are current
 whereas the `text' parser has a definition selected
 by the `text' selector, and recognizes phrase separators, sentence
 terminators, and section initiators whose definitions are current.
-The 'operator' praser does \underline{not} recognize
+The 'operator' parser does \underline{not} recognize
 any phrase separators, sentence terminators, or section initiators,
 and the `text'
 parser does \underline{not} recognize any operator
 definitions.
 Both operator and text parsers recognize brackets and do lexical
-parsing, but the most standard bracket definitions and all standard
+parsing, but all standard
 lexical parsing definitions do not have the `text' parsing selector,
 and therefore are ignored by standard text parsing.
 
@@ -2433,7 +2430,7 @@ these definitions will be popped from the stack.
 
 \ikey{Implicit brackets}{implicit brackets} introduced by parsers
 can also be represented explicitly, though this is mostly done
-for purposes of debugging.  For example, the implicit parentheses
+for purposes of debugging.  For example, the implicit brackets
 introduced by operators are represented by \verb@(| |)@.
 Other kinds of implicit brackets are introduced by the text parser.
 Here is a complete list of implicit brackets and the kinds of subexpressions
@@ -2442,16 +2439,16 @@ they surround:
 \begin{center}
 \begin{tabular}{l@{~~~~~~}l}
 \verb@(| |)@	& Operator subexpressions and list elements. \\
-\verb@<| |>@	& Phrases inside sentences or phrases. \\
-\verb@<* *>@	& Sentences. \\
-\verb@(* *)@	& Paragraphs. \\
-\verb@[* *]@	& Sections, sub-sections, sub-sub-sections, etc. \\
-\verb@{* *}@	& Chapters.
+\verb@<* *>@	& Phrases inside sentences. \\
+\verb@(* *)@	& Sentences. \\
+\verb@[* *]@	& Paragraphs. \\
+\verb@{* *}@	& Parts, chapters, sections, sub-sections, etc. \\
 \end{tabular}
 \end{center}\label{IMPLIED-BRACKETS}
 
 
-The operators parser with the `operators' parsing selector recognizes
+For example,
+the operators parser with the `operators' parsing selector recognizes
 the operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
 \begin{center}
 \verb|x + y - 5 * z|
@@ -2473,18 +2470,18 @@ The text parser, which is invoked by
 \verb|`'| quotes, recognizes the phrase separator `\verb|,|' and
 the sentence terminator `\verb|!|' and turns
 \begin{center}
-\verb|``I think!  Therefore, I am!''|
+\verb|`I think!  Therefore, I am!'|
 \end{center}
 into
 \begin{center}
-\verb@(* <* I think ! *> <* Therefore , <| I am |> ! *> *)@
+\verb@[* (* I think ! *) (* Therefore , <* I am *> ! *) *]@
 \end{center}
 
 In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
 by parsers, though lexical parsing definitions standardly do not have
 the `text' selector and are therefore standardly not active during
 text parsing.  During lexical parsing, number unit grouping
-(\pagref{NUMBER-UNIT-GROUPING}) can insert implied parentheses.
+(\pagref{NUMBER-UNIT-GROUPING}) can insert implicit brackets.
 
 Bracket and operator definitions may specify reformatters
 which reformat subexpressions after they have been normally parsed.
@@ -2825,16 +2822,16 @@ a definitional operator during parsing.
 \subsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
 \label{OPERATOR-PRECEDENCE}
 The precedence of an operator is an integer.  Precedence is used to
-determine which operators are inside and outside implicit parentheses.
-Operators with higher precedence are placed inside the implicit
-parentheses that surround operands of operators of lower precedence.
+determine which operators are inside and outside implicit brackets.
+Operators with higher precedence are placed inside the 
+implicit brackets that surround operands of operators of lower precedence.
 
 The precedence
 in an operator definition applies only to the operator when it is used
 as an infix or nofix operator; prefix and postfix operators are always
 treated as having precedence higher than any infix or nofix operator.
 If several prefix and postfix operators apply to a single operand,
-the prefix operators are all inside the implied parentheses surrounding
+the prefix operators are all inside the implicit brackets surrounding
 the postfix operator operands (i.e., the prefix operators are
 `executed first').
 
@@ -2894,9 +2891,7 @@ argument, \verb|<:>| reorder, \verb|::>| remainder,
 
 \ikey{Text parsing}{text parsing} is performed by the \ttkey{-TEXT-PARSER-},
 which is the parser for subexpressions of the
-\verb|`|...\verb|'|,
-\verb|``|...\verb|''|,
-\verb|```|...\verb|'''|, etc. matchfix operators.
+\verb|`|...\verb|'|, etc. matchfix operators.
 The \verb/|/ format separator and sentence and paragraph ends are
 recognized by text processing, while
 operators, qualifiers, qualifier shortcuts, and
@@ -3034,8 +3029,8 @@ Some examples follow:
 \verb|[-SENTENCE- she hit the ball .]|
 \\[2ex]
 \begin{tabular}{@{}l@{}}
-\verb|``^Bill swung.| \\
-\verb|  But he missed!''|
+\verb|`^Bill swung.| \\
+\verb|  But he missed!'|
 \end{tabular}
 & parses as &
 \begin{tabular}{@{}l@{}}
@@ -3044,11 +3039,11 @@ Some examples follow:
 \end{tabular}
 \\[5ex]
 \begin{tabular}{@{}l@{}}
-\verb|``^I liked| \\
+\verb|`^I liked| \\
 \verb|  the party.| \\
 \verb|| \\
 \verb|  Later, we caught| \\
-\verb|  the bus.''|
+\verb|  the bus.'|
 \end{tabular}
 & parses as &
 \begin{tabular}{@{}l@{}}
@@ -3227,9 +3222,9 @@ the entire output list becomes an operand, this operand is reformatted
 by the reformatter of its lead operator definition, if any,
 and then the output list is
 replaced by a list whose only {\em expression-item} is this operand.
-This effectively inserts implied parentheses around the output list.
+This effectively inserts implicit brackets around the output list.
 Note that after this has been done, the output list no longer contains
-any operators (i.e., operators outside implied parentheses).
+any operators (i.e., operators outside implicit brackets).
 
 \item If the output list is empty
 and the operator cannot be nofix or prefix, then an error operand
@@ -3346,7 +3341,7 @@ An example of a tabular paragraph is:
 A paragraph that is not tabular is \ikey{free-form}{paragraph}.
 Each free-form paragraph is scanned for explicitly bracketted subexpressions,
 phrase separators, and sentence terminators.  The paragraph is divided into
-sentences using sentence terminators outside parentheses, and each sentence
+sentences using sentence terminators outside brackets, and each sentence
 is given \verb|<* *>| implicit brackets.
 Each sentence is then divided into
 phrases if it has any phrase separators, and 
@@ -4483,7 +4478,7 @@ atoms are specially represented by a list with one element and the
 				   \index{scanning!operator}~~~~
 The object representation is scanned for operators
 and modified by replacing subsequences of elements representing
-subexpressions with implied parentheses with sublists, and by
+subexpressions with implicit brackets with sublists, and by
 adding {\tt .parser} attribute values to some of the list objects.
 
 \item[(3)] \ikey{Parser Expansion}{parser expansion}%
@@ -4761,7 +4756,7 @@ In describing effects, we use notation such as
 \end{center}
 
 Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
-parentheses introduced by the rewrite are \underline{implicit},
+parentheses introduced by the rewrite are \underline{implied},
 which means that the lists they bracket have \underline{no}
 \verb|.initiator| or \verb|.terminator|, and the parentheses are
 merely written here to indicate sublists in the expression structure.
@@ -4861,7 +4856,7 @@ or {\tt OR} function and a single argument {\tt NOT} function.
 Note that {\tt NOT} is not a classical prefix operator, which would have
 higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
 and {\tt OR} may not be used in the same logical expression without using
-explicit parentheses.
+explicit brackets.
 \end{indpar}
 
 \bigskip
