@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 5, 2008}
+\date{February 6, 2008}
  
 \maketitle
 
@@ -1347,6 +1347,1594 @@ must be quoted (e.g., \verb|","| and \verb|"`"|), and to protect a symbol from
 a special interpretation by a parser the symbol must be quoted
 (e.g., \verb|"+"| will not be recognized as an operator in a context
 in which \verb|+| would be).
+
+\section{Data}
+
+A \key{datum} in MIN is either an atom, an object, or an arrow.
+
+An \key{atom} is either a symbol (word, mark, separator, or quoted string) or a
+number.
+
+An object is just a place in memory, and is like a dot on a blank page.
+It can be the source or target of arrows, and it is different from
+every other object and from every atom.  But it is nothing more.
+
+However, as a place in memory, an object has a name.  Objects are assigned
+\skey{raw object name}s
+of the form `\ttmnbkey{\#\#}{in raw object name}$I$' where $I$
+is an integer.  Raw object names of this form are assigned only to objects
+that must be named in an output stream (e.g., printed output).
+The first object named in output stream is assigned the name
+\verb|##1|, the second object named in output the name \verb|##2|,
+and so forth.  The same object may be assigned different names in different
+output streams.\footnote{A possible implementation is to give objects that
+have been assigned names in an output stream a hidden system defined output
+stream specific attribute (\pagref{ATTRIBUTE})
+equal to the object's name integer.  Another implementation uses a
+hash table per stream.}
+
+There are two kinds of arrows: single and double.
+
+A \key{single arrow} is an arrow from an object to either another object
+or to an atom.  The arrow has a label, which is a sequence of zero or
+more atoms.
+
+A \key{double arrow} is a double headed arrow between two objects.
+It has a separate label for each direction, with each label being a
+sequence of zero or more atoms.  A double arrow is equivalent to a
+\underline{related pair}
+of single arrows going in opposite directions between the same two objects.
+The difference between a double arrow and a pair of single arrows is that
+it is possible to delete only one direction of a pair of single arrows, but 
+when deleting a double arrow, both directions are deleted.
+
+An \key{arrow label} is a sequence of zero or more atoms.
+Two arrows leaving the same object may have the same label.  Thus
+an object and an arrow label together name
+a set of arrows sourced at the object.
+
+\ikey{Arrow flags}{arrow flag} may be attached to arrow labels.
+More precisely, a set of arrow flags is defined for each object
+and each arrow label, and these flags apply to all arrows sourced at the
+object that have the given label.
+The standard flags are the \key{dot flag} (\ttmkey{.}{dot flag}),
+and the \key{maybe flag} (\ttmkey{?}{maybe flag}).
+Arrows with a dot flagged label are not to be output when their source
+is output.
+Targets of arrows with a maybe flagged label may be garbage collected
+(made to disappear automatically, see \secref{GARBAGE-COLLECTION})
+if they cannot be reached except by traversing arrows whose labels
+have maybe flags.
+
+We will give examples in the next section along with a basic way of
+representing sets of objects in text.  In the rest of this document
+arrows are called \skey{attribute}s,\label{ATTRIBUTE} arrow labels are called
+\skey{attribute name}s, arrow flags are called \skey{attribute flag}s,
+and arrow targets are called \skey{attribute value}s.
+Also `\ikey{attribute L of object O}{attribute!of an object}'
+denotes the set of all values (arrow targets) of attributes
+of object O (arrows sourced at O) which have the attribute label
+(arrow label) L.
+
+A double arrow is called a \key{double attribute}.  When viewed from
+an object at one end of the double arrow, the double arrow is an
+attribute of that object, the label of the arrow directed away from that object
+is the \mkey{attribute label}{of double attribute} of the double attribute,
+and the label of the arrow directed toward the object is the
+\mkey{reverse attribute label}{of double attribute} of the double attribute.
+
+
+\subsection{Raw Representations}
+\label{RAW-REPRESENTATIONS}
+
+A set of objects can be written to a text file or read from a text file.
+When this is done, a textual representation of the object set is used
+in the file.  The simplest representation is the raw representation,
+which we now describe.
+
+The format of a \key{raw representation} is:
+
+\begin{indpar}
+\begin{tabular}{l}
+\emkey{raw-representation} ::= {\em raw-object-representation} \ldots
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-object-representation} ::=
+    {\em raw-object-header}
+    {\em raw-attribute-representation} \ldots
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-object-header}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em object-name} \ttmkey{::}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>|{\tt \bf :}%
+          \ttmindex{>:}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>>|{\tt \bf :}%
+          \ttmindex{>>:}{in {\em raw-object-header}} \\
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em raw-single-attribute-representation} \\
+    $|$ & {\em raw-double-attribute-representation}
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-single-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em single-attribute-value}
+	\ttmkey{;;}{in {\em raw-single-attribute}!{\em -representation}}
+\end{tabular}%
+\index{value!attribute}
+
+\begin{tabular}{l}
+\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-double-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em double-attribute-value}
+\\\hspace*{1in}
+	{\em attribute-label-initiator} {\em reverse-attribute-label}
+	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{double-attribute-value} ::= {\em object-name}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{object-name} ::=
+	\ttmnbkey{\#\#}{in {\em object-name}} {\em non-negative-integer}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-label} ::= {\em atom} \ldots
+\end{tabular}%
+\index{label!attribute}
+
+\begin{tabular}{l}
+\emkey{reverse-attribute-label} ::= {\em attribute-label}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-label-terminator} ::=
+	{\em flag-character}\ldots{\tt \bf :}%
+	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
+	attribute-label-terminator}~~~~~(a mark)
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-label-initiator} ::=
+	{\tt \bf :}{\em flag-character}\ldots%
+	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
+	attribute-label-initiator}~~~~~(a mark)
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{flag-character} ::= {\em mark-character}
+		except \verb|:|, \verb|<|, or \verb|>|
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{atom} ::= {\em non-special-lexeme}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{special-lexeme}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;;| \\
+    $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
+    \end{tabular}
+\end{tabular}
+\end{indpar}
+
+A simple example of the raw representation of a set of objects is:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    type: woman;;|\\
+\verb|    name: Jill;;|\\
+\verb|    husband: ##2 :wife;;|\\
+\verb|##2::|\\
+\verb|    type: man;;|\\
+\verb|    name: Jack;;|\\
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.7,1.15){\oval(0.8,0.3)}
+\put(0.5,1.00){\vector(0,-1){0.5}}
+\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
+\put(0.5,0.4){\makebox(0,0){\tt woman}}
+\put(0.9,1.00){\vector(0,-1){0.7}}
+\put(0.95,0.55){\makebox(0,0)[l]{\tt name}}
+\put(0.9,0.2){\makebox(0,0){\tt Jill}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(2.3,1.15){\oval(0.8,0.3)}
+\put(2.1,1.00){\vector(0,-1){0.5}}
+\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
+\put(2.1,0.4){\makebox(0,0){\tt man}}
+\put(2.5,1.00){\vector(0,-1){0.7}}
+\put(2.55,0.55){\makebox(0,0)[l]{\tt name}}
+\put(2.5,0.2){\makebox(0,0){\tt Jack}}
+\put(1.1,1.17){\vector(1,0){0.8}}
+\put(1.9,1.13){\vector(-1,0){0.8}}
+\put(1.5,1.15){\oval(0.07,0.12)}
+\put(1.5,1.30){\makebox(0,0){\tt husband}}
+\put(1.5,1.00){\makebox(0,0){\tt wife}}
+\end{picture}
+\end{center}
+
+This represents two objects.
+There are two single attributes of object \verb|##1| (arrows sourced
+at \verb|##1|),
+one attribute labeled {\tt type} whose value (target) is the atom {\tt woman},
+and one attribute labeled {\tt name} whose value is the atom {\tt Jill}.
+There are two similar single attributes from object \verb|##2|.
+There is a double attribute (double arrow)
+between the two objects which has the
+label {\tt husband} when going from \verb|##1| to \verb|##2|
+and the label {\tt wife} when going in the reverse direction.
+
+In order to permit \verb|:| to be used in an attribute label, the following
+\key{quote representation rule} is applied to representations.
+A quoted symbol cannot be recognized as an atom that has special
+meaning in a representation, such as the \verb|::|, \verb|:|,
+\verb|##|, or \verb|;;| atoms in raw representations.  Thus if any
+of these atoms are to be part of an attribute label or value, they should
+be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
+Other than this rule, there is no
+distinction between quoted and unquoted representations of unquoted atoms.
+
+The double-semi-colons (\verb|;;|) at the ends of attribute representations
+may be omitted according to the \key{double-semi-colon representation rule}.
+This rule says that the \ttmkey{;;}{omitting} at the end of an attribute
+representation may be omitted provided the next non-blank line is not
+indented with respect to the first non-white-space character of the
+attribute representation with the omitted \verb|;;|,
+or alternatively if there are no following non-blank lines in the text
+(e.g., in the file).
+Thus the \verb|;;|'s in the example just given may be omitted.
+To detect errors, if a line of an attribute representation is indented by
+just one column with respect to the first non-white-space character of the
+attribute representation, the line is considered to be in error.
+Thus indentations must be by at least two columns.
+
+It is possible to place \skey{attribute flag}s on attribute labels
+by putting flag characters
+before or after the \verb|:| that follows or precedes an attribute label.
+The following is the same as the above example except that flags
+have been added to some of the attributes:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    type: woman;;|\\
+\verb|    name-: Jill;;|\\
+\verb|    husband@: ##2 :@wife;;|\\
+\verb|##2::|\\
+\verb|    type: man;;|\\
+\verb|    name+: Jack;;|\\
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.7,1.15){\oval(0.8,0.3)}
+\put(0.5,1.00){\vector(0,-1){0.5}}
+\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
+\put(0.5,0.4){\makebox(0,0){\tt woman}}
+\put(0.9,1.00){\vector(0,-1){0.7}}
+\put(0.95,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt -}}$}}
+\put(0.9,0.2){\makebox(0,0){\tt Jill}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(2.3,1.15){\oval(0.8,0.3)}
+\put(2.1,1.00){\vector(0,-1){0.5}}
+\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
+\put(2.1,0.4){\makebox(0,0){\tt man}}
+\put(2.5,1.00){\vector(0,-1){0.7}}
+\put(2.55,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt +}}$}}
+\put(2.5,0.2){\makebox(0,0){\tt Jack}}
+\put(1.1,1.17){\vector(1,0){0.8}}
+\put(1.9,1.13){\vector(-1,0){0.8}}
+\put(1.5,1.15){\oval(0.07,0.12)}
+\put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt @}}$}}
+\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt @}}$}}
+\end{picture}
+\end{center}
+
+In the picture the attribute flags have been added as superscripts on the
+attribute labels, and in the text the flags have been added before or after the
+\verb|:| that follows or precedes the attribute label.
+
+Several attributes of the same object (arrows sourced at the object)
+may have the same attribute
+label.  An example of this, in which object \verb|##1| has two
+attributes labeled \verb|child|, is:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    child: ##2 :parent;;|\\
+\verb|    child: ##3 :parent;;|\\
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(2.4,0.3){\tt \#\#1}}
+\put(1.5,1.15){\oval(2.4,0.3)}
+\put(0.65,1.00){\vector(0,-1){0.6}}
+\put(0.60,0.80){\makebox(0,0)[r]{\tt child}}
+\put(0.75,0.40){\vector(0,1){0.6}}
+\put(0.80,0.55){\makebox(0,0)[l]{\tt parent}}
+\put(2.25,1.00){\vector(0,-1){0.6}}
+\put(2.20,0.80){\makebox(0,0)[r]{\tt child}}
+\put(2.35,0.40){\vector(0,1){0.6}}
+\put(2.40,0.55){\makebox(0,0)[l]{\tt parent}}
+\put(0.3,0.10){\makebox(0.8,0.3){\tt \#\#2}}
+\put(0.7,0.25){\oval(0.8,0.3)}
+\put(1.9,0.10){\makebox(0.8,0.3){\tt \#\#3}}
+\put(2.3,0.25){\oval(0.8,0.3)}
+\end{picture}
+\end{center}
+
+We say that the value of the \verb|child| attribute of \verb|##1| is
+the set to two elements, \verb|##2| and \verb|##3|.
+
+Differences between \ttnbkey{::}, \ttnbkey{>:}, are \ttnbkey{>>:} relate
+to what is done when an object or attribute label previously exists.
+
+\verb|::| indicates that the object being represented should not previously
+exist, or if it does exist, must not have been defined by any previous
+object representation (it may have been defined as the value of an
+attribute).  Second, any attribute label represented in the object
+representation, if it previously exists, must be represented with exactly
+the same flags as it already has.
+
+At the other extreme, \verb|>>:| adds to existing objects.
+The object being represented can previously exist.  Any attribute
+representation in the object representation creates a new attribute value.
+Any flags on an attribute label are added to the flags of the label if
+that label already exists.
+
+\verb|>:| is like \verb|>>:| except that the object representation cannot
+add new values to previously existing attributes of the object represented.
+More precisely, the attribute label of any attribute representation in
+the object representation must not have previously (before the object
+representation is read) been an attribute label of the represented object.
+Thus \verb|>:| is used to introduce new attributes to an existing object.
+Note that reverse attribute labels are not attribute labels in the sense
+of this paragraph.
+
+Double attributes must have only one representation.  If they
+are given two representations, one for each end of the attribute
+(double headed arrow),
+\underline{two} identical double attributes (two double headed arrows with the
+same end points and labels) will be created.
+Usually one end of a double attribute is
+thought of as the primary end, and its object representation is used to
+include the sole representation of the double attribute.
+
+The {\em object-name} \ttnbkey{\#\#0} is special; it always names
+a particular object, the \ttkey{.GLOBAL} object,
+whose its attributes are called \skey{global variables}.  One of the global
+variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
+object itself, a situation which can be achieved by the data representation:
+
+\begin{indpar}\begin{verbatim}
+##0>:
+    .GLOBAL: ##0
+\end{verbatim}\end{indpar}
+
+Words beginning with `\ttkey{.}' are reserved for use by
+the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
+is an example of such a word.
+
+
+
+\subsection{Cooked Representations}
+
+In contrast to the raw representation of a set of objects there is the
+cooked representation, that is much easier to read and write, but more
+long winded to explain.
+
+The main thing that the cooked representation does is take certain objects
+that are organized like lists and represent them as lists.
+
+For example,
+
+\begin{indpar}\begin{verbatim}
+##93:: This is a sentence.
+\end{verbatim}\end{indpar}
+
+is the cooked representation of the object
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##93::|\\
+\verb|    1: this|\\
+\verb|    2: is|\\
+\verb|    3: a|\\
+\verb|    4: sentence|\\
+\verb|    .terminator: "."|\\
+\verb|    .initiator: capital|\\
+\end{tabular}
+~~~~~
+\begin{picture}(4.1,1.5)
+\put(0,0){\framebox(4.1,1.5){}}
+\put(0.3,1.00){\makebox(3.4,0.3){\tt \#\#93}}
+\put(2.0,1.15){\oval(3.4,0.3)}
+\put(1.00,1.00){\vector(0,-1){0.4}}
+\put(0.95,0.85){\makebox(0,0)[r]{\tt .initiator}}
+\put(1.00,0.50){\makebox(0,0)[c]{\tt capital}}
+\put(1.50,1.00){\vector(0,-1){0.6}}
+\put(1.45,0.85){\makebox(0,0)[r]{\tt 1}}
+\put(1.50,0.30){\makebox(0,0)[c]{\tt this}}
+\put(1.85,1.00){\vector(0,-1){0.6}}
+\put(1.80,0.85){\makebox(0,0)[r]{\tt 2}}
+\put(1.85,0.30){\makebox(0,0)[c]{\tt is}}
+\put(2.10,1.00){\vector(0,-1){0.6}}
+\put(2.05,0.85){\makebox(0,0)[r]{\tt 3}}
+\put(2.10,0.30){\makebox(0,0)[c]{\tt a}}
+\put(2.60,1.00){\vector(0,-1){0.6}}
+\put(2.55,0.85){\makebox(0,0)[r]{\tt 4}}
+\put(2.60,0.30){\makebox(0,0)[c]{\tt sentence}}
+\put(3.00,1.00){\vector(0,-1){0.4}}
+\put(3.00,0.50){\makebox(0,0)[c]{\tt "."}}
+\put(3.05,0.85){\makebox(0,0)[l]{\tt .terminator}}
+\end{picture}
+\end{center}
+
+The following is a second example in which parentheses \verb|( )|
+are used to permit the operator \verb|+| to be recognized, so that
+
+\begin{indpar}\begin{verbatim}
+##45:: straight 3.2; left; straight (y + 9.4)
+\end{verbatim}\end{indpar}
+
+is the cooked representation of the objects
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##42::|\\
+\verb|    1: straight|\\
+\verb|    2: 3.2|\\
+\verb|##43::|\\
+\verb|    1: "+"|\\
+\verb|    2: y|\\
+\verb|    3: 9.4|\\
+\verb|    initiator: "("|\\
+\verb|    terminator: ")"|\\
+\verb|##44:: |\\
+\verb|    1: straight|\\
+\verb|    2: ##43|\\
+\verb|##45::|\\
+\verb|    1: ##42|\\
+\verb|    2: left|\\
+\verb|    3: ##44|\\
+\verb|    .separator: ";"|\\
+\end{tabular}
+~~~~~
+\begin{picture}(4.1,3.2)
+\put(0,0){\framebox(4.1,3.2){}}
+\put(1.4,0.0){
+\put(0.0,0.90){\makebox(2.0,0.3){\tt \#\#43}}
+\put(1.0,1.05){\oval(2.0,0.3)}
+\put(0.40,0.90){\vector(0,-1){0.4}}
+\put(0.35,0.75){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.40){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,0.90){\vector(0,-1){0.6}}
+\put(0.65,0.75){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.20){\makebox(0,0)[c]{\tt "+"}}
+\put(1.00,0.90){\vector(0,-1){0.6}}
+\put(0.95,0.75){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.20){\makebox(0,0)[c]{\tt y}}
+\put(1.30,0.90){\vector(0,-1){0.6}}
+\put(1.25,0.75){\makebox(0,0)[r]{\tt 3}}
+\put(1.30,0.20){\makebox(0,0)[c]{\tt 9.4}}
+\put(1.60,0.90){\vector(0,-1){0.4}}
+\put(1.60,0.40){\makebox(0,0)[c]{\tt ")"}}
+\put(1.65,0.75){\makebox(0,0)[l]{\tt .terminator}}
+}
+\put(0.2,1.3){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#42}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.3}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
+\put(0.90,0.50){\vector(0,-1){0.3}}
+\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
+\put(0.90,0.10){\makebox(0,0)[c]{\tt 3.2}}
+}
+\put(2.2,1.3){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#44}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.3}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
+\put(0.90,0.50){\vector(0,-1){0.6}}
+\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
+}
+\put(0.2,2.2){
+\put(0.0,0.50){\makebox(3.2,0.3){\tt \#\#45}}
+\put(1.60,0.65){\oval(3.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.6}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(1.30,0.50){\vector(0,-1){0.3}}
+\put(1.25,0.35){\makebox(0,0)[r]{\tt 2}}
+\put(1.30,0.10){\makebox(0,0)[c]{\tt left}}
+\put(2.30,0.50){\vector(0,-1){0.6}}
+\put(2.25,0.35){\makebox(0,0)[r]{\tt 3}}
+\put(2.80,0.50){\vector(0,-1){0.3}}
+\put(2.85,0.35){\makebox(0,0)[l]{\tt .separator}}
+\put(2.80,0.10){\makebox(0,0)[c]{\tt ";"}}
+}
+\end{picture}
+\end{center}
+
+Next is a third example in which
+curly brackets (\verb|{ }|) are used with multiple
+lines and indentation to represent code, so that
+
+\begin{indpar}\begin{verbatim}
+##138:: function (x,y)
+        {
+           if (x > y):
+               return y
+           else:
+               return x
+        }
+\end{verbatim}\end{indpar}
+
+is the cooked representation of the object in
+Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
+
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}[t]{@{}l@{}}
+\verb|##130::|\\
+\verb|    1: x|\\
+\verb|    2: y|\\
+\verb|    .separator: ","|\\
+\verb|    .initiator: "("|\\
+\verb|    .terminator: ")"|\\
+\verb|##131::|\\
+\verb|    1: ">"|\\
+\verb|    2: x|\\
+\verb|    3: y|\\
+\verb|    .initiator: "("|\\
+\verb|    .terminator: ")"|\\
+\verb|##132::|\\
+\verb|    1: return|\\
+\verb|    2: y|\\
+\verb|    .initiator: ":"|\\
+\verb|##133::|\\
+\verb|    1: if|\\
+\verb|    2: ##131|\\
+\verb|    3: ##132|\\
+\verb|##134::|\\
+\verb|    1: return|\\
+\verb|    2: x|\\
+\verb|    .initiator: ":"|\\
+\verb|##135::|\\
+\verb|    1: else|\\
+\verb|    2: ##134|\\
+\verb|##136::|\\
+\verb|    1: ##133|\\
+\verb|    2: ##135|\\
+\verb|    .initiator: "{"|\\
+\verb|    .terminator: "}"|\\
+\end{tabular}
+~~~~~
+\begin{tabular}[t]{@{}l@{}}
+\verb|##137::|\\
+\verb|    1: function|\\
+\verb|    2: ##130|\\
+\verb|    3: ##136|\\[2ex]
+\begin{picture}(4.0,5.5)
+\put(0,0){\framebox(4.0,5.5){}}
+\put(0.6,0.0){
+\put(0.0,0.50){\makebox(2.0,0.3){\tt \#\#131}}
+\put(1.0,0.65){\oval(2.0,0.3)}
+\put(0.40,0.50){\vector(0,-1){0.25}}
+\put(0.35,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.15){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt ">"}}
+\put(1.00,0.50){\vector(0,-1){0.25}}
+\put(0.95,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.15){\makebox(0,0)[c]{\tt x}}
+\put(1.30,0.50){\vector(0,-1){0.25}}
+\put(1.25,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.30,0.15){\makebox(0,0)[c]{\tt y}}
+\put(1.60,0.50){\vector(0,-1){0.25}}
+\put(1.65,0.40){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.60,0.15){\makebox(0,0)[c]{\tt ")"}}
+}
+\put(1.4,1.4){
+\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#132}}
+\put(0.65,0.65){\oval(1.3,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
+\put(1.10,0.50){\vector(0,-1){0.25}}
+\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.10,0.15){\makebox(0,0)[c]{\tt y}}
+}
+\put(2.6,0.7){
+\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#134}}
+\put(0.65,0.65){\oval(1.3,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
+\put(1.10,0.50){\vector(0,-1){0.25}}
+\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.10,0.15){\makebox(0,0)[c]{\tt x}}
+}
+\put(0.2,2.0){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#133}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.25}}
+\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.15){\makebox(0,0)[c]{\tt if}}
+\put(0.60,0.50){\line(0,-1){0.45}}
+\put(0.50,0.05){\oval(0.2,0.2)[br]}
+\put(0.50,-0.05){\line(-1,0){0.40}}
+\put(0.10,-0.15){\oval(0.2,0.2)[tl]}
+\put(0.00,-0.15){\line(0,-1){1.10}}
+\put(0.10,-1.25){\oval(0.2,0.2)[bl]}
+\put(0.10,-1.35){\vector(1,0){0.30}}
+\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(0.90,0.50){\line(0,-1){0.35}}
+\put(1.00,0.15){\oval(0.2,0.2)[bl]}
+\put(1.00,0.05){\vector(1,0){0.2}}
+\put(0.85,0.40){\makebox(0,0)[r]{\tt 3}}
+}
+\put(2.8,2.0){
+\put(0.0,0.50){\makebox(0.8,0.3){\tt \#\#135}}
+\put(0.40,0.65){\oval(0.8,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt else}}
+\put(0.60,0.50){\vector(0,-1){1.0}}
+\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
+}
+\put(1.5,2.4){
+\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#136}}
+\put(0.85,1.15){\oval(1.3,0.3)}
+\put(0.40,1.00){\vector(0,-1){0.25}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "\LEFTBRACKET"}}
+\put(0.70,1.00){\line(0,-1){0.65}}
+\put(0.60,0.35){\oval(0.2,0.2)[br]}
+\put(0.60,0.25){\vector(-1,0){0.70}}
+\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
+\put(1.00,1.00){\line(0,-1){0.65}}
+\put(1.10,0.35){\oval(0.2,0.2)[bl]}
+\put(1.10,0.25){\vector(1,0){0.20}}
+\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
+\put(1.30,1.00){\vector(0,-1){0.25}}
+\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt "\RIGHTBRACKET"}}
+}
+\put(0.6,3.2){
+\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#130}}
+\put(0.85,1.15){\oval(1.3,0.3)}
+\put(0.40,1.00){\vector(0,-1){0.25}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,1.00){\vector(0,-1){0.25}}
+\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.65){\makebox(0,0)[c]{\tt x}}
+\put(1.00,1.00){\vector(0,-1){0.25}}
+\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.65){\makebox(0,0)[c]{\tt y}}
+\put(1.30,1.00){\vector(0,-1){0.25}}
+\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt ")"}}
+\put(1.50,1.15){\vector(1,0){1.0}}
+\put(1.55,1.20){\makebox(0,0)[l]{\tt .separator}}
+\put(2.55,1.15){\makebox(0,0)[l]{\tt ","}}
+}
+\put(0.2,4.5){
+\put(0.0,0.50){\makebox(3.6,0.30){\tt \#\#137}}
+\put(1.80,0.65){\oval(3.6,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.25}}
+\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.15){\makebox(0,0)[c]{\tt function}}
+\put(1.25,0.50){\vector(0,-1){0.5}}
+\put(1.20,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(3.40,0.50){\line(0,-1){1.35}}
+\put(3.30,-0.85){\oval(0.2,0.2)[br]}
+\put(3.30,-0.95){\vector(-1,0){0.5}}
+\put(3.35,0.40){\makebox(0,0)[r]{\tt 3}}
+}
+\end{picture}
+\end{tabular}
+\end{center}
+
+\caption{Example Code Object Representation}
+\label{EXAMPLE-CODE-OBJECT-REPRESENTATION}
+\end{boxedfigure}
+
+Cooked representations may replace raw object names in the
+description of other objects, as in
+
+\begin{indpar}\begin{verbatim}
+##291:: text: This is a sentence.
+        outline: straight 3.2, left, straight (y + 9.4)
+        min: function (x,y)
+             {
+                if (x > y):
+                    return y
+                else:
+                    return x
+             }
+\end{verbatim}\end{indpar}
+
+which is the cooked representation of the object
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text: ##93
+    outline: ##45
+    min: ##137
+\end{verbatim}\end{indpar}
+
+given the above examples.
+
+One question left unanswered by the discussion so far is whether
+
+\begin{indpar}\begin{verbatim}
+##291:: text A: This is a sentence.
+        text B: This is a sentence.
+\end{verbatim}\end{indpar}
+
+represents
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text A: ##93
+    text B: ##93
+\end{verbatim}\end{indpar}
+
+or instead
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text A: ##93
+    text B: ##999
+\end{verbatim}\end{indpar}
+
+where object \verb|##999| happens to have the same structure as
+object \verb|##93|.  The default is to make both \verb|text A|
+and \verb|text B| be the same object, \verb|##93|, and to make
+that object `immutable', meaning that it cannot be changed.  The
+rule is that unless otherwise indicated, only immutable objects
+have the property that their cooked representations can replace
+their raw object names in the cooked representations of other
+objects.
+
+The following are generalizations about certain attribute names.
+First, the strictly positive integers \verb|1|, \verb|2|,
+\verb|3|, \ldots are used to name the elements of a list.  Second,
+some attribute names beginning with `\verb|.|' have special
+meaning for object representation.  Examples above are
+\verb|.separator|, \verb|.initiator|, and \verb|.terminator|.
+Recall that words beginning with `\verb|.|' are reserved for
+use by the MIN system, and should not be defined by MIN users.
+
+In the following sections we describe cooked representations
+precisely.
+
+\subsection{Syntax}
+
+A cooked data representation has the syntax given
+in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
+special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
+
+\begin{boxedfigure}
+
+\begin{center}
+
+Ad Hoc Special Lexemes
+
+\bigskip
+
+\begin{tabular}{ll@{\hspace*{5em}}ll}
+\ttkey{::} & object assignment &
+\ttnbkey{>:} & object addition \\
+\ttkey{:} & attribute assignment &
+\ttkey{:} & code indicator \\
+\end{tabular}
+
+\bigskip
+
+Brackets
+
+\bigskip
+
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
+brackets	& meaning	& parsing mode
+\\[1ex]
+\ttnbkey{(}~~~\ttnbkey{)}	& parentheses		& expression \\
+\ttnbkey{[}~~~\ttnbkey{]}	& square brackets	& expression \\
+\ttnbkey{\CurlyBra}~~~\ttnbkey{\CurlyKet}
+				& curly brackets	& code \\
+\ttnbkey{`}~~~\ttnbkey{'}	& single quotes		& text \\
+\end{tabular}
+
+\bigskip
+
+Standard Operators
+
+\bigskip
+
+\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+priority & parser	& operators	& meaning 
+\\[2ex]
+-5000 & \ttkey{sentence} &  \ttnbkey{.} ~~~ \ttnbkey{!} ~~~ \ttnbkey{?}
+	& sentence terminators \\
+-4000 & \ttkey{subsentence} &  \ttnbkey{;} & subsentence separator \\
+-3000 & \ttkey{phrase} &  \ttnbkey{,} & phrase separator \\
++0000 & \ttkey{assign} &  \ttnbkey{<-} ~~~ \ttkey{BECOMES} & assignment \\
++1000 & \ttkey{logical} &  \ttkey{AND} ~~~ \ttkey{OR} ~~~ \ttkey{NOT}
+	& logical and, or, not \\
++2000 & \ttkey{compare} &  \ttnbkey{=} ~~~ \ttnbkey{/=} ~~~
+        \ttnbkey{!=} 			& equal, not equal, ditto \\
+      &		      & \ttnbkey{<} ~~~ \ttnbkey{<=} ~~~ \ttnbkey{=<}
+      & less than, less than or \\
+      &		      &		&
+      equal, ditto \\
+      &		      & \ttnbkey{>} ~~~ \ttnbkey{>=} ~~~ \ttnbkey{=>}
+      & greater than, greater \\
+      &		      &		&
+      than or equal, ditto \\
++3000 & \ttkey{sum} &  \ttnbkey{+} ~~~ \ttnbkey{-}
+	& addition, subtraction \\
++3100 & \ttkey{product} &  \ttnbkey{*} ~~~ \ttnbkey{/} 
+	& multiplication, division \\
++9999 & \ttkey{objname} &  \ttnbkey{\#\#}
+	& object name \\
+\end{tabular}
+
+\end{center}
+
+\caption{Special Lexemes}
+\label{SPECIAL-LEXEMES}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}{l}
+\key{data-representation} ::= {\em object-representation} \ldots
+\\[1ex]
+\key{object-representation} ::=
+\\\hspace*{1in}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+        & {\em object-header} {\em attribute-representation} \ldots \\
+    $|$ & {\em object-header} {\em text-expression}
+	  \ttmkey{;;}{in {\em object-representation}}
+    	  {\em attribute-representation} \ldots \\[1ex]
+    \end{tabular}
+\\[1ex]
+\key{object-header}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
+    $|$ & {\em object-name} \ttmnbkey{>:}{in {\em object-header}} \\
+    $|$ & {\em object-name} \ttmnbkey{>>:}{in {\em object-header}} \\[1ex]
+    \end{tabular}
+\\[1ex]
+\key{attribute-representation}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & {\em raw-attribute-representation} \\
+    $|$ & {\em cooked-single-attribute-representation} \\
+    $|$ & {\em cooked-double-attribute-representation} \\[1ex]
+    \end{tabular}
+\\[1ex]
+\key{cooked-single-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em text-expression}
+	\ttmkey{;;}{in {\em cooked-single-attribute}!{\em -representation}}
+\\[1ex]
+\key{cooked-double-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label} {\em attribute-label-terminator}
+\\\hspace*{1in}
+	{\em double-attribute-value}
+	{\em double-attribute-value}\ldots
+\\\hspace*{1in}
+	{\em attribute-label-initiator} {\em attribute-label}
+	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
+\\[1ex]
+\key{text-expression} ::= {\em expression} in text mode
+\\[1ex]
+\key{expression} ::= {\em expression(-9999)}
+\\[1ex]
+\key{expression}{\em ($N$)} ::=
+	\{ {\em expression($N+1$)} $|$ {\em operator($N$)} \}\ldots
+\\[1ex]
+\key{operator}{\em ($N$)} ::= operator of priority $N$:
+			      see Figure~\figref{SPECIAL-LEXEMES}
+\\[1ex]
+\key{expression}{\em (10000)} ::= {\em atom} $|$ {\em bracketed-expression}
+\\[1ex]
+\key{bracketed-expression} \begin{tabular}[t]{@{}r@{~}l@{}}
+			    ::= & \verb|(| {\em expression} \verb|)| \\
+			    $|$ & \verb|[| {\em expression} \verb|]| \\
+			    $|$ & \verb|{| {\em code-block} \verb|}| \\
+			    $|$ & \verb|`| {\em text-expression} \verb|'| \\[1ex]
+			    \end{tabular}
+\\[1ex]
+\key{code-block} ::= {\em expression} in code mode
+\\[1ex]
+See \pagref{RAW-ATTRIBUTE-REPRESENTATION} for rest of equations
+(e.g., for {\em raw-attribute-representation}).
+\end{tabular}
+\end{center}%
+\index{label!attribute}%
+\index{name!object}
+
+\caption{Data Representation Syntax}
+\label{DATA-REPRESENTATION-SYNTAX}
+\end{boxedfigure}
+
+The difference between cooked data and raw data is the presence
+of expressions.  An expression is parsed to produce an atom or
+an object which is called the \key{parsed expression}.
+If the expression is part of a
+{\em cooked-attribute-representation}, the atom or object becomes
+a value of the attribute.  For example, the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: This is a sentence.
+    expression B: ( x + 8 )
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: ##402
+    expression B: ##403
+##402::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+##403::
+    1: "+"
+    2: x
+    3: 8
+    .initiator: ")"
+    .terminator: "("
+\end{verbatim}\end{indpar}
+
+If the expression immediately follows
+an {\em object-header}, and is before any {\em attribute-representa\-tions}
+in the {\em object-representation}, then if the parsed expression is
+an object, the attributes of the object produced are copied to become
+attributes of the object represented, and if the parsed expression is
+an atom, the atom becomes the value of the represented object attribute
+named `\ttmkey{1}{defined in cooked representation}'.  For example,
+the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##410:: This is a sentence.
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##410::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+    x: 5
+\end{verbatim}\end{indpar}
+
+and the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##411:: hi
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##411::
+    1: hi
+    x: 5
+\end{verbatim}\end{indpar}
+
+The precise algorithm used in parsing is described below in
+\secref{PARSING}.
+
+
+\subsection{Parsing Modes}
+\label{PARSING-MODES}
+
+There are three \skey{parsing mode}s: text, expression, and code.
+The parsing mode of any lexeme is determined by the innermost
+brackets containing the lexeme, according to Figure~\figref{SPECIAL-LEXEMES}.
+Thus if there are no innermost brackets,
+or if the innermost brackets are \verb|` '|, the parsing mode is `text'.
+If the innermost brackets are \verb|( )| or \verb|[ ]|
+the mode is `expression'.  If the innermost brackets are \verb|{ }|
+the mode is `code'.  Thus it is as if \verb|` '| changes to text mode,
+\verb|( )| and \verb|[ ]| to expression mode, and \verb|{ }| to code mode.
+
+In \key{expression mode}\label{EXPRESSION-MODE} all operators are recognized,
+line feeds and indentation are treated like any other white-space, and
+`\verb|:|' is not recognized as a code indicator.
+
+\ikey{Text mode}{text mode} is the same as expression mode except that
+only some operators are recognized.  Operators with zero or negative
+priority are recognized.  Operators of positive priority are only recognized
+within subexpressions of operators of zero priority.
+
+Thus if the lexeme sequence `\verb|move 5 * y, x <- x + 1|' is parsed in
+text mode, the \verb|+| is recognized as an operator because it is in a
+subexpression of the zero priority \verb|<-| operator, while the
+\verb|*| is not recognized as an operator
+because it is not in such a subexpression.  To recognize the \verb|*| as
+an operator, one should put \verb|5 * y| in parentheses, as in
+`\verb|move ( 5 * y ), x <- x + 1|'.
+
+In \key{code mode}\label{CODE-MODE} all operators are recognized,
+while line feeds, indentation, and the code indicator `\verb|:|' are
+used to sequence statements within the code block and to indicate
+code subblocks, according to the following rules:
+
+\begin{enumerate}
+\item
+The column of the first non-white-space character inside \verb|{}| brackets
+defines the initial column of the \key{code block} enclosed by the
+brackets.
+
+\item No line inside a code block may be indented by less than its
+initial column.
+Any line indented by more than the initial column must be indented by at
+least 2 columns more than the initial column.
+
+If the code block
+terminating \verb|}| is the first lexeme on its line, its line is
+\underline{not} considered to be inside the code block.  If the
+terminating \verb|}| is \underline{not} the first lexeme on its line, 
+its line is considered to be inside the code block.
+
+\item A code block is organized as a sequence of statements such that
+each non-white-space character in the code block initial column begins a new
+statement, and statements so begun are the only statements in the code block.
+
+\item
+If a statement contains a `\verb|:|' \key{code indicator}\label{CODE-INDICATOR}
+mark as the last
+lexeme of a line, the first column of the next lexeme in the statement
+begins a \key{code subblock} that includes the rest of the statement.  The
+first column of that next lexeme is the initial column of the code
+subblock.  The subblock obeys rules 2 and 3 just given for code blocks.
+
+\item
+A code block and its surrounding \verb|{ }| brackets represent a list of
+zero or more statements with
+list \verb|.initiator| \verb|"{"| and list \verb|.terminator| \verb|"}"|.
+
+\item
+A code subblock and its preceding code indicator `\verb|:|'
+represents a list of zero or more statements with
+list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
+
+\end{enumerate}
+
+
+\subsection{Parsing}
+\label{PARSING}
+
+Parsing a sequence of lexemes is done in four phases:
+
+\begin{list}{}{}
+\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}%
+				 \index{scanning!lexeme}~~~~
+The sequence of lexemes is represented as an object
+that is a list whose elements (values of the attributes
+named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
+and objects representing bracketed sublists of lexemes.  Quoted
+atoms are specially represented by a list with one element and the
+{\tt .initiator} attribute value `{\tt quoted}'.
+
+\item[(2)] \ikey{Operator Scanning}{operator scanning}%
+				   \index{scanning!operator}~~~~
+The object representation is scanned for operators
+and modified by replacing subsequences of elements representing
+subexpressions with implicit brackets with sublists, and by
+adding {\tt .parser} attribute values to some of the list objects.
+
+\item[(3)] \ikey{Parser Expansion}{parser expansion}%
+				  \index{expansion!parser}~~~~
+The object representation is evaluated by calling the parsers.
+
+\end{list}
+
+\subsubsection{Lexeme Scanning}
+\label{LEXEME-SCANNING}
+
+The \key{lexeme scanning} algorithm inputs a sequence of lexemes
+and outputs an object representing the sequence.  The object has
+list elements which are attributes labeled {\tt 1}, {\tt 2}, \ldots.
+The object may have an {\tt .initiator} and/or {\tt .terminator}
+attribute.
+
+The rules for computing the object from the lexeme sequence are:
+
+\begin{enumerate}
+
+\item The lexeme sequence is examined to identify matching brackets.
+It is an error if there are unmatched brackets (bracket characters
+in quoted strings do not count as brackets).
+
+Then the first of the following rules which can be applied is applied,
+unless no rule can be applied.
+
+\begin{enumerate}
+
+\item If the lexeme sequence begins and ends with matching brackets, these
+are removed from the sequence, and become the {\tt .initiator} and
+{\tt .terminator} attributes of the object being computed.
+
+\item If the lexeme sequence begins with a `\verb|:|' code indicator mark
+(\pagref{CODE-INDICATOR}), this
+is removed from the sequence, and becomes the {\tt .initiator}
+attribute of the object being computed.
+
+\end{enumerate}
+
+\item The remaining
+lexeme sequence is then scanned from right to left to produce
+the list elements of the object being computed (these become the
+values of the attributes named {\tt 1}, {\tt 2}, {\tt 3}, \ldots).
+At each stage of the
+scan, lexemes are input and another list element is produced according
+to the first of the following rules that can be applied.
+
+\begin{enumerate}
+
+\item If the next lexeme is the beginning of a statement within a code
+block (\pagref{CODE-MODE}),
+the subsequence of lexemes that is the statement (including any
+subblocks) becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next lexeme is an opening bracket (\verb|{|, \verb|(|,
+\verb|[|, or \verb|`|), the subsequence of lexemes beginning
+with the bracket and ending with the matching bracket becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next lexeme is a `\verb|:|' code indicator mark
+(\pagref{CODE-INDICATOR}), the subsequence of lexemes consisting of
+the code indicator mark and the following subblock becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next lexeme is a quoted string, the lexeme by itself
+becomes the input, and the next list element is an
+object whose only attributes are an attribute named {\tt 1} whose value
+is the quoted string atom
+and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
+
+\item If the next lexeme is a word, mark, separator, or number,
+the lexeme by itself becomes the input, and the word, mark, separator,
+or number becomes the next list element.
+
+\end{enumerate}
+
+\end{enumerate}
+
+For example, given the input
+
+\begin{center}
+\verb|`The "+" in (x + 5 * y) is an operator.'|
+\end{center}
+
+the lexical scanning algorithm outputs object \verb|##1| in the
+following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
+
+\begin{indpar}\begin{verbatim}
+##1::
+    1 : The
+    2 : ##2
+    3 : in
+    4 : ##3
+    5 : is
+    6 : an
+    7 : operator
+    8 : .
+    .initiator: "`"
+    .terminator: "'"
+##2::
+    1: "+"
+    .initiator: quoted
+##3::
+    1 : x
+    2 : "+"
+    3 : 5
+    4 : "*"
+    5 : y
+    .initiator: "("
+    .terminator: ")"
+\end{verbatim}\end{indpar}
+
+Recall that within objects there is no difference between
+a quoted string representation of a mark and the mark, as both are
+the same atom, but in textual representations of objects the quoted
+string representation of marks that can be operators is used
+to keep the marks from being misread as operators.
+Thus \verb|"+"| is used in the textual
+object representation above to denote the 1 character atom \verb|+|,
+and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
+also denote 1 character atoms.
+
+Differences between expression mode (\pagref{EXPRESSION-MODE})
+and code mode (\pagref{CODE-MODE}) are all
+handled during lexical scanning, and thereafter these two modes behave
+the same.
+
+\subsubsection{Operator Scanning}
+\label{OPERATOR-SCANNING}
+
+The \key{operator scanning} algorithm inputs an object output
+by the lexical scanning algorithm and rearranges its contents according
+to the operators it contains.
+Specifically, subsequences of list elements between operators
+are regrouped into sublists to represent subexpressions,
+and {\tt .parser} attributes are added to
+objects in preparation for expansion.
+
+The operator scanning algorithm takes as input both an object and a parsing
+mode.  The parsing mode is either text or expression (\pagref{PARSING-MODES}).
+Code mode is handled elsewhere, during lexical scanning, and is treated as
+equivalent to expression mode during operator scanning.  The output of
+the algorithm is the input object which may be modified.
+The operator scanning algorithm applies the following actions to the
+object:
+
+\begin{enumerate}
+
+\item If the object has an 
+an {\tt .initiator} attribute equal to `{\tt quoted}', the
+scanning algorithm terminates without modifying the object.
+
+\item
+If the object has an {\tt .initiator} attribute,
+the parsing mode argument to the algorithm is changed as follows:
+
+\begin{center}
+\begin{tabular}{lll}
+\tt .initiator	& \tt .terminator	& new parsing mode \\[1ex]
+\tt `		& \tt '			& text \\
+\tt (		& \tt )			& expression \\
+\tt [		& \tt ]			& expression \\
+\LEFTBRACKET	& \RIGHTBRACKET		& expression \\
+\tt :		& 			& expression \\
+\end{tabular}
+\end{center}
+	
+\item The object list elements are inspected to see if any are operators.
+An operator is an atom equal to an operator that is recognized according
+to the current parsing mode (see \pagref{PARSING-MODES},
+Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DEFINITION}).
+
+If there are operators among the list elements, those with the lowest
+priority L are selected.  Then any non-empty sequences of list elements between
+selected operators are replaced by a single object listing the replaced
+elements.  However sequences with only one element are not replaced.
+Then, the current object is given a {\tt .parser}
+attribute equal to the parser associated with priority level L
+(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DEFINITION}).
+
+Lastly, if the current parsing mode is text and L equals zero, the parsing
+mode is changed to expression.
+
+\item
+The operator scanning algorithm is called recursively on each element
+of the current object's list that is an object and not an atom.  In making
+this recursive call, the current parsing mode is passed as an argument
+to the recursive algorithm execution.
+
+
+\end{enumerate}
+
+Given the the lexical scanning output on
+\pagref{LEXICAL-SCANNING-EXAMPLE-OUTPUT},
+which was derived from the lexeme sequence,
+
+\begin{center}
+\verb|`The "+" in (x + 5 * y) is an operator.'|
+\end{center}
+
+operator scanning returns:
+
+\begin{indpar}\begin{verbatim}
+##1::
+    1 : ##4
+    2 : .
+    .initiator: "`"
+    .terminator: "'"
+    .parser: sentence
+##4::
+    1 : The
+    2 : ##2
+    3 : in
+    4 : ##3
+    5 : is
+    6 : an
+    7 : operator
+##2::
+    1: "+"
+    .initiator: quoted
+##3::
+    1 : x
+    2 : "+"
+    3 : ##5
+    .initiator: "("
+    .terminator: ")"
+    .parser: sum
+##5::
+    1 : 5
+    2 : "*"
+    3 : y
+    .parser: product
+\end{verbatim}\end{indpar}
+
+Note that classical programming language prefix and postfix operators are
+not supported by MIN.  Examples are given with descriptions of parsers
+in the next section.\footnote{Classical prefix and postfix operators could be
+supported by MIN, but seem to the author to be no more intuitive than
+the MIN approach.  In particular, `{\tt x<y~AND NOT~y<z}' fails classically
+but works in MIN.}
+
+\subsubsection{Parser Expansion}
+\label{PARSER-EXPANSION}
+
+The \key{parser expansion} algorithm inputs an object output
+by the operator scanning algorithm and outputs an
+expanded object that replaces the input object.
+The parser expansion algorithm goes through its input
+looking for objects with a {\tt .parser} attribute, and for each
+such object, calls its {\tt .parser} attribute value as a function with
+the object as input and the function output as the expansion of the input
+object.  The expansion algorithm works only on the top level: when the
+algorithm calls the {\tt .parser} attribute function of an expression,
+the algorithm leaves it up to that function to call the {\tt .parser}
+attribute functions of subexpressions.  The standard parsers do this
+first, thus effecting a bottom up algorithm, similar to expression
+evaluation.
+
+A {\tt .parser} attribute value is known as a \key{parser}, and is associated
+with an operator priority level
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DEFINITION}).
+Immediately below are the standard parsers and their effects.
+
+In describing effects, we use notation such as
+
+\begin{center}
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{center}
+
+Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
+parentheses introduced by the rewrite are \underline{implied},
+which means that the lists they bracket have \underline{no}
+\verb|.initiator| or \verb|.terminator|, and the parentheses are
+merely written here to indicate sublists in the expression structure.
+
+\newpage
+
+\begin{indpar}[1em]
+
+\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
+\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
+\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
+
+\bigskip
+
+\ttmkey{sentence}{parser} \hfill
+	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
+
+\begin{indpar}[0.5em]
+Terminators may not be consecutive, may not begin an expression,
+and must end an expression.  Thus each between-terminator subexpression
+is non-empty and is followed by a terminator.
+Each between-terminator subexpression is converted if necessary
+to a list.  Then a \ttmkey{.terminator}{produced by parsing}
+attribute is added to this list whose value is the terminator following the
+subexpression.  If there is only one subexpression, the list it produces
+is the parse result.  Otherwise the result is the list of all the subexpression
+lists.
+\end{indpar}
+
+\bigskip
+
+
+\ttmkey{subsentence}{parser} \hfill
+	\key{subsentence separator}: \NBOP{;} \\
+\ttmkey{phrase}{parser} \hfill
+	\key{phrase separator}: \NBOP{,}
+
+\begin{indpar}[0.5em]
+Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
+priority levels and different parsers, and so cannot appear together
+in the same expression.
+
+A list of all between-separator subexpressions is made, with empty
+between-separator subexpressions being represented by objects with
+no attributes.  There will be at least two subexpressions: one following
+the last separator and one preceding the first separator.
+The list of subexpressions is given a
+\ttmkey{.separator}{produced by parsing}
+attribute with value of the separator (\verb|";"| or \verb|","|),
+and is returned as the result of the parse.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{assign}{parser} \hfill
+	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
+
+\begin{indpar}[0.5em]
+Assign operators may not be consecutive and may not begin or end an expression.
+The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
+may not be mixed in the same expression.
+The results are rewritten using the two-argument assignment function \verb|<-|,
+making multiple assignments from right to left.
+
+\begin{indpar}[0.5em]
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))| \\
+\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{logical}{parser} \hfill
+	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
+
+\begin{indpar}[0.5em]
+One expression cannot have both {\tt AND} and {\tt OR} operators
+outside explicitly bracketed subexpressions.  The {\tt NOT} operator
+can only occur at the beginning of an expression or just after {\tt AND}
+or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
+before a {\tt NOT}, which must always be empty.
+
+The expression is rewritten using a multi-argument {\tt AND}
+or {\tt OR} function and a single argument {\tt NOT} function.
+
+\begin{indpar}[0.5em]
+\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
+\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (NOT x) (NOT y) z w| \\
+\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
+\\\hspace*{1in}
+\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
+\end{indpar}
+
+Note that {\tt NOT} is not a classical prefix operator, which would have
+higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
+and {\tt OR} may not be used in the same logical expression without using
+explicit brackets.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{compare}{parser} \hfill
+	\skey{compare operator}s:
+	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
+	\NBOP{/=} ~ \NBOP{!=} ~
+	\NBOP{=>} ~ \NBOP{>=} ~
+	\NBOP{=<} ~ \NBOP{<=}
+
+\begin{indpar}[0.5em]
+Subexpressions cannot be empty, and a compare operator may not
+begin or end an expression.
+The expression is rewritten using a multi-argument {\tt AND}
+function and two-argument compare functions.  Temporary variables
+(\secref{TEMPORARY-VARIABLES})
+are used to name intermediate expression values to
+avoid recomputing arguments.
+
+\begin{indpar}[0.5em]
+\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z))| \\
+\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
+\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
+	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
+			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
+			  & \verb|(<= (.tmp 58) x)| \\
+	       \end{tabular}
+\end{indpar}
+
+Note that sequences of comparison operators are treated as they are
+in mathematics and not as they are in classical programming languages.
+E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
+\verb|(x<y)<z|.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{sum}{parser} \hfill
+	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
+
+\begin{indpar}[0.5em]
+Addition operators may not be consecutive and may not end an expression.
+The results are rewritten using the multi-argument summation function \verb|+|
+and the unary negation function \verb|-|.
+
+\begin{indpar}[0.5em]
+\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
+\verb|+ (- x) y z (- w)|
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{product}{parser} \hfill
+	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
+
+\begin{indpar}[0.5em]
+The two different kinds of multiplication operators, \verb|*| and \verb|/|,
+cannot be mixed in the same expression.
+Multiplication operators may not be consecutive and may neither begin
+nor end an expression.  The division operator \verb|/| must have exactly
+two operands.  The results are rewritten using
+the multi-argument multiplication function \verb|*| or the binary
+division function \verb|/|.  E.g.:
+
+\begin{indpar}[0.5em]
+\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
+\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
+
+\end{indpar}
+\end{indpar}
+
+
+\end{indpar}
+
+
 
 \section{Lexical Parsing}
 \label{LEXICAL-PARSING}
@@ -3345,1594 +4933,6 @@ sentences using sentence terminators outside brackets, and each sentence
 is given \verb|<* *>| implicit brackets.
 Each sentence is then divided into
 phrases if it has any phrase separators, and 
-
-
-
-\section{Data}
-
-A \key{datum} in MIN is either an atom, an object, or an arrow.
-
-An \key{atom} is either a symbol (word, mark, separator, or quoted string) or a
-number.
-
-An object is just a place in memory, and is like a dot on a blank page.
-It can be the source or target of arrows, and it is different from
-every other object and from every atom.  But it is nothing more.
-
-However, as a place in memory, an object has a name.  Objects are assigned
-\skey{raw object name}s
-of the form `\ttmnbkey{\#\#}{in raw object name}$I$' where $I$
-is an integer.  Raw object names of this form are assigned only to objects
-that must be named in an output stream (e.g., printed output).
-The first object named in output stream is assigned the name
-\verb|##1|, the second object named in output the name \verb|##2|,
-and so forth.  The same object may be assigned different names in different
-output streams.\footnote{A possible implementation is to give objects that
-have been assigned names in an output stream a hidden system defined output
-stream specific attribute (\pagref{ATTRIBUTE})
-equal to the object's name integer.  Another implementation uses a
-hash table per stream.}
-
-There are two kinds of arrows: single and double.
-
-A \key{single arrow} is an arrow from an object to either another object
-or to an atom.  The arrow has a label, which is a sequence of zero or
-more atoms.
-
-A \key{double arrow} is a double headed arrow between two objects.
-It has a separate label for each direction, with each label being a
-sequence of zero or more atoms.  A double arrow is equivalent to a
-\underline{related pair}
-of single arrows going in opposite directions between the same two objects.
-The difference between a double arrow and a pair of single arrows is that
-it is possible to delete only one direction of a pair of single arrows, but 
-when deleting a double arrow, both directions are deleted.
-
-An \key{arrow label} is a sequence of zero or more atoms.
-Two arrows leaving the same object may have the same label.  Thus
-an object and an arrow label together name
-a set of arrows sourced at the object.
-
-\ikey{Arrow flags}{arrow flag} may be attached to arrow labels.
-More precisely, a set of arrow flags is defined for each object
-and each arrow label, and these flags apply to all arrows sourced at the
-object that have the given label.
-The standard flags are the \key{dot flag} (\ttmkey{.}{dot flag}),
-and the \key{maybe flag} (\ttmkey{?}{maybe flag}).
-Arrows with a dot flagged label are not to be output when their source
-is output.
-Targets of arrows with a maybe flagged label may be garbage collected
-(made to disappear automatically, see \secref{GARBAGE-COLLECTION})
-if they cannot be reached except by traversing arrows whose labels
-have maybe flags.
-
-We will give examples in the next section along with a basic way of
-representing sets of objects in text.  In the rest of this document
-arrows are called \skey{attribute}s,\label{ATTRIBUTE} arrow labels are called
-\skey{attribute name}s, arrow flags are called \skey{attribute flag}s,
-and arrow targets are called \skey{attribute value}s.
-Also `\ikey{attribute L of object O}{attribute!of an object}'
-denotes the set of all values (arrow targets) of attributes
-of object O (arrows sourced at O) which have the attribute label
-(arrow label) L.
-
-A double arrow is called a \key{double attribute}.  When viewed from
-an object at one end of the double arrow, the double arrow is an
-attribute of that object, the label of the arrow directed away from that object
-is the \mkey{attribute label}{of double attribute} of the double attribute,
-and the label of the arrow directed toward the object is the
-\mkey{reverse attribute label}{of double attribute} of the double attribute.
-
-
-\subsection{Raw Representations}
-\label{RAW-REPRESENTATIONS}
-
-A set of objects can be written to a text file or read from a text file.
-When this is done, a textual representation of the object set is used
-in the file.  The simplest representation is the raw representation,
-which we now describe.
-
-The format of a \key{raw representation} is:
-
-\begin{indpar}
-\begin{tabular}{l}
-\emkey{raw-representation} ::= {\em raw-object-representation} \ldots
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-object-representation} ::=
-    {\em raw-object-header}
-    {\em raw-attribute-representation} \ldots
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-object-header}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-name} \ttmkey{::}{in {\em raw-object-header}} \\
-    $|$ & {\em object-name} \verb|>|{\tt \bf :}%
-          \ttmindex{>:}{in {\em raw-object-header}} \\
-    $|$ & {\em object-name} \verb|>>|{\tt \bf :}%
-          \ttmindex{>>:}{in {\em raw-object-header}} \\
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em raw-single-attribute-representation} \\
-    $|$ & {\em raw-double-attribute-representation}
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-single-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-	{\em single-attribute-value}
-	\ttmkey{;;}{in {\em raw-single-attribute}!{\em -representation}}
-\end{tabular}%
-\index{value!attribute}
-
-\begin{tabular}{l}
-\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-double-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-	{\em double-attribute-value}
-\\\hspace*{1in}
-	{\em attribute-label-initiator} {\em reverse-attribute-label}
-	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{double-attribute-value} ::= {\em object-name}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{object-name} ::=
-	\ttmnbkey{\#\#}{in {\em object-name}} {\em non-negative-integer}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{attribute-label} ::= {\em atom} \ldots
-\end{tabular}%
-\index{label!attribute}
-
-\begin{tabular}{l}
-\emkey{reverse-attribute-label} ::= {\em attribute-label}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{attribute-label-terminator} ::=
-	{\em flag-character}\ldots{\tt \bf :}%
-	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
-	attribute-label-terminator}~~~~~(a mark)
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{attribute-label-initiator} ::=
-	{\tt \bf :}{\em flag-character}\ldots%
-	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
-	attribute-label-initiator}~~~~~(a mark)
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{flag-character} ::= {\em mark-character}
-		except \verb|:|, \verb|<|, or \verb|>|
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{atom} ::= {\em non-special-lexeme}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{special-lexeme}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;;| \\
-    $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
-    \end{tabular}
-\end{tabular}
-\end{indpar}
-
-A simple example of the raw representation of a set of objects is:
-
-\begin{center}
-\begin{tabular}[b]{@{}l@{}}
-\verb|##1::|\\
-\verb|    type: woman;;|\\
-\verb|    name: Jill;;|\\
-\verb|    husband: ##2 :wife;;|\\
-\verb|##2::|\\
-\verb|    type: man;;|\\
-\verb|    name: Jack;;|\\
-\end{tabular}
-~~~~~~~~~
-\begin{picture}(3.0,1.5)
-\put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
-\put(0.7,1.15){\oval(0.8,0.3)}
-\put(0.5,1.00){\vector(0,-1){0.5}}
-\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
-\put(0.5,0.4){\makebox(0,0){\tt woman}}
-\put(0.9,1.00){\vector(0,-1){0.7}}
-\put(0.95,0.55){\makebox(0,0)[l]{\tt name}}
-\put(0.9,0.2){\makebox(0,0){\tt Jill}}
-\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
-\put(2.3,1.15){\oval(0.8,0.3)}
-\put(2.1,1.00){\vector(0,-1){0.5}}
-\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
-\put(2.1,0.4){\makebox(0,0){\tt man}}
-\put(2.5,1.00){\vector(0,-1){0.7}}
-\put(2.55,0.55){\makebox(0,0)[l]{\tt name}}
-\put(2.5,0.2){\makebox(0,0){\tt Jack}}
-\put(1.1,1.17){\vector(1,0){0.8}}
-\put(1.9,1.13){\vector(-1,0){0.8}}
-\put(1.5,1.15){\oval(0.07,0.12)}
-\put(1.5,1.30){\makebox(0,0){\tt husband}}
-\put(1.5,1.00){\makebox(0,0){\tt wife}}
-\end{picture}
-\end{center}
-
-This represents two objects.
-There are two single attributes of object \verb|##1| (arrows sourced
-at \verb|##1|),
-one attribute labeled {\tt type} whose value (target) is the atom {\tt woman},
-and one attribute labeled {\tt name} whose value is the atom {\tt Jill}.
-There are two similar single attributes from object \verb|##2|.
-There is a double attribute (double arrow)
-between the two objects which has the
-label {\tt husband} when going from \verb|##1| to \verb|##2|
-and the label {\tt wife} when going in the reverse direction.
-
-In order to permit \verb|:| to be used in an attribute label, the following
-\key{quote representation rule} is applied to representations.
-A quoted symbol cannot be recognized as an atom that has special
-meaning in a representation, such as the \verb|::|, \verb|:|,
-\verb|##|, or \verb|;;| atoms in raw representations.  Thus if any
-of these atoms are to be part of an attribute label or value, they should
-be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
-Other than this rule, there is no
-distinction between quoted and unquoted representations of unquoted atoms.
-
-The double-semi-colons (\verb|;;|) at the ends of attribute representations
-may be omitted according to the \key{double-semi-colon representation rule}.
-This rule says that the \ttmkey{;;}{omitting} at the end of an attribute
-representation may be omitted provided the next non-blank line is not
-indented with respect to the first non-white-space character of the
-attribute representation with the omitted \verb|;;|,
-or alternatively if there are no following non-blank lines in the text
-(e.g., in the file).
-Thus the \verb|;;|'s in the example just given may be omitted.
-To detect errors, if a line of an attribute representation is indented by
-just one column with respect to the first non-white-space character of the
-attribute representation, the line is considered to be in error.
-Thus indentations must be by at least two columns.
-
-It is possible to place \skey{attribute flag}s on attribute labels
-by putting flag characters
-before or after the \verb|:| that follows or precedes an attribute label.
-The following is the same as the above example except that flags
-have been added to some of the attributes:
-
-\begin{center}
-\begin{tabular}[b]{@{}l@{}}
-\verb|##1::|\\
-\verb|    type: woman;;|\\
-\verb|    name-: Jill;;|\\
-\verb|    husband@: ##2 :@wife;;|\\
-\verb|##2::|\\
-\verb|    type: man;;|\\
-\verb|    name+: Jack;;|\\
-\end{tabular}
-~~~~~~~~~
-\begin{picture}(3.0,1.5)
-\put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
-\put(0.7,1.15){\oval(0.8,0.3)}
-\put(0.5,1.00){\vector(0,-1){0.5}}
-\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
-\put(0.5,0.4){\makebox(0,0){\tt woman}}
-\put(0.9,1.00){\vector(0,-1){0.7}}
-\put(0.95,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt -}}$}}
-\put(0.9,0.2){\makebox(0,0){\tt Jill}}
-\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
-\put(2.3,1.15){\oval(0.8,0.3)}
-\put(2.1,1.00){\vector(0,-1){0.5}}
-\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
-\put(2.1,0.4){\makebox(0,0){\tt man}}
-\put(2.5,1.00){\vector(0,-1){0.7}}
-\put(2.55,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt +}}$}}
-\put(2.5,0.2){\makebox(0,0){\tt Jack}}
-\put(1.1,1.17){\vector(1,0){0.8}}
-\put(1.9,1.13){\vector(-1,0){0.8}}
-\put(1.5,1.15){\oval(0.07,0.12)}
-\put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt @}}$}}
-\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt @}}$}}
-\end{picture}
-\end{center}
-
-In the picture the attribute flags have been added as superscripts on the
-attribute labels, and in the text the flags have been added before or after the
-\verb|:| that follows or precedes the attribute label.
-
-Several attributes of the same object (arrows sourced at the object)
-may have the same attribute
-label.  An example of this, in which object \verb|##1| has two
-attributes labeled \verb|child|, is:
-
-\begin{center}
-\begin{tabular}[b]{@{}l@{}}
-\verb|##1::|\\
-\verb|    child: ##2 :parent;;|\\
-\verb|    child: ##3 :parent;;|\\
-\end{tabular}
-~~~~~~~~~
-\begin{picture}(3.0,1.5)
-\put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(2.4,0.3){\tt \#\#1}}
-\put(1.5,1.15){\oval(2.4,0.3)}
-\put(0.65,1.00){\vector(0,-1){0.6}}
-\put(0.60,0.80){\makebox(0,0)[r]{\tt child}}
-\put(0.75,0.40){\vector(0,1){0.6}}
-\put(0.80,0.55){\makebox(0,0)[l]{\tt parent}}
-\put(2.25,1.00){\vector(0,-1){0.6}}
-\put(2.20,0.80){\makebox(0,0)[r]{\tt child}}
-\put(2.35,0.40){\vector(0,1){0.6}}
-\put(2.40,0.55){\makebox(0,0)[l]{\tt parent}}
-\put(0.3,0.10){\makebox(0.8,0.3){\tt \#\#2}}
-\put(0.7,0.25){\oval(0.8,0.3)}
-\put(1.9,0.10){\makebox(0.8,0.3){\tt \#\#3}}
-\put(2.3,0.25){\oval(0.8,0.3)}
-\end{picture}
-\end{center}
-
-We say that the value of the \verb|child| attribute of \verb|##1| is
-the set to two elements, \verb|##2| and \verb|##3|.
-
-Differences between \ttnbkey{::}, \ttnbkey{>:}, are \ttnbkey{>>:} relate
-to what is done when an object or attribute label previously exists.
-
-\verb|::| indicates that the object being represented should not previously
-exist, or if it does exist, must not have been defined by any previous
-object representation (it may have been defined as the value of an
-attribute).  Second, any attribute label represented in the object
-representation, if it previously exists, must be represented with exactly
-the same flags as it already has.
-
-At the other extreme, \verb|>>:| adds to existing objects.
-The object being represented can previously exist.  Any attribute
-representation in the object representation creates a new attribute value.
-Any flags on an attribute label are added to the flags of the label if
-that label already exists.
-
-\verb|>:| is like \verb|>>:| except that the object representation cannot
-add new values to previously existing attributes of the object represented.
-More precisely, the attribute label of any attribute representation in
-the object representation must not have previously (before the object
-representation is read) been an attribute label of the represented object.
-Thus \verb|>:| is used to introduce new attributes to an existing object.
-Note that reverse attribute labels are not attribute labels in the sense
-of this paragraph.
-
-Double attributes must have only one representation.  If they
-are given two representations, one for each end of the attribute
-(double headed arrow),
-\underline{two} identical double attributes (two double headed arrows with the
-same end points and labels) will be created.
-Usually one end of a double attribute is
-thought of as the primary end, and its object representation is used to
-include the sole representation of the double attribute.
-
-The {\em object-name} \ttnbkey{\#\#0} is special; it always names
-a particular object, the \ttkey{.GLOBAL} object,
-whose its attributes are called \skey{global variables}.  One of the global
-variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
-object itself, a situation which can be achieved by the data representation:
-
-\begin{indpar}\begin{verbatim}
-##0>:
-    .GLOBAL: ##0
-\end{verbatim}\end{indpar}
-
-Words beginning with `\ttkey{.}' are reserved for use by
-the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
-is an example of such a word.
-
-
-
-\subsection{Cooked Representations}
-
-In contrast to the raw representation of a set of objects there is the
-cooked representation, that is much easier to read and write, but more
-long winded to explain.
-
-The main thing that the cooked representation does is take certain objects
-that are organized like lists and represent them as lists.
-
-For example,
-
-\begin{indpar}\begin{verbatim}
-##93:: This is a sentence.
-\end{verbatim}\end{indpar}
-
-is the cooked representation of the object
-
-\begin{center}
-\begin{tabular}[b]{@{}l@{}}
-\verb|##93::|\\
-\verb|    1: this|\\
-\verb|    2: is|\\
-\verb|    3: a|\\
-\verb|    4: sentence|\\
-\verb|    .terminator: "."|\\
-\verb|    .initiator: capital|\\
-\end{tabular}
-~~~~~
-\begin{picture}(4.1,1.5)
-\put(0,0){\framebox(4.1,1.5){}}
-\put(0.3,1.00){\makebox(3.4,0.3){\tt \#\#93}}
-\put(2.0,1.15){\oval(3.4,0.3)}
-\put(1.00,1.00){\vector(0,-1){0.4}}
-\put(0.95,0.85){\makebox(0,0)[r]{\tt .initiator}}
-\put(1.00,0.50){\makebox(0,0)[c]{\tt capital}}
-\put(1.50,1.00){\vector(0,-1){0.6}}
-\put(1.45,0.85){\makebox(0,0)[r]{\tt 1}}
-\put(1.50,0.30){\makebox(0,0)[c]{\tt this}}
-\put(1.85,1.00){\vector(0,-1){0.6}}
-\put(1.80,0.85){\makebox(0,0)[r]{\tt 2}}
-\put(1.85,0.30){\makebox(0,0)[c]{\tt is}}
-\put(2.10,1.00){\vector(0,-1){0.6}}
-\put(2.05,0.85){\makebox(0,0)[r]{\tt 3}}
-\put(2.10,0.30){\makebox(0,0)[c]{\tt a}}
-\put(2.60,1.00){\vector(0,-1){0.6}}
-\put(2.55,0.85){\makebox(0,0)[r]{\tt 4}}
-\put(2.60,0.30){\makebox(0,0)[c]{\tt sentence}}
-\put(3.00,1.00){\vector(0,-1){0.4}}
-\put(3.00,0.50){\makebox(0,0)[c]{\tt "."}}
-\put(3.05,0.85){\makebox(0,0)[l]{\tt .terminator}}
-\end{picture}
-\end{center}
-
-The following is a second example in which parentheses \verb|( )|
-are used to permit the operator \verb|+| to be recognized, so that
-
-\begin{indpar}\begin{verbatim}
-##45:: straight 3.2; left; straight (y + 9.4)
-\end{verbatim}\end{indpar}
-
-is the cooked representation of the objects
-
-\begin{center}
-\begin{tabular}[b]{@{}l@{}}
-\verb|##42::|\\
-\verb|    1: straight|\\
-\verb|    2: 3.2|\\
-\verb|##43::|\\
-\verb|    1: "+"|\\
-\verb|    2: y|\\
-\verb|    3: 9.4|\\
-\verb|    initiator: "("|\\
-\verb|    terminator: ")"|\\
-\verb|##44:: |\\
-\verb|    1: straight|\\
-\verb|    2: ##43|\\
-\verb|##45::|\\
-\verb|    1: ##42|\\
-\verb|    2: left|\\
-\verb|    3: ##44|\\
-\verb|    .separator: ";"|\\
-\end{tabular}
-~~~~~
-\begin{picture}(4.1,3.2)
-\put(0,0){\framebox(4.1,3.2){}}
-\put(1.4,0.0){
-\put(0.0,0.90){\makebox(2.0,0.3){\tt \#\#43}}
-\put(1.0,1.05){\oval(2.0,0.3)}
-\put(0.40,0.90){\vector(0,-1){0.4}}
-\put(0.35,0.75){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.40,0.40){\makebox(0,0)[c]{\tt "("}}
-\put(0.70,0.90){\vector(0,-1){0.6}}
-\put(0.65,0.75){\makebox(0,0)[r]{\tt 1}}
-\put(0.70,0.20){\makebox(0,0)[c]{\tt "+"}}
-\put(1.00,0.90){\vector(0,-1){0.6}}
-\put(0.95,0.75){\makebox(0,0)[r]{\tt 2}}
-\put(1.00,0.20){\makebox(0,0)[c]{\tt y}}
-\put(1.30,0.90){\vector(0,-1){0.6}}
-\put(1.25,0.75){\makebox(0,0)[r]{\tt 3}}
-\put(1.30,0.20){\makebox(0,0)[c]{\tt 9.4}}
-\put(1.60,0.90){\vector(0,-1){0.4}}
-\put(1.60,0.40){\makebox(0,0)[c]{\tt ")"}}
-\put(1.65,0.75){\makebox(0,0)[l]{\tt .terminator}}
-}
-\put(0.2,1.3){
-\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#42}}
-\put(0.60,0.65){\oval(1.2,0.3)}
-\put(0.30,0.50){\vector(0,-1){0.3}}
-\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
-\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
-\put(0.90,0.50){\vector(0,-1){0.3}}
-\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
-\put(0.90,0.10){\makebox(0,0)[c]{\tt 3.2}}
-}
-\put(2.2,1.3){
-\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#44}}
-\put(0.60,0.65){\oval(1.2,0.3)}
-\put(0.30,0.50){\vector(0,-1){0.3}}
-\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
-\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
-\put(0.90,0.50){\vector(0,-1){0.6}}
-\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
-}
-\put(0.2,2.2){
-\put(0.0,0.50){\makebox(3.2,0.3){\tt \#\#45}}
-\put(1.60,0.65){\oval(3.2,0.3)}
-\put(0.30,0.50){\vector(0,-1){0.6}}
-\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
-\put(1.30,0.50){\vector(0,-1){0.3}}
-\put(1.25,0.35){\makebox(0,0)[r]{\tt 2}}
-\put(1.30,0.10){\makebox(0,0)[c]{\tt left}}
-\put(2.30,0.50){\vector(0,-1){0.6}}
-\put(2.25,0.35){\makebox(0,0)[r]{\tt 3}}
-\put(2.80,0.50){\vector(0,-1){0.3}}
-\put(2.85,0.35){\makebox(0,0)[l]{\tt .separator}}
-\put(2.80,0.10){\makebox(0,0)[c]{\tt ";"}}
-}
-\end{picture}
-\end{center}
-
-Next is a third example in which
-curly brackets (\verb|{ }|) are used with multiple
-lines and indentation to represent code, so that
-
-\begin{indpar}\begin{verbatim}
-##138:: function (x,y)
-        {
-           if (x > y):
-               return y
-           else:
-               return x
-        }
-\end{verbatim}\end{indpar}
-
-is the cooked representation of the object in
-Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
-
-
-\begin{boxedfigure}
-
-\begin{center}
-\begin{tabular}[t]{@{}l@{}}
-\verb|##130::|\\
-\verb|    1: x|\\
-\verb|    2: y|\\
-\verb|    .separator: ","|\\
-\verb|    .initiator: "("|\\
-\verb|    .terminator: ")"|\\
-\verb|##131::|\\
-\verb|    1: ">"|\\
-\verb|    2: x|\\
-\verb|    3: y|\\
-\verb|    .initiator: "("|\\
-\verb|    .terminator: ")"|\\
-\verb|##132::|\\
-\verb|    1: return|\\
-\verb|    2: y|\\
-\verb|    .initiator: ":"|\\
-\verb|##133::|\\
-\verb|    1: if|\\
-\verb|    2: ##131|\\
-\verb|    3: ##132|\\
-\verb|##134::|\\
-\verb|    1: return|\\
-\verb|    2: x|\\
-\verb|    .initiator: ":"|\\
-\verb|##135::|\\
-\verb|    1: else|\\
-\verb|    2: ##134|\\
-\verb|##136::|\\
-\verb|    1: ##133|\\
-\verb|    2: ##135|\\
-\verb|    .initiator: "{"|\\
-\verb|    .terminator: "}"|\\
-\end{tabular}
-~~~~~
-\begin{tabular}[t]{@{}l@{}}
-\verb|##137::|\\
-\verb|    1: function|\\
-\verb|    2: ##130|\\
-\verb|    3: ##136|\\[2ex]
-\begin{picture}(4.0,5.5)
-\put(0,0){\framebox(4.0,5.5){}}
-\put(0.6,0.0){
-\put(0.0,0.50){\makebox(2.0,0.3){\tt \#\#131}}
-\put(1.0,0.65){\oval(2.0,0.3)}
-\put(0.40,0.50){\vector(0,-1){0.25}}
-\put(0.35,0.40){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.40,0.15){\makebox(0,0)[c]{\tt "("}}
-\put(0.70,0.50){\vector(0,-1){0.25}}
-\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.70,0.15){\makebox(0,0)[c]{\tt ">"}}
-\put(1.00,0.50){\vector(0,-1){0.25}}
-\put(0.95,0.40){\makebox(0,0)[r]{\tt 2}}
-\put(1.00,0.15){\makebox(0,0)[c]{\tt x}}
-\put(1.30,0.50){\vector(0,-1){0.25}}
-\put(1.25,0.40){\makebox(0,0)[r]{\tt 3}}
-\put(1.30,0.15){\makebox(0,0)[c]{\tt y}}
-\put(1.60,0.50){\vector(0,-1){0.25}}
-\put(1.65,0.40){\makebox(0,0)[l]{\tt .terminator}}
-\put(1.60,0.15){\makebox(0,0)[c]{\tt ")"}}
-}
-\put(1.4,1.4){
-\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#132}}
-\put(0.65,0.65){\oval(1.3,0.3)}
-\put(0.20,0.50){\vector(0,-1){0.25}}
-\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
-\put(0.70,0.50){\vector(0,-1){0.25}}
-\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
-\put(1.10,0.50){\vector(0,-1){0.25}}
-\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
-\put(1.10,0.15){\makebox(0,0)[c]{\tt y}}
-}
-\put(2.6,0.7){
-\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#134}}
-\put(0.65,0.65){\oval(1.3,0.3)}
-\put(0.20,0.50){\vector(0,-1){0.25}}
-\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
-\put(0.70,0.50){\vector(0,-1){0.25}}
-\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
-\put(1.10,0.50){\vector(0,-1){0.25}}
-\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
-\put(1.10,0.15){\makebox(0,0)[c]{\tt x}}
-}
-\put(0.2,2.0){
-\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#133}}
-\put(0.60,0.65){\oval(1.2,0.3)}
-\put(0.30,0.50){\vector(0,-1){0.25}}
-\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.30,0.15){\makebox(0,0)[c]{\tt if}}
-\put(0.60,0.50){\line(0,-1){0.45}}
-\put(0.50,0.05){\oval(0.2,0.2)[br]}
-\put(0.50,-0.05){\line(-1,0){0.40}}
-\put(0.10,-0.15){\oval(0.2,0.2)[tl]}
-\put(0.00,-0.15){\line(0,-1){1.10}}
-\put(0.10,-1.25){\oval(0.2,0.2)[bl]}
-\put(0.10,-1.35){\vector(1,0){0.30}}
-\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
-\put(0.90,0.50){\line(0,-1){0.35}}
-\put(1.00,0.15){\oval(0.2,0.2)[bl]}
-\put(1.00,0.05){\vector(1,0){0.2}}
-\put(0.85,0.40){\makebox(0,0)[r]{\tt 3}}
-}
-\put(2.8,2.0){
-\put(0.0,0.50){\makebox(0.8,0.3){\tt \#\#135}}
-\put(0.40,0.65){\oval(0.8,0.3)}
-\put(0.20,0.50){\vector(0,-1){0.25}}
-\put(0.15,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.20,0.15){\makebox(0,0)[c]{\tt else}}
-\put(0.60,0.50){\vector(0,-1){1.0}}
-\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
-}
-\put(1.5,2.4){
-\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#136}}
-\put(0.85,1.15){\oval(1.3,0.3)}
-\put(0.40,1.00){\vector(0,-1){0.25}}
-\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.40,0.65){\makebox(0,0)[c]{\tt "\LEFTBRACKET"}}
-\put(0.70,1.00){\line(0,-1){0.65}}
-\put(0.60,0.35){\oval(0.2,0.2)[br]}
-\put(0.60,0.25){\vector(-1,0){0.70}}
-\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
-\put(1.00,1.00){\line(0,-1){0.65}}
-\put(1.10,0.35){\oval(0.2,0.2)[bl]}
-\put(1.10,0.25){\vector(1,0){0.20}}
-\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
-\put(1.30,1.00){\vector(0,-1){0.25}}
-\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
-\put(1.30,0.65){\makebox(0,0)[c]{\tt "\RIGHTBRACKET"}}
-}
-\put(0.6,3.2){
-\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#130}}
-\put(0.85,1.15){\oval(1.3,0.3)}
-\put(0.40,1.00){\vector(0,-1){0.25}}
-\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.40,0.65){\makebox(0,0)[c]{\tt "("}}
-\put(0.70,1.00){\vector(0,-1){0.25}}
-\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
-\put(0.70,0.65){\makebox(0,0)[c]{\tt x}}
-\put(1.00,1.00){\vector(0,-1){0.25}}
-\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
-\put(1.00,0.65){\makebox(0,0)[c]{\tt y}}
-\put(1.30,1.00){\vector(0,-1){0.25}}
-\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
-\put(1.30,0.65){\makebox(0,0)[c]{\tt ")"}}
-\put(1.50,1.15){\vector(1,0){1.0}}
-\put(1.55,1.20){\makebox(0,0)[l]{\tt .separator}}
-\put(2.55,1.15){\makebox(0,0)[l]{\tt ","}}
-}
-\put(0.2,4.5){
-\put(0.0,0.50){\makebox(3.6,0.30){\tt \#\#137}}
-\put(1.80,0.65){\oval(3.6,0.3)}
-\put(0.30,0.50){\vector(0,-1){0.25}}
-\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.30,0.15){\makebox(0,0)[c]{\tt function}}
-\put(1.25,0.50){\vector(0,-1){0.5}}
-\put(1.20,0.40){\makebox(0,0)[r]{\tt 2}}
-\put(3.40,0.50){\line(0,-1){1.35}}
-\put(3.30,-0.85){\oval(0.2,0.2)[br]}
-\put(3.30,-0.95){\vector(-1,0){0.5}}
-\put(3.35,0.40){\makebox(0,0)[r]{\tt 3}}
-}
-\end{picture}
-\end{tabular}
-\end{center}
-
-\caption{Example Code Object Representation}
-\label{EXAMPLE-CODE-OBJECT-REPRESENTATION}
-\end{boxedfigure}
-
-Cooked representations may replace raw object names in the
-description of other objects, as in
-
-\begin{indpar}\begin{verbatim}
-##291:: text: This is a sentence.
-        outline: straight 3.2, left, straight (y + 9.4)
-        min: function (x,y)
-             {
-                if (x > y):
-                    return y
-                else:
-                    return x
-             }
-\end{verbatim}\end{indpar}
-
-which is the cooked representation of the object
-
-\begin{indpar}\begin{verbatim}
-##291::
-    text: ##93
-    outline: ##45
-    min: ##137
-\end{verbatim}\end{indpar}
-
-given the above examples.
-
-One question left unanswered by the discussion so far is whether
-
-\begin{indpar}\begin{verbatim}
-##291:: text A: This is a sentence.
-        text B: This is a sentence.
-\end{verbatim}\end{indpar}
-
-represents
-
-\begin{indpar}\begin{verbatim}
-##291::
-    text A: ##93
-    text B: ##93
-\end{verbatim}\end{indpar}
-
-or instead
-
-\begin{indpar}\begin{verbatim}
-##291::
-    text A: ##93
-    text B: ##999
-\end{verbatim}\end{indpar}
-
-where object \verb|##999| happens to have the same structure as
-object \verb|##93|.  The default is to make both \verb|text A|
-and \verb|text B| be the same object, \verb|##93|, and to make
-that object `immutable', meaning that it cannot be changed.  The
-rule is that unless otherwise indicated, only immutable objects
-have the property that their cooked representations can replace
-their raw object names in the cooked representations of other
-objects.
-
-The following are generalizations about certain attribute names.
-First, the strictly positive integers \verb|1|, \verb|2|,
-\verb|3|, \ldots are used to name the elements of a list.  Second,
-some attribute names beginning with `\verb|.|' have special
-meaning for object representation.  Examples above are
-\verb|.separator|, \verb|.initiator|, and \verb|.terminator|.
-Recall that words beginning with `\verb|.|' are reserved for
-use by the MIN system, and should not be defined by MIN users.
-
-In the following sections we describe cooked representations
-precisely.
-
-\subsection{Syntax}
-
-A cooked data representation has the syntax given
-in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
-special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
-
-\begin{boxedfigure}
-
-\begin{center}
-
-Ad Hoc Special Lexemes
-
-\bigskip
-
-\begin{tabular}{ll@{\hspace*{5em}}ll}
-\ttkey{::} & object assignment &
-\ttnbkey{>:} & object addition \\
-\ttkey{:} & attribute assignment &
-\ttkey{:} & code indicator \\
-\end{tabular}
-
-\bigskip
-
-Brackets
-
-\bigskip
-
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
-brackets	& meaning	& parsing mode
-\\[1ex]
-\ttnbkey{(}~~~\ttnbkey{)}	& parentheses		& expression \\
-\ttnbkey{[}~~~\ttnbkey{]}	& square brackets	& expression \\
-\ttnbkey{\CurlyBra}~~~\ttnbkey{\CurlyKet}
-				& curly brackets	& code \\
-\ttnbkey{`}~~~\ttnbkey{'}	& single quotes		& text \\
-\end{tabular}
-
-\bigskip
-
-Standard Operators
-
-\bigskip
-
-\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
-
-priority & parser	& operators	& meaning 
-\\[2ex]
--5000 & \ttkey{sentence} &  \ttnbkey{.} ~~~ \ttnbkey{!} ~~~ \ttnbkey{?}
-	& sentence terminators \\
--4000 & \ttkey{subsentence} &  \ttnbkey{;} & subsentence separator \\
--3000 & \ttkey{phrase} &  \ttnbkey{,} & phrase separator \\
-+0000 & \ttkey{assign} &  \ttnbkey{<-} ~~~ \ttkey{BECOMES} & assignment \\
-+1000 & \ttkey{logical} &  \ttkey{AND} ~~~ \ttkey{OR} ~~~ \ttkey{NOT}
-	& logical and, or, not \\
-+2000 & \ttkey{compare} &  \ttnbkey{=} ~~~ \ttnbkey{/=} ~~~
-        \ttnbkey{!=} 			& equal, not equal, ditto \\
-      &		      & \ttnbkey{<} ~~~ \ttnbkey{<=} ~~~ \ttnbkey{=<}
-      & less than, less than or \\
-      &		      &		&
-      equal, ditto \\
-      &		      & \ttnbkey{>} ~~~ \ttnbkey{>=} ~~~ \ttnbkey{=>}
-      & greater than, greater \\
-      &		      &		&
-      than or equal, ditto \\
-+3000 & \ttkey{sum} &  \ttnbkey{+} ~~~ \ttnbkey{-}
-	& addition, subtraction \\
-+3100 & \ttkey{product} &  \ttnbkey{*} ~~~ \ttnbkey{/} 
-	& multiplication, division \\
-+9999 & \ttkey{objname} &  \ttnbkey{\#\#}
-	& object name \\
-\end{tabular}
-
-\end{center}
-
-\caption{Special Lexemes}
-\label{SPECIAL-LEXEMES}
-\end{boxedfigure}
-
-\begin{boxedfigure}
-
-\begin{center}
-\begin{tabular}{l}
-\key{data-representation} ::= {\em object-representation} \ldots
-\\[1ex]
-\key{object-representation} ::=
-\\\hspace*{1in}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-        & {\em object-header} {\em attribute-representation} \ldots \\
-    $|$ & {\em object-header} {\em text-expression}
-	  \ttmkey{;;}{in {\em object-representation}}
-    	  {\em attribute-representation} \ldots \\[1ex]
-    \end{tabular}
-\\[1ex]
-\key{object-header}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmnbkey{>:}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmnbkey{>>:}{in {\em object-header}} \\[1ex]
-    \end{tabular}
-\\[1ex]
-\key{attribute-representation}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & {\em raw-attribute-representation} \\
-    $|$ & {\em cooked-single-attribute-representation} \\
-    $|$ & {\em cooked-double-attribute-representation} \\[1ex]
-    \end{tabular}
-\\[1ex]
-\key{cooked-single-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-	{\em text-expression}
-	\ttmkey{;;}{in {\em cooked-single-attribute}!{\em -representation}}
-\\[1ex]
-\key{cooked-double-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-\\\hspace*{1in}
-	{\em double-attribute-value}
-	{\em double-attribute-value}\ldots
-\\\hspace*{1in}
-	{\em attribute-label-initiator} {\em attribute-label}
-	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
-\\[1ex]
-\key{text-expression} ::= {\em expression} in text mode
-\\[1ex]
-\key{expression} ::= {\em expression(-9999)}
-\\[1ex]
-\key{expression}{\em ($N$)} ::=
-	\{ {\em expression($N+1$)} $|$ {\em operator($N$)} \}\ldots
-\\[1ex]
-\key{operator}{\em ($N$)} ::= operator of priority $N$:
-			      see Figure~\figref{SPECIAL-LEXEMES}
-\\[1ex]
-\key{expression}{\em (10000)} ::= {\em atom} $|$ {\em bracketed-expression}
-\\[1ex]
-\key{bracketed-expression} \begin{tabular}[t]{@{}r@{~}l@{}}
-			    ::= & \verb|(| {\em expression} \verb|)| \\
-			    $|$ & \verb|[| {\em expression} \verb|]| \\
-			    $|$ & \verb|{| {\em code-block} \verb|}| \\
-			    $|$ & \verb|`| {\em text-expression} \verb|'| \\[1ex]
-			    \end{tabular}
-\\[1ex]
-\key{code-block} ::= {\em expression} in code mode
-\\[1ex]
-See \pagref{RAW-ATTRIBUTE-REPRESENTATION} for rest of equations
-(e.g., for {\em raw-attribute-representation}).
-\end{tabular}
-\end{center}%
-\index{label!attribute}%
-\index{name!object}
-
-\caption{Data Representation Syntax}
-\label{DATA-REPRESENTATION-SYNTAX}
-\end{boxedfigure}
-
-The difference between cooked data and raw data is the presence
-of expressions.  An expression is parsed to produce an atom or
-an object which is called the \key{parsed expression}.
-If the expression is part of a
-{\em cooked-attribute-representation}, the atom or object becomes
-a value of the attribute.  For example, the cooked representation
-
-\begin{indpar}\begin{verbatim}
-##401::
-    text A: This is a sentence.
-    expression B: ( x + 8 )
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-##401::
-    text A: ##402
-    expression B: ##403
-##402::
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .initiator: capital
-    .terminator: "."
-##403::
-    1: "+"
-    2: x
-    3: 8
-    .initiator: ")"
-    .terminator: "("
-\end{verbatim}\end{indpar}
-
-If the expression immediately follows
-an {\em object-header}, and is before any {\em attribute-representa\-tions}
-in the {\em object-representation}, then if the parsed expression is
-an object, the attributes of the object produced are copied to become
-attributes of the object represented, and if the parsed expression is
-an atom, the atom becomes the value of the represented object attribute
-named `\ttmkey{1}{defined in cooked representation}'.  For example,
-the cooked representation
-
-\begin{indpar}\begin{verbatim}
-##410:: This is a sentence.
-        x: 5
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-##410::
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .initiator: capital
-    .terminator: "."
-    x: 5
-\end{verbatim}\end{indpar}
-
-and the cooked representation
-
-\begin{indpar}\begin{verbatim}
-##411:: hi
-        x: 5
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-##411::
-    1: hi
-    x: 5
-\end{verbatim}\end{indpar}
-
-The precise algorithm used in parsing is described below in
-\secref{PARSING}.
-
-
-\subsection{Parsing Modes}
-\label{PARSING-MODES}
-
-There are three \skey{parsing mode}s: text, expression, and code.
-The parsing mode of any lexeme is determined by the innermost
-brackets containing the lexeme, according to Figure~\figref{SPECIAL-LEXEMES}.
-Thus if there are no innermost brackets,
-or if the innermost brackets are \verb|` '|, the parsing mode is `text'.
-If the innermost brackets are \verb|( )| or \verb|[ ]|
-the mode is `expression'.  If the innermost brackets are \verb|{ }|
-the mode is `code'.  Thus it is as if \verb|` '| changes to text mode,
-\verb|( )| and \verb|[ ]| to expression mode, and \verb|{ }| to code mode.
-
-In \key{expression mode}\label{EXPRESSION-MODE} all operators are recognized,
-line feeds and indentation are treated like any other white-space, and
-`\verb|:|' is not recognized as a code indicator.
-
-\ikey{Text mode}{text mode} is the same as expression mode except that
-only some operators are recognized.  Operators with zero or negative
-priority are recognized.  Operators of positive priority are only recognized
-within subexpressions of operators of zero priority.
-
-Thus if the lexeme sequence `\verb|move 5 * y, x <- x + 1|' is parsed in
-text mode, the \verb|+| is recognized as an operator because it is in a
-subexpression of the zero priority \verb|<-| operator, while the
-\verb|*| is not recognized as an operator
-because it is not in such a subexpression.  To recognize the \verb|*| as
-an operator, one should put \verb|5 * y| in parentheses, as in
-`\verb|move ( 5 * y ), x <- x + 1|'.
-
-In \key{code mode}\label{CODE-MODE} all operators are recognized,
-while line feeds, indentation, and the code indicator `\verb|:|' are
-used to sequence statements within the code block and to indicate
-code subblocks, according to the following rules:
-
-\begin{enumerate}
-\item
-The column of the first non-white-space character inside \verb|{}| brackets
-defines the initial column of the \key{code block} enclosed by the
-brackets.
-
-\item No line inside a code block may be indented by less than its
-initial column.
-Any line indented by more than the initial column must be indented by at
-least 2 columns more than the initial column.
-
-If the code block
-terminating \verb|}| is the first lexeme on its line, its line is
-\underline{not} considered to be inside the code block.  If the
-terminating \verb|}| is \underline{not} the first lexeme on its line, 
-its line is considered to be inside the code block.
-
-\item A code block is organized as a sequence of statements such that
-each non-white-space character in the code block initial column begins a new
-statement, and statements so begun are the only statements in the code block.
-
-\item
-If a statement contains a `\verb|:|' \key{code indicator}\label{CODE-INDICATOR}
-mark as the last
-lexeme of a line, the first column of the next lexeme in the statement
-begins a \key{code subblock} that includes the rest of the statement.  The
-first column of that next lexeme is the initial column of the code
-subblock.  The subblock obeys rules 2 and 3 just given for code blocks.
-
-\item
-A code block and its surrounding \verb|{ }| brackets represent a list of
-zero or more statements with
-list \verb|.initiator| \verb|"{"| and list \verb|.terminator| \verb|"}"|.
-
-\item
-A code subblock and its preceding code indicator `\verb|:|'
-represents a list of zero or more statements with
-list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
-
-\end{enumerate}
-
-
-\subsection{Parsing}
-\label{PARSING}
-
-Parsing a sequence of lexemes is done in four phases:
-
-\begin{list}{}{}
-\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}%
-				 \index{scanning!lexeme}~~~~
-The sequence of lexemes is represented as an object
-that is a list whose elements (values of the attributes
-named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
-and objects representing bracketed sublists of lexemes.  Quoted
-atoms are specially represented by a list with one element and the
-{\tt .initiator} attribute value `{\tt quoted}'.
-
-\item[(2)] \ikey{Operator Scanning}{operator scanning}%
-				   \index{scanning!operator}~~~~
-The object representation is scanned for operators
-and modified by replacing subsequences of elements representing
-subexpressions with implicit brackets with sublists, and by
-adding {\tt .parser} attribute values to some of the list objects.
-
-\item[(3)] \ikey{Parser Expansion}{parser expansion}%
-				  \index{expansion!parser}~~~~
-The object representation is evaluated by calling the parsers.
-
-\end{list}
-
-\subsubsection{Lexeme Scanning}
-\label{LEXEME-SCANNING}
-
-The \key{lexeme scanning} algorithm inputs a sequence of lexemes
-and outputs an object representing the sequence.  The object has
-list elements which are attributes labeled {\tt 1}, {\tt 2}, \ldots.
-The object may have an {\tt .initiator} and/or {\tt .terminator}
-attribute.
-
-The rules for computing the object from the lexeme sequence are:
-
-\begin{enumerate}
-
-\item The lexeme sequence is examined to identify matching brackets.
-It is an error if there are unmatched brackets (bracket characters
-in quoted strings do not count as brackets).
-
-Then the first of the following rules which can be applied is applied,
-unless no rule can be applied.
-
-\begin{enumerate}
-
-\item If the lexeme sequence begins and ends with matching brackets, these
-are removed from the sequence, and become the {\tt .initiator} and
-{\tt .terminator} attributes of the object being computed.
-
-\item If the lexeme sequence begins with a `\verb|:|' code indicator mark
-(\pagref{CODE-INDICATOR}), this
-is removed from the sequence, and becomes the {\tt .initiator}
-attribute of the object being computed.
-
-\end{enumerate}
-
-\item The remaining
-lexeme sequence is then scanned from right to left to produce
-the list elements of the object being computed (these become the
-values of the attributes named {\tt 1}, {\tt 2}, {\tt 3}, \ldots).
-At each stage of the
-scan, lexemes are input and another list element is produced according
-to the first of the following rules that can be applied.
-
-\begin{enumerate}
-
-\item If the next lexeme is the beginning of a statement within a code
-block (\pagref{CODE-MODE}),
-the subsequence of lexemes that is the statement (including any
-subblocks) becomes the input,
-the lexical scanning algorithm is called recursively with this subsequence,
-and the object output by the recursive call becomes the next list element.
-
-\item If the next lexeme is an opening bracket (\verb|{|, \verb|(|,
-\verb|[|, or \verb|`|), the subsequence of lexemes beginning
-with the bracket and ending with the matching bracket becomes the input,
-the lexical scanning algorithm is called recursively with this subsequence,
-and the object output by the recursive call becomes the next list element.
-
-\item If the next lexeme is a `\verb|:|' code indicator mark
-(\pagref{CODE-INDICATOR}), the subsequence of lexemes consisting of
-the code indicator mark and the following subblock becomes the input,
-the lexical scanning algorithm is called recursively with this subsequence,
-and the object output by the recursive call becomes the next list element.
-
-\item If the next lexeme is a quoted string, the lexeme by itself
-becomes the input, and the next list element is an
-object whose only attributes are an attribute named {\tt 1} whose value
-is the quoted string atom
-and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
-
-\item If the next lexeme is a word, mark, separator, or number,
-the lexeme by itself becomes the input, and the word, mark, separator,
-or number becomes the next list element.
-
-\end{enumerate}
-
-\end{enumerate}
-
-For example, given the input
-
-\begin{center}
-\verb|`The "+" in (x + 5 * y) is an operator.'|
-\end{center}
-
-the lexical scanning algorithm outputs object \verb|##1| in the
-following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
-
-\begin{indpar}\begin{verbatim}
-##1::
-    1 : The
-    2 : ##2
-    3 : in
-    4 : ##3
-    5 : is
-    6 : an
-    7 : operator
-    8 : .
-    .initiator: "`"
-    .terminator: "'"
-##2::
-    1: "+"
-    .initiator: quoted
-##3::
-    1 : x
-    2 : "+"
-    3 : 5
-    4 : "*"
-    5 : y
-    .initiator: "("
-    .terminator: ")"
-\end{verbatim}\end{indpar}
-
-Recall that within objects there is no difference between
-a quoted string representation of a mark and the mark, as both are
-the same atom, but in textual representations of objects the quoted
-string representation of marks that can be operators is used
-to keep the marks from being misread as operators.
-Thus \verb|"+"| is used in the textual
-object representation above to denote the 1 character atom \verb|+|,
-and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
-also denote 1 character atoms.
-
-Differences between expression mode (\pagref{EXPRESSION-MODE})
-and code mode (\pagref{CODE-MODE}) are all
-handled during lexical scanning, and thereafter these two modes behave
-the same.
-
-\subsubsection{Operator Scanning}
-\label{OPERATOR-SCANNING}
-
-The \key{operator scanning} algorithm inputs an object output
-by the lexical scanning algorithm and rearranges its contents according
-to the operators it contains.
-Specifically, subsequences of list elements between operators
-are regrouped into sublists to represent subexpressions,
-and {\tt .parser} attributes are added to
-objects in preparation for expansion.
-
-The operator scanning algorithm takes as input both an object and a parsing
-mode.  The parsing mode is either text or expression (\pagref{PARSING-MODES}).
-Code mode is handled elsewhere, during lexical scanning, and is treated as
-equivalent to expression mode during operator scanning.  The output of
-the algorithm is the input object which may be modified.
-The operator scanning algorithm applies the following actions to the
-object:
-
-\begin{enumerate}
-
-\item If the object has an 
-an {\tt .initiator} attribute equal to `{\tt quoted}', the
-scanning algorithm terminates without modifying the object.
-
-\item
-If the object has an {\tt .initiator} attribute,
-the parsing mode argument to the algorithm is changed as follows:
-
-\begin{center}
-\begin{tabular}{lll}
-\tt .initiator	& \tt .terminator	& new parsing mode \\[1ex]
-\tt `		& \tt '			& text \\
-\tt (		& \tt )			& expression \\
-\tt [		& \tt ]			& expression \\
-\LEFTBRACKET	& \RIGHTBRACKET		& expression \\
-\tt :		& 			& expression \\
-\end{tabular}
-\end{center}
-	
-\item The object list elements are inspected to see if any are operators.
-An operator is an atom equal to an operator that is recognized according
-to the current parsing mode (see \pagref{PARSING-MODES},
-Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DEFINITION}).
-
-If there are operators among the list elements, those with the lowest
-priority L are selected.  Then any non-empty sequences of list elements between
-selected operators are replaced by a single object listing the replaced
-elements.  However sequences with only one element are not replaced.
-Then, the current object is given a {\tt .parser}
-attribute equal to the parser associated with priority level L
-(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DEFINITION}).
-
-Lastly, if the current parsing mode is text and L equals zero, the parsing
-mode is changed to expression.
-
-\item
-The operator scanning algorithm is called recursively on each element
-of the current object's list that is an object and not an atom.  In making
-this recursive call, the current parsing mode is passed as an argument
-to the recursive algorithm execution.
-
-
-\end{enumerate}
-
-Given the the lexical scanning output on
-\pagref{LEXICAL-SCANNING-EXAMPLE-OUTPUT},
-which was derived from the lexeme sequence,
-
-\begin{center}
-\verb|`The "+" in (x + 5 * y) is an operator.'|
-\end{center}
-
-operator scanning returns:
-
-\begin{indpar}\begin{verbatim}
-##1::
-    1 : ##4
-    2 : .
-    .initiator: "`"
-    .terminator: "'"
-    .parser: sentence
-##4::
-    1 : The
-    2 : ##2
-    3 : in
-    4 : ##3
-    5 : is
-    6 : an
-    7 : operator
-##2::
-    1: "+"
-    .initiator: quoted
-##3::
-    1 : x
-    2 : "+"
-    3 : ##5
-    .initiator: "("
-    .terminator: ")"
-    .parser: sum
-##5::
-    1 : 5
-    2 : "*"
-    3 : y
-    .parser: product
-\end{verbatim}\end{indpar}
-
-Note that classical programming language prefix and postfix operators are
-not supported by MIN.  Examples are given with descriptions of parsers
-in the next section.\footnote{Classical prefix and postfix operators could be
-supported by MIN, but seem to the author to be no more intuitive than
-the MIN approach.  In particular, `{\tt x<y~AND NOT~y<z}' fails classically
-but works in MIN.}
-
-\subsubsection{Parser Expansion}
-\label{PARSER-EXPANSION}
-
-The \key{parser expansion} algorithm inputs an object output
-by the operator scanning algorithm and outputs an
-expanded object that replaces the input object.
-The parser expansion algorithm goes through its input
-looking for objects with a {\tt .parser} attribute, and for each
-such object, calls its {\tt .parser} attribute value as a function with
-the object as input and the function output as the expansion of the input
-object.  The expansion algorithm works only on the top level: when the
-algorithm calls the {\tt .parser} attribute function of an expression,
-the algorithm leaves it up to that function to call the {\tt .parser}
-attribute functions of subexpressions.  The standard parsers do this
-first, thus effecting a bottom up algorithm, similar to expression
-evaluation.
-
-A {\tt .parser} attribute value is known as a \key{parser}, and is associated
-with an operator priority level
-(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DEFINITION}).
-Immediately below are the standard parsers and their effects.
-
-In describing effects, we use notation such as
-
-\begin{center}
-\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))|
-\end{center}
-
-Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
-parentheses introduced by the rewrite are \underline{implied},
-which means that the lists they bracket have \underline{no}
-\verb|.initiator| or \verb|.terminator|, and the parentheses are
-merely written here to indicate sublists in the expression structure.
-
-\newpage
-
-\begin{indpar}[1em]
-
-\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
-\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
-\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
-
-\bigskip
-
-\ttmkey{sentence}{parser} \hfill
-	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
-
-\begin{indpar}[0.5em]
-Terminators may not be consecutive, may not begin an expression,
-and must end an expression.  Thus each between-terminator subexpression
-is non-empty and is followed by a terminator.
-Each between-terminator subexpression is converted if necessary
-to a list.  Then a \ttmkey{.terminator}{produced by parsing}
-attribute is added to this list whose value is the terminator following the
-subexpression.  If there is only one subexpression, the list it produces
-is the parse result.  Otherwise the result is the list of all the subexpression
-lists.
-\end{indpar}
-
-\bigskip
-
-
-\ttmkey{subsentence}{parser} \hfill
-	\key{subsentence separator}: \NBOP{;} \\
-\ttmkey{phrase}{parser} \hfill
-	\key{phrase separator}: \NBOP{,}
-
-\begin{indpar}[0.5em]
-Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
-priority levels and different parsers, and so cannot appear together
-in the same expression.
-
-A list of all between-separator subexpressions is made, with empty
-between-separator subexpressions being represented by objects with
-no attributes.  There will be at least two subexpressions: one following
-the last separator and one preceding the first separator.
-The list of subexpressions is given a
-\ttmkey{.separator}{produced by parsing}
-attribute with value of the separator (\verb|";"| or \verb|","|),
-and is returned as the result of the parse.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{assign}{parser} \hfill
-	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
-
-\begin{indpar}[0.5em]
-Assign operators may not be consecutive and may not begin or end an expression.
-The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
-may not be mixed in the same expression.
-The results are rewritten using the two-argument assignment function \verb|<-|,
-making multiple assignments from right to left.
-
-\begin{indpar}[0.5em]
-\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))| \\
-\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))|
-\end{indpar}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{logical}{parser} \hfill
-	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
-
-\begin{indpar}[0.5em]
-One expression cannot have both {\tt AND} and {\tt OR} operators
-outside explicitly bracketed subexpressions.  The {\tt NOT} operator
-can only occur at the beginning of an expression or just after {\tt AND}
-or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
-before a {\tt NOT}, which must always be empty.
-
-The expression is rewritten using a multi-argument {\tt AND}
-or {\tt OR} function and a single argument {\tt NOT} function.
-
-\begin{indpar}[0.5em]
-\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
-\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (NOT x) (NOT y) z w| \\
-\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
-\\\hspace*{1in}
-\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
-\end{indpar}
-
-Note that {\tt NOT} is not a classical prefix operator, which would have
-higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
-and {\tt OR} may not be used in the same logical expression without using
-explicit brackets.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{compare}{parser} \hfill
-	\skey{compare operator}s:
-	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
-	\NBOP{/=} ~ \NBOP{!=} ~
-	\NBOP{=>} ~ \NBOP{>=} ~
-	\NBOP{=<} ~ \NBOP{<=}
-
-\begin{indpar}[0.5em]
-Subexpressions cannot be empty, and a compare operator may not
-begin or end an expression.
-The expression is rewritten using a multi-argument {\tt AND}
-function and two-argument compare functions.  Temporary variables
-(\secref{TEMPORARY-VARIABLES})
-are used to name intermediate expression values to
-avoid recomputing arguments.
-
-\begin{indpar}[0.5em]
-\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z))| \\
-\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
-\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
-	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
-			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
-			  & \verb|(<= (.tmp 58) x)| \\
-	       \end{tabular}
-\end{indpar}
-
-Note that sequences of comparison operators are treated as they are
-in mathematics and not as they are in classical programming languages.
-E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
-\verb|(x<y)<z|.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{sum}{parser} \hfill
-	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
-
-\begin{indpar}[0.5em]
-Addition operators may not be consecutive and may not end an expression.
-The results are rewritten using the multi-argument summation function \verb|+|
-and the unary negation function \verb|-|.
-
-\begin{indpar}[0.5em]
-\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
-\verb|+ (- x) y z (- w)|
-\end{indpar}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{product}{parser} \hfill
-	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
-
-\begin{indpar}[0.5em]
-The two different kinds of multiplication operators, \verb|*| and \verb|/|,
-cannot be mixed in the same expression.
-Multiplication operators may not be consecutive and may neither begin
-nor end an expression.  The division operator \verb|/| must have exactly
-two operands.  The results are rewritten using
-the multi-argument multiplication function \verb|*| or the binary
-division function \verb|/|.  E.g.:
-
-\begin{indpar}[0.5em]
-\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
-\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
-
-\end{indpar}
-\end{indpar}
-
-
-\end{indpar}
 
 
 
