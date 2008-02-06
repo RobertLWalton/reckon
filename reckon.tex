@@ -1113,13 +1113,12 @@ contains in order the following lexemes:
 
 \begin{indpar}
 \key{lexeme}
-	::= {\em symbol}
+	::= {\em symbol} $|$ {\em number}
 	$|$ {\em separator}
 	\\[1ex]
 \key{symbol}
 	::= {\em word}
 	$|$ {\em mark}
-	$|$ {\em number}
 	$|$ {\em quoted-string}
 	\\[1ex]
 \key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
@@ -1338,12 +1337,13 @@ In order to indicate spacing, each lexeme is
 tagged with the column, line, and page number of its first character.
 This can be used to determine the indentation and extent of the lexeme.
 
-Words, marks, numbers, and quoted strings are called \skey{symbol}s,
-to distinguish them from separators.
+Words, marks, and quoted strings are called \skey{symbol}s,
+to distinguish them from separators and numbers.
 Unless specified otherwise, a unquoted symbol may be quoted without changing
-its meaning; i.e., \verb|fie| and \verb|5.9| mean the same thing
-as \verb|"fie"| and \verb|"5.9"|.  However, to be a symbol a separator
-must be quoted (e.g., \verb|","| and \verb|"`"|), and to protect a symbol from
+its meaning; i.e., \verb|fie| and \verb|*| mean the same thing
+as \verb|"fie"| and \verb|"*"|.  However, to be a symbol a separator
+or number must be quoted (e.g., \verb|","| and \verb|"5.9"|),
+and to protect a symbol from
 a special interpretation by a parser the symbol must be quoted
 (e.g., \verb|"+"| will not be recognized as an operator in a context
 in which \verb|+| would be).
@@ -1352,8 +1352,7 @@ in which \verb|+| would be).
 
 A \key{datum} in MIN is either an atom, an object, or an arrow.
 
-An \key{atom} is either a symbol (word, mark, separator, or quoted string) or a
-number.
+An \key{atom} is a symbol or a number.
 
 An object is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
@@ -1361,11 +1360,11 @@ every other object and from every atom.  But it is nothing more.
 
 However, as a place in memory, an object has a name.  Objects are assigned
 \skey{raw object name}s
-of the form `\ttmnbkey{\#\#}{in raw object name}$I$' where $I$
+of the form `\ttmnbkey{@}{in raw object name}$I$' where $I$
 is an integer.  Raw object names of this form are assigned only to objects
 that must be named in an output stream (e.g., printed output).
 The first object named in output stream is assigned the name
-\verb|##1|, the second object named in output the name \verb|##2|,
+\verb|@1|, the second object named in output the name \verb|@2|,
 and so forth.  The same object may be assigned different names in different
 output streams.\footnote{A possible implementation is to give objects that
 have been assigned names in an output stream a hidden system defined output
@@ -1493,7 +1492,7 @@ The format of a \key{raw representation} is:
 
 \begin{tabular}{l}
 \emkey{object-name} ::=
-	\ttmnbkey{\#\#}{in {\em object-name}} {\em non-negative-integer}
+	\ttmnbkey{@}{in {\em object-name}} {\em non-negative-integer}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1531,7 +1530,7 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{special-lexeme}
     \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;;| \\
+    ::= & \verb|@| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;;| \\
     $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
     \end{tabular}
 \end{tabular}
@@ -1541,18 +1540,18 @@ A simple example of the raw representation of a set of objects is:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|##1::|\\
+\verb|@1::|\\
 \verb|    type: woman;;|\\
 \verb|    name: Jill;;|\\
-\verb|    husband: ##2 :wife;;|\\
-\verb|##2::|\\
+\verb|    husband: @2 :wife;;|\\
+\verb|@2::|\\
 \verb|    type: man;;|\\
 \verb|    name: Jack;;|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
 \put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
 \put(0.7,1.15){\oval(0.8,0.3)}
 \put(0.5,1.00){\vector(0,-1){0.5}}
 \put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
@@ -1560,7 +1559,7 @@ A simple example of the raw representation of a set of objects is:
 \put(0.9,1.00){\vector(0,-1){0.7}}
 \put(0.95,0.55){\makebox(0,0)[l]{\tt name}}
 \put(0.9,0.2){\makebox(0,0){\tt Jill}}
-\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt @2}}
 \put(2.3,1.15){\oval(0.8,0.3)}
 \put(2.1,1.00){\vector(0,-1){0.5}}
 \put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
@@ -1577,23 +1576,23 @@ A simple example of the raw representation of a set of objects is:
 \end{center}
 
 This represents two objects.
-There are two single attributes of object \verb|##1| (arrows sourced
-at \verb|##1|),
+There are two single attributes of object \verb|@1| (arrows sourced
+at \verb|@1|),
 one attribute labeled {\tt type} whose value (target) is the atom {\tt woman},
 and one attribute labeled {\tt name} whose value is the atom {\tt Jill}.
-There are two similar single attributes from object \verb|##2|.
+There are two similar single attributes from object \verb|@2|.
 There is a double attribute (double arrow)
 between the two objects which has the
-label {\tt husband} when going from \verb|##1| to \verb|##2|
+label {\tt husband} when going from \verb|@1| to \verb|@2|
 and the label {\tt wife} when going in the reverse direction.
 
 In order to permit \verb|:| to be used in an attribute label, the following
 \key{quote representation rule} is applied to representations.
 A quoted symbol cannot be recognized as an atom that has special
 meaning in a representation, such as the \verb|::|, \verb|:|,
-\verb|##|, or \verb|;;| atoms in raw representations.  Thus if any
+\verb|@|, or \verb|;;| atoms in raw representations.  Thus if any
 of these atoms are to be part of an attribute label or value, they should
-be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
+be represented by \verb|"::"|, \verb|":"|, \verb|"@"|, or \verb|";;"|.
 Other than this rule, there is no
 distinction between quoted and unquoted representations of unquoted atoms.
 
@@ -1619,18 +1618,18 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|##1::|\\
+\verb|@1::|\\
 \verb|    type: woman;;|\\
 \verb|    name-: Jill;;|\\
-\verb|    husband@: ##2 :@wife;;|\\
-\verb|##2::|\\
+\verb|    husband*: @2 :*wife;;|\\
+\verb|@2::|\\
 \verb|    type: man;;|\\
 \verb|    name+: Jack;;|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
 \put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
 \put(0.7,1.15){\oval(0.8,0.3)}
 \put(0.5,1.00){\vector(0,-1){0.5}}
 \put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
@@ -1638,7 +1637,7 @@ have been added to some of the attributes:
 \put(0.9,1.00){\vector(0,-1){0.7}}
 \put(0.95,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt -}}$}}
 \put(0.9,0.2){\makebox(0,0){\tt Jill}}
-\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt @2}}
 \put(2.3,1.15){\oval(0.8,0.3)}
 \put(2.1,1.00){\vector(0,-1){0.5}}
 \put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
@@ -1649,8 +1648,8 @@ have been added to some of the attributes:
 \put(1.1,1.17){\vector(1,0){0.8}}
 \put(1.9,1.13){\vector(-1,0){0.8}}
 \put(1.5,1.15){\oval(0.07,0.12)}
-\put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt @}}$}}
-\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt @}}$}}
+\put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt *}}$}}
+\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt *}}$}}
 \end{picture}
 \end{center}
 
@@ -1660,19 +1659,19 @@ attribute labels, and in the text the flags have been added before or after the
 
 Several attributes of the same object (arrows sourced at the object)
 may have the same attribute
-label.  An example of this, in which object \verb|##1| has two
+label.  An example of this, in which object \verb|@1| has two
 attributes labeled \verb|child|, is:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|##1::|\\
-\verb|    child: ##2 :parent;;|\\
-\verb|    child: ##3 :parent;;|\\
+\verb|@1::|\\
+\verb|    child: @2 :parent;;|\\
+\verb|    child: @3 :parent;;|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
 \put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(2.4,0.3){\tt \#\#1}}
+\put(0.3,1.00){\makebox(2.4,0.3){\tt @1}}
 \put(1.5,1.15){\oval(2.4,0.3)}
 \put(0.65,1.00){\vector(0,-1){0.6}}
 \put(0.60,0.80){\makebox(0,0)[r]{\tt child}}
@@ -1682,15 +1681,15 @@ attributes labeled \verb|child|, is:
 \put(2.20,0.80){\makebox(0,0)[r]{\tt child}}
 \put(2.35,0.40){\vector(0,1){0.6}}
 \put(2.40,0.55){\makebox(0,0)[l]{\tt parent}}
-\put(0.3,0.10){\makebox(0.8,0.3){\tt \#\#2}}
+\put(0.3,0.10){\makebox(0.8,0.3){\tt @2}}
 \put(0.7,0.25){\oval(0.8,0.3)}
-\put(1.9,0.10){\makebox(0.8,0.3){\tt \#\#3}}
+\put(1.9,0.10){\makebox(0.8,0.3){\tt @3}}
 \put(2.3,0.25){\oval(0.8,0.3)}
 \end{picture}
 \end{center}
 
-We say that the value of the \verb|child| attribute of \verb|##1| is
-the set to two elements, \verb|##2| and \verb|##3|.
+We say that the value of the \verb|child| attribute of \verb|@1| is
+the set to two elements, \verb|@2| and \verb|@3|.
 
 Differences between \ttnbkey{::}, \ttnbkey{>:}, are \ttnbkey{>>:} relate
 to what is done when an object or attribute label previously exists.
@@ -1726,15 +1725,15 @@ Usually one end of a double attribute is
 thought of as the primary end, and its object representation is used to
 include the sole representation of the double attribute.
 
-The {\em object-name} \ttnbkey{\#\#0} is special; it always names
+The {\em object-name} \ttnbkey{@0} is special; it always names
 a particular object, the \ttkey{.GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
 object itself, a situation which can be achieved by the data representation:
 
 \begin{indpar}\begin{verbatim}
-##0>:
-    .GLOBAL: ##0
+@0>:
+    .GLOBAL: @0
 \end{verbatim}\end{indpar}
 
 Words beginning with `\ttkey{.}' are reserved for use by
@@ -1755,14 +1754,14 @@ that are organized like lists and represent them as lists.
 For example,
 
 \begin{indpar}\begin{verbatim}
-##93:: This is a sentence.
+@93:: This is a sentence.
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the object
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|##93::|\\
+\verb|@93::|\\
 \verb|    1: this|\\
 \verb|    2: is|\\
 \verb|    3: a|\\
@@ -1773,7 +1772,7 @@ is the cooked representation of the object
 ~~~~~
 \begin{picture}(4.1,1.5)
 \put(0,0){\framebox(4.1,1.5){}}
-\put(0.3,1.00){\makebox(3.4,0.3){\tt \#\#93}}
+\put(0.3,1.00){\makebox(3.4,0.3){\tt @93}}
 \put(2.0,1.15){\oval(3.4,0.3)}
 \put(1.00,1.00){\vector(0,-1){0.4}}
 \put(0.95,0.85){\makebox(0,0)[r]{\tt .initiator}}
@@ -1800,36 +1799,36 @@ The following is a second example in which parentheses \verb|( )|
 are used to permit the operator \verb|+| to be recognized, so that
 
 \begin{indpar}\begin{verbatim}
-##45:: straight 3.2; left; straight (y + 9.4)
+@45:: straight 3.2; left; straight (y + 9.4)
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the objects
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|##42::|\\
+\verb|@42::|\\
 \verb|    1: straight|\\
 \verb|    2: 3.2|\\
-\verb|##43::|\\
+\verb|@43::|\\
 \verb|    1: "+"|\\
 \verb|    2: y|\\
 \verb|    3: 9.4|\\
 \verb|    initiator: "("|\\
 \verb|    terminator: ")"|\\
-\verb|##44:: |\\
+\verb|@44:: |\\
 \verb|    1: straight|\\
-\verb|    2: ##43|\\
-\verb|##45::|\\
-\verb|    1: ##42|\\
+\verb|    2: @43|\\
+\verb|@45::|\\
+\verb|    1: @42|\\
 \verb|    2: left|\\
-\verb|    3: ##44|\\
+\verb|    3: @44|\\
 \verb|    .separator: ";"|\\
 \end{tabular}
 ~~~~~
 \begin{picture}(4.1,3.2)
 \put(0,0){\framebox(4.1,3.2){}}
 \put(1.4,0.0){
-\put(0.0,0.90){\makebox(2.0,0.3){\tt \#\#43}}
+\put(0.0,0.90){\makebox(2.0,0.3){\tt @43}}
 \put(1.0,1.05){\oval(2.0,0.3)}
 \put(0.40,0.90){\vector(0,-1){0.4}}
 \put(0.35,0.75){\makebox(0,0)[r]{\tt .initiator}}
@@ -1848,7 +1847,7 @@ is the cooked representation of the objects
 \put(1.65,0.75){\makebox(0,0)[l]{\tt .terminator}}
 }
 \put(0.2,1.3){
-\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#42}}
+\put(0.0,0.50){\makebox(1.2,0.3){\tt @42}}
 \put(0.60,0.65){\oval(1.2,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.3}}
 \put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
@@ -1858,7 +1857,7 @@ is the cooked representation of the objects
 \put(0.90,0.10){\makebox(0,0)[c]{\tt 3.2}}
 }
 \put(2.2,1.3){
-\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#44}}
+\put(0.0,0.50){\makebox(1.2,0.3){\tt @44}}
 \put(0.60,0.65){\oval(1.2,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.3}}
 \put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
@@ -1867,7 +1866,7 @@ is the cooked representation of the objects
 \put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
 }
 \put(0.2,2.2){
-\put(0.0,0.50){\makebox(3.2,0.3){\tt \#\#45}}
+\put(0.0,0.50){\makebox(3.2,0.3){\tt @45}}
 \put(1.60,0.65){\oval(3.2,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.6}}
 \put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
@@ -1888,13 +1887,13 @@ curly brackets (\verb|{ }|) are used with multiple
 lines and indentation to represent code, so that
 
 \begin{indpar}\begin{verbatim}
-##138:: function (x,y)
-        {
+@138:: function (x,y)
+       {
            if (x > y):
                return y
            else:
                return x
-        }
+       }
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the object in
@@ -1905,49 +1904,49 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 
 \begin{center}
 \begin{tabular}[t]{@{}l@{}}
-\verb|##130::|\\
+\verb|@130::|\\
 \verb|    1: x|\\
 \verb|    2: y|\\
 \verb|    .separator: ","|\\
 \verb|    .initiator: "("|\\
 \verb|    .terminator: ")"|\\
-\verb|##131::|\\
+\verb|@131::|\\
 \verb|    1: ">"|\\
 \verb|    2: x|\\
 \verb|    3: y|\\
 \verb|    .initiator: "("|\\
 \verb|    .terminator: ")"|\\
-\verb|##132::|\\
+\verb|@132::|\\
 \verb|    1: return|\\
 \verb|    2: y|\\
 \verb|    .initiator: ":"|\\
-\verb|##133::|\\
+\verb|@133::|\\
 \verb|    1: if|\\
-\verb|    2: ##131|\\
-\verb|    3: ##132|\\
-\verb|##134::|\\
+\verb|    2: @131|\\
+\verb|    3: @132|\\
+\verb|@134::|\\
 \verb|    1: return|\\
 \verb|    2: x|\\
 \verb|    .initiator: ":"|\\
-\verb|##135::|\\
+\verb|@135::|\\
 \verb|    1: else|\\
-\verb|    2: ##134|\\
-\verb|##136::|\\
-\verb|    1: ##133|\\
-\verb|    2: ##135|\\
+\verb|    2: @134|\\
+\verb|@136::|\\
+\verb|    1: @133|\\
+\verb|    2: @135|\\
 \verb|    .initiator: "{"|\\
 \verb|    .terminator: "}"|\\
 \end{tabular}
 ~~~~~
 \begin{tabular}[t]{@{}l@{}}
-\verb|##137::|\\
+\verb|@137::|\\
 \verb|    1: function|\\
-\verb|    2: ##130|\\
-\verb|    3: ##136|\\[2ex]
+\verb|    2: @130|\\
+\verb|    3: @136|\\[2ex]
 \begin{picture}(4.0,5.5)
 \put(0,0){\framebox(4.0,5.5){}}
 \put(0.6,0.0){
-\put(0.0,0.50){\makebox(2.0,0.3){\tt \#\#131}}
+\put(0.0,0.50){\makebox(2.0,0.3){\tt @131}}
 \put(1.0,0.65){\oval(2.0,0.3)}
 \put(0.40,0.50){\vector(0,-1){0.25}}
 \put(0.35,0.40){\makebox(0,0)[r]{\tt .initiator}}
@@ -1966,7 +1965,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(1.60,0.15){\makebox(0,0)[c]{\tt ")"}}
 }
 \put(1.4,1.4){
-\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#132}}
+\put(0.0,0.50){\makebox(1.3,0.3){\tt @132}}
 \put(0.65,0.65){\oval(1.3,0.3)}
 \put(0.20,0.50){\vector(0,-1){0.25}}
 \put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
@@ -1979,7 +1978,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(1.10,0.15){\makebox(0,0)[c]{\tt y}}
 }
 \put(2.6,0.7){
-\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#134}}
+\put(0.0,0.50){\makebox(1.3,0.3){\tt @134}}
 \put(0.65,0.65){\oval(1.3,0.3)}
 \put(0.20,0.50){\vector(0,-1){0.25}}
 \put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
@@ -1992,7 +1991,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(1.10,0.15){\makebox(0,0)[c]{\tt x}}
 }
 \put(0.2,2.0){
-\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#133}}
+\put(0.0,0.50){\makebox(1.2,0.3){\tt @133}}
 \put(0.60,0.65){\oval(1.2,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.25}}
 \put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
@@ -2011,7 +2010,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(0.85,0.40){\makebox(0,0)[r]{\tt 3}}
 }
 \put(2.8,2.0){
-\put(0.0,0.50){\makebox(0.8,0.3){\tt \#\#135}}
+\put(0.0,0.50){\makebox(0.8,0.3){\tt @135}}
 \put(0.40,0.65){\oval(0.8,0.3)}
 \put(0.20,0.50){\vector(0,-1){0.25}}
 \put(0.15,0.40){\makebox(0,0)[r]{\tt 1}}
@@ -2020,7 +2019,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
 }
 \put(1.5,2.4){
-\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#136}}
+\put(0.2,1.00){\makebox(1.3,0.3){\tt @136}}
 \put(0.85,1.15){\oval(1.3,0.3)}
 \put(0.40,1.00){\vector(0,-1){0.25}}
 \put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
@@ -2038,7 +2037,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(1.30,0.65){\makebox(0,0)[c]{\tt "\RIGHTBRACKET"}}
 }
 \put(0.6,3.2){
-\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#130}}
+\put(0.2,1.00){\makebox(1.3,0.3){\tt @130}}
 \put(0.85,1.15){\oval(1.3,0.3)}
 \put(0.40,1.00){\vector(0,-1){0.25}}
 \put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
@@ -2057,7 +2056,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(2.55,1.15){\makebox(0,0)[l]{\tt ","}}
 }
 \put(0.2,4.5){
-\put(0.0,0.50){\makebox(3.6,0.30){\tt \#\#137}}
+\put(0.0,0.50){\makebox(3.6,0.30){\tt @137}}
 \put(1.80,0.65){\oval(3.6,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.25}}
 \put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
@@ -2081,24 +2080,24 @@ Cooked representations may replace raw object names in the
 description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
-##291:: text: This is a sentence.
-        outline: straight 3.2, left, straight (y + 9.4)
-        min: function (x,y)
-             {
+@291:: text: This is a sentence.
+       outline: straight 3.2, left, straight (y + 9.4)
+       min: function (x,y)
+            {
                 if (x > y):
                     return y
                 else:
                     return x
-             }
+            }
 \end{verbatim}\end{indpar}
 
 which is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
-##291::
-    text: ##93
-    outline: ##45
-    min: ##137
+@291::
+    text: @93
+    outline: @45
+    min: @137
 \end{verbatim}\end{indpar}
 
 given the above examples.
@@ -2106,29 +2105,29 @@ given the above examples.
 One question left unanswered by the discussion so far is whether
 
 \begin{indpar}\begin{verbatim}
-##291:: text A: This is a sentence.
-        text B: This is a sentence.
+@291:: text A: This is a sentence.
+       text B: This is a sentence.
 \end{verbatim}\end{indpar}
 
 represents
 
 \begin{indpar}\begin{verbatim}
-##291::
-    text A: ##93
-    text B: ##93
+@291::
+    text A: @93
+    text B: @93
 \end{verbatim}\end{indpar}
 
 or instead
 
 \begin{indpar}\begin{verbatim}
-##291::
-    text A: ##93
-    text B: ##999
+@291::
+    text A: @93
+    text B: @999
 \end{verbatim}\end{indpar}
 
-where object \verb|##999| happens to have the same structure as
-object \verb|##93|.  The default is to make both \verb|text A|
-and \verb|text B| be the same object, \verb|##93|, and to make
+where object \verb|@999| happens to have the same structure as
+object \verb|@93|.  The default is to make both \verb|text A|
+and \verb|text B| be the same object, \verb|@93|, and to make
 that object `immutable', meaning that it cannot be changed.  The
 rule is that unless otherwise indicated, only immutable objects
 have the property that their cooked representations can replace
@@ -2215,7 +2214,7 @@ priority & parser	& operators	& meaning
 	& addition, subtraction \\
 +3100 & \ttkey{product} &  \ttnbkey{*} ~~~ \ttnbkey{/} 
 	& multiplication, division \\
-+9999 & \ttkey{objname} &  \ttnbkey{\#\#}
++9999 & \ttkey{objname} &  \ttnbkey{@}
 	& object name \\
 \end{tabular}
 
@@ -2310,7 +2309,7 @@ If the expression is part of a
 a value of the attribute.  For example, the cooked representation
 
 \begin{indpar}\begin{verbatim}
-##401::
+@401::
     text A: This is a sentence.
     expression B: ( x + 8 )
 \end{verbatim}\end{indpar}
@@ -2318,17 +2317,17 @@ a value of the attribute.  For example, the cooked representation
 is equivalent to the raw representation
 
 \begin{indpar}\begin{verbatim}
-##401::
-    text A: ##402
-    expression B: ##403
-##402::
+@401::
+    text A: @402
+    expression B: @403
+@402::
     1: this
     2: is
     3: a
     4: sentence
     .initiator: capital
     .terminator: "."
-##403::
+@403::
     1: "+"
     2: x
     3: 8
@@ -2346,14 +2345,14 @@ named `\ttmkey{1}{defined in cooked representation}'.  For example,
 the cooked representation
 
 \begin{indpar}\begin{verbatim}
-##410:: This is a sentence.
+@410:: This is a sentence.
         x: 5
 \end{verbatim}\end{indpar}
 
 is equivalent to the raw representation
 
 \begin{indpar}\begin{verbatim}
-##410::
+@410::
     1: this
     2: is
     3: a
@@ -2366,14 +2365,14 @@ is equivalent to the raw representation
 and the cooked representation
 
 \begin{indpar}\begin{verbatim}
-##411:: hi
+@411:: hi
         x: 5
 \end{verbatim}\end{indpar}
 
 is equivalent to the raw representation
 
 \begin{indpar}\begin{verbatim}
-##411::
+@411::
     1: hi
     x: 5
 \end{verbatim}\end{indpar}
@@ -2569,25 +2568,25 @@ For example, given the input
 \verb|`The "+" in (x + 5 * y) is an operator.'|
 \end{center}
 
-the lexical scanning algorithm outputs object \verb|##1| in the
+the lexical scanning algorithm outputs object \verb|@1| in the
 following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
 
 \begin{indpar}\begin{verbatim}
-##1::
+@1::
     1 : The
-    2 : ##2
+    2 : @2
     3 : in
-    4 : ##3
+    4 : @3
     5 : is
     6 : an
     7 : operator
     8 : .
     .initiator: "`"
     .terminator: "'"
-##2::
+@2::
     1: "+"
     .initiator: quoted
-##3::
+@3::
     1 : x
     2 : "+"
     3 : 5
@@ -2688,31 +2687,31 @@ which was derived from the lexeme sequence,
 operator scanning returns:
 
 \begin{indpar}\begin{verbatim}
-##1::
-    1 : ##4
+@1::
+    1 : @4
     2 : .
     .initiator: "`"
     .terminator: "'"
     .parser: sentence
-##4::
+@4::
     1 : The
-    2 : ##2
+    2 : @2
     3 : in
-    4 : ##3
+    4 : @3
     5 : is
     6 : an
     7 : operator
-##2::
+@2::
     1: "+"
     .initiator: quoted
-##3::
+@3::
     1 : x
     2 : "+"
-    3 : ##5
+    3 : @5
     .initiator: "("
     .terminator: ")"
     .parser: sum
-##5::
+@5::
     1 : 5
     2 : "*"
     3 : y
