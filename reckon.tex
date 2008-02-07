@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 6, 2008}
+\date{February 7, 2008}
  
 \maketitle
 
@@ -1436,27 +1436,68 @@ which we now describe.
 
 The format of a \key{raw representation} is:
 
-\begin{indpar}
+\begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{raw-representation} ::= {\em raw-object-representation} \ldots
+\emkey{raw-representation}
+\\\hspace*{0.5in}\begin{tabular}[t]{rl}
+                 ::= & {\em empty} \\
+		 $|$ & {\em raw-object-representation}
+		       \{ \verb|;| {\em raw-object-representation} \}$^\star$
+		 \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{raw-object-representation} ::=
-    {\em raw-object-header}
-    {\em raw-attribute-representation} \ldots
+\\\hspace*{0.5in}
+    {\em raw-object-header} {\em single-attribute-value}$^\star$
+    {\em raw-attribute-representations}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-name} \ttmkey{:}{in {\em raw-object-header}} \\
-    $|$ & {\em object-name} \verb|>|{\tt \bf :}%
-          \ttmindex{>:}{in {\em raw-object-header}} \\
-    $|$ & {\em object-name} \verb|>>|{\tt \bf :}%
-          \ttmindex{>>:}{in {\em raw-object-header}} \\
+    ::= & {\em object-name} \verb|=|
+          \ttmindex{=}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>|
+          \ttmindex{>}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>>|
+          \ttmindex{>>}{in {\em raw-object-header}} \\
     \end{tabular}
 \end{tabular}
+
+\begin{tabular}{l}
+\emkey{object-name} ::=
+	\ttmnbkey{@}{in {\em object-name}} {\em non-negative-integer}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{non-negative-integer} ::=
+\\\hspace*{0.5in}
+{\em number} lexeme (\pagref{NUMBER-LEXEME})
+				 containing only digits and commas
+\end{tabular}%
+
+\begin{tabular}{l}
+\emkey{raw-attribute-representations}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        ::= & {\em empty} \\
+	$|$ & \underline{\LEFTBRACKET}
+	      {\em raw-attribute-representation-list}
+	      \underline{\RIGHTBRACKET}
+	\end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{raw-attribute-representation-list}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        ::= & {\em empty} \\
+	$|$ & {\em raw-attribute-representation}
+	      \{ \verb|;| {\em raw-attribute-representation} \}$^\star$
+	\end{tabular}
+\end{tabular}
+
 
 \begin{tabular}{l}
 \emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
@@ -1468,50 +1509,11 @@ The format of a \key{raw representation} is:
 
 \begin{tabular}{l}
 \emkey{raw-single-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
+\\\hspace*{0.5in}
+	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
 	{\em single-attribute-value}
-	\ttmkey{;}{in {\em raw-single-attribute}!{\em -representation}}
 \end{tabular}%
 \index{value!attribute}
-
-\begin{tabular}{l}
-\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{atom} ::= {\em symbol} $|$ {\em number}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{symbol} ::= see \pagref{SYMBOL-LEXEME}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-double-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-	{\em double-attribute-value}
-\\\hspace*{1in}
-	{\em attribute-label-initiator} {\em reverse-attribute-label}
-	\ttmkey{;}{in {\em raw-double-attribute-representation}}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{double-attribute-value} ::= {\em object-name}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{object-name} ::=
-	\ttmnbkey{@}{in {\em object-name}} {\em non-negative-integer}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{non-negative-integer} ::=
-\\\hspace*{1in}
-{\em number} lexeme (\pagref{NUMBER-LEXEME})
-				 containing only digits and commas
-\end{tabular}%
 
 \begin{tabular}{l}
 \emkey{attribute-label} ::= {\em label}
@@ -1519,59 +1521,77 @@ The format of a \key{raw representation} is:
 \index{label!attribute}
 
 \begin{tabular}{l}
-\emkey{reverse-attribute-label} ::= {\em label}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{label} ::= {\em atom} \ldots
+\emkey{label} ::= {\em atom}$^\star$
 \end{tabular}%
 \index{label}
 
 \begin{tabular}{l}
-\emkey{attribute-label-terminator} ::=
-	{\em flag-character}\ldots{\tt \bf :}%
-	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
-	attribute-label-terminator}~~~~~(a mark)
+\emkey{attribute-label-flags-option} ::= {\em empty} $|$ [ {\em symbol} ]
+\end{tabular}%
+\index{flags!attribute label}%
+\index{attribute label!flags}
+
+\begin{tabular}{l}
+\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{attribute-label-initiator} ::=
-	{\tt \bf :}{\em flag-character}\ldots%
-	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
-	attribute-label-initiator}~~~~~(a mark)
+\emkey{atom} ::= {\em non-special-symbol} $|$ {\em number}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{flag-character} ::= {\em mark-character}
-		except \verb|:|, \verb|<|, or \verb|>|
+\emkey{non-special-symbol} ::= see text
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{atom} ::= {\em non-special-lexeme}
+\emkey{raw-double-attribute-representation} ::=
+\\\hspace*{0.5in}
+	{\em attribute-label} {\em attribute-label-flags-option}
+	{\em double-attribute-value}
+\\\hspace*{0.5in}
+	 {\em reverse-attribute-label} {\em attribute-label-flags-option}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{special-lexeme}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & \verb|@| $|$ \verb|:| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;| \\
-    $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
-    \end{tabular}
+\emkey{double-attribute-value} ::= {\em object-name}
 \end{tabular}
+
+\begin{tabular}{l}
+\emkey{reverse-attribute-label} ::= {\em label}
+\end{tabular}
+
 \end{indpar}
 
-A simple example of the raw representation of a set of objects is:
+This syntax uses \verb|{ }| brackets and \verb|;| separators, but
+these can be replaced by indentation and the \verb|:| mark according
+to rules given in \secref{INDENTATION-LEXEME-INSERTION}.  Roughly,
+everything is indented appropriately so the \verb|{|, \verb|;|,
+and \verb|}| separators are all at line ends, and then the \verb|{|'s
+are replaced by \verb|:|'s and the \verb|;|'s and \verb|}|'s are
+deleted.  A \verb|:| can be glued to a previous mark, i.e.,
+\verb|= {| can be replaced by \verb|=:|.  For example,
+
+\begin{indpar}\begin{verbatim}
+@1 = { type = woman; name = Jill; husband = @2 wife };
+@2 = { type = man; name = Jack }
+\end{verbatim}\end{indpar}
+
+becomes
+
+\begin{indpar}\begin{verbatim}
+@1 =:
+    type = woman
+    name = Jill
+    husband = @2 wife
+@2 =:
+    type = man
+    name = Jack
+\end{verbatim}\end{indpar}
+
+These are {\em raw-representations} of an object pair that can
+be represented pictorially as:
 
 \begin{center}
-\begin{tabular}[b]{@{}l@{}}
-\verb|@1:|\\
-\verb|    type: woman;|\\
-\verb|    name: Jill;|\\
-\verb|    husband: @2 :wife;|\\
-\verb|@2:|\\
-\verb|    type: man;|\\
-\verb|    name: Jack;|\\
-\end{tabular}
-~~~~~~~~~
 \begin{picture}(3.0,1.5)
 \put(0,0){\framebox(3.0,1.5){}}
 \put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
@@ -1598,7 +1618,6 @@ A simple example of the raw representation of a set of objects is:
 \end{picture}
 \end{center}
 
-This represents two objects.
 There are two single attributes of object \verb|@1| (arrows sourced
 at \verb|@1|),
 one attribute labeled {\tt type} whose value (target) is the atom {\tt woman},
@@ -1609,20 +1628,30 @@ between the two objects which has the
 label {\tt husband} when going from \verb|@1| to \verb|@2|
 and the label {\tt wife} when going in the reverse direction.
 
-In order to permit \verb|:| to be used in an attribute label, the following
-\key{quote representation rule} is applied to representations.
-A quoted symbol cannot be recognized as an atom that has special
-meaning in a representation, such as the \verb|:|,
-\verb|@|, or \verb|;| atoms in raw representations.  Thus if any
-of these atoms are to be part of an attribute label or value, they should
-be represented by \verb|":"|, \verb|"@"|, or \verb|";"|.
+Note that in this syntax
+only \emkey{non-special-symbols} may be used as {\em atoms}
+that are parts of labels or attribute values.  A \key{special symbol}
+is something like \verb|=| or \verb|+| that is given a special
+interpretation during parsing.  In order to use a special symbol
+as an atom in an attribute label or value,
+it must be quoted; e.g., \verb|"="| must be used instead
+of \verb|=| in a label.  This prevents the symbol from being confused with
+the \verb|=| that follows the label.  In general, quoting a word or mark in an
+attribute label or value never hurts,
+as if the word or mark is not special, its quoted and unquoted
+versions have the same meaning; e.g., \verb|"type"| and \verb|type|
+denote the same symbol.  Consequently,
+it is a good idea to quote any mark that is
+used in a label, and also to quote words that are used
+as operators, such as \verb|"if"|, \verb|"then"|, and \verb|"else"|.
 
-Other than this rule, there is no
-distinction between quoted and unquoted representations of symbols.
-However, quoted numbers and unquoted numbers are distinct;
+Note, however, that quoted numbers and unquoted numbers are distinct;
 quoted numbers are symbols and numbers are not.  When numbers are
 input, details such as the presence of commas are lost, so when
-the numbers are output, they may or may not have commas.
+the numbers are output, they may or may not have commas.  Thus
+\verb|1,000| may become \verb|1000| on output.  This is
+not true of symbols, so it would not be true of \verb|"1,000"|,
+which would be \verb|1,000| on output.
 
 It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters
@@ -1632,13 +1661,13 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@1:|\\
-\verb|    type: woman;|\\
-\verb|    name-: Jill;|\\
-\verb|    husband*: @2 :*wife;|\\
-\verb|@2:|\\
-\verb|    type: man;|\\
-\verb|    name+: Jack;|\\
+\verb|@1 =:|\\
+\verb|    type = woman|\\
+\verb|    name[-] = Jill|\\
+\verb|    husband[*] = @2 wife[*]|\\
+\verb|@2 =:|\\
+\verb|    type = man|\\
+\verb|    name[+] = Jack|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -1678,9 +1707,9 @@ attributes labeled \verb|child|, is:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@1:|\\
-\verb|    child: @2 :parent;|\\
-\verb|    child: @3 :parent;|\\
+\verb|@1 =:|\\
+\verb|    child = @2 parent|\\
+\verb|    child = @3 parent|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -1747,7 +1776,7 @@ object itself, a situation which can be achieved by the data representation:
 
 \begin{indpar}\begin{verbatim}
 @0>:
-    .GLOBAL: @0
+    .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
 Words beginning with `\ttkey{.}' are reserved for use by
@@ -1775,8 +1804,8 @@ is the cooked representation of the object
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@93:|\\
-\verb|    1: this|\\
+\verb|@93 =:|\\
+\verb|    1 = this|\\
 \verb|    2: is|\\
 \verb|    3: a|\\
 \verb|    4: sentence|\\
@@ -1820,19 +1849,19 @@ is the cooked representation of the objects
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@42:|\\
+\verb|@42 =:|\\
 \verb|    1: straight|\\
 \verb|    2: 3.2|\\
-\verb|@43:|\\
+\verb|@43 =:|\\
 \verb|    1: "+"|\\
 \verb|    2: y|\\
 \verb|    3: 9.4|\\
 \verb|    initiator: "("|\\
 \verb|    terminator: ")"|\\
-\verb|@44: |\\
+\verb|@44 =:|\\
 \verb|    1: straight|\\
 \verb|    2: @43|\\
-\verb|@45:|\\
+\verb|@45 =:|\\
 \verb|    1: @42|\\
 \verb|    2: left|\\
 \verb|    3: @44|\\
@@ -1918,34 +1947,34 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 
 \begin{center}
 \begin{tabular}[t]{@{}l@{}}
-\verb|@130:|\\
+\verb|@130 =:|\\
 \verb|    1: x|\\
 \verb|    2: y|\\
 \verb|    .separator: ","|\\
 \verb|    .initiator: "("|\\
 \verb|    .terminator: ")"|\\
-\verb|@131:|\\
+\verb|@131 =:|\\
 \verb|    1: ">"|\\
 \verb|    2: x|\\
 \verb|    3: y|\\
 \verb|    .initiator: "("|\\
 \verb|    .terminator: ")"|\\
-\verb|@132:|\\
+\verb|@132 =:|\\
 \verb|    1: return|\\
 \verb|    2: y|\\
 \verb|    .initiator: ":"|\\
-\verb|@133:|\\
+\verb|@133 =:|\\
 \verb|    1: if|\\
 \verb|    2: @131|\\
 \verb|    3: @132|\\
-\verb|@134:|\\
+\verb|@134 =:|\\
 \verb|    1: return|\\
 \verb|    2: x|\\
 \verb|    .initiator: ":"|\\
-\verb|@135:|\\
+\verb|@135 =:|\\
 \verb|    1: else|\\
 \verb|    2: @134|\\
-\verb|@136:|\\
+\verb|@136 =:|\\
 \verb|    1: @133|\\
 \verb|    2: @135|\\
 \verb|    .initiator: "{"|\\
@@ -1953,7 +1982,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \end{tabular}
 ~~~~~
 \begin{tabular}[t]{@{}l@{}}
-\verb|@137:|\\
+\verb|@137 =:|\\
 \verb|    1: function|\\
 \verb|    2: @130|\\
 \verb|    3: @136|\\[2ex]
