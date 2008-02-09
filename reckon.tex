@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 7, 2008}
+\date{February 9, 2008}
  
 \maketitle
 
@@ -1124,7 +1124,7 @@ contains in order the following lexemes:
 	\\[1ex]
 \key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
 \key{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
-\key{number} ::= {\em number-character} {\em number-character}\,$^\star$
+\key{number-lexeme} ::= {\em number-character} {\em number-character}\,$^\star$
 \label{NUMBER-LEXEME}
 \\[1ex]
 \key{quoted-string} ::=
@@ -1312,7 +1312,7 @@ A \key{word} is a sequence of letters that may include
 a \verb|'| if it is followed by a letter.  A \key{mark} is a
 sequence of mark characters (e.g., \verb|+| and \verb|-|).
 A \key{separator} is a \underline{single} separator character.
-A \key{number} is a sequence of digits, decimal points
+A \key{number-lexeme} is a sequence of digits, decimal points
 which are always followed by a digit, commas that are
 both preceded and followed by digits, and slashes that are
 both preceded and followed by digits.
@@ -1363,8 +1363,9 @@ every other object and from every atom.  But it is nothing more.
 
 However, as a place in memory, an object has a name.  Objects are assigned
 \skey{raw object name}s
-of the form `\ttmnbkey{@}{in raw object name}$I$' where $I$
-is an integer.  Raw object names of this form are assigned only to objects
+of the form `\ttmnbkey{@}{in raw object name}$N$' where $N$
+is a natural number (non-negative integer).
+Raw object names of this form are assigned only to objects
 that must be named in an output stream (e.g., printed output).
 The first object named in output stream is assigned the name
 \verb|@1|, the second object named in output the name \verb|@2|,
@@ -1467,11 +1468,11 @@ The format of a \key{raw representation} is:
 
 \begin{tabular}{l}
 \emkey{object-name} ::=
-	\ttmnbkey{@}{in {\em object-name}} {\em non-negative-integer}
+	\ttmnbkey{@}{in {\em object-name}} {\em natural-number}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{non-negative-integer} ::=
+\emkey{natural-number} ::=
 \\\hspace*{0.5in}
 {\em number} lexeme (\pagref{NUMBER-LEXEME})
 				 containing only digits and commas
@@ -1526,7 +1527,8 @@ The format of a \key{raw representation} is:
 \index{label}
 
 \begin{tabular}{l}
-\emkey{attribute-label-flags-option} ::= {\em empty} $|$ [ {\em symbol} ]
+\emkey{attribute-label-flags-option} ::=
+    {\em empty} $|$ [ {\em non-special-symbol} ]
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
@@ -1540,6 +1542,10 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
+\emkey{number} ::= see \pagref{NUMBER}
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{non-special-symbol} ::= see text
 \end{tabular}
 
@@ -1547,9 +1553,10 @@ The format of a \key{raw representation} is:
 \emkey{raw-double-attribute-representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option}
-	{\em double-attribute-value}
+	\verb|=|
 \\\hspace*{0.5in}
-	 {\em reverse-attribute-label} {\em attribute-label-flags-option}
+	{\em double-attribute-value} {\em reverse-attribute-label}
+	{\em attribute-label-flags-option}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1648,14 +1655,17 @@ as operators, such as \verb|"if"|, \verb|"then"|, and \verb|"else"|.
 Note, however, that quoted numbers and unquoted numbers are distinct;
 quoted numbers are symbols and numbers are not.  When numbers are
 input, details such as the presence of commas are lost, so when
-the numbers are output, they may or may not have commas.  Thus
+the numbers are output, they may or may not have commas.  Thus the number
 \verb|1,000| may become \verb|1000| on output.  This is
-not true of symbols, so it would not be true of \verb|"1,000"|,
+not true of symbols, so it would not be true of the symbol \verb|"1,000"|,
 which would be \verb|1,000| on output.
 
+Similarly quoted separators and separators are distinct.  \verb|";"|
+is a symbol and \verb|;| is a separator.
+
 It is possible to place \skey{attribute flag}s on attribute labels
-by putting flag characters
-before or after the \verb|:| that follows or precedes an attribute label.
+by putting flag characters in \verb|[ ]| brackets after a label.
+The flag characters must be combined into a {\em non-special-symbol}.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -1663,11 +1673,11 @@ have been added to some of the attributes:
 \begin{tabular}[b]{@{}l@{}}
 \verb|@1 =:|\\
 \verb|    type = woman|\\
-\verb|    name[-] = Jill|\\
-\verb|    husband[*] = @2 wife[*]|\\
+\verb|    name["-"] = Jill|\\
+\verb|    husband["*"] = @2 wife["*"]|\\
 \verb|@2 =:|\\
 \verb|    type = man|\\
-\verb|    name[+] = Jack|\\
+\verb|    name["+"] = Jack|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -1697,8 +1707,9 @@ have been added to some of the attributes:
 \end{center}
 
 In the picture the attribute flags have been added as superscripts on the
-attribute labels, and in the text the flags have been added before or after the
-\verb|:| that follows or precedes the attribute label.
+attribute labels, and in the text the flags have been added as characters
+in quoted strings inside \verb|[ ]| brackets that
+follow attribute labels.
 
 Several attributes of the same object (arrows sourced at the object)
 may have the same attribute
@@ -1734,23 +1745,35 @@ attributes labeled \verb|child|, is:
 We say that the value of the \verb|child| attribute of \verb|@1| is
 the set to two elements, \verb|@2| and \verb|@3|.
 
-Differences between \ttnbkey{:}, \ttnbkey{>:}, are \ttnbkey{>>:} relate
+The differences between \verb|=|, \verb|>|, and \verb|>>| in the
+{\em object-header} relate
 to what is done when an object or attribute label previously exists.
+Note that with the indentation convention, these become differences
+between \verb|=:|, \verb|>:|, and \verb|>>:|.
 
-\verb|:| indicates that the object being represented should not previously
+\ttmnbkey{=}{in {\em object-header}}
+(or \ttmnbkey{=:}{in {\em object-header}})
+indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
-object representation (it may have been defined as the value of an
+{\em raw-object-representation} (it may have been defined as the value of an
 attribute).  Second, any attribute label represented in the object
-representation, if it previously exists, must be represented with exactly
+representation, if it previously exists because it was part of a
+{\em raw-double-attribute-representation}, must be represented with exactly
 the same flags as it already has.
 
-At the other extreme, \verb|>>:| adds to existing objects.
+At the other extreme,
+\ttmnbkey{>>}{in {\em object-header}}
+(or \ttmnbkey{>>:}{in {\em object-header}})
+adds to existing objects.
 The object being represented can previously exist.  Any attribute
 representation in the object representation creates a new attribute value.
 Any flags on an attribute label are added to the flags of the label if
 that label already exists.
 
-\verb|>:| is like \verb|>>:| except that the object representation cannot
+\ttmnbkey{>}{in {\em object-header}}
+(or \ttmnbkey{>:}{in {\em object-header}})
+is like \verb|>>| (or \verb|>>:|)
+except that the object representation cannot
 add new values to previously existing attributes of the object represented.
 More precisely, the attribute label of any attribute representation in
 the object representation must not have previously (before the object
@@ -1779,11 +1802,51 @@ object itself, a situation which can be achieved by the data representation:
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
-Words beginning with `\ttkey{.}' are reserved for use by
+Labels beginning with `\ttkey{.}' are reserved for use by
 the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
 is an example of such a word.
 
 
+\subsection{Lists}
+
+Objects are implemented so that attributes whose labels are small
+strictly positive integers can be accessed with more efficiency
+than other attributes.  If an object has attributes with consecutive
+labels from \verb|1| to $N$, with no gaps,
+then these values are said to form a \key{list} that is represented
+by the object.  An example is
+
+\begin{indpar}\begin{verbatim}
+@93 =:
+    1 = this
+    2 = is
+    3 = a
+    4 = sentence
+    .terminator = "."
+    .initiator = capital
+\end{verbatim}\end{indpar}
+
+which represents the list
+\begin{indpar}
+\verb|this is a sentence|
+\end{indpar}
+
+but also has some additional attributes, labeled \verb|.terminator|
+and \verb|.initiator|.  An alternative {\em raw-object-representation}
+to the one just given is:
+
+\begin{indpar}\begin{verbatim}
+@93 = this is a sentence:
+    .terminator = "."
+    .initiator = capital
+\end{verbatim}\end{indpar}
+
+Any {\em single-attribute-values} following the {\em raw-object-header}
+are assigned as values of the attributes labeled \verb|1|, \verb|2|,
+\verb|3|, \ldots.  Additional attribute values can be given by
+following these by \verb|:| and then by indented
+{\em raw-attribute-representations}, or \verb|{ }| bracketted and
+\verb|;| separated {\em raw-attribute-representations}.
 
 \subsection{Cooked Representations}
 
@@ -1806,11 +1869,11 @@ is the cooked representation of the object
 \begin{tabular}[b]{@{}l@{}}
 \verb|@93 =:|\\
 \verb|    1 = this|\\
-\verb|    2: is|\\
-\verb|    3: a|\\
-\verb|    4: sentence|\\
-\verb|    .terminator: "."|\\
-\verb|    .initiator: capital|\\
+\verb|    2 = is|\\
+\verb|    3 = a|\\
+\verb|    4 = sentence|\\
+\verb|    .terminator = "."|\\
+\verb|    .initiator = capital|\\
 \end{tabular}
 ~~~~~
 \begin{picture}(4.1,1.5)
