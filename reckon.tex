@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 9, 2008}
+\date{February 11, 2008}
  
 \maketitle
 
@@ -1450,19 +1450,19 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{raw-object-representation} ::=
 \\\hspace*{0.5in}
-    {\em raw-object-header} {\em single-attribute-value}$^\star$
+    {\em object-header} {\em raw-single-attribute-value}$^\star$
     {\em raw-attribute-representations}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-object-header}
+\emkey{object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em object-name} \verb|=|
-          \ttmindex{=}{in {\em raw-object-header}} \\
+          \ttmindex{=}{in {\em object-header}} \\
     $|$ & {\em object-name} \verb|>|
-          \ttmindex{>}{in {\em raw-object-header}} \\
+          \ttmindex{>}{in {\em object-header}} \\
     $|$ & {\em object-name} \verb|>>|
-          \ttmindex{>>}{in {\em raw-object-header}} \\
+          \ttmindex{>>}{in {\em object-header}} \\
     \end{tabular}
 \end{tabular}
 
@@ -1504,7 +1504,7 @@ The format of a \key{raw representation} is:
 \emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-single-attribute-representation} \\
-    $|$ & {\em raw-double-attribute-representation}
+    $|$ & {\em double-attribute-representation}
     \end{tabular}
 \end{tabular}
 
@@ -1512,7 +1512,7 @@ The format of a \key{raw representation} is:
 \emkey{raw-single-attribute-representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
-	{\em single-attribute-value}
+	{\em raw-single-attribute-value}
 \end{tabular}%
 \index{value!attribute}
 
@@ -1534,15 +1534,15 @@ The format of a \key{raw representation} is:
 \index{attribute label!flags}
 
 \begin{tabular}{l}
-\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
+\emkey{raw-single-attribute-value} ::= {\em atom} $|$ {\em object-name}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{atom} ::= {\em non-special-symbol} $|$ {\em number}
+\emkey{atom} ::= {\em non-special-symbol} $|$ {\em real-number}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{number} ::= see \pagref{NUMBER}
+\emkey{real-number} ::= see \pagref{NUMBER}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1550,7 +1550,7 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-double-attribute-representation} ::=
+\emkey{double-attribute-representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option}
 	\verb|=|
@@ -1717,12 +1717,13 @@ label.  An example of this, in which object \verb|@1| has two
 attributes labeled \verb|child|, is:
 
 \begin{center}
+\begin{tabular}{l@{\hspace*{1in}}l}
 \begin{tabular}[b]{@{}l@{}}
 \verb|@1 =:|\\
 \verb|    child = @2 parent|\\
 \verb|    child = @3 parent|\\
 \end{tabular}
-~~~~~~~~~
+&
 \begin{picture}(3.0,1.5)
 \put(0,0){\framebox(3.0,1.5){}}
 \put(0.3,1.00){\makebox(2.4,0.3){\tt @1}}
@@ -1740,6 +1741,7 @@ attributes labeled \verb|child|, is:
 \put(1.9,0.10){\makebox(0.8,0.3){\tt @3}}
 \put(2.3,0.25){\oval(0.8,0.3)}
 \end{picture}
+\end{tabular}
 \end{center}
 
 We say that the value of the \verb|child| attribute of \verb|@1| is
@@ -1758,7 +1760,7 @@ exist, or if it does exist, must not have been defined by any previous
 {\em raw-object-representation} (it may have been defined as the value of an
 attribute).  Second, any attribute label represented in the object
 representation, if it previously exists because it was part of a
-{\em raw-double-attribute-representation}, must be represented with exactly
+{\em double-attribute-representation}, must be represented with exactly
 the same flags as it already has.
 
 At the other extreme,
@@ -1806,6 +1808,36 @@ Labels beginning with `\ttkey{.}' are reserved for use by
 the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
 is an example of such a word.
 
+The CASTLE parsers
+(\secref{LEXICAL-PARSING} and \secref{EXPRESSION-PARSING})
+parse\label{RAW-PARSING}
+{\em raw-representations}.
+Because special
+symbols are avoided in attribute labels and values, the parser does
+little with these.  However, the lexical parser
+does two things that affect attribute labels
+and values.
+
+The first is recognizing several lexeme {\em real-numbers}
+(\secref{NUMBERS}),
+such as \verb|1.23e-2| and \verb|1 3/4|.  In all cases
+a single numeric atom is stored inside the computer, and
+details of its representation are lost.  Thus \verb|1.23e-2| and
+\verb|0.0123| store the same number, and \verb|1 3/4| and \verb|7/4|
+store the same number.
+
+The second thing the lexical parser does to attribute labels and values
+is lexeme replacement (\secref{LEXEME-REPLACEMENT}).  Thus the
+{\em raw-attribute-representation}
+\begin{center}
+\verb|Mary's power = people|
+\end{center}
+would standardly be turned into
+\begin{center}
+\verb|Mary 's power = person|
+\end{center}
+since possessives are standardly separated and
+plural nouns are standardly replaced by singular nouns.
 
 \subsection{Lists}
 
@@ -1841,7 +1873,7 @@ to the one just given is:
     .initiator = capital
 \end{verbatim}\end{indpar}
 
-Any {\em single-attribute-values} following the {\em raw-object-header}
+Any {\em single-attribute-values} following the {\em object-header}
 are assigned as values of the attributes labeled \verb|1|, \verb|2|,
 \verb|3|, \ldots.  Additional attribute values can be given by
 following these by \verb|:| and then by indented
@@ -1850,17 +1882,46 @@ following these by \verb|:| and then by indented
 
 \subsection{Cooked Representations}
 
-In contrast to the raw representation of a set of objects there is the
-cooked representation, that is much easier to read and write, but more
-long winded to explain.
+As noted above (\pagref{RAW-PARSING}),
+{\em raw-single-attribute-values} in a {\em raw-representation}
+are mostly left alone by the CASTLE parsers.  This is because the
+use of special symbols are not allowed in these, aside from
+{\em radix-indicators} and {\em exponent-indicators} which are
+only recognized when adjacent to quoted string or number lexemes.
 
-The main thing that the cooked representation does is take certain objects
-that are organized like lists and represent them as lists.
+However, special symbols can be used in attribute values representations
+to create attribute values that are complex objects produced by the
+CASTLE parsers in their full glory.  When this is done, the object
+representation is said to be `\key{cooked}' instead of `\key{raw}'.
 
-For example,
+The syntax of {\em cooked-representations} is that of
+{\em raw-representations} with `{\em raw-}' replaced by {\em cooked-}
+and two syntax equations adjusted as follows:
+
+\begin{indpar}
+
+\begin{tabular}{l}
+\emkey{cooked-object-representation} ::=
+\\\hspace*{0.5in}
+    {\em object-header} {\em expression-option}
+    {\em cooked-attribute-representations}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{cooked-single-attribute-value} ::= {\em expression}
+		~~~~~ [see \secref{EXPRESSION-PARSING}]
+\end{tabular}
+
+\end{indpar}
+
+In the {\em cooked-object-representation} the list of {\em raw-single-attribute-values} that could follow the {\em object-header} has been replaced by
+an {\em expression}, while the {\em cooked-single-attribute-value} can be
+any {\em expression}
+
+As a first example,
 
 \begin{indpar}\begin{verbatim}
-@93: This is a sentence.
+@93 = `This is a sentence.'
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the object
@@ -1901,11 +1962,11 @@ is the cooked representation of the object
 \end{picture}
 \end{center}
 
-The following is a second example in which parentheses \verb|( )|
-are used to permit the operator \verb|+| to be recognized, so that
+
+The second example contains simple code:
 
 \begin{indpar}\begin{verbatim}
-@45: straight 3.2; left; straight (y + 9.4)
+@45 = { straight 3.2; left; straight (y + 9.4) }
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the objects
@@ -1913,22 +1974,24 @@ is the cooked representation of the objects
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
 \verb|@42 =:|\\
-\verb|    1: straight|\\
-\verb|    2: 3.2|\\
+\verb|    1 = straight|\\
+\verb|    2 = 3.2|\\
 \verb|@43 =:|\\
-\verb|    1: "+"|\\
-\verb|    2: y|\\
-\verb|    3: 9.4|\\
-\verb|    initiator: "("|\\
-\verb|    terminator: ")"|\\
+\verb|    1 = "+"|\\
+\verb|    2 = y|\\
+\verb|    3 = 9.4|\\
+\verb|    .initiator = "("|\\
+\verb|    .terminator = ")"|\\
 \verb|@44 =:|\\
-\verb|    1: straight|\\
-\verb|    2: @43|\\
+\verb|    1 = straight|\\
+\verb|    2 = @43|\\
 \verb|@45 =:|\\
-\verb|    1: @42|\\
-\verb|    2: left|\\
-\verb|    3: @44|\\
-\verb|    .separator: ";"|\\
+\verb|    1 = @42|\\
+\verb|    2 = left|\\
+\verb|    3 = @44|\\
+\verb|    .initiator = "{"|\\
+\verb|    .terminator = "}"|\\
+\verb|    .separator = ";"|\\
 \end{tabular}
 ~~~~~
 \begin{picture}(4.1,3.2)
@@ -1988,18 +2051,18 @@ is the cooked representation of the objects
 \end{picture}
 \end{center}
 
-Next is a third example in which
+A third example in which
 curly brackets (\verb|{ }|) are used with multiple
 lines and indentation to represent code, so that
 
 \begin{indpar}\begin{verbatim}
-@138: function (x,y)
-      {
+@138 = function (x,y)
+       {
           if (x > y):
               return y
           else:
               return x
-      }
+       }
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the object in
@@ -2011,44 +2074,44 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \begin{center}
 \begin{tabular}[t]{@{}l@{}}
 \verb|@130 =:|\\
-\verb|    1: x|\\
-\verb|    2: y|\\
-\verb|    .separator: ","|\\
-\verb|    .initiator: "("|\\
-\verb|    .terminator: ")"|\\
+\verb|    1 = x|\\
+\verb|    2 = y|\\
+\verb|    .separator = ","|\\
+\verb|    .initiator = "("|\\
+\verb|    .terminator = ")"|\\
 \verb|@131 =:|\\
-\verb|    1: ">"|\\
-\verb|    2: x|\\
-\verb|    3: y|\\
-\verb|    .initiator: "("|\\
-\verb|    .terminator: ")"|\\
+\verb|    1 = ">"|\\
+\verb|    2 = x|\\
+\verb|    3 = y|\\
+\verb|    .initiator = "("|\\
+\verb|    .terminator = ")"|\\
 \verb|@132 =:|\\
-\verb|    1: return|\\
-\verb|    2: y|\\
-\verb|    .initiator: ":"|\\
+\verb|    1 = return|\\
+\verb|    2 = y|\\
+\verb|    .initiator = ":"|\\
 \verb|@133 =:|\\
-\verb|    1: if|\\
-\verb|    2: @131|\\
-\verb|    3: @132|\\
+\verb|    1 = if|\\
+\verb|    2 = @131|\\
+\verb|    3 = @132|\\
 \verb|@134 =:|\\
-\verb|    1: return|\\
-\verb|    2: x|\\
-\verb|    .initiator: ":"|\\
+\verb|    1 = return|\\
+\verb|    2 = x|\\
+\verb|    .initiator = ":"|\\
 \verb|@135 =:|\\
-\verb|    1: else|\\
-\verb|    2: @134|\\
+\verb|    1 = else|\\
+\verb|    2 = @134|\\
 \verb|@136 =:|\\
-\verb|    1: @133|\\
-\verb|    2: @135|\\
-\verb|    .initiator: "{"|\\
-\verb|    .terminator: "}"|\\
+\verb|    1 = @133|\\
+\verb|    2 = @135|\\
+\verb|    .initiator = "{"|\\
+\verb|    .terminator = "}"|\\
 \end{tabular}
 ~~~~~
 \begin{tabular}[t]{@{}l@{}}
 \verb|@137 =:|\\
-\verb|    1: function|\\
-\verb|    2: @130|\\
-\verb|    3: @136|\\[2ex]
+\verb|    1 = function|\\
+\verb|    2 = @130|\\
+\verb|    3 = @136|\\[2ex]
 \begin{picture}(4.0,5.5)
 \put(0,0){\framebox(4.0,5.5){}}
 \put(0.6,0.0){
@@ -2186,15 +2249,15 @@ Cooked representations may replace raw object names in the
 description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
-@291: text: This is a sentence.
-      outline: straight 3.2, left, straight (y + 9.4)
-      min: function (x,y)
-           {
-               if (x > y):
-                   return y
-               else:
-                   return x
-           }
+@291: text = `This is a sentence.'
+      outline = { straight 3.2, left, straight (y + 9.4) }
+      min = function (x,y)
+            {
+                if (x > y):
+                    return y
+                else:
+                    return x
+            }
 \end{verbatim}\end{indpar}
 
 which is the cooked representation of the object
@@ -2239,18 +2302,6 @@ rule is that unless otherwise indicated, only immutable objects
 have the property that their cooked representations can replace
 their raw object names in the cooked representations of other
 objects.
-
-The following are generalizations about certain attribute labels.
-First, the strictly positive integers \verb|1|, \verb|2|,
-\verb|3|, \ldots are used to name the elements of a list.  Second,
-some attribute labels beginning with `\verb|.|' have special
-meaning for object representation.  Examples above are
-\verb|.separator|, \verb|.initiator|, and \verb|.terminator|.
-Recall that words beginning with `\verb|.|' are reserved for
-use by the MIN system, and should not be defined by MIN users.
-
-In the following sections we describe cooked representations
-precisely.
 
 \subsection{Syntax}
 
@@ -2373,7 +2424,7 @@ priority & parser	& operators	& meaning
 	{\em double-attribute-value}\ldots
 \\\hspace*{1in}
 	{\em attribute-label-initiator} {\em attribute-label}
-	\ttmkey{;}{in {\em raw-double-attribute-representation}}
+	\ttmkey{;}{in {\em double-attribute-representation}}
 \\[1ex]
 \key{text-expression} ::= {\em expression} in text mode
 \\[1ex]
