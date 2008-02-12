@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 11, 2008}
+\date{February 12, 2008}
  
 \maketitle
 
@@ -2303,795 +2303,6 @@ have the property that their cooked representations can replace
 their raw object names in the cooked representations of other
 objects.
 
-\subsection{Syntax}
-
-A cooked data representation has the syntax given
-in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
-special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
-
-\begin{boxedfigure}
-
-\begin{center}
-
-Ad Hoc Special Lexemes
-
-\bigskip
-
-\begin{tabular}{ll@{\hspace*{5em}}ll}
-\ttkey{:} & object assignment &
-\ttnbkey{>:} & object addition \\
-\ttkey{:} & attribute assignment &
-\ttkey{:} & code indicator \\
-\end{tabular}
-
-\bigskip
-
-Brackets
-
-\bigskip
-
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
-brackets	& meaning	& parsing mode
-\\[1ex]
-\ttnbkey{(}~~~\ttnbkey{)}	& parentheses		& expression \\
-\ttnbkey{[}~~~\ttnbkey{]}	& square brackets	& expression \\
-\ttnbkey{\CurlyBra}~~~\ttnbkey{\CurlyKet}
-				& curly brackets	& code \\
-\ttnbkey{`}~~~\ttnbkey{'}	& single quotes		& text \\
-\end{tabular}
-
-\bigskip
-
-Standard Operators
-
-\bigskip
-
-\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
-
-priority & parser	& operators	& meaning 
-\\[2ex]
--5000 & \ttkey{sentence} &  \ttnbkey{.} ~~~ \ttnbkey{!} ~~~ \ttnbkey{?}
-	& sentence terminators \\
--4000 & \ttkey{subsentence} &  \ttnbkey{;} & subsentence separator \\
--3000 & \ttkey{phrase} &  \ttnbkey{,} & phrase separator \\
-+0000 & \ttkey{assign} &  \ttnbkey{<-} ~~~ \ttkey{BECOMES} & assignment \\
-+1000 & \ttkey{logical} &  \ttkey{AND} ~~~ \ttkey{OR} ~~~ \ttkey{NOT}
-	& logical and, or, not \\
-+2000 & \ttkey{compare} &  \ttnbkey{=} ~~~ \ttnbkey{/=} ~~~
-        \ttnbkey{!=} 			& equal, not equal, ditto \\
-      &		      & \ttnbkey{<} ~~~ \ttnbkey{<=} ~~~ \ttnbkey{=<}
-      & less than, less than or \\
-      &		      &		&
-      equal, ditto \\
-      &		      & \ttnbkey{>} ~~~ \ttnbkey{>=} ~~~ \ttnbkey{=>}
-      & greater than, greater \\
-      &		      &		&
-      than or equal, ditto \\
-+3000 & \ttkey{sum} &  \ttnbkey{+} ~~~ \ttnbkey{-}
-	& addition, subtraction \\
-+3100 & \ttkey{product} &  \ttnbkey{*} ~~~ \ttnbkey{/} 
-	& multiplication, division \\
-+9999 & \ttkey{objname} &  \ttnbkey{@}
-	& object name \\
-\end{tabular}
-
-\end{center}
-
-\caption{Special Lexemes}
-\label{SPECIAL-LEXEMES}
-\end{boxedfigure}
-
-\begin{boxedfigure}
-
-\begin{center}
-\begin{tabular}{l}
-\key{data-representation} ::= {\em object-representation} \ldots
-\\[1ex]
-\key{object-representation} ::=
-\\\hspace*{1in}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-        & {\em object-header} {\em attribute-representation} \ldots \\
-    $|$ & {\em object-header} {\em text-expression}
-	  \ttmkey{;}{in {\em object-representation}}
-    	  {\em attribute-representation} \ldots \\[1ex]
-    \end{tabular}
-\\[1ex]
-\key{object-header}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & {\em object-name} \ttmkey{:}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmnbkey{>:}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmnbkey{>>:}{in {\em object-header}} \\[1ex]
-    \end{tabular}
-\\[1ex]
-\key{attribute-representation}
-    \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & {\em raw-attribute-representation} \\
-    $|$ & {\em cooked-single-attribute-representation} \\
-    $|$ & {\em cooked-double-attribute-representation} \\[1ex]
-    \end{tabular}
-\\[1ex]
-\key{cooked-single-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-	{\em text-expression}
-	\ttmkey{;}{in {\em cooked-single-attribute}!{\em -representation}}
-\\[1ex]
-\key{cooked-double-attribute-representation} ::=
-\\\hspace*{1in}
-	{\em attribute-label} {\em attribute-label-terminator}
-\\\hspace*{1in}
-	{\em double-attribute-value}
-	{\em double-attribute-value}\ldots
-\\\hspace*{1in}
-	{\em attribute-label-initiator} {\em attribute-label}
-	\ttmkey{;}{in {\em double-attribute-representation}}
-\\[1ex]
-\key{text-expression} ::= {\em expression} in text mode
-\\[1ex]
-\key{expression} ::= {\em expression(-9999)}
-\\[1ex]
-\key{expression}{\em ($N$)} ::=
-	\{ {\em expression($N+1$)} $|$ {\em operator($N$)} \}\ldots
-\\[1ex]
-\key{operator}{\em ($N$)} ::= operator of priority $N$:
-			      see Figure~\figref{SPECIAL-LEXEMES}
-\\[1ex]
-\key{expression}{\em (10000)} ::= {\em atom} $|$ {\em bracketed-expression}
-\\[1ex]
-\key{bracketed-expression} \begin{tabular}[t]{@{}r@{~}l@{}}
-			    ::= & \verb|(| {\em expression} \verb|)| \\
-			    $|$ & \verb|[| {\em expression} \verb|]| \\
-			    $|$ & \verb|{| {\em code-block} \verb|}| \\
-			    $|$ & \verb|`| {\em text-expression} \verb|'| \\[1ex]
-			    \end{tabular}
-\\[1ex]
-\key{code-block} ::= {\em expression} in code mode
-\\[1ex]
-See \pagref{RAW-ATTRIBUTE-REPRESENTATION} for rest of equations
-(e.g., for {\em raw-attribute-representation}).
-\end{tabular}
-\end{center}%
-\index{label!attribute}%
-\index{name!object}
-
-\caption{Data Representation Syntax}
-\label{DATA-REPRESENTATION-SYNTAX}
-\end{boxedfigure}
-
-The difference between cooked data and raw data is the presence
-of expressions.  An expression is parsed to produce an atom or
-an object which is called the \key{parsed expression}.
-If the expression is part of a
-{\em cooked-attribute-representation}, the atom or object becomes
-a value of the attribute.  For example, the cooked representation
-
-\begin{indpar}\begin{verbatim}
-@401:
-    text A: This is a sentence.
-    expression B: ( x + 8 )
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-@401:
-    text A: @402
-    expression B: @403
-@402:
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .initiator: capital
-    .terminator: "."
-@403:
-    1: "+"
-    2: x
-    3: 8
-    .initiator: ")"
-    .terminator: "("
-\end{verbatim}\end{indpar}
-
-If the expression immediately follows
-an {\em object-header}, and is before any {\em attribute-representa\-tions}
-in the {\em object-representation}, then if the parsed expression is
-an object, the attributes of the object produced are copied to become
-attributes of the object represented, and if the parsed expression is
-an atom, the atom becomes the value of the represented object attribute
-named `\ttmkey{1}{defined in cooked representation}'.  For example,
-the cooked representation
-
-\begin{indpar}\begin{verbatim}
-@410: This is a sentence.
-      x: 5
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-@410:
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .initiator: capital
-    .terminator: "."
-    x: 5
-\end{verbatim}\end{indpar}
-
-and the cooked representation
-
-\begin{indpar}\begin{verbatim}
-@411: hi
-      x: 5
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-@411:
-    1: hi
-    x: 5
-\end{verbatim}\end{indpar}
-
-The precise algorithm used in parsing is described below in
-\secref{PARSING}.
-
-
-\subsection{Parsing Modes}
-\label{PARSING-MODES}
-
-There are three \skey{parsing mode}s: text, expression, and code.
-The parsing mode of any lexeme is determined by the innermost
-brackets containing the lexeme, according to Figure~\figref{SPECIAL-LEXEMES}.
-Thus if there are no innermost brackets,
-or if the innermost brackets are \verb|` '|, the parsing mode is `text'.
-If the innermost brackets are \verb|( )| or \verb|[ ]|
-the mode is `expression'.  If the innermost brackets are \verb|{ }|
-the mode is `code'.  Thus it is as if \verb|` '| changes to text mode,
-\verb|( )| and \verb|[ ]| to expression mode, and \verb|{ }| to code mode.
-
-In \key{expression mode}\label{EXPRESSION-MODE} all operators are recognized,
-line feeds and indentation are treated like any other white-space, and
-`\verb|:|' is not recognized as a code indicator.
-
-\ikey{Text mode}{text mode} is the same as expression mode except that
-only some operators are recognized.  Operators with zero or negative
-priority are recognized.  Operators of positive priority are only recognized
-within subexpressions of operators of zero priority.
-
-Thus if the lexeme sequence `\verb|move 5 * y, x <- x + 1|' is parsed in
-text mode, the \verb|+| is recognized as an operator because it is in a
-subexpression of the zero priority \verb|<-| operator, while the
-\verb|*| is not recognized as an operator
-because it is not in such a subexpression.  To recognize the \verb|*| as
-an operator, one should put \verb|5 * y| in parentheses, as in
-`\verb|move ( 5 * y ), x <- x + 1|'.
-
-In \key{code mode}\label{CODE-MODE} all operators are recognized,
-while line feeds, indentation, and the code indicator `\verb|:|' are
-used to sequence statements within the code block and to indicate
-code subblocks, according to the following rules:
-
-\begin{enumerate}
-\item
-The column of the first non-white-space character inside \verb|{}| brackets
-defines the initial column of the \key{code block} enclosed by the
-brackets.
-
-\item No line inside a code block may be indented by less than its
-initial column.
-Any line indented by more than the initial column must be indented by at
-least 2 columns more than the initial column.
-
-If the code block
-terminating \verb|}| is the first lexeme on its line, its line is
-\underline{not} considered to be inside the code block.  If the
-terminating \verb|}| is \underline{not} the first lexeme on its line, 
-its line is considered to be inside the code block.
-
-\item A code block is organized as a sequence of statements such that
-each non-white-space character in the code block initial column begins a new
-statement, and statements so begun are the only statements in the code block.
-
-\item
-If a statement contains a `\verb|:|' \key{code indicator}\label{CODE-INDICATOR}
-mark as the last
-lexeme of a line, the first column of the next lexeme in the statement
-begins a \key{code subblock} that includes the rest of the statement.  The
-first column of that next lexeme is the initial column of the code
-subblock.  The subblock obeys rules 2 and 3 just given for code blocks.
-
-\item
-A code block and its surrounding \verb|{ }| brackets represent a list of
-zero or more statements with
-list \verb|.initiator| \verb|"{"| and list \verb|.terminator| \verb|"}"|.
-
-\item
-A code subblock and its preceding code indicator `\verb|:|'
-represents a list of zero or more statements with
-list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
-
-\end{enumerate}
-
-
-\subsection{Parsing}
-\label{PARSING}
-
-Parsing a sequence of lexemes is done in four phases:
-
-\begin{list}{}{}
-\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}%
-				 \index{scanning!lexeme}~~~~
-The sequence of lexemes is represented as an object
-that is a list whose elements (values of the attributes
-named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
-and objects representing bracketed sublists of lexemes.  Quoted
-atoms are specially represented by a list with one element and the
-{\tt .initiator} attribute value `{\tt quoted}'.
-
-\item[(2)] \ikey{Operator Scanning}{operator scanning}%
-				   \index{scanning!operator}~~~~
-The object representation is scanned for operators
-and modified by replacing subsequences of elements representing
-subexpressions with implicit brackets with sublists, and by
-adding {\tt .parser} attribute values to some of the list objects.
-
-\item[(3)] \ikey{Parser Expansion}{parser expansion}%
-				  \index{expansion!parser}~~~~
-The object representation is evaluated by calling the parsers.
-
-\end{list}
-
-\subsubsection{Lexeme Scanning}
-\label{LEXEME-SCANNING}
-
-The \key{lexeme scanning} algorithm inputs a sequence of lexemes
-and outputs an object representing the sequence.  The object has
-list elements which are attributes labeled {\tt 1}, {\tt 2}, \ldots.
-The object may have an {\tt .initiator} and/or {\tt .terminator}
-attribute.
-
-The rules for computing the object from the lexeme sequence are:
-
-\begin{enumerate}
-
-\item The lexeme sequence is examined to identify matching brackets.
-It is an error if there are unmatched brackets (bracket characters
-in quoted strings do not count as brackets).
-
-Then the first of the following rules which can be applied is applied,
-unless no rule can be applied.
-
-\begin{enumerate}
-
-\item If the lexeme sequence begins and ends with matching brackets, these
-are removed from the sequence, and become the {\tt .initiator} and
-{\tt .terminator} attributes of the object being computed.
-
-\item If the lexeme sequence begins with a `\verb|:|' code indicator mark
-(\pagref{CODE-INDICATOR}), this
-is removed from the sequence, and becomes the {\tt .initiator}
-attribute of the object being computed.
-
-\end{enumerate}
-
-\item The remaining
-lexeme sequence is then scanned from right to left to produce
-the list elements of the object being computed (these become the
-values of the attributes named {\tt 1}, {\tt 2}, {\tt 3}, \ldots).
-At each stage of the
-scan, lexemes are input and another list element is produced according
-to the first of the following rules that can be applied.
-
-\begin{enumerate}
-
-\item If the next lexeme is the beginning of a statement within a code
-block (\pagref{CODE-MODE}),
-the subsequence of lexemes that is the statement (including any
-subblocks) becomes the input,
-the lexical scanning algorithm is called recursively with this subsequence,
-and the object output by the recursive call becomes the next list element.
-
-\item If the next lexeme is an opening bracket (\verb|{|, \verb|(|,
-\verb|[|, or \verb|`|), the subsequence of lexemes beginning
-with the bracket and ending with the matching bracket becomes the input,
-the lexical scanning algorithm is called recursively with this subsequence,
-and the object output by the recursive call becomes the next list element.
-
-\item If the next lexeme is a `\verb|:|' code indicator mark
-(\pagref{CODE-INDICATOR}), the subsequence of lexemes consisting of
-the code indicator mark and the following subblock becomes the input,
-the lexical scanning algorithm is called recursively with this subsequence,
-and the object output by the recursive call becomes the next list element.
-
-\item If the next lexeme is a quoted string, the lexeme by itself
-becomes the input, and the next list element is an
-object whose only attributes are an attribute labeled {\tt 1} whose value
-is the quoted string atom
-and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
-
-\item If the next lexeme is a word, mark, separator, or number,
-the lexeme by itself becomes the input, and the word, mark, separator,
-or number becomes the next list element.
-
-\end{enumerate}
-
-\end{enumerate}
-
-For example, given the input
-
-\begin{center}
-\verb|`The "+" in (x + 5 * y) is an operator.'|
-\end{center}
-
-the lexical scanning algorithm outputs object \verb|@1| in the
-following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
-
-\begin{indpar}\begin{verbatim}
-@1:
-    1 : The
-    2 : @2
-    3 : in
-    4 : @3
-    5 : is
-    6 : an
-    7 : operator
-    8 : .
-    .initiator: "`"
-    .terminator: "'"
-@2:
-    1: "+"
-    .initiator: quoted
-@3:
-    1 : x
-    2 : "+"
-    3 : 5
-    4 : "*"
-    5 : y
-    .initiator: "("
-    .terminator: ")"
-\end{verbatim}\end{indpar}
-
-Recall that within objects there is no difference between
-a quoted string representation of a mark and the mark, as both are
-the same atom, but in textual representations of objects the quoted
-string representation of marks that can be operators is used
-to keep the marks from being misread as operators.
-Thus \verb|"+"| is used in the textual
-object representation above to denote the 1 character atom \verb|+|,
-and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
-also denote 1 character atoms.
-
-Differences between expression mode (\pagref{EXPRESSION-MODE})
-and code mode (\pagref{CODE-MODE}) are all
-handled during lexical scanning, and thereafter these two modes behave
-the same.
-
-\subsubsection{Operator Scanning}
-\label{OPERATOR-SCANNING}
-
-The \key{operator scanning} algorithm inputs an object output
-by the lexical scanning algorithm and rearranges its contents according
-to the operators it contains.
-Specifically, subsequences of list elements between operators
-are regrouped into sublists to represent subexpressions,
-and {\tt .parser} attributes are added to
-objects in preparation for expansion.
-
-The operator scanning algorithm takes as input both an object and a parsing
-mode.  The parsing mode is either text or expression (\pagref{PARSING-MODES}).
-Code mode is handled elsewhere, during lexical scanning, and is treated as
-equivalent to expression mode during operator scanning.  The output of
-the algorithm is the input object which may be modified.
-The operator scanning algorithm applies the following actions to the
-object:
-
-\begin{enumerate}
-
-\item If the object has an 
-an {\tt .initiator} attribute equal to `{\tt quoted}', the
-scanning algorithm terminates without modifying the object.
-
-\item
-If the object has an {\tt .initiator} attribute,
-the parsing mode argument to the algorithm is changed as follows:
-
-\begin{center}
-\begin{tabular}{lll}
-\tt .initiator	& \tt .terminator	& new parsing mode \\[1ex]
-\tt `		& \tt '			& text \\
-\tt (		& \tt )			& expression \\
-\tt [		& \tt ]			& expression \\
-\LEFTBRACKET	& \RIGHTBRACKET		& expression \\
-\tt :		& 			& expression \\
-\end{tabular}
-\end{center}
-	
-\item The object list elements are inspected to see if any are operators.
-An operator is an atom equal to an operator that is recognized according
-to the current parsing mode (see \pagref{PARSING-MODES},
-Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DEFINITION}).
-
-If there are operators among the list elements, those with the lowest
-priority L are selected.  Then any non-empty sequences of list elements between
-selected operators are replaced by a single object listing the replaced
-elements.  However sequences with only one element are not replaced.
-Then, the current object is given a {\tt .parser}
-attribute equal to the parser associated with priority level L
-(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DEFINITION}).
-
-Lastly, if the current parsing mode is text and L equals zero, the parsing
-mode is changed to expression.
-
-\item
-The operator scanning algorithm is called recursively on each element
-of the current object's list that is an object and not an atom.  In making
-this recursive call, the current parsing mode is passed as an argument
-to the recursive algorithm execution.
-
-
-\end{enumerate}
-
-Given the the lexical scanning output on
-\pagref{LEXICAL-SCANNING-EXAMPLE-OUTPUT},
-which was derived from the lexeme sequence,
-
-\begin{center}
-\verb|`The "+" in (x + 5 * y) is an operator.'|
-\end{center}
-
-operator scanning returns:
-
-\begin{indpar}\begin{verbatim}
-@1:
-    1 : @4
-    2 : .
-    .initiator: "`"
-    .terminator: "'"
-    .parser: sentence
-@4:
-    1 : The
-    2 : @2
-    3 : in
-    4 : @3
-    5 : is
-    6 : an
-    7 : operator
-@2:
-    1: "+"
-    .initiator: quoted
-@3:
-    1 : x
-    2 : "+"
-    3 : @5
-    .initiator: "("
-    .terminator: ")"
-    .parser: sum
-@5:
-    1 : 5
-    2 : "*"
-    3 : y
-    .parser: product
-\end{verbatim}\end{indpar}
-
-Note that classical programming language prefix and postfix operators are
-not supported by MIN.  Examples are given with descriptions of parsers
-in the next section.\footnote{Classical prefix and postfix operators could be
-supported by MIN, but seem to the author to be no more intuitive than
-the MIN approach.  In particular, `{\tt x<y~AND NOT~y<z}' fails classically
-but works in MIN.}
-
-\subsubsection{Parser Expansion}
-\label{PARSER-EXPANSION}
-
-The \key{parser expansion} algorithm inputs an object output
-by the operator scanning algorithm and outputs an
-expanded object that replaces the input object.
-The parser expansion algorithm goes through its input
-looking for objects with a {\tt .parser} attribute, and for each
-such object, calls its {\tt .parser} attribute value as a function with
-the object as input and the function output as the expansion of the input
-object.  The expansion algorithm works only on the top level: when the
-algorithm calls the {\tt .parser} attribute function of an expression,
-the algorithm leaves it up to that function to call the {\tt .parser}
-attribute functions of subexpressions.  The standard parsers do this
-first, thus effecting a bottom up algorithm, similar to expression
-evaluation.
-
-A {\tt .parser} attribute value is known as a \key{parser}, and is associated
-with an operator priority level
-(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DEFINITION}).
-Immediately below are the standard parsers and their effects.
-
-In describing effects, we use notation such as
-
-\begin{center}
-\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))|
-\end{center}
-
-Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
-parentheses introduced by the rewrite are \underline{implied},
-which means that the lists they bracket have \underline{no}
-\verb|.initiator| or \verb|.terminator|, and the parentheses are
-merely written here to indicate sublists in the expression structure.
-
-\newpage
-
-\begin{indpar}[1em]
-
-\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
-\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
-\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
-
-\bigskip
-
-\ttmkey{sentence}{parser} \hfill
-	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
-
-\begin{indpar}[0.5em]
-Terminators may not be consecutive, may not begin an expression,
-and must end an expression.  Thus each between-terminator subexpression
-is non-empty and is followed by a terminator.
-Each between-terminator subexpression is converted if necessary
-to a list.  Then a \ttmkey{.terminator}{produced by parsing}
-attribute is added to this list whose value is the terminator following the
-subexpression.  If there is only one subexpression, the list it produces
-is the parse result.  Otherwise the result is the list of all the subexpression
-lists.
-\end{indpar}
-
-\bigskip
-
-
-\ttmkey{subsentence}{parser} \hfill
-	\key{subsentence separator}: \NBOP{;} \\
-\ttmkey{phrase}{parser} \hfill
-	\key{phrase separator}: \NBOP{,}
-
-\begin{indpar}[0.5em]
-Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
-priority levels and different parsers, and so cannot appear together
-in the same expression.
-
-A list of all between-separator subexpressions is made, with empty
-between-separator subexpressions being represented by objects with
-no attributes.  There will be at least two subexpressions: one following
-the last separator and one preceding the first separator.
-The list of subexpressions is given a
-\ttmkey{.separator}{produced by parsing}
-attribute with value of the separator (\verb|";"| or \verb|","|),
-and is returned as the result of the parse.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{assign}{parser} \hfill
-	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
-
-\begin{indpar}[0.5em]
-Assign operators may not be consecutive and may not begin or end an expression.
-The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
-may not be mixed in the same expression.
-The results are rewritten using the two-argument assignment function \verb|<-|,
-making multiple assignments from right to left.
-
-\begin{indpar}[0.5em]
-\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))| \\
-\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))|
-\end{indpar}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{logical}{parser} \hfill
-	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
-
-\begin{indpar}[0.5em]
-One expression cannot have both {\tt AND} and {\tt OR} operators
-outside explicitly bracketed subexpressions.  The {\tt NOT} operator
-can only occur at the beginning of an expression or just after {\tt AND}
-or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
-before a {\tt NOT}, which must always be empty.
-
-The expression is rewritten using a multi-argument {\tt AND}
-or {\tt OR} function and a single argument {\tt NOT} function.
-
-\begin{indpar}[0.5em]
-\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
-\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (NOT x) (NOT y) z w| \\
-\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
-\\\hspace*{1in}
-\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
-\end{indpar}
-
-Note that {\tt NOT} is not a classical prefix operator, which would have
-higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
-and {\tt OR} may not be used in the same logical expression without using
-explicit brackets.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{compare}{parser} \hfill
-	\skey{compare operator}s:
-	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
-	\NBOP{/=} ~ \NBOP{!=} ~
-	\NBOP{=>} ~ \NBOP{>=} ~
-	\NBOP{=<} ~ \NBOP{<=}
-
-\begin{indpar}[0.5em]
-Subexpressions cannot be empty, and a compare operator may not
-begin or end an expression.
-The expression is rewritten using a multi-argument {\tt AND}
-function and two-argument compare functions.  Temporary variables
-(\secref{TEMPORARY-VARIABLES})
-are used to name intermediate expression values to
-avoid recomputing arguments.
-
-\begin{indpar}[0.5em]
-\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z))| \\
-\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
-\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
-	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
-			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
-			  & \verb|(<= (.tmp 58) x)| \\
-	       \end{tabular}
-\end{indpar}
-
-Note that sequences of comparison operators are treated as they are
-in mathematics and not as they are in classical programming languages.
-E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
-\verb|(x<y)<z|.
-\end{indpar}
-
-\bigskip
-
-\ttmkey{sum}{parser} \hfill
-	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
-
-\begin{indpar}[0.5em]
-Addition operators may not be consecutive and may not end an expression.
-The results are rewritten using the multi-argument summation function \verb|+|
-and the unary negation function \verb|-|.
-
-\begin{indpar}[0.5em]
-\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
-\verb|+ (- x) y z (- w)|
-\end{indpar}
-\end{indpar}
-
-\bigskip
-
-\ttmkey{product}{parser} \hfill
-	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
-
-\begin{indpar}[0.5em]
-The two different kinds of multiplication operators, \verb|*| and \verb|/|,
-cannot be mixed in the same expression.
-Multiplication operators may not be consecutive and may neither begin
-nor end an expression.  The division operator \verb|/| must have exactly
-two operands.  The results are rewritten using
-the multi-argument multiplication function \verb|*| or the binary
-division function \verb|/|.  E.g.:
-
-\begin{indpar}[0.5em]
-\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
-\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
-
-\end{indpar}
-\end{indpar}
-
-
-\end{indpar}
-
-
-
 \section{Lexical Parsing}
 \label{LEXICAL-PARSING}
 
@@ -4629,6 +3840,218 @@ argument, \verb|<:>| reorder, \verb|::>| remainder,
 \verb|??| optional qualifier marks are \underline{not} recognized.
 
 \end{indpar}
+
+\subsection{Expression Reformatting}
+\label{EXPRESSION-REFORMATTING}
+
+TBD
+
+The \key{parser expansion} algorithm inputs an object output
+by the operator scanning algorithm and outputs an
+expanded object that replaces the input object.
+The parser expansion algorithm goes through its input
+looking for objects with a {\tt .parser} attribute, and for each
+such object, calls its {\tt .parser} attribute value as a function with
+the object as input and the function output as the expansion of the input
+object.  The expansion algorithm works only on the top level: when the
+algorithm calls the {\tt .parser} attribute function of an expression,
+the algorithm leaves it up to that function to call the {\tt .parser}
+attribute functions of subexpressions.  The standard parsers do this
+first, thus effecting a bottom up algorithm, similar to expression
+evaluation.
+
+A {\tt .parser} attribute value is known as a \key{parser}, and is associated
+with an operator priority level
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DEFINITION}).
+Immediately below are the standard parsers and their effects.
+
+In describing effects, we use notation such as
+
+\begin{center}
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{center}
+
+Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
+parentheses introduced by the rewrite are \underline{implied},
+which means that the lists they bracket have \underline{no}
+\verb|.initiator| or \verb|.terminator|, and the parentheses are
+merely written here to indicate sublists in the expression structure.
+
+\newpage
+
+\begin{indpar}[1em]
+
+\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
+\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
+\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
+
+\bigskip
+
+\ttmkey{sentence}{parser} \hfill
+	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
+
+\begin{indpar}[0.5em]
+Terminators may not be consecutive, may not begin an expression,
+and must end an expression.  Thus each between-terminator subexpression
+is non-empty and is followed by a terminator.
+Each between-terminator subexpression is converted if necessary
+to a list.  Then a \ttmkey{.terminator}{produced by parsing}
+attribute is added to this list whose value is the terminator following the
+subexpression.  If there is only one subexpression, the list it produces
+is the parse result.  Otherwise the result is the list of all the subexpression
+lists.
+\end{indpar}
+
+\bigskip
+
+
+\ttmkey{subsentence}{parser} \hfill
+	\key{subsentence separator}: \NBOP{;} \\
+\ttmkey{phrase}{parser} \hfill
+	\key{phrase separator}: \NBOP{,}
+
+\begin{indpar}[0.5em]
+Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
+priority levels and different parsers, and so cannot appear together
+in the same expression.
+
+A list of all between-separator subexpressions is made, with empty
+between-separator subexpressions being represented by objects with
+no attributes.  There will be at least two subexpressions: one following
+the last separator and one preceding the first separator.
+The list of subexpressions is given a
+\ttmkey{.separator}{produced by parsing}
+attribute with value of the separator (\verb|";"| or \verb|","|),
+and is returned as the result of the parse.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{assign}{parser} \hfill
+	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
+
+\begin{indpar}[0.5em]
+Assign operators may not be consecutive and may not begin or end an expression.
+The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
+may not be mixed in the same expression.
+The results are rewritten using the two-argument assignment function \verb|<-|,
+making multiple assignments from right to left.
+
+\begin{indpar}[0.5em]
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))| \\
+\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{logical}{parser} \hfill
+	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
+
+\begin{indpar}[0.5em]
+One expression cannot have both {\tt AND} and {\tt OR} operators
+outside explicitly bracketed subexpressions.  The {\tt NOT} operator
+can only occur at the beginning of an expression or just after {\tt AND}
+or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
+before a {\tt NOT}, which must always be empty.
+
+The expression is rewritten using a multi-argument {\tt AND}
+or {\tt OR} function and a single argument {\tt NOT} function.
+
+\begin{indpar}[0.5em]
+\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
+\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (NOT x) (NOT y) z w| \\
+\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
+\\\hspace*{1in}
+\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
+\end{indpar}
+
+Note that {\tt NOT} is not a classical prefix operator, which would have
+higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
+and {\tt OR} may not be used in the same logical expression without using
+explicit brackets.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{compare}{parser} \hfill
+	\skey{compare operator}s:
+	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
+	\NBOP{/=} ~ \NBOP{!=} ~
+	\NBOP{=>} ~ \NBOP{>=} ~
+	\NBOP{=<} ~ \NBOP{<=}
+
+\begin{indpar}[0.5em]
+Subexpressions cannot be empty, and a compare operator may not
+begin or end an expression.
+The expression is rewritten using a multi-argument {\tt AND}
+function and two-argument compare functions.  Temporary variables
+(\secref{TEMPORARY-VARIABLES})
+are used to name intermediate expression values to
+avoid recomputing arguments.
+
+\begin{indpar}[0.5em]
+\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z))| \\
+\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
+\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
+	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
+			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
+			  & \verb|(<= (.tmp 58) x)| \\
+	       \end{tabular}
+\end{indpar}
+
+Note that sequences of comparison operators are treated as they are
+in mathematics and not as they are in classical programming languages.
+E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
+\verb|(x<y)<z|.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{sum}{parser} \hfill
+	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
+
+\begin{indpar}[0.5em]
+Addition operators may not be consecutive and may not end an expression.
+The results are rewritten using the multi-argument summation function \verb|+|
+and the unary negation function \verb|-|.
+
+\begin{indpar}[0.5em]
+\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
+\verb|+ (- x) y z (- w)|
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{product}{parser} \hfill
+	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
+
+\begin{indpar}[0.5em]
+The two different kinds of multiplication operators, \verb|*| and \verb|/|,
+cannot be mixed in the same expression.
+Multiplication operators may not be consecutive and may neither begin
+nor end an expression.  The division operator \verb|/| must have exactly
+two operands.  The results are rewritten using
+the multi-argument multiplication function \verb|*| or the binary
+division function \verb|/|.  E.g.:
+
+\begin{indpar}[0.5em]
+\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
+\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
+
+\end{indpar}
+\end{indpar}
+
+
+\end{indpar}
+
+
 
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
