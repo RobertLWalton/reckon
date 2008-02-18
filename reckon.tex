@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 12, 2008}
+\date{February 18, 2008}
  
 \maketitle
 
@@ -2307,12 +2307,20 @@ objects.
 \label{LEXICAL-PARSING}
 
 After input text is converted to a sequence of lexemes, the lexemes
-are read from left to right by an expression parser
-(\secref{EXPRESSION-PARSING}).  During this process some lexemes
-may be inserted or replaced by a process called \key{lexical parsing}.
-Lexical parsing only affects short sequences of lexemes, and is
-thereby distinguished from expression parsing, which affects arbitrarily
+are read from left to right by an lexical parser and converted into
+lexical expressions, which are sequences of lexemes and explicitly
+bracketted subexpressions.  During this process lexemes may be
+inserted or replaced.  Except for explicitly bracketted subexpressions,
+lexical parsing only affects short sequences of lexemes, and is
+thereby distinguished from expression parsing, which is applied to
+the lexical expressions, and which affects arbitrarily
 long sequences of lexemes.
+
+All forms of parsing are controlled by parsing definitions, which
+are input as a separate and distinct piece of program code, before
+the code being parsed is input.  These parsing definitions are
+placed in the parsing definition stack.
+See~\secref{PARSING-DEFINITION-STACK}.
 
 Lexical parsing consists of the following steps which are done in
 the order given:
@@ -2402,7 +2410,7 @@ dictionary and function.  These have the syntax:
 \key{replaced-lexemes} ::=
 	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 \key{replacing-lexemes} ::=
-	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+	{\em symbol}\,$^\star$ \\[1ex]
 \key{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
 				{\em function-name}
@@ -2422,11 +2430,13 @@ and a sequence of lexemes that replace it.  For example, the entry
 
 causes the word `\verb|people|' to be replaced by the word `\verb|person|'.
 
-A \key{lexeme function} is a function that is called with a lexeme as its
-single argument and which returns either `\verb|false|' if the lexeme is
-not to be replaced or returns an expression consisting of a sequence of
-lexemes that are to replace the lexeme otherwise.  For example, given the
-lexeme function definition
+A \key{lexeme function} is a function that is called with a list of
+lexemes as its single argument and which returns either
+`\verb|false|' if the lexeme at the beginning of the list is not to be
+replaced, or returns a pair consisting of first a list of replacing
+lexemes and second the in input list with the replaced lexemes removed
+from its beginning.
+For example, given the lexeme function definition
 
 \begin{indpar}
 \begin{verbatim}
@@ -2438,17 +2448,22 @@ and the function definition
 
 \begin{indpar}
 \begin{verbatim}
-replace people X <--:
-    if X == `people':
-        value = `person'
+replace people X <-- list ( X ):
+    if first X == `people':
+        value = ( `person', rest X )
     else:
         value = false
 \end{verbatim}
 \end{indpar}
 
-an appearance of the lexeme `\verb|fie|' will evaluate the
-expression `\verb|replace people fie|' which will return `\verb|false|'
-to avoid replacing the lexeme `\verb|fie|'.
+then
+
+\begin{center}
+\verb|replace people `people with hats'| $\Longrightarrow$
+\verb|(`person',`with hats')|
+
+\verb|replace people `fee fie foe fum'| $\Longrightarrow$ \verb|false|
+\end{center}
 
 
 Lexeme replacement is \underline{not} recursive: the replacement lexemes are
@@ -2466,10 +2481,8 @@ are `{\tt operator}' and `{\tt list}'.
 See~\secref{PARSING-SELECTORS} for details.
 
 If several different lexeme replacement definitions could be used to
-replace lexemes at the beginning of a lexeme sequence, definitions
-replacing the longest string of lexemes are used.  If there are
-several such definitions, the definition
-closest to the top of the parsing definition stack
+replace lexemes at the beginning of a lexeme sequence, the topmost
+definition in the parsing definition stack
 (\pagref{PARSING-DEFINITION-STACK}) is used.
 
 The following lexeme dictionaries and functions are
