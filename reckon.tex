@@ -266,7 +266,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 18, 2008}
+\date{February 19, 2008}
  
 \maketitle
 
@@ -2308,8 +2308,8 @@ objects.
 
 After input text is converted to a sequence of lexemes, the lexemes
 are read from left to right by an lexical parser and converted into
-lexical expressions, which are sequences of lexemes and explicitly
-bracketted subexpressions.  During this process lexemes may be
+lexical expressions, which are sequences of lexemes and explicit
+subexpressions.  During this process lexemes may be
 inserted or replaced.  Except for explicitly bracketted subexpressions,
 lexical parsing only affects short sequences of lexemes, and is
 thereby distinguished from expression parsing, which is applied to
@@ -2328,7 +2328,8 @@ the order given:
 \begin{indpar}[0.8in]
 Lexeme Replacement (Spelling Regularization, Possessive Splitting)
     (\secref{LEXEME-REPLACEMENT}) \\
-Indentation Lexeme Insertion (\secref{INDENTATION-LEXEME-INSERTION}) \\
+Explicit Subexpression Recognition
+    (\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}) \\
 Radix Number Recognition (\secref{RADIX-NUMBER-RECOGNITION}) \\
 Scientific Number Recognition (\secref{SCIENTIFIC-NUMBER-RECOGNITION}) \\
 Number Pair Recognition (\secref{NUMBER-PAIR-RECOGNITION}) \\
@@ -2535,22 +2536,67 @@ word, some subtleties of language are lost.  For example, `\verb|people|'
 can be a singular word referring to a group of people, but CASTLE will
 standardly confuse it with `\verb|person|'.
 
-\subsection{Indentation Lexeme Insertion}
-\label{INDENTATION-LEXEME-INSERTION}
+\subsection{Explicit Subexpression Recognition}
+\label{EXPLICIT-SUBEXPRESSION-RECOGNITION}
+
+\ikey{Explicit subexpressions}{explicit subexpression}
+are subexpressions surrounded by explicit brackets or subexpressions
+introduced by an indentation marks and defined by
+indentation.
+
+\ikey{Explicit brackets}{explicit bracket}
+are defined by bracket definitions in the
+parsing definition stack, and are used to surround
+\skey{explicitly bracketted subexpression}s.  An example bracket
+definition is
+
+\begin{indpar}\begin{tabular}{@{}l@{~}l}
+\verb|define| & \verb|bracket "{" ... "}" [operator]| \\
+              & \ldots
+\end{tabular}\end{indpar}
+
+This specifies that \verb|{| is an \key{opening bracket}
+and \verb|}| is its corresponding \key{closing bracket}.  More details on
+bracket definitions can be found in \secref{BRACKET-DEFINITION}.
+The lexical parser recognizes opening explicit brackets in
+its input list of lexemes.  Once an opening bracket is recognized,
+its corresponding closing bracket can be recognized, as long as it
+is not inside an explicit subexpression.
+
+\ikey{Indentation marks}{indentation mark} are defined by indentation
+mark definitions in the parsing definition stack and are used to introduce
+\skey{indented subexpression}s.
+An example indentation mark definition is
+
+\begin{indpar}\begin{verbatim}
+define indentation mark * ":" [operator]
+       with separator ";"
+\end{verbatim}\end{indpar}
+
+This specifies that a mark ending in \verb|:| that is at the end
+of a line introduces an indented subexpression.  An example
+indented subexpression introduced by the mark just defined is
+
+\begin{indpar}\begin{verbatim}
+sum from X through Y <-- integer X, integer Y:
+    `Sum of integers from X through Y.'
+    if ( X > Y ):
+        value = 0
+    else:
+        value = X + sum (X+1) through Y
+\end{verbatim}\end{indpar}
+
+Here the \verb|:| at the end of the first line introduces an
+indented subexpression consisting of all following lines, and
+the \verb|:|'s at the end of the `\verb|if|' and `\verb|else|'
+lines each introduce one line subexpressions.
+
+TBD
 
 \ikey{Indentation-lexemes}{indentation-lexeme}
 are implied by indentation.  The
 \mkey{indentation}{of line} of a line is the
 column number of the first non-white-space character in the line.
-
-Indentation lexemes are controlled by bracket definitions
-(\secref{BRACKET-DEFINITION}).  An example bracket definition is
-
-\begin{indpar}\begin{verbatim}
-define bracket "{" ... "}" [operator]
-       with indentation separator ";"
-       with indentation indicator * ":"; 
-\end{verbatim}\end{indpar}
 
 This specifies that inside the scope of \verb|{ }| brackets,
 implied \verb|;| separators will be inserted between non-indented lines.
