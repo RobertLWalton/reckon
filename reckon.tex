@@ -74,10 +74,8 @@
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
-\newcommand{\ttikey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttinbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttbkey}[1]{{\tt \bf [#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttnbbkey}[1]{{\tt [#1]}\index{#1@{\tt [#1]}}}
@@ -2591,39 +2589,172 @@ Here the \verb|:| at the end of the first line introduces an
 indented subexpression consisting of all following lines, and
 the \verb|:|'s at the end of the `\verb|if|' and `\verb|else|'
 lines each introduce one line indented subexpressions.
-After lexical parsing (but \underline{not} expression parsing)
-this example becomes:
+
+The output of the \underline{lexical} parser for this example
+is the same as its output for:
 
 \begin{indpar}\begin{verbatim}
 @1 = sum from X through Y "<--" integer X "," integer Y @2
-@2 = @3 @4 @8 { .initiator = ":" }
-@3 = Sum of integers from X through Y "."
-     { .initiator = "`"; .terminator = "'" }
-@4 = if @5 @6
-@5 = X ">" Y { .initiator = "("; .terminator = ")" }
+@2 = @3 @4 @5 { .initiator = ":" }
+@3 = `Sum of integers from X through Y.'
+@4 = if ( X > Y ) @6
 @6 = @7 { .initiator = ":" }
 @7 = value "=" 0
-@8 = else @9
-@9 = @10 { .initiator = ":" }
-@10 = value "=" X "+" sum @11 through Y
+@5 = else @8
+@8 = @9 { .initiator = ":" }
+@9 = value "=" X "+" sum ( X "+" 1 ) through Y
+\end{verbatim}\end{indpar}
+
+where we have not done lexical parsing for explicitly
+bracketted subexpressions.  The output of lexical parsing
+on the objects above that include explicitly
+bracketted subexpressions is the same as:
+
+\begin{indpar}\begin{verbatim}
+@3 = Sum of integers from X through Y "."
+         { .initiator = "`"; .terminator = "'" }
+
+@4 = if @10 @6
+@10 = X ">" Y { .initiator = "("; .terminator = ")" }
+
+@9 = value "=" X "+" sum @11 through Y
 @11 = X "+" 1 { .initiator = "("; .terminator = ")" }
 \end{verbatim}\end{indpar}
 
-TBD
+Note that expression parsing, which is done after lexical parsing,
+can transform the results of lexical parsing significantly.  Thus
+after expression parsing \verb|@3| becomes:
 
-\ikey{Indentation-lexemes}{indentation-lexeme}
-are implied by indentation.  The
-\mkey{indentation}{of line} of a line is the
+\begin{indpar}\begin{verbatim}
+@3 = sum of integers from X through Y
+         { .initiator = capital; .terminator = "." }
+\end{verbatim}\end{indpar}
+
+in which the \verb|` '| brackets have disappeared completely,
+\verb|"."| has been recognized as a \verb|.terminator|, and
+capitalization has been encoded in as an \verb|.initiator|.
+
+The \mkey{indentation}{of line} of a line is the
 column number of the first non-white-space character in the line.
 
-This specifies that inside the scope of \verb|{ }| brackets,
-implied \verb|;| separators will be inserted between non-indented lines.
-The definition further specifies that given a line ending in
-a lexeme that ends with \verb|:|, the \verb|:| will be removed,
-and the next group of indented lines will be surrounded by
-implied \verb|{ }| brackets.  We proceed to describe the specific
-details of this process.
+An \key{indented subexpression} is introduced by an
+\key{indented subexpression mark} that ends a line.  This mark must
+be defined by an indented subexpression mark definition, as per the
+example above.  If the mark is preceeded in its definition by
+\ttmkey{*}{in indented subexpression mark definition}, then may be
+\mkey{glued}{indented subexpression mark}
+to another mark immediately preceding it.  For example,
+`\verb|= :|' may be written as `\verb|=:|'.
 
+An indented subexpression is a list of lines.
+The \mkey{indentation}{of indented subexpression}
+of the subexpression is the indentation of the first line,
+and all the other lines must have the same indentation.  The output of
+the lexical parser for an indented subexpression is a list whose elements
+are the output of the lexical parser for each line, and 
+whose \verb|.initiator| is the indented subexpression mark that introduced
+the subexpression.  Lines indented by more than the subexpression indentation
+are continuations of the preceding line.
+
+The \key{top level}, the file containing the text being parsed,
+is treated similarly
+to an indented subxpression introduced by an implied mark before the
+beginning of the file.  Each element of the top level is a line indented
+the same as the first line of the file.  These elements are read and
+processed sequentially.  It is an error for a file line to have less
+indentation that the first line of the file.
+
+Consider the file:
+
+\begin{indpar}\begin{verbatim}
+@3 =:
+    v =:
+        w
+        x y
+    z =:
+@4 = a b c
+@5 =:
+\end{verbatim}\end{indpar}
+
+When the first element of this file is read using the
+lexical parser, it becomes the object \verb|@6| in:
+
+\begin{indpar}\begin{verbatim}
+@6 = "@" 3 "=" @7
+@7 = @8 @9 { .initiator  = ":" }
+@8 = v "=" @10
+@10 = w @11 { .initiator = ":" }
+@11 = x y
+@9 = z "=" @12
+@12 = { .initiator = ":" }
+\end{verbatim}\end{indpar}
+
+Note the list \verb|@12| introduced by line `\verb|z =:|' is
+empty, because the next line is indented by more than
+this line, and therefore the indented subexpression containing
+this line ends right after the line.
+
+The second element read from the above file is \verb|@13| in:
+
+\begin{indpar}\begin{verbatim}
+@13 = "@" 4 "=" a b c
+\end{verbatim}\end{indpar}
+
+and the third and last element is \verb|@14| in:
+
+\begin{indpar}\begin{verbatim}
+@14 = "@" 5 "=" @15
+@15 = { .initiator = ":" }
+\end{verbatim}\end{indpar}
+
+Here \verb|@15| is the empty list because the file ends
+after the line `\verb|@5 =:|' that introduces it.
+
+It is a general rule of CASTLE that lists with \verb|{ }| brackets
+and `\verb|;|' separator are semantically equivalent to indented
+subexpressions introduced by `\verb|:|'.  Thus
+
+\begin{indpar}\begin{verbatim}
+@3 =:
+    v =:
+        w
+        x y
+    z =:
+@4 = a b c
+@5 =:
+\end{verbatim}\end{indpar}
+
+and
+
+\begin{indpar}\begin{verbatim}
+@3 = {
+    v = {
+        w;
+        x y };
+    z = {} }
+@4 = a b c
+@5 = {}
+\end{verbatim}\end{indpar}
+
+are semantically equivalent files.  But they do \underline{not}
+parse the same.  Also, the lines of the top level may optionally
+be ended by `\verb|;|', as in
+
+\begin{indpar}\begin{verbatim}
+@3 = {
+    v = {
+        w;
+        x y };
+    z = {} };
+@4 = a b c;
+@5 = {};
+\end{verbatim}\end{indpar}
+
+without semantic effect, as long as indentation subexpressions
+are not used outside explicit brackets.
+
+\subsubsection{The Lexical Bracket Algorithm}
+\label{LEXICAL-BRACKET-ALGORITHM}
 
 At any given point during lexical parsing, there is a
 stack of indentation records, called the \key{indentation stack}.
@@ -4566,9 +4697,9 @@ blank lines.
 Paragraphs are classified as tabular or free-form according
 to whether their first line is a tabular format line.  A
 \key{tabular format line} contains optional whitespace characters,
-followed by a `\ttinbkey{+}{in tabular format line}', followed
+followed by a `\ttmnbkey{+}{in tabular format line}', followed
 by any number of `{\tt +}' or
-`\ttinbkey{-}{in tabular format line}' characters,
+`\ttmnbkey{-}{in tabular format line}' characters,
 followed by a `{\tt +}' that ends the line, except that superfluous
 whitespace characters are allowed after the `line ending' {\tt+}.
 An example of a tabular paragraph is:
