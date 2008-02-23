@@ -3,6 +3,10 @@
 % File:         castle.tex
 % Author:       Bob Walton (walton@deas.harvard.edu)
 % Date:		See \date below.
+
+% Possible alternative names:
+%
+%	RECKON	Personal Reckoning language
   
 \documentclass[12pt]{article}
 
@@ -264,7 +268,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 21, 2008}
+\date{February 23, 2008}
  
 \maketitle
 
@@ -2537,7 +2541,7 @@ standardly confuse it with `\verb|person|'.
 
 \ikey{Explicit subexpressions}{explicit subexpression}
 are subexpressions surrounded by explicit brackets or subexpressions
-introduced by an indented subexpression marks and defined by
+introduced by indentation marks and delimited by
 indentation.
 
 \ikey{Explicit brackets}{explicit bracket}
@@ -2559,19 +2563,19 @@ its input list of lexemes.  Once an opening bracket is recognized,
 its corresponding closing bracket can be recognized, as long as it
 is not inside an explicit subexpression.
 
-\ikey{Indented expression marks}{indented expression mark}
-are defined by indented expression
-mark definitions in the parsing definition stack and are used to introduce
+\ikey{Indentation marks}{indentation mark}
+are defined by indention mark
+definitions in the parsing definition stack and are used to introduce
 \skey{indented subexpression}s.
-An example indented expression mark definition is
+An example indention mark definition is
 
 \begin{indpar}\begin{verbatim}
-define indented expression mark * ":" [operator]
-       with separator ";"
+define indentation mark * ":" [operator]
 \end{verbatim}\end{indpar}
 
-This specifies that a mark ending in \verb|:| that is at the end
-of a line introduces an indented subexpression.  The following
+This specifies that a mark ending in \verb|:|
+\underline{that is at the end of a line}
+introduces an indented subexpression.  The following
 example contains 3 indented subexpressions:
 
 \begin{indpar}\begin{verbatim}
@@ -2589,33 +2593,20 @@ the \verb|:|'s at the end of the `\verb|if|' and `\verb|else|'
 lines each introduce one line indented subexpressions.
 
 The output of the \underline{lexical} parser for this example
-is the same as its output for:
+is:
 
 \begin{indpar}\begin{verbatim}
 @1 = sum from X through Y "<--" integer X "," integer Y @2
 @2 = @3 @4 @5 { .initiator = ":" }
-@3 = `Sum of integers from X through Y.'
-@4 = if ( X > Y ) @6
-@6 = @7 { .initiator = ":" }
-@7 = value "=" 0
-@5 = else @8
-@8 = @9 { .initiator = ":" }
-@9 = value "=" X "+" sum ( X "+" 1 ) through Y
-\end{verbatim}\end{indpar}
-
-where we have not done lexical parsing for explicitly
-bracketted subexpressions.  The output of lexical parsing
-on the objects above that include explicitly
-bracketted subexpressions is the same as:
-
-\begin{indpar}\begin{verbatim}
 @3 = Sum of integers from X through Y "."
          { .initiator = "`"; .terminator = "'" }
-
-@4 = if @10 @6
-@10 = X ">" Y { .initiator = "("; .terminator = ")" }
-
-@9 = value "=" X "+" sum @11 through Y
+@4 = if @6 @7
+@6 = X ">" Y { .initiator = "("; .terminator = ")" }
+@7 = @8 { .initiator = ":" }
+@8 = value "=" 0
+@5 = else @9
+@9 = @10 { .initiator = ":" }
+@10 = value "=" X "+" sum @11 through Y
 @11 = X "+" 1 { .initiator = "("; .terminator = ")" }
 \end{verbatim}\end{indpar}
 
@@ -2636,31 +2627,36 @@ The \mkey{indentation}{of line} of a line is the
 column number of the first non-white-space character in the line.
 
 An \key{indented subexpression} is introduced by an
-\key{indented subexpression mark} that ends a line.  This mark must
-be defined by an indented subexpression mark definition, as per the
+\key{indentation mark} that ends a line.  This mark must
+be defined by an indention mark definition, as per the
 example above.  If the mark is preceeded in its definition by
-\ttmkey{*}{in indented subexpression mark definition}, then may be
-\mkey{glued}{indented subexpression mark}
+\ttmkey{*}{in indention mark definition}, then it may be
+\mkey{glued}{indentation mark}
 to another mark immediately preceding it.  For example,
 `\verb|= :|' may be written as `\verb|=:|'.
 
-An indented subexpression is a list of lines.
+An indented subexpression is a list of non-blank lines.
 The \mkey{indentation}{of indented subexpression}
-of the subexpression is the indentation of the first line,
+of the subexpression is the indentation of the first non-blank line,
 and all the other lines must have the same indentation.  The output of
 the lexical parser for an indented subexpression is a list whose elements
-are the output of the lexical parser for each line, and 
-whose \verb|.initiator| is the indented subexpression mark that introduced
-the subexpression.  Lines indented by more than the subexpression indentation
-are continuations of the preceding line.
+are the output of the lexical parser for each non-blank line, and 
+whose \verb|.initiator| is the indention mark that introduced
+the subexpression.  Non-blank lines
+indented by more than the subexpression indentation
+are continuations of the preceding non-blank line.
 
 The \key{top level}, the file containing the text being parsed,
 is treated similarly
-to an indented subxpression introduced by an implied mark before the
-beginning of the file.  Each element of the top level is a line indented
-the same as the first line of the file.  These elements are read and
-processed sequentially.  It is an error for a file line to have less
-indentation that the first line of the file.
+to an indented subxpression introduced by an implied indentation mark
+before the
+beginning of the file.  Each element of the top level is a
+non-blank line indented
+the same as the first non-blank
+line of the file.  These elements are read and
+processed sequentially.  It is an error for a file non-blank
+line to have less
+indentation that the first non-blank line of the file.
 
 Consider the file:
 
@@ -2688,7 +2684,7 @@ lexical parser, it becomes the object \verb|@6| in:
 \end{verbatim}\end{indpar}
 
 Note the list \verb|@12| introduced by line `\verb|z =:|' is
-empty, because the next line is indented by more than
+empty, because the next line is indented by less than
 this line, and therefore the indented subexpression containing
 this line ends right after the line.
 
@@ -2760,62 +2756,52 @@ and indented subexpressions.  Here we describe this algorithm, which
 runs on the output of the lexeme replacement algorithm.
 
 The algorithm maintains a
-stack of indentation records, called the \key{indentation stack}.
-An \key{indentation record} is an \key{indentation} (column number),
-a pointer to a bracket definition, and an \key{implicit bracket flag}.
-The bracket definition specifies an \key{indentation opening bracket},
-an \key{indentation closing bracket}, an \key{indentation separator},
-and an \key{indentation indicator}, which in the above definition are
-respectively \verb|"{"|, \verb|"}"|, \verb|";"|, and \verb|* ":"|.
-All these bracket definition components are optional.
-The implicit bracket flag indicates whether
-or not an implied opening bracket lexeme was inserted at the same time the
-indentation record was pushed onto the indentation stack.
+stack of subexpression records, called the \key{subexpression stack}.
+A \key{subexpression record} contains a pointer to a bracket definition
+or an indentation mark definition,
+an indentation (column number), a subexpression list, and a line list.
+Any of these components may be missing.
 
-The \verb|*| in the indentation indicator \verb|* ":"| specifies that
-any lexeme that ends with \verb|:| is an indentation indicator.  If
-the \verb|*| were missing, only the 1-character lexeme \verb|:| would
-be an indentation indicator.
-
-Initially the indentation stack contains a single indentation record with
-1 indentation, a pointer to the bracket definition:
-\begin{indpar}\begin{verbatim}
-define bracket [operator]
-       with indentation separator ";"
-\end{verbatim}\end{indpar}
-and an off implicit bracket flag.
-Note all the components of the bracket definition are missing except
-the indentation separator, which specified that a semi-colon is to
-be inserted between non-indented lines.
+Initially the subexpression stack contains a single subexpression record with
+no definition pointer, indentation equal to 1, subexpression list equal
+to the lines read so far at top level, and line list equal to what has been
+read for far from the current line.
 The stack cannot become empty;
 the bottommost indentation record on the stack is always the same.
 
-The indentation in the indentation record at the top of the indentation
-stack is called the \key{current indentation record}, and its components
-are referred to as `current' (e.g., `\key{current indentation}', `\key{current
-indentation opening bracket}').
+The record at the top of the indentation stack is called the
+`\key{current subexpression record}'.  If it has an indentation, bracket
+definition, indentation mark definition, subexpression list, etc., there
+are called `current', as in `current indentation',
+`current bracket definition', or `current subexpression list'.
+The components of the definition are
+also called current, as in `current closing bracket'.
 
-Indentation lexemes are then inserted during lexical parsing
-by the following \key{indentation lexeme insertion algorithm}.
-This algorithm is 
-applied to the lexeme stream immediately after lexical replacement, and
-executes the following steps in order before passing
-lexemes onto the next stage in lexical parsing.
+The explicit subexpression recognition algorithm is
+applied to the lexeme sequence immediately after lexical replacement.
+At any point during algorithm execution the sequence of remaining input lexemes
+are referred to as the current input lexemes, and the first of these is
+referred to as the current input lexeme.  This lexeme
+may be the first or last in its file line, and if first, will
+have some indentation with respect to the beginning of its file line.
+
+The explicit subexpression algorithm executes a loop each of whose
+iterations execute the following steps in order.
 
 \begin{indpar}
 
 {\bf Indentation Error Step.}\index{Indentation Error Step}
 \begin{indpar}
-When the first lexeme of a line is encountered, if
+If
 \begin{list}{}
 	     {\setlength{\itemsep}{0ex}%
 	      \setlength{\topsep}{0ex}%
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] there is a current indentation separator or
-	   the current implicit bracket flag is on, and
-\item[(2)] the indentation of this first lexeme in a line
+\item[(1)] the current input lexeme is the first lexeme on its line,
+\item[(2)] there is a current indentation, and
+\item[(3)] the indentation of this lexeme in its line
 is 1 less than or 1 greater
 than the current indentation,
 \end{list}
@@ -2826,178 +2812,195 @@ differences must be by at least
 2 columns, and cannot be by just 1 column.
 \end{indpar}
 
-{\bf Indentation Separator Step.}\index{Indentation Separator Step}
+{\bf Indentation Mark Ungluing Step.}%
+\index{Indentation Mark Ungluing Step}
 \begin{indpar}
-When the first lexeme of a line is encountered, if
+If
 \begin{list}{}
 	     {\setlength{\itemsep}{0ex}%
 	      \setlength{\topsep}{0ex}%
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] there is a current indentation separator,
-\item[(2)] the indentation of the lexeme of a line equals the current
-indentation,
-\item[(3)] this lexeme is not the first encountered after
-the current indentation record was created, and
-\item[(4)] the lexeme
-previous to this lexeme (the last on the previous non-blank line)
-does not equal the indentation separator,
-\item[(5)] the lexeme is not the first of a sequence of lexemes
-that matches the current indentation closing bracket, or the current
-implicit bracket flag is on
+\item[(1)] the current input lexeme is the last lexeme on its line,
+\item[(2)] this lexeme is a mark,
+\item[(3)] there is a current indentation mark definition in the
+parsing defintion stack which defines a gluing mark that is
+at the end of the current input lexeme, but not the whole lexeme,
 \end{list}
-then a copy of the indentation separator is inserted before the first
-lexeme of the line (or equivalently, is inserted at the end of the
-previous line).
+then the current input lexeme is split in two and replaced by two lexemes.
+The second of these is the gluing indentation mark, and the first
+is what precedes it in the original lexeme.  The first of these two
+lexemes becomes the current input lexeme, and the second becomes the
+next lexeme in the input.
 \end{indpar}
 
-{\bf Implicit Closing Bracket Step.}\index{Implicit Closing Bracket Step}
+{\bf Indented Line Termination Step.}\index{Indented Line Termination Step}
 \begin{indpar}
-When the first lexeme of a line is encountered, if
+If
 \begin{list}{}
 	     {\setlength{\itemsep}{0ex}%
 	      \setlength{\topsep}{0ex}%
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] the current implicit bracket flag is on, and
-\item[(2)] the indentation of this first lexeme is 2 or more columns
-less than the current indentation,
+\item[(1)] the current input lexeme is the first lexeme on its line,
+\item[(2)] there is a current indentation,
+\item[(3)] the indentation of the current input lexeme is less than or equal
+to the current indentation
+\item[(4)] there is a current line list,
 \end{list}
-then a copy of the current indentation closing bracket is inserted before
-the first lexeme of the line and
-the current indentation record is popped from the indentation
-record stack.
+then the current line list is terminated and the resulting list
+is added to the current subexpression list.  The current line list
+is then set to missing.
 \end{indpar}
 
-{\bf Implicit Bracket Step.}\index{Implicit Bracket Step}
+{\bf Indented Subexpression Termination Step.}%
+\index{Indented Subexpression Termination Step}
 \begin{indpar}
-If the last lexeme of a line is encountered that
-matches the indentation indicator of some
-current bracket definition
-(see current parsing definitions, \pagref{CURRENT-PARSING-DEFINITION},
-and bracket definition indentation indicators,
-\pagref{INDENTATION-INDICATOR}),
-this bracket definition is called the \key{matched bracket definition}
-and the following are done:
-
+If
 \begin{list}{}
 	     {\setlength{\itemsep}{0ex}%
 	      \setlength{\topsep}{0ex}%
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] 
-The indentation indicator is removed from the end of this lexeme.
-If the lexeme becomes empty, it is deleted from the lexeme stream.
-
-\item[(2)] If the indentation of the first lexeme of the next line
-is not greater than the current indentation, or there is no next
-line, both the opening and closing brackets from the matched
-bracket definition are output at the end of the current line.
-
-\item[(3)] If the indentation of the first lexeme of the next line
-is 1 greater than the current indentation, an error is announced.
-
-\item[(4)] If the indentation of the first lexeme of the next line
-is greater than the current indentation, the opening bracket
-from the matched bracket definition is output at the end of the
-current line, and a new indentation record is pushed into the
-indentation stack.  The new record has the indentation of the
-next lexeme, a pointer to the matched bracket definition, and
-an on implicit bracket flag.
+\item[(1)] the current input lexeme is the first lexeme on its line,
+\item[(2)] there is a current indentation,
+\item[(3)] the indentation of the current input lexeme is less than
+to the current indentation
 \end{list}
-
+then the current subexpression record is popped from the subexpression
+stack and its subexpression list is added as a single element to the
+new current line list.  Then this loop iteration is terminated, without
+consuming the current input lexeme.
 \end{indpar}
 
-{\bf Explicit Opening Bracket Step.}\index{Explicit Opening Bracket Step}
+{\bf Bracketted Subexpression Termination Step.}%
+\index{Bracketted Subexpression Termination Step}
 \begin{indpar}
-If an opening bracket from a
-current bracket definition
-(see current parsing definitions, \pagref{CURRENT-PARSING-DEFINITION})
-is encountered, then
-a new indentation record is pushed into the stack.
-
-The indentation of the new indentation record is the indentation of
-the next lexeme.  The implicit bracket flag is off.  The record
-points at the bracket definition containing the opening bracket.
+If
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] there is a current bracket definition
+\item[(2)] the closing bracket in that definition matches a sequence
+of lexemes at the beginning of the current input lexemes
+\end{list}
+then the current subexpression record is popped from the subexpression
+stack and its subexpression list is added as a single element to the
+new current line list.
+The closing bracket is removed from the current input lexemes and
+discarded.
+Then this loop iteration is terminated.
 \end{indpar}
 
-{\bf Explicit Closing Bracket Step.}\index{Explicit Closing Bracket Step}
+{\bf Indentation Initiation Step.}%
+\index{Indentation Initiation Step}
 \begin{indpar}
-If the current indentation closing bracket is encountered, and the
-current implicit bracket flag is off, then
-the current indentation record is popped from the stack.
+If
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] the current input lexeme is the first lexeme on its line,
+\item[(2)] there is a current indentation mark definition,
+\item[(3)] there is \underline{no} current indentation (meaning this is
+the first lexeme encountered after indentation mark)
+\end{list}
+then the current indentation is set to the indentation of the lexeme.
 \end{indpar}
+
+{\bf Indented Line Initiation Step.}%
+\index{Indented Line Initiation Step}
+\begin{indpar}
+If
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] the current input lexeme is the first lexeme on its line,
+\item[(2)] there is a current indentation,
+\item[(3)] the indentation of the current input lexeme equals
+the current indentation
+\item[(4)] there is no current line list
+\end{list}
+then an empty current line list is created.
+\end{indpar}
+
+{\bf Indented Subexpression Initiation Step.}%
+\index{Indented Subexpression Initiation Step}
+\begin{indpar}
+If
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] the current input lexeme is the last lexeme on its line,
+\item[(2)] there is a current indentation mark definition in the
+parsing defintion stack which defines a mark that matches the
+current input lexeme,
+\end{list}
+then a new subexpression record is pushed into the subexpression stack.
+The new record has the current indentation mark definition as its
+definition, an empty subexpression list with the indentation mark as
+its {\tt .initiator}, missing indentation, and missing line list.
+The indentation mark is removed from the current input lexemes and
+discarded.
+Then this loop iteration is terminated.
+\end{indpar}
+
+{\bf Bracketted Subexpression Initiation Step.}%
+\index{Bracketted Subexpression Initiation Step}
+\begin{indpar}
+If
+\begin{list}{}
+	     {\setlength{\itemsep}{0ex}%
+	      \setlength{\topsep}{0ex}%
+	      \setlength{\parsep}{0ex}%
+	      \setlength{\leftmargin}{0.5in}%
+	      \setlength{\rightmargin}{0.5in}}%
+\item[(1)] there is a current bracket definition in the
+parsing defintion stack which defines an opening bracket that matches an
+initial sequence in the current input lexemes,
+\end{list}
+then a new subexpression record is pushed into the subexpression stack.
+The new record has the current bracket definition as its
+definition, an empty subexpression list with bracket definition's
+opening and closing brackets as its {\tt .initiator} and {\tt .terminator},
+respectively, missing indentation, and missing line list.
+The opening bracket is removed from the current input lexemes and
+discarded.
+Then this loop iteration is terminated.
+\end{indpar}
+
+{\bf Lexeme Consumption Step.}%
+\index{Lexeme Consumption Step}
+\begin{indpar}
+The current input lexeme is removed from the current input lexemes and
+pushed to the end of the current line list, if that exists, or to the
+current subexpression list, otherwise.
+\end{indpar}
+
 
 \end{indpar}
 
-Note that when an indentation record is pushed, the bracket definition
+Note that when a subexpression record is pushed, the bracket or
+indentation mark definition
 it points at may specify a {\em new-parsing-selector-set}, which will
 be pushed into the parsing selector set stack:
 see \secref{BRACKET-NEW-PARSING-SELECTOR-SET}.   If this happens, the
 parsing selector set will be popped from its stack when the indentation
 record is popped from its stack.
-
-The following are example inputs and outputs from the indentation lexeme
-insertion parsing algorithm using the bracket definitions given in this
-section.
-
-\begin{indpar}[0.1in]
-\tt \ttbrackets
-\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
-{\rm Input String}		& {\rm Output Lexemes} \\[1ex]
-hi \{ x; y z; w \}		& \tt hi \{ x ; y z ; w \} \\[1ex]
-hi \{				& hi \{ \\
-~~~~x				& x \\
-~~~~y z				& ; y z \\
-~~~~w \}			& ; w \}
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\tt \ttbrackets
-\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
-hi				& hi \\
-\{				& ; \{ \\
-~~~~x				& x \\
-~~~~y z				& ; y z \\
-~~~~w				& ; w \\
-\}				& \}
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\tt \ttbrackets
-\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
-hi:				& hi \{ \\
-~~~~x				& x \\
-~~~~y z				& ; y z \\
-~~~~w				& ; w \\
-				& \}
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\tt \ttbrackets
-\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
-hi \{				& hi \{ \\
-~~~~x				& x \\
-~~~~y `this			& ; y ` this \\
-is another context.		& is another context . \\
-' foo bar			& ' foo bar \\
-~~~~w \}			& ; w \}
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\tt \ttbrackets
-\begin{tabular}{@{}p{2in}@{~~~~~~~~~~}l}
-hi \{				& hi \{ \\
-~~~~x				& x \\
-~~~~\{				& ; \{ \\
-ho				& ho \\
-hum \} y			& ; hum \} y \\
-~~~~z \}			& ; z \}
-\end{tabular}
-\end{indpar}
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -3738,8 +3741,8 @@ The syntax of bracket definitions is:
 	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
 	    {}[ \verb|with indentation separator|
 		{\em indentation-separator} ] \\
-	    {}[ \verb|with indentation indicator|
-		{\em indentation-indicator} ] \\
+	    {}[ \verb|with indentation mark|
+		{\em indentation-mark} ] \\
 	    \end{tabular}
 	    \\[1ex]
 \key{bracket-name} ::=
@@ -3768,7 +3771,7 @@ The syntax of bracket definitions is:
 \key{indentation-separator} ::=
 	{\em symbol} {\em symbol}\,$^\star$
 	\\[1ex]
-\key{indentation-indicator} ::= {\em mark}
+\key{indentation-mark} ::= {\em mark}
 \end{indpar}
 
 
