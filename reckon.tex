@@ -268,7 +268,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 25, 2008}
+\date{February 26, 2008}
  
 \maketitle
 
@@ -2561,7 +2561,7 @@ bracket definitions can be found in \secref{BRACKET-DEFINITION}.
 The lexical parser recognizes opening explicit brackets in
 its input list of lexemes.  Once an opening bracket is recognized,
 its corresponding closing bracket can be recognized, as long as it
-is not inside an explicit subexpression.
+is not inside another explicit subexpression.
 
 \ikey{Indentation marks}{indentation mark}
 are defined by indention mark
@@ -2645,6 +2645,7 @@ whose \verb|.initiator| is the indention mark that introduced
 the subexpression.  Non-blank lines
 indented by more than the subexpression indentation
 are continuations of the preceding non-blank line.
+Blank lines in the input are ignored.
 
 The \key{top level}, the file containing the text being parsed,
 is treated similarly
@@ -2765,14 +2766,15 @@ Any of these components may be missing.
 
 Initially the subexpression stack contains a single subexpression record with
 no definition pointer, indentation equal to 1, subexpression list equal
-to the lines read so far at top level, and line list equal to what has been
-read for far from the current line.
+to the lines read so far at top level, and line list that is either missing
+or contains what has been
+read so far from the current line.
 The stack cannot become empty;
 the bottommost indentation record on the stack is always the same.
 
 The record at the top of the indentation stack is called the
 `\key{current subexpression record}'.  If it has an indentation, bracket
-definition, indentation mark definition, subexpression list, etc., there
+definition, indentation mark definition, subexpression list, etc., these
 are called `current', as in `current indentation',
 `current bracket definition', or `current subexpression list'.
 The components of the definition are
@@ -2781,7 +2783,7 @@ also called current, as in `current closing bracket'.
 The explicit subexpression recognition algorithm is
 applied to the lexeme sequence immediately after lexical replacement.
 At any point during algorithm execution the sequence of remaining input lexemes
-are referred to as the current input lexemes, and the first of these is
+are referred to as the current input, and the first of these is
 referred to as the current input lexeme.  This lexeme
 may be the first or last in its file line, and if first, will
 have some indentation with respect to the beginning of its file line.
@@ -2824,7 +2826,7 @@ If
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
 \item[(1)] the current input lexeme is the last lexeme on its line,
-\item[(2)] this lexeme is a mark,
+\item[(2)] this lexeme is a mark, and
 \item[(3)] there is a current indentation mark definition in the
 parsing defintion stack which defines a gluing mark that is
 at the end of the current input lexeme, but not the whole lexeme,
@@ -2832,8 +2834,9 @@ at the end of the current input lexeme, but not the whole lexeme,
 then the current input lexeme is split in two and replaced by two lexemes.
 The second of these is the gluing indentation mark, and the first
 is what precedes it in the original lexeme.  The first of these two
-lexemes becomes the current input lexeme, and the second becomes the
-next lexeme in the input.
+lexemes becomes the current input lexeme, and the second (the
+indentation mark) becomes the
+next lexeme in the current input.
 \end{indpar}
 
 {\bf Indented Line Termination.}\index{Indented Line Termination}
@@ -2848,7 +2851,7 @@ If
 \item[(1)] the current input lexeme is the first lexeme on its line,
 \item[(2)] there is a current indentation,
 \item[(3)] the indentation of the current input lexeme is less than or equal
-to the current indentation
+to the current indentation, and
 \item[(4)] there is a current line list,
 \end{list}
 then the current line list is terminated and the resulting list
@@ -2867,9 +2870,9 @@ If
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
 \item[(1)] the current input lexeme is the first lexeme on its line,
-\item[(2)] there is a current indentation,
+\item[(2)] there is a current indentation, and
 \item[(3)] the indentation of the current input lexeme is less than
-to the current indentation
+to the current indentation,
 \end{list}
 then the current subexpression record is popped from the subexpression
 stack and its subexpression list is added as a single element to the
@@ -2887,14 +2890,14 @@ If
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] there is a current bracket definition
+\item[(1)] there is a current bracket definition, and
 \item[(2)] the closing bracket in that definition matches a sequence
-of lexemes at the beginning of the current input lexemes
+of lexemes at the beginning of the current input,
 \end{list}
 then the current subexpression record is popped from the subexpression
 stack and its subexpression list is added as a single element to the
 new current line list.
-The closing bracket is removed from the current input lexemes and
+The closing bracket is removed from the beginning of the current input and
 discarded.
 Then this loop iteration is terminated.
 \end{indpar}
@@ -2910,9 +2913,9 @@ If
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
 \item[(1)] the current input lexeme is the first lexeme on its line,
-\item[(2)] there is a current indentation mark definition,
+\item[(2)] there is a current indentation mark definition, and
 \item[(3)] there is \underline{no} current indentation (meaning this is
-the first lexeme encountered after indentation mark)
+the first lexeme encountered after indentation mark),
 \end{list}
 then the current indentation is set to the indentation of the lexeme.
 \end{indpar}
@@ -2930,8 +2933,8 @@ If
 \item[(1)] the current input lexeme is the first lexeme on its line,
 \item[(2)] there is a current indentation,
 \item[(3)] the indentation of the current input lexeme equals
-the current indentation
-\item[(4)] there is no current line list
+the current indentation, and
+\item[(4)] there is no current line list,
 \end{list}
 then an empty current line list is created.
 \end{indpar}
@@ -2946,7 +2949,7 @@ If
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] the current input lexeme is the last lexeme on its line,
+\item[(1)] the current input lexeme is the last lexeme on its line, and
 \item[(2)] there is a current indentation mark definition in the
 parsing defintion stack which defines a mark that matches the
 current input lexeme,
@@ -2955,7 +2958,7 @@ then a new subexpression record is pushed into the subexpression stack.
 The new record has the current indentation mark definition as its
 definition, an empty subexpression list with the indentation mark as
 its {\tt .initiator}, missing indentation, and missing line list.
-The indentation mark is removed from the current input lexemes and
+The indentation mark is removed from the current input and
 discarded.
 Then this loop iteration is terminated.
 \end{indpar}
@@ -2972,14 +2975,14 @@ If
 	      \setlength{\rightmargin}{0.5in}}%
 \item[(1)] there is a current bracket definition in the
 parsing defintion stack which defines an opening bracket that matches an
-initial sequence in the current input lexemes,
+initial sequence in the current input,
 \end{list}
 then a new subexpression record is pushed into the subexpression stack.
 The new record has the current bracket definition as its
 definition, an empty subexpression list with bracket definition's
 opening and closing brackets as its {\tt .initiator} and {\tt .terminator},
 respectively, missing indentation, and missing line list.
-The opening bracket is removed from the current input lexemes and
+The opening bracket is removed from the current input and
 discarded.
 Then this loop iteration is terminated.
 \end{indpar}
@@ -2987,13 +2990,15 @@ Then this loop iteration is terminated.
 {\bf Lexeme Consumption.}%
 \index{Lexeme Consumption}
 \begin{indpar}
-The current input lexeme is removed from the current input lexemes and
+The current input lexeme is removed from the current input and
 pushed to the end of the current line list, if that exists, or to the
 current subexpression list, otherwise.
 \end{indpar}
 
 
 \end{indpar}
+
+TBD change next paragraph
 
 Note that when a subexpression record is pushed, the bracket or
 indentation mark definition
