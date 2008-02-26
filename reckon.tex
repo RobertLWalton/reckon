@@ -2303,8 +2303,8 @@ have the property that their cooked representations can replace
 their raw object names in the cooked representations of other
 objects.
 
-\section{Lexical Parsing}
-\label{LEXICAL-PARSING}
+\section{Parsing}
+\label{PARSING}
 
 After input text is converted to a sequence of lexemes, the lexemes
 are read from left to right by an lexical parser and converted into
@@ -2341,200 +2341,447 @@ Thus the output of the lexeme replacement lexical parsing
 algorithm is the input to the explicit subexpression recognition
 lexical parsing algorithm, and so forth.
 
+TBD
 
-\subsection{Lexeme Replacement}
-\label{LEXEME-REPLACEMENT}
+Parsing is controlled by a parsing definition
+stack and a parsing selector set stack.
+The \key{parsing definition stack},\label{PARSING-DEFINITION-STACK}
+contains definitions of parsers, brackets, operators, phrase separators,
+sentence terminators, section initiators, lexeme replacements,
+and unit specifiers.
+The \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK}
+contains parsing selector sets.  A \key{parsing selector} is
+a sequence of one or more symbols that can be attached to parsing definitions.
+A \key{parsing selector set}
+is a set of parsing selectors that selects those parsing stack definitions
+which share at least one parsing selector with the set.
+The set at the top of the parsing selector set stack is
+called the \key{current parsing selector set}, its members are called
+\skey{current parsing selector}s, and the parsing stack
+definitions the set selects
+are call the \skey{current parsing definition}s.%
+\label{CURRENT-PARSING-DEFINITION}
 
-The \key{lexeme replacement}
-process replaces a string of one or more lexemes by a string of zero or
-more lexemes.  Lexeme replacement is done before all other steps of
-lexical parsing, so these other steps operate on the lexeme sequence
-after lexeme replacements have been made.
+If a subexpression begins and ends with matched explicit
+brackets, a parsing selector
+set determined by the bracket definition (\secref{BRACKET-DEFINITION})
+may be pushed into the parsing
+selector set stack before parsing the subexpression.  At the end of
+the subexpression parsing, this selector set is popped from the stack.
 
-Lexeme replacement may be done by either a dictionary or a function.
-Replacement is controlled by \skey{lexeme replacement definition}s
-in the parsing definition stack (\pagref{PARSING-DEFINITION-STACK}).
+A summary of the standard affects of brackets is:
 
-There are two kinds of lexeme replacement definitions:
-dictionary and function.  These have the syntax:
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
+With      &           			& Sets \\
+Parsing   &				& Parsing \\
+Selector  & Brackets  			& Selectors To \\[1ex]
+-	  & \verb|(|\ldots\verb|)|	& [no change] \\
+-	  & \verb|{|\ldots\verb|}|	& operator \\
+operator  & \verb|[|\ldots\verb|]|	& list \\
+list	  & \verb|[|\ldots\verb|]|	& list \\
+text      & \verb|[|\ldots\verb|]|	& operator \\
+-	  & \verb|`|\ldots\verb|'|	& text     \\
+\end{tabular}\label{CONTEXT-SWITCHES}
+\end{center}
+
+Thus the \verb|{ }| brackets, whose definition is always current
+(signified by `-' in the above table), pushes into the parsing
+selector set stack the set whose only member is the `operator'
+parsing selector.  There are two \verb|[ ]| bracket definitions, 
+one selected by the `operator' and `list' selectors that pushes
+the selector set whose only member is `list', and one selected
+by the `text' selector that pushes the selector set whose only
+member is `operator'.
+
+The following is a list of the kinds of
+\skey{parsing definition}s that may be in
+the \mkey{parsing definition stack}{kinds of definition in}:%
+\label{PARSING-STACK-DEFINITION-KINDS}
+
+\begin{center}
+\begin{tabular}{ll}
+parser & \secref{PARSER-DEFINITION} \\
+bracket & \secref{BRACKET-DEFINITION} \\
+operator & \secref{OPERATOR-DEFINITION} \\
+lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
+radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
+unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
+phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
+sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
+section initiator & \secref{SECTION-INITIATOR-DEFINITION}
+\end{tabular}
+\end{center}
+
+A parser is a function that is called with a list of lexemes and
+returns a parsed expression.  At any time there can be only one
+current parser definition, and that is used to select the current
+parser.  There are two standard parsers:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
+	 &            &            & Does	& Recognizes \\
+	 & Recognizes & Recognizes & Lexical	& Sentences, \\
+Parser	 & Brackets   & Operators  & Parsing	& Phrases, etc. \\[1ex]
+
+operator & yes	      & yes        & yes 	& no \\
+text     & yes	      & no         & yes        & yes \\
+\end{tabular}
+\end{center}
+
+The `operator' parser has a definition selected by either the `operator'
+or `list' parsing selectors, and recognizes any
+operators whose definitions are current
+(list separators are treated as operators),
+whereas the `text' parser has a definition selected
+by the `text' selector, and recognizes phrase separators, sentence
+terminators, and section initiators whose definitions are current.
+The 'operator' parser does \underline{not} recognize
+any phrase separators, sentence terminators, or section initiators,
+and the `text'
+parser does \underline{not} recognize any operator
+definitions.
+Both operator and text parsers recognize brackets and do lexical
+parsing, but all standard
+lexical parsing definitions do not have the `text' parsing selector,
+and therefore are ignored by standard text parsing.
+
+A definitional operator (\pagref{DEFINITIONAL})
+may push parsing definitions onto the parsing
+definition stack.  After the expression containing the operator has been parsed,
+these definitions will be popped from the stack.
+
+
+\ikey{Implicit brackets}{implicit brackets} introduced by parsers
+can also be represented explicitly, though this is mostly done
+for purposes of debugging.  For example, the implicit brackets
+introduced by operators are represented by \verb@(| |)@.
+Other kinds of implicit brackets are introduced by the text parser.
+Here is a complete list of implicit brackets and the kinds of subexpressions
+they surround:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~~}l}
+\verb@(| |)@	& Operator subexpressions and list elements. \\
+\verb@<* *>@	& Phrases inside sentences. \\
+\verb@(* *)@	& Sentences. \\
+\verb@[* *]@	& Paragraphs. \\
+\verb@{* *}@	& Parts, chapters, sections, sub-sections, etc. \\
+\end{tabular}
+\end{center}\label{IMPLIED-BRACKETS}
+
+
+For example,
+the operators parser with the `operators' parsing selector recognizes
+the operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
+\begin{center}
+\verb|x + y - 5 * z|
+\end{center}
+and turns this expression into
+\begin{center}
+\verb@x + y - (| 5 * z |)@.
+\end{center}
+The operator parser with the `list' selector only recognizes separators,
+and turns
+\begin{center}
+\verb|[george, betty sue, bill]|
+\end{center}
+into
+\begin{center}
+\verb@[ george, (| betty sue |), bill ]@
+\end{center}
+The text parser, which is invoked by
+\verb|`'| quotes, recognizes the phrase separator `\verb|,|' and
+the sentence terminator `\verb|!|' and turns
+\begin{center}
+\verb|`I think!  Therefore, I am!'|
+\end{center}
+into
+\begin{center}
+\verb@[* (* I think ! *) (* Therefore , <* I am *> ! *) *]@
+\end{center}
+
+In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
+by parsers, though lexical parsing definitions standardly do not have
+the `text' selector and are therefore standardly not active during
+text parsing.  During lexical parsing, number unit grouping
+(\pagref{NUMBER-UNIT-GROUPING}) can insert implicit brackets.
+
+Bracket and operator definitions may specify reformatters
+which reformat subexpressions after they have been normally parsed.
+A \key{reformatter}\label{REFORMATTER} is a function that
+is called with the parsed
+subexpression that is surrounded by brackets or that has the
+operator as its lead operator.  The reformatter returns
+the reformatted subexpression.
+
+These definitions may also specify evaluators
+that are functions called to evaluate parsed subexpressions.
+
+TBD
+
+An \key{expression} is a sequence of symbols, separators, and subexpressions.
+A \key{subexpression} is a pair of matched lexeme sequences called
+\skey{bracket}s, e.g.~\verb|( )| or
+\verb|` '|, and all the lexemes in between.
+There are many kinds of brackets: for example, \skey{square bracket}s
+\verb|[ ]|, \skey{curly bracket}s \verb|{ }|, \key{parentheses} \verb|( )|,
+and \skey{quote}s \verb|` '|.
+
+Some expressions and subexpressions can contain lexeme sequences called
+\skey{operator}s.  When they do,
+matched \ikey{implicit brackets}{implicit brackets} \verb/(| |)/
+are inserted into the expressions or subexpressions
+according to rules of operator precedence, and these
+implicit brackets create new subexpressions.
+Certain lexemes used to separate elements of lists,
+such as `{\tt ,}' and `{\tt ;}',
+are treated as operators during parsing.
+
+Some expressions and subexpressions can contain lexeme sequences called
+\skey{sentence terminator}s and \skey{phrase separator}s.  When they do,
+matched \ikey{implicit brackets}{implicit brackets} are inserted around
+paragraphs, sentences, and phrases.  A paragraph becomes a list of
+sentences surrounded by implicit \verb|(* *)| brackets, a sentence
+becomes a list of symbols, separators, subexpressions, and phrases
+surrounded by implicit \verb|<* *>| brackets, and so forth.
+
+A process called \key{expression parsing}\index{parsing!expression}
+inserts implicit brackets into expressions,
+further reformats some expressions,
+and associates evaluators with some subexpressions.
+The evaluator of a subexpression
+is a function that is eventually called to evaluate the subexpression.
+
+Explicit brackets control the parser used
+to parse the subexpression they surround.  The set of brackets and operators
+this parser recognizes is also controlled.
+For example, \verb|` '| invokes the text parser that
+recognizes sentence terminators and phrase separators, while
+\verb|{ }| invokes the operator parser that recognizes operators
+and list separators.
+
+\subsection{Subexpressions}
+\label{SUBEXPRESSIONS}
+
+The first step in expression parsing is to identify \skey{subexpression}s within
+an expression, without inserting any implicit brackets,
+by applying the following syntax equations.
 
 \begin{indpar}
-\key{lexeme-replacement-definition}\,
-		     \begin{tabular}[t]{rl}
-                     ::= & {\em lexeme-dictionary-definition} \\
-		     $|$ & {\em lexeme-function-definition}
-		     \end{tabular}
-\label{LEXEME-REPLACEMENT-DEFINITION}%
-		     \\[1ex]
-\ikey{lexeme-dictionary-definition}{lexeme-dictionary-!definition} \\
-	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
-	                   \verb|define | & \verb|lexeme dictionary|
-                                            {\em dictionary-name}
-					    {\em parsing-selectors} \\
-				& {\em lexeme-dictionary-entries}
-		     \end{tabular} \\[1ex]
-\key{dictionary-name} ::= {\em symbol} {\em symbol}\,$^\star$
-	\\[1ex]
-\key{parsing-selectors}\,
-                    \begin{tabular}[t]{rl}
-		    ::= & {\em empty} \\
-                    $|$ & \verb|[| {\em parsing-selector-list} \verb|]|
-		    \end{tabular}
-\label{PARSING-SELECTORS}%
-		    \\[1ex]
-\key{parsing-selector-list}
-\label{PARSING-SELECTOR-LIST}%
-		     \\
-		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-                     ::= & {\em parsing-selector} \\
-		     $|$ & {\em parsing-selector-list} \verb|,|
-		           {\em parsing-selector}
-		     \end{tabular}
-		     \\[1ex]
-\key{parsing-selector} ::= {\em symbol} {\em symbol}\,$^\star$
-	\\[1ex]
-\key{lexeme-dictionary-entries}
-                    ::= \underline{\LEFTBRACKET}
-		        {\em lexeme-dictionary-entry-list}
-			\underline{\RIGHTBRACKET}
-		    \\[1ex]
-\key{lexeme-dictionary-entry-list} \\
-		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-                     ::= & {\em lexeme-dictionary-entry} \\
-		     $|$ & {\em lexeme-dictionary-entry-list} \verb|;|
-		           {\em lexeme-dictionary-entry}
-		     \end{tabular} \\[1ex]
-\key{lexeme-dictionary-entry} \\
-    \hspace*{0.5in}::=
-	{\em replaced-lexemes} \verb|==>| {\em replacing-lexemes}
-	\\[1ex]
-\key{replaced-lexemes} ::=
-	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-\key{replacing-lexemes} ::=
-	{\em symbol}\,$^\star$ \\[1ex]
-\key{lexeme-function-definition} \\
-	\hspace*{0.5in}::= \verb|define lexeme function|
-				{\em function-name}
+\key{EXPRESSION} ::= {\em expression-item}\,$^\star$ \\[1ex]
+\key{expression-item} ::= {\em symbol} $|$ {\em separator}
+				     $|$ {\em subexpression} \\[1ex]
+\key{subexpression} ::= {\em opening-bracket} {\em EXPRESSION}
+			{\em closing-bracket} \\[1ex]
+\key{opening-bracket} ::=
+	\{ {\em symbol} $|$ {\em separator} \}
+	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$ \\[1ex]
+\key{closing-bracket} ::=
+	\{ {\em symbol} $|$ {\em separator} \}
+	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$
+\end{indpar}\label{EXPRESSION-ITEM}
+
+The {\em opening-bracket} and {\em closing-bracket} of a subexpression
+are a matched pair of brackets specified by a bracket definition
+(\secref{BRACKET-DEFINITION}).
+
+The subexpressions identified by this rule have explicit
+brackets.  These subexpressions are actually identified by the
+indentation lexeme insertion algorithm (\secref{INDENTATION-LEXEME-INSERTION}).
+Below we introduce subexpressions with operators
+that have implicit brackets.
+
+The syntactic category name {\em EXPRESSION} is capitalized because in
+this document syntactic categories representing CASTLE expressions
+are given completely capitalized names.
+
+
+
+\subsection{Parsers}
+\label{PARSERS}
+
+A \key{parser} is a function which when called with
+a list of lexemes returns the parsed subexpression, which
+is a list of {\em expression-items} (\pagref{EXPRESSION-ITEM}).
+
+Parsers are defined by
+\skey{parser definition}s\label{PARSER-DEFINITION}.
+The topmost current parser definition
+(\pagref{CURRENT-PARSING-DEFINITION})
+in the parsing stack names the parser used to parse expressions.
+
+Parser definitions have the syntax:
+
+\begin{indpar}
+\key{parser-definition}
+	::= \verb|define parser| {\em parser-name}
 				{\em parsing-selectors} \\[1ex]
+\key{parser-name} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+\end{indpar}
+
+There are two standard \ikey{parsers}{parser!standard},
+the \key{operator parser} and the \key{text parser}, that have the
+definitions:
+
+\begin{indpar}\begin{verbatim}
+define parser -OPERATOR-PARSER- [operator,list]
+define parser -TEXT-PARSER- [text]
+\end{verbatim}\end{indpar}
+
+The difference between these two parsers is that only the operator
+parser recognizes current operator definitions,
+and only the text parser recognizes phrase separator, sentence
+terminator, and section initiator definitions.
+
+\subsection{Brackets}
+\label{BRACKETS}
+
+Brackets surround a subexpression and can specify the parsing
+selector set that determines how the subexpression is parsed.
+
+
+
+\subsubsection{Bracket Definitions}
+\label{BRACKET-DEFINITION}
+
+\ikey{Bracket definitions}{bracket definition} can be pushed onto
+the parsing stack, and are used by both the operators and text
+parsers.
+A bracket definition specifies for each bracket pair the following:
+
+\begin{indpar}[1in]
+Name and Parsing Selectors \\
+New Parsing Selector Set \\
+Reformatter \\
+Evaluator
+\end{indpar}
+
+\subsubsection{Bracket Definition Syntax}
+\label{BRACKET-DEFINITION-SYNTAX}
+
+The syntax of bracket definitions is:
+
+\begin{indpar}
+\key{bracket-definition} \\
+	\hspace*{0.5in}::= \ttkey{define bracket}
+	    \begin{tabular}[t]{@{}l@{}}
+	    {\em bracket-name} {\em parsing-selectors} \\
+	    {}[ \verb|with parsing-selectors|
+	        {\em new-parsing-selector-set} ] \\
+	    {}[ \verb|with reformatter|
+	        {\em reformatter-name} ] \\
+	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
+	    {}[ \verb|with indentation separator|
+		{\em indentation-separator} ] \\
+	    {}[ \verb|with indentation mark|
+		{\em indentation-mark} ] \\
+	    \end{tabular}
+	    \\[1ex]
+\key{bracket-name} ::=
+	{\em opening-bracket-name}
+	\verb|...|
+	{\em closing-bracket-name}
+	\\[1ex]
+\key{opening-bracket-name} ::=
+	{\em symbol} {\em symbol}$^\star$
+	\\[1ex]
+\key{closing-bracket-name} ::=
+	{\em symbol} {\em symbol}$^\star$
+	\\[1ex]
+{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+	\\[1ex]
+\key{new-parsing-selector-set} ::= {\em parsing-selector-list}
+			[see \pagref{PARSING-SELECTOR-LIST}]
+	\\[1ex]
+\key{reformatter-name} ::= {\em function-name }
+	\\[1ex]
+\key{evaluator-name} ::= {\em function-name }
+	\\[1ex]
 \key{function-name} ::=
 	{\em symbol} {\em symbol}\,$^\star$
-\label{FUNCTION-NAME}
+	\\[1ex]
+\key{indentation-separator} ::=
+	{\em symbol} {\em symbol}\,$^\star$
+	\\[1ex]
+\key{indentation-mark} ::= {\em mark}
 \end{indpar}
 
-A \key{lexeme dictionary entry} gives a sequence of lexemes
-that is to be replaced
-and a sequence of lexemes that replace it.  For example, the entry
 
-\begin{center}
-\verb|people ==> person|
-\end{center}
+\subsubsection{Bracket Name}\ttmindex{name}{of bracket}
+\label{BRACKET-NAME}
+A bracket definition has a sequence of lexemes that is the
+{\em name} of the brackets.  This name
+has two subsequences of lexemes, an
+\key{opening bracket name} and
+a \key{closing bracket name}, separated by 
+a `\verb/.../' lexeme.
 
-causes the word `\verb|people|' to be replaced by the word `\verb|person|'.
+If there are any opening or closing
+lexemes in the name, they must be in matching pairs.
+Thus \verb|[ (* ... *) ]| and \verb|[ $($ ... $)$ ]| are legal,
+but \verb![ << ... | ]! is not.
 
-A \key{lexeme function} is a function that is called with a list of
-lexemes as its single argument and which returns either
-`\verb|false|' if the lexeme at the beginning of the list is not to be
-replaced, or returns a pair consisting of first a list of replacing
-lexemes and second the in input list with the replaced lexemes removed
-from its beginning.
-For example, given the lexeme function definition
+By abuse of language, 
+`\key{opening bracket}\,'
+is used as a synonym for `opening bracket name' and `\key{closing bracket}\,'
+is used as a synonym for `closing bracket name'.
+
+When a subexpression is surrounded by brackets, the brackets
+are included in the subexpression.
+
+The {\em parsing-selectors} provided with the {\em bracket-name} determine when
+the {\em bracket-definition} will be active (\secref{PARSING-SELECTORS}).
+
+\subsubsection{Bracket New Parsing Selector Set}%
+\label{BRACKET-NEW-PARSING-SELECTOR-SET}
+
+If given in the bracket definition, the
+\emkey{new-parsing-selector-set}\index{parsing selector set!of bracket}
+is pushed into the parsing selector set stack
+(\pagref{PARSING-SELECTOR-SET-STACK}) just before a subexpression
+beginning and ending with the defined brackets is parsed, and then
+this set is popped off the stack after the subexpression is parsed.
+The selector set controls that parsing definitions used to parse
+the subexpression, and thereby determines the parser used
+(\secref{PARSING-OVERVIEW}).
+
+
+\subsubsection{Bracket Reformatter}\ttmindex{reformatter}{of bracket}
+\label{BRACKET-REFORMATTER}
+
+
+A {\em reformatter-name}
+is the name of the function that is called with a parsed expression
+as its single argument in order to reformat the expression
+(\pagref{REFORMATTER}).  The reformatter is optional.
+
+\subsubsection{Bracket Evaluator}\ttmindex{evaluator}{of bracket}
+\label{BRACKET-EVALUATOR}
+
+
+An {\em evaluator-name}
+is the name of the function that is called with a reformatted expression
+as its single argument in order to evaluate the expression.  The evaluator
+returns the value of the expression as its result.  There will generally
+be side effects of evaluation.
+
+Evaluation occurs at a completely different time than parsing occurs.
+During parsing, the evaluator function name is just added to the attributes
+of the parsed expression.
+
+The following are standard evaluators:
 
 \begin{indpar}
-\begin{verbatim}
-define lexeme function replace people [operator]
-\end{verbatim}
+
+The \ttkey{standard evaluator}.  Calls functions.
+
+The \ttkey{quote evaluator}.  Does not evaluate the expression, but
+may evaluate \verb|[ ]| bracketed subexpressions.  See TBD.
+
 \end{indpar}
 
-and the function definition
-
-\begin{indpar}
-\begin{verbatim}
-replace people X <-- list ( X ):
-    if first X == `people':
-        value = ( `person', rest X )
-    else:
-        value = false
-\end{verbatim}
-\end{indpar}
-
-then
-
-\begin{center}
-\verb|replace people `people with hats'| $\Longrightarrow$
-\verb|(`person',`with hats')|
-
-\verb|replace people `fee fie foe fum'| $\Longrightarrow$ \verb|false|
-\end{center}
-
-
-Lexeme replacement is \underline{not} recursive: the replacement lexemes are
-not themselves subject to replacement.
-
-A quoted string in a {\em replaced-lexemes} or {\em replacing-lexemes}
-sequence of lexemes denotes the lexeme made by removing its outer quotes.
-Thus \verb|","| denotes the separator
-\verb|,| and \verb|"\",\""| denotes the quoted string \verb|","|.
-
-The {\em parsing-selectors} are used to specify the parsing contexts in
-which a lexeme replacement definition is active.  The standard parsing
-selectors for lexeme replacement definitions
-are `{\tt operator}' and `{\tt list}'.
-See~\secref{PARSING-SELECTORS} for details.
-
-If several different lexeme replacement definitions could be used to
-replace lexemes at the beginning of a lexeme sequence, the topmost
-definition in the parsing definition stack
-(\pagref{PARSING-DEFINITION-STACK}) is used.
-
-The following lexeme dictionaries and functions are
-defined in the initial parsing definition stack.
-Their definitions are ordered in the
-stack so the first given below is at the top of the stack and is the
-first that replaces lexemes.
-
-\begin{list}{}{}
-
-\item
-\verb|define lexeme dictionary english lexeme dictionary [operator list]|\\[1ex]
-This dictionary translates common English irregular plurals,
-to their singular form, and decomposes
-irregular possessives to their singular decomposed form.
-This dictionary also protects irregular singular forms that might be
-mistaken for regular plural forms (e.g., `\verb|news|').
-Some example translations are:
-
-\begin{center}
-\begin{tabular}{l}
-\verb|people| $\longrightarrow$ \verb|[person]| \\
-\verb|women| $\longrightarrow$ \verb|[woman]| \\
-\verb|geese| $\longrightarrow$ \verb|[goose]| \\
-\verb|fungi| $\longrightarrow$ \verb|[fungus]| \\
-\verb|news| $\longrightarrow$ \verb|[news]| \\
-\end{tabular}
-\end{center}
-
-\item
-\verb|define lexeme function english lexeme function [operator list]|\\[1ex]
-This function translates common English standard plurals
-to their singular form, and decomposes
-standard possessives to their singular decomposed form.
-Some example translations are:
-
-\begin{center}
-\begin{tabular}{l}
-\verb|boys| $\longrightarrow$ \verb|[boy]| \\
-\verb|boy's| $\longrightarrow$ \verb|[boy 's]| \\
-\verb|boxes| $\longrightarrow$ \verb|[box]| \\
-\end{tabular}
-\end{center}
-
-\end{list}
-
-Because CASTLE, outside the context of quotes,
-insists on mapping different forms of a word to a single
-word, some subtleties of language are lost.  For example, `\verb|people|'
-can be a singular word referring to a group of people, but CASTLE will
-standardly confuse it with `\verb|person|'.
 
 \subsection{Explicit Subexpression Recognition}
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION}
@@ -3008,6 +3255,200 @@ see \secref{BRACKET-NEW-PARSING-SELECTOR-SET}.   If this happens, the
 parsing selector set will be popped from its stack when the indentation
 record is popped from its stack.
 
+\subsection{Lexeme Replacement}
+\label{LEXEME-REPLACEMENT}
+
+The \key{lexeme replacement}
+process replaces a string of one or more lexemes by a string of zero or
+more lexemes.  Lexeme replacement is done before all other steps of
+lexical parsing, so these other steps operate on the lexeme sequence
+after lexeme replacements have been made.
+
+Lexeme replacement may be done by either a dictionary or a function.
+Replacement is controlled by \skey{lexeme replacement definition}s
+in the parsing definition stack (\pagref{PARSING-DEFINITION-STACK}).
+
+There are two kinds of lexeme replacement definitions:
+dictionary and function.  These have the syntax:
+
+\begin{indpar}
+\key{lexeme-replacement-definition}\,
+		     \begin{tabular}[t]{rl}
+                     ::= & {\em lexeme-dictionary-definition} \\
+		     $|$ & {\em lexeme-function-definition}
+		     \end{tabular}
+\label{LEXEME-REPLACEMENT-DEFINITION}%
+		     \\[1ex]
+\ikey{lexeme-dictionary-definition}{lexeme-dictionary-!definition} \\
+	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
+	                   \verb|define | & \verb|lexeme dictionary|
+                                            {\em dictionary-name}
+					    {\em parsing-selectors} \\
+				& {\em lexeme-dictionary-entries}
+		     \end{tabular} \\[1ex]
+\key{dictionary-name} ::= {\em symbol} {\em symbol}\,$^\star$
+	\\[1ex]
+\key{parsing-selectors}\,
+                    \begin{tabular}[t]{rl}
+		    ::= & {\em empty} \\
+                    $|$ & \verb|[| {\em parsing-selector-list} \verb|]|
+		    \end{tabular}
+\label{PARSING-SELECTORS}%
+		    \\[1ex]
+\key{parsing-selector-list}
+\label{PARSING-SELECTOR-LIST}%
+		     \\
+		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
+                     ::= & {\em parsing-selector} \\
+		     $|$ & {\em parsing-selector-list} \verb|,|
+		           {\em parsing-selector}
+		     \end{tabular}
+		     \\[1ex]
+\key{parsing-selector} ::= {\em symbol} {\em symbol}\,$^\star$
+	\\[1ex]
+\key{lexeme-dictionary-entries}
+                    ::= \underline{\LEFTBRACKET}
+		        {\em lexeme-dictionary-entry-list}
+			\underline{\RIGHTBRACKET}
+		    \\[1ex]
+\key{lexeme-dictionary-entry-list} \\
+		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
+                     ::= & {\em lexeme-dictionary-entry} \\
+		     $|$ & {\em lexeme-dictionary-entry-list} \verb|;|
+		           {\em lexeme-dictionary-entry}
+		     \end{tabular} \\[1ex]
+\key{lexeme-dictionary-entry} \\
+    \hspace*{0.5in}::=
+	{\em replaced-lexemes} \verb|==>| {\em replacing-lexemes}
+	\\[1ex]
+\key{replaced-lexemes} ::=
+	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+\key{replacing-lexemes} ::=
+	{\em symbol}\,$^\star$ \\[1ex]
+\key{lexeme-function-definition} \\
+	\hspace*{0.5in}::= \verb|define lexeme function|
+				{\em function-name}
+				{\em parsing-selectors} \\[1ex]
+\key{function-name} ::=
+	{\em symbol} {\em symbol}\,$^\star$
+\label{FUNCTION-NAME}
+\end{indpar}
+
+A \key{lexeme dictionary entry} gives a sequence of lexemes
+that is to be replaced
+and a sequence of lexemes that replace it.  For example, the entry
+
+\begin{center}
+\verb|people ==> person|
+\end{center}
+
+causes the word `\verb|people|' to be replaced by the word `\verb|person|'.
+
+A \key{lexeme function} is a function that is called with a list of
+lexemes as its single argument and which returns either
+`\verb|false|' if the lexeme at the beginning of the list is not to be
+replaced, or returns a pair consisting of first a list of replacing
+lexemes and second the in input list with the replaced lexemes removed
+from its beginning.
+For example, given the lexeme function definition
+
+\begin{indpar}
+\begin{verbatim}
+define lexeme function replace people [operator]
+\end{verbatim}
+\end{indpar}
+
+and the function definition
+
+\begin{indpar}
+\begin{verbatim}
+replace people X <-- list ( X ):
+    if first X == `people':
+        value = ( `person', rest X )
+    else:
+        value = false
+\end{verbatim}
+\end{indpar}
+
+then
+
+\begin{center}
+\verb|replace people `people with hats'| $\Longrightarrow$
+\verb|(`person',`with hats')|
+
+\verb|replace people `fee fie foe fum'| $\Longrightarrow$ \verb|false|
+\end{center}
+
+
+Lexeme replacement is \underline{not} recursive: the replacement lexemes are
+not themselves subject to replacement.
+
+A quoted string in a {\em replaced-lexemes} or {\em replacing-lexemes}
+sequence of lexemes denotes the lexeme made by removing its outer quotes.
+Thus \verb|","| denotes the separator
+\verb|,| and \verb|"\",\""| denotes the quoted string \verb|","|.
+
+The {\em parsing-selectors} are used to specify the parsing contexts in
+which a lexeme replacement definition is active.  The standard parsing
+selectors for lexeme replacement definitions
+are `{\tt operator}' and `{\tt list}'.
+See~\secref{PARSING-SELECTORS} for details.
+
+If several different lexeme replacement definitions could be used to
+replace lexemes at the beginning of a lexeme sequence, the topmost
+definition in the parsing definition stack
+(\pagref{PARSING-DEFINITION-STACK}) is used.
+
+The following lexeme dictionaries and functions are
+defined in the initial parsing definition stack.
+Their definitions are ordered in the
+stack so the first given below is at the top of the stack and is the
+first that replaces lexemes.
+
+\begin{list}{}{}
+
+\item
+\verb|define lexeme dictionary english lexeme dictionary [operator list]|\\[1ex]
+This dictionary translates common English irregular plurals,
+to their singular form, and decomposes
+irregular possessives to their singular decomposed form.
+This dictionary also protects irregular singular forms that might be
+mistaken for regular plural forms (e.g., `\verb|news|').
+Some example translations are:
+
+\begin{center}
+\begin{tabular}{l}
+\verb|people| $\longrightarrow$ \verb|[person]| \\
+\verb|women| $\longrightarrow$ \verb|[woman]| \\
+\verb|geese| $\longrightarrow$ \verb|[goose]| \\
+\verb|fungi| $\longrightarrow$ \verb|[fungus]| \\
+\verb|news| $\longrightarrow$ \verb|[news]| \\
+\end{tabular}
+\end{center}
+
+\item
+\verb|define lexeme function english lexeme function [operator list]|\\[1ex]
+This function translates common English standard plurals
+to their singular form, and decomposes
+standard possessives to their singular decomposed form.
+Some example translations are:
+
+\begin{center}
+\begin{tabular}{l}
+\verb|boys| $\longrightarrow$ \verb|[boy]| \\
+\verb|boy's| $\longrightarrow$ \verb|[boy 's]| \\
+\verb|boxes| $\longrightarrow$ \verb|[box]| \\
+\end{tabular}
+\end{center}
+
+\end{list}
+
+Because CASTLE, outside the context of quotes,
+insists on mapping different forms of a word to a single
+word, some subtleties of language are lost.  For example, `\verb|people|'
+can be a singular word referring to a group of people, but CASTLE will
+standardly confuse it with `\verb|person|'.
+
 \subsection{Numbers}
 \label{NUMBERS}
 
@@ -3411,448 +3852,6 @@ some function ( (# 3 * ft + (# 2 + 1/4 #) * in #) / sec,
 
 Unit multiplication insertion is done after number unit groups have been
 recognized.
-
-\section{Expression Parsing}\index{parsing!expression}
-\label{EXPRESSION-PARSING}
-
-An \key{expression} is a sequence of symbols, separators, and subexpressions.
-A \key{subexpression} is a pair of matched lexeme sequences called
-\skey{bracket}s, e.g.~\verb|( )| or
-\verb|` '|, and all the lexemes in between.
-There are many kinds of brackets: for example, \skey{square bracket}s
-\verb|[ ]|, \skey{curly bracket}s \verb|{ }|, \key{parentheses} \verb|( )|,
-and \skey{quote}s \verb|` '|.
-
-Some expressions and subexpressions can contain lexeme sequences called
-\skey{operator}s.  When they do,
-matched \ikey{implicit brackets}{implicit brackets} \verb/(| |)/
-are inserted into the expressions or subexpressions
-according to rules of operator precedence, and these
-implicit brackets create new subexpressions.
-Certain lexemes used to separate elements of lists,
-such as `{\tt ,}' and `{\tt ;}',
-are treated as operators during parsing.
-
-Some expressions and subexpressions can contain lexeme sequences called
-\skey{sentence terminator}s and \skey{phrase separator}s.  When they do,
-matched \ikey{implicit brackets}{implicit brackets} are inserted around
-paragraphs, sentences, and phrases.  A paragraph becomes a list of
-sentences surrounded by implicit \verb|(* *)| brackets, a sentence
-becomes a list of symbols, separators, subexpressions, and phrases
-surrounded by implicit \verb|<* *>| brackets, and so forth.
-
-A process called \key{expression parsing}\index{parsing!expression}
-inserts implicit brackets into expressions,
-further reformats some expressions,
-and associates evaluators with some subexpressions.
-The evaluator of a subexpression
-is a function that is eventually called to evaluate the subexpression.
-
-Explicit brackets control the parser used
-to parse the subexpression they surround.  The set of brackets and operators
-this parser recognizes is also controlled.
-For example, \verb|` '| invokes the text parser that
-recognizes sentence terminators and phrase separators, while
-\verb|{ }| invokes the operator parser that recognizes operators
-and list separators.
-
-\subsection{Subexpressions}
-\label{SUBEXPRESSIONS}
-
-The first step in expression parsing is to identify \skey{subexpression}s within
-an expression, without inserting any implicit brackets,
-by applying the following syntax equations.
-
-\begin{indpar}
-\key{EXPRESSION} ::= {\em expression-item}\,$^\star$ \\[1ex]
-\key{expression-item} ::= {\em symbol} $|$ {\em separator}
-				     $|$ {\em subexpression} \\[1ex]
-\key{subexpression} ::= {\em opening-bracket} {\em EXPRESSION}
-			{\em closing-bracket} \\[1ex]
-\key{opening-bracket} ::=
-	\{ {\em symbol} $|$ {\em separator} \}
-	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$ \\[1ex]
-\key{closing-bracket} ::=
-	\{ {\em symbol} $|$ {\em separator} \}
-	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$
-\end{indpar}\label{EXPRESSION-ITEM}
-
-The {\em opening-bracket} and {\em closing-bracket} of a subexpression
-are a matched pair of brackets specified by a bracket definition
-(\secref{BRACKET-DEFINITION}).
-
-The subexpressions identified by this rule have explicit
-brackets.  These subexpressions are actually identified by the
-indentation lexeme insertion algorithm (\secref{INDENTATION-LEXEME-INSERTION}).
-Below we introduce subexpressions with operators
-that have implicit brackets.
-
-The syntactic category name {\em EXPRESSION} is capitalized because in
-this document syntactic categories representing CASTLE expressions
-are given completely capitalized names.
-
-\subsection{Parsing Overview}
-\label{PARSING-OVERVIEW}
-
-Parsing is controlled by a parsing definition
-stack and a parsing selector set stack.
-The \key{parsing definition stack},\label{PARSING-DEFINITION-STACK}
-contains definitions of parsers, brackets, operators, phrase separators,
-sentence terminators, section initiators, lexeme replacements,
-and unit specifiers.
-The \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK}
-contains parsing selector sets.  A \key{parsing selector} is
-a sequence of one or more symbols that can be attached to parsing definitions.
-A \key{parsing selector set}
-is a set of parsing selectors that selects those parsing stack definitions
-which share at least one parsing selector with the set.
-The set at the top of the parsing selector set stack is
-called the \key{current parsing selector set}, its members are called
-\skey{current parsing selector}s, and the parsing stack
-definitions the set selects
-are call the \skey{current parsing definition}s.%
-\label{CURRENT-PARSING-DEFINITION}
-
-If a subexpression begins and ends with matched explicit
-brackets, a parsing selector
-set determined by the bracket definition (\secref{BRACKET-DEFINITION})
-may be pushed into the parsing
-selector set stack before parsing the subexpression.  At the end of
-the subexpression parsing, this selector set is popped from the stack.
-
-A summary of the standard affects of brackets is:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l}
-With      &           			& Sets \\
-Parsing   &				& Parsing \\
-Selector  & Brackets  			& Selectors To \\[1ex]
--	  & \verb|(|\ldots\verb|)|	& [no change] \\
--	  & \verb|{|\ldots\verb|}|	& operator \\
-operator  & \verb|[|\ldots\verb|]|	& list \\
-list	  & \verb|[|\ldots\verb|]|	& list \\
-text      & \verb|[|\ldots\verb|]|	& operator \\
--	  & \verb|`|\ldots\verb|'|	& text     \\
-\end{tabular}\label{CONTEXT-SWITCHES}
-\end{center}
-
-Thus the \verb|{ }| brackets, whose definition is always current
-(signified by `-' in the above table), pushes into the parsing
-selector set stack the set whose only member is the `operator'
-parsing selector.  There are two \verb|[ ]| bracket definitions, 
-one selected by the `operator' and `list' selectors that pushes
-the selector set whose only member is `list', and one selected
-by the `text' selector that pushes the selector set whose only
-member is `operator'.
-
-The following is a list of the kinds of
-\skey{parsing definition}s that may be in
-the \mkey{parsing definition stack}{kinds of definition in}:%
-\label{PARSING-STACK-DEFINITION-KINDS}
-
-\begin{center}
-\begin{tabular}{ll}
-parser & \secref{PARSER-DEFINITION} \\
-bracket & \secref{BRACKET-DEFINITION} \\
-operator & \secref{OPERATOR-DEFINITION} \\
-lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
-radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
-unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
-phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
-sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
-section initiator & \secref{SECTION-INITIATOR-DEFINITION}
-\end{tabular}
-\end{center}
-
-A parser is a function that is called with a list of lexemes and
-returns a parsed expression.  At any time there can be only one
-current parser definition, and that is used to select the current
-parser.  There are two standard parsers:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	 &            &            & Does	& Recognizes \\
-	 & Recognizes & Recognizes & Lexical	& Sentences, \\
-Parser	 & Brackets   & Operators  & Parsing	& Phrases, etc. \\[1ex]
-
-operator & yes	      & yes        & yes 	& no \\
-text     & yes	      & no         & yes        & yes \\
-\end{tabular}
-\end{center}
-
-The `operator' parser has a definition selected by either the `operator'
-or `list' parsing selectors, and recognizes any
-operators whose definitions are current
-(list separators are treated as operators),
-whereas the `text' parser has a definition selected
-by the `text' selector, and recognizes phrase separators, sentence
-terminators, and section initiators whose definitions are current.
-The 'operator' parser does \underline{not} recognize
-any phrase separators, sentence terminators, or section initiators,
-and the `text'
-parser does \underline{not} recognize any operator
-definitions.
-Both operator and text parsers recognize brackets and do lexical
-parsing, but all standard
-lexical parsing definitions do not have the `text' parsing selector,
-and therefore are ignored by standard text parsing.
-
-A definitional operator (\pagref{DEFINITIONAL})
-may push parsing definitions onto the parsing
-definition stack.  After the expression containing the operator has been parsed,
-these definitions will be popped from the stack.
-
-
-\ikey{Implicit brackets}{implicit brackets} introduced by parsers
-can also be represented explicitly, though this is mostly done
-for purposes of debugging.  For example, the implicit brackets
-introduced by operators are represented by \verb@(| |)@.
-Other kinds of implicit brackets are introduced by the text parser.
-Here is a complete list of implicit brackets and the kinds of subexpressions
-they surround:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l}
-\verb@(| |)@	& Operator subexpressions and list elements. \\
-\verb@<* *>@	& Phrases inside sentences. \\
-\verb@(* *)@	& Sentences. \\
-\verb@[* *]@	& Paragraphs. \\
-\verb@{* *}@	& Parts, chapters, sections, sub-sections, etc. \\
-\end{tabular}
-\end{center}\label{IMPLIED-BRACKETS}
-
-
-For example,
-the operators parser with the `operators' parsing selector recognizes
-the operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
-\begin{center}
-\verb|x + y - 5 * z|
-\end{center}
-and turns this expression into
-\begin{center}
-\verb@x + y - (| 5 * z |)@.
-\end{center}
-The operator parser with the `list' selector only recognizes separators,
-and turns
-\begin{center}
-\verb|[george, betty sue, bill]|
-\end{center}
-into
-\begin{center}
-\verb@[ george, (| betty sue |), bill ]@
-\end{center}
-The text parser, which is invoked by
-\verb|`'| quotes, recognizes the phrase separator `\verb|,|' and
-the sentence terminator `\verb|!|' and turns
-\begin{center}
-\verb|`I think!  Therefore, I am!'|
-\end{center}
-into
-\begin{center}
-\verb@[* (* I think ! *) (* Therefore , <* I am *> ! *) *]@
-\end{center}
-
-In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
-by parsers, though lexical parsing definitions standardly do not have
-the `text' selector and are therefore standardly not active during
-text parsing.  During lexical parsing, number unit grouping
-(\pagref{NUMBER-UNIT-GROUPING}) can insert implicit brackets.
-
-Bracket and operator definitions may specify reformatters
-which reformat subexpressions after they have been normally parsed.
-A \key{reformatter}\label{REFORMATTER} is a function that
-is called with the parsed
-subexpression that is surrounded by brackets or that has the
-operator as its lead operator.  The reformatter returns
-the reformatted subexpression.
-
-These definitions may also specify evaluators
-that are functions called to evaluate parsed subexpressions.
-
-
-\subsection{Parsers}
-\label{PARSERS}
-
-A \key{parser} is a function which when called with
-a list of lexemes returns the parsed subexpression, which
-is a list of {\em expression-items} (\pagref{EXPRESSION-ITEM}).
-
-Parsers are defined by
-\skey{parser definition}s\label{PARSER-DEFINITION}.
-The topmost current parser definition
-(\pagref{CURRENT-PARSING-DEFINITION})
-in the parsing stack names the parser used to parse expressions.
-
-Parser definitions have the syntax:
-
-\begin{indpar}
-\key{parser-definition}
-	::= \verb|define parser| {\em parser-name}
-				{\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
-\end{indpar}
-
-There are two standard \ikey{parsers}{parser!standard},
-the \key{operator parser} and the \key{text parser}, that have the
-definitions:
-
-\begin{indpar}\begin{verbatim}
-define parser -OPERATOR-PARSER- [operator,list]
-define parser -TEXT-PARSER- [text]
-\end{verbatim}\end{indpar}
-
-The difference between these two parsers is that only the operator
-parser recognizes current operator definitions,
-and only the text parser recognizes phrase separator, sentence
-terminator, and section initiator definitions.
-
-\subsection{Brackets}
-\label{BRACKETS}
-
-Brackets surround a subexpression and can specify the parsing
-selector set that determines how the subexpression is parsed.
-
-
-
-\subsubsection{Bracket Definitions}
-\label{BRACKET-DEFINITION}
-
-\ikey{Bracket definitions}{bracket definition} can be pushed onto
-the parsing stack, and are used by both the operators and text
-parsers.
-A bracket definition specifies for each bracket pair the following:
-
-\begin{indpar}[1in]
-Name and Parsing Selectors \\
-New Parsing Selector Set \\
-Reformatter \\
-Evaluator
-\end{indpar}
-
-\subsubsection{Bracket Definition Syntax}
-\label{BRACKET-DEFINITION-SYNTAX}
-
-The syntax of bracket definitions is:
-
-\begin{indpar}
-\key{bracket-definition} \\
-	\hspace*{0.5in}::= \ttkey{define bracket}
-	    \begin{tabular}[t]{@{}l@{}}
-	    {\em bracket-name} {\em parsing-selectors} \\
-	    {}[ \verb|with parsing-selectors|
-	        {\em new-parsing-selector-set} ] \\
-	    {}[ \verb|with reformatter|
-	        {\em reformatter-name} ] \\
-	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
-	    {}[ \verb|with indentation separator|
-		{\em indentation-separator} ] \\
-	    {}[ \verb|with indentation mark|
-		{\em indentation-mark} ] \\
-	    \end{tabular}
-	    \\[1ex]
-\key{bracket-name} ::=
-	{\em opening-bracket-name}
-	\verb|...|
-	{\em closing-bracket-name}
-	\\[1ex]
-\key{opening-bracket-name} ::=
-	{\em symbol} {\em symbol}$^\star$
-	\\[1ex]
-\key{closing-bracket-name} ::=
-	{\em symbol} {\em symbol}$^\star$
-	\\[1ex]
-{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
-	\\[1ex]
-\key{new-parsing-selector-set} ::= {\em parsing-selector-list}
-			[see \pagref{PARSING-SELECTOR-LIST}]
-	\\[1ex]
-\key{reformatter-name} ::= {\em function-name }
-	\\[1ex]
-\key{evaluator-name} ::= {\em function-name }
-	\\[1ex]
-\key{function-name} ::=
-	{\em symbol} {\em symbol}\,$^\star$
-	\\[1ex]
-\key{indentation-separator} ::=
-	{\em symbol} {\em symbol}\,$^\star$
-	\\[1ex]
-\key{indentation-mark} ::= {\em mark}
-\end{indpar}
-
-
-\subsubsection{Bracket Name}\ttmindex{name}{of bracket}
-\label{BRACKET-NAME}
-A bracket definition has a sequence of lexemes that is the
-{\em name} of the brackets.  This name
-has two subsequences of lexemes, an
-\key{opening bracket name} and
-a \key{closing bracket name}, separated by 
-a `\verb/.../' lexeme.
-
-If there are any opening or closing
-lexemes in the name, they must be in matching pairs.
-Thus \verb|[ (* ... *) ]| and \verb|[ $($ ... $)$ ]| are legal,
-but \verb![ << ... | ]! is not.
-
-By abuse of language, 
-`\key{opening bracket}\,'
-is used as a synonym for `opening bracket name' and `\key{closing bracket}\,'
-is used as a synonym for `closing bracket name'.
-
-When a subexpression is surrounded by brackets, the brackets
-are included in the subexpression.
-
-The {\em parsing-selectors} provided with the {\em bracket-name} determine when
-the {\em bracket-definition} will be active (\secref{PARSING-SELECTORS}).
-
-\subsubsection{Bracket New Parsing Selector Set}%
-\label{BRACKET-NEW-PARSING-SELECTOR-SET}
-
-If given in the bracket definition, the
-\emkey{new-parsing-selector-set}\index{parsing selector set!of bracket}
-is pushed into the parsing selector set stack
-(\pagref{PARSING-SELECTOR-SET-STACK}) just before a subexpression
-beginning and ending with the defined brackets is parsed, and then
-this set is popped off the stack after the subexpression is parsed.
-The selector set controls that parsing definitions used to parse
-the subexpression, and thereby determines the parser used
-(\secref{PARSING-OVERVIEW}).
-
-
-\subsubsection{Bracket Reformatter}\ttmindex{reformatter}{of bracket}
-\label{BRACKET-REFORMATTER}
-
-
-A {\em reformatter-name}
-is the name of the function that is called with a parsed expression
-as its single argument in order to reformat the expression
-(\pagref{REFORMATTER}).  The reformatter is optional.
-
-\subsubsection{Bracket Evaluator}\ttmindex{evaluator}{of bracket}
-\label{BRACKET-EVALUATOR}
-
-
-An {\em evaluator-name}
-is the name of the function that is called with a reformatted expression
-as its single argument in order to evaluate the expression.  The evaluator
-returns the value of the expression as its result.  There will generally
-be side effects of evaluation.
-
-Evaluation occurs at a completely different time than parsing occurs.
-During parsing, the evaluator function name is just added to the attributes
-of the parsed expression.
-
-The following are standard evaluators:
-
-\begin{indpar}
-
-The \ttkey{standard evaluator}.  Calls functions.
-
-The \ttkey{quote evaluator}.  Does not evaluate the expression, but
-may evaluate \verb|[ ]| bracketed subexpressions.  See TBD.
-
-\end{indpar}
 
 \subsection{Operators}
 \label{OPERATORS}
