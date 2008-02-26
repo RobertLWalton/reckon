@@ -2306,45 +2306,139 @@ objects.
 \section{Parsing}
 \label{PARSING}
 
-After input text is converted to a sequence of lexemes, the lexemes
-are read from left to right by an lexical parser and converted into
-lexical expressions, which are sequences of lexemes and explicit
-subexpressions.  During this process lexemes may be
-inserted or replaced.  Except for explicitly bracketted subexpressions,
-lexical parsing only affects short sequences of lexemes, and is
-thereby distinguished from expression parsing, which is applied to
-the lexical expressions, and which affects arbitrarily
-long sequences of lexemes.
+A program is written in a text file.  The file is read and
+converted to a sequence of lexemes, where each lexeme is tagged
+with its line number and the column number of its first character.
+This sequence of lexemes is then converted to a datum called an
+expression by a process called parsing.
 
-All forms of parsing are controlled by parsing definitions, which
-are input as a separate and distinct piece of program code, before
-the code being parsed is input.  These parsing definitions are
-placed in the parsing definition stack.
-See~\secref{PARSING-DEFINITION-STACK}.
+\ikey{Parsing}{parsing} consists of the following steps which
+are done in the given order:
 
-Lexical parsing consists of the following steps which are done in
-the order given:
-
-\begin{indpar}[0.8in]
-Lexeme Replacement (Spelling Regularization, Possessive Splitting)
-    (\secref{LEXEME-REPLACEMENT}) \\
-Explicit Subexpression Recognition
-    (\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}) \\
-Radix Number Recognition (\secref{RADIX-NUMBER-RECOGNITION}) \\
-Scientific Number Recognition (\secref{SCIENTIFIC-NUMBER-RECOGNITION}) \\
-Number Pair Recognition (\secref{NUMBER-PAIR-RECOGNITION}) \\
-Number Unit Grouping (\secref{NUMBER-UNIT-GROUPING}) \\
-Unit Multiplication Insertion (\secref{UNIT-MULTIPLICATION-INSERTION})
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Explicit Subexpression\\
+    Recognition (\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION})
+    \end{tabular}
+    & Explicit brackets are used to group lexemes into subexpressions.
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Lexeme Replacement\\
+    (\secref{LEXEME-REPLACEMENT})
+    \end{tabular}
+    & Short sequences of lexemes are replaced by other lexemes.
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Radix Number\\
+    Recognition (\secref{RADIX-NUMBER-RECOGNITION})
+    \end{tabular}
+    & A radix indicator (e.g., \verb|X#| or \verb|O#|)
+      followed by a quoted string is recognized as
+      a number with a special radix (e.g., hexadecimal, octal,
+      as in \verb|X#"A5"| and \verb|O#"07700"|).
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Scientific Number\\
+    Recognition (\secref{SCIENTIFIC-NUMBER-RECOGNITION})
+    \end{tabular}
+    & A number followed by an exponent (e.g., \verb|e-3| or \verb|E5|)
+      is recognized as a scientific number (e.g., as in
+      \verb|5.74e-3| and \verb|10E5|).
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Number Pair\\
+    Recognition (\secref{NUMBER-PAIR-RECOGNITION})
+    \end{tabular}
+    & Consecutive numbers (e.g., \verb|42 3/4|) are regonized as
+      parts of a single number.
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Number Unit\\
+    Grouping (\secref{NUMBER-UNIT-GROUPING})
+    \end{tabular}
+    & Consecutive pairs each consisting of a number and a unit are
+      recognized as part of the same number (e.g., \verb|4ft 5in|).
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Unit Multiplication\\
+    Insertion (\secref{UNIT-MULTIPLICATION-INSERTION})
+    \end{tabular}
+    & A multiplication operator (\verb|*|)
+    is inserted after prefix unit indicators
+    and before postfix unit indicators: e.g., \verb|$4.95| and
+    \verb|4ft| become \verb|$ * 4.95| and \verb|4 * ft|.
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Expression Parsing
+    \end{tabular}
+    & Expression parsing is done by a specialized parser, standardly
+    either the operators parser or the text parser, that takes an
+    expression consisting of a sequence of lexemes and subexpressions
+    and finds implied subexpressions and other structure in it.
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Operator Parsing\\
+    (\secref{OPERATOR-PARSER})
+    \end{tabular}
+    & Operator parsing is a particular brand of parsing that recognizes
+      operators (e.g. \verb|+| and \verb|*|)
+      and list separators (e.g., \verb|,| or \verb|;|,
+      which are treated like operators), and produces algebraic expressions.
+\end{tabular} \\[2ex]
+\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+    \begin{tabular}[t]{@{}l@{}}
+    Text Parsing\\
+    (\secref{TEXT-PARSER})
+    \end{tabular}
+    & Text parsing is a particular brand of parsing that recognizes
+      sentence terminators (e.g., \verb|.| and \verb|?|) and
+      phrase separators (e.g., \verb|,| and \verb|;|) and produces
+      expressions the represent sentences and paragraphs.
+\end{tabular}
 \end{indpar}
 
-Thus the output of the lexeme replacement lexical parsing
-algorithm is the input to the explicit subexpression recognition
-lexical parsing algorithm, and so forth.
+Parsing is controlled by parsing definitions, which
+are placed in the parsing definition stack.  The following is a list
+of the kinds of parsing definitions:
 
-TBD
+\begin{center}
+\begin{tabular}{ll}
+parser & \secref{PARSER-DEFINITION} \\
+bracket & \secref{BRACKET-DEFINITION} \\
+operator & \secref{OPERATOR-DEFINITION} \\
+lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
+radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
+unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
+phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
+sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
+section initiator & \secref{SECTION-INITIATOR-DEFINITION}
+\end{tabular}
+\end{center}
 
-Parsing is controlled by a parsing definition
-stack and a parsing selector set stack.
+
+At the top level, the parser reads and parses one top level line
+at a time.  A \key{top level line} is a \underline{non-indented}
+file line.  Indented file lines are treated as continuations of
+the previous top level line.  Blank lines and comments are ignored.
+(See \pagref{TOP-LEVEL} a few extra details.)
+
+A \key{parsing definition} can appear only as a top level line.
+Once read and parsed, it is recognized as a parsing definition,
+pushed into the parsing definition stack, and otherwise ignored.
+Thereafer it can affect the parsing of subsequence top level lines.
+There is \underline{no} way to pop definitions off the parsing definition
+stack.  However, you can place `\verb|undefine|'s in the stack
+that surpress the effect of particular parsing definitions.
+
 The \key{parsing definition stack},\label{PARSING-DEFINITION-STACK}
 contains definitions of parsers, brackets, operators, phrase separators,
 sentence terminators, section initiators, lexeme replacements,
@@ -2393,25 +2487,6 @@ one selected by the `operator' and `list' selectors that pushes
 the selector set whose only member is `list', and one selected
 by the `text' selector that pushes the selector set whose only
 member is `operator'.
-
-The following is a list of the kinds of
-\skey{parsing definition}s that may be in
-the \mkey{parsing definition stack}{kinds of definition in}:%
-\label{PARSING-STACK-DEFINITION-KINDS}
-
-\begin{center}
-\begin{tabular}{ll}
-parser & \secref{PARSER-DEFINITION} \\
-bracket & \secref{BRACKET-DEFINITION} \\
-operator & \secref{OPERATOR-DEFINITION} \\
-lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
-radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
-unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
-phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
-sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
-section initiator & \secref{SECTION-INITIATOR-DEFINITION}
-\end{tabular}
-\end{center}
 
 A parser is a function that is called with a list of lexemes and
 returns a parsed expression.  At any time there can be only one
@@ -2894,7 +2969,7 @@ indented by more than the subexpression indentation
 are continuations of the preceding non-blank line.
 Blank lines in the input are ignored.
 
-The \key{top level}, the file containing the text being parsed,
+The \key{top level},\label{TOP-LEVEL} the file containing the text being parsed,
 is treated similarly
 to an indented subxpression introduced by an implied indentation mark
 before the
