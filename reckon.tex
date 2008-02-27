@@ -268,7 +268,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 26, 2008}
+\date{February 27, 2008}
  
 \maketitle
 
@@ -1573,7 +1573,7 @@ The format of a \key{raw representation} is:
 
 This syntax uses \verb|{ }| brackets and \verb|;| separators, but
 these can be replaced by indentation and the \verb|:| mark according
-to rules given in \secref{INDENTATION-LEXEME-INSERTION}.  Roughly,
+to a general rule given in \secref{INDENTATION-EQUIVALENCE-RULE}.  Roughly,
 everything is indented appropriately so the \verb|{|, \verb|;|,
 and \verb|}| separators are all at line ends, and then the \verb|{|'s
 are replaced by \verb|:|'s and the \verb|;|'s and \verb|}|'s are
@@ -1810,13 +1810,12 @@ Labels beginning with `\ttkey{.}' are reserved for use by
 the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
 is an example of such a word.
 
-The CASTLE parsers
-(\secref{LEXICAL-PARSING} and \secref{EXPRESSION-PARSING})
-parse\label{RAW-PARSING}
+The CASTLE parser (\secref{PARSING})
+parses\label{RAW-PARSING}
 {\em raw-representations}.
 Because special
 symbols are avoided in attribute labels and values, the parser does
-little with these.  However, the lexical parser
+little with these.  However, the parser
 does two things that affect attribute labels
 and values.
 
@@ -1828,7 +1827,7 @@ details of its representation are lost.  Thus \verb|1.23e-2| and
 \verb|0.0123| store the same number, and \verb|1 3/4| and \verb|7/4|
 store the same number.
 
-The second thing the lexical parser does to attribute labels and values
+The second thing the parser does to attribute labels and values
 is lexeme replacement (\secref{LEXEME-REPLACEMENT}).  Thus the
 {\em raw-attribute-representation}
 \begin{center}
@@ -1911,7 +1910,7 @@ and two syntax equations adjusted as follows:
 
 \begin{tabular}{l}
 \emkey{cooked-single-attribute-value} ::= {\em expression}
-		~~~~~ [see \secref{EXPRESSION-PARSING}]
+		~~~~~ [see \secref{EXPRESSION-PARSERS}]
 \end{tabular}
 
 \end{indpar}
@@ -2316,21 +2315,21 @@ expression by a process called parsing.
 are done in the given order:
 
 \begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Explicit Subexpression\\
     Recognition (\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION})
     \end{tabular}
     & Explicit brackets are used to group lexemes into subexpressions.
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Lexeme Replacement\\
     (\secref{LEXEME-REPLACEMENT})
     \end{tabular}
     & Short sequences of lexemes are replaced by other lexemes.
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Radix Number\\
     Recognition (\secref{RADIX-NUMBER-RECOGNITION})
@@ -2340,7 +2339,7 @@ are done in the given order:
       a number with a special radix (e.g., hexadecimal, octal,
       as in \verb|X#"A5"| and \verb|O#"07700"|).
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Scientific Number\\
     Recognition (\secref{SCIENTIFIC-NUMBER-RECOGNITION})
@@ -2349,15 +2348,15 @@ are done in the given order:
       is recognized as a scientific number (e.g., as in
       \verb|5.74e-3| and \verb|10E5|).
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Number Pair\\
     Recognition (\secref{NUMBER-PAIR-RECOGNITION})
     \end{tabular}
-    & Consecutive numbers (e.g., \verb|42 3/4|) are regonized as
+    & Consecutive numbers (e.g., \verb|42 3/4|) are recognized as
       parts of a single number.
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Number Unit\\
     Grouping (\secref{NUMBER-UNIT-GROUPING})
@@ -2365,7 +2364,7 @@ are done in the given order:
     & Consecutive pairs each consisting of a number and a unit are
       recognized as part of the same number (e.g., \verb|4ft 5in|).
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Unit Multiplication\\
     Insertion (\secref{UNIT-MULTIPLICATION-INSERTION})
@@ -2375,49 +2374,51 @@ are done in the given order:
     and before postfix unit indicators: e.g., \verb|$4.95| and
     \verb|4ft| become \verb|$ * 4.95| and \verb|4 * ft|.
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Expression Parsing
     \end{tabular}
     & Expression parsing is done by a specialized parser, standardly
     either the operators parser or the text parser, that takes an
-    expression consisting of a sequence of lexemes and subexpressions
-    and finds implied subexpressions and other structure in it.
+    expression consisting of a sequence of lexemes and explicit subexpressions
+    and finds implicit subexpressions and other structure in it.
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Operator Parsing\\
     (\secref{OPERATOR-PARSER})
     \end{tabular}
-    & Operator parsing is a particular brand of parsing that recognizes
+    & Operator parsing is a particular brand of expression
+      parsing that recognizes
       operators (e.g. \verb|+| and \verb|*|)
       and list separators (e.g., \verb|,| or \verb|;|,
       which are treated like operators), and produces algebraic expressions.
 \end{tabular} \\[2ex]
-\begin{tabular}{@{}p{1.5in}@{\hspace*{0.3in}}p{4.5in}@{}}
+\begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
     Text Parsing\\
     (\secref{TEXT-PARSER})
     \end{tabular}
-    & Text parsing is a particular brand of parsing that recognizes
+    & Text parsing is a particular brand of expression parsing that recognizes
       sentence terminators (e.g., \verb|.| and \verb|?|) and
       phrase separators (e.g., \verb|,| and \verb|;|) and produces
-      expressions the represent sentences and paragraphs.
+      expressions that represent sentences and paragraphs.
 \end{tabular}
 \end{indpar}
 
 Parsing is controlled by parsing definitions, which
 are placed in the parsing definition stack.  The following is a list
-of the kinds of parsing definitions:
+of the kinds of parsing definitions:%
+\label{PARSING-DEFINITION-KINDS}
 
 \begin{center}
 \begin{tabular}{ll}
-parser & \secref{PARSER-DEFINITION} \\
 bracket & \secref{BRACKET-DEFINITION} \\
-operator & \secref{OPERATOR-DEFINITION} \\
 lexeme replacement & \secref{LEXEME-REPLACEMENT-DEFINITION} \\
 radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
+expression parser & \secref{EXPRESSION-PARSER-DEFINITION} \\
+operator & \secref{OPERATOR-DEFINITION} \\
 phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
 sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
 section initiator & \secref{SECTION-INITIATOR-DEFINITION}
@@ -2516,9 +2517,9 @@ any phrase separators, sentence terminators, or section initiators,
 and the `text'
 parser does \underline{not} recognize any operator
 definitions.
-Both operator and text parsers recognize brackets and do lexical
+Both operator and text parsers recognize brackets and do
 parsing, but all standard
-lexical parsing definitions do not have the `text' parsing selector,
+parsing definitions do not have the `text' parsing selector,
 and therefore are ignored by standard text parsing.
 
 A definitional operator (\pagref{DEFINITIONAL})
@@ -2576,10 +2577,10 @@ into
 \verb@[* (* I think ! *) (* Therefore , <* I am *> ! *) *]@
 \end{center}
 
-In addition, lexical parsing (\secref{LEXICAL-PARSING}) is performed
-by parsers, though lexical parsing definitions standardly do not have
+In addition, parsing (\secref{PARSING}) is performed
+by parsers, though parsing definitions standardly do not have
 the `text' selector and are therefore standardly not active during
-text parsing.  During lexical parsing, number unit grouping
+text parsing.  During parsing, number unit grouping
 (\pagref{NUMBER-UNIT-GROUPING}) can insert implicit brackets.
 
 Bracket and operator definitions may specify reformatters
@@ -2635,80 +2636,6 @@ For example, \verb|` '| invokes the text parser that
 recognizes sentence terminators and phrase separators, while
 \verb|{ }| invokes the operator parser that recognizes operators
 and list separators.
-
-\subsection{Subexpressions}
-\label{SUBEXPRESSIONS}
-
-The first step in expression parsing is to identify \skey{subexpression}s within
-an expression, without inserting any implicit brackets,
-by applying the following syntax equations.
-
-\begin{indpar}
-\key{EXPRESSION} ::= {\em expression-item}\,$^\star$ \\[1ex]
-\key{expression-item} ::= {\em symbol} $|$ {\em separator}
-				     $|$ {\em subexpression} \\[1ex]
-\key{subexpression} ::= {\em opening-bracket} {\em EXPRESSION}
-			{\em closing-bracket} \\[1ex]
-\key{opening-bracket} ::=
-	\{ {\em symbol} $|$ {\em separator} \}
-	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$ \\[1ex]
-\key{closing-bracket} ::=
-	\{ {\em symbol} $|$ {\em separator} \}
-	\{ {\em symbol} $|$ {\em separator} \}\,$^\star$
-\end{indpar}\label{EXPRESSION-ITEM}
-
-The {\em opening-bracket} and {\em closing-bracket} of a subexpression
-are a matched pair of brackets specified by a bracket definition
-(\secref{BRACKET-DEFINITION}).
-
-The subexpressions identified by this rule have explicit
-brackets.  These subexpressions are actually identified by the
-indentation lexeme insertion algorithm (\secref{INDENTATION-LEXEME-INSERTION}).
-Below we introduce subexpressions with operators
-that have implicit brackets.
-
-The syntactic category name {\em EXPRESSION} is capitalized because in
-this document syntactic categories representing CASTLE expressions
-are given completely capitalized names.
-
-
-
-\subsection{Parsers}
-\label{PARSERS}
-
-A \key{parser} is a function which when called with
-a list of lexemes returns the parsed subexpression, which
-is a list of {\em expression-items} (\pagref{EXPRESSION-ITEM}).
-
-Parsers are defined by
-\skey{parser definition}s\label{PARSER-DEFINITION}.
-The topmost current parser definition
-(\pagref{CURRENT-PARSING-DEFINITION})
-in the parsing stack names the parser used to parse expressions.
-
-Parser definitions have the syntax:
-
-\begin{indpar}
-\key{parser-definition}
-	::= \verb|define parser| {\em parser-name}
-				{\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
-\end{indpar}
-
-There are two standard \ikey{parsers}{parser!standard},
-the \key{operator parser} and the \key{text parser}, that have the
-definitions:
-
-\begin{indpar}\begin{verbatim}
-define parser -OPERATOR-PARSER- [operator,list]
-define parser -TEXT-PARSER- [text]
-\end{verbatim}\end{indpar}
-
-The difference between these two parsers is that only the operator
-parser recognizes current operator definitions,
-and only the text parser recognizes phrase separator, sentence
-terminator, and section initiator definitions.
 
 \subsection{Brackets}
 \label{BRACKETS}
@@ -2820,7 +2747,7 @@ beginning and ending with the defined brackets is parsed, and then
 this set is popped off the stack after the subexpression is parsed.
 The selector set controls that parsing definitions used to parse
 the subexpression, and thereby determines the parser used
-(\secref{PARSING-OVERVIEW}).
+(\secref{EXPRESSION-PARSERS}).
 
 
 \subsubsection{Bracket Reformatter}\ttmindex{reformatter}{of bracket}
@@ -2880,7 +2807,7 @@ definition is
 This specifies that \verb|{| is an \key{opening bracket}
 and \verb|}| is its corresponding \key{closing bracket}.  More details on
 bracket definitions can be found in \secref{BRACKET-DEFINITION}.
-The lexical parser recognizes opening explicit brackets in
+The parser recognizes opening explicit brackets in
 its input list of lexemes.  Once an opening bracket is recognized,
 its corresponding closing bracket can be recognized, as long as it
 is not inside another explicit subexpression.
@@ -2932,8 +2859,8 @@ is:
 @11 = X "+" 1 { .initiator = "("; .terminator = ")" }
 \end{verbatim}\end{indpar}
 
-Note that expression parsing, which is done after lexical parsing,
-can transform the results of lexical parsing significantly.  Thus
+Note that expression parsing, which is done after parsing,
+can transform the results of parsing significantly.  Thus
 after expression parsing \verb|@3| becomes:
 
 \begin{indpar}\begin{verbatim}
@@ -2961,8 +2888,8 @@ An indented subexpression is a list of non-blank lines.
 The \mkey{indentation}{of indented subexpression}
 of the subexpression is the indentation of the first non-blank line,
 and all the other lines must have the same indentation.  The output of
-the lexical parser for an indented subexpression is a list whose elements
-are the output of the lexical parser for each non-blank line, and 
+the parser for an indented subexpression is a list whose elements
+are the output of the parser for each non-blank line, and 
 whose \verb|.initiator| is the indention mark that introduced
 the subexpression.  Non-blank lines
 indented by more than the subexpression indentation
@@ -2994,7 +2921,7 @@ Consider the file:
 \end{verbatim}\end{indpar}
 
 When the first element of this file is read using the
-lexical parser, it becomes the object \verb|@6| in:
+parser, it becomes the object \verb|@6| in:
 
 \begin{indpar}\begin{verbatim}
 @6 = "@" 3 "=" @7
@@ -3027,7 +2954,8 @@ and the third and last element is \verb|@14| in:
 Here \verb|@15| is the empty list because the file ends
 after the line `\verb|@5 =:|' that introduces it.
 
-It is a general rule of CASTLE that lists with \verb|{ }| brackets
+It is a general rule\label{INDENTATION-EQUIVALENCE-RULE}
+of CASTLE that lists with \verb|{ }| brackets
 and `\verb|;|' separator are semantically equivalent to indented
 subexpressions introduced by `\verb|:|'.  Thus
 
@@ -3075,7 +3003,7 @@ are not used outside explicit brackets.
 
 The \ikey{explicit subexpression recognition algorithm}{explicit subexpression
 recognition!algorithm} is the
-lexical parsing subalgorithm that recognizes explicitly bracketted
+parsing subalgorithm that recognizes explicitly bracketted
 and indented subexpressions.  Here we describe this algorithm, which
 runs on the output of the lexeme replacement algorithm.
 
@@ -3130,7 +3058,7 @@ If
 is 1 less than or 1 greater
 than the current indentation,
 \end{list}
-then a lexical parsing error is announced.
+then a parsing error is announced.
 This ensures that when indentation is
 used to insert implicit lexemes, important indentation
 differences must be by at least
@@ -3336,7 +3264,7 @@ record is popped from its stack.
 The \key{lexeme replacement}
 process replaces a string of one or more lexemes by a string of zero or
 more lexemes.  Lexeme replacement is done before all other steps of
-lexical parsing, so these other steps operate on the lexeme sequence
+parsing, so these other steps operate on the lexeme sequence
 after lexeme replacements have been made.
 
 Lexeme replacement may be done by either a dictionary or a function.
@@ -3695,9 +3623,9 @@ B\#"5,7b63"	& O\#"2/3.456"	& D\#"-0.1"	& X\#".E8A932B.7CCD"
 \end{tabular}
 \end{indpar}
 
-When a {\em radix-number} is encountered during number lexical parsing,
+When a {\em radix-number} is encountered during number parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
-\verb|B#"10011"| is input to number lexical parsing,
+\verb|B#"10011"| is input to number parsing,
 \verb|(# B # "10011" #)| will be output.
 
 Radix numbers are recognized after indentation lexemes have been
@@ -3775,9 +3703,9 @@ radix indicator.  Standard radix indicators interpret the exponent as
 multiplication by their radix to the exponent power.  Thus
 {\tt B\#"1101"e-2} and {\tt B\#"11.01"} are both equal to {\tt 3.25}.
 
-When a {\em scientific-number} is encountered during number lexical parsing,
+When a {\em scientific-number} is encountered during number parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
-\verb|B\#"1101"e-2| is input to number lexical parsing,
+\verb|B\#"1101"e-2| is input to number parsing,
 \begin{center}
 \verb|(# (# B # "10011" #) e - 2 #)|
 \end{center}
@@ -3825,10 +3753,10 @@ Some examples of number pairs are:
 \end{tabular}
 \end{indpar}
 
-When a {\em number-pair} is encountered during number lexical parsing,
+When a {\em number-pair} is encountered during number parsing,
 it is surrounded by \verb|(# #)| implicit brackets and a \verb|+| is
 inserted between its two parts.  Thus if
-\verb|41 3/4| is input to number lexical parsing,
+\verb|41 3/4| is input to number parsing,
 \verb|(# 41 + 3/4 #)|
 will be output.
 
@@ -3874,7 +3802,7 @@ must be defined as a {\em unit-specifier-name} by the following:
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
 
-The \key{number unit grouping} phase of lexical
+The \key{number unit grouping} phase of
 parsing recognizes {\em number-unit-groups} containing more than
 one {\em number-unit-pair}, places
 \verb|(# #)| implied brackets around them,
@@ -3902,7 +3830,7 @@ recognized.
 \subsubsection{Unit Multiplication Insertion}
 \label{UNIT-MULTIPLICATION-INSERTION}
 
-The \key{unit multiplication insertion} phase of lexical
+The \key{unit multiplication insertion} phase of
 parsing inserts a multiplication operator lexeme, `\verb|*|',
 before a {\em postfix-unit-specifier}, and
 after a {\em prefix-unit-specifier}, unless the point at which the
@@ -3927,6 +3855,43 @@ some function ( (# 3 * ft + (# 2 + 1/4 #) * in #) / sec,
 
 Unit multiplication insertion is done after number unit groups have been
 recognized.
+
+\subsection{Expression Parsers}
+\label{EXPRESSION-PARSERS}
+
+A \key{parser} is a function which when called with
+a list of lexemes returns the parsed subexpression, which
+is a list of {\em expression-items} (\pagref{EXPRESSION-ITEM}).
+
+Parsers are defined by
+\skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
+The topmost current parser definition
+(\pagref{CURRENT-PARSING-DEFINITION})
+in the parsing stack names the parser used to parse expressions.
+
+Parser definitions have the syntax:
+
+\begin{indpar}
+\key{expression-parser-definition}
+	::= \verb|define expression parser| {\em parser-name}
+				            {\em parsing-selectors} \\[1ex]
+\key{parser-name} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+\end{indpar}
+
+There are two standard \ikey{expression parsers}{parser!standard expression},
+the \key{operator parser} and the \key{text parser}, that have the
+definitions:
+
+\begin{indpar}\begin{verbatim}
+define expression parser -OPERATOR-PARSER- [operator,list]
+define expression parser -TEXT-PARSER- [text]
+\end{verbatim}\end{indpar}
+
+The difference between these two expression parsers is that only the operator
+parser recognizes current operator definitions,
+and only the text parser recognizes phrase separator, sentence
+terminator, and section initiator definitions.
 
 \subsection{Operators}
 \label{OPERATORS}
@@ -4054,7 +4019,7 @@ It causes operands preceding the operator to be inspected to see if they are
 an expressions beginning with the word `\ttkey{define}' or `\ttkey{undefine}'.
 Such an expression is called a \key{definition}, and is pushed into
 the parsing stack.
-See \pagref{PARSING-STACK-DEFINITION-KINDS} for a list of the kinds of
+See \pagref{PARSING-DEFINITION-KINDS} for a list of the kinds of
 definition that may be pushed into the parsing stack.
 
 When an definition operand is pushed onto the parsing stack, it and
@@ -4775,7 +4740,7 @@ returned to the caller of the parser as the remaining lexeme list and
 the parsed expression, respectively.
 
 \subsubsection{The Text Parser}
-\label{THE-TEXT-PARSER}
+\label{TEXT-PARSER}
 
 The text parser divides the input into paragraphs that are separated by
 blank lines.
