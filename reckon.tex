@@ -91,6 +91,7 @@
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
+\newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
 \newcommand{\opt}{$^!$}
@@ -2446,16 +2447,13 @@ A \key{parsing definition} can appear only as a top level line.
 Once read and parsed, it is recognized as a parsing definition,
 pushed into the parsing definition stack, and otherwise ignored.
 Thereafter it can affect the parsing of subsequence top level lines.
-There is \underline{no} way to pop definitions off the parsing definition
-stack.  However, you can place parsing definitions
-in the stack
-that suppress the effect of particular parsing definitions
-(these definitions begin with `\verb|undefine|' instead of `\verb|define|').
 
 Not all parsing definitions are effective at any given time.  The set
 of parsing definitions that have effect is determined by parsing selectors.
-A \key{parsing selector} is a name consisting of a sequence of
-one or more symbols.  Parsing selectors are attached to parsing definitions,
+A \key{parsing selector} is just a {\em name} (i.e., a sequence of
+{\em symbols} and {\em number-lexemes} containing at least one {\em symbol},
+see \pagref{NAME}). 
+Parsing selectors are attached to parsing definitions,
 and at any time during parsing there is a set of parsing selectors called
 the `\key{current parsing selector set}' that determines which parsing
 definitions are effective.  Specifically, a definition has effect
@@ -2469,8 +2467,8 @@ following two expression parser definitions are standardly in the
 parsing definition stack:
 
 \begin{indpar}\begin{verbatim}
-define expression parser -OPERATOR-PARSER- [operator]
-define expression parser -TEXT-PARSER- [text]
+define operator "-" [operator] infix has precedence 10
+define phrase separator "-" [text]
 \end{verbatim}\end{indpar}
 
 The \verb|[ ]| brackets in these definitions surround comma
@@ -2478,16 +2476,12 @@ separated lists of parsing selectors that are attached to the
 definition.  Here there are two parsing selectors
 named `\verb|operator|' and `\verb|text|'.
 When the current parsing selector set contains `\verb|text|',
-but \underline{not} `\verb|operator|',
-the \verb|-TEXT-PARSER-| is used.  When the set does \underline{not}
+but \underline{not} `\verb|operator|', then the `{\tt define phrase separator}'
+definition is effective, but not the `{\tt define operator}'
+definition.  When the set does \underline{not}
 contain `\verb|text|', but contains `\verb|operator|',
-the \verb|-OPERATOR-PARSER-| is used.
-If the current parsing selector set contained both `\verb|text|'
-and `\verb|operator|', both the above definitions would be current,
-and the topmost in the parsing definition stack would be used, but
-the conventions for using these particular selectors
-forbid them from appearing simultaneously in the current
-parsing selector set.
+the `{\tt define operator}' definition is effective,
+but not the `{\tt define phrase separator}' definition.
 
 The \key{current parsing selector set} is defined as the topmost entry in
 the \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK},
@@ -2524,42 +2518,116 @@ Thus the \verb|{ }| brackets, whose definition is always current
 selector set stack the set whose only member is the `operator'
 parsing selector.
 
-Many parts of the parser introduce
+A parsing definition contains a \key{parsing selector specification}
+which lists the parsing selectors attached to the definition.
+Some definitions, like bracket definitions, can
+contain a \key{new parsing selector specification},
+that determines a parsing selector set to push into the
+parsing selector set stack.  These have the syntax:
+
+\begin{indpar}
+
+\begin{tabular}{l}
+\emkey{parsing-selector-specification} ::= {\em empty}
+			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
+\label{PARSING-SELECTOR-SPECIFICATION}
+\\[1ex]
+\emkey{parsing-selector-list} ::= {\em empty}
+    $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}$^\star$
+\\[1ex]
+\emkey{parsing-selector} ::= {\em name} ~~ (see \pagref{NAME})
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{new-parsing-selector-specification} \\
+\hspace*{0.3in}\begin{tabular}[t]{rl}
+    ::= & \verb|[| {\em parsing-selector-list} \verb|]| \\
+    $|$ & \verb|[| {\em parsing-selector-op} {\em parsing-selector} \\
+        & \hspace*{0.3in}
+          \{ \verb|,| {\em parsing-selector-op} {\em parsing-selector}
+	  \}$^\star$ \verb|]|
+    \end{tabular}
+\label{NEW-PARSING-SELECTOR-SPECIFICATION}
+\\[1ex]
+\emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
+\end{tabular}
+
+\end{indpar}
+
+If a parsing definition does not give any \emkey{parsing selector
+specification} (i.e., the specification is completely {\em empty}
+in the above syntax, with no \verb|[ ]| brackets present), then
+the definition is \underline{always} current.  Otherwise the
+{\em parsing selectors} listed in the specification are attached to the
+definition.
+
+If a definition like a bracket definition gives a \emkey{new parsing
+selector specification}, then it contains instructions how to make
+a new parsing selector set.  There are two forms: one with
+\emskey{parsing-selector-op}s and one without.  The form without
+simply specifies the new parsing selector set literally, by listing
+the {\em parsing selectors} in it.  The one with ops, specifies how
+to make the new set from the existing current parsing selector set.
+The \verb|+| op adds the selector if it was no previously present.
+The \verb|-| op deletes the selector if it was previously present.
+And the \verb|^| op flips the selector, adding it if it was not
+previously present, and deleting it if it was previously present.
+
+If a definition like a bracket definition does \underline{not}
+give any {\em new parsing selector specification}, then
+the required new selector set is just a copy of the current selector set.
+
+There is \underline{no} way to pop definitions off the parsing definition
+stack.
+However, you can place parsing definitions
+in the stack
+that suppress the effect of particular parsing definitions.
+Thus if
+
+\begin{indpar}\begin{verbatim}
+define operator "-" [operator] infix has precedence 10
+\end{verbatim}\end{indpar}
+
+is in the stack, so that the operator expression parser will
+recognize `\verb|-|' as an operator, then putting
+
+\begin{indpar}\begin{verbatim}
+undefine operator "-" [operator]
+\end{verbatim}\end{indpar}
+
+further toward the top of the stack will cause the lexeme
+`\verb|-|' to be not recognized as an operator.
+
+The operator expression parser introduces
 \skey{implicit bracket}s.  These
 can also be represented explicitly, though this is mostly done
-for purposes of debugging.  For example, the implicit brackets
-introduced by operators are represented by \verb@(| |)@.
-Other kinds of implicit brackets are introduced by number parsing
-and by the text parser.
-Here is a complete list of implicit brackets and the kinds of subexpressions
-they surround:
+for purposes of debugging.  The implicit brackets
+introduced by operators are represented by \verb@(| |)@, and the
+implicit brackets introduced by numbers are \verb|(# #)|.
 
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l}
-\verb@(# #)@	& Numbers. \\
-\verb@(| |)@	& Operator subexpressions and list elements. \\
-\end{tabular}
-\end{center}\label{IMPLICIT-BRACKETS}
-
-
-For example, the parser turns the number
-\begin{center}
-\verb|4ft 5 3/4 in|
-\end{center}
-into
-\begin{center}
-\verb|(# 4 * ft + (# 5 + 3/4 #) * in #)|
-\end{center}
-The operator expression parser with the `operators' parsing selector recognizes
-the operators `\verb|+|', `\verb|-|', and `\verb|*|' in the expression
+For example, the operator expression parser turns
 \begin{center}
 \verb|x + y - 5 * z|
 \end{center}
-and turns this expression into
+into
 \begin{center}
-\verb@x + y - (| 5 * z |)@.
+\verb@x + y - (| 5 * z |)@
+\end{center}
+Similarly the operator parser turns the number
+\begin{center}
+\verb|4ft 5 3/4 in|
+\end{center}
+first into
+\begin{center}
+\verb|(# 4 * ft + (# 5 + 3/4 #) * in #)|
+\end{center}
+and then finally into
+\begin{center}
+\verb@(# (| 4 * ft |) + (| (# 5 + 3/4 #) * in |) #)@
 \end{center}
 
+Implicit brackets are added to parsed expressions as \verb|.initiator|'s
+and \verb|.terminator|'s.
 The text expression parser works differently, and does not use
 implicit brackets, but instead adds other kinds of \verb|.initiator|'s
 and \verb|.terminator|'s to subexpressions.
@@ -2573,14 +2641,14 @@ introduced by an indentation mark, has a lead operator, has a sentence
 terminator, or has a section header.
 The reformatter returns the reformatted subexpression.
 
-These definitions may also specify evaluators
+Parsing definitions may also specify evaluators
 that are functions attached to the parsed subexpressions which
 are called later to evaluate the subexpressions.
 
 \subsection{Brackets}
 \label{BRACKETS}
 
-Brackets surround a subexpression and can specify the parsing
+Brackets surround a subexpression and specify the parsing
 selector set that determines how the subexpression is parsed.
 
 
