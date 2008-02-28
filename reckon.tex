@@ -1136,7 +1136,6 @@ contains in order the following lexemes:
 \key{name} ::= \{ {\em symbol} $|$ {\em number-lexeme} \}$^\star$
                {\em symbol}
                \{ {\em symbol} $|$ {\em number-lexeme} \}$^\star$
-\label{NAME}
 \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
@@ -1359,10 +1358,28 @@ a special interpretation by a parser the symbol must be quoted
 (e.g., \verb|"+"| will not be recognized as an operator in a context
 in which \verb|+| would be).
 
-A \emkey{name} is
+A \emkey{name}\label{NAME} is
 a sequence of {\em symbols} and {\em number-lexemes} containing at least one
 {\em symbol}.  {\em Names} are used to name things, such
 as functions and variables.
+
+Names are sometimes matched to sequences
+of input lexemes.  When this is done, a quoted string in the name has
+one pair of \verb|"| quotes removed before the match.  Thus:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+When in		&	Matches the \\
+a Name:		&	Input Lexeme:
+\\[1ex]
+\tt hello	&	\tt hello \\
+\tt "hello"	&	\tt hello \\
+\tt "+"		&	\tt + \\
+\tt ","		&	\tt , \\
+\tt "\BACKSLASH"hello\BACKSLASH""
+		&	\tt "hello" \\
+\end{tabular}
+\end{center}
 
 \section{Data}
 
@@ -3285,9 +3302,21 @@ current subexpression list, otherwise.
 
 The \key{lexeme replacement}
 process replaces a string of one or more lexemes by a string of zero or
-more lexemes.  Lexeme replacement is done before all other steps of
-parsing, so these other steps operate on the lexeme sequence
-after lexeme replacements have been made.
+more lexemes.  Lexeme replacement is done on sequences of lexemes
+in each subexpression produced
+by the explicit subexpression recognition algorithm
+(\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION-ALGORITHM}).
+These subexpressions are lists that may contain elements that are
+subexpressions, and not lexemes, and lexeme replacement cannot cross over
+the boundary created by such subexpression elements.
+The lists do \underline{not} include brackets or
+indentation marks, which
+have become \verb|.initiator|'s and \verb|.terminators| of the subexpression
+lists.  However, if a subexpression is just a single lexeme by itself,
+that subexpression is treated as a list of one lexeme.
+
+Note that lexeme replacement is done after explicit subexpression recognition,
+and cannot affect backets or indentation marks.
 
 Lexeme replacement may be done by either a dictionary or a function.
 Replacement is controlled by \skey{lexeme replacement definition}s
@@ -3866,23 +3895,25 @@ recognized.
 \subsection{Expression Parsers}
 \label{EXPRESSION-PARSERS}
 
-A \key{parser} is a function which when called with
-a list of lexemes returns the parsed subexpression, which
-is a list of {\em expression-items} (\pagref{EXPRESSION-ITEM}).
+An \key{expression parser} is a function which when called with
+a subexpression returns a subpexpression reformatted according to the
+operators, sentence terminators, or similar things it finds in the
+original subexpression.
 
-Parsers are defined by
+Expression parsers are defined by
 \skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
 The topmost current parser definition
 (\pagref{CURRENT-PARSING-DEFINITION})
 in the parsing stack names the parser used to parse expressions.
 
-Parser definitions have the syntax:
+Expression parser definitions have the syntax:
 
 \begin{indpar}
 \key{expression-parser-definition} ::=\\
 \hspace*{0.5in}\verb|define expression parser| {\em parser-name}
 				               {\em parsing-selectors} \\[1ex]
 \key{parser-name} ::= {\em name} \\[1ex]
+\key{name} ::= see \pagref{NAME} \\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
 
@@ -3891,7 +3922,7 @@ the \key{operator parser} and the \key{text parser}, that have the
 definitions:
 
 \begin{indpar}\begin{verbatim}
-define expression parser -OPERATOR-PARSER- [operator,list]
+define expression parser -OPERATOR-PARSER- [operator]
 define expression parser -TEXT-PARSER- [text]
 \end{verbatim}\end{indpar}
 
@@ -3900,26 +3931,9 @@ parser recognizes current operator definitions,
 and only the text parser recognizes phrase separator, sentence
 terminator, and section initiator definitions.
 
-TBD
 
-An expression parser is a function that is called with a list of lexemes and
-returns a parsed expression.  At any time there can be only one
-current expression parser definition, and that is used to select the current
-parser.  There are two standard expression parsers:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l@{~~~~~~}l}
-	 &            &            & Does	& Recognizes \\
-	 & Recognizes & Recognizes & Lexical	& Sentences, \\
-Parser	 & Brackets   & Operators  & Parsing	& Phrases, etc. \\[1ex]
-
-operator & yes	      & yes        & yes 	& no \\
-text     & yes	      & no         & yes        & yes \\
-\end{tabular}
-\end{center}
-
-The `operator' parser has a definition selected by either the `operator'
-or `list' parsing selectors, and recognizes any
+The `operator' parser has a definition selected by the `operator'
+parsing selector, and recognizes any
 operators whose definitions are current
 (list separators are treated as operators),
 whereas the `text' parser has a definition selected
@@ -3935,49 +3949,6 @@ parsing, but all standard
 parsing definitions do not have the `text' parsing selector,
 and therefore are ignored by standard text parsing.
 
-
-TBD
-
-An \key{expression} is a sequence of symbols, separators, and subexpressions.
-A \key{subexpression} is a pair of matched lexeme sequences called
-\skey{bracket}s, e.g.~\verb|( )| or
-\verb|` '|, and all the lexemes in between.
-There are many kinds of brackets: for example, \skey{square bracket}s
-\verb|[ ]|, \skey{curly bracket}s \verb|{ }|, \key{parentheses} \verb|( )|,
-and \skey{quote}s \verb|` '|.
-
-Some expressions and subexpressions can contain lexeme sequences called
-\skey{operator}s.  When they do,
-matched \ikey{implicit brackets}{implicit brackets} \verb/(| |)/
-are inserted into the expressions or subexpressions
-according to rules of operator precedence, and these
-implicit brackets create new subexpressions.
-Certain lexemes used to separate elements of lists,
-such as `{\tt ,}' and `{\tt ;}',
-are treated as operators during parsing.
-
-Some expressions and subexpressions can contain lexeme sequences called
-\skey{sentence terminator}s and \skey{phrase separator}s.  When they do,
-matched \ikey{implicit brackets}{implicit brackets} are inserted around
-paragraphs, sentences, and phrases.  A paragraph becomes a list of
-sentences surrounded by implicit \verb|(* *)| brackets, a sentence
-becomes a list of symbols, separators, subexpressions, and phrases
-surrounded by implicit \verb|<* *>| brackets, and so forth.
-
-A process called \key{expression parsing}\index{parsing!expression}
-inserts implicit brackets into expressions,
-further reformats some expressions,
-and associates evaluators with some subexpressions.
-The evaluator of a subexpression
-is a function that is eventually called to evaluate the subexpression.
-
-Explicit brackets control the parser used
-to parse the subexpression they surround.  The set of brackets and operators
-this parser recognizes is also controlled.
-For example, \verb|` '| invokes the text parser that
-recognizes sentence terminators and phrase separators, while
-\verb|{ }| invokes the operator parser that recognizes operators
-and list separators.
 
 \subsection{Operators}
 \label{OPERATORS}
