@@ -2768,8 +2768,9 @@ whose syntax is:
 
 \begin{indpar}
 \key{indentation-mark-definition} \\
-	\hspace*{0.5in}::= \ttkey{define indentation-mark}
+	\hspace*{0.5in}::= {\tt define}~
 	    \begin{tabular}[t]{@{}l@{}}
+	    {\tt indentation mark}\ttindex{define indentation mark} \\
 	    {\em indentation-mark-name} {\em parsing-selectors} \\
 	    {}[ \verb|with parsing-selectors|
 	        {\em new-parsing-selectors} ] \\
@@ -3146,7 +3147,8 @@ to the current indentation,
 \end{list}
 then the current subexpression record is popped from the subexpression
 stack and its subexpression list is added as a single element to the
-new current line list.  Then this loop iteration is terminated, without
+new current line list.  The current parsing selector set is popped
+from its stack.  Then this loop iteration is terminated, without
 consuming the current input lexeme.
 \end{indpar}
 
@@ -3167,6 +3169,8 @@ of lexemes at the beginning of the current input,
 then the current subexpression record is popped from the subexpression
 stack and its subexpression list is added as a single element to the
 new current line list.
+The current parsing selector set is popped
+from its stack.
 The closing bracket is removed from the beginning of the current input and
 discarded.
 Then this loop iteration is terminated.
@@ -3228,6 +3232,10 @@ then a new subexpression record is pushed into the subexpression stack.
 The new record has the current indentation mark definition as its
 definition, an empty subexpression list with the indentation mark as
 its {\tt .initiator}, missing indentation, and missing line list.
+A new parsing selector set computed using the current
+parsing selector set and the indentation mark definition
+{\em new-parsing-selectors}, and the new set is pushed into the
+parsing selector set stack.
 The indentation mark is removed from the current input and
 discarded.
 Then this loop iteration is terminated.
@@ -3252,6 +3260,10 @@ The new record has the current bracket definition as its
 definition, an empty subexpression list with bracket definition's
 opening and closing brackets as its {\tt .initiator} and {\tt .terminator},
 respectively, missing indentation, and missing line list.
+A new parsing selector set computed using the current
+parsing selector set and the bracket definition
+{\em new-parsing-selectors}, and the new set is pushed into the
+parsing selector set stack.
 The opening bracket is removed from the current input and
 discarded.
 Then this loop iteration is terminated.
@@ -3267,16 +3279,6 @@ current subexpression list, otherwise.
 
 
 \end{indpar}
-
-TBD change next paragraph
-
-Note that when a subexpression record is pushed, the bracket or
-indentation mark definition
-it points at may specify a {\em new-parsing-selector-set}, which will
-be pushed into the parsing selector set stack:
-see \secref{NEW-PARSING-SELECTORS}.   If this happens, the
-parsing selector set will be popped from its stack when the indentation
-record is popped from its stack.
 
 \subsection{Lexeme Replacement}
 \label{LEXEME-REPLACEMENT}
@@ -3877,11 +3879,11 @@ in the parsing stack names the parser used to parse expressions.
 Parser definitions have the syntax:
 
 \begin{indpar}
-\key{expression-parser-definition}
-	::= \verb|define expression parser| {\em parser-name}
-				            {\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
+\key{expression-parser-definition} ::=\\
+\hspace*{0.5in}\verb|define expression parser| {\em parser-name}
+				               {\em parsing-selectors} \\[1ex]
+\key{parser-name} ::= {\em name} \\[1ex]
+{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
 
 There are two standard \ikey{expression parsers}{parser!standard expression},
