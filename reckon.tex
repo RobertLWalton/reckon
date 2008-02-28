@@ -269,7 +269,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 27, 2008}
+\date{February 28, 2008}
  
 \maketitle
 
@@ -2418,7 +2418,9 @@ are done in the given order:
 \end{indpar}
 
 Parsing is controlled by parsing definitions, which
-are placed in the parsing definition stack.  The following is a list
+are placed in the \key{parsing definition stack}.%
+\label{PARSING-DEFINITION-STACK}
+The following is a list
 of the kinds of parsing definitions:%
 \label{PARSING-DEFINITION-KINDS}
 
@@ -2518,28 +2520,29 @@ Thus the \verb|{ }| brackets, whose definition is always current
 selector set stack the set whose only member is the `operator'
 parsing selector.
 
-A parsing definition contains a \key{parsing selector specification}
-which lists the parsing selectors attached to the definition.
+A parsing definition contains \key{parsing selectors}
+which are a \verb|[ ]| bracketed
+list of the parsing selectors attached to the definition.
 Some definitions, like bracket definitions, can
-contain a \key{new parsing selector specification},
-that determines a parsing selector set to push into the
+contain a \key{new parsing selectors},
+which determine a parsing selector set to push into the
 parsing selector set stack.  These have the syntax:
 
 \begin{indpar}
 
 \begin{tabular}{l}
-\emkey{parsing-selector-specification} ::= {\em empty}
+\emkey{parsing-selectors} ::= {\em empty}
 			     $|$ \verb|[| {\em parsing-selector-list} \verb|]|
-\label{PARSING-SELECTOR-SPECIFICATION}
+\label{PARSING-SELECTORS}
 \\[1ex]
 \emkey{parsing-selector-list} ::= {\em empty}
     $|$ {\em parsing-selector} \{ \verb|,| {\em parsing-selector} \}$^\star$
 \\[1ex]
-\emkey{parsing-selector} ::= {\em name} ~~ (see \pagref{NAME})
+\emkey{parsing-selector} ::= {\em name} ~~ [see \pagref{NAME}]
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{new-parsing-selector-specification} \\
+\emkey{new-parsing-selectors} \\
 \hspace*{0.3in}\begin{tabular}[t]{rl}
     ::= & \verb|[| {\em parsing-selector-list} \verb|]| \\
     $|$ & \verb|[| {\em parsing-selector-op} {\em parsing-selector} \\
@@ -2547,34 +2550,34 @@ parsing selector set stack.  These have the syntax:
           \{ \verb|,| {\em parsing-selector-op} {\em parsing-selector}
 	  \}$^\star$ \verb|]|
     \end{tabular}
-\label{NEW-PARSING-SELECTOR-SPECIFICATION}
+\label{NEW-PARSING-SELECTORS}
 \\[1ex]
 \emkey{parsing-selector-op} ::= \verb|+| $|$ \verb|-| $|$ \verb|^|
 \end{tabular}
 
 \end{indpar}
 
-If a parsing definition does not give any \emkey{parsing selector
-specification} (i.e., the specification is completely {\em empty}
+If a parsing definition does not give \emkey{parsing selectors}
+(i.e., the {\em parsing-selectors} are completely {\em empty}
 in the above syntax, with no \verb|[ ]| brackets present), then
-the definition is \underline{always} current.  Otherwise the
-{\em parsing selectors} listed in the specification are attached to the
+the definition is \underline{always} current.  Otherwise each
+{\em parsing-selector} listed in the specification is attached to the
 definition.
 
-If a definition like a bracket definition gives a \emkey{new parsing
-selector specification}, then it contains instructions how to make
+If a definition like a bracket definition gives \emkey{new parsing
+selectors}, then this contains instructions how to make
 a new parsing selector set.  There are two forms: one with
 \emskey{parsing-selector-op}s and one without.  The form without
 simply specifies the new parsing selector set literally, by listing
 the {\em parsing selectors} in it.  The one with ops, specifies how
 to make the new set from the existing current parsing selector set.
-The \verb|+| op adds the selector if it was no previously present.
-The \verb|-| op deletes the selector if it was previously present.
-And the \verb|^| op flips the selector, adding it if it was not
+The \verb|+| op adds a selector if it was no previously present.
+The \verb|-| op deletes a selector if it was previously present.
+And the \verb|^| op flips a selector, adding it if it was not
 previously present, and deleting it if it was previously present.
 
 If a definition like a bracket definition does \underline{not}
-give any {\em new parsing selector specification}, then
+give any {\em new-parsing-selectors}, then
 the required new selector set is just a copy of the current selector set.
 
 There is \underline{no} way to pop definitions off the parsing definition
@@ -2648,28 +2651,18 @@ are called later to evaluate the subexpressions.
 \subsection{Brackets}
 \label{BRACKETS}
 
-Brackets surround a subexpression and specify the parsing
+Brackets surround an explicitly bracketed
+subexpression and specify the parsing
 selector set that determines how the subexpression is parsed.
-
-
-
-\subsubsection{Bracket Definitions}
-\label{BRACKET-DEFINITION}
-
-\ikey{Bracket definitions}{bracket definition} can be pushed onto
-the parsing stack, and are used by both the operators and text
-parsers.
-A bracket definition specifies for each bracket pair the following:
+The brackets that are recognized by the parser
+are defined by \skey{bracket definition}s which specify
 
 \begin{indpar}[1in]
-Name and Parsing Selectors \\
-New Parsing Selector Set \\
-Reformatter \\
-Evaluator
+Bracket Name and Parsing Selectors \\
+New Parsing Selectors \\
+Optional Reformatter \\
+Optional Evaluator
 \end{indpar}
-
-\subsubsection{Bracket Definition Syntax}
-\label{BRACKET-DEFINITION-SYNTAX}
 
 The syntax of bracket definitions is:
 
@@ -2679,119 +2672,138 @@ The syntax of bracket definitions is:
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em bracket-name} {\em parsing-selectors} \\
 	    {}[ \verb|with parsing-selectors|
-	        {\em new-parsing-selector-set} ] \\
+	        {\em new-parsing-selectors} ] \\
 	    {}[ \verb|with reformatter|
 	        {\em reformatter-name} ] \\
 	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
-	    {}[ \verb|with indentation separator|
-		{\em indentation-separator} ] \\
-	    {}[ \verb|with indentation mark|
-		{\em indentation-mark} ] \\
 	    \end{tabular}
+\label{BRACKET-DEFINITION}
 	    \\[1ex]
 \key{bracket-name} ::=
 	{\em opening-bracket-name}
 	\verb|...|
 	{\em closing-bracket-name}
 	\\[1ex]
-\key{opening-bracket-name} ::=
-	{\em symbol} {\em symbol}$^\star$
+\key{opening-bracket-name} ::= {\em name} \\[1ex]
+\key{closing-bracket-name} ::= {\em name} \\[1ex]
+{\em name} ::= see \pagref{NAME} \\[1ex]
+{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
-\key{closing-bracket-name} ::=
-	{\em symbol} {\em symbol}$^\star$
-	\\[1ex]
-{\em parsing-selectors} ::= [see \pagref{PARSING-SELECTORS}]
-	\\[1ex]
-\key{new-parsing-selector-set} ::= {\em parsing-selector-list}
-			[see \pagref{PARSING-SELECTOR-LIST}]
+{\em new-parsing-selectors} ::= see \pagref{NEW-PARSING-SELECTORS}
 	\\[1ex]
 \key{reformatter-name} ::= {\em function-name }
 	\\[1ex]
 \key{evaluator-name} ::= {\em function-name }
 	\\[1ex]
-\key{function-name} ::=
-	{\em symbol} {\em symbol}\,$^\star$
-	\\[1ex]
-\key{indentation-separator} ::=
-	{\em symbol} {\em symbol}\,$^\star$
-	\\[1ex]
-\key{indentation-mark} ::= {\em mark}
+\key{function-name} ::= {\em name} \\[1ex]
 \end{indpar}
 
 
-\subsubsection{Bracket Name}\ttmindex{name}{of bracket}
-\label{BRACKET-NAME}
-A bracket definition has a sequence of lexemes that is the
-{\em name} of the brackets.  This name
+A {\em bracket-name}
 has two subsequences of lexemes, an
 \key{opening bracket name} and
 a \key{closing bracket name}, separated by 
 a `\verb/.../' lexeme.
-
-If there are any opening or closing
-lexemes in the name, they must be in matching pairs.
-Thus \verb|[ (* ... *) ]| and \verb|[ $($ ... $)$ ]| are legal,
-but \verb![ << ... | ]! is not.
-
 By abuse of language, 
 `\key{opening bracket}\,'
-is used as a synonym for `opening bracket name' and `\key{closing bracket}\,'
-is used as a synonym for `closing bracket name'.
+is used as a synonym for `{\em opening bracket name}'
+and `\key{closing bracket}\,'
+is used as a synonym for `{\em closing bracket name}'.
 
 When a subexpression is surrounded by brackets, the brackets
 are included in the subexpression.
 
-The {\em parsing-selectors} provided with the {\em bracket-name} determine when
-the {\em bracket-definition} will be active (\secref{PARSING-SELECTORS}).
-
-\subsubsection{Bracket New Parsing Selector Set}%
-\label{BRACKET-NEW-PARSING-SELECTOR-SET}
-
-If given in the bracket definition, the
-\emkey{new-parsing-selector-set}\index{parsing selector set!of bracket}
-is pushed into the parsing selector set stack
-(\pagref{PARSING-SELECTOR-SET-STACK}) just before a subexpression
-beginning and ending with the defined brackets is parsed, and then
-this set is popped off the stack after the subexpression is parsed.
-The selector set controls that parsing definitions used to parse
-the subexpression, and thereby determines the parser used
-(\secref{EXPRESSION-PARSERS}).
-
-
-\subsubsection{Bracket Reformatter}\ttmindex{reformatter}{of bracket}
-\label{BRACKET-REFORMATTER}
-
+The {\em parsing-selectors} in the {\em bracket-definition}
+determine when the definition will be active (\pagref{PARSING-SELECTORS}).
+The {\em new-parsing-selectors} specify how to compute a new parsing
+selector set which is pushed into the parsing selector set stack by
+the opening bracket and popped by the closing bracket
+(\pagref{NEW-PARSING-SELECTORS}).
 
 A {\em reformatter-name}
 is the name of the function that is called with a parsed expression
 as its single argument in order to reformat the expression
-(\pagref{REFORMATTER}).  The reformatter is optional.
+(\pagref{REFORMATTER}).  After a bracketed subexpression has been
+scanned, the expression parser is called to parse the part of the expression
+between brackets.  If this returns a list without \verb|.initiator|
+or \verb|.terminator|, the opening and closing brackets are added as
+\verb|.initiator| and \verb|.terminator| to this list.
+Otherwise a new one-element list is created with the opening and
+closing brackets as \verb|.initiator| and \verb|.terminator|
+and the expression parser result as the single list element.
+Then the bracket definition reformatter, if any, is
+called to further reformat the resulting list.
 
-\subsubsection{Bracket Evaluator}\ttmindex{evaluator}{of bracket}
-\label{BRACKET-EVALUATOR}
-
-
-An {\em evaluator-name}
-is the name of the function that is called with a reformatted expression
-as its single argument in order to evaluate the expression.  The evaluator
-returns the value of the expression as its result.  There will generally
-be side effects of evaluation.
-
-Evaluation occurs at a completely different time than parsing occurs.
-During parsing, the evaluator function name is just added to the attributes
-of the parsed expression.
-
+If an {\em evaluator-name} is specified by the bracket definition,
+it is attached as the \verb|.evaluator| attribute to each final
+parsed bracketed subexpression.
 The following are standard evaluators:
 
 \begin{indpar}
 
-The \ttkey{standard evaluator}.  Calls functions.
+\ttnbkey{-STANDARD-EVALUATOR-}.  Normal evaluator that calls functions
+and executes operators.
 
-The \ttkey{quote evaluator}.  Does not evaluate the expression, but
-may evaluate \verb|[ ]| bracketed subexpressions.  See TBD.
+\ttnbkey{-QUOTE-EVALUATOR-}.  Does not evaluate expressions, but just
+returns the unevaluated expression as its value.  However, does seach
+for \verb|[ ]| bracketed subexpressions, evaluates them, and replaces
+them by their values.  See \pagref{QUOTE-EVALUATOR}.
 
 \end{indpar}
 
+\subsection{Indentation Marks}
+\label{INDENTATION-MARKS}
+
+An \key{indentation mark}
+introduces an indented subexpression (\pagref{INDENTED-SUBEXPRESSION}).
+Indentation marks are
+similar to opening brackets, except indentation marks
+must appear at the end of a line, indentation is used
+in place of a closing bracket, and indentation and line ends
+are also used as separators to given an extra list layer
+to the indented subexpression.
+
+Indentation marks are defined by indentation mark defintions,
+whose syntax is:
+
+\begin{indpar}
+\key{indentation-mark-definition} \\
+	\hspace*{0.5in}::= \ttkey{define indentation-mark}
+	    \begin{tabular}[t]{@{}l@{}}
+	    {\em indentation-mark-name} {\em parsing-selectors} \\
+	    {}[ \verb|with parsing-selectors|
+	        {\em new-parsing-selectors} ] \\
+	    {}[ \verb|with reformatter|
+	        {\em reformatter-name} ] \\
+	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
+	    \end{tabular}
+\label{INDENTATION-MARK-DEFINITION}
+	    \\[1ex]
+\key{indentation-mark-name} ::=
+	{\em mark-name} $|$ {\em gluing-indicator} {\em mark-name}
+\key{mark-name} ::= {\em mark} $|$ {\em quoted-string}
+	\\[1ex]
+\key{gluing-indicator} ::= \verb|*|
+	\\[1ex]
+{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
+	\\[1ex]
+{\em new-parsing-selectors} ::= see \pagref{NEW-PARSING-SELECTORS}
+	\\[1ex]
+\key{reformatter-name} ::= {\em function-name }
+	\\[1ex]
+\key{evaluator-name} ::= {\em function-name }
+	\\[1ex]
+\key{function-name} ::= {\em name}
+        \\[1ex]
+{\em name} ::= see \pagref{NAME}
+\end{indpar}
+
+The name of an indentation mark is a restricted form of name
+(\pagref{NAME}); it can only be a {\em mark} or a quoted {\em mark}.
+The {\em gluing-indicator} \verb|*| specifies that the indentation
+mark may be glued to the end of a previous {\em mark} in its line.
+E.g., the two marks `\verb|= :|' may be replaced by `\verb|=:|'.
+This joined {\em mark} must then be the last lexeme on its line.
 
 \subsection{Explicit Subexpression Recognition}
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION}
@@ -2849,8 +2861,8 @@ indented subexpression consisting of all following lines, and
 the \verb|:|'s at the end of the `\verb|if|' and `\verb|else|'
 lines each introduce one line indented subexpressions.
 
-The output of the \underline{lexical} parser for this example
-is:
+If expression parsing were \underline{not} done, the output of the
+parser for the above example would be:
 
 \begin{indpar}\begin{verbatim}
 @1 = sum from X through Y "<--" integer X "," integer Y @2
@@ -2867,9 +2879,9 @@ is:
 @11 = X "+" 1 { .initiator = "("; .terminator = ")" }
 \end{verbatim}\end{indpar}
 
-Note that expression parsing, which is done after parsing,
-can transform the results of parsing significantly.  Thus
-after expression parsing \verb|@3| becomes:
+Note that expression parsing transforms these results
+significantly.  Operators are recognized, and
+\verb|@3| becomes:
 
 \begin{indpar}\begin{verbatim}
 @3 = sum of integers from X through Y
@@ -3297,25 +3309,11 @@ dictionary and function.  These have the syntax:
 					    {\em parsing-selectors} \\
 				& {\em lexeme-dictionary-entries}
 		     \end{tabular} \\[1ex]
-\key{dictionary-name} ::= {\em symbol} {\em symbol}\,$^\star$
+\key{dictionary-name} ::= {\em name}
 	\\[1ex]
-\key{parsing-selectors}\,
-                    \begin{tabular}[t]{rl}
-		    ::= & {\em empty} \\
-                    $|$ & \verb|[| {\em parsing-selector-list} \verb|]|
-		    \end{tabular}
-\label{PARSING-SELECTORS}%
-		    \\[1ex]
-\key{parsing-selector-list}
-\label{PARSING-SELECTOR-LIST}%
-		     \\
-		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-                     ::= & {\em parsing-selector} \\
-		     $|$ & {\em parsing-selector-list} \verb|,|
-		           {\em parsing-selector}
-		     \end{tabular}
-		     \\[1ex]
-\key{parsing-selector} ::= {\em symbol} {\em symbol}\,$^\star$
+{\em name} ::= see \pagref{NAME}
+	\\[1ex]
+{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
 \key{lexeme-dictionary-entries}
                     ::= \underline{\LEFTBRACKET}
@@ -3340,8 +3338,7 @@ dictionary and function.  These have the syntax:
 	\hspace*{0.5in}::= \verb|define lexeme function|
 				{\em function-name}
 				{\em parsing-selectors} \\[1ex]
-\key{function-name} ::=
-	{\em symbol} {\em symbol}\,$^\star$
+\key{function-name} ::= {\em name}
 \label{FUNCTION-NAME}
 \end{indpar}
 
@@ -4935,7 +4932,7 @@ Evaluations of guard blocks are required to have no visible side effects.
 \ikey{Expression definitions}{expression definition} have the syntax:
 
 \begin{indpar}
-\key{EXPRESSION-DEFINITION}\label{EXPRESSION-DEFINITION} ::=
+\key{EXPRESSION-DEFINITION} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
 \key{pattern} ::= {\em EXPRESSION} \\[1ex]
