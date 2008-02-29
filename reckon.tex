@@ -269,7 +269,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 28, 2008}
+\date{February 29, 2008}
  
 \maketitle
 
@@ -1848,7 +1848,7 @@ does two things that affect attribute labels
 and values.
 
 The first is recognizing several lexeme {\em real-numbers}
-(\secref{NUMBERS}),
+(\secref{NUMBER-RECOGNITION}),
 such as \verb|1.23e-2| and \verb|1 3/4|.  In all cases
 a single numeric atom is stored inside the computer, and
 details of its representation are lost.  Thus \verb|1.23e-2| and
@@ -3361,10 +3361,10 @@ dictionary and function.  These have the syntax:
     \hspace*{0.5in}::=
 	{\em replaced-lexemes} \verb|==>| {\em replacing-lexemes}
 	\\[1ex]
-\key{replaced-lexemes} ::=
-	{\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-\key{replacing-lexemes} ::=
-	{\em symbol}\,$^\star$ \\[1ex]
+\key{replaced-lexemes} ::= {\em name}
+	\\[1ex]
+\key{replacing-lexemes} ::= {\em empty} $|$ {\em name }
+	\\[1ex]
 \key{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
 				{\em function-name}
@@ -3427,12 +3427,6 @@ sequence of lexemes denotes the lexeme made by removing its outer quotes.
 Thus \verb|","| denotes the separator
 \verb|,| and \verb|"\",\""| denotes the quoted string \verb|","|.
 
-The {\em parsing-selectors} are used to specify the parsing contexts in
-which a lexeme replacement definition is active.  The standard parsing
-selectors for lexeme replacement definitions
-are `{\tt operator}' and `{\tt list}'.
-See~\secref{PARSING-SELECTORS} for details.
-
 If several different lexeme replacement definitions could be used to
 replace lexemes at the beginning of a lexeme sequence, the topmost
 definition in the parsing definition stack
@@ -3488,8 +3482,8 @@ word, some subtleties of language are lost.  For example, `\verb|people|'
 can be a singular word referring to a group of people, but CASTLE will
 standardly confuse it with `\verb|person|'.
 
-\subsection{Numbers}
-\label{NUMBERS}
+\subsection{Number Recognition}
+\label{NUMBER-RECOGNITION}
 
 Number lexemes are decimal numbers with an optional decimal point
 or slash
@@ -3523,10 +3517,10 @@ an optional decimal point or slash.
 \begin{indpar}
 \key{decimal-number} \begin{tabular}[t]{rl}
                               ::= & {\em decimal-integer} \\
-		              $|$ & {\em decimal-integer} \verb|.|
+		              $|$ & {\em decimal-integer}\verb|.|%
 		                    {\em decimal-fraction} \\
-		              $|$ & \verb|.| {\em decimal-fraction} \\
-		              $|$ & {\em decimal-numerator} \verb|/|
+		              $|$ & \verb|.|{\em decimal-fraction} \\
+		              $|$ & {\em decimal-numerator}\verb|/|%
 		                    {\em decimal-denominator} \\
 		              \end{tabular} \\[1ex]
 \key{decimal-integer} ::= {\em decimal-natural}
@@ -3680,11 +3674,13 @@ inserted.
 		     \end{tabular}
 \label{RADIX-INDICATOR-DEFINITION}
 		     \\[1ex]
-\key{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$
+\key{radix-indicator} ::= {\em name}
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
-{\em function-name} ::= see \pagref{FUNCTION-NAME}
+{\em function-name} ::= {\em name}
+	\\[1ex]
+{\em name} ::= see \pagref{NAME}
 \end{indpar}
 
 Given such a definition, the defined {\em radix-indicator}
@@ -3773,7 +3769,7 @@ containing a slash.
 
 \begin{indpar}
 \key{number-pair} ::= {\em decimal-integer}
-		   {\em decimal-numerator} \verb|/| {\em decimal-denominator}
+		   {\em decimal-numerator}\verb|/|{\em decimal-denominator}
 		   \\[1ex]
 {\em decimal-integer} ::= see \pagref{DECIMAL-INTEGER} \\[1ex]
 {\em decimal-numerator} ::= see \pagref{DECIMAL-NUMERATOR} \\[1ex]
@@ -3816,10 +3812,11 @@ The syntax equations are:
                      ::= & {\em prefix-unit-specifier} {\em real-number} \\
                      $|$ & {\em real-number} {\em postfix-unit-specifier} \\
 		     \end{tabular} \\[1ex]
-\key{prefix-unit-specifier} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-\key{postfix-unit-specifier} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+\key{prefix-unit-specifier} ::= {\em name} \\[1ex]
+\key{postfix-unit-specifier} ::= {\em name} \\[1ex]
 \key{unit-specifier} ::= {\em prefix-unit-specifier} $|$
-                         {\em postfix-unit-specifier}
+                         {\em postfix-unit-specifier} \\[1ex]
+\key{name} ::= see \pagref{NAME}
 \end{indpar}
 
 In order to be recognized as a {\em unit-specifier} a {\em symbol} sequence
@@ -3834,7 +3831,8 @@ must be defined as a {\em unit-specifier-name} by the following:
 	    \end{tabular}
 \label{UNIT-SPECIFIER-DEFINITION}
 	    \\[1ex]
-\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix} \\[1ex]
+\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix}
+	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
 
@@ -3843,8 +3841,7 @@ parsing recognizes {\em number-unit-groups} containing more than
 one {\em number-unit-pair}, places
 \verb|(# #)| implied brackets around them,
 and places implied `\verb|+|' operators
-between their {\em number-unit-pairs}.  This is done after lexeme replacement
-(\secref{LEXEME-REPLACEMENT}).
+between their {\em number-unit-pairs}.
 
 For example, if `\verb|hr|' and `\verb|min|'
 are {\em postfix-unit-specifiers},
@@ -3898,7 +3895,12 @@ recognized.
 An \key{expression parser} is a function which when called with
 a subexpression returns a subpexpression reformatted according to the
 operators, sentence terminators, or similar things it finds in the
-original subexpression.
+original subexpression.  The expression parser is called after
+explicit subexpression recognition, lexeme replacement, and number
+recognition have all been done, and the subexpression is a sequence
+of lexemes, explicit subexpressions, and implicit number subexpressions.
+Note that number recognition is done regardless of the expression parser
+used, e.g., even inside \verb|` '| quotes.
 
 Expression parsers are defined by
 \skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
@@ -3926,12 +3928,6 @@ define expression parser -OPERATOR-PARSER- [operator]
 define expression parser -TEXT-PARSER- [text]
 \end{verbatim}\end{indpar}
 
-The difference between these two expression parsers is that only the operator
-parser recognizes current operator definitions,
-and only the text parser recognizes phrase separator, sentence
-terminator, and section initiator definitions.
-
-
 The `operator' parser has a definition selected by the `operator'
 parsing selector, and recognizes any
 operators whose definitions are current
@@ -3944,10 +3940,6 @@ any phrase separators, sentence terminators, or section initiators,
 and the `text'
 parser does \underline{not} recognize any operator
 definitions.
-Both operator and text parsers recognize brackets and do
-parsing, but all standard
-parsing definitions do not have the `text' parsing selector,
-and therefore are ignored by standard text parsing.
 
 
 \subsection{Operators}
@@ -3955,15 +3947,7 @@ and therefore are ignored by standard text parsing.
 
 Operators restructure expressions in which they occur.  Operators
 are defined by operator definitions that can be added to the
-parsing stack.  Certain operators are `definitional'
-(\pagref{DEFINITIONAL}), and it is just these operators which accept
-definitions to be pushed into the parsing stack.
-
-\subsubsection{Operator Definitions}
-\label{OPERATOR-DEFINITION}
-
-\ikey{Operator definitions}{operator definition} can be pushed onto
-the parsing stack, and are used by the operators parser, but
+parsing stack and are used by the operators parser, but
 \underline{not} by the text parser.  List separators are treated
 during parsing as operators, and have operator definitions.
 An operator definition specifies for each operator the following:
@@ -3976,9 +3960,6 @@ Reformatter \\
 Evaluator
 \end{indpar}
 
-\subsubsection{Operator Definition Syntax}
-\label{OPERATOR-DEFINITION-SYNTAX}
-
 The syntax of operator definitions is:
 
 \begin{indpar}
@@ -3989,61 +3970,41 @@ The syntax of operator definitions is:
 	    {\em operator-flag}$^\star$ \\
 	    {}[ \verb|with precedence| {\em precedence} ] \\
 	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
-	    {}[ \verb|with evaluator| {\em evaluator-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
-\key{bracket-name} ::=
-	{\em opening-bracket-name}
-	\verb|...|
-	{\em closing-bracket-name}
+\key{operator-name} ::= {\em name}
 	\\[1ex]
-\key{opening-bracket-name} ::=
-	{\em symbol} {\em symbol}$^\star$
-	\\[1ex]
-\key{closing-bracket-name} ::=
-	{\em symbol} {\em symbol}$^\star$
-	\\[1ex]
-\key{operator-flag} ::= \ttmkey{definitional}{operator flag}
-                    $|$ \ttmkey{prefix}{operator flag}
+\key{operator-flag} ::= \ttmkey{prefix}{operator flag}
                     $|$ \ttmkey{infix}{operator flag}
                     $|$ \ttmkey{postfix}{operator flag}
+                    $|$ \ttmkey{nofix}{operator flag}
+	\\[1ex]
+\key{precedence} ::= {\em sign-option} {\em decimal-integer}
+	\\[1ex]
+\key{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
 	\\[1ex]
 \key{reformatter-name} ::= {\em function-name }
 	\\[1ex]
-\key{evaluator-name} ::= {\em function-name }
+\key{function-name} ::= {\em name}
 	\\[1ex]
-\key{function-name} ::=
-	{\em symbol} {\em symbol}$^\star$
+\key{name} ::= see \pagref{NAME}
 \end{indpar}
 
-\subsubsection{Operator Name}\ttmindex{name}{of operator}
-\label{OPERATOR-NAME}
-An operator definition has a sequence of lexemes that is the
-{\em name} of the operator.  The operator
-inside a subexpression is just this sequence of lexemes.
+The {\em operator-name} is matched to lexemes in a subexpression
+in order to identify occurences of the operator.
 By abuse of language, the term `\key{operator}' is often used
-as a synonym for `operator name'.
+as a synonym for `{\em operator-name}'.
 
-\subsubsection{Operator Flags}\ttmindex{flag}{of operator}
-\label{OPERATOR-FLAGS}
 Operators can have \skey{operator flag}s that
-affect parsing of subexpressions of the operator.  These are:
+affect parsing of subexpressions of the operator.  The possible
+flags are `{\tt infix}', `{\tt prefix}', `{\tt postfix}',
+and `{\tt nofix}'.  By default an operator is `{\tt nofix}'.
 
-\begin{indpar}
+An \ttkey{infix} operator must be between two non-empty operands,
+while a \ttkey{prefix} operator must precede a non-empty operand,
+and a \ttkey{postfix} operator must follow a non-empty operand.
 
-\begin{labpar}[0.1in]{{\bf prefix}, {\bf infix}, {\bf postfix}, {\bf nofix}}%
-    \index{prefix flag@{\tt prefix} flag}\label{PREFIX}%
-    \index{infix flag@{\tt infix} flag}\label{INFIX}%
-    \index{postfix flag@{\tt postfix} flag}\label{POSTFIX}%
-    \index{nofix flag@{\tt nofix} flag}\label{NOFIX}
-These flags determine the operator
-\key{fixity}.  By default an operator is nofix.
-
-An \key{infix} operator must be between two non-empty operands,
-while a \key{prefix} operator must precede a non-empty operand,
-and a \key{postfix} operator must follow a non-empty operand.
-
-A \key{nofix} operator is like an infix operator but may have
+A \ttkey{nofix} operator is like an infix operator but may have
 empty operands.  It may appear at the beginning or ending of
 an expression, or two nofix operators may be consecutive.
 
@@ -4066,33 +4027,7 @@ and either postfix or infix is taken to be prefix if and only if it follows
 an expression beginning, an opening bracket, or an operator previously
 determined in a left-to-right scan to be prefix, infix, or nofix.
 
-\end{labpar}
-
-\begin{labpar}[0.1in]{\bf definitional}%
-\index{definitional flag@{\tt definitional} flag}%
-\label{DEFINITIONAL}~~~~~
-This flag may only be given for an infix or nofix operator.
-It causes operands preceding the operator to be inspected to see if they are
-an expressions beginning with the word `\ttkey{define}' or `\ttkey{undefine}'.
-Such an expression is called a \key{definition}, and is pushed into
-the parsing stack.
-See \pagref{PARSING-DEFINITION-KINDS} for a list of the kinds of
-definition that may be pushed into the parsing stack.
-
-When an definition operand is pushed onto the parsing stack, it and
-its following definitional operator are removed from the input being
-parsed.
-
-If an operand is not a definition, nothing special is done by
-a definitional operator during parsing.
-
-\end{labpar}
-
-\end{indpar}
-
-\subsubsection{Operator Precedence}\ttmindex{precedence}{of operator}
-\label{OPERATOR-PRECEDENCE}
-The precedence of an operator is an integer.  Precedence is used to
+The {\em precedence} of an operator is an integer.  Precedence is used to
 determine which operators are inside and outside implicit brackets.
 Operators with higher precedence are placed inside the 
 implicit brackets that surround operands of operators of lower precedence.
@@ -4106,59 +4041,12 @@ the prefix operators are all inside the implicit brackets surrounding
 the postfix operator operands (i.e., the prefix operators are
 `executed first').
 
-\subsubsection{Operator Parser}\ttmindex{parser}{of operator}
-\label{OPERATOR-PARSER}
+The {\em reformatter-name} in an {\em operator-definition} names a
+function that is called after all other parsing has been done to
+reformat a subexpression whose first operator is the defined operator
+(\pagref{OPERATOR-REFORMATTING}).
 
-A parser is the name of the function that is called with an expression
-as its single argument in order to parse the expression.
-
-Parsers can be pushed onto the parsing stack.
-The parser used for subexpressions of an expression is the parser
-nearest the top of the parsing stack.
-
-The \verb|parser| of an operator definition is an optional symbol sequence that
-names a parser.  If present, a {\em PARSER-DEFINITION}
-(\pagref{PARSER-DEFINITION}) naming the parser is pushed onto the parsing
-stack before subexpressions are parsed, and popped from the parsing stack
-after subexpressions have been parsed.
-
-The following are standard parsers:
-
-\begin{indpar}
-
-The \key{operators parser}, \ttkey{-OPERATORS-PARSER-}.
-Lexical parsing is done.
-Then operators, qualifiers, qualifier shortcuts,
-and the \verb|::?| optional argument,
-\verb|<:>| reorder, \verb|::>| remainder,
-\verb|@@| required qualifier, and
-\verb|??| optional qualifier marks are recognized.
-The special constructs of text parsing, e.g., the \verb/|/ format separator,
-are \underline{not} recognized.
-
-The \key{marks parser}, \ttkey{-MARKS-PARSER-}.
-Lexical parsing is \underline{not} done.
-The \verb|::?| optional argument,
-\verb|<:>| reorder, \verb|::>| remainder,
-\verb|@@| required qualifier, and
-\verb|??| optional qualifier marks are recognized.
-Operators, qualifiers, qualifier shortcuts, and the special constructs
-of text parsing, e.g., the \verb/|/ format separator,
-are \underline{not} recognized.
-
-The \key{text parser}, \ttkey{-TEXT-PARSER-}.
-Lexical parsing is \underline{not} done.
-The special constructs of text parsing (\secref{TEXT-PARSING}) are
-recognized.
-Operators, qualifiers, qualifier shortcuts, and the \verb|::?| optional
-argument, \verb|<:>| reorder, \verb|::>| remainder,
-\verb|@@| required qualifier, and
-\verb|??| optional qualifier marks are \underline{not} recognized.
-
-\end{indpar}
-
-\subsection{Expression Reformatting}
-\label{EXPRESSION-REFORMATTING}
+\subsection{Operator Reformating Expansion}
 
 TBD
 
