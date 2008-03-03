@@ -12,6 +12,10 @@
 %	RIPE	Robert's Information Processing Environment
 %	RIOT
 %	AGILE	Another Goofy Information Language and Environment
+%	OMNI	Omni-Programming Language
+%	OPL	Omni-Programming Language
+%	APE	A Programming Envioronment
+%	RUG	Really Useful Gadget
   
 \documentclass[12pt]{article}
 
@@ -274,7 +278,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 2, 2008}
+\date{March 3, 2008}
  
 \maketitle
 
@@ -2717,7 +2721,7 @@ The syntax of bracket definitions is:
 	\\[1ex]
 \key{evaluator-name} ::= {\em function-name }
 	\\[1ex]
-\key{function-name} ::= {\em name} \\[1ex]
+\key{function-name} ::= {\em name}
 \end{indpar}
 
 
@@ -4051,28 +4055,59 @@ function that is called after all other parsing has been done to
 reformat a subexpression whose first operator is the defined operator
 (\pagref{OPERATOR-REFORMATTING}).
 
-\subsection{Operator Reformating Expansion}
+\subsection{Standard Operators}
+\label{STANDARD-OPERATORS}
 
-TBD
+The following are the standard operators
 
-The \key{parser expansion} algorithm inputs an object output
-by the operator scanning algorithm and outputs an
-expanded object that replaces the input object.
-The parser expansion algorithm goes through its input
-looking for objects with a {\tt .parser} attribute, and for each
-such object, calls its {\tt .parser} attribute value as a function with
-the object as input and the function output as the expansion of the input
-object.  The expansion algorithm works only on the top level: when the
-algorithm calls the {\tt .parser} attribute function of an expression,
-the algorithm leaves it up to that function to call the {\tt .parser}
-attribute functions of subexpressions.  The standard parsers do this
-first, thus effecting a bottom up algorithm, similar to expression
-evaluation.
+\begin{center}
 
-A {\tt .parser} attribute value is known as a \key{parser}, and is associated
-with an operator priority level
-(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DEFINITION}).
-Immediately below are the standard parsers and their effects.
+\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+precedence & rerformatter	& operators	& type		& meaning 
+\\[2ex]
+-4000	& \ttkey{semicolon}	&  \ttnbkey{;}	& \tt nofix	& separator \\
+-3000	& \ttkey{comma}		&  \ttnbkey{,}	& \tt nofix	& separator \\
++0000	& \ttkey{assign}	&  \ttnbkey{<-} 
+				   		& \tt infix	& assignment \\
+	&		        &  \ttkey{BECOMES} \\
++1000	& \ttkey{logical}	&  \ttkey{AND} ~~~
+				   \ttkey{OR}	& \tt nofix	& logical and,
+				   				  or, \\
+	&			&  \ttkey{NOT}  &		& not \\
++2000 	& \ttkey{compare}	&  \ttnbkey{=} ~~~
+				   \ttnbkey{/=} ~~~
+        		           \ttnbkey{!=}	& \tt infix	& equal,
+				   				  not equal,
+								  ditto \\
+	&		      	& \ttnbkey{<} ~~~
+                                  \ttnbkey{<=} ~~~
+				  \ttnbkey{=<} &		& less than,
+				  				  less than
+								  or \\
+	&	       		&		&		& equal,
+      								  ditto \\
+	&	      		& \ttnbkey{>} ~~~
+                                  \ttnbkey{>=} ~~~
+				  \ttnbkey{=>}	&		& greater than,
+				  				  greater \\
+	&	      		&		&		& than or
+      								  equal,
+								  ditto \\
++3000	& \ttkey{sum}		&  \ttnbkey{+} ~~~
+				   \ttnbkey{-}	& \tt infix	& addition,
+				   				  subtraction \\
++3100	& \ttkey{product}	&  \ttnbkey{*} ~~~
+				   \ttnbkey{/}	& \tt infix	&
+				   				multiplication,
+				   				  division \\
++9999	& \ttkey{minus}		&  \ttnbkey{-}	& \tt prefix	& minus \\
++9999	& \ttkey{plus}		&  \ttnbkey{+}	& \tt prefix	& plus \\
++9999	& \ttkey{objname}	&  \ttnbkey{@}	& \tt prefix	& object name \\
+\end{tabular}
+
+\end{center}
+
 
 In describing effects, we use notation such as
 
