@@ -278,7 +278,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 6, 2008}
+\date{March 8, 2008}
  
 \maketitle
 
@@ -558,7 +558,7 @@ For example:
 
 \begin{indpar}
 \verb|> for every person:| \\
-\verb|+     body-mass-index = 703.06958 * weight in lbs| \\
+\verb|+     body mass index = 703.06958 * weight in lbs| \\
 \verb|+                     / (height in inches)^2| \\
 \verb|> all persons| \\
 \begin{tabular}{|r|l|l|r|r|r|r|}
@@ -569,7 +569,7 @@ For example:
 \multicolumn{1}{|c}{\bf weight} &
 \multicolumn{1}{|c}{\bf height} &
 \multicolumn{1}{|c|}{\bf age} &
-\multicolumn{1}{|c|}{\bf \shortstack{body-mass-\\index}} \\
+\multicolumn{1}{|c|}{\bf \shortstack{body mass\\index}} \\
 \hline
 \tt @1000000 & person & Jack
 	     & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo & \tt 18.163738 \\
@@ -948,16 +948,16 @@ Displays can be used to make demonstrations:
 \end{tabular} \\[0.5ex]
 \verb|> display ( D ) <-- demo ( D ) with angle ( X ):| \\
 \verb|+     c = {circle 1.0 dotted center (0.0,0.0)}| \\
-\verb|+     x-axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
-\verb|+     y-axis = {arrow from (0.0,-0.75) to (0.0,0.75)}| \\
+\verb|+     x axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
+\verb|+     y axis = {arrow from (0.0,-0.75) to (0.0,0.75)}| \\
 \verb|+     line = {line from (0.0,0.0) to [(0.5*cos X, 0.5*sin X)]}| \\
-\verb|+     arc = {arc-arrow from (0.7,0.0) to [(0.3*cos X, 0.3*sin X)]}| \\
+\verb|+     arc = {arc arrow from (0.7,0.0) to [(0.3*cos X, 0.3*sin X)]}| \\
 \verb|+     theta = {Greek th}| \\
 \verb|+     value = {column (| \\
 \verb|+                overlap (| \\
 \verb|+                  [c],| \\
-\verb|+                  [x-axis] labeled `X Axis',| \\
-\verb|+                  [y-axis] labeled `Y Axis',| \\
+\verb|+                  [x axis] labeled `X Axis',| \\
+\verb|+                  [y axis] labeled `Y Axis',| \\
 \verb|+                  [line],| \\
 \verb|+                  [arc] labeled `[[theta]]' ),| \\
 \verb|+                label `Depiction of Angle [[theta]]' ) }| \\
@@ -1013,12 +1013,12 @@ for every board:
         `Allowed vessels have lengths 2 (destroyer), 3 (cruiser),
          5 (battleship).  vessels(L) is number of length L.'
         array vessels of size 5 with initial element 0
-        `maximum-vessels(L) is maximum number of vessels of
+        `maximum vessels(L) is maximum number of vessels of
          length L.'
-        array maximum-vessels of size 5 with initial element 0
-        maximum-vessels(2) = 5
-        maximum-vessels(3) = 2
-        maximum-vessels(5) = 1
+        array maximum vessels of size 5 with initial element 0
+        maximum vessels(2) = 5
+        maximum vessels(3) = 2
+        maximum vessels(5) = 1
         `state(I,J) is `none', `miss', or `hit' iff shell has not
          struck square (I,J), struck square (I,J) but that square
          had no ship, or struck square (I,J) and hit a ship at
@@ -1083,7 +1083,7 @@ for every vessel:
             TBD
         if L < 2 or L > 5:
             value = error `bad length [L]'
-        else if maximum-vessels(L) of B >= vessels(L) of B:
+        else if maximum vessels(L) of B >= vessels(L) of B:
             value = error `two many vessels of length [L]
                            on board [B]'
         else:
@@ -1515,6 +1515,7 @@ The format of a \key{raw representation} is:
 \\\hspace*{0.5in}
 {\em number} lexeme (\pagref{NUMBER-LEXEME})
 				 containing only digits and commas
+\label{NATURAL-NUMBER}
 \end{tabular}%
 
 \begin{tabular}{l}
@@ -2709,6 +2710,7 @@ The syntax of bracket definitions is:
 	{\em opening-bracket-name}
 	\verb|...|
 	{\em closing-bracket-name}
+\label{BRACKET-NAME}
 	\\[1ex]
 \key{opening-bracket-name} ::= {\em name} \\[1ex]
 \key{closing-bracket-name} ::= {\em name} \\[1ex]
@@ -2808,6 +2810,8 @@ whose syntax is:
 	    \\[1ex]
 \key{indentation-mark-name} ::=
 	{\em mark-name} $|$ {\em gluing-indicator} {\em mark-name}
+\label{INDENTATION-MARK-NAME}
+	\\[1ex]
 \key{mark-name} ::= {\em mark} $|$ {\em quoted-string}
 	\\[1ex]
 \key{gluing-indicator} ::= \verb|*|
@@ -3981,12 +3985,20 @@ The syntax of operator definitions is:
 	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
-\key{operator-name} ::= {\em name}
-	\\[1ex]
+\key{operator-name} \begin{tabular}[t]{rl}
+		    ::= & {\em simple-operator-name} \\
+		    $|$ & \verb|bracket| {\em bracket-name} \\
+		    $|$ & \verb|indentation mark| {\em indentation-mark-name}
+		    \end{tabular}
+		    \\[1ex]
+{\em simple-operator-name} ::= {\em name}  [see \pagref{NAME}] \\[1ex]
+{\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
+{\em indentatio-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
 \key{operator-flag} ::= \ttmkey{prefix}{operator flag}
                     $|$ \ttmkey{infix}{operator flag}
                     $|$ \ttmkey{postfix}{operator flag}
                     $|$ \ttmkey{nofix}{operator flag}
+                    $|$ \ttmkey{afix}{operator flag}
 	\\[1ex]
 \key{precedence} ::= {\em sign-option} {\em decimal-integer}
 	\\[1ex]
@@ -3999,15 +4011,23 @@ The syntax of operator definitions is:
 \key{name} ::= see \pagref{NAME}
 \end{indpar}
 
-The {\em operator-name} is matched to lexemes in a subexpression
+A {\em simple-operator-name} is matched to lexemes in a subexpression
 in order to identify occurences of the operator.
+The other forms of {\em operator-name} permit explicit subexpressions
+with particular kinds of brackets to be parsed as if they were operators.
+Thus in `\verb|x[5]=0|' the explicit subexpression
+`\verb|[5]|' can be a postfix operator.  A subexpression
+bracketed by `\verb|{ }|' is used as an afix (see below) to the
+\verb|<--| operator (as is a subexpression introduced by the `\verb|:|'
+indentation mark).
+
 By abuse of language, the term `\key{operator}' is often used
 as a synonym for `{\em operator-name}'.
 
 Operators can have \skey{operator flag}s that
 affect parsing of subexpressions of the operator.  The possible
 flags are `{\tt infix}', `{\tt prefix}', `{\tt postfix}',
-and `{\tt nofix}'.  By default an operator is `{\tt nofix}'.
+`{\tt nofix}', and `{\tt afix}'.  By default an operator is `{\tt nofix}'.
 
 An \ttkey{infix} operator must be between two non-empty operands,
 while a \ttkey{prefix} operator must precede a non-empty operand,
@@ -4017,24 +4037,41 @@ A \ttkey{nofix} operator is like an infix operator but may have
 empty operands.  It may appear at the beginning or ending of
 an expression, or two nofix operators may be consecutive.
 
-Inside an expression, an operator that can be prefix if it
-begins an expression,
-follows an opening bracket, or or follows another operator that is not
-postfix.  An operator can be postfix if it ends an
-expression, precedes a closing bracket, or
-precedes another operator that is not prefix.  
-An operator can be infix if it does not begin an expression,
-follow an opening bracket, follow an operator that is prefix,
-precede an expression end, 
-precede a closing bracket, or precede an operator that is postfix.
+An \ttkey{afix} operator is like a nofix operator but must follow
+another non-afix operator in the expression that has the same
+precedence.  Explicit subexpressions bracketed by `\verb|{ }|'
+are standard afix operators with the same precedence
+as the \verb|<--| operator, so that an expression such as:
+\begin{center}
+\verb|sum from X through Y <-- integer X, integer Y { ... }|
+\end{center}
+parse as
+\begin{center}
+\verb|(sum from X through Y) <-- (integer X, integer Y) { ... }|
+\end{center}
+and \underline{not} as
+\begin{center}
+\verb|(sum from X through Y) <-- (integer X, integer Y { ... })|
+\end{center}
 
-A nofix operator cannot be infix, prefix, or postfix, and a postfix
-operator cannot be infix.  An operator may be only nofix, only infix,
+Inside a subexpression (with brackets removed),
+an operator that can be prefix if it begins the subexpression,
+or follows another operator that is not postfix.
+An operator can be postfix if it ends the
+subexpression or precedes another operator that is not prefix.  
+An operator can be infix if it does not begin or end the subexpression,
+follow an operator that is prefix,
+or precede an operator that is postfix.
+
+A nofix operator cannot be infix, prefix, postfix or afix.
+An afix operator cannot be infix, prefix, postfix or nofix.
+A postfix operator cannot be infix.
+Thus an operator may be only nofix, only afix, only infix,
 only prefix, only postfix, prefix and postfix, or prefix and infix.
 An operator that can be prefix
-and either postfix or infix is taken to be prefix if and only if it follows
-an expression beginning, an opening bracket, or an operator previously
-determined in a left-to-right scan to be prefix, infix, or nofix.
+and either postfix or infix is taken to be prefix if and only if it begins
+a subexpression or follows an operator previously
+determined in a left-to-right scan to be prefix, infix, nofix, or afix.
 
 The {\em precedence} of an operator is an integer.  Precedence is used to
 determine which operators are inside and outside implicit brackets.
@@ -4043,17 +4080,28 @@ implicit brackets that surround operands of operators of lower precedence.
 
 The precedence
 in an operator definition applies only to the operator when it is used
-as an infix or nofix operator; prefix and postfix operators are always
-treated as having precedence higher than any infix or nofix operator.
+as an infix, nofix, or afix operator; prefix and postfix operators are always
+treated as having precedence higher than any infix, nofix, or afix operator.
 If several prefix and postfix operators apply to a single operand,
-the prefix operators are all inside the implicit brackets surrounding
-the postfix operator operands (i.e., the prefix operators are
-`executed first').
+the postfix operators are all inside the implicit brackets surrounding
+the prefix operator operands (i.e., the postfix operators are
+`executed first').  Thus `\verb|-x[1]|' is equivalent to `\verb|-(x[1])|'
+(where `\verb|[1]|' is treated as a postfix operator).
 
 The {\em reformatter-name} in an {\em operator-definition} names a
 function that is called after all other parsing has been done to
-reformat a subexpression whose first operator is the defined operator
-(\pagref{OPERATOR-REFORMATTING}).
+reformat a subexpression whose first operator is the defined operator.
+For example, given the expression `\verb|-x+6*y|', the subexpression
+`\verb|6*y|' is extracted, and as its first operator is `\verb|*|',
+the reformatter for that operator is called and yeilds `\verb|* 6 y|'.
+Similarly the subexpression `\verb|-x|' is extracted but the reformatter
+for `\verb|-|' does not change it.
+Then the reformatter for `\verb|+|' is called
+with `\verb|(-x)+(* 6 y)|', since `\verb|+|' is the first operator in
+this subexpression \underline{after} subexpressions have been handled.
+This reformatter returns `\verb|+ (-x) (* 6 y)|'.  Here we have
+use parentheses \verb|( )| to indicate implicit parentheses.
+
 
 \subsection{Standard Operators}
 \label{STANDARD-OPERATORS}
@@ -4062,146 +4110,199 @@ The following are the standard operators
 
 \begin{center}
 
-\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
 
-precedence & rerformatter	& type	& operators	& meaning 
+precedence & rerformatter	& type	& operator	& meaning 
 \\[2ex]
-+0000	& \ttkey{assign}	& \tt nofix	& \ttkey{=}	& assignment \\
-	&			&		& \ttkey{,}	& separator \\
-	&			&		& \ttnbkey{<--}	& define \\
-	&			& \tt infix	& \ttkey{\LEFTBRACKET}
+-1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
++0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
+	&			& \tt afix	& \ttkey{\LEFTBRACKET
+							 ... \RIGHTBRACKET}
 								& block \\
-+1000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
++1000	& \ttkey{assign}	& \tt infix	& \ttkey{=}	& assignment \\
+     	&               	&          	& \ttkey{+=}	& increment \\
+     	&               	&          	& \ttkey{-=}	& decrement \\
+     	&               	&          	& \ttkey{*=}	& multiply by \\
+     	&               	&          	& \ttkey{/=}	& divide by \\
++2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
++3000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
-	&			&		&  \ttkey{NOT}  & logical not \\
-+2000 	& \ttkey{compare}	& \tt nofix	&  \ttnbkey{==}	& equal \\
+	&			&		& \ttkey{NOT}  & logical not \\
++4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
 	&			&		& \ttnbkey{!=}	& ditto \\
 	&		      	&		& \ttnbkey{<}	& less than \\
 	&			&		& \ttnbkey{<=}	& less than or
 								  equal \\
 	&			&		& \ttnbkey{=<}	& ditto \\
-	&		      	&		& \ttnbkey{>}	& greater than \\
+	&		      	&		& \ttnbkey{>}	& greater than
+									\\
 	&			&		& \ttnbkey{>=}	& greater than
 								  or equal \\
 	&			&		& \ttnbkey{=>}	& ditto \\
-+3000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
++5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
 	&			&		& \ttnbkey{-}	& subtraction \\
-+3100	& \ttkey{product}	& \tt infix	&  \ttnbkey{*}
++5100	& \ttkey{product}	& \tt infix	&  \ttnbkey{*}
 							    & multiplication \\
 	&			&		& \ttnbkey{/}	& division \\
-+9999	& \ttkey{minus}		& \tt prefix	&  \ttnbkey{-}	& minus \\
-+9999	& \ttkey{plus}		& \tt prefix	&  \ttnbkey{+}	& plus \\
-+9999	& \ttkey{objname}	& \tt prefix	&  \ttnbkey{@}	& object name \\
+none	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
+	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
+	& 			& \tt prefix	&  \ttnbkey{@}	& object name \\
+none	& \ttkey{subscript}	& \tt postfix	&  \ttnbkey{[...]}
+								& subscript \\
 \end{tabular}
 
 \end{center}
 
 
-In describing effects, we use notation such as
+Below be describe the effects of standard operator reformatters.
+We use notation such as
 
 \begin{center}
-\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))|
+\verb|x = y = z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|= x ( = y (+ x w))|
 \end{center}
 
-Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
+Here $\Longrightarrow$ means `is reformatted as'.  Furthermore, the
 parentheses introduced by the rewrite are \underline{implied},
 which means that the lists they bracket have \underline{no}
 \verb|.initiator| or \verb|.terminator|, and the parentheses are
 merely written here to indicate sublists in the expression structure.
 
-\newpage
+Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
+are introduced by reformatting.  The syntax involving temporaries is:
+
+\begin{indpar}
+\key{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
+\key{temporary} ::= \verb|$| {\em natural-number} \\[1ex]
+\key{natural-number} ::= see \pagref{NATURAL-NUMBER}
+\end{indpar}
+
+During reformatting, a subexpression may be replaced by
+a {\em temporary-definition} containing the subexpression.  This
+assigns the {\em temporary} to the value of the subexpression.
+Then the {\em temporary} can be used later in the reformatted
+expression to refer to this value.  An example is
+
+\begin{center}
+\verb|x == y + 3 == z| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (== x ($563 (+ y 3))) (== ($563) z)|
+\end{center}
+
+Here the temporary has been used to avoid computing \verb|y + 3|
+more than once.
+
+The {\em natural-numbers} in {\em temporaries} are assigned so no
+two {\em temporary-definitions} ever have the same {\em temporary}.
+
+With this in mind, the reformatters are:
 
 \begin{indpar}[1em]
 
-\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
-\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
-\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
+\newcommand{\OP}[1]{\ttmkey{#1}{reformatting}}
+\newcommand{\NBOP}[1]{\ttmnbkey{#1}{reformatting}}
 
 \bigskip
 
-\ttmkey{sentence}{parser} \hfill
-	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
-
-\begin{indpar}[0.5em]
-Terminators may not be consecutive, may not begin an expression,
-and must end an expression.  Thus each between-terminator subexpression
-is non-empty and is followed by a terminator.
-Each between-terminator subexpression is converted if necessary
-to a list.  Then a \ttmkey{.terminator}{produced by parsing}
-attribute is added to this list whose value is the terminator following the
-subexpression.  If there is only one subexpression, the list it produces
-is the parse result.  Otherwise the result is the list of all the subexpression
-lists.
-\end{indpar}
-
-\bigskip
-
-
-\ttmkey{subsentence}{parser} \hfill
-	\key{subsentence separator}: \NBOP{;} \\
-\ttmkey{phrase}{parser} \hfill
-	\key{phrase separator}: \NBOP{,}
+\ttmkey{separator}{reformatter} \hfill \OP{;} ~~~ \OP{,}
 
 \begin{indpar}[0.5em]
 Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
-priority levels and different parsers, and so cannot appear together
-in the same expression.
+precendences, and so cannot appear together in the same expression.
 
 A list of all between-separator subexpressions is made, with empty
-between-separator subexpressions being represented by objects with
-no attributes.  There will be at least two subexpressions: one following
+between-separator subexpressions being represented by empty lists.
+There will be at least two subexpressions: one following
 the last separator and one preceding the first separator.
 The list of subexpressions is given a
 \ttmkey{.separator}{produced by parsing}
 attribute with value of the separator (\verb|";"| or \verb|","|),
-and is returned as the result of the parse.
+and is returned as the result of the reformatting.
+
+The standard bracket reformatters will merge the returned list with
+their brackets.  Thus given `\verb|(x,y)|', the `\verb|separator|'
+reformatter will return
+\begin{indpar}\begin{verbatim}
+@1 = \verb|x y { .separator = "," }|
+\end{verbatim}\end{indpar}
+so the input to the \verb|( )| reformatter will be
+\begin{indpar}\begin{verbatim}
+@2 = @1 { .initiator = "("; .terminator = ")" }
+@1 = \verb|x y { .separator = "," }|
+\end{verbatim}\end{indpar}
+and this reformatter will merge the two lists into one,
+returning
+\begin{indpar}\begin{verbatim}
+@3 = x y { .initiator = "("; .terminator = ")"; .separator = "," }
+\end{verbatim}\end{indpar}
+
 \end{indpar}
 
 \bigskip
 
-\ttmkey{assign}{parser} \hfill
-	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
+\ttmkey{define}{reformatter} \hfill \NBOP{<--} ~~~
+	\NBOP{\LEFTBRACKET \RIGHTBRACKET} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
-Assign operators may not be consecutive and may not begin or end an expression.
-The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
-may not be mixed in the same expression.
-The results are rewritten using the two-argument assignment function \verb|<-|,
-making multiple assignments from right to left.
 
-\begin{indpar}[0.5em]
-\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))| \\
-\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|<- x (<- y (+ x w))|
-\end{indpar}
+This just moves the \verb|<--| to the front of the expression:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x <-- y { z }| & $\Longrightarrow$ & \verb|<-- x y { z }| \\
+\verb|x <-- { z }| & $\Longrightarrow$ & \verb|<-- x { z }| \\
+\verb|x <--| & $\Longrightarrow$ & \verb|<-- x|
+\end{tabular}
+
+Indented subexpressions are parsed like final \verb|{ }|
+bracketted subexpressions.  Because they are afix operators with the
+same precedence as \verb|<--|,
+`\verb|x <-- y { z }|' does \underline{not}
+end up as `\verb|<-- x ( y { z } )|'.
+
+
 \end{indpar}
 
 \bigskip
 
-\ttmkey{logical}{parser} \hfill
-	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
+
+\ttmkey{assign}{reformatter} \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=}
+				           ~~~ \NBOP{*=} ~~~ \NBOP{/=}
 
 \begin{indpar}[0.5em]
-One expression cannot have both {\tt AND} and {\tt OR} operators
-outside explicitly bracketed subexpressions.  The {\tt NOT} operator
+If there is only one operator, it is simply moved to the front.  If there
+are several, they are rewritten as one operator subexpressions so the
+rightmost executes first.
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|y = z| & $\Longrightarrow$ & \verb|= y z| \\
+\verb|x = y = z| & $\Longrightarrow$ & \verb|= x (= y z)| \\
+\verb|x += y *= z| & $\Longrightarrow$ & \verb|+= x (*= y z)|
+\end{tabular}
+\end{indpar}
+
+\bigskip
+
+\ttmkey{logical}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{NOT}
+
+\begin{indpar}[0.5em]
+If there is only one operator and it is at the beginning of the subexpression,
+then the subexpression is not changed.
+
+Otherwise the expression cannot have both {\tt AND} and {\tt OR} operators,
+the {\tt NOT} operator
 can only occur at the beginning of an expression or just after {\tt AND}
-or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
+or {\tt OR}, and subexpressions cannot be empty, except for subexpressions
 before a {\tt NOT}, which must always be empty.
 
-The expression is rewritten using a multi-argument {\tt AND}
-or {\tt OR} function and a single argument {\tt NOT} function.
+In this case the expression is rewritten using a multi-argument {\tt AND}
+or {\tt OR} function and a single argument {\tt NOT} function:
 
-\begin{indpar}[0.5em]
-\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
-\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (NOT x) (NOT y) z w| \\
-\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
-\\\hspace*{1in}
-\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
-\end{indpar}
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|NOT x| & $\Longrightarrow$ & \verb|NOT x| \\
+\verb|NOT x OR NOT y OR z| & $\Longrightarrow$ & \verb|OR (NOT x) (NOT y) z| \\
+\verb|NOT x AND NOT y AND z AND w| & $\Longrightarrow$
+				   & \verb|AND (NOT x) (NOT y) z w|
+\end{tabular}
 
 Note that {\tt NOT} is not a classical prefix operator, which would have
 higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
@@ -4211,32 +4312,29 @@ explicit brackets.
 
 \bigskip
 
-\ttmkey{compare}{parser} \hfill
-	\skey{compare operator}s:
-	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
-	\NBOP{/=} ~ \NBOP{!=} ~
-	\NBOP{=>} ~ \NBOP{>=} ~
-	\NBOP{=<} ~ \NBOP{<=}
+\ttmkey{compare}{reformatter} \hfill
+	\NBOP{=} ~~~ \NBOP{<} ~~~ \NBOP{>} ~~~
+	\NBOP{/=} ~~~ \NBOP{!=} ~~~
+	\NBOP{=>} ~~~ \NBOP{>=} ~~~
+	\NBOP{=<} ~~~ \NBOP{<=}
 
 \begin{indpar}[0.5em]
-Subexpressions cannot be empty, and a compare operator may not
-begin or end an expression.
 The expression is rewritten using a multi-argument {\tt AND}
-function and two-argument compare functions.  Temporary variables
-(\secref{TEMPORARY-VARIABLES})
+function and two-argument compare functions.  Temporaries
+(\pagref{TEMPORARY})
 are used to name intermediate expression values to
 avoid recomputing arguments.
 
-\begin{indpar}[0.5em]
-\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z))| \\
-\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
-\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
-	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
-			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
-			  & \verb|(<= (.tmp 58) x)| \\
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x < y < z| & $\Longrightarrow$ &
+    \verb|AND (< x ($ 56 y)) (< ($ 56) z))| \\[1ex]
+\verb|w == x != y <= z| & $\Longrightarrow$
+             & \begin{tabular}[t]{@{}l@{~}l@{}}
+	       \verb|AND| & \verb|(== w ($ 57 x))| \\
+			  & \verb|(!= ($ 57) ($ 58 y))| \\
+			  & \verb|(<= ($ 58) z)| \\
 	       \end{tabular}
-\end{indpar}
+\end{tabular}
 
 Note that sequences of comparison operators are treated as they are
 in mathematics and not as they are in classical programming languages.
@@ -4246,39 +4344,46 @@ E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
 
 \bigskip
 
-\ttmkey{sum}{parser} \hfill
-	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
+\ttmkey{sum}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-}
 
 \begin{indpar}[0.5em]
-Addition operators may not be consecutive and may not end an expression.
 The results are rewritten using the multi-argument summation function \verb|+|
 and the unary negation function \verb|-|.
 
-\begin{indpar}[0.5em]
-\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
-\verb|+ (- x) y z (- w)|
-\end{indpar}
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x - y + z - w| & $\Longrightarrow$ & \verb|+ x (- y) z (- w)|
+\end{tabular}
 \end{indpar}
 
 \bigskip
 
-\ttmkey{product}{parser} \hfill
-	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
+\ttmkey{product}{reformatter} \hfill \NBOP{*} ~~~ \NBOP{/}
 
 \begin{indpar}[0.5em]
 The two different kinds of multiplication operators, \verb|*| and \verb|/|,
-cannot be mixed in the same expression.
-Multiplication operators may not be consecutive and may neither begin
-nor end an expression.  The division operator \verb|/| must have exactly
-two operands.  The results are rewritten using
+cannot be mixed in the same expression.  There may not be more than one
+\verb|/| operator in the expression.  The results are rewritten using
 the multi-argument multiplication function \verb|*| or the binary
 division function \verb|/|.  E.g.:
 
-\begin{indpar}[0.5em]
-\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
-\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x * y * z| & $\Longrightarrow$ & \verb|* x y z| \\
+\verb|x / y| & $\Longrightarrow$ & \verb|/ x y|
+\end{tabular}
 
 \end{indpar}
+
+\bigskip
+
+\ttmkey{subscript}{reformatter} \hfill \NBOP{[~...~]}
+
+\begin{indpar}[0.5em]
+The expression is rewritten using the binary subscript function:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x[y]| & $\Longrightarrow$ & \verb|subscript x y| \\
+\end{tabular}
+
 \end{indpar}
 
 
