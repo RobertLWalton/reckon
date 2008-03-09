@@ -278,7 +278,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 8, 2008}
+\date{March 9, 2008}
  
 \maketitle
 
@@ -3965,6 +3965,7 @@ parsing definition stack.  List separators, such as `\verb|,|', are treated
 as operators, and have operator definitions.
 
 \subsubsection{Operator Definitions}
+\label{OPERATOR-DEFINITION}
 
 An \key{operator definition} specifies for each operator the following:
 
@@ -4426,30 +4427,25 @@ and its definition is called the \key{lead operator definition}.
 This definition provides things like reformatters and evaluators when
 the output list is viewed as an expression.
 
-The helper function
-uses a suboperation known as \key{compacting the output list}.
-This changes the output list, but only if the list contains more than one
-item, or if the output list contains just a single lexeme that is a
-an operator (it must be nofix).  In this case
-the entire output list becomes an operand.  This operand is reformatted
-by the reformatter of its lead operator definition, if any.
-Then the evalutor of its lead operator definition, if any, is attached
-to the reformatted operand (if the reformatted operand is not itself a list
-and there is an evaluator, the reformatted operand is made into a list of
-one element).  Lastly, the output list is
-replaced by a list whose only element is the reformatted operand.
-Note that after compaction, the output list no longer contains
-any operators (i.e., operators outside implicit brackets).
+The helper function uses an operation called \key{reformatting the
+output list}.  This consists of calling the reformatter of the lead
+operator definition, and replacing the output list with the returned
+result.  If there is no lead operator, nothing is done.
 
+The helper function also
+uses a suboperation known as \key{compacting the output list}.
+If the list contains zero or just one element, nothing is done.  Otherwise
+the list is replaced by a one element list whose only element is
+the previous output list.
 
 After initializing its the output list to empty,
-the helper function executes a \key{parsing loop} repeats the following:
+the helper function executes a \key{parsing loop} that repeats the following:
 
 \begin{enumerate}
 
 \item The beginning of the input list is inspected to see if it
 begins with an current operator.  Afix operators are ignored.
-If more than one of current operator qualifies, the operator whose definition
+If more than one current operator qualifies, the operator whose definition
 is nearest the top of the parsing definition stack is selected.
 If the input list is empty, it does not begin with an operator.
 
@@ -4458,60 +4454,61 @@ and the list is not empty, the lexeme or subexpression at the
 beginning of the input list is moved to the end of the output list, and
 the parsing loop iterates.
 
-\item If the input list is not empty,
-the operator fixity is determined as follows:
+\item If the input list is not empty, it begins with an operator.
+The \mkey{operator fixity}{in parsing loop}
+and \mkey{operator precedence}{in parsing loop} are determined as follows:
 
 \begin{enumerate}
 
-\item If the output list is empty, the operator fixity is
-either prefix if the operator has the prefix flag or nofix if it has the
-nofix flag (it cannot have both flags).
-
-\item If the output list is non-empty and the operator does not have
-the postfix flag, the operator fixity is
-either infix if the operator has the infix flag or nofix if it has the
-nofix flag (it cannot have both flags).
-
-\item If the output list is non-empty and the operator has the postfix
-flag, the operator fixity is postfix.
-
-\end{enumerate}
-
-\item If the input list is not empty,
-the operator precedence is determined by the operator
-definition if the operator has been determined to be infix
-or nofix, and is otherwise the error precedence if the operator is an error
-nofix operator, the prefix precedence if the operator was determined to
-be prefix, or the postfix precedence if the operator was determined to be
-postfix.
-
-\item
-The output list is compacted.
-
-\item If the input list is empty, or if
-a terminating precedence argument was given, the operator fixity is
-not prefix, and the operator precedence
-is equal to or less than the terminating precedence argument,
-the parsing loop terminates
-\underline{without} removing anything from the input list.
+\item If the output list is empty, and the operator can be prefix
+or nofix, the operator fixity is prefix if the operator can be prefix,
+or nofix otherwise.
 
 \item If the output list is empty
-and the operator cannot be nofix or prefix, then an error operand
-is inserted into the output list, and a parsing error is announced.
+and the operator cannot be prefix or nofix, then an error operand
+is inserted into the output list, a parsing error is announced, and
+the operator fixity is determined by the following.
 
 \item If the output list is non-empty
 and the operator cannot be nofix, infix, or postfix,
 then an error nofix operator is inserted at the \underline{beginning}
 of the \underline{input list}, a parsing error is announced, and
-the parsing loop repeats (permitting the error operator to be a
-terminating operator).
+the parsing loop is iterated (so the error nofix operator will become
+the current operator).
+
+\item If the output list is non-empty and the operator can be postfix,
+infix, or nofix, the operator fixity is postfix if the operator can
+be postfix, infix if the operator can be infix, or nofix if the operator
+can be nofix.
+
+\item The operator precedence is set to the precedence
+in the operator definition if the operator fixity
+is infix or nofix,
+and is otherwise the error precedence if the operator is an error
+nofix operator, the prefix precedence if the operator fixity is
+prefix, or the postfix precedence if the operator fixity is
+postfix.
+
+\end{enumerate}
+
+\item If the input list is empty, or if
+a terminating precedence argument was given, the operator fixity is
+not prefix, and the operator precedence
+is equal to or less than the terminating precedence argument,
+the parsing loop and helper function terminate.
+Nothing is removed from the input list.  The output list is reformatted
+and returned as the value of the helper function.
+
+\item The output list is reformatted and compacted (becoming the
+first operand of the current operator that is infix or nofix).
 
 \item The operator is removed from the input list and copied
-to the output list.  If the output list does not have a lead operator,
-the operator is made the lead operator of the output list.
+to the output list.  The operator will be the first
+operator in the output list, and therefore
+becomes the lead operator of the output list.
 
 \item
-If the operator is prefix, infix, or nofix, then a
+If the current operator fixity is prefix, infix, or nofix, then a
 \key{parsing subloop} that repeats the following is executed:
 
 \begin{enumerate}
@@ -4528,26 +4525,20 @@ it is added by concatenation to the end of the output list.
 If it contains more than one element, it is pushed as a single
 element to the end of the output list.
 
-\item If the operator fixity was prefix, or if
-the input list now begins with a current operator that is TBD,
-the parsing subloop terminates.
+\item If the operator fixity is prefix, or if
+the input list now begins with a current operator that cannot be
+infix, nofix, or afix, or that has a precedence below the current
+operator precedence,
+the parsing subloop terminates and the parsing loop iterates.
 
-\item The input list must now begin with a current operator whose
-precedence equals the operator precedence.  That operator is moved
-from the input list to the output list and the parsing subloop repeats.
-
-\end{enumerate}
-
-\item When the parsing subloop ends (or if it is never executed),
-if the operator definition has a reformatter, that is applied to reformat
-the output list.
+\item The input list must now begin with an infix, nofix, or
+afix current operator whose precedence equals the operator precedence.
+That operator is moved from the input list to the output list,
+and the parsing subloop iterates.
 
 \end{enumerate}
 
-When the parsing loop terminates, the input and output lists are
-returned to the caller of the parser as the remaining lexeme list and 
-the parsed expression, respectively.
-
+\end{enumerate}
 
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
