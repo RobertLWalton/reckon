@@ -278,7 +278,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 9, 2008}
+\date{March 10, 2008}
  
 \maketitle
 
@@ -4815,9 +4815,10 @@ phrases if it has any phrase separators, and
 \label{EXPRESSION-EVALUATION}
 
 An expression is evaluated by first searching for an expression definition
-that matches the expression.  Expression definitions also have guards, which
-are expressions that must evaluate to true in order for the expression
-definition match to succeed.
+that matches the expression.  Expression definitions have patterns that
+are matched to the expression.  An expression definition may also have
+guards, which are expressions that must evaluate to true in order for
+the expression definition match to succeed.
 An expression definition may have an expression block
 that executes in order to produce a value for the expression if the definition
 matches.  If a matching
@@ -4828,56 +4829,40 @@ expression, the expression evaluates to `\ttkey{false}'.
 Expression definitions are searched for in a context, which is a list
 of expression definitions and pointers to other contexts.
 Each point in the program has a lexical context, which is used by default
-for expression evaluation.  There is also a global context to which
-definitions may be added or from which they may be deleted.
+for expression evaluation. 
 The block of an expression definition usually evaluates expressions in the
 lexical context of its expression definition,
 but may evaluate expressions in the lexical context of the expression being
-evaluated by the expression definition.
+evaluated by the expression definition.  In addition, there may be other
+contexts in which expressions may be evaluated that effectively implement
+either data bases or alternative programming languages.
 
-When an expression definition is found that matches an expression, a
-copy of the expression definition is made, and a part of this copy called
-the pattern is unified with the matched expression.  This unification defines
-variables in the expression definition and null nodes in the matched
-expression that are values of variables outside the expression definition.
-Expression definition variables that receive no value in this way,
-but which have default values, are given the default values.
-However, values received from unification may be incomplete, in that they
-may be expressions which include null nodes that represent unknown values
-of other variables.
-When the guards of the expression definition
-are matched in turn with other expression
-definitions, and unified with patterns in copies of these matched definitions,
-the incomplete values may become complete.  For this reason,
-matching of guards with definitions and unification of guards
-is done as much as possible before any blocks are evaluated.
+When an expression definition is found whose pattern matches an expression,
+a set of constraint equations are extablished that must be statisfied to
+complete the match.  There are two kinds of constraint equations: syntax
+equations, and guards.  Syntax equations involve syntactic
+variables, which are names beginning with a capital letter or with
+a \verb|$|.  Guards are just expressions that must evaluate to
+\verb|true| in order for the match to complete.  The syntax equations
+are solved during the matching process, to produce values for the
+syntactic variables.  If the syntax equations are inconsistent and
+cannot be solved, the match fails.  Evaluation of the guards in a definition
+may result
+in additional matches which generate more syntax equations that
+involve the syntactic variables in the guarded definition.
 
-The expression being evaluated may also have null nodes that represent
-unknown values of variables.  During evaluation
-these null nodes may be unified with patterns in expression definitions,
-and cease to become null nodes.  This process is known as
-`\key{completing the expression}' being evaluated.  An expression with
-no null nodes is said to be \mkey{complete}{expression}, whereas
-an expression with null nodes is said to be \mkey{incomplete}{expression}.
+The matching process must consider all possible choices of which definitions
+to match to an expression being evaluated.  If all choices fail, the
+expression evaluates to \verb|false|.  If only one choice succeeds, that
+choice is used to evaluate the expression.  If several choices succeed,
+the situation becomes ambiguous, and the evaluation proceeds according
+to the evaluator operating mode, as is described below.
 
-After an expression definition pattern is unified with an
-expression the definition matches, and after default values are assigned,
-some variable values are evaluated and replaced by their evaluated values.
-These variables are called evaluated variables, and typically have names
-beginning with a capital letter, whereas other variables are
-called unevaluated variables, and typically have names beginning with
-`\verb|#|' followed by a capital letter.  Evaluation of evaluated variable
-values happens before guard expressions are matched to definitions,
-so guard expressions see only the evaluated value of evaluated variables.
-The values which are evaluated in this manner must not be incomplete,
-and their evaluation must have no visible side effects.
-
-After all guards are matched with definitions and unified,
-blocks are evaluated, beginning with any blocks in the definitions matched
-to guards.  If any of these guard blocks fails to produce the value true,
-the expression definition match fails, and the search for other matching
-definitions continues.
-Evaluations of guard blocks are required to have no visible side effects.
+A definition may have default values for a syntactic variable.  If
+the matching process fails to provide a value for the variable, the
+default value will be supplied.  In effect the definition is 
+a set of different definitions, one for each possible substitution of
+default values for their corresponding syntactic variables.
 
 \subsection{Expression Definitions}
 \label{EXPRESSION-DEFINITION}
