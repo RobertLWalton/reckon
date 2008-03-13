@@ -278,7 +278,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 10, 2008}
+\date{March 12, 2008}
  
 \maketitle
 
@@ -4838,7 +4838,7 @@ contexts in which expressions may be evaluated that effectively implement
 either data bases or alternative programming languages.
 
 When an expression definition is found whose pattern matches an expression,
-a set of constraint equations are extablished that must be statisfied to
+a set of constraint equations are established that must be statisfied to
 complete the match.  There are two kinds of constraint equations: syntax
 equations, and guards.  Syntax equations involve syntactic
 variables, which are names beginning with a capital letter or with
@@ -4864,22 +4864,99 @@ default value will be supplied.  In effect the definition is
 a set of different definitions, one for each possible substitution of
 default values for their corresponding syntactic variables.
 
+There are two kinds of syntactic variable.  Those beginning with a
+\verb|$| are set equal to some unevaluated expression, and are called
+unevaluated variables.  Those beginning with
+a capital letter are set equal to the value of an expression,
+and are called evaluated variables.  For example, if `\verb|foo(2+2)|'
+is matched to the pattern `\verb|foo($x)|', then \verb|$x :=: 2+2|,
+but if it is matched to the pattern `\verb|foo(X)|', then \verb|X :=: 4|,
+where \verb|:=:| means `is syntactically equal to'.
+
+Except for choices of which definitions to match to which expressions,
+the entire matching process is monotonic.  This means the order of
+matching operations, guard evaluations, and evaluated variable expression
+evaluations does not matter.
+
+In order to make the matching process monotonic, pattern matching must
+be monotonic.  This means that if undefined syntactic variables in a matched
+pattern are given arbirary values later, the pattern match
+must still be valid.
+
+Similarly guard evaluations must not have side effects.  In other
+words, evaluating a guard cannot affect any future valuations.
+Side effects can only occur during block execution, so any blocks
+executed during the matching process must not have side effects.
+
+Lastly, expressions assigned to evaluated syntactic variables
+must be evaluated monotonically in order to give these variables values.
+In order to ensure this, these expressions are not evaluated until
+all syntactic variables they contain have been given values, so that
+the expression to be evaluated does not contain any undefined syntactic
+variables.  Furthermore, evaluation of these expressions may not have
+side effects.  Again this last means that any blocks executed during
+these evaluations must not have side effects.  If an evaluated variable
+is assigned an expression containing a syntactic variable that never
+becomes defined, then the entire matching process fails, just as it
+would if a guard evaluated to false.
+
 \subsection{Expression Definitions}
 \label{EXPRESSION-DEFINITION}
 
 \ikey{Expression definitions}{expression definition} have the syntax:
 
 \begin{indpar}
-\key{EXPRESSION-DEFINITION} ::=
+\key{expression-definition} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
-\key{pattern} ::= {\em EXPRESSION} \\[1ex]
+\key{pattern} ::= {\em pattern-term-option}
+		  \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$
+		  \\[1ex]
+\key{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
+\key{pattern-term} \begin{tabular}[t]{rl}
+            ::= & {\em expression} \\
+            ::= & {\em expression} \ttmkey{?}{in pattern} \\
+            ::= & {\em expression} \ttmkey{...}{in pattern} \\
+            ::= & {\em expression} \ttmkey{...?}{in pattern} \\
+	    \end{tabular} \\[1ex]
 \key{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
 \key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
-\key{guard} ::= {\em EXPRESSION} \\[1ex]
+\key{guard} ::= {\em expression} \\[1ex]
 \key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\key{block} ::= \verb|{| {\em statement}
-                         \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
+\key{block} \begin{tabular}[t]{rl}
+            ::= & \verb|{| {\em block-header}$^\star$ {\em statement}
+                           \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}| \\
+	    $|$ & indented-subexpression introduced by the marker `\verb|* :|'
+	    \end{tabular} \\[1ex]
+\key{block-header} \begin{tabular}[t]{rl}
+            ::= & \ttkey{default}
+	    	\verb|{| {\em default-equation}
+		\{ \verb|;| {\em default-equation} \}$^\star$ \verb|}| \\
+	    $|$ & \ttkey{constraint}
+	    	\verb|{| {\em constraint-equation}
+		\{ \verb|;| {\em constraint-equation} \}$^\star$ \verb|}| \\
+	    \end{tabular} \\[1ex]
+\key{default-equation} ::= {\em syntactic-variable}
+		\ttmnbkey{:=:}{in {\em default-equation}}
+		{\em expression} \\[1ex]
+\key{constraint-equation} ::= {\em expression}
+		\ttmnbkey{:=:}{in {\em constraint-equation}}
+		{\em expression} \\[1ex]
+\key{expression} ::= {\em expression-element}$^\star$
+		     \\[1ex]
+\key{expression-element}
+    ::= {\em word} $|$ {\em mark} $|$ {\em number} $|$ {\em quoted-string}
+    	$|$ {\em subexpression} \\[1ex]
+\key{subexpression} \begin{tabular}[t]{rl}
+    ::= & {\em opening-bracket} {\em expression}
+          {\em closing-bracket } \\
+    $|$ & {\em opening-bracket} {\em expression}
+          \{ \verb|,| {\em expression} \}$^\star$
+          {\em closing-bracket } \\
+    $|$ & {\em opening-bracket} {\em expression}
+          \{ \verb|;| {\em expression} \}$^\star$
+          {\em closing-bracket } \\
+    \end{tabular}
 \end{indpar}%
 \label{PATTERN}
 
