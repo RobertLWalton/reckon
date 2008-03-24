@@ -278,7 +278,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 12, 2008}
+\date{March 24, 2008}
  
 \maketitle
 
@@ -1126,12 +1126,12 @@ contains in order the following lexemes:
 \begin{indpar}
 \key{lexeme}
 	::= {\em symbol} $|$ {\em number}
-	$|$ {\em separator}
 	\\[1ex]
 \key{symbol}
 	::= {\em word}
 	$|$ {\em mark}
 	$|$ {\em quoted-string}
+	$|$ {\em separator}
 \label{SYMBOL-LEXEME}
 	\\[1ex]
 \key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
@@ -1142,9 +1142,19 @@ contains in order the following lexemes:
 \key{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
 \key{separator} ::= {\em separator-character} \\[1ex]
-\key{name} ::= \{ {\em symbol} $|$ {\em number-lexeme} \}$^\star$
-               {\em symbol}
-               \{ {\em symbol} $|$ {\em number-lexeme} \}$^\star$
+\key{name} ::=
+	\begin{tabular}[t]{@{}l@{}}
+        \{ {\em non-special-symbol}
+	   $|$ {\em decimal-natural} \}$^\star$ \\
+        {\em non-special-symbol} \\
+        \{ {\em non-special-symbol} $|$ {\em decimal-natural} \}$^\star$
+        \end{tabular}
+\\[1ex]
+\key{non-special-symbol} ::= {\em symbol} that is \underline{not}
+				specially treated by the parser
+\\[1ex]
+\key{decimal-natural} ::= {\em number-lexeme} that contains only
+			{\em digits} and {\em commas}
 \\[1ex]
 \key{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
@@ -1356,39 +1366,38 @@ In order to indicate spacing, each lexeme is
 tagged with the column, line, and page number of its first character.
 This can be used to determine the indentation and extent of the lexeme.
 
-Words, marks, and quoted strings are called \skey{symbol}s,
-to distinguish them from separators and numbers.
-Unless specified otherwise, a unquoted symbol may be quoted without changing
-its meaning; i.e., \verb|fie| and \verb|*| mean the same thing
-as \verb|"fie"| and \verb|"*"|.  However, to be a symbol a separator
-or number must be quoted (e.g., \verb|","| and \verb|"5.9"|),
-and to protect a symbol from
-a special interpretation by a parser the symbol must be quoted
-(e.g., \verb|"+"| will not be recognized as an operator in a context
-in which \verb|+| would be).
+Words, marks, quoted strings, and separators are called \skey{symbol}s,
+to distinguish them from numbers.  Inside the computer symbols are
+stored as character strings, while numbers are stored as strings of binary
+digits.  When a number is input by the compute, stored, and then output,
+it may not be represented in output by the same sequence of characters
+as it was represented on input.  Thus the input \verb|007| may be output
+as \verb|7|.
+
+Symbols, however, are output in a manner more
+faithful to their input, though they can suffer differences
+related to quoting.
+An unquoted symbol is stored exactly as it is represented.
+A quoted symbol not containing \BACKSLASH{}
+is similarly stored.  An unquoted symbol not containing \BACKSLASH{}
+is stored exactly the same way as the same symbol surrounded by
+quotes.  Thus \verb|fie| and \verb|"fie"| store the same
+thing, as do \verb|+| and \verb|"+"|.
+
+However, some symbols are recognized and treated specially by the parser.
+These \skey{special-symbol}s must be quoted if you want to prevent such
+special recognition and treatment.  Thus in \verb|2 + 2| the \verb|+| is
+a {\em special-symbol}
+recognized by the parser as an operator, and the parser rewrites the expression
+as \verb|+ 2 2|.  But in \verb|2 "+" 2| the \verb|"+"| is not specially
+recognized and is not a {\em special-symbol}, and the parser does
+not rewrite the expression.
 
 A \emkey{name}\label{NAME} is
-a sequence of {\em symbols} and {\em number-lexemes} containing at least one
-{\em symbol}.  {\em Names} are used to name things, such
+a sequence of {\em non-special-symbols}
+and {\em decimal-naturals}  containing at least one
+{\em non-special-symbol}.  {\em Names} are used to name things, such
 as functions and variables.
-
-Names are sometimes matched to sequences
-of input lexemes.  When this is done, a quoted string in the name has
-one pair of \verb|"| quotes removed before the match.  Thus:
-
-\begin{center}
-\begin{tabular}{l@{~~~~~}l}
-When in		&	Matches the \\
-a Name:		&	Input Lexeme:
-\\[1ex]
-\tt hello	&	\tt hello \\
-\tt "hello"	&	\tt hello \\
-\tt "+"		&	\tt + \\
-\tt ","		&	\tt , \\
-\tt "\BACKSLASH"hello\BACKSLASH""
-		&	\tt "hello" \\
-\end{tabular}
-\end{center}
 
 \section{Data}
 
@@ -1507,15 +1516,15 @@ The format of a \key{raw representation} is:
 
 \begin{tabular}{l}
 \emkey{object-name} ::=
-	\ttmnbkey{@}{in {\em object-name}} {\em natural-number}
+	\ttmnbkey{@}{in {\em object-name}} {\em decimal-natural}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{natural-number} ::=
+\emkey{decimal-natural} ::=
 \\\hspace*{0.5in}
 {\em number} lexeme (\pagref{NUMBER-LEXEME})
 				 containing only digits and commas
-\label{NATURAL-NUMBER}
+\label{DECIMAL-NATURAL}
 \end{tabular}%
 
 \begin{tabular}{l}
@@ -1523,9 +1532,16 @@ The format of a \key{raw representation} is:
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
-	$|$ & \underline{\LEFTBRACKET}
+	$|$ & \underline{\LEFTBRACKET\BAR}
 	      {\em raw-attribute-representation-list}
-	      \underline{\RIGHTBRACKET}
+	      \underline{\BAR\RIGHTBRACKET} \\
+	$|$ & \begin{tabular}[t]{@{}l@{}}
+	      \underline{:\BAR}{\em -indentation-mark} \\
+	      ~~~~{\em raw-attribute-representation} \\
+	      ~~~~\{ {\em indentation-separator}
+	         {\em raw-attribute-representation} \}$^\star$ \\
+	      {\em indentation-end}
+	      \end{tabular}
 	\end{tabular}
 \end{tabular}
 
@@ -1609,28 +1625,28 @@ The format of a \key{raw representation} is:
 
 \end{indpar}
 
-This syntax uses \verb|{ }| brackets and \verb|;| separators, but
-these can be replaced by indentation and the \verb|:| mark according
+This syntax uses \verb/{|  |}/ brackets and \verb|;| separators, but
+these can be replaced by indentation and the \verb/:|/ mark according
 to a general rule given in \secref{INDENTATION-EQUIVALENCE-RULE}.  Roughly,
-everything is indented appropriately so the \verb|{|, \verb|;|,
-and \verb|}| separators are all at line ends, and then the \verb|{|'s
-are replaced by \verb|:|'s and the \verb|;|'s and \verb|}|'s are
-deleted.  A \verb|:| can be glued to a previous mark, i.e.,
-\verb|= {| can be replaced by \verb|=:|.  For example,
+everything is indented appropriately so the \verb/{|/, \verb|;|,
+and \verb/|}/ separators are all at line ends, and then the \verb/{|/'s
+are replaced by \verb/:|/'s and the \verb|;|'s and \verb/|}/'s are
+deleted.  A \verb/:|/ can be glued to a previous mark, i.e.,
+\verb/=  :|/ can be replaced by \verb/=:|/.  For example,
 
 \begin{indpar}\begin{verbatim}
-@1 = { type = woman; name = Jill; husband = @2 wife };
-@2 = { type = man; name = Jack }
+@1 = {| type = woman; name = Jill; husband = @2 wife |};
+@2 = {| type = man; name = Jack |}
 \end{verbatim}\end{indpar}
 
 becomes
 
 \begin{indpar}\begin{verbatim}
-@1 =:
+@1 =:|
     type = woman
     name = Jill
     husband = @2 wife
-@2 =:
+@2 =:|
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -4178,8 +4194,8 @@ are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
 \key{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
-\key{temporary} ::= \verb|$| {\em natural-number} \\[1ex]
-\key{natural-number} ::= see \pagref{NATURAL-NUMBER}
+\key{temporary} ::= \verb|$| {\em decimal-natural} \\[1ex]
+\key{decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
 \end{indpar}
 
 During reformatting, a subexpression may be replaced by
@@ -4196,7 +4212,7 @@ expression to refer to this value.  An example is
 Here the temporary has been used to avoid computing \verb|y + 3|
 more than once.
 
-The {\em natural-numbers} in {\em temporaries} are assigned so no
+The {\em decimal-naturals} in {\em temporaries} are assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
 With this in mind, the reformatters are:
