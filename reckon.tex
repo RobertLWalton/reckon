@@ -90,13 +90,9 @@
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttbkey}[1]{{\tt \bf [#1]}\index{#1@{\tt [#1]}}}
-\newcommand{\ttnbbkey}[1]{{\tt [#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
-\newcommand{\ttnbflagkey}[1]{{\tt #1} {\bf flag}\index{#1 flag@{\tt #1}-flag}}
-\newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
-\newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttdkey}[1]{{\tt \bf .#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttnbdkey}[1]{{\tt .#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
@@ -278,7 +274,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 24, 2008}
+\date{March 29, 2008}
  
 \maketitle
 
@@ -1372,20 +1368,22 @@ stored as character strings, while numbers are stored as strings of binary
 digits.  When a number is input by the compute, stored, and then output,
 it may not be represented in output by the same sequence of characters
 as it was represented on input.  Thus the input \verb|007| may be output
-as \verb|7|.
+as \verb|7| and the input \verb|7.0| may also be output as \verb|7|.
 
 Symbols, however, are output in a manner more
-faithful to their input, though they can suffer differences
+faithful to their input, though they can have differences
 related to quoting.
 An unquoted symbol is stored exactly as it is represented.
 A quoted symbol not containing \BACKSLASH{}
-is similarly stored.  An unquoted symbol not containing \BACKSLASH{}
-is stored exactly the same way as the same symbol surrounded by
-quotes.  Thus \verb|fie| and \verb|"fie"| store the same
+is similarly stored.  Thus an unquoted symbol not containing \BACKSLASH{}
+is stored in exactly the same way as the same symbol surrounded by
+quotes.  For example, \verb|fie| and \verb|"fie"| store the same
 thing, as do \verb|+| and \verb|"+"|.
 
 However, some symbols are recognized and treated specially by the parser.
-These \skey{special-symbol}s must be quoted if you want to prevent such
+These \skey{special-symbol}s
+\label{SPECIAL-SYMBOL}
+must be quoted if you want to prevent such
 special recognition and treatment.  Thus in \verb|2 + 2| the \verb|+| is
 a {\em special-symbol}
 recognized by the parser as an operator, and the parser rewrites the expression
@@ -1396,12 +1394,16 @@ not rewrite the expression.
 A \emkey{name}\label{NAME} is
 a sequence of {\em non-special-symbols}
 and {\em decimal-naturals}  containing at least one
-{\em non-special-symbol}.  {\em Names} are used to name things, such
+{\em non-special-symbol}.  {\em Decimal-naturals}
+(\pagref{DECIMAL-NATURAL})
+are sequences of digits and commas denoting natural numbers
+(i.e., non-negative integers).
+{\em Names} are used to name things, such
 as functions and variables.
 
 \section{Data}
 
-A \key{datum} in MIN is either an atom, an object, or an arrow.
+A \key{datum} in CASTLE is either an atom, an object, or an arrow.
 
 An \key{atom} is a symbol or a number.
 
@@ -1532,8 +1534,11 @@ The format of a \key{raw representation} is:
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
+        $|$ &  \\
+	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
 	$|$ & \underline{\LEFTBRACKET\BAR}
-	      {\em raw-attribute-representation-list}
+	      {\em raw-attribute-representation}
+	      \{ \verb|;| {\em raw-attribute-representation} \}$^\star$
 	      \underline{\BAR\RIGHTBRACKET} \\
 	$|$ & \begin{tabular}[t]{@{}l@{}}
 	      \underline{:\BAR}{\em -indentation-mark} \\
@@ -1544,17 +1549,6 @@ The format of a \key{raw representation} is:
 	      \end{tabular}
 	\end{tabular}
 \end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-attribute-representation-list}
-\\\hspace*{0.5in}
-	\begin{tabular}[t]{rl}
-        ::= & {\em empty} \\
-	$|$ & {\em raw-attribute-representation}
-	      \{ \verb|;| {\em raw-attribute-representation} \}$^\star$
-	\end{tabular}
-\end{tabular}
-
 
 \begin{tabular}{l}
 \emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
@@ -1602,7 +1596,7 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{non-special-symbol} ::= see text
+\emkey{non-special-symbol} ::= see \pagref{SPECIAL-SYMBOL}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1626,7 +1620,7 @@ The format of a \key{raw representation} is:
 \end{indpar}
 
 This syntax uses \verb/{|  |}/ brackets and \verb|;| separators, but
-these can be replaced by indentation and the \verb/:|/ mark according
+these can be replaced by indentation using the \verb/:|/ mark according
 to a general rule given in \secref{INDENTATION-EQUIVALENCE-RULE}.  Roughly,
 everything is indented appropriately so the \verb/{|/, \verb|;|,
 and \verb/|}/ separators are all at line ends, and then the \verb/{|/'s
@@ -1716,8 +1710,9 @@ the numbers are output, they may or may not have commas.  Thus the number
 not true of symbols, so it would not be true of the symbol \verb|"1,000"|,
 which would be \verb|1,000| on output.
 
-Similarly quoted separators and separators are distinct.  \verb|";"|
-is a symbol and \verb|;| is a separator.
+Note lastly that the \verb/{| |}/ brackets, which are used in object
+representation, are distinct from the \verb|{ }| brackets, which are
+used to bracket executable code.
 
 It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters in \verb|[ ]| brackets after a label.
@@ -1727,11 +1722,11 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@1 =:|\\
+\verb/@1 =:|/\\
 \verb|    type = woman|\\
 \verb|    name["-"] = Jill|\\
 \verb|    husband["*"] = @2 wife["*"]|\\
-\verb|@2 =:|\\
+\verb/@2 =:|/\\
 \verb|    type = man|\\
 \verb|    name["+"] = Jack|\\
 \end{tabular}
@@ -1775,7 +1770,7 @@ attributes labeled \verb|child|, is:
 \begin{center}
 \begin{tabular}{l@{\hspace*{1in}}l}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@1 =:|\\
+\verb/@1 =:|/\\
 \verb|    child = @2 parent|\\
 \verb|    child = @3 parent|\\
 \end{tabular}
@@ -1807,10 +1802,10 @@ The differences between \verb|=|, \verb|>|, and \verb|>>| in the
 {\em object-header} relate
 to what is done when an object or attribute label previously exists.
 Note that with the indentation convention, these become differences
-between \verb|=:|, \verb|>:|, and \verb|>>:|.
+between \verb/=:|/, \verb/>:|/, and \verb/>>:|/.
 
 \ttmnbkey{=}{in {\em object-header}}
-(or \ttmnbkey{=:}{in {\em object-header}})
+(or \ttmnbkey{=:|}{in {\em object-header}})
 indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
 {\em raw-object-representation} (it may have been defined as the value of an
@@ -1821,7 +1816,7 @@ the same flags as it already has.
 
 At the other extreme,
 \ttmnbkey{>>}{in {\em object-header}}
-(or \ttmnbkey{>>:}{in {\em object-header}})
+(or \ttmnbkey{>>:|}{in {\em object-header}})
 adds to existing objects.
 The object being represented can previously exist.  Any attribute
 representation in the object representation creates a new attribute value.
@@ -1829,7 +1824,7 @@ Any flags on an attribute label are added to the flags of the label if
 that label already exists.
 
 \ttmnbkey{>}{in {\em object-header}}
-(or \ttmnbkey{>:}{in {\em object-header}})
+(or \ttmnbkey{>:|}{in {\em object-header}})
 is like \verb|>>| (or \verb|>>:|)
 except that the object representation cannot
 add new values to previously existing attributes of the object represented.
@@ -1850,19 +1845,19 @@ thought of as the primary end, and its object representation is used to
 include the sole representation of the double attribute.
 
 The {\em object-name} \ttnbkey{@0} is special; it always names
-a particular object, the \ttkey{.GLOBAL} object,
+a particular object, the \ttnbdkey{GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
 object itself, a situation which can be achieved by the data representation:
 
 \begin{indpar}\begin{verbatim}
-@0>:
+@0>:|
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
 Labels beginning with `\ttkey{.}' are reserved for use by
-the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
-is an example of such a word.
+the CASTLE system, and should not be defined by CASTLE users.  {\tt .GLOBAL}
+is an example of such a label.
 
 The CASTLE parser (\secref{PARSING})
 parses\label{RAW-PARSING}
@@ -1893,6 +1888,16 @@ would standardly be turned into
 \end{center}
 since possessives are standardly separated and
 plural nouns are standardly replaced by singular nouns.
+Of course you can prevent this parser action by using \verb|"| quotes.
+Thus
+\begin{center}
+\verb|Mary's power = "people"|
+\end{center}
+is turned by the parse into
+\begin{center}
+\verb|Mary 's power = "people"|
+\end{center}
+That is, the unquoted lexemes may be replaced but not the quoted lexemes.
 
 \subsection{Lists}
 
@@ -1904,7 +1909,7 @@ then these values are said to form a \key{list} that is represented
 by the object.  An example is
 
 \begin{indpar}\begin{verbatim}
-@93 =:
+@93 =:|
     1 = this
     2 = is
     3 = a
@@ -1923,7 +1928,7 @@ and \verb|.initiator|.  An alternative {\em raw-object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
-@93 = this is a sentence:
+@93 = this is a sentence:|
     .terminator = "."
     .initiator = capital
 \end{verbatim}\end{indpar}
@@ -1932,7 +1937,7 @@ Any {\em single-attribute-values} following the {\em object-header}
 are assigned as values of the attributes labeled \verb|1|, \verb|2|,
 \verb|3|, \ldots.  Additional attribute values can be given by
 following these by \verb|:| and then by indented
-{\em raw-attribute-representations}, or \verb|{ }| bracketed and
+{\em raw-attribute-representations}, or \verb/{| |}/ bracketed and
 \verb|;| separated {\em raw-attribute-representations}.
 
 \subsection{Cooked Representations}
@@ -1983,7 +1988,7 @@ is the cooked representation of the object
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@93 =:|\\
+\verb/@93 =:|/\\
 \verb|    1 = this|\\
 \verb|    2 = is|\\
 \verb|    3 = a|\\
@@ -2028,19 +2033,19 @@ is the cooked representation of the objects
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb|@42 =:|\\
+\verb/@42 =:|/\\
 \verb|    1 = straight|\\
 \verb|    2 = 3.2|\\
-\verb|@43 =:|\\
+\verb/@43 =:|/\\
 \verb|    1 = "+"|\\
 \verb|    2 = y|\\
 \verb|    3 = 9.4|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb|@44 =:|\\
+\verb/@44 =:|/\\
 \verb|    1 = straight|\\
 \verb|    2 = @43|\\
-\verb|@45 =:|\\
+\verb/@45 =:|/\\
 \verb|    1 = @42|\\
 \verb|    2 = left|\\
 \verb|    3 = @44|\\
@@ -2112,6 +2117,10 @@ is the cooked representation of the objects
 \end{picture}
 \end{center}
 
+Note that here the \verb|{ }| brackets surround code and not
+{\em attribute-representations}.  They do \underline{not}
+play the same role as \verb/{|  |}/ backets.
+
 A third example uses multiple indented lines to represent code, so that
 
 \begin{indpar}\begin{verbatim}
@@ -2125,47 +2134,50 @@ A third example uses multiple indented lines to represent code, so that
 
 is the cooked representation of the object in
 Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
+Note that here the \verb|:| indentation mark is used to introduce
+code, and not {\em attribute-representations}, and does
+\underline{not} play the same role as the \verb/:|/ indentation mark.
 
 
 \begin{boxedfigure}
 
 \begin{center}
 \begin{tabular}[t]{@{}l@{}}
-\verb|@130 =:|\\
+\verb/@130 =:|/\\
 \verb|    1 = x|\\
 \verb|    2 = y|\\
 \verb|    .separator = ","|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb|@131 =:|\\
+\verb/@131 =:|/\\
 \verb|    1 = ">"|\\
 \verb|    2 = x|\\
 \verb|    3 = y|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb|@132 =:|\\
+\verb/@132 =:|/\\
 \verb|    1 = return|\\
 \verb|    2 = y|\\
 \verb|    .initiator = ":"|\\
-\verb|@133 =:|\\
+\verb/@133 =:|/\\
 \verb|    1 = if|\\
 \verb|    2 = @131|\\
 \verb|    3 = @132|\\
-\verb|@134 =:|\\
+\verb/@134 =:|/\\
 \verb|    1 = return|\\
 \verb|    2 = x|\\
 \verb|    .initiator = ":"|\\
-\verb|@135 =:|\\
+\verb/@135 =:|/\\
 \verb|    1 = else|\\
 \verb|    2 = @134|\\
-\verb|@136 =:|\\
+\verb/@136 =:|/\\
 \verb|    1 = @133|\\
 \verb|    2 = @135|\\
 \verb|    .initiator = ":"|\\
 \end{tabular}
 ~
 \begin{tabular}[t]{@{}l@{}}
-\verb|@137 =:|\\
+\verb/@137 =:|/\\
 \verb|    1 = function|\\
 \verb|    2 = @130|\\
 \verb|    3 = @136|\\[2ex]
@@ -2303,7 +2315,8 @@ Cooked representations may replace raw object names in the
 description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
-@291: text = `This is a sentence.'
+@291 =:|
+      text = `This is a sentence.'
       outline = { straight 3.2, left, straight (y + 9.4) }
       min = function (x,y):
 
@@ -2316,10 +2329,10 @@ description of other objects, as in
 which is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
-@291:
-    text: @93
-    outline: @45
-    min: @137
+@291 =:|
+    text = @93
+    outline = @45
+    min = @137
 \end{verbatim}\end{indpar}
 
 given the above examples.
@@ -2327,24 +2340,25 @@ given the above examples.
 One question left unanswered by the discussion so far is whether
 
 \begin{indpar}\begin{verbatim}
-@291: text A: This is a sentence.
-      text B: This is a sentence.
+@291 =:|
+    text A = `This is a sentence.'
+    text B = `This is a sentence.'
 \end{verbatim}\end{indpar}
 
 represents
 
 \begin{indpar}\begin{verbatim}
-@291:
-    text A: @93
-    text B: @93
+@291 =:|
+    text A = @93
+    text B = @93
 \end{verbatim}\end{indpar}
 
 or instead
 
 \begin{indpar}\begin{verbatim}
-@291:
-    text A: @93
-    text B: @999
+@291 =:|
+    text A = @93
+    text B = @999
 \end{verbatim}\end{indpar}
 
 where object \verb|@999| happens to have the same structure as
