@@ -1279,8 +1279,12 @@ contains in order the following lexemes:
     \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
 \key{vertical-space-character} ::=
     \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed} \\[1ex]
-\key{indentation-separator} ::= see text \\[1ex]
-\key{indentation-end} ::= see text
+\key{indentation-beginning} ::= see text, \pagref{INDENTATION-BEGINNING}
+				and \pagref{INDENTATION-BEGINNING2} \\[1ex]
+\key{indentation-separator} ::= see text, \pagref{INDENTATION-SEPARATOR}
+				and \pagref{INDENTATION-SEPARATOR2} \\[1ex]
+\key{indentation-end} ::= see text, \pagref{INDENTATION-END}
+				and \pagref{INDENTATION-END2}
 \end{indpar}
 
 \begin{boxedfigure}[t]
@@ -1366,15 +1370,22 @@ tagged with the column, line, and page number of its first character.
 This can be used to determine the indentation and extent of the lexeme.
 Using this information, {\em indented-subexpressions} are recognized
 which are lists of lines with the same indentation.
-{\em Indented-subexpressions} are introduced by {\em indentation-marks}
+{\em Indented-subexpressions} (\pagref{INDENTED-SUBEXPRESSION})
+are introduced by {\em indentation-marks}
 (\secref{INDENTATION-MARKS}), which are lexemes.
-Lines in this list are separated by implicit
-\skey{indentation-separator}s that are placed at the beginning of each
-line but the first.  An \key{indentation-end} is place after
+Lines in an {\em indented-subexpression} are separated by implicit
+\skey{indentation-separator}s\label{INDENTATION-SEPARATOR}
+that are placed at the beginning of each
+line but the first.
+An \key{indentation-beginning}\label{INDENTATION-BEGINNING}
+is placed after the {\em indentation-mark}
+and before the first the line in an {\em indented-subexpression}.
+An \key{indentation-end}\label{INDENTATION-END}
+is placed after
 all the lines in an {\em indented-subexpression}.
 Although {\em indentation-marks} are lexemes,
-{\em indentation-separators}
-and {\em indentation-ends} are not lexemes.
+{\em indentation-separators}, {\em indentation-beginnings},
+and {\em indentation-ends} are syntactic categories but not lexemes.
 Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
 
 Words, marks, quoted strings, and separators are called \skey{symbol}s,
@@ -1558,7 +1569,8 @@ The format of a \key{raw representation} is:
 	      \underline{\BAR\RIGHTBRACKET} \\
 	$|$ & \begin{tabular}[t]{@{}l@{}}
 	      \underline{:\BAR}{\em -indentation-mark} \\
-	      ~~~~{\em raw-attribute-representation} \\
+	      ~~~~{\em indentation-beginning}
+	          {\em raw-attribute-representation} \\
 	      ~~~~\{ {\em indentation-separator}
 	         {\em raw-attribute-representation} \}$^\star$ \\
 	      {\em indentation-end}
@@ -2404,7 +2416,8 @@ are done in the given order:
     Explicit Subexpression\\
     Recognition (\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION})
     \end{tabular}
-    & Explicit brackets are used to group lexemes into subexpressions.
+    & Explicit brackets, indentation marks, and indentation
+      are used to group lexemes into subexpressions.
 \end{tabular} \\[2ex]
 \begin{tabular}{@{}p{1.7in}@{\hspace*{0.3in}}p{4.3in}@{}}
     \begin{tabular}[t]{@{}l@{}}
@@ -2912,7 +2925,7 @@ is not inside another explicit subexpression.
 \ikey{Indentation marks}{indentation mark}
 are defined by indention mark
 definitions in the parsing definition stack and are used to introduce
-\skey{indented subexpression}s.\label{INDENTED-SUBEXPRESSION}
+\skey{indented subexpression}s (\pagref{INDENTED-SUBEXPRESSION}).
 An example indention mark definition is
 
 \begin{indpar}\begin{verbatim}
@@ -2972,7 +2985,8 @@ capitalization has been encoded in as an \verb|.initiator|.
 The \mkey{indentation}{of line} of a line is the
 column number of the first non-white-space character in the line.
 
-An \key{indented subexpression} is introduced by an
+An \key{indented subexpression}\label{INDENTED-SUBEXPRESSION}
+is introduced by an
 \key{indentation mark} that ends a line.  This mark must
 be defined by an indention mark definition, as per the
 example above.  If the mark is preceded in its definition by
@@ -2993,10 +3007,15 @@ are ignored.
 
 In order to describe indented subexpressions in syntax equations,
 the syntactic categories
-\key{indentation-separator} and \key{indentation-end} are used.
-An {\em indentation-separator}
+\key{indentation-beginning},
+\key{indentation-separator}, and \key{indentation-end} are used.
+An {\em indentation-beginning}\label{INDENTATION-BEGINNING2}
+occurs just after the {\em indentation-mark} that introduces the
+indented subexpression, and just before the first line of the subexpression.
+An {\em indentation-separator}\label{INDENTATION-SEPARATOR2}
 occurs just before each line but the first in an indented subexpression.
-An {\em indentation-end} occurs at the end of the indented subexpression,
+An {\em indentation-end}\label{INDENTATION-END2}
+occurs at the end of the indented subexpression,
 in the same place a closing bracket would occur in a
 bracketted subexpression.
 
