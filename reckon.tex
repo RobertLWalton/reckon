@@ -274,7 +274,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 29, 2008}
+\date{March 31, 2008}
  
 \maketitle
 
@@ -1278,10 +1278,12 @@ contains in order the following lexemes:
 \key{horizontal-space-character} ::=
     \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
 \key{vertical-space-character} ::=
-    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
+    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed} \\[1ex]
+\key{indentation-separator} ::= see text \\[1ex]
+\key{indentation-end} ::= see text
 \end{indpar}
 
-\begin{boxedfigure}
+\begin{boxedfigure}[t]
 
 \begin{center}
 \begin{tabular}{lp{4in}}
@@ -1358,9 +1360,22 @@ a mark character otherwise.
 Lexemes may be separated by \key{white-space}, which
 is a sequence of white-space characters (single space, horizontal tab, form
 feed, etc.), but is not itself a lexeme.
+
 In order to indicate spacing, each lexeme is
 tagged with the column, line, and page number of its first character.
 This can be used to determine the indentation and extent of the lexeme.
+Using this information, {\em indented-subexpressions} are recognized
+which are lists of lines with the same indentation.
+{\em Indented-subexpressions} are introduced by {\em indentation-marks}
+(\secref{INDENTATION-MARKS}), which are lexemes.
+Lines in this list are separated by implicit
+\skey{indentation-separator}s that are placed at the beginning of each
+line but the first.  An \key{indentation-end} is place after
+all the lines in an {\em indented-subexpression}.
+Although {\em indentation-marks} are lexemes,
+{\em indentation-separators}
+and {\em indentation-ends} are not lexemes.
+Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
 
 Words, marks, quoted strings, and separators are called \skey{symbol}s,
 to distinguish them from numbers.  Inside the computer symbols are
@@ -1492,8 +1507,9 @@ The format of a \key{raw representation} is:
 \emkey{raw-representation}
 \\\hspace*{0.5in}\begin{tabular}[t]{rl}
                  ::= & {\em empty} \\
-		 $|$ & {\em raw-object-representation}
-		       \{ \verb|;| {\em raw-object-representation} \}$^\star$
+		 $|$ & {\em raw-object-representation} \\
+		     & \{ {\em indentation-separator}
+		          {\em raw-object-representation} \}$^\star$
 		 \end{tabular}
 \end{tabular}
 
@@ -2967,15 +2983,29 @@ to another mark immediately preceding it.  For example,
 
 An indented subexpression is a list of non-blank lines.
 The \mkey{indentation}{of indented subexpression}
-of the subexpression is the indentation of the first non-blank line,
-and all the other lines must have the same indentation.  The output of
+of the subexpression is the indentation of the first non-blank line
+after the indentation mark.
+All lines in the subexpression list must begin with this indentation.
+Any line that has greater indentation continues the line previous
+to it.  The indented subexpression ends just before the next line
+with less indentation.  Blank lines in an indented subexpression
+are ignored.
+
+In order to describe indented subexpressions in syntax equations,
+the syntactic categories
+\key{indentation-separator} and \key{indentation-end} are used.
+An {\em indentation-separator}
+occurs just before each line but the first in an indented subexpression.
+An {\em indentation-end} occurs at the end of the indented subexpression,
+in the same place a closing bracket would occur in a
+bracketted subexpression.
+
+The output of
 the parser for an indented subexpression is a list whose elements
 are the output of the parser for each non-blank line, and 
 whose \verb|.initiator| is the indention mark that introduced
-the subexpression.  Non-blank lines
-indented by more than the subexpression indentation
-are continuations of the preceding non-blank line.
-Blank lines in the input are ignored.
+the subexpression.  This list does \underline{not} have a \verb|.separator|
+or \verb|.terminator|. 
 
 The \key{top level},\label{TOP-LEVEL} the file containing the text being parsed,
 is treated similarly
