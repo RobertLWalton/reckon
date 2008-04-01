@@ -274,7 +274,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 31, 2008}
+\date{April 1, 2008}
  
 \maketitle
 
@@ -2730,7 +2730,8 @@ The text expression parser works differently, and does not use
 implicit brackets, but instead adds other kinds of \verb|.initiator|'s
 and \verb|.terminator|'s to subexpressions.
 
-Bracket, indentation mark, operator, sentence terminator, and section
+Bracket, indentation mark, operator, phrase separator,
+sentence terminator, and section
 header definitions may specify reformatters
 which reformat subexpressions after they have been normally parsed.
 A \key{reformatter}\label{REFORMATTER} is a function that
@@ -2754,7 +2755,7 @@ are defined by \skey{bracket definition}s which specify
 
 \begin{indpar}[1in]
 Bracket Name and Parsing Selectors \\
-New Parsing Selectors \\
+Optional New Parsing Selectors \\
 Optional Reformatter \\
 Optional Evaluator
 \end{indpar}
@@ -3022,7 +3023,7 @@ An {\em indentation-beginning}\label{INDENTATION-BEGINNING2}
 occurs just after the {\em indentation-mark} that introduces the
 indented subexpression, and just before the first line of the subexpression.
 An {\em indentation-separator}\label{INDENTATION-SEPARATOR2}
-occurs just before each line but the first in an indented subexpression.
+occurs just before each line but the first in the indented subexpression.
 An {\em indentation-end}\label{INDENTATION-END2}
 occurs at the end of the indented subexpression,
 in the same place a closing bracket would occur in a
@@ -3995,18 +3996,18 @@ recognized.
 \label{EXPRESSION-PARSERS}
 
 An \key{expression parser} is a function which when called with
-a subexpression returns a subpexpression reformatted according to the
+a subexpression returns the subpexpression reformatted according to the
 operators, sentence terminators, or similar things it finds in the
 original subexpression.  The expression parser is called after
 explicit subexpression recognition, lexeme replacement, and number
-recognition have all been done, and the subexpression is a sequence
+recognition have all been done, so the input subexpression is a sequence
 of lexemes, explicit subexpressions, and implicit number subexpressions.
 Note that number recognition is done regardless of the expression parser
 used, e.g., even inside \verb|` '| quotes.
 
 Expression parsers are defined by
 \skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
-The topmost current parser definition
+The topmost current expression parser definition
 (\pagref{CURRENT-PARSING-DEFINITION})
 in the parsing stack names the parser used to parse expressions.
 
@@ -6045,6 +6046,16 @@ as in \verb|41 1/3|.
 \end{list}
 
 \section{To Do}
+
+Describe the quote evaluator.\label{QUOTE-EVALUATOR}
+
+Describe the phrase separator definition.\label{PHRASE-SEPARATOR-DEFINITION}
+
+Describe the sentence terminator definition.
+\label{SENTENCE-TERMINATOR-DEFINITION}
+
+Describe the section initiator definition.
+\label{SECTION-INITIATOR-DEFINITION}
 
 Why doesn't `\verb|define qualifier xxx|' mean define expressions equal
 to `\verb|qualifier xxx|'.
