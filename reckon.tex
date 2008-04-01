@@ -1365,29 +1365,6 @@ Lexemes may be separated by \key{white-space}, which
 is a sequence of white-space characters (single space, horizontal tab, form
 feed, etc.), but is not itself a lexeme.
 
-In order to indicate spacing, each lexeme is
-tagged with the column, line, and page number of its first character.
-This can be used to determine the indentation and extent of the lexeme.
-Using this information, {\em indented-subexpressions} are recognized
-which are lists of lines with the same indentation.
-{\em Indented-subexpressions} (\pagref{INDENTED-SUBEXPRESSION})
-are introduced by {\em indentation-marks}
-(\secref{INDENTATION-MARKS}), which are lexemes.
-Lines in an {\em indented-subexpression} are separated by implicit
-\skey{indentation-separator}s\label{INDENTATION-SEPARATOR}
-that are placed at the beginning of each
-line but the first.
-An \key{indentation-beginning}\label{INDENTATION-BEGINNING}
-is placed after the {\em indentation-mark}
-and before the first the line in an {\em indented-subexpression}.
-An \key{indentation-end}\label{INDENTATION-END}
-is placed after
-all the lines in an {\em indented-subexpression}.
-Although {\em indentation-marks} are lexemes,
-{\em indentation-separators}, {\em indentation-beginnings},
-and {\em indentation-ends} are syntactic categories but not lexemes.
-Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
-
 Words, marks, quoted strings, and separators are called \skey{symbol}s,
 to distinguish them from numbers.  Inside the computer symbols are
 stored as character strings, while numbers are stored as strings of binary
@@ -1426,6 +1403,31 @@ are sequences of digits and commas denoting natural numbers
 (i.e., non-negative integers).
 {\em Names} are used to name things, such
 as functions and variables.
+
+In order to indicate spacing, each lexeme is
+tagged with the column, line, and page number of its first character.
+This can be used to determine the indentation and extent of the lexeme.
+Using this information, {\em indented-subexpressions} are recognized
+which are lists of lines with the same indentation.
+{\em Indented-subexpressions} (\pagref{INDENTED-SUBEXPRESSION})
+are introduced by {\em indentation-marks}
+(\secref{INDENTATION-MARKS}), which are lexemes.
+Lines in an {\em indented-subexpression} are separated by implicit
+\skey{indentation-separator}s\label{INDENTATION-SEPARATOR}
+that are placed at the beginning of each
+line but the first.
+An implicit \key{indentation-beginning}\label{INDENTATION-BEGINNING}
+is placed after the {\em indentation-mark}
+and before the first the line in an {\em indented-subexpression}.
+An implicit \key{indentation-end}\label{INDENTATION-END}
+is placed after
+all the lines in an {\em indented-subexpression}.
+Although {\em indentation-marks} are lexemes,
+{\em indentation-separators}, {\em indentation-beginnings},
+and {\em indentation-ends} are syntactic categories but not lexemes.
+Their presence is implied by indentation, and they have no characters
+of their own.
+Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
 
 \section{Data}
 
@@ -1647,13 +1649,18 @@ The format of a \key{raw representation} is:
 
 \end{indpar}
 
-This syntax uses \verb/{|  |}/ brackets and \verb|;| separators, but
-these can be replaced by indentation using the \verb/:|/ mark according
-to a general rule given in \secref{INDENTATION-EQUIVALENCE-RULE}.  Roughly,
-everything is indented appropriately so the \verb/{|/, \verb|;|,
-and \verb/|}/ separators are all at line ends, and then the \verb/{|/'s
-are replaced by \verb/:|/'s and the \verb|;|'s and \verb/|}/'s are
-deleted.  A \verb/:|/ can be glued to a previous mark, i.e.,
+{\em Raw-object-representations} are lines in the file being read
+(they are at the parser's top level)
+and are separated by implicit {\em indentation-separators} placed
+just before each non-indented line (see \pagref{TOP-LEVEL} for details).
+Their syntax can
+use either \verb/{|  |}/ brackets and \verb|;| separators, or
+the \verb/:|/ indentation mark and {\em indentation-separators}.
+To replace \verb/{|  |}/ and \verb|;| by indentation,
+indent appropriately placing the \verb/{|/, \verb|;|, and \verb/|}/
+brackets and separators at line ends, replace \verb/{|/ by \verb/:|/,
+and delete the \verb|;|'s and \verb/|}/'s.
+The \verb/:|/ can be glued to a previous mark, i.e.,
 \verb/=  :|/ can be replaced by \verb/=:|/.  For example,
 
 \begin{indpar}\begin{verbatim}
@@ -2525,7 +2532,8 @@ section initiator & \secref{SECTION-INITIATOR-DEFINITION}
 \end{center}
 
 
-At the top level, the parser reads and parses one top level line
+At the top level, the file being parsed,
+the parser reads and parses one line
 at a time.  A \key{top level line} is a \underline{non-indented}
 file line.  Indented file lines are treated as continuations of
 the previous top level line.  Blank lines and comments are ignored.
@@ -2549,9 +2557,8 @@ a member of the current parsing selector set is attached to the definition.
 Such definitions are said to be `\key{current parsing definitions}'.%
 \label{CURRENT-PARSING-DEFINITION}
 
-For example, at any given time the topmost current expression parser
-definition is used to define the current expression parser.  The
-following two expression parser definitions are standardly in the
+For example, the
+following two parsing definitions are standardly in the
 parsing definition stack:
 
 \begin{indpar}\begin{verbatim}
@@ -2657,7 +2664,7 @@ a new parsing selector set.  There are two forms: one with
 simply specifies the new parsing selector set literally, by listing
 the {\em parsing selectors} in it.  The one with ops, specifies how
 to make the new set from the existing current parsing selector set.
-The \verb|+| op adds a selector if it was no previously present.
+The \verb|+| op adds a selector if it was not previously present.
 The \verb|-| op deletes a selector if it was previously present.
 And the \verb|^| op flips a selector, adding it if it was not
 previously present, and deleting it if it was previously present.
@@ -2681,18 +2688,20 @@ is in the stack, so that the operator expression parser will
 recognize `\verb|-|' as an operator, then putting
 
 \begin{indpar}\begin{verbatim}
-undefine operator "-" [operator]
+undefine operator "-" [special operator]
 \end{verbatim}\end{indpar}
 
 further toward the top of the stack will cause the lexeme
-`\verb|-|' to be not recognized as an operator.
+`\verb|-|' to be not recognized as an operator whenever the
+parsing selector set has both the `{\tt operator}' and the
+`{\tt special operator}' selectors.
 
 The operator expression parser introduces
 \skey{implicit bracket}s.  These
 can also be represented explicitly, though this is mostly done
 for purposes of debugging.  The implicit brackets
 introduced by operators are represented by \verb@(| |)@, and the
-implicit brackets introduced by numbers are \verb|(# #)|.
+implicit brackets introduced by numbers are represented by \verb|(# #)|.
 
 For example, the operator expression parser turns
 \begin{center}
@@ -3026,7 +3035,8 @@ whose \verb|.initiator| is the indention mark that introduced
 the subexpression.  This list does \underline{not} have a \verb|.separator|
 or \verb|.terminator|. 
 
-The \key{top level},\label{TOP-LEVEL} the file containing the text being parsed,
+The \key{top level},\label{TOP-LEVEL}
+the file containing the text being parsed,
 is treated similarly
 to an indented subexpression introduced by an implied indentation mark
 before the
