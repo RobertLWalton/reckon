@@ -274,7 +274,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 1, 2008}
+\date{April 2, 2008}
  
 \maketitle
 
@@ -4210,18 +4210,20 @@ precedence & rerformatter	& type	& operator	& meaning
 \\[2ex]
 -1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
 +0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
-	&			& \tt afix	& \ttkey{\LEFTBRACKET
+	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
 							 ... \RIGHTBRACKET}
 								& block \\
-+1000	& \ttkey{assign}	& \tt infix	& \ttkey{=}	& assignment \\
-     	&               	&          	& \ttkey{+=}	& increment \\
-     	&               	&          	& \ttkey{-=}	& decrement \\
-     	&               	&          	& \ttkey{*=}	& multiply by \\
-     	&               	&          	& \ttkey{/=}	& divide by \\
++1000	& \ttkey{assign}	& \tt infix	& \ttnbkey{=}	& assignment \\
+     	&               	&          	& \ttnbkey{+=}	& increment \\
+     	&               	&          	& \ttnbkey{-=}	& decrement \\
+     	&               	&          	& \ttnbkey{*=}	& multiply by \\
+     	&               	&          	& \ttnbkey{/=}	& divide by \\
 +2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
 +3000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
 	&			&		& \ttkey{NOT}  & logical not \\
+	&			&		& \ttkey{BUT}  & logical filler
+								 \\
 +4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
 	&			&		& \ttnbkey{/=}  & not equal \\
 	&			&		& \ttnbkey{!=}	& ditto \\
@@ -4252,16 +4254,19 @@ none	& \ttkey{subscript}	& \tt postfix	&  \ttnbkey{[...]}
 Below be describe the effects of standard operator reformatters.
 We use notation such as
 
-\begin{center}
-\verb|x = y = z + w| ~~~ $\Longrightarrow$ ~~~
-\verb|= x ( = y (+ x w))|
-\end{center}
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x = y = z + w| & $\Longrightarrow$ & \verb|= x ( = y (+ x w))| \\
+\verb|x AND AND y| & $\Longrightarrow$ & error
+\end{tabular}
 
 Here $\Longrightarrow$ means `is reformatted as'.  Furthermore, the
 parentheses introduced by the rewrite are \underline{implied},
 which means that the lists they bracket have \underline{no}
 \verb|.initiator| or \verb|.terminator|, and the parentheses are
 merely written here to indicate sublists in the expression structure.
+
+Reformatters can detect parsing errors, such the missing operand
+in `\verb|x AND AND y|'.
 
 Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:
@@ -4280,7 +4285,7 @@ expression to refer to this value.  An example is
 
 \begin{center}
 \verb|x == y + 3 == z| ~~~ $\Longrightarrow$ ~~~
-\verb|AND (== x ($563 (+ y 3))) (== ($563) z)|
+\verb|AND (== x ($ 563 (+ y 3))) (== ($ 563) z)|
 \end{center}
 
 Here the temporary has been used to avoid computing \verb|y + 3|
@@ -4289,7 +4294,7 @@ more than once.
 The {\em decimal-naturals} in {\em temporaries} are assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
-With this in mind, the reformatters are:
+With these things in mind, the reformatters are:
 
 \begin{indpar}[1em]
 
@@ -4317,17 +4322,20 @@ The standard bracket reformatters will merge the returned list with
 their brackets.  Thus given `\verb|(x,y)|', the `\verb|separator|'
 reformatter will return
 \begin{indpar}\begin{verbatim}
-@1 = \verb|x y { .separator = "," }|
+@1 = x y {| .separator = "," |}
 \end{verbatim}\end{indpar}
 so the input to the \verb|( )| reformatter will be
 \begin{indpar}\begin{verbatim}
-@2 = @1 { .initiator = "("; .terminator = ")" }
-@1 = \verb|x y { .separator = "," }|
+@2 = @1 {| .initiator = "("; .terminator = ")" |}
+@1 = x y {| .separator = "," |}
 \end{verbatim}\end{indpar}
 and this reformatter will merge the two lists into one,
 returning
 \begin{indpar}\begin{verbatim}
-@3 = x y { .initiator = "("; .terminator = ")"; .separator = "," }
+@3 = x y :|
+    .initiator = "("
+    .terminator = ")"
+    .separator = ","
 \end{verbatim}\end{indpar}
 
 \end{indpar}
@@ -4339,7 +4347,10 @@ returning
 
 \begin{indpar}[0.5em]
 
-This just moves the \verb|<--| to the front of the expression:
+There will be a \verb|<--| operator (the other operators are afix),
+and it is a parsing error
+detected by the reformatter if there is more than one.
+The one \verb|<--| operator is moved to the front of the expression:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x <-- y { z }| & $\Longrightarrow$ & \verb|<-- x y { z }| \\
@@ -4347,11 +4358,28 @@ This just moves the \verb|<--| to the front of the expression:
 \verb|x <--| & $\Longrightarrow$ & \verb|<-- x|
 \end{tabular}
 
-Indented subexpressions are parsed like final \verb|{ }|
+Indented subexpressions introduced by the \verb|:| indentation
+mark are parsed like final \verb|{ }|
 bracketted subexpressions.  Because they are afix operators with the
 same precedence as \verb|<--|,
 `\verb|x <-- y { z }|' does \underline{not}
-end up as `\verb|<-- x ( y { z } )|'.
+end up as `\verb|<-- x ( y { z } )|', and we get results like:
+
+\hspace*{2em}\begin{tabular}{lcl}
+
+\verb|x <-- u v w { z }| & $\Longrightarrow$ & \verb|<-- x ( u v w ) { z }|
+\\[1ex]
+\begin{tabular}{@{}l@{}}
+\verb|x <-- u v w:| \\
+\verb|    z|
+\end{tabular}
+& $\Longrightarrow$ &
+\begin{tabular}{@{}l@{}}
+\verb|<-- x ( u v w ):| \\
+\verb|    z|
+\end{tabular}
+
+\end{tabular}
 
 
 \end{indpar}
@@ -4377,31 +4405,67 @@ rightmost executes first.
 \bigskip
 
 \ttmkey{logical}{reformatter} \hfill \NBOP{AND} ~~~ \NBOP{OR} ~~~ \NBOP{NOT}
+							      ~~~ \NBOP{BUT}
 
 \begin{indpar}[0.5em]
-If there is only one operator and it is at the beginning of the subexpression,
-then the subexpression is not changed.
+If there is only one operator and it is at the beginning of the expression,
+then the expression is not changed.  It is a reformatter detected parsing
+error if this operator is \verb|BUT|, or if the operator is \verb|NOT|
+and there are zero or more than one operand.
 
-Otherwise the expression cannot have both {\tt AND} and {\tt OR} operators,
-the {\tt NOT} operator
-can only occur at the beginning of an expression or just after {\tt AND}
-or {\tt OR}, and subexpressions cannot be empty, except for subexpressions
-before a {\tt NOT}, which must always be empty.
-
-In this case the expression is rewritten using a multi-argument {\tt AND}
-or {\tt OR} function and a single argument {\tt NOT} function:
+Otherwise if the expression has only \verb|AND| or only \verb|OR| operators
+the expression is rewritten with the operator at the beginning.  It is
+a reformatter detected error if there are missing operands, either beteen
+operators, before the first operator, or after the last operator.  Thus:
 
 \hspace*{2em}\begin{tabular}{lcl}
-\verb|NOT x| & $\Longrightarrow$ & \verb|NOT x| \\
-\verb|NOT x OR NOT y OR z| & $\Longrightarrow$ & \verb|OR (NOT x) (NOT y) z| \\
-\verb|NOT x AND NOT y AND z AND w| & $\Longrightarrow$
-				   & \verb|AND (NOT x) (NOT y) z w|
+\verb|x AND y| & $\Longrightarrow$ & \verb|AND x y| \\
+\verb|x AND y AND z| & $\Longrightarrow$ & \verb|AND x y z| \\
+\verb|x OR y| & $\Longrightarrow$ & \verb|OR x y| \\
+\verb|x OR y OR z| & $\Longrightarrow$ & \verb|OR x y z| \\
+\verb|AND y AND z| & $\Longrightarrow$ & error \\
+\verb|x AND AND z| & $\Longrightarrow$ & error \\
+\verb|x AND y AND| & $\Longrightarrow$ & error \\
 \end{tabular}
+
+Otherwise the expression must have the operator sequence `\ttnbkey{BUT NOT}'
+and one of the forms:
+
+\hspace*{2em}\begin{tabular}{l}
+$e_1$ \verb|BUT NOT| $e_3$ \\
+$e_1$ \ldots{} \verb|BUT NOT| $e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
+$e_1$ \verb|AND| $e_2$ \verb|AND| \ldots{} \verb|BUT NOT| $e_3$ \\
+$e_1$ \verb|AND| $e_2$ \verb|AND| \ldots{} \verb|BUT NOT|
+$e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
+\end{tabular}
+
+There can be \verb|AND|'s before the \verb|BUT NOT| and \verb|OR|'s after
+the \verb|BUT NOT|,
+but there must be at least one operand before the \verb|BUT NOT|
+and at least one after.  These expressions are rewritten using prefix
+\verb|AND| and \verb|NOT| operators:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x BUT NOT v| & $\Longrightarrow$ & \verb|AND x (NOT v)| \\
+\verb|x AND y BUT NOT v| & $\Longrightarrow$ & \verb|AND x y (NOT v)| \\
+\verb|x BUT NOT v OR w| & $\Longrightarrow$ & \verb|AND x (NOT v) (NOT w)| \\
+\verb|x AND y BUT NOT v OR w|
+    & $\Longrightarrow$ & \verb|AND x y (NOT v) (NOT w)| \\
+\end{tabular}
+
+All other forms of expression are reformatter detected parsing errors.
 
 Note that {\tt NOT} is not a classical prefix operator, which would have
 higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
 and {\tt OR} may not be used in the same logical expression without using
-explicit brackets.
+explicit brackets, unless there is a {\tt BUT NOT}.  Thus:
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x AND y OR z| & $\Longrightarrow$ & error \\
+\verb|x AND NOT y| & $\Longrightarrow$ & error \\
+\verb|x AND NOT v OR w| & $\Longrightarrow$ & error \\
+\verb|NOT x < y| & $\Longrightarrow$ & \verb|NOT (x < y )| \\
+\end{tabular}
 \end{indpar}
 
 \bigskip
@@ -4454,7 +4518,7 @@ and the unary negation function \verb|-|.
 \ttmkey{product}{reformatter} \hfill \NBOP{*} ~~~ \NBOP{/}
 
 \begin{indpar}[0.5em]
-The two different kinds of multiplication operators, \verb|*| and \verb|/|,
+The different kinds of multiplication operators, \verb|*| and \verb|/|,
 cannot be mixed in the same expression.  There may not be more than one
 \verb|/| operator in the expression.  The results are rewritten using
 the multi-argument multiplication function \verb|*| or the binary
@@ -4462,7 +4526,9 @@ division function \verb|/|.  E.g.:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x * y * z| & $\Longrightarrow$ & \verb|* x y z| \\
-\verb|x / y| & $\Longrightarrow$ & \verb|/ x y|
+\verb|x / y| & $\Longrightarrow$ & \verb|/ x y| \\
+\verb|x / y / z| & $\Longrightarrow$ & error \\
+\verb|x * y / z| & $\Longrightarrow$ & error \\
 \end{tabular}
 
 \end{indpar}
