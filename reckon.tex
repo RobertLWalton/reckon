@@ -7,15 +7,16 @@
 % Possible alternative names:
 %
 %	RECKON	Personal Reckoning language
-%	MFL	Multi_Facetted Language
+%	MFL	Multi-Facetted Language
 %	ROPE	Really Omni Programming Environment
 %	RIPE	Robert's Information Processing Environment
-%	RIOT
 %	AGILE	Another Goofy Information Language and Environment
 %	OMNI	Omni-Programming Language
 %	OPL	Omni-Programming Language
-%	APE	A Programming Envioronment
+%	OPE	Omni-Programming Environment
+%	APE	A Programming Environment
 %	RUG	Really Useful Gadget
+%	RUCL	Really Useful Computer Language
   
 \documentclass[12pt]{article}
 
@@ -274,7 +275,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 2, 2008}
+\date{April 3, 2008}
  
 \maketitle
 
@@ -1424,7 +1425,7 @@ is placed after
 all the lines in an {\em indented-subexpression}.
 Although {\em indentation-marks} are lexemes,
 {\em indentation-separators}, {\em indentation-beginnings},
-and {\em indentation-ends} are syntactic categories but not lexemes.
+and {\em indentation-ends} are syntax categories but not lexemes.
 Their presence is implied by indentation, and they have no characters
 of their own.
 Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
@@ -1995,17 +1996,14 @@ and two syntax equations adjusted as follows:
 
 \begin{indpar}
 
-\begin{tabular}{l}
 \emkey{cooked-object-representation} ::=
 \\\hspace*{0.5in}
     {\em object-header} {\em expression-option}
     {\em cooked-attribute-representations}
-\end{tabular}
-
-\begin{tabular}{l}
+\\[1ex]
 \emkey{cooked-single-attribute-value} ::= {\em expression}
-		~~~~~ [see \secref{EXPRESSION-PARSERS}]
-\end{tabular}
+\\[1ex]
+{\em expression} ::= see \secref{EXPRESSION-PARSERS}
 
 \end{indpar}
 
@@ -3016,7 +3014,7 @@ with less indentation.  Blank lines in an indented subexpression
 are ignored.
 
 In order to describe indented subexpressions in syntax equations,
-the syntactic categories
+the syntax categories
 \key{indentation-beginning},
 \key{indentation-separator}, and \key{indentation-end} are used.
 An {\em indentation-beginning}\label{INDENTATION-BEGINNING2}
@@ -4996,16 +4994,17 @@ either data bases or alternative programming languages.
 When an expression definition is found whose pattern matches an expression,
 a set of constraint equations are established that must be statisfied to
 complete the match.  There are two kinds of constraint equations: syntax
-equations, and guards.  Syntax equations involve syntactic
-variables, which are names beginning with a capital letter or with
-a \verb|$|.  Guards are just expressions that must evaluate to
+equations, and guards.  Syntax equations involve syntax
+variables, which are names beginning with a capital letter optionally
+preceded by a \verb|$|.  Guards are just expressions that must evaluate to
 \verb|true| in order for the match to complete.  The syntax equations
 are solved during the matching process, to produce values for the
-syntactic variables.  If the syntax equations are inconsistent and
+syntax variables.  If the syntax equations are inconsistent and
 cannot be solved, the match fails.  Evaluation of the guards in a definition
 may result
 in additional matches which generate more syntax equations that
-involve the syntactic variables in the guarded definition.
+involve the syntax variables in the definitions that match the
+guards.
 
 The matching process must consider all possible choices of which definitions
 to match to an expression being evaluated.  If all choices fail, the
@@ -5014,46 +5013,88 @@ choice is used to evaluate the expression.  If several choices succeed,
 the situation becomes ambiguous, and the evaluation proceeds according
 to the evaluator operating mode, as is described below.
 
-A definition may have default values for a syntactic variable.  If
+A definition may have default values for a syntax variable.  If
 the matching process fails to provide a value for the variable, the
 default value will be supplied.  In effect the definition is 
 a set of different definitions, one for each possible substitution of
-default values for their corresponding syntactic variables.
+default values for their corresponding syntax variables.
 
-There are two kinds of syntactic variable.  Those beginning with a
-\verb|$| are set equal to some unevaluated expression, and are called
-unevaluated variables.  Those beginning with
-a capital letter are set equal to the value of an expression,
-and are called evaluated variables.  For example, if `\verb|foo(2+2)|'
-is matched to the pattern `\verb|foo($x)|', then \verb|$x :=: 2+2|,
-but if it is matched to the pattern `\verb|foo(X)|', then \verb|X :=: 4|,
-where \verb|:=:| means `is syntactically equal to'.
+A syntax variable name beginning with
+\ttmnbkey{\$}{in syntax variable name} denotes an unevaluated
+expression.  The same name without the \verb|$| denotes the value
+of this unevaluated expression when it is evaluated
+in the context in which the unevaluated expression appears.
+This last value is called the `\key{evaluation}' of the unevaluated
+expression.  Thus, for example, \verb|$X| denotes an unevaluated
+expression and \verb|X| denotes the evaluation of that expression.
+
+A syntax variable name in the pattern part of a definition that does
+not begin with \verb|$| is treated as if it had a preceding \verb|$|.
+Such a variable is not allowed to appear with a preceding \verb|$|
+anywhere in the definition.  Thus omitting the \verb|$| is both a
+convenient shorthand and a promise never to use the unevaluated expression
+denoted by the variable name with preceding \verb|$|.
+
+As an example, if `\verb|foo(2+2)|'
+is matched to the pattern `\verb|foo($X)|', then the matching syntax
+equation is
+\begin{center}
+\verb|foo(2+2) :=: foo($X)|
+\end{center}
+(where \verb|:=:| means `is syntactically equal to'), which yields
+the equation
+\begin{center}
+\verb|2+2 :=: $X|
+\end{center}
+that defines \verb|$X|.  If there is then a guard `\verb|number(X)|',
+the expression \verb|$X|, namely `\verb|2+2|',
+will be evaluated in its context, the context in which `\verb|foo(2+2)|'
+appeared, to produce the value \verb|4|, which will become the value of
+\verb|X|, so the guard will become `\verb|number(4)|'.
+
+An expression cannot be evaluated if it contains any undefined syntax
+variables.  For example, if we began with the syntax equation
+\begin{center}
+\verb|foo(2+$Y) :=: foo($X)|
+\end{center}
+and guard `\verb|number(X)|', \verb|$X| would be `\verb|2+$Y|' which
+could not be evaluated.  If at some later time in the matching process
+the syntax equation
+\begin{center}
+\verb|$Y :=: 7|
+\end{center}
+is generated, then the value of \verb|$X| becomes `\verb|2+7|'
+which can now be evaluated to produce the value \verb|9| for \verb|X|
+and allow the guard to become `\verb|number(9)|'.
 
 Except for choices of which definitions to match to which expressions,
 the entire matching process is monotonic.  This means the order of
-matching operations, guard evaluations, and evaluated variable expression
-evaluations does not matter.
+matching operations, guard evaluations, and evaluations of unevaluated
+syntax variable values does not matter.
 
 In order to make the matching process monotonic, pattern matching must
-be monotonic.  This means that if undefined syntactic variables in a matched
+be monotonic.  This means that if undefined syntax variables in a matched
 pattern are given arbirary values later, the pattern match
 must still be valid.
 
 Similarly guard evaluations must not have side effects.  In other
 words, evaluating a guard cannot affect any future valuations.
 Side effects can only occur during block execution, so any blocks
-executed during the matching process must not have side effects.
+executed during the guard evaluation process must not have side effects.
 
-Lastly, expressions assigned to evaluated syntactic variables
-must be evaluated monotonically in order to give these variables values.
-In order to ensure this, these expressions are not evaluated until
-all syntactic variables they contain have been given values, so that
-the expression to be evaluated does not contain any undefined syntactic
-variables.  Furthermore, evaluation of these expressions may not have
+Lastly, required evaluations of unevaluated syntax variables
+must be monotonic.  For example, given the syntax variable \verb|$X|,
+if the value of \verb|X| is required, the evaluation of the value of
+\verb|$X| must be monotonic.
+In order to ensure this, an unevaluated expression is not evaluated until
+all syntax variables it contains have been given values, so that
+the expression to be evaluated does not contain any undefined syntax
+variables.  Furthermore, evaluation of such an expression may not have
 side effects.  Again this last means that any blocks executed during
-these evaluations must not have side effects.  If an evaluated variable
-is assigned an expression containing a syntactic variable that never
-becomes defined, then the entire matching process fails, just as it
+the evaluation of the expression must not have side effects.
+If an evaluation is needed, but the expression to be evaluated contains
+a syntax variable that never becomes defined,
+then the entire matching process fails, just as it
 would if a guard evaluated to false.
 
 \subsection{Expression Definitions}
@@ -5070,20 +5111,21 @@ would if a guard evaluated to false.
 		  \\[1ex]
 \key{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
 \key{pattern-term} \begin{tabular}[t]{rl}
-            ::= & {\em expression} \\
-            ::= & {\em expression} \ttmkey{?}{in pattern} \\
-            ::= & {\em expression} \ttmkey{...}{in pattern} \\
-            ::= & {\em expression} \ttmkey{...?}{in pattern} \\
+            ::= & {\em expression} {\em expression}$^\star$ \\
+            ::= & {\em expression} {\em expression}$^\star$
+	    		\ttmkey{?}{in pattern} \\
+            ::= & {\em expression} {\em expression}$^\star$
+	    		\ttmkey{...}{in pattern} \\
+            ::= & {\em expression} {\em expression}$^\star$
+	    		\ttmkey{...?}{in pattern} \\
 	    \end{tabular} \\[1ex]
 \key{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
 \key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
 \key{guard} ::= {\em expression} \\[1ex]
 \key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\key{block} \begin{tabular}[t]{rl}
-            ::= & \verb|{| {\em block-header}$^\star$ {\em statement}
-                           \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}| \\
-	    $|$ & indented-subexpression introduced by the marker `\verb|* :|'
-	    \end{tabular} \\[1ex]
+\key{block} ::= \verb|{| {\em block-header}$^\star$ {\em statement}
+                           \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
+	    \\[1ex]
 \key{block-header} \begin{tabular}[t]{rl}
             ::= & \ttkey{default}
 	    	\verb|{| {\em default-equation}
@@ -5092,27 +5134,13 @@ would if a guard evaluated to false.
 	    	\verb|{| {\em constraint-equation}
 		\{ \verb|;| {\em constraint-equation} \}$^\star$ \verb|}| \\
 	    \end{tabular} \\[1ex]
-\key{default-equation} ::= {\em syntactic-variable}
+\key{default-equation} ::= {\em syntax-variable}
 		\ttmnbkey{:=:}{in {\em default-equation}}
 		{\em expression} \\[1ex]
 \key{constraint-equation} ::= {\em expression}
 		\ttmnbkey{:=:}{in {\em constraint-equation}}
 		{\em expression} \\[1ex]
-\key{expression} ::= {\em expression-element}$^\star$
-		     \\[1ex]
-\key{expression-element}
-    ::= {\em word} $|$ {\em mark} $|$ {\em number} $|$ {\em quoted-string}
-    	$|$ {\em subexpression} \\[1ex]
-\key{subexpression} \begin{tabular}[t]{rl}
-    ::= & {\em opening-bracket} {\em expression}
-          {\em closing-bracket } \\
-    $|$ & {\em opening-bracket} {\em expression}
-          \{ \verb|,| {\em expression} \}$^\star$
-          {\em closing-bracket } \\
-    $|$ & {\em opening-bracket} {\em expression}
-          \{ \verb|;| {\em expression} \}$^\star$
-          {\em closing-bracket } \\
-    \end{tabular}
+{\em expression} ::= see \secref{EXPRESSION-PARSERS}
 \end{indpar}%
 \label{PATTERN}
 
@@ -5875,7 +5903,7 @@ define additional components.
 Recall that the concept of being a variable of a block
 of code is defined syntactically and independently of which variable values
 the block actually computes (\secref{BLOCK-VARIABLE-NAMES}).
-The components of an object are more precisely the syntactic variables
+The components of an object are more precisely the syntax variables
 of the code added permanently to the object, whether or not these
 variables have values defined by code added permanently or temporarily
 to the object.  Variables of code added temporarily that are not
