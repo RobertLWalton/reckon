@@ -2520,12 +2520,13 @@ defined for reference:
 \emkey{operator-expression} ::= an expression parsable by the operator parser
 \label{OPERATOR-EXPRESSION}
 \\[1ex]
-\emkey{operator-expression-$N$} ::= \begin{tabular}[t]{l}
+\emkey{$O$-subexpression} ::= \begin{tabular}[t]{l}
 	an {\em operator-expression} that has no operator \\
-	of precedence $N$ or less outside brackets
+	outside brackets with the same or less precedence \\
+	than operator or separator $O$
 	\end{tabular}
-\label{OPERATOR-EXPRESSION-N}
-\\[3.3ex]
+\label{O-SUBEXPRESSION}
+\\[6ex]
 \emkey{text-expression} ::= an expression parsable by the text parser
 \label{TEXT-EXPRESSION}
 \end{tabular}
@@ -5130,22 +5131,12 @@ would if a guard evaluated to false.
 \emkey{expression-definition} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
-\emkey{pattern} ::= {\em pattern-term-option}
-		  \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$
-		  \\[1ex]
-\emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
-\emkey{pattern-term} \begin{tabular}[t]{rl}
-            ::= & {\em expression} {\em expression}$^\star$ \\
-            ::= & {\em expression} {\em expression}$^\star$
-	    		\ttmkey{?}{in pattern} \\
-            ::= & {\em expression} {\em expression}$^\star$
-	    		\ttmkey{...}{in pattern} \\
-            ::= & {\em expression} {\em expression}$^\star$
-	    		\ttmkey{...?}{in pattern} \\
-	    \end{tabular} \\[1ex]
+\emkey{pattern} ::= \verb|<-|{\em -subexpression}
+	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
 \emkey{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
-\emkey{guard} ::= {\em expression} \\[1ex]
+\emkey{guard} ::= \verb|,|{\em -subexpression}
+	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
 \emkey{block} ::= \verb|{| {\em block-header}$^\star$ {\em statement}
                            \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
@@ -5158,32 +5149,59 @@ would if a guard evaluated to false.
 	    	\verb|{| {\em constraint-equation}
 		\{ \verb|;| {\em constraint-equation} \}$^\star$ \verb|}| \\
 	    \end{tabular} \\[1ex]
+\emkey{statement} ::= see \pagref{STATEMENT} \\[1ex]
 \emkey{default-equation} ::= {\em syntax-variable}
 		\ttmnbkey{:=:}{in {\em default-equation}}
-		{\em expression} \\[1ex]
-\emkey{constraint-equation} ::= {\em expression}
+		{\em syntax-expression} \\[1ex]
+\emkey{constraint-equation} ::= {\em syntax-expression}
 		\ttmnbkey{:=:}{in {\em constraint-equation}}
-		{\em expression} \\[1ex]
-{\em expression} ::= see \secref{EXPRESSION-PARSERS}
+		{\em syntax-expression} \\[1ex]
+\emkey{syntax-expression} ::= ~~ \verb|:=:|{\em -subexpression}
+				[see \pagref{O-SUBEXPRESSION}]
+\\[3ex]
+\emkey{pattern-object} ::=
+    \begin{tabular}[t]{l}
+    {\em pattern-term-option}
+        \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$ \\
+    {\em cooked-attribute-representations}
+    \end{tabular} \\[1ex]
+\emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
+\emkey{pattern-term} \begin{tabular}[t]{rl}
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$ \\
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
+	    		\ttmkey{?}{in pattern} \\
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
+	    		\ttmkey{...}{in pattern} \\
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
+	    		\ttmkey{...?}{in pattern} \\
+	    \end{tabular} \\[1ex]
+\emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object}
 \end{indpar}%
 \label{PATTERN}
 
-{\em Blocks} and {\em statements} are further defined in
-\secref{BLOCKS}.
+A \key{pattern} is just a \verb|<-|{\em -subexpression}
+(\pagref{O-SUBEXPRESSION}) that is an object consisting of a list
+and other attributes.  The list part is divided into
+{\em pattern-terms} and {\em pattern-factors} by the use of
+the marks \verb|.|, \verb|?|, \verb|...|, and \verb|...?| which
+the operator parser does not recognize.
+Subexpressions in a {\em pattern} are also treated as {\em patterns}.
+Thus in the {\em pattern}
+`\verb|sort ( X, X ...? )|'
+the subexpressions `\verb|( X, X ...? )|',
+`\verb|X|', and `\verb|X ...?|' are all patterns.
 
 In use, an expression definition being matched to an expression is
-copied, and then the pattern of the copy is call unified
-(\secref{CALL-UNIFICATION}) with the expression to be matched.
-If unification fails, the definition does not match.  If
-unification succeeds, variables bound to null values are given their
-default values, evaluated variable values are evaluated,
-and then the matching process continues by searching for
+copied, and then the pattern of the copy is matched
+with the expression.  The act of copying the definition
+creates a new set of variables that are distinct from any
+previous variables.  If pattern matching fails, the definition
+match fails.  If pattern matching succeeds, it generates syntax equations.
+Otherwise the matching process continues
+by generating constraint syntax equations and then searching for
 definitions that match the guards.
 
-An expression definition is an expression graph which may have variables
-as well as graph nodes.   When an expression definition is copied,
-the copy has its own variables that are distinct from the variables in
-the original expression definition or in any other expression definition copy.
+[Evaluation, side effects]
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
