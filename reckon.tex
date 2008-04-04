@@ -98,6 +98,7 @@
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
 \newcommand{\opt}{$^!$}
@@ -275,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 3, 2008}
+\date{April 4, 2008}
  
 \maketitle
 
@@ -1121,25 +1122,26 @@ contains in order the following lexemes:
 \ikey{Lexemes}{lexeme} are defined more specifically as follows:
 
 \begin{indpar}
-\key{lexeme}
+\emkey{lexeme}
 	::= {\em symbol} $|$ {\em number}
 	\\[1ex]
-\key{symbol}
+\emkey{symbol}
 	::= {\em word}
 	$|$ {\em mark}
 	$|$ {\em quoted-string}
 	$|$ {\em separator}
 \label{SYMBOL-LEXEME}
 	\\[1ex]
-\key{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
-\key{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
-\key{number-lexeme} ::= {\em number-character} {\em number-character}\,$^\star$
+\emkey{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
+\emkey{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
+\emkey{number-lexeme} ::=
+        {\em number-character} {\em number-character}\,$^\star$
 \label{NUMBER-LEXEME}
 \\[1ex]
-\key{quoted-string} ::=
+\emkey{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
-\key{separator} ::= {\em separator-character} \\[1ex]
-\key{name} ::=
+\emkey{separator} ::= {\em separator-character} \\[1ex]
+\emkey{name} ::=
 	\begin{tabular}[t]{@{}l@{}}
         \{ {\em non-special-symbol}
 	   $|$ {\em decimal-natural} \}$^\star$ \\
@@ -1147,18 +1149,18 @@ contains in order the following lexemes:
         \{ {\em non-special-symbol} $|$ {\em decimal-natural} \}$^\star$
         \end{tabular}
 \\[1ex]
-\key{non-special-symbol} ::= {\em symbol} that is \underline{not}
+\emkey{non-special-symbol} ::= {\em symbol} that is \underline{not}
 				specially treated by the parser
 \\[1ex]
-\key{decimal-natural} ::= {\em number-lexeme} that contains only
+\emkey{decimal-natural} ::= {\em number-lexeme} that contains only
 			{\em digits} and {\em commas}
 \\[1ex]
-\key{word-character} \begin{tabular}[t]{rl}
+\emkey{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
 		     $|$ & \verb|'| followed by a letter \\
 		     \end{tabular}
 		     \\[1ex]
-\key{mark-character} \begin{tabular}[t]{rl}
+\emkey{mark-character} \begin{tabular}[t]{rl}
 		     ::= &      \verb|+|%
 		             $|$\verb|-|%
 		             $|$\verb|*|%
@@ -1182,7 +1184,7 @@ contains in order the following lexemes:
 		     $|$ & \verb|.| not followed by a {\em digit} \\
 		     $|$ & \verb|/| not surrounded by {\em digits} \\
 			\end{tabular}\\[1ex]
-\key{separator-character} \begin{tabular}[t]{rl}
+\emkey{separator-character} \begin{tabular}[t]{rl}
 		::= &   \verb|(|
 	       	    $|$ \verb|)|
 	       	    $|$ \verb|[|
@@ -1194,16 +1196,16 @@ contains in order the following lexemes:
 		$|$ & \verb|,| not surrounded by {\em digits} \\
 		$|$ & \verb|'| not followed by a letter 
 		    \end{tabular}\\[1ex]
-\key{number-character} \begin{tabular}[t]{rl}
+\emkey{number-character} \begin{tabular}[t]{rl}
 		::= &   {\em digit} \\
 		$|$ & \verb|.| followed by by a {\em digit } \\
 		$|$ & \verb|,| surrounded by {\em digits} \\
 		$|$ & \verb|/| surrounded by {\em digits} \\
 		    \end{tabular}\\[1ex]
-\key{character-representative}
+\emkey{character-representative}
     ::= see Figure~\figref{CHARACTER-REPRESENTATIVES} \\[1ex]
-\key{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
-\key{lower-case-letter} ::=    \verb|a|%
+\emkey{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
+\emkey{lower-case-letter} ::=  \verb|a|%
 			    $|$\verb|b|%
 			    $|$\verb|c|%
 			    $|$\verb|d|%
@@ -1230,7 +1232,7 @@ contains in order the following lexemes:
 			    $|$\verb|y|%
 			    $|$\verb|z|
 			    \\[1ex]
-\key{upper-case-letter} ::=    \verb|A|%
+\emkey{upper-case-letter} ::=  \verb|A|%
 			    $|$\verb|B|%
 			    $|$\verb|C|%
 			    $|$\verb|D|%
@@ -1257,7 +1259,7 @@ contains in order the following lexemes:
 			    $|$\verb|Y|%
 			    $|$\verb|Z|
 			    \\[1ex]
-\key{digit} ::=    \verb|0|%
+\emkey{digit} ::=  \verb|0|%
 		$|$\verb|1|%
 		$|$\verb|2|%
 		$|$\verb|3|%
@@ -1268,23 +1270,23 @@ contains in order the following lexemes:
 		$|$\verb|8|%
 		$|$\verb|9|
 		\\[1ex]
-\key{white-space} ::= {\em white-space-character}
-                     {\em white-space-character}\,$^\star$ \\[1ex]
-\key{white-space-character}
+\emkey{white-space} ::= {\em white-space-character}
+                        {\em white-space-character}\,$^\star$ \\[1ex]
+\emkey{white-space-character}
     \begin{tabular}[t]{rl}
     ::= & {\em horizontal-space-character} \\
     $|$ & {\em vertical-space-character}
     \end{tabular}
     \\[1ex]
-\key{horizontal-space-character} ::=
+\emkey{horizontal-space-character} ::=
     \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
-\key{vertical-space-character} ::=
+\emkey{vertical-space-character} ::=
     \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed} \\[1ex]
-\key{indentation-beginning} ::= see text, \pagref{INDENTATION-BEGINNING}
+\emkey{indentation-beginning} ::= see text, \pagref{INDENTATION-BEGINNING}
 				and \pagref{INDENTATION-BEGINNING2} \\[1ex]
-\key{indentation-separator} ::= see text, \pagref{INDENTATION-SEPARATOR}
+\emkey{indentation-separator} ::= see text, \pagref{INDENTATION-SEPARATOR}
 				and \pagref{INDENTATION-SEPARATOR2} \\[1ex]
-\key{indentation-end} ::= see text, \pagref{INDENTATION-END}
+\emkey{indentation-end} ::= see text, \pagref{INDENTATION-END}
 				and \pagref{INDENTATION-END2}
 \end{indpar}
 
@@ -2508,6 +2510,28 @@ are done in the given order:
 \end{tabular}
 \end{indpar}
 
+Expressions are parsed by either the operator parser or the text parser,
+or by some user defined parser.  The following syntax categories are
+defined for reference:
+
+\begin{indpar}
+
+\begin{tabular}{l}
+\emkey{operator-expression} ::= an expression parsable by the operator parser
+\label{OPERATOR-EXPRESSION}
+\\[1ex]
+\emkey{operator-expression-$N$} ::= \begin{tabular}[t]{l}
+	an {\em operator-expression} that has no operator \\
+	of precedence $N$ or less outside brackets
+	\end{tabular}
+\label{OPERATOR-EXPRESSION-N}
+\\[3.3ex]
+\emkey{text-expression} ::= an expression parsable by the text parser
+\label{TEXT-EXPRESSION}
+\end{tabular}
+
+\end{indpar}
+
 Parsing is controlled by parsing definitions, which
 are placed in the \key{parsing definition stack}.%
 \label{PARSING-DEFINITION-STACK}
@@ -2761,7 +2785,7 @@ Optional Evaluator
 The syntax of bracket definitions is:
 
 \begin{indpar}
-\key{bracket-definition} \\
+\emkey{bracket-definition} \\
 	\hspace*{0.5in}::= \ttkey{define bracket}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em bracket-name} {\em parsing-selectors} \\
@@ -2773,30 +2797,30 @@ The syntax of bracket definitions is:
 	    \end{tabular}
 \label{BRACKET-DEFINITION}
 	    \\[1ex]
-\key{bracket-name} ::=
+\emkey{bracket-name} ::=
 	{\em opening-bracket-name}
 	\verb|...|
 	{\em closing-bracket-name}
 \label{BRACKET-NAME}
 	\\[1ex]
-\key{opening-bracket-name} ::= {\em name} \\[1ex]
-\key{closing-bracket-name} ::= {\em name} \\[1ex]
+\emkey{opening-bracket-name} ::= {\em name} \\[1ex]
+\emkey{closing-bracket-name} ::= {\em name} \\[1ex]
 {\em name} ::= see \pagref{NAME} \\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
 {\em new-parsing-selectors} ::= see \pagref{NEW-PARSING-SELECTORS}
 	\\[1ex]
-\key{reformatter-name} ::= {\em function-name }
+\emkey{reformatter-name} ::= {\em function-name }
 	\\[1ex]
-\key{evaluator-name} ::= {\em function-name }
+\emkey{evaluator-name} ::= {\em function-name }
 	\\[1ex]
-\key{function-name} ::= {\em name}
+\emkey{function-name} ::= {\em name}
 \end{indpar}
 
 
 A {\em bracket-name}
 has two subsequences of lexemes, an
-\key{opening bracket name} and
+\emkey{opening bracket name} and
 a \key{closing bracket name}, separated by 
 a `\verb/.../' lexeme.
 By abuse of language, 
@@ -2862,7 +2886,7 @@ Indentation marks are defined by indentation mark definitions,
 whose syntax is:
 
 \begin{indpar}
-\key{indentation-mark-definition} \\
+\emkey{indentation-mark-definition} \\
 	\hspace*{0.5in}::= {\tt define}~
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\tt indentation mark}\ttindex{define indentation mark} \\
@@ -2875,23 +2899,23 @@ whose syntax is:
 	    \end{tabular}
 \label{INDENTATION-MARK-DEFINITION}
 	    \\[1ex]
-\key{indentation-mark-name} ::=
+\emkey{indentation-mark-name} ::=
 	{\em mark-name} $|$ {\em gluing-indicator} {\em mark-name}
 \label{INDENTATION-MARK-NAME}
 	\\[1ex]
-\key{mark-name} ::= {\em mark} $|$ {\em quoted-string}
+\emkey{mark-name} ::= {\em mark} $|$ {\em quoted-string}
 	\\[1ex]
-\key{gluing-indicator} ::= \verb|*|
+\emkey{gluing-indicator} ::= \verb|*|
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
 {\em new-parsing-selectors} ::= see \pagref{NEW-PARSING-SELECTORS}
 	\\[1ex]
-\key{reformatter-name} ::= {\em function-name }
+\emkey{reformatter-name} ::= {\em function-name }
 	\\[1ex]
-\key{evaluator-name} ::= {\em function-name }
+\emkey{evaluator-name} ::= {\em function-name }
 	\\[1ex]
-\key{function-name} ::= {\em name}
+\emkey{function-name} ::= {\em name}
         \\[1ex]
 {\em name} ::= see \pagref{NAME}
 \end{indpar}
@@ -2994,8 +3018,7 @@ The \mkey{indentation}{of line} of a line is the
 column number of the first non-white-space character in the line.
 
 An \key{indented subexpression}\label{INDENTED-SUBEXPRESSION}
-is introduced by an
-\key{indentation mark} that ends a line.  This mark must
+is introduced by an \key{indentation mark} that ends a line.  This mark must
 be defined by an indention mark definition, as per the
 example above.  If the mark is preceded in its definition by
 \ttmkey{*}{in indention mark definition}, then it may be
@@ -3014,9 +3037,8 @@ with less indentation.  Blank lines in an indented subexpression
 are ignored.
 
 In order to describe indented subexpressions in syntax equations,
-the syntax categories
-\key{indentation-beginning},
-\key{indentation-separator}, and \key{indentation-end} are used.
+the syntax categories \key{indentation-beginning}, \key{indentation-separator},
+and \key{indentation-end} are used.
 An {\em indentation-beginning}\label{INDENTATION-BEGINNING2}
 occurs just after the {\em indentation-mark} that introduces the
 indented subexpression, and just before the first line of the subexpression.
@@ -3427,54 +3449,56 @@ There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
 
 \begin{indpar}
-\key{lexeme-replacement-definition}\,
+\emkey{lexeme-replacement-definition}\,
 		     \begin{tabular}[t]{rl}
                      ::= & {\em lexeme-dictionary-definition} \\
 		     $|$ & {\em lexeme-function-definition}
 		     \end{tabular}
 \label{LEXEME-REPLACEMENT-DEFINITION}%
 		     \\[1ex]
-\ikey{lexeme-dictionary-definition}{lexeme-dictionary-!definition} \\
+\emikey{lexeme-dictionary-definition}
+       {lexeme-dictionary-@{\em lexeme-dictionary-}!definition@{\em definition}}
+           \\
 	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
 	                   \verb|define | & \verb|lexeme dictionary|
                                             {\em dictionary-name}
 					    {\em parsing-selectors} \\
 				& {\em lexeme-dictionary-entries}
 		     \end{tabular} \\[1ex]
-\key{dictionary-name} ::= {\em name}
+\emkey{dictionary-name} ::= {\em name}
 	\\[1ex]
 {\em name} ::= see \pagref{NAME}
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
-\key{lexeme-dictionary-entries}
+\emkey{lexeme-dictionary-entries}
                     ::= \underline{\LEFTBRACKET}
 		        {\em lexeme-dictionary-entry-list}
 			\underline{\RIGHTBRACKET}
 		    \\[1ex]
-\key{lexeme-dictionary-entry-list} \\
+\emkey{lexeme-dictionary-entry-list} \\
 		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
                      ::= & {\em lexeme-dictionary-entry} \\
 		     $|$ & {\em lexeme-dictionary-entry-list} \verb|;|
 		           {\em lexeme-dictionary-entry}
 		     \end{tabular} \\[1ex]
-\key{lexeme-dictionary-entry} \\
+\emkey{lexeme-dictionary-entry} \\
     \hspace*{0.5in}::=
 	{\em replaced-lexemes} \verb|==>| {\em replacing-lexemes}
 	\\[1ex]
-\key{replaced-lexemes} ::= {\em name}
+\emkey{replaced-lexemes} ::= {\em name}
 	\\[1ex]
-\key{replacing-lexemes} ::= {\em empty} $|$ {\em name }
+\emkey{replacing-lexemes} ::= {\em empty} $|$ {\em name }
 	\\[1ex]
-\key{lexeme-function-definition} \\
+\emkey{lexeme-function-definition} \\
 	\hspace*{0.5in}::= \verb|define lexeme function|
 				{\em function-name}
 				{\em parsing-selectors} \\[1ex]
-\key{function-name} ::= {\em name}
+\emkey{function-name} ::= {\em name}
 \label{FUNCTION-NAME}
 \end{indpar}
 
-A \key{lexeme dictionary entry} gives a sequence of lexemes
+A \emkey{lexeme-dictionary-entry} gives a sequence of lexemes
 that is to be replaced
 and a sequence of lexemes that replace it.  For example, the entry
 
@@ -3597,8 +3621,8 @@ the implicit \verb|(# #)| brackets.
 The following are the top level syntax equations for numbers.
 
 \begin{indpar}
-\key{number} ::= {\em real-number} $|$ {\em number-unit-group} \\[1ex]
-\key{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
+\emkey{number} ::= {\em real-number} $|$ {\em number-unit-group} \\[1ex]
+\emkey{real-number} ::= {\em decimal-number} $|$ {\em radix-number}
 				           $|$ {\em scientific-number}
 				           $|$ {\em number-pair}
 \end{indpar}%
@@ -3616,7 +3640,7 @@ are sequences of digits with optional commas and
 an optional decimal point or slash.
 
 \begin{indpar}
-\key{decimal-number} \begin{tabular}[t]{rl}
+\emkey{decimal-number} \begin{tabular}[t]{rl}
                               ::= & {\em decimal-integer} \\
 		              $|$ & {\em decimal-integer}\verb|.|%
 		                    {\em decimal-fraction} \\
@@ -3624,22 +3648,22 @@ an optional decimal point or slash.
 		              $|$ & {\em decimal-numerator}\verb|/|%
 		                    {\em decimal-denominator} \\
 		              \end{tabular} \\[1ex]
-\key{decimal-integer} ::= {\em decimal-natural}
+\emkey{decimal-integer} ::= {\em decimal-natural}
 \label{DECIMAL-INTEGER}
 \\[1ex]
-\key{decimal-fraction} ::= {\em decimal-natural}
+\emkey{decimal-fraction} ::= {\em decimal-natural}
 \label{DECIMAL-FRACTION}
 \\[1ex]
-\key{decimal-numerator} ::= {\em decimal-natural}
+\emkey{decimal-numerator} ::= {\em decimal-natural}
 \label{DECIMAL-NUMERATOR}
 \\[1ex]
-\key{decimal-denominator} ::= {\em decimal-natural}
+\emkey{decimal-denominator} ::= {\em decimal-natural}
 \label{DECIMAL-DENOMINATOR}
 \\[1ex]
-\key{decimal-natural} ::= {\em decimal-digits}
+\emkey{decimal-natural} ::= {\em decimal-digits}
 		     $|$ {\em decimal-natural} \verb|,| {\em decimal-digits}
 		     \\[1ex]
-\key{decimal-digits} ::= {\em digit} {\em digit}\,$^\star$
+\emkey{decimal-digits} ::= {\em digit} {\em digit}\,$^\star$
 \end{indpar}
 
 Decimal Number Examples:
@@ -3693,13 +3717,13 @@ radi\-ces to the used instead of decimal.  In fact, other number representation
 schemes are permitted.
 
 \begin{indpar}
-\key{radix-number} \\
+\emkey{radix-number} \\
 	\hspace*{0.5in}::= {\em radix-indicator}
 		        \verb|"| {\em radix-number-mark}
 		        {\em radix-number-mark}\,$^\star$ \verb|"|
 		        \\[1ex]
-\key{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
-\key{radix-number-mark} ::= {\em character-representative}
+\emkey{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
+\emkey{radix-number-mark} ::= {\em character-representative}
 ~~~~~ [See Figure \figref{CHARACTER-REPRESENTATIVES}]
 \end{indpar}
 
@@ -3775,7 +3799,7 @@ inserted.
 		     \end{tabular}
 \label{RADIX-INDICATOR-DEFINITION}
 		     \\[1ex]
-\key{radix-indicator} ::= {\em name}
+\emkey{radix-indicator} ::= {\em name}
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
@@ -3801,14 +3825,14 @@ A {\em scientific-number} is a {\em decimal-number} or a {\em radix-number}
 followed by an exponent.
 
 \begin{indpar}
-\key{scientific-number} \begin{tabular}[t]{rl}
+\emkey{scientific-number} \begin{tabular}[t]{rl}
                         ::= & {\em decimal-number} {\em exponent} \\
 			$|$ & {\em radix-number} {\em exponent}
 		        \end{tabular} \\[1ex]
-\key{exponent} ::= {\em exponent-indicator}
+\emkey{exponent} ::= {\em exponent-indicator}
 		   {\em exponent-sign-and-digits} \\[1ex]
-\key{exponent-indicator} ::= \verb|e| $|$ \verb|E| \\[1ex]
-\key{exponent-sign-and-digits} ::= {\em decimal-digits}
+\emkey{exponent-indicator} ::= \verb|e| $|$ \verb|E| \\[1ex]
+\emkey{exponent-sign-and-digits} ::= {\em decimal-digits}
 			    $|$ {\em sign} {\em decimal-digits}
 \end{indpar}
 
@@ -3869,7 +3893,7 @@ of which is in integer and the second of which is a fraction
 containing a slash.
 
 \begin{indpar}
-\key{number-pair} ::= {\em decimal-integer}
+\emkey{number-pair} ::= {\em decimal-integer}
 		   {\em decimal-numerator}\verb|/|{\em decimal-denominator}
 		   \\[1ex]
 {\em decimal-integer} ::= see \pagref{DECIMAL-INTEGER} \\[1ex]
@@ -3907,24 +3931,24 @@ and a {\em unit-specifier}.
 The syntax equations are:
 
 \begin{indpar}
-\key{number-unit-group} ::= {\em number-unit-pair}
+\emkey{number-unit-group} ::= {\em number-unit-pair}
 			    {\em number-unit-pair}\,$^\star$ \\[1ex]
-\key{number-unit-pair} \begin{tabular}[t]{rl}
+\emkey{number-unit-pair} \begin{tabular}[t]{rl}
                      ::= & {\em prefix-unit-specifier} {\em real-number} \\
                      $|$ & {\em real-number} {\em postfix-unit-specifier} \\
 		     \end{tabular} \\[1ex]
-\key{prefix-unit-specifier} ::= {\em name} \\[1ex]
-\key{postfix-unit-specifier} ::= {\em name} \\[1ex]
-\key{unit-specifier} ::= {\em prefix-unit-specifier} $|$
+\emkey{prefix-unit-specifier} ::= {\em name} \\[1ex]
+\emkey{postfix-unit-specifier} ::= {\em name} \\[1ex]
+\emkey{unit-specifier} ::= {\em prefix-unit-specifier} $|$
                          {\em postfix-unit-specifier} \\[1ex]
-\key{name} ::= see \pagref{NAME}
+\emkey{name} ::= see \pagref{NAME}
 \end{indpar}
 
 In order to be recognized as a {\em unit-specifier} a {\em symbol} sequence
 must be defined as a {\em unit-specifier-name} by the following:
 
 \begin{indpar}
-\key{unit-specifier-definition} \\
+\emkey{unit-specifier-definition} \\
 	\hspace*{0.5in}::= \verb|define unit specifier|
 	    \begin{tabular}[t]{l}
 	    {\em unit-specifier-fixity} \\
@@ -3932,7 +3956,7 @@ must be defined as a {\em unit-specifier-name} by the following:
 	    \end{tabular}
 \label{UNIT-SPECIFIER-DEFINITION}
 	    \\[1ex]
-\key{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix}
+\emkey{unit-specifier-fixity} ::= \ttkey{prefix} $|$ \ttkey{postfix}
 	\\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
@@ -4012,11 +4036,11 @@ in the parsing stack names the parser used to parse expressions.
 Expression parser definitions have the syntax:
 
 \begin{indpar}
-\key{expression-parser-definition} ::=\\
+\emkey{expression-parser-definition} ::=\\
 \hspace*{0.5in}\verb|define expression parser| {\em parser-name}
 				               {\em parsing-selectors} \\[1ex]
-\key{parser-name} ::= {\em name} \\[1ex]
-\key{name} ::= see \pagref{NAME} \\[1ex]
+\emkey{parser-name} ::= {\em name} \\[1ex]
+\emkey{name} ::= see \pagref{NAME} \\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
 
@@ -4068,7 +4092,7 @@ Evaluator
 The syntax of operator definitions is:
 
 \begin{indpar}
-\key{operator-definition} \\
+\emkey{operator-definition} \\
 	\hspace*{0.5in}::= \ttkey{define operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
@@ -4077,7 +4101,7 @@ The syntax of operator definitions is:
 	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
 	    \end{tabular}
 	    \\[1ex]
-\key{operator-name} \begin{tabular}[t]{rl}
+\emkey{operator-name} \begin{tabular}[t]{rl}
 		    ::= & {\em simple-operator-name} \\
 		    $|$ & \verb|bracket| {\em bracket-name} \\
 		    $|$ & \verb|indentation mark| {\em indentation-mark-name}
@@ -4086,21 +4110,21 @@ The syntax of operator definitions is:
 {\em simple-operator-name} ::= {\em name}  [see \pagref{NAME}] \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
 {\em indentatio-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
-\key{operator-flag} ::= \ttmkey{prefix}{operator flag}
+\emkey{operator-flag} ::= \ttmkey{prefix}{operator flag}
                     $|$ \ttmkey{infix}{operator flag}
                     $|$ \ttmkey{postfix}{operator flag}
                     $|$ \ttmkey{nofix}{operator flag}
                     $|$ \ttmkey{afix}{operator flag}
 	\\[1ex]
-\key{precedence} ::= {\em sign-option} {\em decimal-integer}
+\emkey{precedence} ::= {\em sign-option} {\em decimal-integer}
 	\\[1ex]
-\key{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
+\emkey{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
 	\\[1ex]
-\key{reformatter-name} ::= {\em function-name }
+\emkey{reformatter-name} ::= {\em function-name }
 	\\[1ex]
-\key{function-name} ::= {\em name}
+\emkey{function-name} ::= {\em name}
 	\\[1ex]
-\key{name} ::= see \pagref{NAME}
+\emkey{name} ::= see \pagref{NAME}
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
@@ -4270,9 +4294,9 @@ Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
-\key{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
-\key{temporary} ::= \verb|$| {\em decimal-natural} \\[1ex]
-\key{decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
+\emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
+\emkey{temporary} ::= \verb|$| {\em decimal-natural} \\[1ex]
+\emkey{decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
 \end{indpar}
 
 During reformatting, a subexpression may be replaced by
@@ -4662,8 +4686,8 @@ operator in the output list, and therefore
 becomes the lead operator of the output list.
 
 \item
-If the current operator fixity is prefix, infix, or nofix, then a
-\key{parsing subloop} that repeats the following is executed:
+If the current operator fixity is prefix, infix, or nofix, then
+a \key{parsing subloop} that repeats the following is executed:
 
 \begin{enumerate}
 
@@ -4763,19 +4787,19 @@ possibly followed by a phrase.  However, a paragraph cannot be empty.
 The syntax of the result is:
 
 \begin{indpar}
-\key{section} ::= \verb|[-SECTION-| {\em paragraph} {\em paragraph}\,$^\star$
+\emkey{section} ::= \verb|[-SECTION-| {\em paragraph} {\em paragraph}\,$^\star$
                   \verb|]| \\[1ex]
-\key{paragraph}
+\emkey{paragraph}
 	\begin{tabular}[t]{rl}
 	::= &  \verb|[-PARAGRAPH-| {\em sentence} {\em sentence}\,$^\star$
 	       \verb|]| \\
 	$|$ &  \verb|[-PARAGRAPH-| {\em sentence}\,$^\star$ {\em phrase}
 	       \verb|]|
 	\end{tabular} \\[1ex]
-\key{sentence} ::= \verb|[-SENTENCE-| {\em sentence-non-terminator}\,$^\star$
+\emkey{sentence} ::= \verb|[-SENTENCE-| {\em sentence-non-terminator}\,$^\star$
                                     {\em sentence-terminator}
                   \verb|]| \\[1ex]
-\key{phrase}
+\emkey{phrase}
 	\begin{tabular}[t]{rl}
 	::= &  \verb|[| \begin{tabular}[t]{@{}l@{}}
 			{\em sentence-non-terminator}
@@ -4784,10 +4808,10 @@ The syntax of the result is:
 			\end{tabular} \\
 	$|$ &  {\em sentence-non-terminator}
 	\end{tabular} \\[1ex]
-\key{sentence-terminator} ::= \verb|.| $|$
+\emkey{sentence-terminator} ::= \verb|.| $|$
                               \verb|?| $|$
                               \verb|!| \\[1ex]
-\key{sentence-non-terminator} ::= {\em symbol} $|$
+\emkey{sentence-non-terminator} ::= {\em symbol} $|$
                                   {\em subexpression}
 \end{indpar}
 
@@ -4937,8 +4961,8 @@ The text parser divides the input into paragraphs that are separated by
 blank lines.
 
 Paragraphs are classified as tabular or free-form according
-to whether their first line is a tabular format line.  A
-\key{tabular format line} contains optional whitespace characters,
+to whether their first line is a tabular format line.
+A \key{tabular format line} contains optional whitespace characters,
 followed by a `\ttmnbkey{+}{in tabular format line}', followed
 by any number of `{\tt +}' or
 `\ttmnbkey{-}{in tabular format line}' characters,
@@ -5103,14 +5127,14 @@ would if a guard evaluated to false.
 \ikey{Expression definitions}{expression definition} have the syntax:
 
 \begin{indpar}
-\key{expression-definition} ::=
+\emkey{expression-definition} ::=
 	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
 	\\[1ex]
-\key{pattern} ::= {\em pattern-term-option}
+\emkey{pattern} ::= {\em pattern-term-option}
 		  \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$
 		  \\[1ex]
-\key{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
-\key{pattern-term} \begin{tabular}[t]{rl}
+\emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
+\emkey{pattern-term} \begin{tabular}[t]{rl}
             ::= & {\em expression} {\em expression}$^\star$ \\
             ::= & {\em expression} {\em expression}$^\star$
 	    		\ttmkey{?}{in pattern} \\
@@ -5119,14 +5143,14 @@ would if a guard evaluated to false.
             ::= & {\em expression} {\em expression}$^\star$
 	    		\ttmkey{...?}{in pattern} \\
 	    \end{tabular} \\[1ex]
-\key{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
-\key{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
-\key{guard} ::= {\em expression} \\[1ex]
-\key{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\key{block} ::= \verb|{| {\em block-header}$^\star$ {\em statement}
+\emkey{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
+\emkey{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
+\emkey{guard} ::= {\em expression} \\[1ex]
+\emkey{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
+\emkey{block} ::= \verb|{| {\em block-header}$^\star$ {\em statement}
                            \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
 	    \\[1ex]
-\key{block-header} \begin{tabular}[t]{rl}
+\emkey{block-header} \begin{tabular}[t]{rl}
             ::= & \ttkey{default}
 	    	\verb|{| {\em default-equation}
 		\{ \verb|;| {\em default-equation} \}$^\star$ \verb|}| \\
@@ -5134,10 +5158,10 @@ would if a guard evaluated to false.
 	    	\verb|{| {\em constraint-equation}
 		\{ \verb|;| {\em constraint-equation} \}$^\star$ \verb|}| \\
 	    \end{tabular} \\[1ex]
-\key{default-equation} ::= {\em syntax-variable}
+\emkey{default-equation} ::= {\em syntax-variable}
 		\ttmnbkey{:=:}{in {\em default-equation}}
 		{\em expression} \\[1ex]
-\key{constraint-equation} ::= {\em expression}
+\emkey{constraint-equation} ::= {\em expression}
 		\ttmnbkey{:=:}{in {\em constraint-equation}}
 		{\em expression} \\[1ex]
 {\em expression} ::= see \secref{EXPRESSION-PARSERS}
@@ -5461,78 +5485,78 @@ code for computing these values.
 The code of a block has the following syntax:
 
 \begin{indpar}
-\key{block} ::= \verb|{| {\em group}
+\emkey{block} ::= \verb|{| {\em group}
                          \{ {\em sequence-break} {\em group} \}\,$^\star$
 			 \verb|}| \\[1ex]
-\key{sequence-break} ::= \ttnbkey{---}\verb|-|$^\star$
+\emkey{sequence-break} ::= \ttnbkey{---}\verb|-|$^\star$
 	(1 word consisting of 3 or more \verb|-|'s) \\[1ex]
-\key{group} ::= {\em declaration-group} $|$ {\em statement-group}
+\emkey{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
-\key{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}
+\emkey{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}
     \{ \verb|;| {\em declaration} \}$^\star$ \\[1ex]
-\key{statement-group} ::= {\em statement}
+\emkey{statement-group} ::= {\em statement}
 	\{ \verb|;| {\em statement} \}$^\star$ \\[1ex]
-\key{declaration}
+\emkey{declaration}
     \begin{tabular}[t]{rl}
     ::= & {\em expression-definition} \\
     $|$ & {\em method-definition} \\
     $|$ & {\em empty} \\
     \end{tabular} \\[1ex]
-\key{expression-definition} ::= {\em EXPRESSION-DEFINITION} 
+\emkey{expression-definition} ::= {\em EXPRESSION-DEFINITION} 
 				(see \pagref{EXPRESSION-DEFINITION}) \\[1ex]
-\key{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION} \\[1ex]
-\key{statement} ::= {\em qualified-statement} $|$ {\em empty} \\[1ex]
-\key{qualified-statement}
+\emkey{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION} \\[1ex]
+\emkey{statement} ::= {\em qualified-statement} $|$ {\em empty} \\[1ex]
+\emkey{qualified-statement}
     \begin{tabular}[t]{rl}
     ::= & {\em assignment-statement} \\
     $|$ & {\em unguarded-subblock} \\
     $|$ & {\em guarded-statement} \\
     $|$ & {\em statement-qualifier} {\em qualified-statement}
     \end{tabular} \\[1ex]
-\key{statement-qualifier} ::= \ttkey{first}
+\emkey{statement-qualifier} ::= \ttkey{first}
 			  $|$ \ttkey{always}
 			  $|$ \ttkey{default}
 			  \\[1ex]
-\key{assignment-statement}
+\emkey{assignment-statement}
 	\begin{tabular}[t]{rl}
 	::= & {\em variable-assignment-statement} \\
 	$|$ & {\em pattern-assignment-statement}
 	\end{tabular} \\[1ex]
-\key{variable-assignment-statement} ::=
+\emkey{variable-assignment-statement} ::=
 	{\em output-variable} \ttkey{=} {\em right-side} \\[1ex]
-\key{right-side} \
+\emkey{right-side} \
     \begin{tabular}[t]{rl}
     ::= & {\em right-side-expression} \\
     $|$ & {\em right-side-expression} \ttnbkey{=>} {\em output-variable}
 		\{ \verb|,| {\em output-variable} \}\,$^\star$
     \end{tabular} \\[1ex]
-\key{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
-\key{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
-\key{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
-\key{next-variable} ::= \ttkey{next} \verb|(| {\em variable-name} \verb|)|
+\emkey{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
+\emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
+\emkey{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
+\emkey{next-variable} ::= \ttkey{next} \verb|(| {\em variable-name} \verb|)|
 		\\[1ex]
-\key{variable-name} ::= {\em word} \\[1ex]
-\key{pattern-assignment-statement} ::=
+\emkey{variable-name} ::= {\em word} \\[1ex]
+\emkey{pattern-assignment-statement} ::=
 	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
-\key{assignment-pattern} ::= {\em EXPRESSION} \\[1ex]
-\key{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
-\key{guarded-statement} ::=
+\emkey{assignment-pattern} ::= {\em EXPRESSION} \\[1ex]
+\emkey{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
+\emkey{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
-\key{if-statement} ::=
+\emkey{if-statement} ::=
       \begin{tabular}[t]{l}
       \ttkey{if} {\em guard} {\em guarded-subblock} \\
       {\em else-if-continuation}\,$^\star$ \\
       {\em else-continuation-option}
       \end{tabular} \\[1ex]
-\key{else-if-continuation} ::=
+\emkey{else-if-continuation} ::=
       \verb|;| \ttkey{else if} {\em guard} {\em guarded-subblock} \\[1ex]
-\key{else-continuation-option} ::= {\em empty} $|$
+\emkey{else-continuation-option} ::= {\em empty} $|$
       \verb|;| \ttkey{else} {\em guard} {\em guarded-subblock} \\[1ex]
-\key{when-statement} ::=
+\emkey{when-statement} ::=
       \ttkey{when} {\em guard} {\em guarded-subblock} \\[1ex]
-\key{guard} ::= {\em right-side} \\[1ex]
-\key{guarded-subblock} ::= \verb|{| {\em statement-group} \verb|}|
+\emkey{guard} ::= {\em right-side} \\[1ex]
+\emkey{guarded-subblock} ::= \verb|{| {\em statement-group} \verb|}|
 \end{indpar}
 
 A block is parsed when the statement that contains it (typically
@@ -5874,9 +5898,9 @@ An \key{object} can be created by an {\em OBJECT} expression:
 
 
 \begin{indpar}
-\key{OBJECT} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
+\emkey{OBJECT} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
 		      {\em block-option} \\[1ex]
-\key{type-name} ::= {\em word}
+\emkey{type-name} ::= {\em word}
 \end{indpar}
 
 The code in the {\em block} becomes a permanent part of the object.
