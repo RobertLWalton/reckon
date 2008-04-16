@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 4, 2008}
+\date{April 16, 2008}
  
 \maketitle
 
@@ -1566,7 +1566,6 @@ The format of a \key{raw representation} is:
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
-        $|$ &  \\
 	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
 	$|$ & \underline{\LEFTBRACKET\BAR}
 	      {\em raw-attribute-representation}
@@ -5022,14 +5021,14 @@ complete the match.  There are two kinds of constraint equations: syntax
 equations, and guards.  Syntax equations involve syntax
 variables, which are names beginning with a capital letter optionally
 preceded by a \verb|$|.  Guards are just expressions that must evaluate to
-\verb|true| in order for the match to complete.  The syntax equations
+\verb|true| in order for the match to succeed.  The syntax equations
 are solved during the matching process, to produce values for the
 syntax variables.  If the syntax equations are inconsistent and
-cannot be solved, the match fails.  Evaluation of the guards in a definition
+cannot be solved, of if a guard evaluates to \verb|false|,
+the match fails.  Evaluation of the guards in a definition
 may result
-in additional matches which generate more syntax equations that
-involve the syntax variables in the definitions that match the
-guards.
+in additional matches which generate more syntax equations involving
+more the syntax variables and also generate more guards.
 
 The matching process must consider all possible choices of which definitions
 to match to an expression being evaluated.  If all choices fail, the
@@ -5052,13 +5051,6 @@ in the context in which the unevaluated expression appears.
 This last value is called the `\key{evaluation}' of the unevaluated
 expression.  Thus, for example, \verb|$X| denotes an unevaluated
 expression and \verb|X| denotes the evaluation of that expression.
-
-A syntax variable name in the pattern part of a definition that does
-not begin with \verb|$| is treated as if it had a preceding \verb|$|.
-Such a variable is not allowed to appear with a preceding \verb|$|
-anywhere in the definition.  Thus omitting the \verb|$| is both a
-convenient shorthand and a promise never to use the unevaluated expression
-denoted by the variable name with preceding \verb|$|.
 
 As an example, if `\verb|foo(2+2)|'
 is matched to the pattern `\verb|foo($X)|', then the matching syntax
@@ -5091,6 +5083,19 @@ the syntax equation
 is generated, then the value of \verb|$X| becomes `\verb|2+7|'
 which can now be evaluated to produce the value \verb|9| for \verb|X|
 and allow the guard to become `\verb|number(9)|'.
+
+A syntax variable name in the pattern part of a definition that does
+not begin with \verb|$| is treated as if it had a preceding \verb|$|.
+Such a variable is not allowed to appear with a preceding \verb|$|
+anywhere in the definition.  Thus omitting the \verb|$| is both a
+convenient shorthand and a promise never to use the unevaluated expression
+denoted by the variable name preceded by \verb|$|.
+
+Thus in the above we could have used the pattern
+`\verb|foo(X)|' in place of the pattern
+`\verb|foo($X)|'.  But if we did that, we could not use \verb|$X|
+anywhere in the definition, although using just \verb|X|, as in
+\verb|number(X)|, is allowed.
 
 Except for choices of which definitions to match to which expressions,
 the entire matching process is monotonic.  This means the order of
@@ -5163,7 +5168,7 @@ would if a guard evaluated to false.
     \begin{tabular}[t]{l}
     {\em pattern-term-option}
         \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$ \\
-    {\em cooked-attribute-representations}
+    {\em pattern-attribute-representations}
     \end{tabular} \\[1ex]
 \emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
 \emkey{pattern-term} \begin{tabular}[t]{rl}
@@ -5175,7 +5180,26 @@ would if a guard evaluated to false.
             ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
 	    		\ttmkey{...?}{in pattern} \\
 	    \end{tabular} \\[1ex]
-\emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object}
+\emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object} \\[1ex]
+\emkey{pattern-attribute-representations}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        ::= & {\em empty} \\
+	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
+	$|$ & \underline{\LEFTBRACKET\BAR}
+	      \begin{tabular}[t]{@{}l@{}}
+	      {\em pattern-attribute-representation} \\
+	      \{ \verb|;|
+	              {\em pattern-attribute-representation} \}$^\star$
+	      \underline{\BAR\RIGHTBRACKET} \\
+	      \end{tabular}
+	\end{tabular}
+\\[1ex]
+\emkey{pattern-attribute-representation} ::=
+\\\hspace*{0.5in}
+	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
+	{\em pattern}
+
 \end{indpar}%
 \label{PATTERN}
 
@@ -5196,12 +5220,21 @@ copied, and then the pattern of the copy is matched
 with the expression.  The act of copying the definition
 creates a new set of variables that are distinct from any
 previous variables.  If pattern matching fails, the definition
-match fails.  If pattern matching succeeds, it generates syntax equations.
-Otherwise the matching process continues
-by generating constraint syntax equations and then searching for
+match fails.  If pattern matching succeeds, it generates consistent
+syntax equations.
+In this case the matching process continues
+by generating constraint syntax equations and guards and then searching for
 definitions that match the guards.
 
-[Evaluation, side effects]
+\subsection{Pattern Matching}
+\label{PATTERN-MATCHING}
+
+The \key{pattern matching} algorithm matches an expression to a pattern.
+Both the expression and the pattern are viewed by the algorithm as
+data, that is, as atoms or objects, and \underline{not} as lexeme
+sequences.  The matching algorithm has one set of rules for matching
+the list parts of object, and another set for matching the non-list
+parts.
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
