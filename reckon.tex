@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 16, 2008}
+\date{April 23, 2008}
  
 \maketitle
 
@@ -5226,8 +5226,68 @@ In this case the matching process continues
 by generating constraint syntax equations and guards and then searching for
 definitions that match the guards.
 
-\subsection{Pattern Matching}
-\label{PATTERN-MATCHING}
+\subsection{Syntax Equations}
+\label{SYNTAX-EQUATIONS}
+
+A \key{syntax equation} asserts syntactic identity between two
+\skey{syntax expression}s.  A syntax expression is an syntax variable,
+an atom, or an object whose attribute values are syntax expressions.
+The syntax of a syntax equation is:
+
+\begin{indpar}
+\emkey{syntax-equation} ::= {\em syntax-expression} \ttkey{:=:}
+			    {\em syntax-expression} \\[1ex]
+\emkey{syntax-expression} ::= {\em syntax-variable}
+			   $|$ {\em atom} $|$ {\em object} \\[1ex]
+\emkey{syntax-variable} \begin{tabular}[t]{rl}
+			::= & {\tt \$} \\
+			$|$ & {\tt \$} {\em capitalized-word } \\
+			$|$ & {\tt \$} {\em capitalized-word } {\em name}
+			\end{tabular}
+\end{indpar}
+
+As a general rule, a syntax equation is \key{inconsistent} if it
+
+\begin{enumerate}
+\item asserts identity between distinct atoms, or
+\item asserts identity between objects one of which has an attribute
+label that the other does not have, or
+\item asserts identity between objects one of which has an attribute
+with more than one value, or
+\item asserts identity between an atom and an object
+\end{enumerate}
+
+However, there are some exceptions to these rules.  These are:
+
+\begin{enumerate}
+\item an object whose {\tt .initiator} is {\tt "("} and whose
+{\tt .terminator} is {\tt ")"} is treated as if it had no
+{\tt .initiator} or {\tt .terminator} attributes,
+\item an atom may be treated as if it were an object that has
+no attributes except a list element equal to the atom
+\end{enumerate}
+
+From a consistent syntax equation asserting the syntax identity
+of two objects new equations may be deduced for every attribute
+label shared by the two objects.  Given such an attribute label, the values
+of the attribute for the two objects are asserted to be syntactically
+identical.  For example, from
+
+\begin{center}
+\verb/sort ($X) {| foo = 5 |} :=: sort ( 5 + 6 ) {| foo = 10 |}/
+\end{center}
+
+one can deduce
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/sort/ & \verb/sort/ \\
+\verb/($X)/ & \verb/( 5 + 6 )/ \\
+\verb/5/ & \verb/10/
+\end{tabular}
+\end{center}
+
+The deduced equations need not be consistent in order to be deduced.
 
 The \key{pattern matching} algorithm matches an expression to a pattern.
 Both the expression and the pattern are viewed by the algorithm as
