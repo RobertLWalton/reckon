@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 23, 2008}
+\date{April 24, 2008}
  
 \maketitle
 
@@ -5240,8 +5240,7 @@ The syntax of a syntax equation is:
 \emkey{syntax-expression} ::= {\em syntax-variable}
 			   $|$ {\em atom} $|$ {\em object} \\[1ex]
 \emkey{syntax-variable} \begin{tabular}[t]{rl}
-			::= & {\tt \$} \\
-			$|$ & {\tt \$} {\em capitalized-word } \\
+			::= & {\tt \$} {\em capitalized-word } \\
 			$|$ & {\tt \$} {\em capitalized-word } {\em name}
 			\end{tabular}
 \end{indpar}
@@ -5264,8 +5263,17 @@ However, there are some exceptions to these rules.  These are:
 {\tt .terminator} is {\tt ")"} is treated as if it had no
 {\tt .initiator} or {\tt .terminator} attributes,
 \item an atom may be treated as if it were an object that has
-no attributes except a list element equal to the atom
+no attributes except one list element equal to the atom
 \end{enumerate}
+
+Thus the following identities are consistent:
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/5 + 6/ & \verb/( 5 + 6 )/ \\
+\verb/5 + 6/ & \verb/5 + ( 6 )/ \\
+\end{tabular}
+\end{center}
 
 From a consistent syntax equation asserting the syntax identity
 of two objects new equations may be deduced for every attribute
@@ -5288,13 +5296,39 @@ one can deduce
 \end{center}
 
 The deduced equations need not be consistent in order to be deduced.
+However, in this case the first two equations are consistent, and
+from the second we can deduce:
 
-The \key{pattern matching} algorithm matches an expression to a pattern.
-Both the expression and the pattern are viewed by the algorithm as
-data, that is, as atoms or objects, and \underline{not} as lexeme
-sequences.  The matching algorithm has one set of rules for matching
-the list parts of object, and another set for matching the non-list
-parts.
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/"("/ & \verb/"("/ \\
+\verb/$X/ & \verb/5 + 6/ \\
+\verb/")"/ & \verb/")"/
+\end{tabular}
+\end{center}
+
+The identity `\ttkey{:=:}' in a syntax equation is taken to be
+symmetric and transitive.  This means that if $e_1$, $e_2$, and
+$e_3$ are syntax expressions, then
+
+\begin{enumerate}
+\item Symmetry: from $e_1$ {\tt :=:} $e_2$ we deduce $e_2$ {\tt :=:} $e_1$.
+
+\item Transitivity: from $e_1$ {\tt :=:} $e_2$ and $e_2$ {\tt :=:} $e_3$
+we deduce $e_1$ {\tt :=:} $e_3$.
+\end{enumerate}
+
+We have now given all the deduction rules used to solve syntax equations.
+Note that these rules do \underline{not} create new syntax expressions:
+all the syntax expressions in any deduced equation were subexpressions
+in previous equations.  An algorithm that keeps making deductions until
+no new deductions can be made will stop fairly quickly.
+
+Also note that as a technical point, if all we want is to deduce all
+syntax equations for which one side as a syntax variable, then we can
+restrict the application of the transitivity rule to the case where
+$e_2$, the eliminated sytax expression, is a syntax variable.
+[Check this.]
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
