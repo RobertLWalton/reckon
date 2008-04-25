@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 24, 2008}
+\date{April 25, 2008}
  
 \maketitle
 
@@ -5235,7 +5235,7 @@ an atom, or an object whose attribute values are syntax expressions.
 The syntax of a syntax equation is:
 
 \begin{indpar}
-\emkey{syntax-equation} ::= {\em syntax-expression} \ttkey{:=:}
+\emkey{syntax-equation} ::= {\em syntax-expression} \ttnbkey{:=:}
 			    {\em syntax-expression} \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
 			   $|$ {\em atom} $|$ {\em object} \\[1ex]
@@ -5307,7 +5307,7 @@ from the second we can deduce:
 \end{tabular}
 \end{center}
 
-The identity `\ttkey{:=:}' in a syntax equation is taken to be
+The identity `\ttnbkey{:=:}' in a syntax equation is taken to be
 symmetric and transitive.  This means that if $e_1$, $e_2$, and
 $e_3$ are syntax expressions, then
 
@@ -5329,6 +5329,82 @@ syntax equations for which one side as a syntax variable, then we can
 restrict the application of the transitivity rule to the case where
 $e_2$, the eliminated sytax expression, is a syntax variable.
 [Check this.]
+
+\subsection{Patterns}
+\label{PATTERNS}
+
+A \emkey{pattern} is an object that represents one of
+a set of syntax expressions.  Patterns are used in
+{\em pattern-equations}, which identify a {\em syntax-expression} with
+a {\em pattern}.  The syntax of a pattern equations and patterns is:
+
+\begin{indpar}
+\emkey{pattern-equation} ::= {\em syntax-expression} \ttnbkey{:=\TILDE}
+			    {\em pattern} \\[1ex]
+\emkey{pattern} ::= {\em pattern-object}
+\\[3ex]
+\emkey{pattern-object} ::=
+    \begin{tabular}[t]{l}
+    {\em pattern-term-option}
+        \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$ \\
+    {\em pattern-attribute-representations}
+    \end{tabular} \\[1ex]
+\emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
+\emkey{pattern-term} \begin{tabular}[t]{rl}
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$ \\
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
+	    		\ttmkey{?}{in pattern} \\
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
+	    		\ttmkey{...}{in pattern} \\
+            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
+	    		\ttmkey{...?}{in pattern} \\
+	    \end{tabular} \\[1ex]
+\emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object} \\[1ex]
+\emkey{pattern-attribute-representations}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        ::= & {\em empty} \\
+	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
+	$|$ & \underline{\LEFTBRACKET\BAR}
+	      \begin{tabular}[t]{@{}l@{}}
+	      {\em pattern-attribute-representation} \\
+	      \{ \verb|;|
+	              {\em pattern-attribute-representation} \}$^\star$
+	      \underline{\BAR\RIGHTBRACKET} \\
+	      \end{tabular}
+	\end{tabular}
+\\[1ex]
+\emkey{pattern-attribute-representation} ::=
+\\\hspace*{0.5in}
+	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
+	{\em pattern}
+\end{indpar}
+
+When a pattern equation identifies a syntax expression that is an
+object, and not an atom or a syntax variable, with a pattern, then
+the pattern is `\key{unfolded}' to become a syntax expression.  It must
+be possible to do this unambiguously, or the pattern equation is
+inconsistent.
+
+Consider the pattern equation
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/replace {b} by {5 + c} in (exp 1)/
+	& \verb/replace ($X) . in ($Y) . by ($Z)/ \\
+\end{tabular}
+\end{center}
+
+The {\em pattern} here contains three {\em pattern-terms} separated
+by `\verb|.|'s.  
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/sort/ & \verb/sort/ \\
+\verb/($X)/ & \verb/( 5 + 6 )/ \\
+\verb/5/ & \verb/10/
+\end{tabular}
+\end{center}
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
