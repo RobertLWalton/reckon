@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 25, 2008}
+\date{April 26, 2008}
  
 \maketitle
 
@@ -5172,14 +5172,13 @@ would if a guard evaluated to false.
     \end{tabular} \\[1ex]
 \emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
 \emkey{pattern-term} \begin{tabular}[t]{rl}
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$ \\
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
-	    		\ttmkey{?}{in pattern} \\
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
-	    		\ttmkey{...}{in pattern} \\
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
-	    		\ttmkey{...?}{in pattern} \\
+            ::= & {\em pattern-clause} \\
+            ::= & {\em pattern-clause} \ttmkey{?}{in pattern} \\
+            ::= & {\em pattern-clause} \ttmkey{...}{in pattern} \\
+            ::= & {\em pattern-clause} \ttmkey{...?}{in pattern} \\
 	    \end{tabular} \\[1ex]
+\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}$^\star$
+	\\[1ex]
 \emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object} \\[1ex]
 \emkey{pattern-attribute-representations}
 \\\hspace*{0.5in}
@@ -5245,47 +5244,69 @@ The syntax of a syntax equation is:
 			\end{tabular}
 \end{indpar}
 
-As a general rule, a syntax equation is \key{inconsistent} if it
+Syntax equations can be consistent or inconsistent according to the:
 
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Consistency Rule}{consistency rule}:]
+A syntax equation is \key{consistent} if it
 \begin{enumerate}
-\item asserts identity between distinct atoms, or
-\item asserts identity between objects one of which has an attribute
-label that the other does not have, or
-\item asserts identity between objects one of which has an attribute
-with more than one value, or
-\item asserts identity between an atom and an object
+\item asserts identity between a syntax variable and a syntax expression, or
+\item asserts identity between two identical atoms, or
+\item asserts identity between two objects each of which has the same
+attribute labels as the other, and all the attributes in both objects
+have exactly one value.
 \end{enumerate}
+However, this rule is applied after applying the Parentheses
+and Atom Rules below.
 
-However, there are some exceptions to these rules.  These are:
+Syntax equations that are not consistent are \key{inconsistent}.
+\end{list}
+\end{indpar}
 
-\begin{enumerate}
-\item an object whose {\tt .initiator} is {\tt "("} and whose
+The following rules amend the above process of consistency checking:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Parentheses Rule}{parentheses rule}:]
+An object whose {\tt .initiator} is {\tt "("} and whose
 {\tt .terminator} is {\tt ")"} is treated as if it had no
-{\tt .initiator} or {\tt .terminator} attributes,
-\item an atom may be treated as if it were an object that has
-no attributes except one list element equal to the atom
-\end{enumerate}
+{\tt .initiator} or {\tt .terminator} attributes.
+Also, a syntax variable name in \verb|( )| parentheses is treated
+as if there were no parentheses.
+
+\item[\ikey{Atom Rule}{atom rule}:]
+In a syntax equation asserting the identity of an atom and an object,
+the atom is treated as if it were an object that has
+no attributes except one list element equal to the atom.
+\end{list}
+\end{indpar}
 
 Thus the following identities are consistent:
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=:~}l}
 \verb/5 + 6/ & \verb/( 5 + 6 )/ \\
-\verb/5 + 6/ & \verb/5 + ( 6 )/ \\
+\verb/5/ & \verb/( 5 )/ \\
+\verb/($X)/ & \verb/{ 5 + 6 }/ \\
 \end{tabular}
 \end{center}
 
 From a consistent syntax equation asserting the syntax identity
 of two objects new equations may be deduced for every attribute
-label shared by the two objects.  Given such an attribute label, the values
+label shared by the two objects.
+Given such an attribute label, the values
 of the attribute for the two objects are asserted to be syntactically
-identical.  For example, from
+identical.  This is called \key{propagation}
+of the syntax equation, and the rule that permits it is called
+the \ikey{Propagation Rule}{propagation rule}\label{PROPAGATION-RULE}.
+For example, from
 
 \begin{center}
 \verb/sort ($X) {| foo = 5 |} :=: sort ( 5 + 6 ) {| foo = 10 |}/
 \end{center}
 
-one can deduce
+we can deduce by propagation that
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=:~}l}
@@ -5296,27 +5317,23 @@ one can deduce
 \end{center}
 
 The deduced equations need not be consistent in order to be deduced.
-However, in this case the first two equations are consistent, and
-from the second we can deduce:
-
-\begin{center}
-\begin{tabular}{r@{\tt ~:=:~}l}
-\verb/"("/ & \verb/"("/ \\
-\verb/$X/ & \verb/5 + 6/ \\
-\verb/")"/ & \verb/")"/
-\end{tabular}
-\end{center}
+In this case the first two equations are consistent and the third is not.
 
 The identity `\ttnbkey{:=:}' in a syntax equation is taken to be
 symmetric and transitive.  This means that if $e_1$, $e_2$, and
 $e_3$ are syntax expressions, then
 
-\begin{enumerate}
-\item Symmetry: from $e_1$ {\tt :=:} $e_2$ we deduce $e_2$ {\tt :=:} $e_1$.
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Symmetry Rule}{symmetry rule}:]\label{SYMMETRY-RULE}
+From $e_1$ {\tt :=:} $e_2$ we deduce $e_2$ {\tt :=:} $e_1$.
 
-\item Transitivity: from $e_1$ {\tt :=:} $e_2$ and $e_2$ {\tt :=:} $e_3$
+\item [\ikey{Transitivity Rule}{transitivity rule}:]%
+\label{GENERAL-TRANSITIVITY-RULE}
+From $e_1$ {\tt :=:} $e_2$ and $e_2$ {\tt :=:} $e_3$
 we deduce $e_1$ {\tt :=:} $e_3$.
-\end{enumerate}
+\end{list}
+\end{indpar}
 
 We have now given all the deduction rules used to solve syntax equations.
 Note that these rules do \underline{not} create new syntax expressions:
@@ -5328,7 +5345,16 @@ Also note that as a technical point, if all we want is to deduce all
 syntax equations for which one side as a syntax variable, then we can
 restrict the application of the transitivity rule to the case where
 $e_2$, the eliminated sytax expression, is a syntax variable.
-[Check this.]
+[TBD: Check this.]
+If this variable is denoted by $v$, then we can rewrite transitivity as:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Transitivity Rule}{transitivity rule}:]\label{TRANSITIVITY-RULE}
+From $v$ {\tt :=:} $e_1$ and $v$ {\tt :=:} $e_2$
+we deduce $e_1$ {\tt :=:} $e_2$.
+\end{list}
+\end{indpar}
 
 \subsection{Patterns}
 \label{PATTERNS}
@@ -5350,16 +5376,18 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
     {\em pattern-attribute-representations}
     \end{tabular} \\[1ex]
 \emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
-\emkey{pattern-term} \begin{tabular}[t]{rl}
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$ \\
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
-	    		\ttmkey{?}{in pattern} \\
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
-	    		\ttmkey{...}{in pattern} \\
-            ::= & {\em pattern-factor} {\em pattern-factor}$^\star$
-	    		\ttmkey{...?}{in pattern} \\
-	    \end{tabular} \\[1ex]
-\emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object} \\[1ex]
+\emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-marker-option}
+	\\[1ex]
+\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}$^\star$
+	\\[1ex]
+\emkey{pattern-factor} ::= {\em pattern-object} $|$ {\em atom}
+		       $|$ {\em syntax-variable} \\[1ex]
+\emkey{pattern-marker-option} ::= {\em empty} $|$ {\em pattern marker} \\[1ex]
+\emkey{pattern-marker} ::= \ttmkey{.}{pattern marker}
+		       $|$ \ttmkey{?}{pattern marker}
+		       $|$ \ttmkey{...}{pattern marker}
+		       $|$ \ttmkey{...?}{pattern marker}
+	\\[1ex]
 \emkey{pattern-attribute-representations}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
@@ -5380,13 +5408,63 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 	{\em pattern}
 \end{indpar}
 
-When a pattern equation identifies a syntax expression that is an
-object, and not an atom or a syntax variable, with a pattern, then
-the pattern is `\key{unfolded}' to become a syntax expression.  It must
-be possible to do this unambiguously, or the pattern equation is
-inconsistent.
+A pattern represents one of many possible syntax expressions.  The
+syntax expression it represents is made by concatenating the
+{\em pattern-clauses} in different ways.  For example,
 
-Consider the pattern equation
+\begin{center}
+\verb/replace ($X) . in ($Y) . by ($Z)/
+\end{center}
+
+represents one of the two syntax expressions:
+
+\begin{center}
+\verb/replace ($X) in ($Y) by ($Z)/ \\
+or \\
+\verb/replace ($X) by ($Z) in ($Y)/ 
+\end{center}
+
+The rules for pattern representation are:
+
+\begin{enumerate}
+\item The represented {\em syntax-expression} is a sequence of
+{\em pattern-clauses} from the {\em pattern} taken in any order,
+\underline{except}, if the first {\em pattern-clause} in the
+{\em pattern} is not preceded by `\verb|.|', it must be first in
+the {\em syntax-expression}.
+
+\item A {\em pattern-clause} not followed by `\verb|?|',
+`\verb|...|', or `\verb|...?|' in the {\em pattern} must appear exactly
+once in the represented {\em syntax-expression}.
+
+\item A {\em pattern-clause} followed by `\verb|?|',
+in the {\em pattern} is an \key{optional pattern clause}
+and must appear exactly once or not at all
+in the represented {\em syntax-expression}.
+
+\item A {\em pattern-clause} followed by `\verb|...|',
+in the {\em pattern} is a \key{repeated pattern clause}
+and must appear one or more times
+in the represented {\em syntax-expression}.
+
+\item A {\em pattern-clause} followed by `\verb|...?|',
+in the {\em pattern} is an \key{optional repeated pattern clause}
+and must appear one or more times or not at all
+in the represented {\em syntax-expression}.
+
+\end{enumerate}
+
+Patterns appear in pattern equations, which are just
+like syntax equations except their right sides ae patterns and not
+a syntax expressions.  If the syntax expression on the left side of
+a pattern equation is an object, then the pattern on the right side
+can be \key{unfolded} to match the syntax expression.  Unfolding
+means removing the \skey{pattern marker}s,
+`\verb|.|', `\verb|?|', `\verb|...|', and `\verb|...?|',
+and arranging the pattern clauses in the
+correct order (there are some more details below).
+For example,
+given the pattern equation:
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=\TILDE~}l}
@@ -5395,16 +5473,180 @@ Consider the pattern equation
 \end{tabular}
 \end{center}
 
-The {\em pattern} here contains three {\em pattern-terms} separated
-by `\verb|.|'s.  
+The pattern may be unfolded so the equation becomes:
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/replace {b} by {5 + c} in (exp 1)/
+	& \verb/replace ($X) by ($Z) in ($Y)/ \\
+\end{tabular}
+\end{center}
+
+The \key{Propagation Rule} (\pagref{PROPAGATION-RULE})
+may be applied to a pattern
+equation whose right side pattern has been unfolded.  Thus in the
+example just given one may may deduce:
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/{b}/ & \verb/($X)/ \\
+\verb/{5 + c}/ & \verb/($Z)/ \\
+\verb/(exp 1)/ & \verb/($Y)/ \\
+\end{tabular}
+\end{center}
+
+A pattern that contains pattern markers,
+`\verb|.|', `\verb|?|', `\verb|...|', and `\verb|...?|',
+in its list part outside subexpressions
+is said to be `\key{folded}'.  Other patterns are said to be
+\key{unfolded}.  Subexpressions of a pattern are also patterns.
+
+A pattern that is unfolded and all of whose subexpressions are
+unfolded, that is, a pattern that contains no pattern markers,
+even in subexpressions, is said to be \key{completely unfolded}.
+Such patterns are \key{promoted} to be syntax expressions, and
+any pattern equations containing them are promoted to be
+syntax equations.  Thus in the above example the last four
+pattern equations can be promoted and become the following
+four syntax equations:
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=:~}l}
-\verb/sort/ & \verb/sort/ \\
-\verb/($X)/ & \verb/( 5 + 6 )/ \\
-\verb/5/ & \verb/10/
+\verb/replace {b} by {5 + c} in (exp 1)/
+	& \verb/replace ($X) by ($Z) in ($Y)/ \\
+\verb/{b}/ & \verb/($X)/ \\
+\verb/{5 + c}/ & \verb/($Z)/ \\
+\verb/(exp 1)/ & \verb/($Y)/ \\
 \end{tabular}
 \end{center}
+
+Note that
+the Symmetry Rule (\pagref{SYMMETRY-RULE})
+and general Transitivity Rule (\pagref{GENERAL-TRANSITIVITY-RULE})
+cannot be applied to pattern equations, which are inherently asymmetric.
+However the following can be applied, where $v$ is a syntax variable, $e$
+a syntax expression, and $p$ a pattern:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Pattern Transitivity Rule}{pattern transitivity rule}:]%
+\label{PATTERN-TRANSITIVITY-RULE}
+From $v$ {\tt :=:} $e$ and $v$ {\tt :=\TILDE} $p$
+we deduce $e$ {\tt :=\TILDE} $p$.
+\end{list}
+\end{indpar}
+
+Finally, we need to state the following more carefully:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Pattern Unfolding Rule}{pattern unfolding rule}:]%
+\label{PATTERN-UNFOLDING-RULE}
+If a pattern equation asserts the identity of a syntax equation that
+is an object with a pattern, and if the pattern can be unfolded unambigously
+so that the result would be consistent were it a syntax equation between
+objects, then the pattern is unfolded.  Otherwise nothing is done.
+
+When a pattern is unfolded, \underline{all instances} of the pattern
+are unfolded, and this affects all equations containing the pattern.
+\end{list}
+\end{indpar}
+
+The last sentence of the Pattern Unfolding Rule requires explanation.
+Suppose we start with the pattern equation:
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/replace {b} [by {5 + c} in (exp 1)]/
+	& \verb/replace ($X) [. in ($Y) . by ($Z)]/ \\
+\end{tabular}
+\end{center}
+
+which is similar to our previous equation except the clauses are
+now in a subexpression.  At the top level there is only one clause,
+so the pattern is already unfolded, and by the Propagation Rule
+we get
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/replace/ & \verb/replace/ \\
+\verb/{b}/ & \verb/($X)/ \\
+\verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
+\end{tabular}
+\end{center}
+
+Now we have a total of 4 equations.
+The pattern in the last of these equations can be unfolded and
+when this is done, \underline{all} the equations containing the pattern are
+affected, and we have the 4 equations
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/replace {b} [by {5 + c} in (exp 1)]/
+	& \verb/replace ($X) [by ($Z) in ($Y)]/ \\
+\verb/replace/ & \verb/replace/ \\
+\verb/{b}/ & \verb/($X)/ \\
+\verb/[by {5 + c} in (exp 1)]/ & \verb/[by ($Z) in ($Y)]/ \\
+\end{tabular}
+\end{center}
+
+In otherwords, because the pattern in the equation
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
+\end{tabular}
+\end{center}
+
+was a subexpression of the pattern in the equation
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\verb/replace {b} [by {5 + c} in (exp 1)]/
+	& \verb/replace ($X) [. in ($Y) . by ($Z)]/ \\
+\end{tabular}
+\end{center}
+
+then what appears to be two copies of the same pattern is in fact
+only one copy, and unfolding either of these unfolds the other in
+exactly the same way.
+
+This is another aspect of the remark near the end of
+Section~\secref{SYNTAX-EQUATIONS} that deduction does not create
+new syntax expressions: it merely creates new equations between
+existing syntax expressions.  This means the deduction process must
+quickly stop, since the supply of syntax expressions is limited to
+those in the the initial equations.  Similarly new patterns are not
+created by deduction, only new equations involving existing patterns.
+And when a pattern unfolds, the folded pattern is replaced by the
+unfolded pattern in all equations involving the pattern.
+
+If after doing all possible deductions on a set of equations
+all patterns are unfolded,
+then all pattern equations will have been promoted to syntax equations.
+If on the other hand, some patterns remain folded, then the pattern
+equations involving them are said to be
+`\mkey{unsolvable}{pattern equations}'.
+
+A pattern equation between a syntax expression that is not a syntax
+variable and a folded pattern is said to be
+`\mkey{inconsistent}{pattern equation}' if there is \underline{no}
+way to unfold the pattern so that the equation can be viewed as a
+consistent syntax equation.  Clearly if a pattern equation is inconsistent
+then the set of equations containing will either imply by deduction
+some inconsistent syntax equation, or the pattern equation will be
+unsolvable.
+
+However, if there is more than one way to unfold a pattern in a pattern
+equation so that the equation can be viewed as a consistent syntax equation,
+then the equation is said to be `\mkey{ambiguous}{pattern equation}'.
+An ambiguous equation cannot be used to unfold a pattern, and may become
+unsolvable, but, it is possible that another non-ambiguous pattern equation
+may exist or be deduced which will allow the pattern to be unfolded, in
+which case at the end of all deductions there may be no unfolded patterns
+left and no unsolvable pattern equations.  In this case the
+ambigous pattern equation will have been promoted to be a syntax equation,
+which may or may not be consistent.
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
