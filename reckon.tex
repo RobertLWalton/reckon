@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 26, 2008}
+\date{April 28, 2008}
  
 \maketitle
 
@@ -5240,7 +5240,11 @@ The syntax of a syntax equation is:
 			   $|$ {\em atom} $|$ {\em object} \\[1ex]
 \emkey{syntax-variable} \begin{tabular}[t]{rl}
 			::= & {\tt \$} {\em capitalized-word } \\
-			$|$ & {\tt \$} {\em capitalized-word } {\em name}
+			$|$ & {\tt \$} {\em capitalized-word } {\em name} \\
+			$|$ & {\em place-holding-syntax-variable}
+			    ~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\
+			$|$ & {\em evaluated-syntax-variable}
+			    ~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\
 			\end{tabular}
 \end{indpar}
 
@@ -5268,14 +5272,14 @@ The following rules amend the above process of consistency checking:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Parentheses Rule}{parentheses rule}:]
+\item[\ikey{Parentheses Rule}{parentheses rule}:]\label{PARENTHESES-RULE}
 An object whose {\tt .initiator} is {\tt "("} and whose
 {\tt .terminator} is {\tt ")"} is treated as if it had no
 {\tt .initiator} or {\tt .terminator} attributes.
 Also, a syntax variable name in \verb|( )| parentheses is treated
 as if there were no parentheses.
 
-\item[\ikey{Atom Rule}{atom rule}:]
+\item[\ikey{Atom Rule}{atom rule}:]\label{ATOM-RULE}
 In a syntax equation asserting the identity of an atom and an object,
 the atom is treated as if it were an object that has
 no attributes except one list element equal to the atom.
@@ -5455,16 +5459,14 @@ in the represented {\em syntax-expression}.
 \end{enumerate}
 
 Patterns appear in pattern equations, which are just
-like syntax equations except their right sides ae patterns and not
+like syntax equations except their right sides are patterns and not
 a syntax expressions.  If the syntax expression on the left side of
 a pattern equation is an object, then the pattern on the right side
 can be \key{unfolded} to match the syntax expression.  Unfolding
 means removing the \skey{pattern marker}s,
 `\verb|.|', `\verb|?|', `\verb|...|', and `\verb|...?|',
 and arranging the pattern clauses in the
-correct order (there are some more details below).
-For example,
-given the pattern equation:
+correct order.  For example, given the pattern equation:
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=\TILDE~}l}
@@ -5536,6 +5538,12 @@ we deduce $e$ {\tt :=\TILDE} $p$.
 \end{list}
 \end{indpar}
 
+Also note that the Parentheses Rule (\pagref{PARENTHESES-RULE})
+and Atom Rule (\pagref{ATOM-RULE}) apply to pattern equations.
+For example, a pattern that is an atom may be treated as if it were
+a list whose only element is that atom, and a syntax variable in
+\verb|( )| parentheses is treated as a syntax variable.
+
 Finally, we need to state the following more carefully:
 
 \begin{indpar}
@@ -5544,7 +5552,8 @@ Finally, we need to state the following more carefully:
 \label{PATTERN-UNFOLDING-RULE}
 If a pattern equation asserts the identity of a syntax equation that
 is an object with a pattern, and if the pattern can be unfolded unambigously
-so that the result would be consistent were it a syntax equation between
+so that the result would be consistent were the pattern equation
+instead a syntax equation between
 objects, then the pattern is unfolded.  Otherwise nothing is done.
 
 When a pattern is unfolded, \underline{all instances} of the pattern
@@ -5552,7 +5561,7 @@ are unfolded, and this affects all equations containing the pattern.
 \end{list}
 \end{indpar}
 
-The last sentence of the Pattern Unfolding Rule requires explanation.
+The last sentence of the Pattern Unfolding Rule needs explanation.
 Suppose we start with the pattern equation:
 
 \begin{center}
@@ -5615,7 +5624,7 @@ This is another aspect of the remark near the end of
 Section~\secref{SYNTAX-EQUATIONS} that deduction does not create
 new syntax expressions: it merely creates new equations between
 existing syntax expressions.  This means the deduction process must
-quickly stop, since the supply of syntax expressions is limited to
+quickly terminate, since the supply of syntax expressions is limited to
 those in the the initial equations.  Similarly new patterns are not
 created by deduction, only new equations involving existing patterns.
 And when a pattern unfolds, the folded pattern is replaced by the
@@ -5633,9 +5642,9 @@ variable and a folded pattern is said to be
 `\mkey{inconsistent}{pattern equation}' if there is \underline{no}
 way to unfold the pattern so that the equation can be viewed as a
 consistent syntax equation.  Clearly if a pattern equation is inconsistent
-then the set of equations containing will either imply by deduction
-some inconsistent syntax equation, or the pattern equation will be
-unsolvable.
+then the pattern equation will be unsolvable, or the pattern equation
+will become inconsistent when some other equation causes the pattern
+to be unfolded.
 
 However, if there is more than one way to unfold a pattern in a pattern
 equation so that the equation can be viewed as a consistent syntax equation,
@@ -5647,6 +5656,147 @@ which case at the end of all deductions there may be no unfolded patterns
 left and no unsolvable pattern equations.  In this case the
 ambigous pattern equation will have been promoted to be a syntax equation,
 which may or may not be consistent.
+
+\subsubsection{Default Syntax Variables}
+\label{DEFAULT-SYNTAX-VARIABLES}
+
+When a pattern is unfolded, syntax variables in optional pattern clauses
+not included in the unfolded pattern are given default values
+provided by default equations.  Default equations have the
+syntax:
+
+\begin{indpar}
+\emkey{default-equation} ::= {\em syntax-variable} \ttnbkey{:=?}
+			     {\em default-value}
+\\[1ex]
+\emkey{default-value} ::= {\em syntax-expression}
+\end{indpar}
+
+For example, given the equations:
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X) . in direction ($Y) ?/ \\
+\verb/$Y/ & \tt :=? & \verb|ascending|
+\end{tabular}
+\end{center}
+
+the pattern in the first equation will be unfolded to give the equation:
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X)/ \\
+\end{tabular}
+\end{center}
+
+and because the variable \verb|$Y| was dropped during the unfolding,
+the default equation that defines it will promoted to become the syntax
+equation:
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/$Y/ & \tt :=: & \verb|ascending|
+\end{tabular}
+\end{center}
+
+thereby establishing a value for \verb|$Y|.  Default equations that
+are not promoted to become syntax equations by this mechanism are
+ignored.  This mechanism does \underline{not} apply to repeated pattern
+clauses or optional repeated pattern clauses.
+
+\subsubsection{Repeated Syntax Variables}
+\label{REPEATED-SYNTAX-VARIABLES}
+
+When a pattern is unfolded, a syntax variable in a
+repeated or optional repeated pattern clause is replaced
+in the unfolded pattern by new variables that represent elements of a list,
+and a new syntax equation setting the original variable to this list
+is created.  For example, when the pattern in the equation
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/increment x by 5 by 10/ & \tt :=\TILDE
+			      & \verb/increment ($X) . by ($Y) ...?/ \\
+\end{tabular}
+\end{center}
+
+is unfolded, the following equations result:
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/increment x by 5 by 10/ & \tt :=\TILDE
+			      & \verb/increment ($X) by ($Y$1) by ($Y$2)/ \\
+\verb/$Y/ & \tt :=: & \verb|($Y$1, $Y$2)|
+\end{tabular}
+\end{center}
+
+Note that here `\verb|$Y$1|' and `\verb|$Y$2$|' are each a single syntax
+variable name, each with two \verb|$|'s in it.  Users of CASTLE should
+not use \verb|$| inside a syntax variable name in order to avoid conflicting
+with this usage.
+
+With an optional repeated pattern clause it is also possible for the
+resulting list to be empty.  Thus
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/increment x/ & \tt :=\TILDE
+			      & \verb/increment ($X) . by ($Y) ...?/ \\
+\end{tabular}
+\end{center}
+
+yields
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/increment x/ & \tt :=\TILDE
+			      & \verb/increment ($X)/ \\
+\verb/$Y/ & \tt :=: & \verb|()|
+\end{tabular}
+\end{center}
+
+\subsubsection{Place Holding Syntax Variables}
+\label{PLACE-HOLDING-SYNTAX-VARIABLES}
+
+A `\verb|$|' by itself can be used as a syntax variable called
+a \key{place holding syntax variable} that has the special
+property that each of its original equation occurances
+is treated as if it were a \underline{different} variable.  The syntax is:
+
+\begin{indpar}
+\emkey{place-holding-syntax-variable} ::= \ttnbkey{\$}
+\end{indpar}
+
+More specifically, whenever \verb|$| appears in an original
+equation, it is replaced by a unique new syntax variable name. 
+For example, the pattern equation:
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/replace {b} by {5 + c} in (exp 1)/
+	& \verb/replace ($X) . by $ . in $/ \\
+\end{tabular}
+\end{center}
+
+is treated as if it were
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/replace {b} by {5 + c} in (exp 1)/
+	& \verb/replace ($X) . by ($1$) . in ($2$)/ \\
+\end{tabular}
+\end{center}
+
+where `\verb|$1$|' and `\verb|$2$|' are unique new
+syntax variable names created by the CASTLE system.
+
+
+
+
+\subsubsection{Evaluated Syntax Variables}
+\label{EVALUATED-SYNTAX-VARIABLES}
+
+
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
