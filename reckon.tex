@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 28, 2008}
+\date{April 29, 2008}
  
 \maketitle
 
@@ -1142,12 +1142,12 @@ contains in order the following lexemes:
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
 \emkey{separator} ::= {\em separator-character} \\[1ex]
 \emkey{name} ::=
-	\begin{tabular}[t]{@{}l@{}}
-        \{ {\em non-special-symbol}
-	   $|$ {\em decimal-natural} \}$^\star$ \\
-        {\em non-special-symbol} \\
-        \{ {\em non-special-symbol} $|$ {\em decimal-natural} \}$^\star$
-        \end{tabular}
+        {\em name-component}\,$^\star$
+        {\em non-special-symbol}
+        {\em name-component}\,$^\star$
+\\[1ex]
+\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
+\label{NAME-COMPONENT}
 \\[1ex]
 \emkey{non-special-symbol} ::= {\em symbol} that is \underline{not}
 				specially treated by the parser
@@ -1532,7 +1532,7 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{raw-object-representation} ::=
 \\\hspace*{0.5in}
-    {\em object-header} {\em raw-single-attribute-value}$^\star$
+    {\em object-header} {\em raw-single-attribute-value}\,$^\star$
     {\em raw-attribute-representations}
 \end{tabular}
 
@@ -1604,7 +1604,7 @@ The format of a \key{raw representation} is:
 \index{label!attribute}
 
 \begin{tabular}{l}
-\emkey{label} ::= {\em atom}$^\star$
+\emkey{label} ::= {\em atom}\,$^\star$
 \end{tabular}%
 \index{label}
 
@@ -4096,7 +4096,7 @@ The syntax of operator definitions is:
 	\hspace*{0.5in}::= \ttkey{define operator}
 	    \begin{tabular}[t]{@{}l@{}}
 	    {\em operator-name} {\em parsing-selectors} \\
-	    {\em operator-flag}$^\star$ \\
+	    {\em operator-flag}\,$^\star$ \\
 	    {}[ \verb|with precedence| {\em precedence} ] \\
 	    {}[ \verb|with reformatter| {\em reformatter-name} ] \\
 	    \end{tabular}
@@ -5139,12 +5139,12 @@ would if a guard evaluated to false.
 \emkey{pattern} ::= \verb|<-|{\em -subexpression}
 	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
-\emkey{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}\,$^\star$ \\[1ex]
+\emkey{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}$^\star$ \\[1ex]
 \emkey{guard} ::= \verb|,|{\em -subexpression}
 	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\emkey{block} ::= \verb|{| {\em block-header}$^\star$ {\em statement}
-                           \{ \verb|;| {\em statement} \}\,$^\star$ \verb|}|
+\emkey{block} ::= \verb|{| {\em block-header}\,$^\star$ {\em statement}
+                           \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
 	    \\[1ex]
 \emkey{block-header} \begin{tabular}[t]{rl}
             ::= & \ttkey{default}
@@ -5177,7 +5177,7 @@ would if a guard evaluated to false.
             ::= & {\em pattern-clause} \ttmkey{...}{in pattern} \\
             ::= & {\em pattern-clause} \ttmkey{...?}{in pattern} \\
 	    \end{tabular} \\[1ex]
-\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}$^\star$
+\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}\,$^\star$
 	\\[1ex]
 \emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object} \\[1ex]
 \emkey{pattern-attribute-representations}
@@ -5239,13 +5239,14 @@ The syntax of a syntax equation is:
 \emkey{syntax-expression} ::= {\em syntax-variable}
 			   $|$ {\em atom} $|$ {\em object} \\[1ex]
 \emkey{syntax-variable} \begin{tabular}[t]{rl}
-			::= & {\tt \$} {\em capitalized-word } \\
-			$|$ & {\tt \$} {\em capitalized-word } {\em name} \\
+			::= & {\tt \$} {\em capitalized-word }
+			      {\em name-component}\,$^\star$ \\
 			$|$ & {\em place-holding-syntax-variable}
 			    ~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\
 			$|$ & {\em evaluated-syntax-variable}
 			    ~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\
-			\end{tabular}
+			\end{tabular} \\[1ex]
+\emkey{name-component} ::= see \pagref{NAME-COMPONENT}
 \end{indpar}
 
 Syntax equations can be consistent or inconsistent according to the:
@@ -5382,7 +5383,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
 \emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-marker-option}
 	\\[1ex]
-\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}$^\star$
+\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}\,$^\star$
 	\\[1ex]
 \emkey{pattern-factor} ::= {\em pattern-object} $|$ {\em atom}
 		       $|$ {\em syntax-variable} \\[1ex]
@@ -5796,7 +5797,54 @@ syntax variable names created by the CASTLE system.
 \subsubsection{Evaluated Syntax Variables}
 \label{EVALUATED-SYNTAX-VARIABLES}
 
+Syntax variables whose names begin with \verb|$|
+take values that are syntax expressions
+which are \underline{not} evaluated.  Such syntax variables are called
+\key{unevaluated syntax variables}.  With every unevaluated syntax
+variable there can be associated an \key{evaluated syntax variable}
+whose name is made by omitting the \verb|$| from the beginning of the
+unevaluated syntax variable name.  Thus \verb|X| is associated with
+\verb|$X|.  The syntax is:
 
+\begin{indpar}
+\emkey{unevaluated-syntax-variable} 
+			::= {\tt \$} {\em capitalized-word }
+			{\em name-component}\,$^\star$
+\\[1ex]
+\emkey{evaluated-syntax-variable} 
+			::= {\em capitalized-word }
+			{\em name-component}\,$^\star$
+\\[1ex]
+\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
+\end{indpar}
+
+Informally, an evaluated syntax variable is assigned the value obtained by
+evaluating its associated unevaluated syntax variable's value.  In order
+for this to happen, the unevaluated syntax variable must be evaluatable.
+This means that its value, a syntax expression, must not contain any
+unevaluatable syntax variables.
+
+More formally:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Evaluatable Definition}{evaluatable definition}:]%
+\label{EVALUATABLE-DEFINITION}
+A syntax variable $v$ is evaluatable if a syntax equation $v$ {\tt :=:} $e$
+has been deduced and every syntax variable in $e$ is evaluatable.
+In this case $e$ is called the \key{unevaluated value} of $v$, and
+the \key{complete unevaluated value} of $v$ is $e$ with all the
+syntax varibles it contains replaced by their complete unevaluated values.
+\item [\ikey{Evaluation Rule}{evaluation rule}:]%
+\label{EVALUATION-RULE}
+If an evaluated syntax variable $v$ appears in a syntax equation and
+its associated unevaluated syntax variable {\tt \$}$v$ is evaluatable,
+then the syntax equation $v$ {\tt :=:} $E$ is deduced, where $E$
+is the value obtained by evaluating the full unevaluated value of
+{\tt \$}$v$ in the context
+in which the unevaluated value of {\tt \$}$v$ appears.
+\end{list}
+\end{indpar}
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
@@ -6099,7 +6147,7 @@ The code of a block has the following syntax:
 
 \begin{indpar}
 \emkey{block} ::= \verb|{| {\em group}
-                         \{ {\em sequence-break} {\em group} \}\,$^\star$
+                         \{ {\em sequence-break} {\em group} \}$^\star$
 			 \verb|}| \\[1ex]
 \emkey{sequence-break} ::= \ttnbkey{---}\verb|-|$^\star$
 	(1 word consisting of 3 or more \verb|-|'s) \\[1ex]
@@ -6141,7 +6189,7 @@ The code of a block has the following syntax:
     \begin{tabular}[t]{rl}
     ::= & {\em right-side-expression} \\
     $|$ & {\em right-side-expression} \ttnbkey{=>} {\em output-variable}
-		\{ \verb|,| {\em output-variable} \}\,$^\star$
+		\{ \verb|,| {\em output-variable} \}$^\star$
     \end{tabular} \\[1ex]
 \emkey{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
