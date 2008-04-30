@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 29, 2008}
+\date{April 30, 2008}
  
 \maketitle
 
@@ -1624,11 +1624,11 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{real-number} ::= see \pagref{NUMBER}
+{\em real-number} ::= see \pagref{NUMBER}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{non-special-symbol} ::= see \pagref{SPECIAL-SYMBOL}
+{\em non-special-symbol} ::= see \pagref{SPECIAL-SYMBOL}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -3941,7 +3941,7 @@ The syntax equations are:
 \emkey{postfix-unit-specifier} ::= {\em name} \\[1ex]
 \emkey{unit-specifier} ::= {\em prefix-unit-specifier} $|$
                          {\em postfix-unit-specifier} \\[1ex]
-\emkey{name} ::= see \pagref{NAME}
+{\em name} ::= see \pagref{NAME}
 \end{indpar}
 
 In order to be recognized as a {\em unit-specifier} a {\em symbol} sequence
@@ -4040,7 +4040,7 @@ Expression parser definitions have the syntax:
 \hspace*{0.5in}\verb|define expression parser| {\em parser-name}
 				               {\em parsing-selectors} \\[1ex]
 \emkey{parser-name} ::= {\em name} \\[1ex]
-\emkey{name} ::= see \pagref{NAME} \\[1ex]
+{\em name} ::= see \pagref{NAME} \\[1ex]
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 \end{indpar}
 
@@ -4124,7 +4124,7 @@ The syntax of operator definitions is:
 	\\[1ex]
 \emkey{function-name} ::= {\em name}
 	\\[1ex]
-\emkey{name} ::= see \pagref{NAME}
+{\em name} ::= see \pagref{NAME}
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
@@ -4296,7 +4296,7 @@ are introduced by reformatting.  The syntax involving temporaries is:
 \begin{indpar}
 \emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
 \emkey{temporary} ::= \verb|$| {\em decimal-natural} \\[1ex]
-\emkey{decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
+{\em decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
 \end{indpar}
 
 During reformatting, a subexpression may be replaced by
@@ -5154,7 +5154,7 @@ would if a guard evaluated to false.
 	    	\verb|{| {\em constraint-equation}
 		\{ \verb|;| {\em constraint-equation} \}$^\star$ \verb|}| \\
 	    \end{tabular} \\[1ex]
-\emkey{statement} ::= see \pagref{STATEMENT} \\[1ex]
+{\em statement} ::= see \pagref{STATEMENT} \\[1ex]
 \emkey{default-equation} ::= {\em syntax-variable}
 		\ttmnbkey{:=:}{in {\em default-equation}}
 		{\em syntax-expression} \\[1ex]
@@ -5238,7 +5238,8 @@ The syntax of a syntax equation is:
 			    {\em syntax-expression} \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
 			   $|$ {\em atom} $|$ {\em object} \\[1ex]
-\emkey{syntax-variable} \begin{tabular}[t]{rl}
+\emkey{syntax-variable}\label{SYNTAX-VARIABLE}
+			\begin{tabular}[t]{rl}
 			::= & {\tt \$} {\em capitalized-word }
 			      {\em name-component}\,$^\star$ \\
 			$|$ & {\em place-holding-syntax-variable}
@@ -5246,7 +5247,7 @@ The syntax of a syntax equation is:
 			$|$ & {\em evaluated-syntax-variable}
 			    ~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\
 			\end{tabular} \\[1ex]
-\emkey{name-component} ::= see \pagref{NAME-COMPONENT}
+{\em name-component} ::= see \pagref{NAME-COMPONENT}
 \end{indpar}
 
 Syntax equations can be consistent or inconsistent according to the:
@@ -5815,7 +5816,11 @@ unevaluated syntax variable name.  Thus \verb|X| is associated with
 			::= {\em capitalized-word }
 			{\em name-component}\,$^\star$
 \\[1ex]
-\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
+{\em name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
+			 ~~~ [as per \pagref{NAME-COMPONENT}]
+\\[1ex]
+{\em syntax-variable} ::= {\em unevaluated-syntax-variable}
+			  ~~~ [as per \pagref{SYNTAX-VARIABLE}]
 \end{indpar}
 
 Informally, an evaluated syntax variable is assigned the value obtained by
@@ -5843,6 +5848,7 @@ then the syntax equation $v$ {\tt :=:} $E$ is deduced, where $E$
 is the value obtained by evaluating the full unevaluated value of
 {\tt \$}$v$ in the context
 in which the unevaluated value of {\tt \$}$v$ appears.
+It is an error if this evaluation has side effects (\pagref{SIDE-EFFECTS}).
 \end{list}
 \end{indpar}
 
