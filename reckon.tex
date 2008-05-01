@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 30, 2008}
+\date{May 1, 2008}
  
 \maketitle
 
@@ -5851,6 +5851,82 @@ in which the unevaluated value of {\tt \$}$v$ appears.
 It is an error if this evaluation has side effects (\pagref{SIDE-EFFECTS}).
 \end{list}
 \end{indpar}
+
+For example, given the code
+
+\begin{indpar}\begin{verbatim}
+sum ($X) and ($Y) <-- number(X), number(Y) { result = X + Y }
+. . . . .
+z = sum (1+1) and (5+5)
+\end{verbatim}\end{indpar}
+
+the call to `\verb|sum|' in the last line is matched with the definition
+of `\verb|sum|' in the first line giving rise to a number of deduced
+equations, among which are:
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/sum (1+1) and (5+5)/ & \tt :=\TILDE
+			      & \verb/sum ($X) and ($Y)/ \\
+\verb/$X/ & \tt :=: & \verb/(1+1)/ \\
+\verb/$Y/ & \tt :=:\TILDE & \verb/(5+5)/ \\
+\verb/X/ & \tt :=: & \verb/2/ \\
+\verb/Y/ & \tt :=:\TILDE & \verb/10/ \\
+\end{tabular}
+\end{center}
+
+The last two equations are required to deduce the value of the evaluated
+variables \verb|X| and \verb|Y| that are needed for the guards
+\verb|number(X)| and \verb|number(Y)| and the block code statement
+`\verb|result = X + Y|'.  These last two equations are obtained by
+the Evaluation Rule.  For example, to obtain the value \verb|2| for the
+evaluated variable \verb|X|, the value `\verb|(1+1)|' of the a associated
+unevaluated variable \verb|$X| is evaluated.  `\verb|(1+1)|' is
+evaluatable because it contains no syntax variables and for this reason is
+also its own `complete unevaluated value'.
+
+Logically evaluated syntax variables are not permitted in patterns.
+However, syntactically they can be placed in patterns according to the
+following:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Evaluated Variable Pattern Rule}%
+{evaluated variable pattern rule}:]%
+\label{EVALUATED-VARIABLE-PROMOTION-RULE}
+If an evaluated syntax variable $v$ appears in a pattern, it is 
+replaced in the pattern by its associated unevaluated variable
+\verb|$|$v$, and in addition, any occurances of $v$ outside patterns
+are treated as errors.
+\end{list}
+\end{indpar}
+
+For example, the definition
+
+\begin{indpar}\begin{verbatim}
+increment ($X) . by Y ? <-- number (X), number(Y), Y :=? 1:
+    $X = X + Y
+\end{verbatim}\end{indpar}
+
+is treated as if it were
+
+\begin{indpar}\begin{verbatim}
+increment ($X) . by ($Y) ? <-- number (X), number(Y), Y :=? 1:
+    $X = X + Y
+\end{verbatim}\end{indpar}
+
+while the definition
+
+\begin{indpar}\begin{verbatim}
+increment ($X) . by Y ? <-- number (X), number(Y), $Y :=? 1:
+    $X = X + Y
+\end{verbatim}\end{indpar}
+
+would be in error because \verb|Y| is used in the pattern but
+\verb|$Y| is used in the default equation.
+
+[TBD: how should lvalues really be handled?]
+
 
 \subsection{The Evaluation Algorithm}
 \label{EVALUATION-ALGORITHM}
