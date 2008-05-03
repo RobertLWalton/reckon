@@ -5903,164 +5903,57 @@ The \key{evaluation algorithm} inputs an expression to be evaluated
 and a context.  The context (\secref{CONTEXTS}) provides a list of expression
 definitions that may match the expression.
 
-An expression to be evaluated may contain variables that are assigned
+An expression to be evaluated may contain syntax variables that are assigned
 values during matching.  The result of evaluation is both a value for
 the expression and an assignment of values for these variables.
 
 More than one definition may match an expression.
-More than one definition may match a guard of a definition,
-and different guard definitions may lead to different completions of
-values of variables in the expression being evaluated.
-In matching a definition, more than
-one argument order assignment (\pagref{ARGUMENT-ORDER-ASSIGNMENT})
-may allow the definition to be matched.  So expression
-evaluation is a search process to find a choice of expression definitions
-and argument order assignments which leads to success, and more than
-one choice may succeed.
+More than one definition may match a guard,
+and different guard definitions may lead to different
+values of variables in the original expression being evaluated.
+So expression evaluation is a search process to find a choice
+of expression definitions that
+leads to success, and more than one choice may succeed.
 
-Note that the guards of an expression are always matched from left to
-right, so order of guard matching is not a choice.  Similarly guard
-block evaluation order is fixed, left to right, depth first, so this
-is not a choice.  Lastly evaluation of evaluated variable values and
-of guard blocks are required to have no side effects, so these can be
-undone trivially when part of the search fails.
+Note that evaluations of guards and evaluations
+used to find values of evaluated syntax variables are required to have
+no side effects, so the order of these evaluations does not matter.
+Given the choices of which definitions are matched to which expressions,
+the outcome of the evalution process is uniquely determined, and does not
+depend on the order of syntax equation deductions, guard evaluations, etc.
 
 Evaluation may be done in any of the following modes:
 
 \begin{list}{}{}
 
 \item[\ttkey{first-value}]~\\
-The first definitions in contexts and first
-argument order assignments tried that lead to successful matches
-are the only ones
+The first definitions tried that lead to successful matches are the only ones
 used.  Definitions are tried in the order they are given in the contexts
 used in evaluation.
-The order in which argument order assignments are tried is implementation
-dependent.
 
 \item[\ttkey{all-values}]~\\
 All possible choices are tried and the
 successful results are collected in a set of results.  Each result
 in this set consists of a value for the expression being evaluated
-and values for each null node in that expression.
+and values for each syntax variable in that expression.
 
 \item[\ttkey{consistent-values}]~\\
 All possible choices are tried and the
 successful results are collected in a set of values.  Then these results
 are tested to see if they are pairwise equal.
 All the values of the expression
-being evaluated must be equal, and all the values of each null node
+being evaluated must be equal, and all the values of each syntax variable
 contained in the expression must be equal.  If all values of the expression
-or of a null node are equal, one of these values is returned as the value
-of the expression or null node.  If some of the values are unequal, an
+or of a syntax variable are equal, one of these values is returned as the value
+of the expression or syntax variable.  If some of the values are unequal, an
 error value giving the context of the evaluation and the unequal values
-is returned as the value of the expression or null node.
+is returned as the value of the expression or syntax variable.
 
-\item[\ttkey{consistent-reordering}]~\\
-Definitions are 
-tried in the order they are given in the contexts used in evaluation,
-and the first definitions that match are used.  However, for each definition
-all possible argument order assignments are tried.  The results are collected
-in a set of results that is tested for pairwise equality.
-All the values of the expression
-being evaluated must be equal, and all the values of each null node
-contained in the expression must be equal.  If all values of the expression
-or of a null node are equal, one of these values is returned as the value
-of the expression or null node.  If some of the values are unequal, an
-error value giving the context of the evaluation and the unequal values
-is returned as the value of the expression or null node.
 \end{list}
 
 If the expression match search process yields no matches at all,
 the expression is given the value `\verb|false|', and variables in the
-expression are not changed.
-
-In the following description of algorithms we use a `\key{choose operation}'
-as if there were an oracle that allowed us to make appropriate
-choices.  In actuality a search process is used, as indicated above.
-
-Evaluating an expression uses subalgorithms for matching an expression with
-a definition and for evaluating a block.
-
-The following subalgorithm is used to match an expression to be matched
-with an expression definition.
-
-\begin{enumerate}
-
-\item
-Make a copy of the expression definition.  Variables in this copy are
-distinct from other variables of the same name in memory.
-
-\item
-If there are reorderable arguments in the expression definition pattern,
-choose an argument order.
-
-\item
-
-Call unify (\secref{CALL-UNIFICATION})
-the pattern (\secref{EXPRESSION-DEFINITION})
-from the definition copy with the expression to be matched,
-using the chosen argument order if any.
-If the unification fails, the definition does not match.  If the
-unification succeeds, it provides values for the variables
-in the pattern and for null nodes in the matched expression.
-
-\item
-For any pattern variable bound to a null node, rebind the variable
-to its default value, if the variable has a default value.
-
-\item\label{PROTECTED-VARIABLE}
-For any pattern variable whose name does \underline{not} begin
-with `\ttkey{\#}', evaluate the value of that variable to obtain
-a new variable value.  Then simultaneously replace all the evaluated
-variable values by their new values.  Each replacement is done by
-forwarding a variable value graph node to the new value graph node.
-
-These variable value evaluations are not permitted to have
-visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
-
-\end{enumerate}
-
-The subalgorithm for evaluating a block is given in \secref{BLOCK-EVALUATION}.
-
-Evaluating an expression is as follows:
-
-\begin{enumerate}
-
-\item
-Choose and expression definition in the appropriate context that
-matches the expression to be evaluated, and match the definition
-with the expression.
-
-Note the evaluated variable value evaluations of
-\ref{PROTECTED-VARIABLE} above are done before guard expression matching
-is done.
-
-\item
-For each guard of the expression definition, from left to right,
-choose an expression definition
-in the appropriate context that matches the guard, and match the definition
-with the guard.
-
-\item
-For each guard that has a block, evaluate the block, working in left
-to right depth first order of guards.  If a guard block evaluates to
-something other
-than `\verb|true|', declare the choices made so far to be a failure,
-and continue the search.  These guard block evaluations are not
-permitted to have visible side effects (\secref{VISIBLE-SIDE-EFFECTS}).
-
-\item
-If the definition matched to the expression to be evaluated has no block,
-the value of the expression is `\verb|true|'.
-If it has a block, the block is evaluated to produce a value and possibly
-side effects (\secref{BLOCK-EVALUATION}).
-
-\end{enumerate}
-
-It is always an error if a null node is to be evaluated.  In particular,
-the value of an evaluated variable just before the value is to be evaluated
-must not be a null node.
+expression are not given any values.
 
 \subsection{Contexts}
 \label{CONTEXTS}
