@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 1, 2008}
+\date{May 3, 2008}
  
 \maketitle
 
@@ -4994,9 +4994,11 @@ phrases if it has any phrase separators, and
 
 An expression is evaluated by first searching for an expression definition
 that matches the expression.  Expression definitions have patterns that
-are matched to the expression.  An expression definition may also have
+are matched to the expression.  An expression definition may have
 guards, which are expressions that must evaluate to true in order for
-the expression definition match to succeed.
+the expression definition match to succeed, and an expression definition
+may have constaint equations, which match subexpressions to patterns or
+to each other.
 An expression definition may have an expression block
 that executes in order to produce a value for the expression if the definition
 matches.  If a matching
@@ -5008,27 +5010,36 @@ Expression definitions are searched for in a context, which is a list
 of expression definitions and pointers to other contexts.
 Each point in the program has a lexical context, which is used by default
 for expression evaluation. 
-The block of an expression definition usually evaluates expressions in the
-lexical context of its expression definition,
-but may evaluate expressions in the lexical context of the expression being
-evaluated by the expression definition.  In addition, there may be other
+By default expressions are evaulated in the
+lexical context of the place in the program code where the expression
+appears.  In addition, there may be other
 contexts in which expressions may be evaluated that effectively implement
 either data bases or alternative programming languages.
 
 When an expression definition is found whose pattern matches an expression,
-a set of constraint equations are established that must be statisfied to
-complete the match.  There are two kinds of constraint equations: syntax
-equations, and guards.  Syntax equations involve syntax
-variables, which are names beginning with a capital letter optionally
-preceded by a \verb|$|.  Guards are just expressions that must evaluate to
-\verb|true| in order for the match to succeed.  The syntax equations
-are solved during the matching process, to produce values for the
-syntax variables.  If the syntax equations are inconsistent and
-cannot be solved, of if a guard evaluates to \verb|false|,
-the match fails.  Evaluation of the guards in a definition
-may result
-in additional matches which generate more syntax equations involving
-more the syntax variables and also generate more guards.
+a set of constraints are established that must be statisfied to
+complete the match.  There are four kinds of constraints: syntax
+equations, pattern equations, default equations, and guards.
+Syntax equations identify expressions that involve syntax variables,
+which are names beginning with a capital letter
+preceded by a \verb|$|.  Pattern equations are like syntax equations but
+involve a pattern which can represent one of many possible syntax
+expressions.  Default equations assign values to variables that are
+discarded when a pattern is unfolded to become the expression
+it will actually represent.  Guards are just expressions that must evaluate to
+\verb|true| in order for the match to succeed.
+
+The syntax equations are solved during the matching process,
+to produce values for the syntax variables.  Patterns are unfolded during
+the matching process to become the expressions they represent.
+Guards are evaluated, and in some cases a syntax variable
+value is evaluated.
+If the syntax equations or pattern equations are inconsistent and
+cannot be solved, or if a guard or syntax variable value that must be
+evaluated cannot be evaluated, or if a guard evaluates to \verb|false|,
+the match fails.  Evaluation of the guards or syntax variable values
+may result in additional matches which generate more
+constraints involving more syntax variables.
 
 The matching process must consider all possible choices of which definitions
 to match to an expression being evaluated.  If all choices fail, the
@@ -5036,12 +5047,6 @@ expression evaluates to \verb|false|.  If only one choice succeeds, that
 choice is used to evaluate the expression.  If several choices succeed,
 the situation becomes ambiguous, and the evaluation proceeds according
 to the evaluator operating mode, as is described below.
-
-A definition may have default values for a syntax variable.  If
-the matching process fails to provide a value for the variable, the
-default value will be supplied.  In effect the definition is 
-a set of different definitions, one for each possible substitution of
-default values for their corresponding syntax variables.
 
 A syntax variable name beginning with
 \ttmnbkey{\$}{in syntax variable name} denotes an unevaluated
@@ -5052,13 +5057,11 @@ This last value is called the `\key{evaluation}' of the unevaluated
 expression.  Thus, for example, \verb|$X| denotes an unevaluated
 expression and \verb|X| denotes the evaluation of that expression.
 
-As an example, if `\verb|foo(2+2)|'
-is matched to the pattern `\verb|foo($X)|', then the matching syntax
-equation is
+As an example, given the syntax equation
 \begin{center}
 \verb|foo(2+2) :=: foo($X)|
 \end{center}
-(where \verb|:=:| means `is syntactically equal to'), which yields
+(where \verb|:=:| means `is syntactically equal to'), we get
 the equation
 \begin{center}
 \verb|2+2 :=: $X|
@@ -5084,35 +5087,30 @@ is generated, then the value of \verb|$X| becomes `\verb|2+7|'
 which can now be evaluated to produce the value \verb|9| for \verb|X|
 and allow the guard to become `\verb|number(9)|'.
 
-A syntax variable name in the pattern part of a definition that does
-not begin with \verb|$| is treated as if it had a preceding \verb|$|.
-Such a variable is not allowed to appear with a preceding \verb|$|
-anywhere in the definition.  Thus omitting the \verb|$| is both a
-convenient shorthand and a promise never to use the unevaluated expression
-denoted by the variable name preceded by \verb|$|.
-
-Thus in the above we could have used the pattern
-`\verb|foo(X)|' in place of the pattern
-`\verb|foo($X)|'.  But if we did that, we could not use \verb|$X|
-anywhere in the definition, although using just \verb|X|, as in
-\verb|number(X)|, is allowed.
+In the above \verb|$X| is an `unevaluated syntax variable' and
+\verb|X| is its `associated' `evaluated syntax variable'.  It is
+possible to use \verb|X| in a definition where \verb|$X| is actually
+meant, but if that is done once, then it must be done for every occurance
+of \verb|$X| in the definition, and the only computation that may be
+performed on the (unevaluated) value of \verb|$X| is to evaluate it to
+produce a value for \verb|X|.
 
 Except for choices of which definitions to match to which expressions,
-the entire matching process is monotonic.  This means the order of
-matching operations, guard evaluations, and evaluations of unevaluated
-syntax variable values does not matter.
+the entire matching process is monotonic.  This means the order in which
+syntax equations are solved, patterns are unfolded, guards are evaluated,
+and unevaluated syntax variable values are evaluated does not matter.
 
-In order to make the matching process monotonic, pattern matching must
-be monotonic.  This means that if undefined syntax variables in a matched
-pattern are given arbirary values later, the pattern match
-must still be valid.
+In order to make the matching process monotonic, pattern unfolding must
+be monotonic.  This means that if undefined syntax variables in a pattern
+equation whose pattern has been unfolded are given arbirary values later,
+the pattern unfolding must still be valid and unambiguous.
 
 Similarly guard evaluations must not have side effects.  In other
 words, evaluating a guard cannot affect any future valuations.
 Side effects can only occur during block execution, so any blocks
 executed during the guard evaluation process must not have side effects.
 
-Lastly, required evaluations of unevaluated syntax variables
+Lastly, required evaluations of unevaluated syntax variable values
 must be monotonic.  For example, given the syntax variable \verb|$X|,
 if the value of \verb|X| is required, the evaluation of the value of
 \verb|$X| must be monotonic.
@@ -5134,99 +5132,62 @@ would if a guard evaluated to false.
 
 \begin{indpar}
 \emkey{expression-definition} ::=
-	{\em pattern} \verb|<--| {\em guard-list-option} {\em block-option}
+	{\em pattern} \verb|<--| {\em constraint-list-option} {\em block-option}
 	\\[1ex]
-\emkey{pattern} ::= \verb|<-|{\em -subexpression}
+{\em pattern} ::= \verb|<-|{\em -subexpression}
 	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
-\emkey{guard-list-option} ::= {\em empty} $|$ {\em guard-list} \\[1ex]
-\emkey{guard-list} ::= {\em guard} \{ \verb|,| {\em guard} \}$^\star$ \\[1ex]
-\emkey{guard} ::= \verb|,|{\em -subexpression}
+{\em pattern} ::= {\em pattern-object}
+	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
+\emkey{constraint-list-option} ::= {\em empty} $|$ {\em constraint-list} \\[1ex]
+\emkey{constraint-list}
+    ::= {\em constraint} \{ \verb|,| {\em constraint} \}$^\star$ \\[1ex]
+\emkey{constraint} ::= \verb|,|{\em -subexpression}
 	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
-\emkey{block-option} ::= {\em empty} $|$ {\em block} \\[1ex]
-\emkey{block} ::= \verb|{| {\em block-header}\,$^\star$ {\em statement}
+\emkey{constraint} ::= {\em syntax-equation} $|$ {\em pattern-equation}
+		   $|$ {\em default-equation} $|$ {\em guard} \\[1ex]
+\emkey{syntax-equation} ::= {\em syntax-expression}
+		{\tt :=:} {\em syntax-expression}
+	        ~~~ [see \pagref{SYNTAX-EQUATION}]
+	 	\\[1ex]
+\emkey{pattern-equation} ::= {\em syntax-expression}
+		{\tt :=\TILDE} {\em constraint-pattern}
+	        ~~~ [see \pagref{PATTERN-EQUATION}]
+		\\[1ex]
+{\em constraint-pattern} ::= {\em pattern-object}
+	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
+\emkey{default-equation} ::= {\em syntax-variable}
+		{\tt :=?} {\em syntax-expression}
+	        ~~~ [see \pagref{DEFAULT-EQUATION}]
+		\\[1ex]
+\emkey{guard} ::= ~~ \verb|,|{\em -subexpression} \\[1ex]
+\emkey{block-option} ::= {\em empty} $|$ \verb|{ }| $|$ {\em block} \\[1ex]
+\emkey{block} ::= \verb|{| {\em statement}
                            \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
 	    \\[1ex]
-\emkey{block-header} \begin{tabular}[t]{rl}
-            ::= & \ttkey{default}
-	    	\verb|{| {\em default-equation}
-		\{ \verb|;| {\em default-equation} \}$^\star$ \verb|}| \\
-	    $|$ & \ttkey{constraint}
-	    	\verb|{| {\em constraint-equation}
-		\{ \verb|;| {\em constraint-equation} \}$^\star$ \verb|}| \\
-	    \end{tabular} \\[1ex]
 {\em statement} ::= see \pagref{STATEMENT} \\[1ex]
-\emkey{default-equation} ::= {\em syntax-variable}
-		\ttmnbkey{:=:}{in {\em default-equation}}
-		{\em syntax-expression} \\[1ex]
-\emkey{constraint-equation} ::= {\em syntax-expression}
-		\ttmnbkey{:=:}{in {\em constraint-equation}}
-		{\em syntax-expression} \\[1ex]
-\emkey{syntax-expression} ::= ~~ \verb|:=:|{\em -subexpression}
-				[see \pagref{O-SUBEXPRESSION}]
-\\[3ex]
-\emkey{pattern-object} ::=
-    \begin{tabular}[t]{l}
-    {\em pattern-term-option}
-        \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$ \\
-    {\em pattern-attribute-representations}
-    \end{tabular} \\[1ex]
-\emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
-\emkey{pattern-term} \begin{tabular}[t]{rl}
-            ::= & {\em pattern-clause} \\
-            ::= & {\em pattern-clause} \ttmkey{?}{in pattern} \\
-            ::= & {\em pattern-clause} \ttmkey{...}{in pattern} \\
-            ::= & {\em pattern-clause} \ttmkey{...?}{in pattern} \\
-	    \end{tabular} \\[1ex]
-\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}\,$^\star$
-	\\[1ex]
-\emkey{pattern-factor} ::= {\em atom} $|$ {\em pattern-object} \\[1ex]
-\emkey{pattern-attribute-representations}
-\\\hspace*{0.5in}
-	\begin{tabular}[t]{rl}
-        ::= & {\em empty} \\
-	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
-	$|$ & \underline{\LEFTBRACKET\BAR}
-	      \begin{tabular}[t]{@{}l@{}}
-	      {\em pattern-attribute-representation} \\
-	      \{ \verb|;|
-	              {\em pattern-attribute-representation} \}$^\star$
-	      \underline{\BAR\RIGHTBRACKET} \\
-	      \end{tabular}
-	\end{tabular}
-\\[1ex]
-\emkey{pattern-attribute-representation} ::=
-\\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
-	{\em pattern}
+\end{indpar}
 
-\end{indpar}%
-\label{PATTERN}
+The \mkey{pattern}{in expression definition} of an expression definition
+is the subexpression before the \verb|<--|.  If the expression definition
+with pattern $p$ is being matched to the expression $e$,
+the pattern equation $p$ {\tt :=\TILDE} $e$ is asserted, the
+constraint syntax and pattern equations in the definition
+are asserted, and the definition guards are required to evaluate
+to \verb|true|.  Default equations are asserted as necessary.
 
-A \key{pattern} is just a \verb|<-|{\em -subexpression}
-(\pagref{O-SUBEXPRESSION}) that is an object consisting of a list
-and other attributes.  The list part is divided into
-{\em pattern-terms} and {\em pattern-factors} by the use of
-the marks \verb|.|, \verb|?|, \verb|...|, and \verb|...?| which
-the operator parser does not recognize.
-Subexpressions in a {\em pattern} are also treated as {\em patterns}.
-Thus in the {\em pattern}
-`\verb|sort ( X, X ...? )|'
-the subexpressions `\verb|( X, X ...? )|',
-`\verb|X|', and `\verb|X ...?|' are all patterns.
-
-In use, an expression definition being matched to an expression is
-copied, and then the pattern of the copy is matched
-with the expression.  The act of copying the definition
+Just before an expression definition is matched to an expression, the
+definition is copied, and the act of copying 
 creates a new set of variables that are distinct from any
-previous variables.  If pattern matching fails, the definition
-match fails.  If pattern matching succeeds, it generates consistent
-syntax equations.
-In this case the matching process continues
-by generating constraint syntax equations and guards and then searching for
-definitions that match the guards.
+previous variables.  Thus if \verb|$X| appears in a definition, each
+use of the definition will involve a \underline{different}
+variable named \verb|$X|.
 
 \subsection{Syntax Equations}
 \label{SYNTAX-EQUATIONS}
+
+Although pattern equations are asserted before syntax equations are asserted,
+a knowledge of syntax equations is required to understand pattern
+equations.
 
 A \key{syntax equation} asserts syntactic identity between two
 \skey{syntax expression}s.  A syntax expression is an syntax variable,
@@ -5237,7 +5198,9 @@ The syntax of a syntax equation is:
 \emkey{syntax-equation} ::= {\em syntax-expression} \ttnbkey{:=:}
 			    {\em syntax-expression} \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
-			   $|$ {\em atom} $|$ {\em object} \\[1ex]
+			   $|$ {\em atom} $|$ {\em object}
+			   \label{SYNTAX-EQUATION}
+			   \\[1ex]
 \emkey{syntax-variable}\label{SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
 			::= & {\tt \$} {\em capitalized-word }
@@ -5372,7 +5335,9 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 
 \begin{indpar}
 \emkey{pattern-equation} ::= {\em syntax-expression} \ttnbkey{:=\TILDE}
-			    {\em pattern} \\[1ex]
+			    {\em pattern}
+			    \label{PATTERN-EQUATION}
+			    \\[1ex]
 \emkey{pattern} ::= {\em pattern-object}
 \\[3ex]
 \emkey{pattern-object} ::=
@@ -5380,7 +5345,9 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
     {\em pattern-term-option}
         \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$ \\
     {\em pattern-attribute-representations}
-    \end{tabular} \\[1ex]
+    \end{tabular}
+\label{PATTERN-OBJECT}
+    \\[1ex]
 \emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
 \emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-marker-option}
 	\\[1ex]
@@ -5670,6 +5637,7 @@ syntax:
 \begin{indpar}
 \emkey{default-equation} ::= {\em syntax-variable} \ttnbkey{:=?}
 			     {\em default-value}
+\label{DEFAULT-EQUATION}
 \\[1ex]
 \emkey{default-value} ::= {\em syntax-expression}
 \end{indpar}
