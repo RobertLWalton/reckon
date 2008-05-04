@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 3, 2008}
+\date{May 4, 2008}
  
 \maketitle
 
@@ -5358,6 +5358,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-marker-option} ::= {\em empty} $|$ {\em pattern marker} \\[1ex]
 \emkey{pattern-marker} ::= \ttmkey{.}{pattern marker}
 		       $|$ \ttmkey{?}{pattern marker}
+		       $|$ \ttmkey{??}{pattern marker}
 		       $|$ \ttmkey{...}{pattern marker}
 		       $|$ \ttmkey{...?}{pattern marker}
 	\\[1ex]
@@ -5406,21 +5407,28 @@ The rules for pattern representation are:
 {\em pattern} is not preceded by `\verb|.|', it must be first in
 the {\em syntax-expression}.
 
-\item A {\em pattern-clause} not followed by `\verb|?|',
-`\verb|...|', or `\verb|...?|' in the {\em pattern} must appear exactly
+\item A {\em pattern-clause} not followed by a {\em pattern-marker}
+other than `\verb|.|' in the {\em pattern} must appear exactly
 once in the represented {\em syntax-expression}.
 
-\item A {\em pattern-clause} followed by `\verb|?|',
+\item A {\em pattern-clause} followed by `\verb|?|'
 in the {\em pattern} is an \key{optional pattern clause}
 and must appear exactly once or not at all
 in the represented {\em syntax-expression}.
 
-\item A {\em pattern-clause} followed by `\verb|...|',
+\item A {\em pattern-clause} followed by `\verb|??|'
+in the {\em pattern} is an \key{optional truth-value pattern clause}.
+Like an optional pattern clause this must appear exactly once or not at all
+in the represented {\em syntax-expression}.
+In addition, the {\em pattern-clause} must end with a {\em syntax-variable},
+and this may be omitted in the represented {\em syntax-expression}.
+
+\item A {\em pattern-clause} followed by `\verb|...|'
 in the {\em pattern} is a \key{repeated pattern clause}
 and must appear one or more times
 in the represented {\em syntax-expression}.
 
-\item A {\em pattern-clause} followed by `\verb|...?|',
+\item A {\em pattern-clause} followed by `\verb|...?|'
 in the {\em pattern} is an \key{optional repeated pattern clause}
 and must appear one or more times or not at all
 in the represented {\em syntax-expression}.
@@ -5432,8 +5440,8 @@ like syntax equations except their right sides are patterns and not
 a syntax expressions.  If the syntax expression on the left side of
 a pattern equation is an object, then the pattern on the right side
 can be \key{unfolded} to match the syntax expression.  Unfolding
-means removing the \skey{pattern marker}s,
-`\verb|.|', `\verb|?|', `\verb|...|', and `\verb|...?|',
+means removing the \skey{pattern marker}s, `\verb|.|',
+`\verb|?|', `\verb|??|', `\verb|...|', and `\verb|...?|',
 and arranging the pattern clauses in the
 correct order.  For example, given the pattern equation:
 
@@ -5673,6 +5681,72 @@ thereby establishing a value for \verb|$Y|.  Default equations that
 are not promoted to become syntax equations by this mechanism are
 ignored.  This mechanism does \underline{not} apply to repeated pattern
 clauses or optional repeated pattern clauses.
+
+\subsubsection{Optional Truth-Value Syntax Variables}
+\label{OPTIONAL-TRUTH-VALUE-SYNTAX-VARIABLES}
+
+An \key{optional truth-value pattern clause}%
+\index{truth-value pattern clause}%
+\index{pattern clause!optional truth value}
+must end with a syntax variable $v$,
+and this variable is treated specially in the following ways.
+First, the guard:
+\begin{center}
+truth value ($v$)
+\end{center}
+is asserted.  Second, if the clause is omitted from the unfolded pattern,
+the syntax equation
+\begin{center}
+$v$ {\tt :=:} {\tt false}
+\end{center}
+is asserted.  However, if the clause is not omitted from the unfolded
+pattern, but the variable $v$ at the end of the clause is omitted from
+the unfolded pattern, then the syntax equation
+\begin{center}
+$v$ {\tt :=:} {\tt true}
+\end{center}
+is asserted.
+
+Here $v$ is usually an evaluated syntax variable
+(\pagref{EVALUATED-SYNTAX-VARIABLE}), but it may be
+an unevaluated syntax variable.
+
+For example, the pattern equation
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X) . assending ASCENDING ??/ \\
+\end{tabular}
+\end{center}
+
+produces the guard and syntax equation:
+
+\begin{center}
+\verb/truth value (ASCENDING)/ \\
+\begin{tabular}{rcl}
+\verb/ASCENDING/ & \tt :=: & \verb/false/ \\
+\end{tabular}
+\end{center}
+
+and the pattern equation
+
+\begin{center}
+\begin{tabular}{rcl}
+\verb/sort x ascending/ & \tt :=\TILDE &
+	\verb/sort ($X) . assending ASCENDING ??/ \\
+\end{tabular}
+\end{center}
+
+produces the guard and syntax equation:
+
+\begin{center}
+\verb/truth value (ASCENDING)/ \\
+\begin{tabular}{rcl}
+\verb/ASCENDING/ & \tt :=: & \verb/true/ \\
+\end{tabular}
+\end{center}
+
+
 
 \subsubsection{Repeated Syntax Variables}
 \label{REPEATED-SYNTAX-VARIABLES}
@@ -5976,12 +6050,12 @@ An expression definition is an object (\secref{OBJECTS})
 of \ttkey{expression-definition}
 type that consists of a pattern, a list of guards,
 an optional block, and an optional context.  An
-{\em EXPRESSION-DEFINITION} expression (\pagref{EXPRESSION-DEFINITION})
+{\em expression-definition} (\pagref{EXPRESSION-DEFINITION})
 computes an expression definition that has no context.
 A context can be added to the expression definition later by executing:
 
 \begin{indpar}
-\verb|set| {\em EXPRESSION-DEFINITION} \verb|context| {\em CONTEXT}
+\verb|set| {\em expression-definition} \verb|context| {\em context}
 \end{indpar}
 
 Once a context has been added to an expression definition, the context
@@ -5992,16 +6066,16 @@ the expression:
 
 \begin{indpar}
 	\verb|an| \ttkey{expression-definition}
-	      {\em EXPRESSION-DEFINITION}
-	      {\em CONTEXT}
+	      {\em expression-definition}
+	      {\em context}
 \end{indpar}
 
 The new expression definition has a different context, given by
 the second argument, than the first argument does.  The special
-value \ttmkey{UNDEFINED}{argument of!an expression-definition@{\tt an
-expression-definition}} can be given as the {\em CONTEXT} argument
+value \ttmnbkey{UNDEFINED}{argument of!an expression-definition@{\tt an
+expression-definition}} can be given as the {\em context} argument
 to create a new expression definition whose pattern, guards, and block
-are the same as those of {\em EXPRESSION-DEFINITION} argument
+are the same as those of {\em expression-definition} argument
 but whose context part is missing and can be set later.
 
 There are two kinds of contexts: \mkey{immutable}{context} and
@@ -6015,37 +6089,37 @@ A context can be created by:
 \begin{indpar}
 \verb|a| \ttkey{context}
     \begin{tabular}[t]{@{}l@{}}
-    \verb|(| {\em CONTEXT-ELEMENT} \{ \verb|,| {\em CONTEXT-ELEMENT} \}
+    \verb|(| {\em context-element} \{ \verb|,| {\em context-element} \}
 	\verb|)|
     \\
     \begin{tabular}[t]{@{}rl@{}}
-    [ & \ttmkey{is list}{of context!of {\tt context}} {\em LIST} \\
+    [ & \ttmkey{is list}{of context!of {\tt context}} {\em list} \\
     $|$ & \ttmkey{is mutable}{of context!of {\tt context}}
-          {\em MUTABLE} \\
+          {\em mutable} \\
     $|$ & \ttmkey{with contexts missing}{of context!of {\tt context}}
-           {\em CONTEXTS-MISSING} ]\opt
+           {\em contexts-missing} ]\opt
     \end{tabular}
     \end{tabular}
 \end{indpar}
 
-in which each {\em CONTEXT-ELEMENT} is either an expression definition or
-a context, and {\em LIST}, {\em MUTABLE}, and {\em CONTEXTS-MISSING}
+in which each {\em context-element} is either an expression definition or
+a context, and {\em list}, {\em mutable}, and {\em contexts-missing}
 are either `{\tt false}' (the default) or `{\tt true}'.
-If {\em CONTEXTS-MISSING} is {\tt false} (the default), any expression
-definition {\em CONTEXT-ELEMENTS} that do not have their
+If {\em contexts-missing} is {\tt false} (the default), any expression
+definition {\em context-elements} that do not have their
 contexts set will have them set equal to the context being created.
 
 Thus given expression definitions that do not have their contexts set,
 the default is to create an immutable context set whose expression definitions
 have the new context and therefore can reference each other.  Blocks
-containing {\em EXPRESSION-DEFINITIONs} perform exactly this kind of
+containing {\em expression-definitions} perform exactly this kind of
 context creation.
 
-The {\em CONTEXT-ITEM} list of a context object is a list object
+The {\em context-item} list of a context object is a list object
 (\pagref{LIST}) which can be extracted from the context object by
 
 \begin{indpar}
-\verb|the| \ttmkey{list}{of context} \verb|of| {\em CONTEXT}
+\verb|the| \ttmkey{list}{of context} \verb|of| {\em context}
 \end{indpar}
 
 This list object is a list or set according to whether or not the
@@ -6067,9 +6141,9 @@ an expression-definition {
 }
 a context {
     on a context CONTEXT-ELEMENT-LIST
-       ?? is list ( LIST ~ false )
-       ?? is mutable ( MUTABLE ~ false )
-       ?? with context missing ( CONTEXT-MISSING ~ false )
+       . is list LIST ??
+       . is mutable MUTABLE ??
+       . with context missing CONTEXT-MISSING ??
        <-- list CONTEXT-ELEMENT-LIST of context-items
 }
 context-item X <-- expression-definition X
