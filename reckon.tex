@@ -1,4 +1,4 @@
-%  Calculation and Simulation Total Language Environment (CASTLE)
+%  RECKON (Personal Reckoning Langauge)
 %
 % File:         reckon.tex
 % Author:       Bob Walton (walton@deas.harvard.edu)
@@ -7,7 +7,7 @@
 % Possible alternative names:
 %
 %	CASTLE  Calculation and Simulation Total Language Environment
-%	RECKON	Personal Reckoning language
+%	RECKON	Personal Reckoning Language
 %	MFL	Multi-Facetted Language
 %	ROPE	Really Omni Programming Environment
 %	RIPE	Robert's Information Processing Environment
@@ -266,10 +266,9 @@
 
 \begin{document}
         
-\title{Calculation and Simulation\\
-       Total Language Environment\\[2ex]
-       CASTLE\\[2ex]
-       (Draft 1a)}
+\title{Personal Reckoning Lanauage\\[2ex]
+       RECKON\\[2ex]
+       (Draft 1b)}
 
 \author{Robert L. Walton\thanks{Copyright 2008 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
@@ -277,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 4, 2008}
+\date{August 21, 2008}
  
 \maketitle
 
@@ -294,11 +293,11 @@ Cheatham and Stuart Shieber.}}
 
 \section{Introduction}
 
-This document describes the programming language CASTLE.  CASTLE,
-for what its worth, stands for `Calculation and Simulation Total Language
-Environment', which hints at its purpose.
+This document describes the programming language RECKON.  RECKON,
+for what its worth, stands for `Personal Reckoning Lnaguage',
+which hints at its purpose.
 
-CASTLE is designed for naive programmers: that is, for people who may never
+RECKON is designed for naive programmers: that is, for people who may never
 be able to program computers well.  It is a fairly simple language with
 powerful data types that make it easier to write small programs
 that do a variety of tasks a person might want to do.  Generally
@@ -324,8 +323,8 @@ Solving problems in elementary logic. \\
 \end{center}
 
 There are many computer languages that have some powerful data type that adapts
-them for a specific kind of computation.  CASTLE tries to combine these.
-Some previous computer languages that have influenced CASTLE, and
+them for a specific kind of computation.  RECKON tries to combine these.
+Some previous computer languages that have influenced RECKON, and
 the data types they particularly support, are:
 
 \begin{center}
@@ -341,13 +340,13 @@ PROLOG				& Logical Expressions \\
 \end{tabular}
 \end{center}
 
-CASTLE is \underline{not} designed to be a computer-efficient language.
+RECKON is \underline{not} designed to be a computer-efficient language.
 It is designed to be person-efficient, and to do small calculations
 rapidly enough with inexpensive modern computers.
 
 \section{Remarks}
 
-CASTLE was created as an answer to the question: what programming language
+RECKON was created as an answer to the question: what programming language
 should you teach beginning programming students who do not have the talent
 or inclination to become good programmers?  The initial answer, that it does
 not matter provided you implement some powerful types of data in the
@@ -358,9 +357,9 @@ to students after a first course in programming, and the essence of
 such a language is the integration within it of many powerful and useful
 data types.
 
-The basic principles of the CASTLE design were developed
+The basic principles of the RECKON design were developed
 by the author while teaching the intended customers of
-CASTLE.\footnote{Specifically, while teaching CS121 at Suffolk University
+RECKON.\footnote{Specifically, while teaching CS121 at Suffolk University
 using the C programming language.}
 The language should have as few parts as possible, to cut down
 on the amount of detail that must be remembered to use the language, but
@@ -371,27 +370,28 @@ The language should have powerful data types, well integrated into
 the syntax of the language.  As much as possible, statement executions
 in the language should have visible effect.
 
-The current version of CASTLE is not stable, because it has not been
-implemented, and because, unlike most programming languages, CASTLE
+The current version of RECKON is not stable, because it has not been
+implemented, and because, unlike most programming languages, RECKON
 has lots of subtle important interactions between its various features.  The
 hope is that after implementation and experimentation a stable sensible
-version of CASTLE, integrating all its data types, can be achieved.
+version of RECKON, integrating all its data types, can be achieved.
 
 \section{Overview}
 
-CASTLE has two major kinds of data: expressions and blocks.  Numbers are
+RECKON has two major kinds of data: expressions and blocks.  Numbers are
 the simplest expressions.  More complex expressions are math
 expressions or document expressions.  A block is a set of variables
 and an piece of code.  Each variable can have a value, which is an expression.
 The code contains expressions that can be evaluated under appropriate
 circumstances to produce values for variables.
 
-In CASTLE an `object' is a block that has an associated `type'.  For
-example, there may be an object `george' with type `person'.  All blocks
-of the same type have the same code, and many of the same variables,
+In RECKON a `description' is a block that has an associated `type'.  For
+example, there may be a description `george' with type `person'.  All
+descriptions of the same type have the same code,
+and many of the same variables,
 but typically have different variable values.
 
-You can use CASTLE as a calculator by typing into it expressions to
+You can use RECKON as a calculator by typing into it expressions to
 be evaluated, assignments of values to variables, and definitions
 of functions and predicates.  Some examples involving numbers are:
 
@@ -408,13 +408,13 @@ of functions and predicates.  Some examples involving numbers are:
 26
 \end{verbatim}\end{indpar}
 
-Here the `\verb|> |' at the beginning of some lines is the CASTLE \key{prompt}
+Here the `\verb|> |' at the beginning of some lines is the RECKON \key{prompt}
 that tells you its OK to input an expression to be evaluated.
 Except for this prompt, lines beginning with `\verb|> |' are input lines to
-a CASTLE interpreter, and other lines are output lines.
+a RECKON interpreter, and other lines are output lines.
 
 At somewhat the opposite extreme from numbers are words, phrases, sentences,
-and paragraphs.  You can calculate with these `\skey{document expression}s'.
+and paragraphs.  You can calculate with these `\skey{document expression}s\,'.
 
 \begin{indpar}
 \verb|> g = `hello'| \\
@@ -434,7 +434,7 @@ and paragraphs.  You can calculate with these `\skey{document expression}s'.
 \end{indpar}
 
 Modern math computes with expressions, and not just numbers.
-You can compute with \skey{math expression}s in CASTLE.
+You can compute with \skey{math expression}s in RECKON.
 
 \begin{indpar}
 \verb|> f = {10x^2 - 3.67x - 0.04}| \\
@@ -457,14 +457,16 @@ You can compute with \skey{math expression}s in CASTLE.
 \verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'|
 \end{indpar}
 
-Another kind of datum you can compute with in CASTLE is
+Another kind of datum you can compute with in RECKON is
 the block.  A \key{block} contains a set of variables, each of which
 can have a value which is an expression.  A block can also
 have code, which contains expressions that are evaluated under appropriate
 circumstances to produce values for the block's variables.
 
-In CASTLE an \key{object} is a block that has an associated \key{type}.  For
-example, there may be an object named `Jack' with type `person'.  All objects
+In RECKON a \key{description}
+is a block that has an associated \key{type}.  For
+example, there may be a description named `Jack' with type `person'.
+All descriptions
 of the same type have the same code, and many of the same variables,
 but typically have different variable values.  For example:
 
@@ -552,7 +554,7 @@ but typically have different variable values.  For example:
 \end{indpar}
 
 It is possible to add code to a type such as `{\tt person}'.  This has
-the affect of adding the code to all blocks that are objects of that type.
+the affect of adding the code to all blocks that are descriptions of that type.
 For example:
 
 \begin{indpar}
@@ -701,9 +703,9 @@ One can also iterate over data.
 
 In case you wonder how some of the above works, here are some hints.
 
-CASTLE tends to ignore word endings: thus `{\tt person}' and
-`{\tt persons}' are to CASTLE the same word.
-CASTLE can even be told that `{\tt person}'
+RECKON tends to ignore word endings: thus `{\tt person}' and
+`{\tt persons}' are to RECKON the same word.
+RECKON can even be told that `{\tt person}'
 and `{\tt people}' are the same word.
 `{\tt Jack's}', on the other hand, is treated an abbreviation
 of two separate words `{\tt Jack}' and `{\tt 's}', where `{\tt 's}' is
@@ -757,12 +759,12 @@ as you could input it in a way that reveals its internal structure.  Thus
 structure that is revealed, not the structure of the elements of the list.
 
 `{\tt the person named Jack}' is a printed representation of the
-internal name of an object.  Such printed representations are chosen
+internal name of a description.  Such printed representations are chosen
 automatically from the set of all possible representations, which
 in this case include `{\tt the person weighing 123 lbs}' and
 `{\tt the person named Jack weighing 123 lbs}'.
 
-The `{\tt really raw}' form of a value identifies objects by their IDs.
+The `{\tt really raw}' form of a value identifies descriptions by their IDs.
 
 A single non-list value is equivalent to a list with one element.
 Lists cannot have other lists as elements; instead attempts to
@@ -783,9 +785,9 @@ compute such lists are \key{flattened}:
 \verb|()|
 \end{indpar}
 
-For this reason CASTLE lists are sometimes called `\skey{flat list}s'.
+For this reason RECKON lists are sometimes called `\skey{flat list}s'.
 
-CASTLE has different kinds of quotes or brackets.  The brackets
+RECKON has different kinds of quotes or brackets.  The brackets
 \verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|,
 turn
 evaluation off, while \verb|[|\ldots\verb|]| turns evaluation on.
@@ -797,7 +799,7 @@ sentence terminators (e.g., `\verb|.|' and `\verb|?|') on, while
 turn recognition of operators on, and turn recognition of phrase
 separators and sentence terminators off.
 
-CASTLE can store information as expressions.  For example:
+RECKON can store information as expressions.  For example:
 
 \begin{indpar}
 \verb|> (a person named `Jack') is husband of (a person named `Jill') <--| \\
@@ -824,7 +826,7 @@ All the assertions that have been made can be queried:
 \verb|false|
 \end{indpar}
 
-CASTLE supports pictorial data
+RECKON supports pictorial data
 that are expressions displayed as pictures:
 
 \begin{indpar}
@@ -986,17 +988,17 @@ See $\theta$
 \end{indpar} 
 
 In this example we first define a `constructor'
-of the form `{\tt a demo with angle X}' to make new {\tt demo} objects,
+of the form `{\tt a demo with angle X}' to make new {\tt demo} descriptions,
 and then we define two `methods', namely `{\tt update THIS to X}' and
-`{\tt in\-cre\-ment THIS by X}', to change a {\tt demo} object.  Changing
-a {\tt demo} object is like iterating a loop to make a new object.
+`{\tt in\-cre\-ment THIS by X}', to change a {\tt demo} description.  Changing
+a {\tt demo} description is like iterating a loop to make a new description.
 
-Next we define how to display a {\tt demo} object.  Then we use the
+Next we define how to display a {\tt demo} description.  Then we use the
 `{\tt show x label {\ttbrackets \{Greek th\}}}' command
-to cause the {\tt demo} object value of {\tt x}
+to cause the {\tt demo} description value of {\tt x}
 to be displayed in a separate window labeled `$\theta$'.
-Every time this {\tt demo} object
-changes, the $\theta$ window is updated, and every time the object
+Every time this {\tt demo} description
+changes, the $\theta$ window is updated, and every time the description
 is to be printed, `See $\theta$' is printed instead.
 
 
@@ -1093,7 +1095,7 @@ for every vessel:
 \label{CODE-FOR-BATTLESHIP-3}
 \end{boxedfigure}
 
-The rest of this document is a reference manual for CASTLE.
+The rest of this document is a reference manual for RECKON.
 
 
 \section{Lexemes}
@@ -1132,7 +1134,7 @@ contains in order the following lexemes:
 	$|$ {\em quoted-string}
 	$|$ {\em separator}
 \label{SYMBOL-LEXEME}
-	\\[1ex]
+	\\[2ex]
 \emkey{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
 \emkey{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
 \emkey{number-lexeme} ::=
@@ -1141,21 +1143,8 @@ contains in order the following lexemes:
 \\[1ex]
 \emkey{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
-\emkey{separator} ::= {\em separator-character} \\[1ex]
-\emkey{name} ::=
-        {\em name-component}\,$^\star$
-        {\em non-special-symbol}
-        {\em name-component}\,$^\star$
-\\[1ex]
-\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
-\label{NAME-COMPONENT}
-\\[1ex]
-\emkey{non-special-symbol} ::= {\em symbol} that is \underline{not}
-				specially treated by the parser
-\\[1ex]
-\emkey{decimal-natural} ::= {\em number-lexeme} that contains only
-			{\em digits} and {\em commas}
-\\[1ex]
+\emkey{separator} ::= {\em separator-character}
+\\[2ex]
 \emkey{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
 		     $|$ & \verb|'| followed by a letter \\
@@ -1270,25 +1259,6 @@ contains in order the following lexemes:
 		$|$\verb|7|%
 		$|$\verb|8|%
 		$|$\verb|9|
-		\\[1ex]
-\emkey{white-space} ::= {\em white-space-character}
-                        {\em white-space-character}\,$^\star$ \\[1ex]
-\emkey{white-space-character}
-    \begin{tabular}[t]{rl}
-    ::= & {\em horizontal-space-character} \\
-    $|$ & {\em vertical-space-character}
-    \end{tabular}
-    \\[1ex]
-\emkey{horizontal-space-character} ::=
-    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
-\emkey{vertical-space-character} ::=
-    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed} \\[1ex]
-\emkey{indentation-beginning} ::= see text, \pagref{INDENTATION-BEGINNING}
-				and \pagref{INDENTATION-BEGINNING2} \\[1ex]
-\emkey{indentation-separator} ::= see text, \pagref{INDENTATION-SEPARATOR}
-				and \pagref{INDENTATION-SEPARATOR2} \\[1ex]
-\emkey{indentation-end} ::= see text, \pagref{INDENTATION-END}
-				and \pagref{INDENTATION-END2}
 \end{indpar}
 
 \begin{boxedfigure}[t]
@@ -1369,6 +1339,21 @@ Lexemes may be separated by \key{white-space}, which
 is a sequence of white-space characters (single space, horizontal tab, form
 feed, etc.), but is not itself a lexeme.
 
+\begin{indpar}
+\emkey{white-space} ::= {\em white-space-character}
+                        {\em white-space-character}\,$^\star$ \\[1ex]
+\emkey{white-space-character}
+    \begin{tabular}[t]{rl}
+    ::= & {\em horizontal-space-character} \\
+    $|$ & {\em vertical-space-character}
+    \end{tabular}
+    \\[1ex]
+\emkey{horizontal-space-character} ::=
+    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
+\emkey{vertical-space-character} ::=
+    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
+\end{indpar}
+
 Words, marks, quoted strings, and separators are called \skey{symbol}s,
 to distinguish them from numbers.  Inside the computer symbols are
 stored as character strings, while numbers are stored as strings of binary
@@ -1408,6 +1393,22 @@ are sequences of digits and commas denoting natural numbers
 {\em Names} are used to name things, such
 as functions and variables.
 
+\begin{indpar}
+\emkey{name} ::=
+        {\em name-component}\,$^\star$
+        {\em non-special-symbol}
+        {\em name-component}\,$^\star$
+\\[1ex]
+\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
+\label{NAME-COMPONENT}
+\\[1ex]
+\emkey{non-special-symbol} ::= {\em symbol} that is \underline{not}
+				specially treated by the parser
+\\[1ex]
+\emkey{decimal-natural} ::= {\em number-lexeme} that contains only
+			{\em digits} and {\em commas}
+\end{indpar}
+
 In order to indicate spacing, each lexeme is
 tagged with the column, line, and page number of its first character.
 This can be used to determine the indentation and extent of the lexeme.
@@ -1433,9 +1434,23 @@ Their presence is implied by indentation, and they have no characters
 of their own.
 Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
 
-\section{Data}
+\begin{indpar}
+\emkey{indentation-beginning} ::= see text, \pagref{INDENTATION-BEGINNING}
+				and \pagref{INDENTATION-BEGINNING2} \\[1ex]
+\emkey{indentation-separator} ::= see text, \pagref{INDENTATION-SEPARATOR}
+				and \pagref{INDENTATION-SEPARATOR2} \\[1ex]
+\emkey{indentation-end} ::= see text, \pagref{INDENTATION-END}
+				and \pagref{INDENTATION-END2}
+\end{indpar}
 
-A \key{datum} in CASTLE is either an atom, an object, or an arrow.
+\section{Low Level Data}
+
+A low level \key{datum} in RECKON is either an atom, an object, or an arrow.
+
+Expressions, blocks, and descriptions are higher level data layered
+on top of these low level data.  An expression is either an atom or
+a particular kind of object.  A block is a particular kind of expression,
+and a description is a particular kind of block.
 
 An \key{atom} is a symbol or a number.
 
@@ -1449,8 +1464,9 @@ of the form `\ttmnbkey{@}{in raw object name}$N$' where $N$
 is a natural number (non-negative integer).
 Raw object names of this form are assigned only to objects
 that must be named in an output stream (e.g., printed output).
-The first object named in output stream is assigned the name
-\verb|@1|, the second object named in output the name \verb|@2|,
+The first object named in an output stream is assigned the name
+\verb|@1|, the second object named in the output stream is assigned
+the name \verb|@2|,
 and so forth.  The same object may be assigned different names in different
 output streams.\footnote{A possible implementation is to give objects that
 have been assigned names in an output stream a hidden system defined output
@@ -1496,7 +1512,7 @@ representing sets of objects in text.  In the rest of this document
 arrows are called \skey{attribute}s,\label{ATTRIBUTE} arrow labels are called
 \skey{attribute label}s, arrow flags are called \skey{attribute flag}s,
 and arrow targets are called \skey{attribute value}s.
-Also `\ikey{attribute L of object O}{attribute!of an object}'
+Also `\ikey{attribute L of object O}{attribute!of an object}\,'
 denotes the set of all values (arrow targets) of attributes
 of object O (arrows sourced at O) which have the attribute label
 (arrow label) L.
@@ -1894,10 +1910,10 @@ object itself, a situation which can be achieved by the data representation:
 \end{verbatim}\end{indpar}
 
 Labels beginning with `\ttkey{.}' are reserved for use by
-the CASTLE system, and should not be defined by CASTLE users.  {\tt .GLOBAL}
+the RECKON system, and should not be defined by RECKON users.  {\tt .GLOBAL}
 is an example of such a label.
 
-The CASTLE parser (\secref{PARSING})
+The RECKON parser (\secref{PARSING})
 parses\label{RAW-PARSING}
 {\em raw-representations}.
 Because special
@@ -1982,14 +1998,14 @@ following these by \verb|:| and then by indented
 
 As noted above (\pagref{RAW-PARSING}),
 {\em raw-single-attribute-values} in a {\em raw-representation}
-are mostly left alone by the CASTLE parsers.  This is because the
+are mostly left alone by the RECKON parsers.  This is because the
 use of special symbols are not allowed in these, aside from
 {\em radix-indicators} and {\em exponent-indicators} which are
 only recognized when adjacent to quoted string or number lexemes.
 
 However, special symbols can be used in attribute values representations
 to create attribute values that are complex objects produced by the
-CASTLE parsers in their full glory.  When this is done, the object
+RECKON parsers in their full glory.  When this is done, the object
 representation is said to be `\key{cooked}' instead of `\key{raw}'.
 
 The syntax of {\em cooked-representations} is that of
@@ -3117,7 +3133,7 @@ Here \verb|@15| is the empty list because the file ends
 after the line `\verb|@5 =:|' that introduces it.
 
 It is a general rule\label{INDENTATION-EQUIVALENCE-RULE}
-of CASTLE that lists with \verb|{ }| brackets
+of RECKON that lists with \verb|{ }| brackets
 and `\verb|;|' separator are semantically equivalent to indented
 subexpressions introduced by `\verb|:|'.  Thus
 
@@ -3602,10 +3618,10 @@ Some example translations are:
 
 \end{list}
 
-Because CASTLE, outside the context of quotes,
+Because RECKON, outside the context of quotes,
 insists on mapping different forms of a word to a single
 word, some subtleties of language are lost.  For example, `\verb|people|'
-can be a singular word referring to a group of people, but CASTLE will
+can be a singular word referring to a group of people, but RECKON will
 standardly confuse it with `\verb|person|'.
 
 \subsection{Number Recognition}
@@ -5776,7 +5792,7 @@ is unfolded, the following equations result:
 \end{center}
 
 Note that here `\verb|$Y$1|' and `\verb|$Y$2$|' are each a single syntax
-variable name, each with two \verb|$|'s in it.  Users of CASTLE should
+variable name, each with two \verb|$|'s in it.  Users of RECKON should
 not use \verb|$| inside a syntax variable name in order to avoid conflicting
 with this usage.
 
@@ -5833,7 +5849,7 @@ is treated as if it were
 \end{center}
 
 where `\verb|$1$|' and `\verb|$2$|' are unique new
-syntax variable names created by the CASTLE system.
+syntax variable names created by the RECKON system.
 
 
 
@@ -6282,7 +6298,7 @@ When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 {\em subblock} of the {\em block} are treated as if they
 were in the {\em block} proper.  Thus variables named in the
 {\em subblock} are variables named in the {\em block}.\footnote{
-CASTLE does not have the notion of name space nesting, because the
+RECKON does not have the notion of name space nesting, because the
 {\tt \CurlyBra\CurlyKet} brackets that would
 indicate nesting can be implied by the {\tt :} construction.}
 
@@ -6816,7 +6832,7 @@ the current list positions.  When removing an element from the end of the
 Design:
 
 Debugging is based on the notion that almost all
-CASTLE programs will run quickly.
+RECKON programs will run quickly.
 Input checkpointing is used to record all inputs to a computation
 so the computation can be deterministically rerun.  Detailed
 traces can be generated which explain for each value how it was generated.
