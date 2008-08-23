@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 22, 2008}
+\date{August 23, 2008}
  
 \maketitle
 
@@ -4199,7 +4199,8 @@ An operator can be infix if it does not begin or end the subexpression,
 follow an operator that is prefix,
 or precede an operator that is postfix.
 
-A nofix operator cannot be infix, prefix, postfix or afix.
+A\label{FIXITY-RULES}
+nofix operator cannot be infix, prefix, postfix or afix.
 An afix operator cannot be infix, prefix, postfix or nofix.
 A postfix operator cannot be infix.
 Thus an operator may be only nofix, only afix, only infix,
@@ -4611,7 +4612,7 @@ a single optional argument called the \key{terminating precedence}.
 The helper function parses an initial segment of the input list,
 discards this segment from the input list, and returns the parsed
 result of this segment as the helper function value.
-The initial segment is terminated the end of th input list,
+The initial segment is terminated the end of the input list,
 or by an operator whose precedence
 is equal to or less than the terminating precedence argument.
 
@@ -4635,6 +4636,11 @@ uses a suboperation known as \key{compacting the output list}.
 If the list contains zero or just one element, nothing is done.  Otherwise
 the list is replaced by a one element list whose only element is
 the previous output list.
+
+In reading the following algorithm, it may be helpful to recall that an
+operator can have only one fixity, prefix, postfix, infix, nofix, or afix,
+except for the case of a prefix operator, which can also be either infix
+or postfix (but not both) (see \pagref{FIXITY-RULES}).
 
 After initializing its the output list to empty,
 the helper function executes a \key{parsing loop} that repeats the following:
@@ -4660,7 +4666,7 @@ and \mkey{operator precedence}{in parsing loop} are determined as follows:
 
 \item If the output list is empty, and the operator can be prefix
 or nofix, the operator fixity is prefix if the operator can be prefix,
-or nofix otherwise.
+or nofix otherwise (the operator cannot be both prefix and nofix).
 
 \item If the output list is empty
 and the operator cannot be prefix or nofix, then an error operand
@@ -4677,7 +4683,7 @@ the current operator).
 \item If the output list is non-empty and the operator can be postfix,
 infix, or nofix, the operator fixity is postfix if the operator can
 be postfix, infix if the operator can be infix, or nofix if the operator
-can be nofix.
+can be nofix (the operator cannot be more than one of these fixities).
 
 \item The operator precedence is set to the precedence
 in the operator definition if the operator fixity
@@ -4697,8 +4703,11 @@ the parsing loop and helper function terminate.
 Nothing is removed from the input list.  The output list is reformatted
 and returned as the value of the helper function.
 
-\item The output list is reformatted and compacted (becoming the
+\item If the output list is non-empty, it
+is reformatted and compacted (becoming the
 first operand of the current operator that is infix or nofix).
+Note that because of what happens below, the output list cannot
+consist of one element that is an operator.
 
 \item The operator is removed from the input list and copied
 to the output list.  The operator will be the first
@@ -4706,7 +4715,7 @@ operator in the output list, and therefore
 becomes the lead operator of the output list.
 
 \item
-If the current operator fixity is prefix, infix, or nofix, then
+If the operator fixity is prefix, infix, or nofix, then
 a \key{parsing subloop} that repeats the following is executed:
 
 \begin{enumerate}
@@ -4718,14 +4727,15 @@ the operator precedence as its terminating precedence argument.
 the operator fixity is prefix or infix, the returned parsed expression is
 replaced by an error operand, and a parsing error is announced.
 
-\item If the returned parsed expression contains zero or one element,
-it is added by concatenation to the end of the output list.
-If it contains more than one element, it is pushed as a single
-element to the end of the output list.
+\item If the returned parsed expression contains more than
+one element, it is converted to a one element
+list whose only element is the returned parsed expression list.
+Then the returned parsed expression
+is added by concatenation to the end of the output list.
 
 \item If the operator fixity is prefix, or if
 the input list now begins with a current operator that cannot be
-infix, nofix, or afix, or that has a precedence below the current
+infix, nofix, or afix, or that has a precedence below the
 operator precedence,
 the parsing subloop terminates and the parsing loop iterates.
 
@@ -4740,6 +4750,8 @@ and the parsing subloop iterates.
 
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
+
+OBSOLETE - revise
 
 \ikey{Text parsing}{text parsing} is performed by the \ttkey{-TEXT-PARSER-},
 which is the parser for subexpressions of the
