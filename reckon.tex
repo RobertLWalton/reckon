@@ -2553,8 +2553,7 @@ defined for reference:
 \label{PARSING-DEFINITION-STACK}
 
 Parsing is controlled by parsing definitions, which
-are placed in the \key{parsing definition stack}.%
-\label{PARSING-DEFINITION-STACK}
+are placed in the \key{parsing definition stack}.
 The following is a list
 of the kinds of parsing definitions:%
 \label{PARSING-DEFINITION-KINDS}
@@ -3463,7 +3462,7 @@ and cannot affect backets or indentation marks.
 
 Lexeme replacement may be done by either a dictionary or a function.
 Replacement is controlled by \skey{lexeme replacement definition}s
-in the parsing definition stack (\pagref{PARSING-DEFINITION-STACK}).
+in the parsing definition stack (\secref{PARSING-DEFINITION-STACK}).
 
 There are two kinds of lexeme replacement definitions:
 dictionary and function.  These have the syntax:
@@ -3575,7 +3574,7 @@ Thus \verb|","| denotes the separator
 If several different lexeme replacement definitions could be used to
 replace lexemes at the beginning of a lexeme sequence, the topmost
 definition in the parsing definition stack
-(\pagref{PARSING-DEFINITION-STACK}) is used.
+(\secref{PARSING-DEFINITION-STACK}) is used.
 
 The following lexeme dictionaries and functions are
 defined in the initial parsing definition stack.
@@ -4766,7 +4765,8 @@ Text parsing is normally done in the context of a pair of matched
 {\em quotes}, and in this context {\em white-space} pre-lexemes
 become lexemes.  Note that {\em white-space} lexemes all consist
 of zero or more {\em vertical space} characters followed by zero or
-more {\em single-space} characters (\secref{WHITE-SPACE-CONVERSION}).
+more {\em single-space} characters (reference: TBD: make white space
+lexemes sometimes?).
 There are three kinds of {\em white-space} lexemes
 used by text parsing:
 
@@ -5052,7 +5052,7 @@ When an expression definition is found whose pattern matches an expression,
 a set of constraints are established that must be statisfied to
 complete the match.  There are four kinds of constraints: syntax
 equations, pattern equations, default equations, and guards.
-Syntax equations identify expressions that involve syntax variables,
+Syntax equations equate expressions that involve syntax variables,
 which are names beginning with a capital letter
 preceded by a \verb|$|.  Pattern equations are like syntax equations but
 involve a pattern which can represent one of many possible syntax
@@ -5132,10 +5132,14 @@ the entire matching process is monotonic.  This means the order in which
 syntax equations are solved, patterns are unfolded, guards are evaluated,
 and unevaluated syntax variable values are evaluated does not matter.
 
+TBD: EXAMPLE
+
 In order to make the matching process monotonic, pattern unfolding must
 be monotonic.  This means that if undefined syntax variables in a pattern
 equation whose pattern has been unfolded are given arbirary values later,
 the pattern unfolding must still be valid and unambiguous.
+
+TBD: EXAMPLE
 
 Similarly guard evaluations must not have side effects.  In other
 words, evaluating a guard cannot affect any future valuations.
@@ -5166,7 +5170,7 @@ would if a guard evaluated to false.
 \emkey{expression-definition} ::=
 	{\em pattern} \verb|<--| {\em constraint-list-option} {\em block-option}
 	\\[1ex]
-{\em pattern} ::= \verb|<-|{\em -subexpression}
+{\em pattern} ::= \verb|<--|{\em -subexpression}
 	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
 {\em pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
@@ -5191,12 +5195,12 @@ would if a guard evaluated to false.
 		{\tt :=?} {\em syntax-expression}
 	        ~~~ [see \pagref{DEFAULT-EQUATION}]
 		\\[1ex]
-\emkey{guard} ::= ~~ \verb|,|{\em -subexpression} \\[1ex]
+\emkey{guard} ::= \verb|,|{\em -subexpression} \\[1ex]
 \emkey{block-option} ::= {\em empty} $|$ \verb|{ }| $|$ {\em block} \\[1ex]
 \emkey{block} ::= \verb|{| {\em statement}
                            \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
 	    \\[1ex]
-{\em statement} ::= see \pagref{STATEMENT} \\[1ex]
+{\em statement} ::= see \pagref{STATEMENT}
 \end{indpar}
 
 The \mkey{pattern}{in expression definition} of an expression definition
@@ -5222,7 +5226,7 @@ a knowledge of syntax equations is required to understand pattern
 equations.
 
 A \key{syntax equation} asserts syntactic identity between two
-\skey{syntax expression}s.  A syntax expression is an syntax variable,
+\skey{syntax expression}s.  A syntax expression is a syntax variable,
 an atom, or an object whose attribute values are syntax expressions.
 The syntax of a syntax equation is:
 
@@ -5339,8 +5343,12 @@ we deduce $e_1$ {\tt :=:} $e_3$.
 We have now given all the deduction rules used to solve syntax equations.
 Note that these rules do \underline{not} create new syntax expressions:
 all the syntax expressions in any deduced equation were subexpressions
-in previous equations.  An algorithm that keeps making deductions until
+in previous equations.  Because of this,
+an algorithm that keeps making deductions until
 no new deductions can be made will stop fairly quickly.
+
+TBD: Two subexpressions of the previous equations that are syntactically
+identical are not equated by this algorithm!
 
 Also note that as a technical point, if all we want is to deduce all
 syntax equations for which one side as a syntax variable, then we can
@@ -5653,7 +5661,8 @@ way to unfold the pattern so that the equation can be viewed as a
 consistent syntax equation.  Clearly if a pattern equation is inconsistent
 then the pattern equation will be unsolvable, or the pattern equation
 will become inconsistent when some other equation causes the pattern
-to be unfolded.
+to be unfolded and the pattern equation to be promoted so it becomes
+an inconsistent syntax equation.
 
 However, if there is more than one way to unfold a pattern in a pattern
 equation so that the equation can be viewed as a consistent syntax equation,
@@ -5740,7 +5749,7 @@ $v$ {\tt :=:} {\tt true}
 is asserted.
 
 Here $v$ is usually an evaluated syntax variable
-(\pagref{EVALUATED-SYNTAX-VARIABLE}), but it may be
+(\pagref{EVALUATED-SYNTAX-VARIABLES}), but it may be
 an unevaluated syntax variable.
 
 For example, the pattern equation
@@ -5808,7 +5817,8 @@ is unfolded, the following equations result:
 
 Note that here `\verb|$Y$1|' and `\verb|$Y$2$|' are each a single syntax
 variable name, each with two \verb|$|'s in it.  Users of RECKON should
-not use \verb|$| inside a syntax variable name in order to avoid conflicting
+not use \verb|$| two or more times in
+a syntax variable name in order to avoid conflicting
 with this usage.
 
 With an optional repeated pattern clause it is also possible for the
@@ -5830,6 +5840,8 @@ yields
 \verb/$Y/ & \tt :=: & \verb|()|
 \end{tabular}
 \end{center}
+
+[TBD: When is evaluation??]
 
 \subsubsection{Place Holding Syntax Variables}
 \label{PLACE-HOLDING-SYNTAX-VARIABLES}
@@ -6215,7 +6227,8 @@ The code of a block has the following syntax:
 \emkey{expression-definition} ::= {\em EXPRESSION-DEFINITION} 
 				(see \pagref{EXPRESSION-DEFINITION}) \\[1ex]
 \emkey{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION} \\[1ex]
-\emkey{statement} ::= {\em qualified-statement} $|$ {\em empty} \\[1ex]
+\emkey{statement} ::= {\em qualified-statement} $|$ {\em empty}
+\label{STATEMENT}\\[1ex]
 \emkey{qualified-statement}
     \begin{tabular}[t]{rl}
     ::= & {\em assignment-statement} \\
@@ -6271,16 +6284,19 @@ The code of a block has the following syntax:
 
 A block is parsed when the statement that contains it (typically
 an {\em EXPRESSION-DEFINI\-TION}, \pagref{EXPRESSION-DEFINITION})
-is parsed.  Because the \ttmkey{;}{statement separator} operator used
+is parsed.
+
+[TBD: How is parsing controlled; old statement:
+Because the \ttmkey{;}{statement separator} operator used
 as a statement separator in a {\em block} is by default
-{\tt definitional} (\pagref{DEFINITIONAL}), in addition to {\em statements}
+{\tt definitional} (??), in addition to {\em statements}
 a {\em block}
 can contain definitions that control parsing but do not become part of the
-parsed block.  Such definitions are omitted from the above syntax.
+parsed block.  Such definitions are omitted from the above syntax.]
 
 When the pattern and guard parts of an expression definition are parsed,
 they are parsed together to create an expression graph, and
-implicit conversion (\pagref{IMPLICIT-CONVERSION}) of variable names
+implicit conversion (??) of variable names
 is used to produce variables for that graph.
 Any {\em block} part of the expression
 definition is parsed separately to produce a separate expression graph that
@@ -6360,7 +6376,7 @@ variable names beginning with \verb|#| and other variable names.  The
 only distinction occurs in {\em EXPRESSION-DEFINITION} {\em patterns},
 where the values obtained by call unification for input variables
 whose names do not begin with \verb|#| are replaced by their evaluations
-(\pagref{PROTECTED-VARIABLE}).
+(??).
 
 TBD: Arrays and array element names.
 
