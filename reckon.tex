@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 23, 2008}
+\date{March 10, 2009}
  
 \maketitle
 
@@ -333,7 +333,7 @@ Various Spreadsheets		& Spreadsheets \\
 Various Data Base Languages	& Data Bases \\
 Various Script Languages	& Documents \\
 MATLAB				& Matrices \\
-Mathematica			& Expressions \\
+Mathematica			& Mathematical Formulae \\
 TCL				& Character Strings and Lists \\
 Lisp				& Words and Phrases \\
 PROLOG				& Logical Expressions \\
@@ -348,7 +348,7 @@ rapidly enough with inexpensive modern computers.
 
 RECKON was created as an answer to the question: what programming language
 should you teach beginning programming students who do not have the talent
-or inclination to become good programmers?  The initial answer, that it does
+or inclination to become serious programmers?  The initial answer, that it does
 not matter provided you implement some powerful types of data in the
 language you choose, has a flaw.  The flaw is that without the right powerful
 data types, the language will be useless to the students after the course
@@ -365,7 +365,7 @@ The language should have as few parts as possible, to cut down
 on the amount of detail that must be remembered to use the language, but
 conversely, there is no limit to the conceptual complexity of any well-used
 part.\footnote{There was no problem teaching recursion, but it was better
-not to each many different looping constructs.}
+not to teach many different looping constructs.}
 The language should have powerful data types, well integrated into
 the syntax of the language.  As much as possible, statement executions
 in the language should have visible effect.
@@ -406,6 +406,10 @@ of functions and predicates.  Some examples involving numbers are:
 17
 > x + y
 26
+> f(b,c,x) = b*x + c
+function(b,c,x) is (b*x + c)
+> f(10,x,y)
+179
 \end{verbatim}\end{indpar}
 
 Here the `\verb|> |' at the beginning of some lines is the RECKON \key{prompt}
@@ -592,42 +596,44 @@ One can use definitions to define expressions that compute values:
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all (sums from X through Y)| \\
-\begin{tabular}{|r|r|r|r|}
+\begin{tabular}{|r|r|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf parent} &
 \multicolumn{1}{|c}{\bf X} &
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt @1000002 & \tt 5	& \tt	10	& \tt 45 \\
-\tt @1000003 & \tt 6	& \tt	10	& \tt 40 \\
-\tt @1000004 & \tt 7	& \tt	10	& \tt 34 \\
-\tt @1000005 & \tt 8	& \tt	10	& \tt 27 \\
-\tt @1000006 & \tt 9	& \tt	10	& \tt 19 \\
-\tt @1000007 & \tt 10	& \tt	10	& \tt 10 \\
-\tt @1000008 & \tt 11	& \tt	10	& \tt 0 \\
+\tt @1000002 & \tt @1		& \tt 5	& \tt	10	& \tt 45 \\
+\tt @1000003 & \tt @1000002	& \tt 6	& \tt	10	& \tt 40 \\
+\tt @1000004 & \tt @1000003	& \tt 7	& \tt	10	& \tt 34 \\
+\tt @1000005 & \tt @1000004	& \tt 8	& \tt	10	& \tt 27 \\
+\tt @1000006 & \tt @1000005	& \tt 9	& \tt	10	& \tt 19 \\
+\tt @1000007 & \tt @1000006	& \tt 10	& \tt	10	& \tt 10 \\
+\tt @1000008 & \tt @1000007	& \tt 11	& \tt	10	& \tt 0 \\
 \hline
 \end{tabular} \\[0.5ex]
 \verb|> sum from 1 through 2| \\
 \verb|3| \\
 \verb|> all (sums from X through Y)| \\
-\begin{tabular}{|r|r|r|r|}
+\begin{tabular}{|r|r|r|r|r|}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf parent} &
 \multicolumn{1}{|c}{\bf X} &
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt @1000002 & \tt 5	& \tt	10	& \tt 45 \\
-\tt @1000003 & \tt 6	& \tt	10	& \tt 40 \\
-\tt @1000004 & \tt 7	& \tt	10	& \tt 34 \\
-\tt @1000005 & \tt 8	& \tt	10	& \tt 27 \\
-\tt @1000006 & \tt 9	& \tt	10	& \tt 19 \\
-\tt @1000007 & \tt 10	& \tt	10	& \tt 10 \\
-\tt @1000008 & \tt 11	& \tt	10	& \tt 0 \\
-\tt @1000009 & \tt 1	& \tt	2	& \tt 3 \\
-\tt @1000010 & \tt 2	& \tt	2	& \tt 2 \\
-\tt @1000011 & \tt 3	& \tt	2	& \tt 0 \\
+\tt @1000002 & \tt @1		& \tt 5		& \tt	10	& \tt 45 \\
+\tt @1000003 & \tt @1000002	& \tt 6		& \tt	10	& \tt 40 \\
+\tt @1000004 & \tt @1000003	& \tt 7		& \tt	10	& \tt 34 \\
+\tt @1000005 & \tt @1000004	& \tt 8		& \tt	10	& \tt 27 \\
+\tt @1000006 & \tt @1000005	& \tt 9		& \tt	10	& \tt 19 \\
+\tt @1000007 & \tt @1000006	& \tt 10	& \tt	10	& \tt 10 \\
+\tt @1000008 & \tt @1000007	& \tt 11	& \tt	10	& \tt 0 \\
+\tt @1000009 & \tt @1		& \tt 1		& \tt	2	& \tt 3 \\
+\tt @1000010 & \tt @1000009	& \tt 2		& \tt	2	& \tt 2 \\
+\tt @1000011 & \tt @1000010	& \tt 3		& \tt	2	& \tt 0 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -698,7 +704,12 @@ One can also iterate over data.
 \verb|+         next sum = sum + the weight of (first X)| \\
 \verb|+         next X = rest X| \\
 \verb|> average weight of (all persons)| \\
-\verb|116.5 lbs|
+\verb|116.5 lbs| \\
+\verb|> z = 10 + average weight of (all persons named Bill)| \\
+\verb|error `Cannot average 0 things.'| \\
+\verb|      occurred during: average weight of (all persons named Bill)| \\
+\verb|      occurred during: 10 + ditto| \\
+\verb|      occurred during: z = ditto|
 \end{indpar}
 
 In case you wonder how some of the above works, here are some hints.
@@ -755,7 +766,7 @@ separated lists in parentheses.  Thus
 
 The `{\tt raw}' form of a value represents the value
 as you could input it in a way that reveals its internal structure.  Thus
-`{\tt all persons}' denotes the list of all persons, and it is the list
+`{\tt raw(all~persons)}' denotes the list of all persons, and it is the list
 structure that is revealed, not the structure of the elements of the list.
 
 `{\tt the person named Jack}' is a printed representation of the
@@ -788,7 +799,7 @@ compute such lists are \key{flattened}:
 For this reason RECKON lists are sometimes called `\skey{flat list}s'.
 
 RECKON has different kinds of quotes or brackets.  The brackets
-\verb|{|\ldots\verb|}|, \verb|`|\ldots\verb|'|,
+\verb|{|\ldots\verb|}| and \verb|`|\ldots\verb|'|
 turn
 evaluation off, while \verb|[|\ldots\verb|]| turns evaluation on.
 The brackets \verb|`|\ldots\verb|'| turn
