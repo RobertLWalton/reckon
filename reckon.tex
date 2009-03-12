@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 10, 2009}
+\date{March 11, 2009}
  
 \maketitle
 
@@ -965,38 +965,55 @@ Displays can be used to make demonstrations:
 \verb|+     line = {line from (0.0,0.0) to [(0.5*cos X, 0.5*sin X)]}| \\
 \verb|+     arc = {arc arrow from (0.7,0.0) to [(0.3*cos X, 0.3*sin X)]}| \\
 \verb|+     theta = {Greek th}| \\
-\verb|+     value = {column (| \\
+\verb|+     value = {label (| \\
 \verb|+                overlap (| \\
 \verb|+                  [c],| \\
 \verb|+                  [x axis] labeled `X Axis',| \\
 \verb|+                  [y axis] labeled `Y Axis',| \\
 \verb|+                  [line],| \\
 \verb|+                  [arc] labeled `[[theta]]' ),| \\
-\verb|+                label `Depiction of Angle [[theta]]' ) }| \\
-\verb|> x| \\
-\begin{picture}(4.0,1.9)
-\put(1.0,0.95){\qbezier[40](0.5,0.0)(0.46,0.46)(0.0,0.5)}
-\put(1.0,0.95){\qbezier[40](0.0,0.5)(-0.46,0.46)(-0.5,0.0)}
-\put(1.0,0.95){\qbezier[40](-0.5,0.0)(-0.46,-0.46)(0.0,-0.5)}
-\put(1.0,0.95){\qbezier[40](0.0,-0.5)(0.46,-0.46)(0.5,0.0)}
-\put(1.0,0.95){
-    \qbezier[250](0.3,0.0)(0.3,0.124264)(0.212132,0.212132)
-    \put(0.212132,0.212132){\vector(-1,1){0.00}}
-    \put(0.31,0.1){$\theta$}}
-\put(1.0,0.2){\vector(0,1){1.5}}
-\put(0.0,1.7){\makebox(2.0,0.2){Y Axis}}
-\put(0.25,0.95){\vector(1,0){1.5}}
-\put(1.80,0.85){\makebox(2.0,0.2)[l]{X Axis}}
-\put(1.0,0.95){\line(1,1){0.353553}}
-\put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta$}}
-\end{picture} \\
-\verb|> show x label {Greek th}| \\
-See $\theta$ \\
-\verb|> update x to 40 degrees| \\
-See $\theta$ \\
-\verb|> increment x by -5 degrees| \\
-See $\theta$
+\verb|+                `Depiction of Angle [[theta]]=[[X]]' ) }| \\
+\verb|> show x| \\
+See `Depiction of Angle $\theta=45^\circ$' \\
+\verb|> update x to 30 degrees| \\
+See `Depiction of Angle $\theta=30^\circ$' \\
+\verb|> increment x by -15 degrees| \\
+See `Depiction of Angle $\theta=15^\circ$'
 \end{indpar} 
+
+\begin{center}
+\newcommand{\anglestuff}{
+    \put(1.0,0.95){\qbezier[40](0.5,0.0)(0.46,0.46)(0.0,0.5)}
+    \put(1.0,0.95){\qbezier[40](0.0,0.5)(-0.46,0.46)(-0.5,0.0)}
+    \put(1.0,0.95){\qbezier[40](-0.5,0.0)(-0.46,-0.46)(0.0,-0.5)}
+    \put(1.0,0.95){\qbezier[40](0.0,-0.5)(0.46,-0.46)(0.5,0.0)}
+    \put(1.0,0.2){\vector(0,1){1.5}}
+    \put(0.0,1.7){\makebox(2.0,0.2){Y Axis}}
+    \put(0.25,0.95){\vector(1,0){1.5}}
+    \put(1.80,0.85){\makebox(0.7,0.2)[l]{X Axis}}
+}
+\begin{picture}(5.5,1.9)
+\put(0,0){
+    \anglestuff
+    \put(1.0,0.95){\line(1,1){0.353553}}
+    \put(1.0,0.95){
+	\qbezier[250](0.3,0.0)(0.3,0.124264)(0.212132,0.212132)
+	\put(0.212132,0.212132){\vector(-1,1){0.00}}
+	\put(0.31,0.1){$\theta$}}
+    \put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta=45^\circ$}}
+}
+\put(3.0,0){
+    \anglestuff
+    \put(1.0,0.95){\line(1,1){0.353553}}
+    \put(1.0,0.95){
+	\qbezier[250](0.3,0.0)(0.3,0.124264)(0.212132,0.212132)
+	\put(0.212132,0.212132){\vector(-1,1){0.00}}
+	\put(0.31,0.1){$\theta$}}
+    \put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta=45^\circ$}}
+}
+\end{picture}
+
+\end{center}
 
 In this example we first define a `constructor'
 of the form `{\tt a demo with angle X}' to make new {\tt demo} descriptions,
