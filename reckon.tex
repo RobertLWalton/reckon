@@ -966,19 +966,17 @@ Displays can be used to make demonstrations:
 \verb|+     arc = {arc arrow from (0.7,0.0) to [(0.3*cos X, 0.3*sin X)]}| \\
 \verb|+     theta = {Greek th}| \\
 \verb|+     value = {label (| \\
+\verb|+                `Depiction of Angle [[theta]]=[[X]]',| \\
 \verb|+                overlap (| \\
 \verb|+                  [c],| \\
 \verb|+                  [x axis] labeled `X Axis',| \\
 \verb|+                  [y axis] labeled `Y Axis',| \\
 \verb|+                  [line],| \\
-\verb|+                  [arc] labeled `[[theta]]' ),| \\
-\verb|+                `Depiction of Angle [[theta]]=[[X]]' ) }| \\
+\verb|+                  [arc] labeled `[[theta]]' ) ) }| \\
 \verb|> show x| \\
 See `Depiction of Angle $\theta=45^\circ$' \\
-\verb|> update x to 30 degrees| \\
-See `Depiction of Angle $\theta=30^\circ$' \\
 \verb|> increment x by -15 degrees| \\
-See `Depiction of Angle $\theta=15^\circ$'
+See `Depiction of Angle $\theta=30^\circ$'
 \end{indpar} 
 
 \begin{center}
@@ -995,7 +993,7 @@ See `Depiction of Angle $\theta=15^\circ$'
 \begin{picture}(5.5,1.9)
 \put(0,0){
     \anglestuff
-    \put(1.0,0.95){\line(1,1){0.353553}}
+    \put(1.0,0.95){\qbezier[1000](0,0)(0.1767765,0.1767765)(0.353553,0.353553)}
     \put(1.0,0.95){
 	\qbezier[250](0.3,0.0)(0.3,0.124264)(0.212132,0.212132)
 	\put(0.212132,0.212132){\vector(-1,1){0.00}}
@@ -1004,12 +1002,12 @@ See `Depiction of Angle $\theta=15^\circ$'
 }
 \put(3.0,0){
     \anglestuff
-    \put(1.0,0.95){\line(1,1){0.353553}}
+    \put(1.0,0.95){\qbezier[1000](0,0)(0.2165065,0.125)(0.433013,0.25)}
     \put(1.0,0.95){
-	\qbezier[250](0.3,0.0)(0.3,0.124264)(0.212132,0.212132)
-	\put(0.212132,0.212132){\vector(-1,1){0.00}}
-	\put(0.31,0.1){$\theta$}}
-    \put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta=45^\circ$}}
+	\qbezier[250](0.3,0.0)(0.32,0.0745584)(0.2598078,0.15)
+	\put(0.2598078,0.15){\vector(-1,1){0.00}}
+	\put(0.33,0.05){$\theta$}}
+    \put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta=30^\circ$}}
 }
 \end{picture}
 
@@ -1022,15 +1020,20 @@ and then we define two `methods', namely `{\tt update THIS to X}' and
 a {\tt demo} description is like iterating a loop to make a new description.
 
 Next we define how to display a {\tt demo} description.  Then we use the
-`{\tt show x label {\ttbrackets \{Greek th\}}}' command
+`{\tt show x}' command
 to cause the {\tt demo} description value of {\tt x}
-to be displayed in a separate window labeled `$\theta$'.
+to be displayed in a separate window.
 Every time this {\tt demo} description
-changes, the $\theta$ window is updated, and every time the description
-is to be printed, `See $\theta$' is printed instead.
+changes, the window is updated, and every time the description
+is to be printed,
+`See `Depiction of Angle $\theta=\ldots^\circ$'\,'
+is printed instead, where `Depiction \ldots' is the {\tt label} part of
+the display.
 
 
 TBD: example of a simple game.
+
+The rest of this document is a reference manual for RECKON.
 
 \begin{boxedfigure}
 
@@ -1123,8 +1126,7 @@ for every vessel:
 \label{CODE-FOR-BATTLESHIP-3}
 \end{boxedfigure}
 
-The rest of this document is a reference manual for RECKON.
-
+\newpage
 
 \section{Lexemes}
 
