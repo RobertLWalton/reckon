@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 17, 2009}
+\date{March 19, 2009}
  
 \maketitle
 
@@ -1489,7 +1489,7 @@ A low level \key{datum} in RECKON is either an atom, an object, or an arrow.
 
 Expressions, blocks, and descriptions are higher level data layered
 on top of these low level data.  An expression is either an atom or
-a particular kind of object.  A block is a particular kind of expression,
+a particular kind of object.  A block is a particular kind of object,
 and a description is a particular kind of block.
 
 An \key{atom} is a symbol or a number.
@@ -1498,20 +1498,22 @@ An object is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
 every other object and from every atom.  But it is nothing more.
 
-However, as a place in memory, an object has a name.  Objects are assigned
-\skey{raw object name}s
-of the form `\ttmnbkey{@}{in raw object name}$N$' where $N$
+However, as a place in memory, an object has a identifier.  Objects are assigned
+\skey{raw object identifier}s
+of the form `\ttmnbkey{@}{in raw object identifier}$N$' where $N$
 is a natural number (non-negative integer).
-Raw object names of this form are assigned only to objects
+Raw object identifiers of this form are assigned only to objects
 that must be named in an output stream (e.g., printed output).
-The first object named in an output stream is assigned the name
+The first object named in an output stream is assigned the identifier
 \verb|@1|, the second object named in the output stream is assigned
-the name \verb|@2|,
-and so forth.  The same object may be assigned different names in different
-output streams.\footnote{A possible implementation is to give objects that
-have been assigned names in an output stream a hidden system defined output
+the identifier \verb|@2|,
+and so forth.  The same object may be assigned different identifiers
+in different output streams.%
+\footnote{A possible implementation is to give objects that
+have been assigned identifiers
+in an output stream a hidden system defined output
 stream specific attribute (\pagref{ATTRIBUTE})
-equal to the object's name integer.  Another implementation uses a
+equal to the object's identifier integer.  Another implementation uses a
 hash table per stream.}
 
 There are two kinds of arrows: single and double.
@@ -1596,18 +1598,18 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{object-header}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-name} \verb|=|
+    ::= & {\em object-identifier} \verb|=|
           \ttmindex{=}{in {\em object-header}} \\
-    $|$ & {\em object-name} \verb|>|
+    $|$ & {\em object-identifier} \verb|>|
           \ttmindex{>}{in {\em object-header}} \\
-    $|$ & {\em object-name} \verb|>>|
+    $|$ & {\em object-identifier} \verb|>>|
           \ttmindex{>>}{in {\em object-header}} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-name} ::=
-	\ttmnbkey{@}{in {\em object-name}} {\em decimal-natural}
+\emkey{object-identifier} ::=
+	\ttmnbkey{@}{in {\em object-identifier}} {\em decimal-natural}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1673,7 +1675,7 @@ The format of a \key{raw representation} is:
 \index{attribute label!flags}
 
 \begin{tabular}{l}
-\emkey{raw-single-attribute-value} ::= {\em atom} $|$ {\em object-name}
+\emkey{raw-single-attribute-value} ::= {\em atom} $|$ {\em object-identifier}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1699,7 +1701,7 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{double-attribute-value} ::= {\em object-name}
+\emkey{double-attribute-value} ::= {\em object-identifier}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1938,7 +1940,7 @@ Usually one end of a double attribute is
 thought of as the primary end, and its object representation is used to
 include the sole representation of the double attribute.
 
-The {\em object-name} \ttnbkey{@0} is special; it always names
+The {\em object-identifier} \ttnbkey{@0} is special; it always names
 a particular object, the \ttnbdkey{GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
@@ -2402,7 +2404,7 @@ code, and not {\em attribute-representations}, and does
 \label{EXAMPLE-CODE-OBJECT-REPRESENTATION}
 \end{boxedfigure}
 
-Cooked representations may replace raw object names in the
+Cooked representations may replace raw object identifiers in the
 description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
@@ -2458,7 +2460,7 @@ and \verb|text B| be the same object, \verb|@93|, and to make
 that object `immutable', meaning that it cannot be changed.  The
 rule is that unless otherwise indicated, only immutable objects
 have the property that their cooked representations can replace
-their raw object names in the cooked representations of other
+their raw object identifiers in the cooked representations of other
 objects.
 
 \section{Parsing}
@@ -6967,6 +6969,10 @@ Qualifier Shortcut Definition\label{QUALIFIER-SHORTCUT-DEFINITION}
 Automatic Optional Marks\label{AUTOMATIC-OPTIONAL-MARKS}
 
 Describe Garbage Collection\label{GARBAGE-COLLECTION}
+
+Manual Deletion\label{MANUAL-DELETION}, the stub is marked deleted,
+and gc's make pointers to the stub either NULL or point them at
+a standard deleted object so the deleted stub can be collected.
 
 \bibliographystyle{plain}
 \bibliography{reckon}
