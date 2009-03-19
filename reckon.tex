@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 11, 2009}
+\date{March 17, 2009}
  
 \maketitle
 
@@ -1379,15 +1379,25 @@ feed, etc.), but is not itself a lexeme.
     \end{tabular}
     \\[1ex]
 \emkey{horizontal-space-character} ::=
-    \key{space} $|$ \key{horizontal-tab} $|$ \key{carriage-return} \\[1ex]
+    \key{space} $|$ \key{horizontal-tab} \\[1ex]
 \emkey{vertical-space-character} ::=
     \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
 \end{indpar}
 
+Non-{\em white-space} control characters are ignored, as if they
+did not exist, except that a warning message may be issued.  However
+no warning is issued for \emskey{carriage-return}s that are next to
+a {\em verical-space-character}.
+
+Every {\em vertical-space-character} causes the current position to
+return to the beginning of a new line.
+{\em Horizontal-space-characters} before a {\em vertical-space-character}
+are ignored, as if they did not exist.
+
 Words, marks, quoted strings, and separators are called \skey{symbol}s,
 to distinguish them from numbers.  Inside the computer symbols are
 stored as character strings, while numbers are stored as strings of binary
-digits.  When a number is input by the compute, stored, and then output,
+digits.  When a number is input, stored, and then output,
 it may not be represented in output by the same sequence of characters
 as it was represented on input.  Thus the input \verb|007| may be output
 as \verb|7| and the input \verb|7.0| may also be output as \verb|7|.
