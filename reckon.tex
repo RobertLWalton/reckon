@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 21, 2009}
+\date{March 22, 2009}
  
 \maketitle
 
@@ -1649,7 +1649,8 @@ The format of a \key{raw representation} is:
 \emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-single-attribute-representation} \\
-    $|$ & {\em double-attribute-representation}
+    $|$ & {\em double-attribute-representation} \\
+    $|$ & {\em empty}
     \end{tabular}
 \end{tabular}
 
@@ -1673,7 +1674,7 @@ The format of a \key{raw representation} is:
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags-option} ::=
-    {\em empty} $|$ [ {\em symbol} ]
+    {\em empty} $|$ [ {\em symbol}\,$^\star$ ]
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
@@ -1806,13 +1807,9 @@ it is a good idea to quote any mark that is
 used in a label, and also to quote words that are used
 as operators, such as \verb|"if"|, \verb|"then"|, and \verb|"else"|.
 
-Note, however, that quoted numbers and unquoted numbers are distinct;
-quoted numbers are symbols and numbers are not.  When numbers are
-input, details such as the presence of commas are lost, so when
-the numbers are output, they may or may not have commas.  Thus the number
-\verb|1,000| may become \verb|1000| on output.  This is
-not true of symbols, so it would not be true of the symbol \verb|"1,000"|,
-which would be \verb|1,000| on output.
+A {\em raw-attribute-representation} is ignored if it is {\em empty},
+which allows superfluous `\verb|;|'s in a list of
+{\em raw-attribute-representations}.
 
 Note lastly that the \verb/{| |}/ brackets, which are used in object
 representation, are distinct from the \verb|{ }| brackets, which are
@@ -1820,7 +1817,9 @@ used to bracket executable code.
 
 It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters in \verb|[ ]| brackets after a label.
-The flag characters must be combined into a {\em non-special-symbol}.
+The flag characters are those of one or more {\em symbols} enclosed
+in the \verb|[ ]| brackets.  The parser does not try to give special
+interpretation to these symbols, so they need not be quoted.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -1828,11 +1827,11 @@ have been added to some of the attributes:
 \begin{tabular}[b]{@{}l@{}}
 \verb/@1 =:|/\\
 \verb|    type = woman|\\
-\verb|    name["-"] = Jill|\\
-\verb|    husband["*"] = @2 wife["*"]|\\
+\verb|    name[-] = Jill|\\
+\verb|    husband[*] = @2 wife[*]|\\
 \verb/@2 =:|/\\
 \verb|    type = man|\\
-\verb|    name["+"] = Jack|\\
+\verb|    name[+] = Jack|\\
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -1863,7 +1862,7 @@ have been added to some of the attributes:
 
 In the picture the attribute flags have been added as superscripts on the
 attribute labels, and in the text the flags have been added as characters
-in quoted strings inside \verb|[ ]| brackets that
+in symbols inside \verb|[ ]| brackets that
 follow attribute labels.
 
 Several attributes of the same object (arrows sourced at the object)
@@ -2037,12 +2036,14 @@ to the one just given is:
     .initiator = capital
 \end{verbatim}\end{indpar}
 
-Any {\em single-attribute-values} following the {\em object-header}
+Any {\em raw-single-attribute-values} following the {\em object-header}
 are assigned as values of the attributes labeled \verb|1|, \verb|2|,
 \verb|3|, \ldots.  Additional attribute values can be given by
-following these by \verb|:| and then by indented
-{\em raw-attribute-representations}, or \verb/{| |}/ bracketed and
-\verb|;| separated {\em raw-attribute-representations}.
+following these by either
+\verb/{| |}/ bracketed and
+\verb|;| separated {\em raw-attribute-representations}, or alternatively by
+\verb/:|/ and then by indented
+{\em raw-attribute-representations}.
 
 \subsection{Cooked Representations}
 
