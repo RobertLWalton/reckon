@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 23, 2009}
+\date{March 28, 2009}
  
 \maketitle
 
@@ -5104,18 +5104,18 @@ a set of constraints are established that must be statisfied to
 complete the match.  There are four kinds of constraints: syntax
 equations, pattern equations, default equations, and guards.
 Syntax equations equate expressions that involve syntax variables,
-which are names beginning with a capital letter
-preceded by a \verb|$|.  Pattern equations are like syntax equations but
+which are names beginning with a \verb|$| followed by a capital letter.
+Pattern equations are like syntax equations but
 involve a pattern which can represent one of many possible syntax
-expressions.  Default equations assign values to variables that are
+expressions.  Default equations assign values to syntax variables that are
 discarded when a pattern is unfolded to become the expression
 it will actually represent.  Guards are just expressions that must evaluate to
 \verb|true| in order for the match to succeed.
 
 The syntax equations are solved during the matching process,
 to produce values for the syntax variables.  Patterns are unfolded during
-the matching process to become the expressions they represent.
-Guards are evaluated, and in some cases a syntax variable
+the matching process to become the syntax expressions they represent.
+Guards are evaluated, and in some cases the value of a syntax variable
 value is evaluated.
 If the syntax equations or pattern equations are inconsistent and
 cannot be solved, or if a guard or syntax variable value that must be
@@ -5129,7 +5129,8 @@ to match to an expression being evaluated.  If all choices fail, the
 expression evaluates to \verb|false|.  If only one choice succeeds, that
 choice is used to evaluate the expression.  If several choices succeed,
 the situation becomes ambiguous, and the evaluation proceeds according
-to the evaluator operating mode, as is described below.
+to the evaluator operating mode, as is described below
+(\secref{EVALUATION-ALGORITHM}).
 
 A syntax variable name beginning with
 \ttmnbkey{\$}{in syntax variable name} denotes an unevaluated
@@ -5145,7 +5146,7 @@ As an example, given the syntax equation
 \verb|foo(2+2) :=: foo($X)|
 \end{center}
 (where \verb|:=:| means `is syntactically equal to'), we get
-the equation
+the syntax equation
 \begin{center}
 \verb|2+2 :=: $X|
 \end{center}
@@ -5183,14 +5184,10 @@ the entire matching process is monotonic.  This means the order in which
 syntax equations are solved, patterns are unfolded, guards are evaluated,
 and unevaluated syntax variable values are evaluated does not matter.
 
-TBD: EXAMPLE
-
 In order to make the matching process monotonic, pattern unfolding must
 be monotonic.  This means that if undefined syntax variables in a pattern
 equation whose pattern has been unfolded are given arbirary values later,
 the pattern unfolding must still be valid and unambiguous.
-
-TBD: EXAMPLE
 
 Similarly guard evaluations must not have side effects.  In other
 words, evaluating a guard cannot affect any future valuations.
@@ -5222,14 +5219,14 @@ would if a guard evaluated to false.
 	{\em pattern} \verb|<--| {\em constraint-list-option} {\em block-option}
 	\\[1ex]
 {\em pattern} ::= \verb|<--|{\em -subexpression}
-	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
+	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 {\em pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
 \emkey{constraint-list-option} ::= {\em empty} $|$ {\em constraint-list} \\[1ex]
 \emkey{constraint-list}
     ::= {\em constraint} \{ \verb|,| {\em constraint} \}$^\star$ \\[1ex]
 \emkey{constraint} ::= \verb|,|{\em -subexpression}
-	~~~ [see \pagref{O-SUBEXPRESSION}] \\[1ex]
+	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{constraint} ::= {\em syntax-equation} $|$ {\em pattern-equation}
 		   $|$ {\em default-equation} $|$ {\em guard} \\[1ex]
 \emkey{syntax-equation} ::= {\em syntax-expression}
@@ -5246,7 +5243,8 @@ would if a guard evaluated to false.
 		{\tt :=?} {\em syntax-expression}
 	        ~~~ [see \pagref{DEFAULT-EQUATION}]
 		\\[1ex]
-\emkey{guard} ::= \verb|,|{\em -subexpression} \\[1ex]
+\emkey{guard} ::= \verb|,|{\em -subexpression}
+	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{block-option} ::= {\em empty} $|$ \verb|{ }| $|$ {\em block} \\[1ex]
 \emkey{block} ::= \verb|{| {\em statement}
                            \{ \verb|;| {\em statement} \}$^\star$ \verb|}|
@@ -5359,7 +5357,7 @@ the \ikey{Propagation Rule}{propagation rule}\label{PROPAGATION-RULE}.
 For example, from
 
 \begin{center}
-\verb/sort ($X) {| foo = 5 |} :=: sort ( 5 + 6 ) {| foo = 10 |}/
+\verb/sort ($X) { foo = 5 } :=: sort ( 5 + 6 ) { foo = 10 }/
 \end{center}
 
 we can deduce by propagation that
@@ -5368,12 +5366,14 @@ we can deduce by propagation that
 \begin{tabular}{r@{\tt ~:=:~}l}
 \verb/sort/ & \verb/sort/ \\
 \verb/($X)/ & \verb/( 5 + 6 )/ \\
+\verb/{/ & \verb/{/ \\
+\verb/}/ & \verb/}/ \\
 \verb/5/ & \verb/10/
 \end{tabular}
 \end{center}
 
 The deduced equations need not be consistent in order to be deduced.
-In this case the first two equations are consistent and the third is not.
+In this case the first four equations are consistent and the fifth is not.
 
 The identity `\ttnbkey{:=:}' in a syntax equation is taken to be
 symmetric and transitive.  This means that if $e_1$, $e_2$, and
@@ -5391,6 +5391,9 @@ we deduce $e_1$ {\tt :=:} $e_3$.
 \end{list}
 \end{indpar}
 
+[TBD: $e_2$ here denotes a unique subexpression of the original
+expressions, and not a surface subexpression.]
+
 We have now given all the deduction rules used to solve syntax equations.
 Note that these rules do \underline{not} create new syntax expressions:
 all the syntax expressions in any deduced equation were subexpressions
@@ -5398,23 +5401,51 @@ in previous equations.  Because of this,
 an algorithm that keeps making deductions until
 no new deductions can be made will stop fairly quickly.
 
-TBD: Two subexpressions of the previous equations that are syntactically
-identical are not equated by this algorithm!
+Note that two subexpressions of the previous equations that are syntactically
+identical by accident are not equated by this algorithm.  Thus given
+
+\begin{center}
+\verb/sort ($X, $Y) :=: sort ( 5 + 6, 5 + 6 )/
+\end{center}
+
+we derive by propagation that
+
+\begin{center}
+\begin{tabular}{r@{\tt ~:=:~}l}
+\verb/sort/ & \verb/sort/ \\
+\verb/,/ & \verb/,/ \\
+\verb/($X)/ & \verb/( 5 + 6 )/ \\
+\verb/($Y)/ & \verb/( 5 + 6 )/ \\
+\end{tabular}
+\end{center}
+
+but \underline{not} \verb|($X) := ($Y)|, even though this is consistent for
+this specific case.
 
 Also note that as a technical point, if all we want is to deduce all
-syntax equations for which one side as a syntax variable, then we can
+syntax equations for which one side is a syntax variable, then we can
 restrict the application of the transitivity rule to the case where
 $e_2$, the eliminated sytax expression, is a syntax variable.
-[TBD: Check this.]
 If this variable is denoted by $v$, then we can rewrite transitivity as:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Transitivity Rule}{transitivity rule}:]\label{TRANSITIVITY-RULE}
+\item [\ikey{Restricted Transitivity Rule}{restricted transitivity rule}:]%
+\label{TRANSITIVITY-RULE}
 From $v$ {\tt :=:} $e_1$ and $v$ {\tt :=:} $e_2$
 we deduce $e_1$ {\tt :=:} $e_2$.
 \end{list}
 \end{indpar}
+
+\begin{quote}
+
+Proof Sketch: Let S~=~all syntax equations deducible from Propagation, Symmetry,
+and Restricted Transitivity.  Assume S is consistent.  Let S'~=~all
+syntax equations deducible from S and (unrestricted) Transitivity.
+Then prove by induction on the size of the syntax equations
+that (1) S' is consistent, and (2) S' is closed under Propagation,
+Symmetry, and (unrestricted) Transitivity.
+\end{quote}
 
 \subsection{Patterns}
 \label{PATTERNS}
