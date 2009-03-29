@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 28, 2009}
+\date{March 29, 2009}
  
 \maketitle
 
@@ -5357,7 +5357,7 @@ the \ikey{Propagation Rule}{propagation rule}\label{PROPAGATION-RULE}.
 For example, from
 
 \begin{center}
-\verb/sort ($X) { foo = 5 } :=: sort ( 5 + 6 ) { foo = 10 }/
+\verb/sort ($X) {| foo = 5 |} :=: sort ( 5 + 6 ) {| foo = 10 |}/
 \end{center}
 
 we can deduce by propagation that
@@ -5366,14 +5366,12 @@ we can deduce by propagation that
 \begin{tabular}{r@{\tt ~:=:~}l}
 \verb/sort/ & \verb/sort/ \\
 \verb/($X)/ & \verb/( 5 + 6 )/ \\
-\verb/{/ & \verb/{/ \\
-\verb/}/ & \verb/}/ \\
 \verb/5/ & \verb/10/
 \end{tabular}
 \end{center}
 
 The deduced equations need not be consistent in order to be deduced.
-In this case the first four equations are consistent and the fifth is not.
+In this case the first two equations are consistent and the third is not.
 
 The identity `\ttnbkey{:=:}' in a syntax equation is taken to be
 symmetric and transitive.  This means that if $e_1$, $e_2$, and
@@ -5414,12 +5412,12 @@ we derive by propagation that
 \begin{tabular}{r@{\tt ~:=:~}l}
 \verb/sort/ & \verb/sort/ \\
 \verb/,/ & \verb/,/ \\
-\verb/($X)/ & \verb/( 5 + 6 )/ \\
-\verb/($Y)/ & \verb/( 5 + 6 )/ \\
+\verb/$X/ & \verb/5 + 6/ \\
+\verb/$Y/ & \verb/5 + 6/ \\
 \end{tabular}
 \end{center}
 
-but \underline{not} \verb|($X) := ($Y)|, even though this is consistent for
+but \underline{not} \verb|$X := $Y|, even though this is consistent for
 this specific case.
 
 Also note that as a technical point, if all we want is to deduce all
@@ -5465,24 +5463,26 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-object} ::=
     \begin{tabular}[t]{l}
     {\em pattern-term-option}
-        \{ \ttmkey{.}{in pattern} {\em pattern-term} \}$^\star$ \\
+        \{ {\em pattern-separator} {\em pattern-term} \}$^\star$ \\
     {\em pattern-attribute-representations}
     \end{tabular}
 \label{PATTERN-OBJECT}
     \\[1ex]
 \emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
-\emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-marker-option}
+\emkey{pattern-separator} ::= \ttmkey{.}{pattern separator} \\[1ex]
+\emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-qualifier-option}
 	\\[1ex]
 \emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}\,$^\star$
 	\\[1ex]
 \emkey{pattern-factor} ::= {\em pattern-object} $|$ {\em atom}
 		       $|$ {\em syntax-variable} \\[1ex]
-\emkey{pattern-marker-option} ::= {\em empty} $|$ {\em pattern marker} \\[1ex]
-\emkey{pattern-marker} ::= \ttmkey{.}{pattern marker}
-		       $|$ \ttmkey{?}{pattern marker}
-		       $|$ \ttmkey{??}{pattern marker}
-		       $|$ \ttmkey{...}{pattern marker}
-		       $|$ \ttmkey{...?}{pattern marker}
+\emkey{pattern-qualifier-option} ::=
+	{\em empty} $|$ {\em pattern qualifier} \\[1ex]
+\emkey{pattern-qualifier} ::=
+		           \ttmkey{?}{pattern qualifier}
+		       $|$ \ttmkey{??}{pattern qualifier}
+		       $|$ \ttmkey{...}{pattern qualifier}
+		       $|$ \ttmkey{...?}{pattern qualifier}
 	\\[1ex]
 \emkey{pattern-attribute-representations}
 \\\hspace*{0.5in}
@@ -5500,8 +5500,18 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \\[1ex]
 \emkey{pattern-attribute-representation} ::=
 \\\hspace*{0.5in}
+    {\em required-attribute-representation}
+    $|$ {\em optional-attribute-representation}
+\\[1ex]
+\emkey{required-pattern-attribute-representation} ::=
+\\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
-	{\em pattern}
+	      {\em pattern}
+\\[1ex]
+\emkey{optional-pattern-attribute-representation} ::=
+\\\hspace*{0.5in}
+	{\em attribute-label} {\em attribute-label-flags-option} \verb|=?|
+	      {\em pattern}
 \end{indpar}
 
 A pattern represents one of many possible syntax expressions.  The
@@ -5526,17 +5536,19 @@ The rules for pattern representation are:
 \item The represented {\em syntax-expression} is a sequence of
 {\em pattern-clauses} from the {\em pattern} taken in any order,
 \underline{except}, if the first {\em pattern-clause} in the
-{\em pattern} is not preceded by `\verb|.|', it must be first in
-the {\em syntax-expression}.
+{\em pattern} is not preceded by {\em pattern-separator} `\verb|.|',
+it must be first in the {\em syntax-expression}.
 
-\item A {\em pattern-clause} not followed by a {\em pattern-marker}
-other than `\verb|.|' in the {\em pattern} must appear exactly
+\item A {\em pattern-clause} not followed by a {\em pattern-qualifier}
+(\verb|?|, \verb|??|, \verb|...|, or \verb|...?|)
+in the {\em pattern} must appear exactly
 once in the represented {\em syntax-expression}.
 
 \item A {\em pattern-clause} followed by `\verb|?|'
 in the {\em pattern} is an \key{optional pattern clause}
 and must appear exactly once or not at all
 in the represented {\em syntax-expression}.
+See \secref{DEFAULT-SYNTAX-VARIABLES} for examples.
 
 \item A {\em pattern-clause} followed by `\verb|??|'
 in the {\em pattern} is an \key{optional truth-value pattern clause}.
@@ -5544,15 +5556,27 @@ Like an optional pattern clause this must appear exactly once or not at all
 in the represented {\em syntax-expression}.
 In addition, the {\em pattern-clause} must end with a {\em syntax-variable},
 and this may be omitted in the represented {\em syntax-expression}.
+See \secref{OPTIONAL-TRUTH-VALUE-SYNTAX-VARIABLES} for examples.
 
 \item A {\em pattern-clause} followed by `\verb|...|'
 in the {\em pattern} is a \key{repeated pattern clause}
 and must appear one or more times
 in the represented {\em syntax-expression}.
+See \secref{REPEATED-SYNTAX-VARIABLES} for examples.
 
 \item A {\em pattern-clause} followed by `\verb|...?|'
 in the {\em pattern} is an \key{optional repeated pattern clause}
 and must appear one or more times or not at all
+in the represented {\em syntax-expression}.
+See \secref{REPEATED-SYNTAX-VARIABLES} for examples.
+
+\item A {\em required-pattern-attribute-representation}
+that has an `\verb|=|' sign
+must appear exactly once in the represented {\em syntax-expression}.
+
+\item An {\em optional-pattern-attribute-representation}
+that has an `\verb|=?|' sign
+and must appear exactly once or not at all
 in the represented {\em syntax-expression}.
 
 \end{enumerate}
@@ -5562,10 +5586,13 @@ like syntax equations except their right sides are patterns and not
 a syntax expressions.  If the syntax expression on the left side of
 a pattern equation is an object, then the pattern on the right side
 can be \key{unfolded} to match the syntax expression.  Unfolding
-means removing the \skey{pattern marker}s, `\verb|.|',
+means removing the
+\skey{pattern separator}s, `\verb|.|',
+and \skey{pattern qualifier}s,
 `\verb|?|', `\verb|??|', `\verb|...|', and `\verb|...?|',
-and arranging the pattern clauses in the
-correct order.  For example, given the pattern equation:
+arranging the pattern clauses in the correct order,
+and removing {\em optional-attribute-representations}.
+For example, given the pattern equation:
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=\TILDE~}l}
@@ -5596,15 +5623,23 @@ example just given one may may deduce:
 \end{tabular}
 \end{center}
 
-A pattern that contains pattern markers,
-`\verb|.|', `\verb|?|', `\verb|...|', and `\verb|...?|',
-in its list part outside subexpressions
+Note that this resultes in pattern equations and \underline{not}
+syntax equations.
+
+A pattern that contains pattern separators or qualifiers
+(`\verb|.|', `\verb|?|', `\verb|??|', `\verb|...|', or `\verb|...?|')
+\underline{outside} subexpressions and {\em attribute-representations},
+or that contains {\em optional-attribute-representations}
+(with `\verb|=?|' sign),
 is said to be `\key{folded}'.  Other patterns are said to be
 \key{unfolded}.  Subexpressions of a pattern are also patterns.
 
-A pattern that is unfolded and all of whose subexpressions are
-unfolded, that is, a pattern that contains no pattern markers,
-even in subexpressions, is said to be \key{completely unfolded}.
+A pattern that is unfolded and all of whose subexpressions
+and attribute representation patterns are
+unfolded, that is, a pattern that contains no pattern qualifiers or
+optional attribute representations,
+even in subexpressions or attribute representations,
+is said to be \key{completely unfolded}.
 Such patterns are \key{promoted} to be syntax expressions, and
 any pattern equations containing them are promoted to be
 syntax equations.  Thus in the above example the last four
