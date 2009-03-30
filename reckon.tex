@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 29, 2009}
+\date{March 30, 2009}
  
 \maketitle
 
@@ -5374,36 +5374,13 @@ The deduced equations need not be consistent in order to be deduced.
 In this case the first two equations are consistent and the third is not.
 
 The identity `\ttnbkey{:=:}' in a syntax equation is taken to be
-symmetric and transitive.  This means that if $e_1$, $e_2$, and
-$e_3$ are syntax expressions, then
-
-\begin{indpar}
-\begin{list}{}{}
-\item [\ikey{Symmetry Rule}{symmetry rule}:]\label{SYMMETRY-RULE}
-From $e_1$ {\tt :=:} $e_2$ we deduce $e_2$ {\tt :=:} $e_1$.
-
-\item [\ikey{Transitivity Rule}{transitivity rule}:]%
-\label{GENERAL-TRANSITIVITY-RULE}
-From $e_1$ {\tt :=:} $e_2$ and $e_2$ {\tt :=:} $e_3$
-we deduce $e_1$ {\tt :=:} $e_3$.
-\end{list}
-\end{indpar}
-
-[TBD: $e_2$ here denotes a unique subexpression of the original
-expressions, and not a surface subexpression.]
-
-We have now given all the deduction rules used to solve syntax equations.
-Note that these rules do \underline{not} create new syntax expressions:
-all the syntax expressions in any deduced equation were subexpressions
-in previous equations.  Because of this,
-an algorithm that keeps making deductions until
-no new deductions can be made will stop fairly quickly.
-
-Note that two subexpressions of the previous equations that are syntactically
-identical by accident are not equated by this algorithm.  Thus given
+a symmetric and transitive relation on subexpressions of the original
+syntax equation.  This means, however, that two different subexpressions
+are not necessarily \verb|:=:| even if they are syntactically the same.
+For example, given the original syntax equation:
 
 \begin{center}
-\verb/sort ($X, $Y) :=: sort ( 5 + 6, 5 + 6 )/
+\verb/sort ($X, $Y) :=: sort ( 5, 5 )/
 \end{center}
 
 we derive by propagation that
@@ -5412,37 +5389,53 @@ we derive by propagation that
 \begin{tabular}{r@{\tt ~:=:~}l}
 \verb/sort/ & \verb/sort/ \\
 \verb/,/ & \verb/,/ \\
-\verb/$X/ & \verb/5 + 6/ \\
-\verb/$Y/ & \verb/5 + 6/ \\
+\verb/$X/ & \verb/5/$^1$ \\
+\verb/$Y/ & \verb/5/$^2$ \\
 \end{tabular}
 \end{center}
 
-but \underline{not} \verb|$X := $Y|, even though this is consistent for
-this specific case.
+where we have put superscripts $^1$ and $^2$ on the two \verb|5|'s to
+indicate that they are different subexpressions of the original
+syntax equation expressions.  But
+but we are \underline{not} permitted to apply transitivity
+to deduce \verb|$X := $Y|,
+because the two \verb|5|'s are not the \underline{same} subexpression of
+the original syntax equation expressions.
 
-Also note that as a technical point, if all we want is to deduce all
-syntax equations for which one side is a syntax variable, then we can
-restrict the application of the transitivity rule to the case where
-$e_2$, the eliminated sytax expression, is a syntax variable.
-If this variable is denoted by $v$, then we can rewrite transitivity as:
+However, we do make \verb|:=:| different subexpressions
+that are variables with the same name.
+
+So in addition to the Propagation Rule, we apply the following, where
+$v$ is a variable and $e_1$ and $e_2$ are subexpressions of the original
+syntax equations:
 
 \begin{indpar}
 \begin{list}{}{}
+\item [\ikey{Restricted Symmetry Rule}{restricted symmetry rule}:]%
+\label{RESTRICTED-SYMMETRY-RULE}
+From $e_1$ {\tt :=:} $v$ we deduce $v$ {\tt :=:} $e_1$.
+
 \item [\ikey{Restricted Transitivity Rule}{restricted transitivity rule}:]%
-\label{TRANSITIVITY-RULE}
+\label{RESTRICTED-TRANSITIVITY-RULE}
 From $v$ {\tt :=:} $e_1$ and $v$ {\tt :=:} $e_2$
 we deduce $e_1$ {\tt :=:} $e_2$.
 \end{list}
 \end{indpar}
 
+We have now given all the deduction rules used to solve syntax equations.
+Note that these rules do \underline{not} create new syntax expressions:
+all the syntax expressions in any deduced equation were subexpressions
+in previous equations.  Because of this,
+an algorithm that keeps making deductions until
+no new deductions can be made will stop fairly quickly.
+
 \begin{quote}
 
-Proof Sketch: Let S~=~all syntax equations deducible from Propagation, Symmetry,
-and Restricted Transitivity.  Assume S is consistent.  Let S'~=~all
-syntax equations deducible from S and (unrestricted) Transitivity.
-Then prove by induction on the size of the syntax equations
-that (1) S' is consistent, and (2) S' is closed under Propagation,
-Symmetry, and (unrestricted) Transitivity.
+As a technical matter we note that if we did use unrestricted rules
+of reflexivity, symmetry, and transitivity,
+we would not get anything essentially new of the form $v$ {\tt :=:} $e$.
+
+TBD: Proof.
 \end{quote}
 
 \subsection{Patterns}
@@ -5657,8 +5650,8 @@ four syntax equations:
 \end{center}
 
 Note that
-the Symmetry Rule (\pagref{SYMMETRY-RULE})
-and general Transitivity Rule (\pagref{GENERAL-TRANSITIVITY-RULE})
+the Restricted Symmetry Rule (\pagref{RESTRICTED-SYMMETRY-RULE})
+and Restricted Transitivity Rule (\pagref{RESTRICTED-TRANSITIVITY-RULE})
 cannot be applied to pattern equations, which are inherently asymmetric.
 However the following can be applied, where $v$ is a syntax variable, $e$
 a syntax expression, and $p$ a pattern:
