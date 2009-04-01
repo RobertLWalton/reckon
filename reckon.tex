@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 30, 2009}
+\date{April 1, 2009}
  
 \maketitle
 
@@ -5432,10 +5432,36 @@ no new deductions can be made will stop fairly quickly.
 \begin{quote}
 
 As a technical matter we note that if we did use unrestricted rules
-of reflexivity, symmetry, and transitivity,
-we would not get anything essentially new of the form $v$ {\tt :=:} $e$.
+of symmetry, and transitivity, we would not get any essentially new results.
+Specifically, the set of variables $v$ for which an equation of the
+form $v$ {\tt :=:} $e$ where $e$ is not a variable would not expand.
 
-TBD: Proof.
+Proof Sketch: Let $S$ be the original set of syntax equations.  Let $S'$ be
+$S$ plus the equations deducible from equations in $S$ by using Propagation,
+Restricted Symmetry, and Restricted Transitivity.
+
+Let $S''$ be the set of equations $e_1$ {\tt :=:} $e_n$
+such that there exists a sequence of expressions $e_2$, $e_3$,
+\ldots, $e_{n-1}$ that are \underline{not} variables such that for $i<n$,
+either $e_i$ {\tt :=:} $e_{i+1}$
+or $e_{i+1}$ {\tt :=:} $e_i$ is in $S'$.  $n=1$ is allowed.
+
+Let $S'''$ be $S$ plus
+the equations deducible from $S$ by Propagation, Symmetry,
+and Transitivity, without any restriction.
+
+Then $S\subseteq S'\subseteq S''\subseteq S'''$.
+
+If we can prove that
+$S''=S'''$, the result will follow, since for a given $v$ an equation
+of the form $v$ {\tt :=:} $e$ with $e$ a non-variable can exist in $S''$ only
+if such an equation exists in $S'$.
+
+So we need to prove $S'''\subseteq S''$.  We do this by mathematical
+induction on the size of the deduction of an equation in $S'''$.
+This amounts to applying the general rules, Symmetry, Transitivity,
+and Propagation to equations in $S''$ and showing that the resulting
+consequent must be an equation in $S''$.
 \end{quote}
 
 \subsection{Patterns}
