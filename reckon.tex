@@ -276,7 +276,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 4, 2009}
+\date{April 5, 2009}
  
 \maketitle
 
@@ -5373,9 +5373,31 @@ we can deduce by propagation that
 The deduced equations need not be consistent in order to be deduced.
 In this case the first two equations are consistent and the third is not.
 
-The identity `\ttnbkey{:=:}' in a syntax equation is taken to be
-a symmetric and transitive relation on subexpressions of the original
-syntax equation.  This means, however, that two different subexpressions
+In addition to the Propagation Rule, we apply the following, where
+$v$ is a variable and $e_1$ and $e_2$ are subexpressions of the original
+syntax equations:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Restricted Symmetry Rule}{restricted symmetry rule}:]%
+\label{RESTRICTED-SYMMETRY-RULE}
+From $e_1$ {\tt :=:} $v$ we deduce $v$ {\tt :=:} $e_1$.
+
+\item [\ikey{Restricted Transitivity Rule}{restricted transitivity rule}:]%
+\label{RESTRICTED-TRANSITIVITY-RULE}
+From $v$ {\tt :=:} $e_1$ and $v$ {\tt :=:} $e_2$
+we deduce $e_1$ {\tt :=:} $e_2$.
+\end{list}
+\end{indpar}
+
+We have now given all the deduction rules used to solve syntax equations.
+Note that these rules do \underline{not} create new syntax expressions:
+all the syntax expressions in any deduced equation were subexpressions
+in previous equations.  Because of this,
+an algorithm that keeps making deductions until
+no new deductions can be made will stop fairly quickly.
+
+Note, however, that two different subexpressions
 are not necessarily \verb|:=:| even if they are syntactically the same.
 For example, given the original syntax equation:
 
@@ -5404,30 +5426,6 @@ the original syntax equation expressions.
 
 However, we do make \verb|:=:| different subexpressions
 that are variables with the same name.
-
-So in addition to the Propagation Rule, we apply the following, where
-$v$ is a variable and $e_1$ and $e_2$ are subexpressions of the original
-syntax equations:
-
-\begin{indpar}
-\begin{list}{}{}
-\item [\ikey{Restricted Symmetry Rule}{restricted symmetry rule}:]%
-\label{RESTRICTED-SYMMETRY-RULE}
-From $e_1$ {\tt :=:} $v$ we deduce $v$ {\tt :=:} $e_1$.
-
-\item [\ikey{Restricted Transitivity Rule}{restricted transitivity rule}:]%
-\label{RESTRICTED-TRANSITIVITY-RULE}
-From $v$ {\tt :=:} $e_1$ and $v$ {\tt :=:} $e_2$
-we deduce $e_1$ {\tt :=:} $e_2$.
-\end{list}
-\end{indpar}
-
-We have now given all the deduction rules used to solve syntax equations.
-Note that these rules do \underline{not} create new syntax expressions:
-all the syntax expressions in any deduced equation were subexpressions
-in previous equations.  Because of this,
-an algorithm that keeps making deductions until
-no new deductions can be made will stop fairly quickly.
 
 \begin{quote}
 
@@ -5465,7 +5463,7 @@ induction on the size of the deduction of an equation in $S'''$.
 This amounts to applying the general rules, Symmetry, Transitivity,
 and Propagation to equations in $S''$ and showing that the resulting
 consequent must be an equation in $S''$, under the assumption that the
-equations in $S''$ are consistent.
+equations in $S'$ are consistent.
 
 \end{quote}
 
@@ -5680,8 +5678,7 @@ four syntax equations:
 \end{tabular}
 \end{center}
 
-Note that
-the Restricted Symmetry Rule (\pagref{RESTRICTED-SYMMETRY-RULE})
+The Restricted Symmetry Rule (\pagref{RESTRICTED-SYMMETRY-RULE})
 and Restricted Transitivity Rule (\pagref{RESTRICTED-TRANSITIVITY-RULE})
 cannot be applied to pattern equations, which are inherently asymmetric.
 However the following can be applied, where $v$ is a syntax variable, $e$
@@ -5696,8 +5693,8 @@ we deduce $e$ {\tt :=\TILDE} $p$.
 \end{list}
 \end{indpar}
 
-Also note that the Parentheses Rule (\pagref{PARENTHESES-RULE})
-and Atom Rule (\pagref{ATOM-RULE}) apply to pattern equations.
+The Parentheses Rule (\pagref{PARENTHESES-RULE})
+and Atom Rule (\pagref{ATOM-RULE}) do apply to pattern equations.
 For example, a pattern that is an atom may be treated as if it were
 a list whose only element is that atom, and a syntax variable in
 \verb|( )| parentheses is treated as a syntax variable.
@@ -5708,8 +5705,8 @@ Finally, we need to state the following more carefully:
 \begin{list}{}{}
 \item [\ikey{Pattern Unfolding Rule}{pattern unfolding rule}:]%
 \label{PATTERN-UNFOLDING-RULE}
-If a pattern equation asserts the identity of a syntax equation that
-is an object with a pattern, and if the pattern can be unfolded unambigously
+If a pattern equation asserts the identity of a syntax expression that
+is an object with a pattern, and if the pattern can be unfolded unambiguously
 so that the result would be consistent were the pattern equation
 instead a syntax equation between
 objects, then the pattern is unfolded.  Otherwise nothing is done.
@@ -5813,7 +5810,7 @@ unsolvable, but, it is possible that another non-ambiguous pattern equation
 may exist or be deduced which will allow the pattern to be unfolded, in
 which case at the end of all deductions there may be no unfolded patterns
 left and no unsolvable pattern equations.  In this case the
-ambigous pattern equation will have been promoted to be a syntax equation,
+ambiguous pattern equation will have been promoted to be a syntax equation,
 which may or may not be consistent.
 
 \subsubsection{Default Syntax Variables}
