@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 5, 2009}
+\date{April 15, 2009}
  
 \maketitle
 
@@ -4680,7 +4680,7 @@ the output list is viewed as an expression.
 The helper function uses an operation called \key{reformatting the
 output list}.  This consists of calling the reformatter of the lead
 operator definition, and replacing the output list with the returned
-result.  If there is no lead operator, nothing is done.
+value.  If there is no lead operator, nothing is done.
 
 The helper function also
 uses a suboperation known as \key{compacting the output list}.
@@ -5671,7 +5671,7 @@ example just given one may may deduce:
 \end{tabular}
 \end{center}
 
-Note that this resultes in pattern equations and \underline{not}
+Note that this results in pattern equations and \underline{not}
 syntax equations.
 
 A pattern that contains pattern separators or qualifiers
@@ -6161,7 +6161,7 @@ syntax variables it contains replaced by their complete unevaluated values.
 If an evaluated syntax variable $v$ appears in a syntax equation and
 its associated unevaluated syntax variable {\tt \$}$v$ is evaluatable,
 then the syntax equation $v$ {\tt :=:} $E$ is deduced, where $E$
-is the value obtained by evaluating the full unevaluated value of
+is the value obtained by evaluating the unevaluated value of
 {\tt \$}$v$ in the context
 in which the unevaluated value of {\tt \$}$v$ appears.
 It is an error if this evaluation has side effects (\pagref{SIDE-EFFECTS}).
@@ -6171,7 +6171,7 @@ It is an error if this evaluation has side effects (\pagref{SIDE-EFFECTS}).
 For example, given the code
 
 \begin{indpar}\begin{verbatim}
-sum ($X) and ($Y) <-- number(X), number(Y) { result = X + Y }
+sum ($X) and ($Y) <-- number(X), number(Y) { value = X + Y }
 . . . . .
 z = sum (1+1) and (5+5)
 \end{verbatim}\end{indpar}
@@ -6194,14 +6194,14 @@ equations, among which are:
 The last two equations are required to deduce the value of the evaluated
 variables \verb|X| and \verb|Y| that are needed for the guards
 \verb|number(X)| and \verb|number(Y)| and the block code statement
-`\verb|result = X + Y|'.  These last two equations are obtained by
+`\verb|value = X + Y|\,'.  These last two equations are obtained by
 the Evaluation Rule.  For example, to obtain the value \verb|2| for the
 evaluated variable \verb|X|, the value `\verb|(1+1)|' of the a associated
 unevaluated variable \verb|$X| is evaluated.  `\verb|(1+1)|' is
 evaluatable because it contains no syntax variables and for this reason is
 also its own `complete unevaluated value'.
 
-Logically evaluated syntax variables are not permitted in patterns.
+Semantically, evaluated syntax variables are not permitted in patterns.
 However, syntactically they can be placed in patterns according to the
 following:
 
@@ -6212,8 +6212,10 @@ following:
 \label{EVALUATED-VARIABLE-PROMOTION-RULE}
 If an evaluated syntax variable $v$ appears in a pattern, it is 
 replaced in the pattern by its associated unevaluated variable
-\verb|$|$v$, and in addition, any occurances of $v$ outside patterns
-are treated as errors.
+\verb|$|$v$, and in addition
+any occurances of \verb|$|$v$ in the containing expression definition
+are treated as errors (i.e., $v$ and not \verb|$|$v$ must be used
+throughout the expression definition).
 \end{list}
 \end{indpar}
 
