@@ -104,6 +104,7 @@
 
 \newcommand{\opt}{$^!$}
 
+\newcommand{\itemref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
 \newcommand{\secref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
 \newcommand{\stepref}[1]{\ref{#1}\,$^{p\,\pageref{#1}}$}
 \newcommand{\appref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
@@ -5082,8 +5083,8 @@ guards, which are expressions that must evaluate to true in order for
 the expression definition match to succeed, and an expression definition
 may have constaint equations, which match subexpressions to patterns or
 to each other.
-An expression definition may have an expression block
-that executes in order to produce a value for the expression if the definition
+An expression definition may have an expression block that executes
+in order to produce a value list for the expression if the definition
 matches.  If a matching
 expression definition has no expression block, the expression
 evaluates to `\ttkey{true}'.  If no expression definition matches an
@@ -5101,15 +5102,18 @@ either data bases or alternative programming languages.
 
 When an expression definition is found whose pattern matches an expression,
 a set of constraints are established that must be statisfied to
-complete the match.  There are four kinds of constraints: syntax
-equations, pattern equations, default equations, and guards.
+complete the match.  There are five kinds of constraints: syntax
+equations, pattern equations, default equations, alternative
+equations, and guards.
 Syntax equations equate expressions that involve syntax variables,
 which are names beginning with a \verb|$| followed by a capital letter.
 Pattern equations are like syntax equations but
 involve a pattern which can represent one of many possible syntax
 expressions.  Default equations assign values to syntax variables that are
-discarded when a pattern is unfolded to become the expression
-it will actually represent.  Guards are just expressions that must evaluate to
+discarded when a pattern is unfolded to become the syntax expression
+it will actually represent.  Alternative equations specify alternatives
+for simple atomic clauses that may be in a pattern.
+Guards are just expressions that must evaluate to
 \verb|true| in order for the match to succeed.
 
 The syntax equations are solved during the matching process,
@@ -5206,7 +5210,7 @@ side effects.  Again this last means that any blocks executed during
 the evaluation of the expression must not have side effects.
 If an evaluation is needed, but the expression to be evaluated contains
 a syntax variable that never becomes defined,
-then the entire matching process fails, just as it
+then the matching process fails for the expression definition, just as it
 would if a guard evaluated to false.
 
 \subsection{Expression Definitions}
@@ -5227,28 +5231,31 @@ would if a guard evaluated to false.
     ::= {\em constraint} \{ \verb|,| {\em constraint} \}$^\star$ \\[1ex]
 \emkey{constraint} ::= \verb|,|{\em -subexpression}
 	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
-\emkey{constraint} ::= {\em syntax-equation} $|$ {\em pattern-equation}
-		   $|$ {\em default-equation} $|$ {\em guard} \\[1ex]
+\emkey{constraint} ::= {\em syntax-equation}
+		       \begin{tabular}[t]{@{}l@{}}
+		       $|$ {\em pattern-equation} $|$ {\em default-equation} \\
+		       $|$ {\em alternative-equation} $|$ {\em guard}
+		       \end{tabular} \\[1ex]
 \emkey{syntax-equation} ::= {\em syntax-expression}
 		{\tt :=:} {\em syntax-expression}
-	        ~~~ [see \pagref{SYNTAX-EQUATION}]
+	        ~~~ [see \pagref{SYNTAX-EQUATIONS}]
 	 	\\[1ex]
 \emkey{pattern-equation} ::= {\em syntax-expression}
 		{\tt :=\TILDE} {\em constraint-pattern}
-	        ~~~ [see \pagref{PATTERN-EQUATION}]
+	        ~~~ [see \pagref{PATTERN-EQUATIONS}]
 		\\[1ex]
 {\em constraint-pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
 \emkey{default-equation} ::= {\em syntax-variable}
 		{\tt :=?} {\em syntax-expression}
-	        ~~~ [see \pagref{DEFAULT-EQUATION}]
+	        ~~~ [see \pagref{DEFAULT-EQUATIONS}]
 		\\[1ex]
 \emkey{alternative-equation} ::= \\
 \hspace*{3em}{\em syntax-variable}
 		{\tt :=:} {\em alternative}
 		          \verb/|/ {\em alternative}
 			  \{ \verb/|/ {\em alternative} \}$^\star$
-	                  ~~~ [see \pagref{ALTERNATIVE-EQUATION}]
+	                  ~~~ [see \pagref{ALTERNATIVE-EQUATIONS}]
 		\\[1ex]
 \emkey{alternative} ::= {\em atom} {\em atom}$^\star$
 		\\[1ex]
@@ -5290,15 +5297,16 @@ The syntax of a syntax equation is:
 
 \begin{indpar}
 \emkey{syntax-equation} ::= {\em syntax-expression} \ttnbkey{:=:}
-			    {\em syntax-expression} \\[1ex]
+			    {\em syntax-expression}
+			    \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
 			   $|$ {\em atom} $|$ {\em object}
-			   \label{SYNTAX-EQUATION}
 			   \\[1ex]
 \emkey{syntax-variable}\label{SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
-			::= & {\tt \$} {\em capitalized-word }
-			      {\em name-component}\,$^\star$ \\
+			::= & {\tt \$} {\em capitalized-word } \\
+			$|$ & {\tt \$} {\tt (} {\em capitalized-word }
+			      {\em name-component}\,$^\star$ {\tt )} \\
 			$|$ & {\em place-holding-syntax-variable}
 			    ~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\
 			$|$ & {\em evaluated-syntax-variable}
@@ -5478,6 +5486,7 @@ equations in $S'$ are consistent.
 
 \subsection{Patterns}
 \label{PATTERNS}
+\label{PATTERN-EQUATIONS}
 
 A \emkey{pattern} is an object that represents one of
 a set of syntax expressions.  Patterns are used in
@@ -5487,7 +5496,6 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \begin{indpar}
 \emkey{pattern-equation} ::= {\em syntax-expression} \ttnbkey{:=\TILDE}
 			    {\em pattern}
-			    \label{PATTERN-EQUATION}
 			    \\[1ex]
 \emkey{pattern} ::= {\em pattern-object}
 \\[3ex]
@@ -5579,27 +5587,36 @@ once in the represented {\em syntax-expression}.
 in the {\em pattern} is an \key{optional pattern clause}
 and must appear exactly once or not at all
 in the represented {\em syntax-expression}.
-See \secref{DEFAULT-SYNTAX-VARIABLES} for examples.
+See \secref{DEFAULT-EQUATIONS} for examples.
 
-\item A {\em pattern-clause} followed by `\verb|??|'
+\item\label{OPTIONAL-TRUTH-VALUE-CLAUSE-RULE}
+A {\em pattern-clause} followed by `\verb|??|'
 in the {\em pattern} is an \key{optional truth-value pattern clause}.
 Like an optional pattern clause this must appear exactly once or not at all
 in the represented {\em syntax-expression}.
 In addition, the {\em pattern-clause} must end with a {\em syntax-variable},
 and this may be omitted in the represented {\em syntax-expression}.
-See \secref{OPTIONAL-TRUTH-VALUE-SYNTAX-VARIABLES} for examples.
+See \secref{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\verb|...|'
 in the {\em pattern} is a \key{repeated pattern clause}
 and must appear one or more times
 in the represented {\em syntax-expression}.
-See \secref{REPEATED-SYNTAX-VARIABLES} for examples.
+See \secref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\verb|...?|'
 in the {\em pattern} is an \key{optional repeated pattern clause}
 and must appear one or more times or not at all
 in the represented {\em syntax-expression}.
-See \secref{REPEATED-SYNTAX-VARIABLES} for examples.
+See \secref{REPEATED-PATTERN-CLAUSES} for examples.
+
+\item A {\em syntax-variable} in a {\em pattern}
+that appears in an {\em alternative-equation}
+is called an \key{alternative-syntax-variable} and must be replaced
+(along with any parentheses surrounding it)
+in the represented {\em syntax-ex\-pres\-sion}
+by one of the {\em alternatives} from the {\em alternative-equation}.
+See \secref{ALTERNATIVE-EQUATIONS} for examples.
 
 \item A {\em required-pattern-attribute-representation}
 that has an `\verb|=|' sign
@@ -5822,8 +5839,8 @@ left and no unsolvable pattern equations.  In this case the
 ambiguous pattern equation will have been promoted to be a syntax equation,
 which may or may not be consistent.
 
-\subsubsection{Default Syntax Variables}
-\label{DEFAULT-SYNTAX-VARIABLES}
+\subsubsection{Default Equations}
+\label{DEFAULT-EQUATIONS}
 
 When a pattern is unfolded, syntax variables in optional pattern clauses
 not included in the unfolded pattern are given default values
@@ -5833,7 +5850,6 @@ syntax:
 \begin{indpar}
 \emkey{default-equation} ::= {\em syntax-variable} \ttnbkey{:=?}
 			     {\em default-value}
-\label{DEFAULT-EQUATION}
 \\[1ex]
 \emkey{default-value} ::= {\em syntax-expression}
 \end{indpar}
@@ -5870,12 +5886,80 @@ are not promoted to become syntax equations by this mechanism are
 ignored.  This mechanism does \underline{not} apply to repeated pattern
 clauses or optional repeated pattern clauses.
 
-\subsubsection{Optional Truth-Value Syntax Variables}
-\label{OPTIONAL-TRUTH-VALUE-SYNTAX-VARIABLES}
+\subsubsection{Alternative Equations}
+\label{ALTERNATIVE-EQUATIONS}
+
+An {\em alternative-equation} specifies that a syntax variable must take
+one of several alternative values.
+
+\begin{indpar}
+\emkey{alternative-equation} ::= \\
+\hspace*{3em}{\em syntax-variable}
+		{\tt :=:} {\em alternative}
+		          \verb/|/ {\em alternative}
+			  \{ \verb/|/ {\em alternative} \}$^\star$
+		\\[1ex]
+\emkey{alternative} ::= {\em atom} {\em atom}$^\star$
+\end{indpar}
+
+For example,
+\begin{center}
+\verb/DIRECTION :=: ascending | descending/
+\end{center}
+
+Note that the {\em alternatives} are simple {\em atom} sequences,
+and cannot include subexpressions or {\em syntax-variables}.
+
+The {\em syntax-variable} in an alternative equation is called an
+\key{alternative-syntax-variable}.  When such a variable appears
+in a pattern it must be replaced by one of the {\em alternatives}
+from the {\em alternative-equation} when the pattern is unfolded.
+Any parentheses surrounding the variable in the pattern are removed.
+The replacing {\em alternative} is integrated into the unfolded
+pattern as if it had appeared in the pattern instead of the
+{\em alternative-syntax-variable} and any parentheses surrounding it.
+
+For example, given the above {\em alternative-equation} and the
+{\em pattern-equation}
+\begin{center}
+\verb/sort ascending (3,2,7,8) :=~ sort DIRECTION (X)/
+\end{center}
+the pattern in thus equation can be unfolded to make the {\em syntax-equation}
+\begin{center}
+\verb/sort ascending (3,2,7,8) :=: sort ascending (X)/
+\end{center}
+
+However, given instead the pattern equation
+\begin{center}
+\verb/sort (SORT DIRECTION) (3,2,7,8) :=~ sort DIRECTION (X)/
+\end{center}
+the pattern in thus equation \underline{cannot} be unfolded because
+there is ambiguity about which {\em alternative}
+should replace \verb|DIRECTION|.
+
+Whenever a pattern containing a {\em alternative-syntax-variable}
+is unfolded, a particular {\em alternative} replaces the
+variable in the pattern, and the syntax equation
+\begin{center}
+{\em alternative-syntax-variable} {\tt :=:} {\em alternative}
+\end{center}
+is asserted.  In this equation the unevaluated form of the
+{\em alternative-syntax-variable} is used.  Thus in the above
+example where the pattern was unfoled, the equation
+\begin{center}
+\verb/$DIRECTION :=: ascending/
+\end{center}
+is asserted.
+
+
+
+\subsubsection{Optional Truth-Value Pattern Clauses}
+\label{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES}
 
 An \key{optional truth-value pattern clause}%
 \index{truth-value pattern clause}%
 \index{pattern clause!optional truth value}
+(with `{\tt ??}' {\em clause-qualifier}\,)
 must end with a syntax variable $v$,
 and this variable is treated specially in the following ways.
 First, the guard:
@@ -5887,9 +5971,10 @@ the syntax equation
 \begin{center}
 $v$ {\tt :=:} {\tt false}
 \end{center}
-is asserted.  However, if the clause is not omitted from the unfolded
-pattern, but the variable $v$ at the end of the clause is omitted from
-the unfolded pattern, then the syntax equation
+is asserted.  Third, the clause without its ending syntax variable
+may appear in the unfolded pattern,
+according to Rule \itemref{OPTIONAL-TRUTH-VALUE-CLAUSE-RULE},
+in which case the syntax equation
 \begin{center}
 $v$ {\tt :=:} {\tt true}
 \end{center}
@@ -5936,8 +6021,8 @@ produces the guard and syntax equation:
 
 
 
-\subsubsection{Repeated Syntax Variables}
-\label{REPEATED-SYNTAX-VARIABLES}
+\subsubsection{Repeated Pattern Clauses}
+\label{REPEATED-PATTERN-CLAUSES}
 
 When a pattern is unfolded, a syntax variable in a
 repeated or optional repeated pattern clause is replaced
@@ -5987,8 +6072,6 @@ yields
 \verb/$Y/ & \tt :=: & \verb|()|
 \end{tabular}
 \end{center}
-
-[TBD: When is evaluation??]
 
 \subsubsection{Place Holding Syntax Variables}
 \label{PLACE-HOLDING-SYNTAX-VARIABLES}
@@ -6041,9 +6124,12 @@ unevaluated syntax variable name.  Thus \verb|X| is associated with
 \verb|$X|.  The syntax is:
 
 \begin{indpar}
-\emkey{unevaluated-syntax-variable} 
-			::= {\tt \$} {\em capitalized-word }
-			{\em name-component}\,$^\star$
+\emkey{unevaluated-syntax-variable}
+			\begin{tabular}[t]{rl}
+			::= & {\tt \$} {\em capitalized-word } \\
+			$|$ & {\tt \$} {\tt (} {\em capitalized-word }
+			      {\em name-component}\,$^\star$ {\tt )} \\
+			\end{tabular}
 \\[1ex]
 \emkey{evaluated-syntax-variable} 
 			::= {\em capitalized-word }
@@ -6051,9 +6137,6 @@ unevaluated syntax variable name.  Thus \verb|X| is associated with
 \\[1ex]
 {\em name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
 			 ~~~ [as per \pagref{NAME-COMPONENT}]
-\\[1ex]
-{\em syntax-variable} ::= {\em unevaluated-syntax-variable}
-			  ~~~ [as per \pagref{SYNTAX-VARIABLE}]
 \end{indpar}
 
 Informally, an evaluated syntax variable is assigned the value obtained by
@@ -6072,7 +6155,7 @@ A syntax variable $v$ is evaluatable if a syntax equation $v$ {\tt :=:} $e$
 has been deduced and every syntax variable in $e$ is evaluatable.
 In this case $e$ is called the \key{unevaluated value} of $v$, and
 the \key{complete unevaluated value} of $v$ is $e$ with all the
-syntax varibles it contains replaced by their complete unevaluated values.
+syntax variables it contains replaced by their complete unevaluated values.
 \item [\ikey{Evaluation Rule}{evaluation rule}:]%
 \label{EVALUATION-RULE}
 If an evaluated syntax variable $v$ appears in a syntax equation and
