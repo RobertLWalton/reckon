@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 16, 2009}
+\date{April 17, 2009}
  
 \maketitle
 
@@ -6323,14 +6323,13 @@ other contexts.  Context elements that are expression definitions are
 matched to the expression being evaluated.  Context elements that are
 themselves contexts are searched recursively.
 
-\ikey{Context lists}{list!context} are searched in order.
-\ikey{Context sets}{set!context} are searched exhaustively,
-and it is always an error if matching definitions are found in more than
-one element of a set.
+\ikey{Context lists}{list!context} are searched in order if the
+matching mode is {\tt first-value}, and are searched exhaustively
+otherwise.
+\ikey{Context sets}{set!context} are always searched exhaustively.
 
 An expression definition is an object (\secref{OBJECTS})
-of \ttkey{expression-definition}
-type that consists of a pattern, a list of guards,
+that consists of a pattern, an optional list of constraints,
 an optional block, and an optional context.  An
 {\em expression-definition} (\pagref{EXPRESSION-DEFINITION})
 computes an expression definition that has no context.
@@ -6356,7 +6355,7 @@ The new expression definition has a different context, given by
 the second argument, than the first argument does.  The special
 value \ttmnbkey{UNDEFINED}{argument of!an expression-definition@{\tt an
 expression-definition}} can be given as the {\em context} argument
-to create a new expression definition whose pattern, guards, and block
+to create a new expression definition whose pattern, constraints, and block
 are the same as those of {\em expression-definition} argument
 but whose context part is missing and can be set later.
 
@@ -6372,15 +6371,12 @@ A context can be created by:
 \verb|a| \ttkey{context}
     \begin{tabular}[t]{@{}l@{}}
     \verb|(| {\em context-element} \{ \verb|,| {\em context-element} \}
-	\verb|)|
-    \\
-    \begin{tabular}[t]{@{}rl@{}}
-    [ & \ttmkey{is list}{of context!of {\tt context}} {\em list} \\
-    $|$ & \ttmkey{is mutable}{of context!of {\tt context}}
-          {\em mutable} \\
-    $|$ & \ttmkey{with contexts missing}{of context!of {\tt context}}
-           {\em contexts-missing} ]\opt
-    \end{tabular}
+	\verb|)| \\
+    \ttmkey{is list}{of context!of {\tt context}} {\em list} \\
+    \ttmkey{is mutable}{of context!of {\tt context}}
+           {\em mutable} \\
+    \ttmkey{with contexts missing}{of context!of {\tt context}}
+           {\em contexts-missing}
     \end{tabular}
 \end{indpar}
 
@@ -6409,29 +6405,6 @@ context is a list or set, and the list object is immutable or mutable
 according to whether or not the context object is immutable or mutable.
 If mutable, altering the list object will alter its containing context
 object, and this is in fact the only way to mutate a mutable context.
-
-The above expressions are defined by the
-expression definitions (\secref{EXPRESSION-DEFINITION}):
-
-\begin{indpar}
-\begin{verbatim}
-an expression-definition {
-    on an expression-definition EXPRESSION-DEFINITION CONTEXT
-       <-- expression-definition EXPRESSION-DEFINITION,
-           context CONTEXT
-    on set SELF context CONTEXT <-- context CONTEXT
-}
-a context {
-    on a context CONTEXT-ELEMENT-LIST
-       . is list LIST ??
-       . is mutable MUTABLE ??
-       . with context missing CONTEXT-MISSING ??
-       <-- list CONTEXT-ELEMENT-LIST of context-items
-}
-context-item X <-- expression-definition X
-context-item X <-- context X
-\end{verbatim}
-\end{indpar}
 
 \section{Blocks}
 \label{BLOCKS}
