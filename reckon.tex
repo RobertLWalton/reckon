@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 15, 2009}
+\date{April 16, 2009}
  
 \maketitle
 
@@ -5133,8 +5133,8 @@ to match to an expression being evaluated.  If all choices fail, the
 expression evaluates to \verb|false|.  If only one choice succeeds, that
 choice is used to evaluate the expression.  If several choices succeed,
 the situation becomes ambiguous, and the evaluation proceeds according
-to the evaluator operating mode, as is described below
-(\secref{EVALUATION-ALGORITHM}).
+to the matching mode, as is described below
+(\secref{MATCHING-ALGORITHM}).
 
 A syntax variable name beginning with
 \ttmnbkey{\$}{in syntax variable name} denotes an unevaluated
@@ -6222,46 +6222,49 @@ throughout the expression definition).
 For example, the definition
 
 \begin{indpar}\begin{verbatim}
-increment ($X) . by Y ? <-- number (X), number(Y), Y :=? 1:
-    $X = X + Y
+for every counter:
+    on increment THIS . by Y ? <-- counter (THIS), number(Y),
+                                   Y :=? 1:
+        next count = count + Y
 \end{verbatim}\end{indpar}
 
 is treated as if it were
 
 \begin{indpar}\begin{verbatim}
-increment ($X) . by ($Y) ? <-- number (X), number(Y), Y :=? 1:
-    $X = X + Y
+for every counter:
+    on increment $THIS . by $Y ? <-- counter (THIS), number(Y),
+                                     Y :=? 1:
+        next count = count + Y
 \end{verbatim}\end{indpar}
 
 while the definition
 
 \begin{indpar}\begin{verbatim}
-increment ($X) . by Y ? <-- number (X), number(Y), $Y :=? 1:
-    $X = X + Y
+for every counter:
+    on increment THIS . by Y ? <-- counter (THIS), number(Y),
+                                   $Y :=? 1:
+        next count = count + Y
 \end{verbatim}\end{indpar}
 
 would be in error because \verb|Y| is used in the pattern but
 \verb|$Y| is used in the default equation.
 
-[TBD: how should lvalues really be handled?]
-
-
-\subsection{The Evaluation Algorithm}
-\label{EVALUATION-ALGORITHM}
+\subsection{The Matching Algorithm}
+\label{MATCHING-ALGORITHM}
 
 The \key{evaluation algorithm} inputs an expression to be evaluated
 and a context.  The context (\secref{CONTEXTS}) provides a list of expression
 definitions that may match the expression.
 
 An expression to be evaluated may contain syntax variables that are assigned
-values during matching.  The result of evaluation is both a value for
+values during matching.  The result of matching is both a list of values for
 the expression and an assignment of values for these variables.
 
 More than one definition may match an expression.
 More than one definition may match a guard,
 and different guard definitions may lead to different
 values of variables in the original expression being evaluated.
-So expression evaluation is a search process to find a choice
+So expression matching is a search process to find a choice
 of expression definitions that
 leads to success, and more than one choice may succeed.
 
@@ -6269,10 +6272,11 @@ Note that evaluations of guards and evaluations
 used to find values of evaluated syntax variables are required to have
 no side effects, so the order of these evaluations does not matter.
 Given the choices of which definitions are matched to which expressions,
-the outcome of the evalution process is uniquely determined, and does not
-depend on the order of syntax equation deductions, guard evaluations, etc.
+the outcome of the matching process is uniquely determined, and does not
+depend on the order of syntax equation deductions, guard evaluations, etc.,
+or on the order in which the choices are tried.
 
-Evaluation may be done in any of the following modes:
+Matching may be done in any of the following \skey{matching mode}s:
 
 \begin{list}{}{}
 
@@ -6284,20 +6288,22 @@ used in evaluation.
 \item[\ttkey{all-values}]~\\
 All possible choices are tried and the
 successful results are collected in a set of results.  Each result
-in this set consists of a value for the expression being evaluated
+in this set consists of a value list for the expression being evaluated
 and values for each syntax variable in that expression.
 
 \item[\ttkey{consistent-values}]~\\
 All possible choices are tried and the
-successful results are collected in a set of values.  Then these results
+successful results are collected in a set of results.  Then these results
 are tested to see if they are pairwise equal.
-All the values of the expression
+All the value lists of the expression
 being evaluated must be equal, and all the values of each syntax variable
-contained in the expression must be equal.  If all values of the expression
-or of a syntax variable are equal, one of these values is returned as the value
-of the expression or syntax variable.  If some of the values are unequal, an
-error value giving the context of the evaluation and the unequal values
-is returned as the value of the expression or syntax variable.
+contained in the expression must be equal.  If all expression value lists or
+values of a syntax variable are equal, one of these expression value lists
+is returned as the value list of the expression, and one syntax variable value
+is returned as the value of the syntax variable.
+If some of the expression value lists or syntax variable values are unequal, an
+error value giving the context of the evaluation and the unequal value lists
+or values is returned as the value of the expression or syntax variable.
 
 \end{list}
 
