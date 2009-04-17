@@ -5498,6 +5498,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 			    {\em pattern}
 			    \\[1ex]
 \emkey{pattern} ::= {\em pattern-object}
+\label{PATTERN}
 \\[3ex]
 \emkey{pattern-object} ::=
     \begin{tabular}[t]{l}
@@ -6223,8 +6224,7 @@ For example, the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS . by Y ? <-- counter (THIS), number(Y),
-                                   Y :=? 1:
+    on increment THIS . by Y ? <-- number(Y), Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -6232,8 +6232,7 @@ is treated as if it were
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment $THIS . by $Y ? <-- counter (THIS), number(Y),
-                                     Y :=? 1:
+    on increment $THIS . by $Y ? <-- number(Y), Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -6241,8 +6240,7 @@ while the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS . by Y ? <-- counter (THIS), number(Y),
-                                   $Y :=? 1:
+    on increment THIS . by Y ? <-- number(Y), $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -6410,7 +6408,8 @@ object, and this is in fact the only way to mutate a mutable context.
 \label{BLOCKS}
 
 A block is a set of variables, values for some of the variables, and
-code for computing these values.
+code for computing these values.  Blocks are optional parts of
+{\em expression-definitions} (\secref{EXPRESSION-DEFINITION}).
 
 \subsection{Block Syntax}
 \label{BLOCK-SYNTAX}
@@ -6421,36 +6420,33 @@ The code of a block has the following syntax:
 \emkey{block} ::= \verb|{| {\em group}
                          \{ {\em sequence-break} {\em group} \}$^\star$
 			 \verb|}| \\[1ex]
-\emkey{sequence-break} ::= \ttnbkey{---}\verb|-|$^\star$
-	(1 word consisting of 3 or more \verb|-|'s) \\[1ex]
+\emkey{sequence-break} ::= \ttnbkey{-----}\verb|-|$^\star$
+	(1 word consisting of 5 or more \verb|-|'s) \\[1ex]
 \emkey{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
 \emkey{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}
     \{ \verb|;| {\em declaration} \}$^\star$ \\[1ex]
 \emkey{statement-group} ::= {\em statement}
 	\{ \verb|;| {\em statement} \}$^\star$ \\[1ex]
-\emkey{declaration}
+\emkey{declaration} ::= {\em expression-definition} $|$ {\em empty} \\[1ex]
+\emkey{expression-definition} ::= see \pagref{EXPRESSION-DEFINITION} \\[1ex]
+\emkey{statement}
     \begin{tabular}[t]{rl}
-    ::= & {\em expression-definition} \\
-    $|$ & {\em method-definition} \\
-    $|$ & {\em empty} \\
-    \end{tabular} \\[1ex]
-\emkey{expression-definition} ::= {\em EXPRESSION-DEFINITION} 
-				(see \pagref{EXPRESSION-DEFINITION}) \\[1ex]
-\emkey{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION} \\[1ex]
-\emkey{statement} ::= {\em qualified-statement} $|$ {\em empty}
+    ::= & {\em unqualified-statement} \\
+    $|$ & {\em statement-qualifier} {\em unqualified-statement} \\
+    $|$ & {\em empty }
+    \end{tabular}
 \label{STATEMENT}\\[1ex]
-\emkey{qualified-statement}
+\emkey{statement-qualifier} ::= \ttkey{first}
+			    $|$ \ttkey{always}
+			    $|$ \ttkey{default}
+			    \\[1ex]
+\emkey{unqualified-statement}
     \begin{tabular}[t]{rl}
     ::= & {\em assignment-statement} \\
     $|$ & {\em unguarded-subblock} \\
-    $|$ & {\em guarded-statement} \\
-    $|$ & {\em statement-qualifier} {\em qualified-statement}
+    $|$ & {\em guarded-statement}
     \end{tabular} \\[1ex]
-\emkey{statement-qualifier} ::= \ttkey{first}
-			  $|$ \ttkey{always}
-			  $|$ \ttkey{default}
-			  \\[1ex]
 \emkey{assignment-statement}
 	\begin{tabular}[t]{rl}
 	::= & {\em variable-assignment-statement} \\
@@ -6460,37 +6456,36 @@ The code of a block has the following syntax:
 	{\em output-variable} \ttkey{=} {\em right-side} \\[1ex]
 \emkey{right-side} \
     \begin{tabular}[t]{rl}
-    ::= & {\em right-side-expression} \\
-    $|$ & {\em right-side-expression} \ttnbkey{=>} {\em output-variable}
+    ::= & {\em operator-expression} \\
+    $|$ & {\em operator-expression} \ttnbkey{=>} {\em output-variable}
 		\{ \verb|,| {\em output-variable} \}$^\star$
     \end{tabular} \\[1ex]
-\emkey{right-side-expression} ::= {\em EXPRESSION} \\[1ex]
+\emkey{operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
 \emkey{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
-\emkey{next-variable} ::= \ttkey{next} \verb|(| {\em variable-name} \verb|)|
-		\\[1ex]
-\emkey{variable-name} ::= {\em word} \\[1ex]
+\emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
+\emkey{variable-name} ::= {\em name} \\[1ex]
+{\em name} ::= see \pagref{NAME} \\[1ex]
 \emkey{pattern-assignment-statement} ::=
-	{\em assignment-pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
+	{\em pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
-\emkey{assignment-pattern} ::= {\em EXPRESSION} \\[1ex]
+\emkey{pattern} ::= see \pagref{PATTERN} \\[1ex]
 \emkey{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
 \emkey{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
 \emkey{if-statement} ::=
       \begin{tabular}[t]{l}
-      \ttkey{if} {\em guard} {\em guarded-subblock} \\
+      \ttkey{if} {\em guard} {\em unguarded-subblock} \\
       {\em else-if-continuation}\,$^\star$ \\
       {\em else-continuation-option}
       \end{tabular} \\[1ex]
 \emkey{else-if-continuation} ::=
-      \verb|;| \ttkey{else if} {\em guard} {\em guarded-subblock} \\[1ex]
+      \verb|;| \ttkey{else if} {\em guard} {\em unguarded-subblock} \\[1ex]
 \emkey{else-continuation-option} ::= {\em empty} $|$
-      \verb|;| \ttkey{else} {\em guard} {\em guarded-subblock} \\[1ex]
+      \verb|;| \ttkey{else} {\em guard} {\em unguarded-subblock} \\[1ex]
 \emkey{when-statement} ::=
-      \ttkey{when} {\em guard} {\em guarded-subblock} \\[1ex]
-\emkey{guard} ::= {\em right-side} \\[1ex]
-\emkey{guarded-subblock} ::= \verb|{| {\em statement-group} \verb|}|
+      \ttkey{when} {\em guard} {\em unguarded-subblock} \\[1ex]
+\emkey{guard} ::= {\em right-side}
 \end{indpar}
 
 A block is parsed when the statement that contains it (typically
@@ -6827,6 +6822,8 @@ iteration, and these values will then be propagated to subsequent iterations.
 
 \section{Objects}
 \label{OBJECTS}
+
+\emkey{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION}
 
 An object is a typed block that can be used as a value.
 A typed block, or object, has a type and inherits code from its type.
