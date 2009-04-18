@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 17, 2009}
+\date{April 18, 2009}
  
 \maketitle
 
@@ -6460,7 +6460,7 @@ The code of a block has the following syntax:
     $|$ & {\em operator-expression} \ttnbkey{=>} {\em output-variable}
 		\{ \verb|,| {\em output-variable} \}$^\star$
     \end{tabular} \\[1ex]
-\emkey{operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
+{\em operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
 \emkey{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
 \emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
@@ -6469,7 +6469,7 @@ The code of a block has the following syntax:
 \emkey{pattern-assignment-statement} ::=
 	{\em pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
-\emkey{pattern} ::= see \pagref{PATTERN} \\[1ex]
+{\em pattern} ::= see \pagref{PATTERN} \\[1ex]
 \emkey{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
 \emkey{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement} \\[1ex]
@@ -6488,48 +6488,21 @@ The code of a block has the following syntax:
 \emkey{guard} ::= {\em right-side}
 \end{indpar}
 
-A block is parsed when the statement that contains it (typically
-an {\em EXPRESSION-DEFINI\-TION}, \pagref{EXPRESSION-DEFINITION})
-is parsed.
-
-[TBD: How is parsing controlled; old statement:
-Because the \ttmkey{;}{statement separator} operator used
-as a statement separator in a {\em block} is by default
-{\tt definitional} (??), in addition to {\em statements}
-a {\em block}
-can contain definitions that control parsing but do not become part of the
-parsed block.  Such definitions are omitted from the above syntax.]
-
-When the pattern and guard parts of an expression definition are parsed,
-they are parsed together to create an expression graph, and
-implicit conversion (??) of variable names
-is used to produce variables for that graph.
-Any {\em block} part of the expression
-definition is parsed separately to produce a separate expression graph that
-has no expression graph variables (it does have variables in
-a different sense: see \secref{BLOCK-VARIABLE-NAMES}).
-Implicit conversion is not used for any part of {\em block} parsing,
-except for {\em assignment-patterns}, {\em expression-definitions},
-and {\em method-definitions}, each of which becomes a separate
-expression graph with its own separate expression graph variables
-[TBD: how is this represented and done?].
-
 \subsection{Block Variable Names}
 \label{BLOCK-VARIABLE-NAMES}
 
-After parsing, the {\em variable-names} in the code of
-a block are identified.  Each
-{\em variable-name} is a subexpression consisting of a single
-{\em word}, but not all such subexpressions are {\em variable-names}.
+In order to evaluate a block, the 
+{\em variable-names} in the block must be identified.
 Some {\em variable-names} may be \mkey{inherited}{variable-name}
-from a statement containing the block.
+from a {\em expression-definition} containing the block.
 Some are {\em output-variables} in {\em assignment-statements}
-or {\em guards}.
-Some are expression graph variables of {\em assignment-patterns}.
+or {\em right-sides}.
+Some are variables in the {\em patterns} of {\em assignment-patterns}.
 All the {\em variable-names}
 in the block are inherited or can be identified by looking at the left
-sides of {\em assignment-statements} or at the {\em output-variables}
-following \verb|=>| in {\em assignment-statements} or {\em guards}.
+sides of {\em variable-assignments}, at the {\em output-variables}
+following \verb|=>| in {\em right-sides}, or {\em patterns} in
+{\em pattern-assignments}.
 
 When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 {\em subblock} of the {\em block} are treated as if they
@@ -6539,11 +6512,7 @@ RECKON does not have the notion of name space nesting, because the
 {\tt \CurlyBra\CurlyKet} brackets that would
 indicate nesting can be implied by the {\tt :} construction.}
 
-If a {\em block} is part of an {\em EXPRESSION-DEFINITION}
-(\pagref{EXPRESSION-DEFINITION}), the names of expression graph variables of
-the {\em pattern} and {\em guard-list} expression tree
-become {\em variable-names} inherited by the {\em block}.
-Thus in
+For example, in
 
 \begin{indpar}[1in]
 \verb|sum from X through Y <-- integer X, integer Y| {\em block}
@@ -6551,40 +6520,38 @@ Thus in
 
 the variable names \verb|X| and \verb|Y| are inherited by the {\em block}.
 
-An {\em assignment-pattern} is parsed to an expression graph with its
-own expression graph variables.  These variables are called
-\skey{pattern variable}s, and their names become
-{\em variable-names} of the {\em block} containing the
-{\em assignment-pattern}.  Thus in the statement
+As another example, if the {\em pattern-assignment}
 
 \begin{indpar}[1in]
 \verb|X + Y ~=~ `5 + ( 7 * y )'|
 \end{indpar}
 
+appears in a block,
 the variable names \verb|X| and \verb|Y| are pattern variable names
-that are {\em variable-names} of the {\em block} containing this
-{\em pattern-assignment-statement}.
+that are {\em variable-names} of the {\em block}.
 
-The variable named before the \verb|=| in a {\em variable-assignment-statement}
-is an {\em output-variable}.
-Variables named after \verb|=>| following an expression in
-a {\em right-side} are also {\em output-variables}.  In the statements
+The {\em output-variable} names in {\em variable-assignments}
+and {\em right-sides} are {\em variable-names}.  For example, in
 
 \begin{indpar}[1in]\begin{verbatim}
 when sort x to y => y:
     z = first 
 \end{verbatim}\end{indpar}
 
-\verb|y| and \verb|z| are {\em output-variables}.
+\verb|y| and \verb|z| are {\em output-variables} and therefore
+{\em variable-names}.
 
-From the point of view of block evaluation there is no distinction between
-variable names beginning with \verb|#| and other variable names.  The
-only distinction occurs in {\em EXPRESSION-DEFINITION} {\em patterns},
-where the values obtained by call unification for input variables
-whose names do not begin with \verb|#| are replaced by their evaluations
-(??).
+Both evaluated and unevaluated pattern variables may be used in
+the {\em operator-expressions} that appear in {\em right-sides}.
+For example,
+\begin{indpar}[1in]\begin{verbatim}
+x = $X
+\end{verbatim}\end{indpar}
 
-TBD: Arrays and array element names.
+sets the variable \verb|x| to the unevaluated expression stored in
+\verb|$X|.
+
+[TBD: Arrays and array element names]
 
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
@@ -6601,32 +6568,27 @@ Each variable in a block can be assigned at most one value: it is
 an error if the variable is assigned a value more than once during
 a block evaluation, even if all the values assigned are the same.
 
-The \skey{input-variable}s of a {\em right-side-expression} are all
-variables in the expression that are not {\em output-variables} or
-{\em pattern-variables} of
-the {\em assignment-statement} or {\em guard} containing the expression.
-Each {\em right-side-expression} in a {\em statement-group}
-is evaluated only when all its input variables have values.
-When the {\em right-side-expression} of an {\em assignment-statement}
-is evaluated, the variables named on the left side of the statement and any
-{\em output-variables} named after a \verb|=>| in the {\em right-side}
-are given values.
-When the {\em right-side-expression} of a {\em guard} is evaluated, any
-{\em output-variables} named after a \verb|=>| in the {\em guard}
-are given values.
+The variables in an {\em operator-expression}
+are called \skey{input-variable}s.
+Each {\em operator-expression} in a {\em statement-group}
+is evaluated only when \underline{all} its input variables have values.
+When the {\em operator-expression} of an {\em assignment-statement} or
+{\em right-side}
+is evaluated, the {\em output-variables} and pattern variables in the
+{\em assignment-statement} or {\em right-side} are given values.
 
 None of the statements in an {\em if-statement}
-{\em guarded-block} are
+{\em unguarded-block} are
 evaluated until the block's {\em guard} has been evaluated to true.
 If the guard evaluates to false, no statement in the
-{\em guarded-block} is ever evaluated.  An {\em else-if-continuation}
+{\em unguarded-block} is ever evaluated.  An {\em else-if-continuation}
 {\em guard} is not evaluated until all {\em guards}
 in any preceding {\em if-statement}
 or {\em else-if-continuations} in the same {\em guard-statement}
-have been evaluated to false.  The {\em guarded-block} of an
+have been evaluated to false.  The {\em unguarded-block} of an
 {\em else-continuation} is evaluated if and only if
 all {\em guards} in any preceding {\em if-statement}
-or {\em else-if-continuation} in the same {\em guard-statement}
+or {\em else-if-continuation} in the same {\em if-statement}
 have been evaluated to false.
 
 An example application of these rules is:
