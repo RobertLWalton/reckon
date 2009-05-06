@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 18, 2009}
+\date{May 6, 2009}
  
 \maketitle
 
@@ -6462,10 +6462,8 @@ The code of a block has the following syntax:
     \end{tabular} \\[1ex]
 {\em operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
-\emkey{input-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
 \emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
-\emkey{variable-name} ::= {\em name} \\[1ex]
-{\em name} ::= see \pagref{NAME} \\[1ex]
+\emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}] \\[1ex]
 \emkey{pattern-assignment-statement} ::=
 	{\em pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
 	{\em right-side} \\[1ex]
@@ -6482,7 +6480,7 @@ The code of a block has the following syntax:
 \emkey{else-if-continuation} ::=
       \verb|;| \ttkey{else if} {\em guard} {\em unguarded-subblock} \\[1ex]
 \emkey{else-continuation-option} ::= {\em empty} $|$
-      \verb|;| \ttkey{else} {\em guard} {\em unguarded-subblock} \\[1ex]
+      \verb|;| \ttkey{else} {\em unguarded-subblock} \\[1ex]
 \emkey{when-statement} ::=
       \ttkey{when} {\em guard} {\em unguarded-subblock} \\[1ex]
 \emkey{guard} ::= {\em right-side}
@@ -6523,11 +6521,11 @@ the variable names \verb|X| and \verb|Y| are inherited by the {\em block}.
 As another example, if the {\em pattern-assignment}
 
 \begin{indpar}[1in]
-\verb|X + Y ~=~ `5 + ( 7 * y )'|
+\verb|$X + $Y ~=~ `5 + ( 7 * y )'|
 \end{indpar}
 
 appears in a block,
-the variable names \verb|X| and \verb|Y| are pattern variable names
+the variable names \verb|$X| and \verb|$Y| are pattern variable names
 that are {\em variable-names} of the {\em block}.
 
 The {\em output-variable} names in {\em variable-assignments}
@@ -6570,7 +6568,7 @@ a block evaluation, even if all the values assigned are the same.
 
 The variables in an {\em operator-expression}
 are called \skey{input-variable}s.
-Each {\em operator-expression} in a {\em statement-group}
+Each {\em operator-expres\-sion} in a {\em statement-group}
 is evaluated only when \underline{all} its input variables have values.
 When the {\em operator-expression} of an {\em assignment-statement} or
 {\em right-side}
@@ -6714,12 +6712,12 @@ The sequence of blocks are called the
 be thought of as producing a sequence of iterations, though this
 sequence might include only one block which does not iterate.
 
-A {\em next-variable} is named by a {\em variable-name} that is the
-operand of a \ttkey{next} unary operator.  A {\em next-variable}
+A {\em next-variable} is named by a {\em variable-name} preceded by
+the `\ttkey{next}' keyword.  A {\em next-variable}
 is effectively a new variable with a name derived from the
-{\em variable-name}.  We will used the notation \verb|next(|$V$\verb|)|
+{\em variable-name}.  We will used the notation `\verb|next |$V$'
 to denote the {\em next-variable} made from the variable name $V$.
-The value of \verb|next(|$V$\verb|)| at the end of execution of the
+The value of \verb|next |$V$ at the end of execution of the
 current block iteration becomes the value of $V$ at the beginning
 of execution of the next block iteration.  In order for there to be
 a next iteration, the current iteration must compute the value of
@@ -6727,12 +6725,12 @@ some {\em next-variable}, and the current iteration must not compute
 the value of the {\tt value} variable.
 
 {\em Next-variables} can be both output and input variables.
-When used as input variables they are just like other input variable.
-The {\tt next} operator can be applied to an expression that does not
+When used as input variables they are just like other input variables.
+The {\tt next} unary operator can be applied to an expression that does not
 consist solely of a {\em variable-name}.  When this is done, it is
-as if the {\tt next} operator had instead been applied to every
+as if the {\tt next} keyword had instead been prefaced to every
 {\em variable-name} in the expression.  Thus `\verb|next(x+y)|' is
-the equivalent of `\verb|next(x) + next(y)|'.
+the equivalent of `\verb|next x + next y|'.
 
 If a default statement outputs a {\em next-variable}, the statement
 cannot become active unless some other {\em next-variable} has already
@@ -6742,13 +6740,13 @@ a default statement.
 A statement of the form
 
 \begin{center}
-\verb|default| \verb|next(|$V$\verb|)| = $V$
+\verb|default next |$V$\verb| = |$V$
 \end{center}
 
 is implied in the last group of a block
 for every inherited {\em variable-name} $V$ provided
 no other default statement in the last group of the block
-outputs \verb|next(|$V$\verb|)|.
+outputs \verb|next |$V$.
 Thus inherited variables are normally propagated unchanged from
 one iteration to the next.
 
@@ -6758,7 +6756,7 @@ the variable will become undefined
 at the beginning of the next iteration.  Thus the statement
 
 \begin{center}
-\verb|default| \verb|next(|$V$\verb|) = UNDEFINED|
+\verb|default next |$V$\verb| = UNDEFINED|
 \end{center}
 
 for an inherited {\em variable-name} $V$ will keep the inherited
@@ -6773,7 +6771,7 @@ An \ttkey{always} qualified {\em statement} is equivalent to the {\em statement}
 qualified by {\tt first} plus additional {\em statements} of the form
 
 \begin{center}
-\verb|default| \verb|next(|$V$\verb|) = |$V$
+\verb|default next |$V$\verb| = |$V$
 \end{center}
 
 for every {\em variable-name} $V$ that can be assigned by the
@@ -6785,18 +6783,16 @@ iteration, and these values will then be propagated to subsequent iterations.
 \section{Objects}
 \label{OBJECTS}
 
-\emkey{method-definition} ::= \ttkey{on} {\em EXPRESSION-DEFINITION}
-
 An object is a typed block that can be used as a value.
 A typed block, or object, has a type and inherits code from its type.
 
-An \key{object} can be created by an {\em OBJECT} expression:
+An \key{object} can be created by an {\em object-expression}:
 
 
 \begin{indpar}
-\emkey{OBJECT} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
-		      {\em block-option} \\[1ex]
-\emkey{type-name} ::= {\em word}
+\emkey{object-expression} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
+		              {\em block-option} \\[1ex]
+\emkey{type-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \end{indpar}
 
 The code in the {\em block} becomes a permanent part of the object.
@@ -6809,6 +6805,9 @@ These components can be retrieved by expressions of the form:
 \ttmkey{of}{the of@{\tt the} \ldots {\tt of}}
 {\em object}
 \end{center}
+
+where {\em variable-name} names a variable whose value is the location
+of the object.
 
 Objects are updated by adding code to them either permanently or temporarily.
 Whenever code is added to an object, the code executes as much as it
@@ -6823,23 +6822,26 @@ define additional components.
 Recall that the concept of being a variable of a block
 of code is defined syntactically and independently of which variable values
 the block actually computes (\secref{BLOCK-VARIABLE-NAMES}).
-The components of an object are more precisely the syntax variables
+The components of an object are more precisely the variables
 of the code added permanently to the object, whether or not these
 variables have values defined by code added permanently or temporarily
 to the object.  Variables of code added temporarily that are not
-syntactically variables of code added permanently are
+also variables of code added permanently are
 \underline{not} components of the object,
 and are not visible outside the temporarily added code.
 
-TBD: need a way to declare an object component without otherwise referencing
-it in permanent code.
+[TBD: We need a better way to declare an object component
+without giving it a value in permanent code.]
 
-The permanent code of an object all belongs to the same group.  Blocks
-of permanent code cannot have {\em sequence-breaks}, and therefore
-have only one {\em group}.  Code that is added temporarily
-to an object can have several groups, and the permanent code of the
-object behaves as
-if it were a separate group executed after the temporary code is executed.
+The permanent code of an object all belongs to two groups: a
+{\em declaration-group} and a {\em statement-group} in that
+order (i.e., with declarations first).
+When code is added to the block, the added code can also
+have two groups: a {\em declaration-group} that is appended to the
+permanent {\em declaration-group} and a following {\em statement-group} that
+is appended to the permanent {\em statement-group}.  This is true whether
+the code is being added permanently or temporarily.  Of course either
+group can be empty.
 
 A statement of the form:
 
@@ -6855,10 +6857,11 @@ type and is said to be `\skey{inherit}{ed}' by every object of that type.
 A statement of the form:
 
 \begin{indpar}
-\ttkey{update} {\em OBJECT} {\em block} 
+\ttkey{update} {\em variable-name} {\em block} 
 \end{indpar}\label{UPDATE}
 
-where {\em OBJECT} evaluates to an object adds the code in the
+where {\em variable-name} evaluates to the location of an
+object adds the code in the
 {\em block} temporarily to the object.  The code is added and all
 code in the object executes until it can do nothing more.  Then
 the temporary code is removed from the object.
@@ -6866,7 +6869,7 @@ the temporary code is removed from the object.
 When code is added to an object and executes, the statement qualifier
 {\tt default} acts when execution stops to enable execution of {\tt default}
 statements, as per \secref{DEFAULT-STATEMENTS}.  Similarly
-the {\tt next} operator can be used to create iterations of the
+`{\tt next}' variables can be used to create iterations of the
 object.  Each iteration replaces the previous iteration of the object
 wherever the object is referenced.  Thus if two variables equal
 the object, and one is used to cause the object to iterate, both variable
@@ -6875,18 +6878,18 @@ values will become the new iterated object.
 A statement of the form
 
 \begin{center}
-\verb|default| \verb|next(|$C$\verb|) = |$C$
+\verb|default| \verb|next |$C$\verb| = |$C$
 \end{center}
 
 is implied in the permanent code
 for every component name $C$ of an object, provided
 no other default statement in the permanent code
-outputs \verb|next(|$C$\verb|)|.
+outputs `\verb|next |$C$'.
 Thus components are normally propagated unchanged from
 one object iteration to the next.  A statement of the form
 
 \begin{center}
-\verb|default| \verb|next(|$C$\verb|) = UNDEFINED|
+\verb|default| \verb|next |$C$\verb| = UNDEFINED|
 \end{center}
 
 can be used to override this behavior to
@@ -6911,19 +6914,20 @@ sequence of actions is:
 
 Code can be temporarily added to an object by invoking methods.
 A \key{method} is defined by a \key{method definition}
-that is an expression definition which is part of the code of an object.
+that is an expression definition which is part of the {\em declaration-group}
+of the object code (it can be either permanent or temporary).
 The method is callable from code inside or outside the object code block.
 The syntax for a method definition is:
 
 \begin{center}
-\ttkey{on} {\em expression-definition}
+\emkey{method-definition} ::= \ttkey{on} {\em expression-definition}
 \end{center}
 
 When the method definition is called, the method code block
 is added temporarily to the code that contained
 the method definition.  The object whose code this is
 may be referred to within its
-code by the name \ttkey{SELF}, which may or may not also be an argument
+code by the name \ttnbkey{SELF}, which may or may not also be an argument
 of the method definition.  If it is an argument, the method definition
 has an implicit guard that requires the {\tt SELF} argument value to be
 equal to the object whose code contains the method definition.
@@ -6975,7 +6979,7 @@ actions that have been delayed.  The \ttmkey{undo}{list} list is
 a list of input and memory change actions that can be undone.
 The position of these lists can be recorded and an undo
 operation can be performed that backs up to previously recorded positions
-by deleting actions form the end of the {\tt todo} list and undoing
+by deleting actions from the end of the {\tt todo} list and undoing
 actions on the end of the {\tt undo} list.
 
 To control the side effect mode there is a \key{side effect mode stack}.
