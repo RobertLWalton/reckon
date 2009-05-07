@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 6, 2009}
+\date{May 7, 2009}
  
 \maketitle
 
@@ -2480,7 +2480,7 @@ A program is written in a text file.  The file is read and
 converted to a sequence of lexemes, where each lexeme is tagged
 with its line number and the column number of its first character.
 This sequence of lexemes is then converted to a datum called an
-expression by a process called parsing.
+\key{expression} by a process called parsing.
 
 \ikey{Parsing}{parsing} consists of the following steps which
 are done in the given order:
@@ -2601,11 +2601,12 @@ defined for reference:
 
 \end{indpar}
 
-\subsection{The Parsing Definition Stack}
-\label{PARSING-DEFINITION-STACK}
+\subsection{Parsing Stacks}
+\label{PARSING-STACKS}
 
 Parsing is controlled by parsing definitions, which
-are placed in the \key{parsing definition stack}.
+are placed in the \key{parsing definition stack}%
+\label{PARSING-DEFINITION-STACK}.
 The following is a list
 of the kinds of parsing definitions:%
 \label{PARSING-DEFINITION-KINDS}
@@ -2640,13 +2641,14 @@ Thereafter it can affect the parsing of subsequence top level lines.
 Not all parsing definitions are effective at any given time.  The set
 of parsing definitions that have effect is determined by parsing selectors.
 A \key{parsing selector} is just a {\em name} (i.e., a sequence of
-{\em symbols} and {\em number-lexemes} containing at least one {\em symbol},
+{\em symbols} and {\em decimal-natural} lexemes
+containing at least one {\em symbol},
 see \pagref{NAME}). 
 Parsing selectors are attached to parsing definitions,
 and at any time during parsing there is a set of parsing selectors called
-the `\key{current parsing selector set}' that determines which parsing
+the `\key{current parsing selector set}\,' that determines which parsing
 definitions are effective.  Specifically, a definition has effect
-a member of the current parsing selector set is attached to the definition.
+if a member of the current parsing selector set is attached to the definition.
 Such definitions are said to be `\key{current parsing definitions}'.%
 \label{CURRENT-PARSING-DEFINITION}
 
@@ -2710,7 +2712,7 @@ A parsing definition contains \key{parsing selectors}
 which are a \verb|[ ]| bracketed
 list of the parsing selectors attached to the definition.
 Some definitions, like bracket definitions, can
-contain a \key{new parsing selectors},
+contain \key{new parsing selectors},
 which determine a parsing selector set to push into the
 parsing selector set stack.  These have the syntax:
 
