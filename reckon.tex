@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 7, 2009}
+\date{May 11, 2009}
  
 \maketitle
 
@@ -4803,6 +4803,55 @@ and the parsing subloop iterates.
 
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
+
+Text parsing is similar to operator parsing except that instead of operators
+and brackets there are initiators, terminators, separators,
+and brackets, most of which are `named'.
+For example, `\verb|<p>|' is a paragraph initiator,
+and `\verb|<indented p>|' is paragraph initiator that is a child of `\verb|<p>|'
+and inherits attributes from `\verb|<p>|'.  As another example,
+`\verb/<b|/ \ldots{} \verb/|b>/' are the text parser `bold' brackets.
+
+The named text initiators, separators, terminators, and brackets
+have the syntax:
+
+\begin{indpar}
+\emkey{named-initiator} ::= \verb|<| {\em name} \verb|>| \\[1ex]
+\emkey{named-separator} ::= \verb|<| {\em name} \verb|>| \\[1ex]
+\emkey{named-terminator} ::= \verb|<| {\em name} \verb|>| \\[1ex]
+\emkey{named-left-bracket} ::= \verb|<| {\em name} \verb/|/ \\[1ex]
+\emkey{named-right-bracket} ::= \verb/|/ {\em name} \verb|>| \\[1ex]
+{\em name} ::= see \pagref{NAME}
+\end{indpar}
+
+Text initiators, separators, terminators, and brackets are collectively
+referred to as `\skey{text mark}s'.  Text marks have attributes
+such as `{\tt style}', `{\tt weight}', `{\tt indent}', and `{\tt adjust}'.
+These are used to format the text for printing and display.  Text marks
+can also inherit attributes from other text marks.  To facilitate this
+there are also virtual text marks that are never used in the text,
+but can be ancestors of other text marks and serve as repositories of
+attributes.  Lastly it is possible to give several names to the same
+text mark, and to give names to attribute values (e.g., `{\tt default style}'
+is a standard name for a `{\tt style}' attribute value).
+
+
+The text parser converts text into a list whose elements are lexemes
+and sublists, where in general each sublist has elements that are
+lexemes and sublists.  The text marks end up as {\tt .initiator},
+{\tt .separator}, or {\tt .terminator} attributes of these lists.
+The logical structure of the text is determined by the list structure
+and the text mark names.  The attributes of the text mark names
+determine how the text is printed or displayed.
+
+Although there are many
+standard text marks, each with standard attributes, a large piece of
+text typically defines new marks specific to that text and resets some
+attributes of the standard marks in a way specific to the particular
+text.
+
+that hae 
+
 
 OBSOLETE - revise
 
