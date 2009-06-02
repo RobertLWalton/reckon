@@ -277,7 +277,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 12, 2009}
+\date{June 2, 2009}
  
 \maketitle
 
@@ -4817,12 +4817,20 @@ The named text initiators, separators, terminators, and brackets
 have the syntax:
 
 \begin{indpar}
-\emkey{named-initiator} ::= \verb|<| {\em name} \verb|>| \\[1ex]
-\emkey{named-separator} ::= \verb|<| {\em name} \verb|>| \\[1ex]
-\emkey{named-terminator} ::= \verb|<| {\em name} \verb|>| \\[1ex]
-\emkey{named-left-bracket} ::= \verb|<| {\em name} \verb/|/ \\[1ex]
-\emkey{named-right-bracket} ::= \verb/|/ {\em name} \verb|>| \\[1ex]
-{\em name} ::= see \pagref{NAME}
+\emkey{named-initiator} ::=
+    \verb|<| {\em name} {\em labels-option} \verb|>| \\[1ex]
+\emkey{named-separator} ::=
+    \verb|<| {\em name} {\em labels-option} \verb|>| \\[1ex]
+\emkey{named-terminator} ::=
+    \verb|<| {\em name} {\em labels-option} \verb|>| \\[1ex]
+\emkey{named-left-bracket} ::=
+    \verb|<| {\em name} {\em labels-option} \verb/|/ \\[1ex]
+\emkey{named-right-bracket} ::=
+    \verb/|/ {\em name} {\em labels-option} \verb|>| \\[1ex]
+{\em name} ::= see \pagref{NAME} \\[1ex]
+{\em labels-option} ::= {\em empty} $|$ {\tt :} {\em label}
+				\{ {\tt ,} {\em label} \}$^\star$ \\[1ex]
+{\em label} ::= {\em name}
 \end{indpar}
 
 Text initiators, separators, terminators, and brackets are collectively
@@ -4836,13 +4844,40 @@ attributes.  Lastly it is possible to give several names to the same
 text mark, and to give names to attribute values (e.g., `{\tt default style}'
 is a standard name for a `{\tt style}' attribute value).
 
+A piece of text can be given a {\em label} by including the {\em label}
+in the text mark that is the initiator or terminator of the text,
+or the separator that ends the text, or a bracket that bounds
+the text.  These labels are internal to the document, and not printed.
+They are used to create references from one place in the document to
+another.  For example:
+
+\begin{indpar}\begin{verbatim}
+<p: porch definition>
+. . . <b: porch|porch|b> . . .
+. . . . . . . . .
+. . . <r|porch|r> . . .
+. . . . . . . . .
+. . . <r|porch definition|r> . . .
+. . . . . . . . .
+\end{verbatim}\end{indpar}
+
+in which the \verb/<r|  |r>/ bracketed {\em labels} are references
+to the labeled bold text and labeled paragraph.
 
 The text parser converts text into a list whose elements are lexemes
 and sublists, where in general each sublist has elements that are
-lexemes and sublists.  The text marks end up as {\tt .initiator},
-{\tt .separator}, or {\tt .terminator} attributes of these lists.
-The logical structure of the text is determined by the list structure
-and the text mark names.  The attributes of the text mark names
+lexemes and sublists.
+The text marks end up as {\tt .initiator},
+{\tt .separator}, or {\tt .terminator} attributes of these lists
+and sublists.  In addition, some lists acquire a {\tt .title} attribute
+which gives text that serves as the printable name
+or title of the attributed text, and a {\tt .label} attribute which
+gives labels that can be used in references to the text.
+The logical structure of the text is determined by the list structure,
+the text mark names used as
+{\tt .initiator}, {\tt .separator}, and {\tt .terminator} attributes,
+and the {\tt .label} and {\.tt label} attribute values.
+The attributes of the text mark names
 determine how the text is printed or displayed.
 
 Although there are many
@@ -4851,8 +4886,11 @@ text typically defines new marks specific to that text and resets some
 attributes of the standard marks in a way specific to the particular
 text.
 
-that hae 
+\subsubsection{Text Structure}
+\label{TEXT-STRUCTURE}
 
+\subsubsection{Text Mark Attributes}
+\label{TEXT-MARK-ATTRIBUTES}
 
 OBSOLETE - revise
 
