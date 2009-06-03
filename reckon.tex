@@ -6,8 +6,8 @@
 
 % Possible alternative names:
 %
-%	CASTLE  Calculation and Simulation Total Language Environment
 %	RECKON	Personal Reckoning Language
+%	CASTLE  Calculation and Simulation Total Language Environment
 %	MFL	Multi-Facetted Language
 %	ROPE	Really Omni Programming Environment
 %	RIPE	Robert's Information Processing Environment
@@ -113,55 +113,6 @@
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
-\newcount\TildeCatcode
-\TildeCatcode=\catcode`\~
-\catcode`~=12
-\newcommand{\Tilde}{~}
-\catcode`~=\TildeCatcode
-
-\newcount\CircumflexCatcode
-\CircumflexCatcode=\catcode`\^
-\catcode`^=12
-\newcommand{\Circumflex}{^}
-\catcode`^=\CircumflexCatcode
-
-\newcount\BraCatcode
-\BraCatcode=\catcode`\<
-\catcode`<=12
-\newcommand{\Bra}{<}
-\catcode`<=\BraCatcode
-
-\newcount\KetCatcode
-\KetCatcode=\catcode`\>
-\catcode`>=12
-\newcommand{\Ket}{>}
-\catcode`>=\KetCatcode
-
-\newcount\CurlyBraCatcode
-\newcount\CurlyKetCatcode
-\newcount\SquareBraCatcode
-\newcount\SquareKetCatcode
-\CurlyBraCatcode=\catcode`{
-\CurlyKetCatcode=\catcode`}
-\SquareBraCatcode=\catcode`[
-\SquareKetCatcode=\catcode`]
-
-\catcode`{=\SquareBraCatcode
-\catcode`}=\SquareKetCatcode
-\catcode`[=\CurlyBraCatcode
-\catcode`]=\CurlyKetCatcode
-
-\newcommand[\CurlyBra][{]
-\newcommand[\CurlyKet][}]
-
-\catcode`{=\CurlyBraCatcode
-\catcode`}=\CurlyKetCatcode
-\catcode`[=\SquareBraCatcode
-\catcode`]=\SquareKetCatcode
-
-\newcommand{\ttbrackets}{%
-    \renewcommand{\{}{\CurlyBra}%
-    \renewcommand{\}}{\CurlyKet}}
 
 \newsavebox{\TILDEBOX}
 \begin{lrbox}{\TILDEBOX}
@@ -277,7 +228,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 2, 2009}
+\date{June 3, 2009}
  
 \maketitle
 
@@ -4834,15 +4785,27 @@ have the syntax:
 \end{indpar}
 
 Text initiators, separators, terminators, and brackets are collectively
-referred to as `\skey{text mark}s'.  Text marks have attributes
-such as `{\tt style}', `{\tt weight}', `{\tt indent}', and `{\tt adjust}'.
-These are used to format the text for printing and display.  Text marks
+referred to as `\skey{text mark}s'.  For example, `\verb|<p>|' is an initiator
+text mark that introduces a paragraph and `\verb/<b|/' and `\verb/|b>/' are
+backets that surround bold text.  Text marks have attributes
+such as `{\tt style}', `{\tt weight}', `{\tt indent}', and `{\tt adjust}',
+that are used to format the text for printing and display.
+For example `\verb|<p>|' has a normal weight and `\verb/<b|/' has a
+heavy weight.
+
+Text marks
 can also inherit attributes from other text marks.  To facilitate this
 there are also virtual text marks that are never used in the text,
 but can be ancestors of other text marks and serve as repositories of
 attributes.  Lastly it is possible to give several names to the same
 text mark, and to give names to attribute values (e.g., `{\tt default style}'
 is a standard name for a `{\tt style}' attribute value).
+
+Although there are many
+standard text marks, each with standard attributes, a large piece of
+text typically defines new marks specific to that text and resets some
+attributes of the standard marks in a way specific to the particular
+text.
 
 A piece of text can be given a {\em label} by including the {\em label}
 in the text mark that is the initiator or terminator of the text,
@@ -4876,15 +4839,9 @@ gives labels that can be used in references to the text.
 The logical structure of the text is determined by the list structure,
 the text mark names used as
 {\tt .initiator}, {\tt .separator}, and {\tt .terminator} attributes,
-and the {\tt .label} and {\.tt label} attribute values.
+and the {\tt .title} and {\tt .label} attribute values.
 The attributes of the text mark names
 determine how the text is printed or displayed.
-
-Although there are many
-standard text marks, each with standard attributes, a large piece of
-text typically defines new marks specific to that text and resets some
-attributes of the standard marks in a way specific to the particular
-text.
 
 \subsubsection{Text Structure}
 \label{TEXT-STRUCTURE}
@@ -5008,7 +4965,7 @@ A {\em word} consisting of an initial capital letter followed
 by zero or more lower case letters is converted
 to an all lower case word if it begins a sentence.
 A {\em word} consisting of an initial
-\verb|^|\index{^@{\tt \Circumflex}} followed by an upper
+\verb|^|\index{^@{\tt \CIRCUMFLEX}} followed by an upper
 case letter followed by zero or more lower case letters has the
 initial \verb|^| removed.
 
@@ -6555,7 +6512,7 @@ The code of a block has the following syntax:
 \emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
 \emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}] \\[1ex]
 \emkey{pattern-assignment-statement} ::=
-	{\em pattern} \verb|~=~|\index{~=~@{\tt \Tilde=\Tilde}}
+	{\em pattern} \verb|~=~|\index{~=~@{\tt \TILDE=\TILDE}}
 	{\em right-side} \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
 \emkey{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
@@ -6597,7 +6554,7 @@ When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 were in the {\em block} proper.  Thus variables named in the
 {\em subblock} are variables named in the {\em block}.\footnote{
 RECKON does not have the notion of name space nesting, because the
-{\tt \CurlyBra\CurlyKet} brackets that would
+{\tt \LEFTBRACKET\RIGHTBRACKET} brackets that would
 indicate nesting can be implied by the {\tt :} construction.}
 
 For example, in
