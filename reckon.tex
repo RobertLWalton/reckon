@@ -228,7 +228,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 3, 2009}
+\date{June 14, 2009}
  
 \maketitle
 
@@ -3012,17 +3012,17 @@ parser for the above example would be:
 
 \begin{indpar}\begin{verbatim}
 @1 = sum from X through Y "<--" integer X "," integer Y @2
-@2 = @3 @4 @5 { .initiator = ":" }
+@2 = @3 @4 @5 {| .initiator = ":" |}
 @3 = Sum of integers from X through Y "."
-         { .initiator = "`"; .terminator = "'" }
+         {| .initiator = "`"; .terminator = "'" |}
 @4 = if @6 @7
-@6 = X ">" Y { .initiator = "("; .terminator = ")" }
-@7 = @8 { .initiator = ":" }
+@6 = X ">" Y {| .initiator = "("; .terminator = ")" |}
+@7 = @8 {| .initiator = ":" |}
 @8 = value "=" 0
 @5 = else @9
-@9 = @10 { .initiator = ":" }
+@9 = @10 {| .initiator = ":" |}
 @10 = value "=" X "+" sum @11 through Y
-@11 = X "+" 1 { .initiator = "("; .terminator = ")" }
+@11 = X "+" 1 {| .initiator = "("; .terminator = ")" |}
 \end{verbatim}\end{indpar}
 
 Note that expression parsing transforms these results
@@ -3031,7 +3031,7 @@ significantly.  Operators are recognized, and
 
 \begin{indpar}\begin{verbatim}
 @3 = sum of integers from X through Y
-         { .initiator = capital; .terminator = "." }
+         {| .initiator = capital; .terminator = "." |}
 \end{verbatim}\end{indpar}
 
 in which the \verb|` '| brackets have disappeared completely,
@@ -3110,12 +3110,12 @@ parser, it becomes the object \verb|@6| in:
 
 \begin{indpar}\begin{verbatim}
 @6 = "@" 3 "=" @7
-@7 = @8 @9 { .initiator  = ":" }
+@7 = @8 @9 {| .initiator  = ":" |}
 @8 = v "=" @10
-@10 = w @11 { .initiator = ":" }
+@10 = w @11 {| .initiator = ":" |}
 @11 = x y
 @9 = z "=" @12
-@12 = { .initiator = ":" }
+@12 = {| .initiator = ":" |}
 \end{verbatim}\end{indpar}
 
 Note the list \verb|@12| introduced by line `\verb|z =:|' is
@@ -3133,7 +3133,7 @@ and the third and last element is \verb|@14| in:
 
 \begin{indpar}\begin{verbatim}
 @14 = "@" 5 "=" @15
-@15 = { .initiator = ":" }
+@15 = {| .initiator = ":" |}
 \end{verbatim}\end{indpar}
 
 Here \verb|@15| is the empty list because the file ends
@@ -4755,62 +4755,108 @@ and the parsing subloop iterates.
 \subsection{Text Parsing}
 \label{TEXT-PARSING}
 
-Text parsing is similar to operator parsing except that instead of operators
-and brackets there are initiators, terminators, separators,
-and brackets, most of which are `named'.
-For example, `\verb|<p>|' is a standard paragraph initiator,
-and `\verb|<indented p>|' is a standard paragraph initiator
+Text parsing is similar to operator parsing except that brackets and
+most operators are `named'.
+For example, `\verb|<p>|' is a standard paragraph operator,
+and `\verb|<indented p>|' is a standard paragraph operator
 that is a child of `\verb|<p>|'
 and inherits attributes from `\verb|<p>|'.  As another example,
 `\verb/<b|/ \ldots{} \verb/|b>/' are standard `bold' brackets.
 
-The named text initiators, separators, terminators, and brackets
+The named text brackets and operators
 have the syntax:
 
 \begin{indpar}
-\emkey{named-initiator} ::=
-    \verb|<| {\em name} {\em labels-option} \verb|>| \\[1ex]
-\emkey{named-separator} ::=
-    \verb|<| {\em name} {\em labels-option} \verb|>| \\[1ex]
-\emkey{named-terminator} ::=
-    \verb|<| {\em name} {\em labels-option} \verb|>| \\[1ex]
+\emkey{named-operator} ::=
+    \verb|<| {\em text-type} {\em arguments-option} {\em labels-option} \verb|>|
+    \\[1ex]
 \emkey{named-left-bracket} ::=
-    \verb|<| {\em name} {\em labels-option} \verb/|/ \\[1ex]
+    \verb|<| {\em text-type} {\em arguments-option} {\em labels-option} \verb/|/
+    \\[1ex]
 \emkey{named-right-bracket} ::=
-    \verb/|/ {\em name} {\em labels-option} \verb|>| \\[1ex]
-{\em name} ::= see \pagref{NAME} \\[1ex]
+    \verb/|/ {\em text-type} {\em arguments-option} {\em labels-option} \verb|>|
+    \\[1ex]
+{\em text-type} ::= {\em name}
+    \\[1ex]
+{\em arguments-option} ::= {\em empty} $|$ {\tt (} {\em argument-list} {\tt )}
+    \\[1ex]
+{\em argument-list} ::= {\em empty}
+                    $|$ {\em argument} \{ {\tt ,} {\em argument} \}$^\star$
+    \\[1ex]
+{\em argument} ::= {\em name} $|$ {\em number}
+    \\[1ex]
 {\em labels-option} ::= {\em empty} $|$ {\tt :} {\em label}
-				\{ {\tt ,} {\em label} \}$^\star$ \\[1ex]
+				\{ {\tt ,} {\em label} \}$^\star$
+    \\[1ex]
 {\em label} ::= {\em name}
+    \\[1ex]
+{\em name} ::= see \pagref{NAME}
+    \\[1ex]
+{\em number} ::= see \pagref{NUMBER}
 \end{indpar}
 
-Text initiators, separators, terminators, and brackets are collectively
-referred to as `\skey{text mark}s'.  For example, `\verb|<p>|' is an initiator
-text mark that introduces a paragraph and `\verb/<b|/' and `\verb/|b>/' are
-backets that surround bold text.  Text marks have attributes
+The names of text brackets and operators are
+referred to as `\skey{text type}s'.  For example, `\verb|<p>|' is a text
+operator of text type `\verb|p|', and `\verb/<b|/~\ldots~\verb/|b>/'
+are text brackets of text type `\verb|b|'.
+Text types have attributes
 such as `{\tt style}', `{\tt weight}', `{\tt indent}', and `{\tt adjust}',
 that are used to format the text for printing and display.
-For example `\verb|<p>|' has a normal weight and `\verb/<b|/' has a
+For example `\verb|p|' has a normal weight and `\verb/b/' has a
 heavy weight.
 
-Text marks
-can also inherit attributes from other text marks.  To facilitate this
-there are also virtual text marks that are never used in the text,
-but can be ancestors of other text marks and serve as repositories of
+Text types
+can also inherit attributes from other text types.  To facilitate this
+there are also virtual text types that are never used in the text,
+but can be ancestors of other text types and serve as repositories of
 attributes.  Lastly it is possible to give several names to the same
-text mark, and to give names to attribute values (e.g., `{\tt default style}'
+text type, and to give names to attribute values (e.g., `{\tt default style}'
 is a standard name for a `{\tt style}' attribute value).
 
 Although there are many
-standard text marks, each with standard attributes, a large piece of
-text typically defines new marks specific to that text and resets some
-attributes of the standard marks in a way specific to the particular
+standard text types, each with standard attributes, a large piece of
+text typically defines new types specific to that text and resets some
+attributes of the standard types in a way specific to the particular
 text.
 
+Text surrounded by named brackets like `\verb/<b|/~\ldots~\verb/|b>/'
+is converted by the text parser
+into a list which has the following extra attributes supplied by the
+named brackets: \ttdkey{text-type} \ttdkey{label}.
+Similarly text prefaced by a named operator like `\verb|<p>|'
+is converted to such a list.  So, for example, the text
+
+\begin{indpar}\begin{verbatim}
+<p>
+This is a <b|bold|b> sentence.
+\end{verbatim}\end{indpar}
+
+is converted by the text parser to
+
+\begin{indpar}\begin{verbatim}
+@1 = @2 {| .text-type = p |}
+@2 = this is a @3 sentence :|
+    .text-type = s
+    .initiator = capital 
+    .terminator = "."
+@3 = bold {| .text-type = b |}
+\end{verbatim}\end{indpar}
+
+Here the named operator `\verb|<p>|' prefaces the text included in \verb|@1|,
+the unnamed operator `\verb|.|' ends the text included in \verb|@2|,
+and the named brackets `\verb/<b|/~\ldots~\verb/|b>/' surround the text
+included in \verb|@3|.  The unnamed operator `\verb|.|' terminates
+a piece of text that is assigned the `\verb|s|' text type,
+the `\verb|capital|' \verb|.initiator|, and
+the `\verb|.|' \verb|.terminator|.  Here the text type `\verb|s|' denotes
+a `sentence', and the result would be the same if
+the named operator `\verb|<s>|' were explicitly included just before
+`\verb|This|'.
+
 A piece of text can be given a {\em label} by including the {\em label}
-in the text mark that is the initiator or terminator of the text,
-or the separator that ends the text, or a bracket that bounds
-the text.  These labels are internal to the document, and not printed.
+in the named bracket or named operator which gives the piece of text
+its text type.
+These labels are internal to the document, and not printed.
 They are used to create references from one place in the document to
 another.  For example:
 
@@ -4830,18 +4876,43 @@ to the labeled bold text and labeled paragraph.
 The text parser converts text into a list whose elements are lexemes
 and sublists, where in general each sublist has elements that are
 lexemes and sublists.
-The text marks end up as {\tt .initiator},
-{\tt .separator}, or {\tt .terminator} attributes of these lists
-and sublists.  In addition, some lists acquire a {\tt .title} attribute
-which gives text that serves as the printable name
-or title of the attributed text, and a {\tt .label} attribute which
-gives labels that can be used in references to the text.
-The logical structure of the text is determined by the list structure,
-the text mark names used as
-{\tt .initiator}, {\tt .separator}, and {\tt .terminator} attributes,
-and the {\tt .title} and {\tt .label} attribute values.
-The attributes of the text mark names
-determine how the text is printed or displayed.
+The text types end up as \ttdkey{text-type}
+attributes of these lists and sublists.
+Similarly {\em labels} include in named brackets
+or named operators end up as \ttdkey{label}
+attributes.  Operators frequently cause additional reformatting
+of the parse output.  {\em Arguments} in named operators and
+brackets are passed to reformatters which use them to control
+the reformatting and may insert them as various attributes in the
+parsed output.  As an example, the text
+
+\begin{indpar}\begin{verbatim}
+<h(1)|A Section Header|>
+<p>
+<s: HERE>An important sentence.
+Another sentence.
+\end{verbatim}\end{indpar}
+
+is converted by the text parser to
+
+\begin{indpar}\begin{verbatim}
+@1 = @3 :|
+    .text-type = h
+    .level = 1
+    .title = @2
+@2 = A Section Header
+    .text-type = phrase
+@3 = @4 @5 {| .text-type = p |}
+@4 = an important sentence :|
+    .text-type = s
+    .label = HERE
+    .initiator = capital 
+    .terminator = "."
+@5 = another sentence :|
+    .text-type = s
+    .initiator = capital 
+    .terminator = "."
+\end{verbatim}\end{indpar}
 
 \subsubsection{Text Structure}
 \label{TEXT-STRUCTURE}
