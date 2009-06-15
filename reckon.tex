@@ -95,6 +95,8 @@
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttdkey}[1]{{\tt \bf .#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttnbdkey}[1]{{\tt .#1}\index{#1@{\tt .#1}}}
+\newcommand{\tttkey}[1]{{\tt <{\bf #1}>}\index{#1@{\tt <#1>}}}
+\newcommand{\tttmkey}[2]{{\tt <{\bf #1}>}\index{#1@{\tt <#1>}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
@@ -4253,7 +4255,7 @@ The following are the standard operators
 
 \begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
 
-precedence & rerformatter	& type	& operator	& meaning 
+precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
 -1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
 +0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
@@ -4914,8 +4916,61 @@ is converted by the text parser to
     .terminator = "."
 \end{verbatim}\end{indpar}
 
-\subsubsection{Text Structure}
-\label{TEXT-STRUCTURE}
+\subsubsection{Standard Text Operators}
+\label{STANDARD-TEXT-OPERATORS}
+
+The following are the standard text operators
+
+\begin{center}
+
+\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+precedence & reformatter	& operator	& meaning 
+\\[2ex]
+0	& \ttkey{text-prefix}	& \tttkey{p}	& paragraph \\
+100	& \ttkey{sentence}	& \tttkey{s}	& sentence \\
+	&			& \ttkey{.}	& sentence terminator \\
+	&			& \ttkey{!}	& sentence terminator \\
+	&			& \ttkey{?}	& sentence terminator \\
+\end{tabular}
+
+\end{center}
+
+
+\begin{indpar}[1em]
+
+\newcommand{\OP}[1]{\tttmkey{#1}{reformatting}}
+
+\bigskip
+
+\ttmkey{text-prefix}{reformatter} \hfill \OP{p} ~~~ \OP{q}
+
+\begin{indpar}[0.5em]
+Here `\verb|<p>|' and `\verb|<q>|' have different
+precendences, and so cannot appear together in the same expression.
+
+TBD
+\begin{indpar}\begin{verbatim}
+@3 = x y :|
+    .initiator = "("
+    .terminator = ")"
+    .separator = ","
+\end{verbatim}\end{indpar}
+
+\end{indpar}
+
+\bigskip
+
+\ttmkey{foobar}{reformatter} \hfill \OP{r}
+
+\begin{indpar}[0.5em]
+
+TBD
+
+\end{indpar}
+
+
+\end{indpar}
 
 \subsubsection{Text Mark Attributes}
 \label{TEXT-MARK-ATTRIBUTES}
