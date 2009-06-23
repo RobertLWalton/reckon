@@ -230,7 +230,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 14, 2009}
+\date{June 23, 2009}
  
 \maketitle
 
@@ -4949,13 +4949,28 @@ precedence & reformatter	& operator	& meaning
 Here `\verb|<p>|' and `\verb|<q>|' have different
 precendences, and so cannot appear together in the same expression.
 
-TBD
-\begin{indpar}\begin{verbatim}
-@3 = x y :|
-    .initiator = "("
-    .terminator = ")"
-    .separator = ","
-\end{verbatim}\end{indpar}
+The expression must have the form
+\begin{center}
+\{ {\em operator} {\em subexpression} {\em subexpression}$^\star$ \}$^\star$
+\end{center}
+
+That is, the operator (e.g., `\verb|<p>|') must begin the expression and may
+not be consecutive or end the expression.  Each operator and the
+{\em subexpressions} following it are packaged into a list whose
+{\tt .text-type} attribute is given by the operator.  If there is one
+{\em operator}, this list becomes the reformatted expression.  If there
+is more than one, a list of these lists becomes the reformatted expression.
+
+The {\em subexpressions} following the list are either lexemes or
+bracketted subexpressions.  If all these together form a list with no
+{\tt .text-type} attribute, the {\tt .text-type} and {\tt .label}
+attributes of this list are set from the operator.
+Otherwise the lexemes and subexpressions are first formed into a list
+with no {\tt .text-type} attribute (if necessary a list with a
+{\tt .text-type} attribute is made the sole element of a new list
+with no {\tt .text-type} attribute), and then the {\tt .text-type}
+and {\tt .label} attributes of this new list are set from the
+{\em operator}.
 
 \end{indpar}
 
