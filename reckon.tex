@@ -103,6 +103,7 @@
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+\newcommand{\emxkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
 
 \newcommand{\opt}{$^!$}
 
@@ -220,7 +221,7 @@
 
 \begin{document}
         
-\title{Personal Reckoning Lanauage\\[2ex]
+\title{Personal Reckoning Language\\[2ex]
        RECKON\\[2ex]
        (Draft 1b)}
 
@@ -230,7 +231,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 23, 2009}
+\date{June 24, 2009}
  
 \maketitle
 
@@ -248,7 +249,7 @@ Cheatham and Stuart Shieber.}}
 \section{Introduction}
 
 This document describes the programming language RECKON.  RECKON,
-for what its worth, stands for `Personal Reckoning Lnaguage',
+for what its worth, stands for `Personal Reckoning Language',
 which hints at its purpose.
 
 RECKON is designed for naive programmers: that is, for people who may never
@@ -1341,7 +1342,7 @@ feed, etc.), but is not itself a lexeme.
 Non-{\em white-space} control characters are ignored, as if they
 did not exist, except that a warning message may be issued.  However
 no warning is issued for \emskey{carriage-return}s that are next to
-a {\em verical-space-character}.
+a {\em vertical-space-character}.
 
 Every {\em vertical-space-character} causes the current position to
 return to the beginning of a new line.
@@ -1609,7 +1610,7 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-single-attribute-representation} ::=
+\emxkey{raw-single-attribute-}{representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
 	{\em raw-single-attribute-value}
@@ -2175,7 +2176,7 @@ is the cooked representation of the objects
 
 Note that here the \verb|{ }| brackets surround code and not
 {\em attribute-representations}.  They do \underline{not}
-play the same role as \verb/{|  |}/ backets.
+play the same role as \verb/{|  |}/ brackets.
 
 A third example uses multiple indented lines to represent code, so that
 
@@ -2964,8 +2965,8 @@ indentation.
 \ikey{Explicit brackets}{explicit bracket}
 are defined by bracket definitions in the
 parsing definition stack, and are used to surround
-\skey{explicitly bracketed subexpression}s.  An example bracket
-definition is
+\ikey{explicitly bracketed subexpressions}{explicitly bracketed!subexpression}.
+An example bracket definition is
 
 \begin{indpar}\begin{tabular}{@{}l@{~}l}
 \verb|define| & \verb|bracket "{" ... "}" [operator]| \\
@@ -3073,7 +3074,7 @@ occurs just before each line but the first in the indented subexpression.
 An {\em indentation-end}\label{INDENTATION-END2}
 occurs at the end of the indented subexpression,
 in the same place a closing bracket would occur in a
-bracketted subexpression.
+bracketed subexpression.
 
 The output of
 the parser for an indented subexpression is a list whose elements
@@ -3297,7 +3298,7 @@ is then set to missing.
 \end{indpar}
 
 {\bf Indented Subexpression Termination.}%
-\index{Indented Subexpression Termination}
+\index{Indented Subexpression!Termination}
 \begin{indpar}
 If
 \begin{list}{}
@@ -3380,7 +3381,7 @@ then an empty current line list is created.
 \end{indpar}
 
 {\bf Indented Subexpression Initiation.}%
-\index{Indented Subexpression Initiation}
+\index{Indented Subexpression!Initiation}
 \begin{indpar}
 If
 \begin{list}{}
@@ -3465,7 +3466,7 @@ lists.  However, if a subexpression is just a single lexeme by itself,
 that subexpression is treated as a list of one lexeme.
 
 Note that lexeme replacement is done after explicit subexpression recognition,
-and cannot affect backets or indentation marks.
+and cannot affect brackets or indentation marks.
 
 Lexeme replacement may be done by either a dictionary or a function.
 Replacement is controlled by \skey{lexeme replacement definition}s
@@ -3793,7 +3794,7 @@ be 3 or 4, depending on the {\em radix-indicator}.  You cannot mix two
 different inter-comma distances, i.e.~both 3 and 4,
 in the same {\em radix-number}.
 
-{\em Radix-numbers} may be unconvertible to numbers.  Such are
+{\em Radix-numbers} may be nonconvertible to numbers.  Such are
 called \skey{illegal radix number}s.  The following are some examples
 using standard {\em radix-indicators}:
 
@@ -4044,7 +4045,7 @@ recognized.
 \label{EXPRESSION-PARSERS}
 
 An \key{expression parser} is a function which when called with
-a subexpression returns the subpexpression reformatted according to the
+a subexpression returns the subexpression reformatted according to the
 operators, sentence terminators, or similar things it finds in the
 original subexpression.  The expression parser is called after
 explicit subexpression recognition, lexeme replacement, and number
@@ -4135,7 +4136,7 @@ The syntax of operator definitions is:
 		    \\[1ex]
 {\em simple-operator-name} ::= {\em name}  [see \pagref{NAME}] \\[1ex]
 {\em bracket-name} ::= see \pagref{BRACKET-NAME} \\[1ex]
-{\em indentatio-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
+{\em indentation-mark-name} ::= see \pagref{INDENTATION-MARK-NAME} \\[1ex]
 \emkey{operator-flag} ::= \ttmkey{prefix}{operator flag}
                     $|$ \ttmkey{infix}{operator flag}
                     $|$ \ttmkey{postfix}{operator flag}
@@ -4154,7 +4155,7 @@ The syntax of operator definitions is:
 \end{indpar}
 
 A {\em simple-operator-name} is matched to lexemes in a subexpression
-in order to identify occurences of the operator.
+in order to identify occurrences of the operator.
 The other forms of {\em operator-name} permit explicit subexpressions
 with particular kinds of brackets to be parsed as if they were operators.
 Thus in `\verb|x[5]=0|' the explicit subexpression
@@ -4236,7 +4237,7 @@ function that is called after all other parsing has been done to
 reformat a subexpression whose first operator is the defined operator.
 For example, given the expression `\verb|-x+6*y|', the subexpression
 `\verb|6*y|' is extracted, and as its first operator is `\verb|*|',
-the reformatter for that operator is called and yeilds `\verb|* 6 y|'.
+the reformatter for that operator is called and yields `\verb|* 6 y|'.
 Similarly the subexpression `\verb|-x|' is extracted but the reformatter
 for `\verb|-|' does not change it.
 Then the reformatter for `\verb|+|' is called
@@ -4356,7 +4357,7 @@ With these things in mind, the reformatters are:
 
 \begin{indpar}[0.5em]
 Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
-precendences, and so cannot appear together in the same expression.
+precedences, and so cannot appear together in the same expression.
 
 A list of all between-separator subexpressions is made, with empty
 between-separator subexpressions being represented by empty lists.
@@ -4409,7 +4410,7 @@ The one \verb|<--| operator is moved to the front of the expression:
 
 Indented subexpressions introduced by the \verb|:| indentation
 mark are parsed like final \verb|{ }|
-bracketted subexpressions.  Because they are afix operators with the
+bracketed subexpressions.  Because they are afix operators with the
 same precedence as \verb|<--|,
 `\verb|x <-- y { z }|' does \underline{not}
 end up as `\verb|<-- x ( y { z } )|', and we get results like:
@@ -4464,7 +4465,7 @@ and there are zero or more than one operand.
 
 Otherwise if the expression has only \verb|AND| or only \verb|OR| operators
 the expression is rewritten with the operator at the beginning.  It is
-a reformatter detected error if there are missing operands, either beteen
+a reformatter detected error if there are missing operands, either between
 operators, before the first operator, or after the last operator.  Thus:
 
 \hspace*{2em}\begin{tabular}{lcl}
@@ -4932,6 +4933,11 @@ precedence & reformatter	& operator	& meaning
 	&			& \ttkey{.}	& sentence terminator \\
 	&			& \ttkey{!}	& sentence terminator \\
 	&			& \ttkey{?}	& sentence terminator \\
+200	& \ttkey{separator}	& \ttkey{;}	& subsentence separator \\
+	&			& \ttkey{:}	& subsentence separator \\
+300	& \ttkey{separator}	& \ttnbkey{--}	& phrase separator \\
+	& 			& \ttnbkey{---}	& phrase separator \\
+400	& \ttkey{separator}	& \ttkey{,}	& phrase separator \\
 \end{tabular}
 
 \end{center}
@@ -4947,30 +4953,99 @@ precedence & reformatter	& operator	& meaning
 
 \begin{indpar}[0.5em]
 Here `\verb|<p>|' and `\verb|<q>|' have different
-precendences, and so cannot appear together in the same expression.
+precedences, and so cannot appear together in the same expression.
 
 The expression must have the form
 \begin{center}
 \{ {\em operator} {\em subexpression} {\em subexpression}$^\star$ \}$^\star$
 \end{center}
 
-That is, the operator (e.g., `\verb|<p>|') must begin the expression and may
+That is, {\em operators}
+(e.g., `\verb|<p>|') must begin the expression and may
 not be consecutive or end the expression.  Each operator and the
-{\em subexpressions} following it are packaged into a list whose
+{\em subexpressions} following it are reformatted into a list whose
 {\tt .text-type} attribute is given by the operator.  If there is one
-{\em operator}, this list becomes the reformatted expression.  If there
-is more than one, a list of these lists becomes the reformatted expression.
+{\em operator}, this reformatted list becomes the reformatted expression.
+If there is more than one, a list of these reformatted lists
+becomes the reformatted expression.
 
-The {\em subexpressions} following the list are either lexemes or
-bracketted subexpressions.  If all these together form a list with no
-{\tt .text-type} attribute, the {\tt .text-type} and {\tt .label}
-attributes of this list are set from the operator.
-Otherwise the lexemes and subexpressions are first formed into a list
-with no {\tt .text-type} attribute (if necessary a list with a
-{\tt .text-type} attribute is made the sole element of a new list
-with no {\tt .text-type} attribute), and then the {\tt .text-type}
-and {\tt .label} attributes of this new list are set from the
-{\em operator}.
+The list of {\em subexpressions} following an {\em operator} is parsed as
+an expression.  The result is then converted to a list with no
+{\tt .text-type} attribute; if it is not already such, it is made
+the sole element of a new list.  Then the {\tt .text-type} and {\tt .label}
+attributes of this list are set from the {\em operator} and the result
+is the reformatted list for that {\em operator}.
+
+
+\end{indpar}
+
+\bigskip
+
+\ttmkey{sentence}{reformatter} \hfill \OP{s} ~~~ \ttmkey{.}{reformatting}
+					     ~~~ \ttmkey{?}{reformatting}
+					     ~~~ \ttmkey{!}{reformatting}
+
+\begin{indpar}[0.5em]
+
+The expression must have the form
+\begin{center}
+\{ \verb|<s>|{\em -option} {\em subexpression} {\em subexpression}$^\star$
+	{\em terminator} \}$^\star$
+\end{center}
+where the {\em terminator} is one of `\ttmkey{.}{terminator}',
+`\ttmkey{?}{terminator}', or `\ttmkey{!}{terminator}'.
+
+That is, it must consist of a sequence of `\skey{sentence}s' each beginning
+with an optional `\verb|<s>|', each ending with one of the {\em terminators},
+and each being non-empty otherwise.  Each sentence is reformatted into
+a list whose {\tt .text-type} is `\ttmkey{s}{\tt .text-type}', whose
+{\tt .initiator} may be `\ttmkey{capitalize}{\tt .text-type}', and whose
+{\tt .terminator} is the {\em terminator} at the end of the sentence.
+If there is just one sentence, its reformatted list becomes the
+reformatted expression.  If there
+is more than one, a list of these reformatted sentence lists
+becomes the reformatted expression.
+
+The list of {\em subexpressions} in a sentence is parsed as
+an expression.  The result is then converted to a list with no
+{\tt .text-type}, {\tt .initiator}, or {\tt .terminator} attributes;
+if it is not already such, it is made
+the sole element of a new list.  Then the {\tt .text-type} and {\tt .label}
+attributes of this list are set from the {\em operator} and the
+{\tt .terminator} is set to the {\em terminator}.
+If the first element of the list is a capitalized word, it is decapitalized
+and the list {\tt .initiator} is set to `{\tt capitalize}'.
+The list is then the reformatted list for the sentence.
+
+\end{indpar}
+
+\bigskip
+
+\ttmkey{separator}{reformatter} \hfill \ttmnbkey{--}{reformatting}
+				   ~~~ \ttmnbkey{---}{reformatting}
+				   ~~~ \ttmkey{,}{reformatting}
+				   ~~~ \ttmkey{;}{reformatting}
+				   ~~~ \ttmkey{:}{reformatting}
+
+\begin{indpar}[0.5em]
+
+The expression must have the form
+\begin{center}
+\{ {\em subexpression} {\em subexpression}$^\star$
+	{\em operator} \}$^\star$
+{\em subexpression} {\em subexpression}$^\star$
+\end{center}
+where all the {\em operators} must be the same (i.e., you cannot
+mix `{\tt ;}' or `{\tt --}' and `{\tt ---}' in the same expression).
+
+That is, the expression
+must consist of a sequence of non-empty {\em subexpression} lists
+separated by {\em operators}.  The entire expression is reformatted as
+a list whose {\tt .text-type} is `\ttmkey{phrase}{\tt .text-type}' and whose
+{\tt .separator} is the {\em operator}.  The elements of this list
+are the lists of {\em subexpressions} between operators, though if there
+is only one {\em subexpression} between two operators, it becomes an
+element of the final list.
 
 \end{indpar}
 
@@ -5269,7 +5344,7 @@ that matches the expression.  Expression definitions have patterns that
 are matched to the expression.  An expression definition may have
 guards, which are expressions that must evaluate to true in order for
 the expression definition match to succeed, and an expression definition
-may have constaint equations, which match subexpressions to patterns or
+may have constraint equations, which match subexpressions to patterns or
 to each other.
 An expression definition may have an expression block that executes
 in order to produce a value list for the expression if the definition
@@ -5282,14 +5357,14 @@ Expression definitions are searched for in a context, which is a list
 of expression definitions and pointers to other contexts.
 Each point in the program has a lexical context, which is used by default
 for expression evaluation. 
-By default expressions are evaulated in the
+By default expressions are evaluated in the
 lexical context of the place in the program code where the expression
 appears.  In addition, there may be other
 contexts in which expressions may be evaluated that effectively implement
 either data bases or alternative programming languages.
 
 When an expression definition is found whose pattern matches an expression,
-a set of constraints are established that must be statisfied to
+a set of constraints are established that must be satisfied to
 complete the match.  There are five kinds of constraints: syntax
 equations, pattern equations, default equations, alternative
 equations, and guards.
@@ -5366,7 +5441,7 @@ and allow the guard to become `\verb|number(9)|'.
 In the above \verb|$X| is an `unevaluated syntax variable' and
 \verb|X| is its `associated' `evaluated syntax variable'.  It is
 possible to use \verb|X| in a definition where \verb|$X| is actually
-meant, but if that is done once, then it must be done for every occurance
+meant, but if that is done once, then it must be done for every occurrence
 of \verb|$X| in the definition, and the only computation that may be
 performed on the (unevaluated) value of \verb|$X| is to evaluate it to
 produce a value for \verb|X|.
@@ -5378,7 +5453,7 @@ and unevaluated syntax variable values are evaluated does not matter.
 
 In order to make the matching process monotonic, pattern unfolding must
 be monotonic.  This means that if undefined syntax variables in a pattern
-equation whose pattern has been unfolded are given arbirary values later,
+equation whose pattern has been unfolded are given arbitrary values later,
 the pattern unfolding must still be valid and unambiguous.
 
 Similarly guard evaluations must not have side effects.  In other
@@ -5712,7 +5787,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 		       $|$ \ttmkey{...}{pattern qualifier}
 		       $|$ \ttmkey{...?}{pattern qualifier}
 	\\[1ex]
-\emkey{pattern-attribute-representations}
+\emxkey{pattern-attribute-}{representations}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
@@ -5726,17 +5801,17 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 	      \end{tabular}
 	\end{tabular}
 \\[1ex]
-\emkey{pattern-attribute-representation} ::=
+\emxkey{pattern-attribute-}{representation} ::=
 \\\hspace*{0.5in}
     {\em required-attribute-representation}
     $|$ {\em optional-attribute-representation}
 \\[1ex]
-\emkey{required-pattern-attribute-representation} ::=
+\emxkey{required-pattern-attribute-}{representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
 	      {\em pattern}
 \\[1ex]
-\emkey{optional-pattern-attribute-representation} ::=
+\emxkey{optional-pattern-}{attribute-representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=?|
 	      {\em pattern}
@@ -5780,7 +5855,8 @@ See \secref{DEFAULT-EQUATIONS} for examples.
 
 \item\label{OPTIONAL-TRUTH-VALUE-CLAUSE-RULE}
 A {\em pattern-clause} followed by `\verb|??|'
-in the {\em pattern} is an \key{optional truth-value pattern clause}.
+in the {\em pattern} is an
+\ikey{optional truth-value pattern clause}{optional truth-value!pattern clause}.
 Like an optional pattern clause this must appear exactly once or not at all
 in the represented {\em syntax-expression}.
 In addition, the {\em pattern-clause} must end with a {\em syntax-variable},
@@ -5969,7 +6045,7 @@ affected, and we have the 4 equations
 \end{tabular}
 \end{center}
 
-In otherwords, because the pattern in the equation
+In other words, because the pattern in the equation
 
 \begin{center}
 \begin{tabular}{r@{\tt ~:=\TILDE~}l}
@@ -6134,7 +6210,7 @@ variable in the pattern, and the syntax equation
 \end{center}
 is asserted.  In this equation the unevaluated form of the
 {\em alternative-syntax-variable} is used.  Thus in the above
-example where the pattern was unfoled, the equation
+example where the pattern was unfolded, the equation
 \begin{center}
 \verb/$DIRECTION :=: ascending/
 \end{center}
@@ -6145,8 +6221,9 @@ is asserted.
 \subsubsection{Optional Truth-Value Pattern Clauses}
 \label{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES}
 
-An \key{optional truth-value pattern clause}%
-\index{truth-value pattern clause}%
+An \ikey{optional truth-value pattern clause}%
+{optional truth-value!pattern clause}%
+\index{truth-value!pattern clause}%
 \index{pattern clause!optional truth value}
 (with `{\tt ??}' {\em clause-qualifier}\,)
 must end with a syntax variable $v$,
@@ -6177,7 +6254,7 @@ For example, the pattern equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X) . assending ASCENDING ??/ \\
+\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X) . ascending ASCENDING ??/ \\
 \end{tabular}
 \end{center}
 
@@ -6195,7 +6272,7 @@ and the pattern equation
 \begin{center}
 \begin{tabular}{rcl}
 \verb/sort x ascending/ & \tt :=\TILDE &
-	\verb/sort ($X) . assending ASCENDING ??/ \\
+	\verb/sort ($X) . ascending ASCENDING ??/ \\
 \end{tabular}
 \end{center}
 
@@ -6267,7 +6344,7 @@ yields
 
 A `\verb|$|' by itself can be used as a syntax variable called
 a \key{place holding syntax variable} that has the special
-property that each of its original equation occurances
+property that each of its original equation occurrences
 is treated as if it were a \underline{different} variable.  The syntax is:
 
 \begin{indpar}
@@ -6402,7 +6479,7 @@ following:
 If an evaluated syntax variable $v$ appears in a pattern, it is 
 replaced in the pattern by its associated unevaluated variable
 \verb|$|$v$, and in addition
-any occurances of \verb|$|$v$ in the containing expression definition
+any occurrences of \verb|$|$v$ in the containing expression definition
 are treated as errors (i.e., $v$ and not \verb|$|$v$ must be used
 throughout the expression definition).
 \end{list}
