@@ -231,7 +231,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 24, 2009}
+\date{June 25, 2009}
  
 \maketitle
 
@@ -4933,11 +4933,14 @@ precedence & reformatter	& operator	& meaning
 	&			& \ttkey{.}	& sentence terminator \\
 	&			& \ttkey{!}	& sentence terminator \\
 	&			& \ttkey{?}	& sentence terminator \\
-200	& \ttkey{separator}	& \ttkey{;}	& subsentence separator \\
+200	& \ttkey{text-separator}
+				& \ttkey{;}	& subsentence separator \\
 	&			& \ttkey{:}	& subsentence separator \\
-300	& \ttkey{separator}	& \ttnbkey{--}	& phrase separator \\
+300	& \ttkey{text-separator}
+				& \ttnbkey{--}	& phrase separator \\
 	& 			& \ttnbkey{---}	& phrase separator \\
-400	& \ttkey{separator}	& \ttkey{,}	& phrase separator \\
+400	& \ttkey{text-separator}
+				& \ttkey{,}	& phrase separator \\
 \end{tabular}
 
 \end{center}
@@ -5021,13 +5024,16 @@ The list is then the reformatted list for the sentence.
 
 \bigskip
 
-\ttmkey{separator}{reformatter} \hfill \ttmnbkey{--}{reformatting}
+\ttmkey{text-separator}{reformatter} \hfill \ttmnbkey{--}{reformatting}
 				   ~~~ \ttmnbkey{---}{reformatting}
 				   ~~~ \ttmkey{,}{reformatting}
 				   ~~~ \ttmkey{;}{reformatting}
 				   ~~~ \ttmkey{:}{reformatting}
 
 \begin{indpar}[0.5em]
+Here `\verb|--|' (or `\verb|---|'),
+`\verb|,|', and `\verb|;|' (or `\verb|:|') have different
+precedences, and so cannot appear together in the same expression.
 
 The expression must have the form
 \begin{center}
@@ -5035,8 +5041,10 @@ The expression must have the form
 	{\em operator} \}$^\star$
 {\em subexpression} {\em subexpression}$^\star$
 \end{center}
-where all the {\em operators} must be the same (i.e., you cannot
-mix `{\tt ;}' or `{\tt --}' and `{\tt ---}' in the same expression).
+where all the {\em operators} must be the same (i.e., if you
+mix `{\tt ;}' and `{\tt :}'
+or `{\tt --}' and `{\tt ---}' in the same expression, the expression
+will be declared illegal by the reformatter).
 
 That is, the expression
 must consist of a sequence of non-empty {\em subexpression} lists
