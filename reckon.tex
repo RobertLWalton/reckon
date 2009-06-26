@@ -231,7 +231,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 25, 2009}
+\date{June 26, 2009}
  
 \maketitle
 
@@ -4917,6 +4917,36 @@ is converted by the text parser to
     .terminator = "."
 \end{verbatim}\end{indpar}
 
+Here the entire bracketted subexpression `\verb/<h(1)|/ \ldots{} \verb/|>/'
+also is the lowest precedence operator which reformats everything that
+follows (and in general everything following up to the next operator of
+equal or lower precedence or a closing outer bracket) into a single list.
+It attaches the bracketted text to this list as the {\tt .title} attribute.
+Also the `\verb/<h>/' operator is programmed to attach its argument,
+`\verb|1|' in this case, to the list as the {\.tt .level} attribute
+
+In general named operators can be used in bracketted form to attach
+a bracketted expression as a {\tt .title} attribute to the same text
+the operator attaches its {\tt .text-type} to.  In general some
+named operators or brackets are programmed to take arguments which
+they may use to control formatting or compute text attribute values
+(such as {\tt .level} in this example).
+
+Note that closing brackets may omit their name, as `\verb/|>/' does
+when it closes `\verb/<h(1)|/' in this example.  Its also allowed to
+use either an initial or final segment of the name in a closing
+named bracket, as in `\verb/<indented bold p|/ \ldots{} \verb/|p>/'
+or `\verb/<indented p|/ \ldots{} \verb/|indented>/'.
+
+In the above example,
+`\verb/<p>/' is a lower precedence operator than `\verb/<h>/', and
+`\verb/<s>/' is lower precedence than `\verb/<p>/'.  Also the sentence
+terminator `\verb/./' has the same precedence as `\verb/<s>/' and these
+operators work together to form sentences.  The `\verb/<s>/' operator
+is optional and is only given in the example in order to assign a {\tt .label}
+attribute to the first sentence.  The second sentence has its `\verb/<s>/'
+operator omitted.
+
 \subsubsection{Standard Text Operators}
 \label{STANDARD-TEXT-OPERATORS}
 
@@ -4928,6 +4958,10 @@ The following are the standard text operators
 
 precedence & reformatter	& operator	& meaning 
 \\[2ex]
+-1000+10$n$
+	& \ttkey{text-prefix}	& \tttkey{h($n$)}
+						& section header \\
+-200	& \ttkey{text-prefix}	& \tttkey{li}	& list item \\
 0	& \ttkey{text-prefix}	& \tttkey{p}	& paragraph \\
 100	& \ttkey{sentence}	& \tttkey{s}	& sentence \\
 	&			& \ttkey{.}	& sentence terminator \\
@@ -4952,10 +4986,10 @@ precedence & reformatter	& operator	& meaning
 
 \bigskip
 
-\ttmkey{text-prefix}{reformatter} \hfill \OP{p} ~~~ \OP{q}
+\ttmkey{text-prefix}{reformatter} \hfill \OP{h} ~~~ \OP{li} ~~~ \OP{p}
 
 \begin{indpar}[0.5em]
-Here `\verb|<p>|' and `\verb|<q>|' have different
+These operators have different
 precedences, and so cannot appear together in the same expression.
 
 The expression must have the form
@@ -4978,6 +5012,13 @@ an expression.  The result is then converted to a list with no
 the sole element of a new list.  Then the {\tt .text-type} and {\tt .label}
 attributes of this list are set from the {\em operator} and the result
 is the reformatted list for that {\em operator}.
+
+If the operator brackets text, that text becomes the {\tt .title} attribute
+value of the reformatted list.
+
+The `\verb|<h>|' operator takes an additional argument $n$ (default {\tt 0})
+which becomes the {\tt .level} attribute of the reformated list.  Also,
+$10n$ is added to the precedence of the operator.
 
 
 \end{indpar}
@@ -5054,16 +5095,6 @@ a list whose {\tt .text-type} is `\ttmkey{phrase}{\tt .text-type}' and whose
 are the lists of {\em subexpressions} between operators, though if there
 is only one {\em subexpression} between two operators, it becomes an
 element of the final list.
-
-\end{indpar}
-
-\bigskip
-
-\ttmkey{foobar}{reformatter} \hfill \OP{r}
-
-\begin{indpar}[0.5em]
-
-TBD
 
 \end{indpar}
 
