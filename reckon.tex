@@ -231,7 +231,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 26, 2009}
+\date{July 4, 2009}
  
 \maketitle
 
@@ -1127,7 +1127,9 @@ contains in order the following lexemes:
 \label{NUMBER-LEXEME}
 \\[1ex]
 \emkey{quoted-string} ::=
-    \verb|"| {\em character-representative}\,$^\star$ \verb|"| \\[1ex]
+    \verb|"| {\em character-representative}\,$^\star$ \verb|"|
+\label{QUOTED-STRING}
+\\[1ex]
 \emkey{separator} ::= {\em separator-character}
 \\[2ex]
 \emkey{word-character} \begin{tabular}[t]{rl}
@@ -4786,7 +4788,7 @@ have the syntax:
 {\em argument-list} ::= {\em empty}
                     $|$ {\em argument} \{ {\tt ,} {\em argument} \}$^\star$
     \\[1ex]
-{\em argument} ::= {\em name} $|$ {\em number}
+{\em argument} ::= {\em name} $|$ {\em number} $|$ {\em quoted-string}
     \\[1ex]
 {\em labels-option} ::= {\em empty} $|$ {\tt :} {\em label}
 				\{ {\tt ,} {\em label} \}$^\star$
@@ -4796,6 +4798,8 @@ have the syntax:
 {\em name} ::= see \pagref{NAME}
     \\[1ex]
 {\em number} ::= see \pagref{NUMBER}
+    \\[1ex]
+{\em quoted-string} ::= see \pagref{QUOTED-STRING}
 \end{indpar}
 
 The names of text brackets and operators are
@@ -4824,8 +4828,8 @@ text.
 
 Text surrounded by named brackets like `\verb/<b|/~\ldots~\verb/|b>/'
 is converted by the text parser
-into a list which has the following extra attributes supplied by the
-named brackets: \ttdkey{text-type} \ttdkey{label}.
+into a list which has the \ttdkey{text-type} and \ttdkey{label}
+extra attributes supplied by the named brackets.
 Similarly text prefaced by a named operator like `\verb|<p>|'
 is converted to such a list.  So, for example, the text
 
@@ -4904,7 +4908,6 @@ is converted by the text parser to
     .level = 1
     .title = @2
 @2 = A Section Header
-    .text-type = phrase
 @3 = @4 @5 {| .text-type = p |}
 @4 = an important sentence :|
     .text-type = s
@@ -4923,7 +4926,7 @@ follows (and in general everything following up to the next operator of
 equal or lower precedence or a closing outer bracket) into a single list.
 It attaches the bracketted text to this list as the {\tt .title} attribute.
 Also the `\verb/<h>/' operator is programmed to attach its argument,
-`\verb|1|' in this case, to the list as the {\.tt .level} attribute
+`\verb|1|' in this case, to the list as the {\tt .level} attribute
 
 In general named operators can be used in bracketted form to attach
 a bracketted expression as a {\tt .title} attribute to the same text
@@ -4946,6 +4949,80 @@ operators work together to form sentences.  The `\verb/<s>/' operator
 is optional and is only given in the example in order to assign a {\tt .label}
 attribute to the first sentence.  The second sentence has its `\verb/<s>/'
 operator omitted.
+
+Named operators can also be used as named brackets, in which case the
+bracketted text becomes the {\tt .title} attribute of the text whose
+{\tt .text-type} attribute is set by the
+operator.  The `\verb/<h>/' operator above is used in its
+bracket form `\verb/<h|/ \ldots{} \verb/|h>/' to attach a {\tt .title} to
+the text of {\tt .text-type h}. 
+
+Some text operators do \underline{not} set the {\tt .text-type} attribute,
+but instead set only a {\tt .separator} attribute.  The `\verb|,|'
+operator is an example.  Thus the text
+
+\begin{indpar}\begin{verbatim}
+this is, certainly, a phrase
+\end{verbatim}\end{indpar}
+
+is converted by the text parser to
+
+\begin{indpar}\begin{verbatim}
+@1 = @2 certainly @3 {| .separator = "," |}
+@2 = this is
+@3 = a phrase
+\end{verbatim}\end{indpar}
+
+Because the reformatted expression in this case is a list with
+no {\.tt .text-type} attribute, it can be assigned a {\tt .text-type}
+attribute by a text operator of precedence lower than the
+precedent of `\verb|,|'.  Thus the text
+
+\begin{indpar}\begin{verbatim}
+<p>
+this is, certainly, a phrase
+<p>
+This is, certainly, a sentence.
+\end{verbatim}\end{indpar}
+
+is converted by the text parser to
+
+\begin{indpar}\begin{verbatim}
+@1 = @2 @6
+@2 = @3 certainly @4 :|
+    .separator = ","
+    .text-type p
+@4 = this is
+@5 = a phrase
+@6 = @7 {| .text-type p |}
+@7 = @8 certainly @9 :|
+    .separator = ","
+    .initiator = capitalize
+    .terminator = "."
+    .text-type s
+@8 = this is
+@9 = a sentence
+\end{verbatim}\end{indpar}
+
+Unnamed brackets, namely
+`\verb|(| \ldots{} \verb|)|',
+`\verb|[| \ldots{} \verb|]|', and
+`\verb|{| \ldots{} \verb|}|',
+produce bracketted subexpressions just as they do for other
+parsers.  Thus the text
+
+\begin{indpar}\begin{verbatim}
+the book[Bartholomew 2043] previously mentioned
+\end{verbatim}\end{indpar}
+
+is converted by the text parser to
+
+\begin{indpar}\begin{verbatim}
+@1 = the book @2 previously mentioned
+@2 = Bartholomew 2043 :|
+    .initiator = "["
+    .terminator = "]"
+\end{verbatim}\end{indpar}
 
 \subsubsection{Standard Text Operators}
 \label{STANDARD-TEXT-OPERATORS}
@@ -5059,7 +5136,7 @@ attributes of this list are set from the {\em operator} and the
 {\tt .terminator} is set to the {\em terminator}.
 If the first element of the list is a capitalized word, it is decapitalized
 and the list {\tt .initiator} is set to `{\tt capitalize}'.
-The list is then the reformatted list for the sentence.
+This list is then the reformatted list for the sentence.
 
 \end{indpar}
 
@@ -5090,9 +5167,10 @@ will be declared illegal by the reformatter).
 That is, the expression
 must consist of a sequence of non-empty {\em subexpression} lists
 separated by {\em operators}.  The entire expression is reformatted as
-a list whose {\tt .text-type} is `\ttmkey{phrase}{\tt .text-type}' and whose
+whose
 {\tt .separator} is the {\em operator}.  The elements of this list
-are the lists of {\em subexpressions} between operators, though if there
+are the lists that are the {\em subexpressions} between operators,
+though if there
 is only one {\em subexpression} between two operators, it becomes an
 element of the final list.
 
@@ -5104,7 +5182,7 @@ element of the final list.
 \subsubsection{Text Mark Attributes}
 \label{TEXT-MARK-ATTRIBUTES}
 
-OBSOLETE - revise
+OBSOLETE - incorporate into above
 
 \ikey{Text parsing}{text parsing} is performed by the \ttkey{-TEXT-PARSER-},
 which is the parser for subexpressions of the
@@ -5151,6 +5229,8 @@ to separate paragraphs.
 
 \subsubsection{Section, Paragraph, and Sentence Parsing}
 \label{SECTION-PARAGRAPH-AND-SENTENCE-PARSING}
+
+OBSOLETE - incorporate into above
 
 If the text being parsed does not contain any format separators,
 the text is parsed into phrases, sentences, and paragraphs.
