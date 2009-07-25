@@ -231,7 +231,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 4, 2009}
+\date{July 25, 2009}
  
 \maketitle
 
@@ -4809,8 +4809,10 @@ are text brackets of text type `\verb|b|'.
 Text types have attributes
 such as `{\tt style}', `{\tt weight}', `{\tt indent}', and `{\tt adjust}',
 that are used to format the text for printing and display.
-For example `\verb|p|' has a normal weight and `\verb/b/' has a
-heavy weight.
+For example `\verb|b|' has a the `{\tt weight}' attribute value
+`{\tt heavy} and `\verb/n/', as in
+`\verb/<n|/~\ldots~\verb/|n>/',
+has a `{\tt weight}' attribute value `{\tt normal}'.
 
 Text types
 can also inherit attributes from other text types.  To facilitate this
@@ -4819,6 +4821,16 @@ but can be ancestors of other text types and serve as repositories of
 attributes.  Lastly it is possible to give several names to the same
 text type, and to give names to attribute values (e.g., `{\tt default style}'
 is a standard name for a `{\tt style}' attribute value).
+
+If a text type has no value for an attribute, or has the value
+`\ttmkey{none}{text attribute value}', a piece of text of that type
+gets the attribute value from the surrounding text, or from an
+\mkey{initial value}{for text attribute}
+for the attribute if there is no surrounding text.
+Thus since `\verb|p|' has no `{\tt weight}' attribute value, surrounding a
+paragraph by `\verb/<b|/~\ldots~\verb/|b>/' produces a bold paragraph,
+and not surrounding a paragraph by text with any `{\tt weight}' attribute
+gets the initial `{\tt weight}' attribute, which is `{\tt normal}'.
 
 Although there are many
 standard text types, each with standard attributes, a large piece of
@@ -4878,14 +4890,20 @@ another.  For example:
 \end{verbatim}\end{indpar}
 
 in which the \verb/<r|  |r>/ bracketed {\em labels} are references
-to the labeled bold text and labeled paragraph.
+to the labeled bold text and labeled paragraph.  For convenience
+`\verb/<k|/{\em text}\verb/|k>/' can be used to abbreviate
+`\verb/<b:/ {\em text}\verb/|/{\em text}\verb/|b>/', e.g.,
+`\verb/<k|porch|k>/' could be used above instead of
+`\verb/<b: porch|porch|b>/' (the text type `\ttmkey{k}{text type}'
+denotes a `keyword').
+
 
 The text parser converts text into a list whose elements are lexemes
 and sublists, where in general each sublist has elements that are
 lexemes and sublists.
 The text types end up as \ttdkey{text-type}
 attributes of these lists and sublists.
-Similarly {\em labels} include in named brackets
+Similarly {\em labels} included in named brackets
 or named operators end up as \ttdkey{label}
 attributes.  Operators frequently cause additional reformatting
 of the parse output.  {\em Arguments} in named operators and
@@ -4894,7 +4912,7 @@ the reformatting and may insert them as various attributes in the
 parsed output.  As an example, the text
 
 \begin{indpar}\begin{verbatim}
-<h(1)|A Section Header|>
+<section(1)|A Section Header|>
 <p>
 <s: HERE>An important sentence.
 Another sentence.
@@ -4904,7 +4922,7 @@ is converted by the text parser to
 
 \begin{indpar}\begin{verbatim}
 @1 = @3 :|
-    .text-type = h
+    .text-type = section
     .level = 1
     .title = @2
 @2 = A Section Header
@@ -4920,12 +4938,13 @@ is converted by the text parser to
     .terminator = "."
 \end{verbatim}\end{indpar}
 
-Here the entire bracketted subexpression `\verb/<h(1)|/ \ldots{} \verb/|>/'
+Here the entire bracketted subexpression
+`\verb/<section(1)|/ \ldots{} \verb/|>/'
 also is the lowest precedence operator which reformats everything that
 follows (and in general everything following up to the next operator of
 equal or lower precedence or a closing outer bracket) into a single list.
 It attaches the bracketted text to this list as the {\tt .title} attribute.
-Also the `\verb/<h>/' operator is programmed to attach its argument,
+Also the `\verb/<section>/' operator is programmed to attach its argument,
 `\verb|1|' in this case, to the list as the {\tt .level} attribute
 
 In general named operators can be used in bracketted form to attach
@@ -4936,13 +4955,26 @@ they may use to control formatting or compute text attribute values
 (such as {\tt .level} in this example).
 
 Note that closing brackets may omit their name, as `\verb/|>/' does
-when it closes `\verb/<h(1)|/' in this example.  Its also allowed to
+when it closes `\verb/<section(1)|/' in this example.  Its also allowed to
 use either an initial or final segment of the name in a closing
-named bracket, as in `\verb/<indented bold p|/ \ldots{} \verb/|p>/'
-or `\verb/<indented p|/ \ldots{} \verb/|indented>/'.
+named bracket, as in `\verb/<bold italic|/ \ldots{} \verb/|bold>/'
+or `\verb/<bold italic|/ \ldots{} \verb/|italic>/'.
+Arguments may be given in either the opening or closing bracket of a named
+bracket, but if given in both, must be identical in both.  E.g.,
+\begin{center}
+\verb/<section(1)|/ \ldots{} \verb/|section>|/ \\
+\verb/<section|/ \ldots{} \verb/|section(1)>|/ \\
+\verb/<section(1)|/ \ldots{} \verb/|section(1)>|/ \\
+\end{center}
+are all acceptable and equivalent, but
+\begin{center}
+\verb/<section(1)|/ \ldots{} \verb/|section(2)>|/
+\end{center}
+is illegal.
+
 
 In the above example,
-`\verb/<p>/' is a lower precedence operator than `\verb/<h>/', and
+`\verb/<p>/' is a lower precedence operator than `\verb/<section>/', and
 `\verb/<s>/' is lower precedence than `\verb/<p>/'.  Also the sentence
 terminator `\verb/./' has the same precedence as `\verb/<s>/' and these
 operators work together to form sentences.  The `\verb/<s>/' operator
@@ -4953,9 +4985,9 @@ operator omitted.
 Named operators can also be used as named brackets, in which case the
 bracketted text becomes the {\tt .title} attribute of the text whose
 {\tt .text-type} attribute is set by the
-operator.  The `\verb/<h>/' operator above is used in its
-bracket form `\verb/<h|/ \ldots{} \verb/|h>/' to attach a {\tt .title} to
-the text of {\tt .text-type h}. 
+operator.  The `\verb/<section>/' operator above is used in its
+bracket form `\verb/<section|/ \ldots{} \verb/|>/' to attach a {\tt .title} to
+the text of {\tt .text-type section}. 
 
 Some text operators do \underline{not} set the {\tt .text-type} attribute,
 but instead set only a {\tt .separator} attribute.  The `\verb|,|'
@@ -5012,7 +5044,7 @@ produce bracketted subexpressions just as they do for other
 parsers.  Thus the text
 
 \begin{indpar}\begin{verbatim}
-the book[Bartholomew 2043] previously mentioned
+the book (Bartholomew 2043) previously mentioned
 \end{verbatim}\end{indpar}
 
 is converted by the text parser to
@@ -5020,6 +5052,31 @@ is converted by the text parser to
 \begin{indpar}\begin{verbatim}
 @1 = the book @2 previously mentioned
 @2 = Bartholomew 2043 :|
+    .initiator = "("
+    .terminator = ")"
+\end{verbatim}\end{indpar}
+
+If you want to eliminate spacing where it would normally occur,
+you can use \skey{glue bracket}s, `\verb/<g|/ \ldots{} \verb/|g>/',
+which can also be implied by the absence of spacing in the input.
+Thus
+
+\begin{indpar}\begin{verbatim}
+the book[Bartholomew 2043] previously mentioned
+\end{verbatim}\end{indpar}
+
+is equivalent to
+
+\begin{indpar}\begin{verbatim}
+the <g|book[Bartholomew 2043]|g> previously mentioned
+\end{verbatim}\end{indpar}
+
+and both are converted by the text parser to
+
+\begin{indpar}\begin{verbatim}
+@1 = the @2 previously mentioned
+@2 = book @3 {| .text-type = g |}
+@3 = Bartholomew 2043 :|
     .initiator = "["
     .terminator = "]"
 \end{verbatim}\end{indpar}
@@ -5036,7 +5093,7 @@ The following are the standard text operators
 precedence & reformatter	& operator	& meaning 
 \\[2ex]
 -1000+10$n$
-	& \ttkey{text-prefix}	& \tttkey{h($n$)}
+	& \ttkey{text-prefix}	& \tttkey{section($n$)}
 						& section header \\
 -200	& \ttkey{text-prefix}	& \tttkey{li}	& list item \\
 0	& \ttkey{text-prefix}	& \tttkey{p}	& paragraph \\
@@ -5063,7 +5120,7 @@ precedence & reformatter	& operator	& meaning
 
 \bigskip
 
-\ttmkey{text-prefix}{reformatter} \hfill \OP{h} ~~~ \OP{li} ~~~ \OP{p}
+\ttmkey{text-prefix}{reformatter} \hfill \OP{section} ~~~ \OP{li} ~~~ \OP{p}
 
 \begin{indpar}[0.5em]
 These operators have different
@@ -5093,7 +5150,8 @@ is the reformatted list for that {\em operator}.
 If the operator brackets text, that text becomes the {\tt .title} attribute
 value of the reformatted list.
 
-The `\verb|<h>|' operator takes an additional argument $n$ (default {\tt 0})
+The `\verb|<section>|'
+operator takes an additional argument $n$ (default {\tt 0})
 which becomes the {\tt .level} attribute of the reformated list.  Also,
 $10n$ is added to the precedence of the operator.
 
