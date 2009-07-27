@@ -97,6 +97,10 @@
 \newcommand{\ttnbdkey}[1]{{\tt .#1}\index{#1@{\tt .#1}}}
 \newcommand{\tttkey}[1]{{\tt <{\bf #1}>}\index{#1@{\tt <#1>}}}
 \newcommand{\tttmkey}[2]{{\tt <{\bf #1}>}\index{#1@{\tt <#1>}!#2}}
+\newcommand{\tttbkey}[1]{{\tt <{\bf #1}\BAR\ldots\BAR{\bf #1}>}%
+    \index{#1@{\tt <#1\BAR\ldots\BAR#1>}}}
+\newcommand{\tttbmkey}[2]{{\tt <{\bf #1}\BAR\ldots\BAR{\bf #1}>}%
+    \index{#1@{\tt <#1\BAR\ldots\BAR#1>}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
@@ -231,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 25, 2009}
+\date{July 27, 2009}
  
 \maketitle
 
@@ -4824,7 +4828,8 @@ is a standard name for a `{\tt style}' attribute value).
 
 If a text type has no value for an attribute, or has the value
 `\ttmkey{none}{text attribute value}', a piece of text of that type
-gets the attribute value from the surrounding text, or from an
+has no value for the attribute, and
+gets the attribute value if it needs it from the surrounding text, or from an
 \mkey{initial value}{for text attribute}
 for the attribute if there is no surrounding text.
 Thus since `\verb|p|' has no `{\tt weight}' attribute value, surrounding a
@@ -5092,11 +5097,13 @@ The following are the standard text operators
 
 precedence & reformatter	& operator	& meaning 
 \\[2ex]
--1000+10$n$
+-10000+100$n$
 	& \ttkey{text-prefix}	& \tttkey{section($n$)}
 						& section header \\
--200	& \ttkey{text-prefix}	& \tttkey{li}	& list item \\
-0	& \ttkey{text-prefix}	& \tttkey{p}	& paragraph \\
+-1100	& \ttkey{text-prefix}	& \tttkey{tr}	& table row \\
+-1000	& \ttkey{text-prefix}	& \tttkey{ti($m$,$n$)}	& table item \\
+-500	& \ttkey{text-prefix}	& \tttkey{li}	& list item \\
+0	& \ttkey{text-prefix}	& \tttkey{p($i$)}	& paragraph \\
 100	& \ttkey{sentence}	& \tttkey{s}	& sentence \\
 	&			& \ttkey{.}	& sentence terminator \\
 	&			& \ttkey{!}	& sentence terminator \\
@@ -5120,7 +5127,9 @@ precedence & reformatter	& operator	& meaning
 
 \bigskip
 
-\ttmkey{text-prefix}{reformatter} \hfill \OP{section} ~~~ \OP{li} ~~~ \OP{p}
+\ttmkey{text-prefix}{reformatter} \hfill \OP{section($n$)}
+~~~ \OP{tr} ~~~ \OP{ti($m$,$n$)}
+~~~ \OP{li} ~~~ \OP{p}
 
 \begin{indpar}[0.5em]
 These operators have different
@@ -5153,8 +5162,21 @@ value of the reformatted list.
 The `\verb|<section>|'
 operator takes an additional argument $n$ (default {\tt 0})
 which becomes the {\tt .level} attribute of the reformated list.  Also,
-$10n$ is added to the precedence of the operator.
+$100n$ is added to the precedence of the operator.
 
+The `\verb|<ti>|' table item
+operator takes an additional arguments $m$ and $n$ (defaults {\tt 1} and
+{\tt 1})
+which become the {\tt .rows} and {\tt .columns} attributes, respectively,
+of the reformated list.  These specify that the table item is to span
+$m$ rows and $n$ columns.  $m$ can be omitted, as in \verb|<ti(|$n$\verb|)>|.
+
+The `\verb|<p>|'
+operator takes an additional argument $i$ (default {\tt 0})
+which becomes the {\tt .indent} attribute of the reformated list.  This
+specifies that the entire paragraph is to be indented.
+
+[TBD: maybe not the {\tt .indent} attribute.]
 
 \end{indpar}
 
@@ -5236,6 +5258,27 @@ element of the final list.
 
 
 \end{indpar}
+
+\subsubsection{Standard Text Brackets}
+\label{STANDARD-TEXT-BRACKETS}
+
+\begin{center}
+
+\begin{tabular}{l@{\hspace*{2em}}l}
+
+bracket	& meaning 
+\\[2ex]
+\tttbkey{b} & boldface text (heavy weight) \\
+\tttbkey{n} & normal text (normal weight) \\
+\tttbkey{i} & italic text (TBD) \\
+\tttbkey{r} & roman text (TBD) \\
+\tttbkey{em} & emphasized text (TBD) \\
+\tttbkey{table} & table (TBD) \\
+\tttbkey{list} & list (TBD) \\
+\tttbkey{g} & glued text (TBD) \\
+\end{tabular}
+
+\end{center}
 
 \subsubsection{Text Mark Attributes}
 \label{TEXT-MARK-ATTRIBUTES}
