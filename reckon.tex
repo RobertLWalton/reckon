@@ -235,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 27, 2009}
+\date{November 7, 2009}
  
 \maketitle
 
@@ -4875,7 +4875,12 @@ the `\verb|capital|' \verb|.initiator|, and
 the `\verb|.|' \verb|.terminator|.  Here the text type `\verb|s|' denotes
 a `sentence', and the result would be the same if
 the named operator `\verb|<s>|' were explicitly included just before
-`\verb|This|'.
+`\verb|This|', as in
+
+\begin{indpar}\begin{verbatim}
+<p>
+<s> This is a <b|bold|b> sentence.
+\end{verbatim}\end{indpar}
 
 A piece of text can be given a {\em label} by including the {\em label}
 in the named bracket or named operator which gives the piece of text
@@ -4979,20 +4984,13 @@ is illegal.
 
 
 In the above example,
-`\verb/<p>/' is a lower precedence operator than `\verb/<section>/', and
-`\verb/<s>/' is lower precedence than `\verb/<p>/'.  Also the sentence
+`\verb/<p>/' is a higher precedence operator than `\verb/<section>/', and
+`\verb/<s>/' is higher precedence than `\verb/<p>/'.  Also the sentence
 terminator `\verb/./' has the same precedence as `\verb/<s>/' and these
 operators work together to form sentences.  The `\verb/<s>/' operator
 is optional and is only given in the example in order to assign a {\tt .label}
 attribute to the first sentence.  The second sentence has its `\verb/<s>/'
 operator omitted.
-
-Named operators can also be used as named brackets, in which case the
-bracketted text becomes the {\tt .title} attribute of the text whose
-{\tt .text-type} attribute is set by the
-operator.  The `\verb/<section>/' operator above is used in its
-bracket form `\verb/<section|/ \ldots{} \verb/|>/' to attach a {\tt .title} to
-the text of {\tt .text-type section}. 
 
 Some text operators do \underline{not} set the {\tt .text-type} attribute,
 but instead set only a {\tt .separator} attribute.  The `\verb|,|'
@@ -5011,7 +5009,7 @@ is converted by the text parser to
 \end{verbatim}\end{indpar}
 
 Because the reformatted expression in this case is a list with
-no {\.tt .text-type} attribute, it can be assigned a {\tt .text-type}
+no {\tt .text-type} attribute, it can be assigned a {\tt .text-type}
 attribute by a text operator of precedence lower than the
 precedent of `\verb|,|'.  Thus the text
 
@@ -5211,8 +5209,11 @@ The list of {\em subexpressions} in a sentence is parsed as
 an expression.  The result is then converted to a list with no
 {\tt .text-type}, {\tt .initiator}, or {\tt .terminator} attributes;
 if it is not already such, it is made
-the sole element of a new list.  Then the {\tt .text-type} and {\tt .label}
-attributes of this list are set from the {\em operator} and the
+the sole element of a new list.  Then the {\tt .text-type} attribute
+of this list is set to `{\tt s}', the {\tt .label}
+attribute of this list is set to any value provided by
+an optional `\verb|<s:| {\em label\,}\verb|>|' {\em operator},
+and the
 {\tt .terminator} is set to the {\em terminator}.
 If the first element of the list is a capitalized word, it is decapitalized
 and the list {\tt .initiator} is set to `{\tt capitalize}'.
@@ -5247,7 +5248,7 @@ will be declared illegal by the reformatter).
 That is, the expression
 must consist of a sequence of non-empty {\em subexpression} lists
 separated by {\em operators}.  The entire expression is reformatted as
-whose
+a list whose
 {\tt .separator} is the {\em operator}.  The elements of this list
 are the lists that are the {\em subexpressions} between operators,
 though if there
