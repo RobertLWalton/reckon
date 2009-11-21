@@ -235,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 19, 2009}
+\date{November 21, 2009}
  
 \maketitle
 
@@ -437,22 +437,22 @@ Matrices are another kind of data that you can compute
 with:
 
 \begin{indpar}
-\verb/> V = (1, 2, 3)/ \\
-\verb/(1, 1, 1)/ \\
-\verb/> M = ( 0,  1,  1;/ \\
-\verb/>      -1,  1,  0;/ \\
-\verb/>       1,  0,  -1 )/ \\
-\verb/( 0,  1,  1;/ \\
-\verb/ -1,  1,  0;/ \\
-\verb/  1,  0,  -1 )/ \\
+\verb/> V = [| 1  2  3 |]/ \\
+\verb/[| 1 1 1 |]/ \\
+\verb/> M = [| 0  1  1/ \\
+\verb/>       -1  1  0/ \\
+\verb/>        1  0  -1 |]/ \\
+\verb/[| 0  1  1/ \\
+\verb/  -1  1  0/ \\
+\verb/   1  0  -1 |]/ \\
 \verb/> V**T/ \\
-\verb/(1;/ \\
-\verb/ 2;/ \\
-\verb/ 3)/ \\
+\verb/[| 1/ \\
+\verb/   2/ \\
+\verb/   3 |]/ \\
 \verb/> M*V**T/ \\
-\verb/( 5;/ \\
-\verb/  1;/ \\
-\verb/ -2)/
+\verb/[| 5/ \\
+\verb/   1/ \\
+\verb/  -2 |]/
 \end{indpar}
 
 Another kind of datum you can compute with in RECKON is
@@ -1670,7 +1670,8 @@ The format of a \key{raw representation} is:
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags-option} ::=
-    {\em empty} $|$ [ {\em symbol}\,$^\star$ ]
+    {\em empty} $|$
+    \underline{\tt [} {\em symbol}\,$^\star$ \underline{\tt ]}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
@@ -2068,7 +2069,7 @@ and two syntax equations adjusted as follows:
 \\[1ex]
 \emkey{cooked-single-attribute-value} ::= {\em expression}
 \\[1ex]
-{\em expression} ::= see \secref{PARSING}
+{\em expression} ::= see section \secref{PARSING}
 
 \end{indpar}
 
@@ -2567,8 +2568,11 @@ are done in the given order:
     (\secref{TEXT-PARSER})
     \end{tabular}
     & Text parsing is a particular brand of expression parsing that recognizes
-      sentence terminators (e.g., \verb|.| and \verb|?|) and
-      phrase separators (e.g., \verb|,| and \verb|;|) and produces
+      text operators and brackets, including named operators
+      (e.g., \verb|<p>|), named brackets
+      (e.g., \verb/<b|/\ldots\verb/|b>/),
+      sentence terminators (e.g., \verb|.| and \verb|?|),
+      and phrase separators (e.g., \verb|,| and \verb|;|), and produces
       expressions that represent sentences and paragraphs.
 \end{tabular}
 \end{indpar}
@@ -2583,15 +2587,15 @@ defined for reference:
 \emkey{operator-expression} ::= an expression parsable by the operator parser
 \label{OPERATOR-EXPRESSION}
 \\[1ex]
+\emkey{text-expression} ::= an expression parsable by the text parser
+\label{TEXT-EXPRESSION}
+\\[1ex]
 \emkey{$O$-subexpression} ::= \begin{tabular}[t]{l}
-	an {\em operator-expression} that has no operator \\
+	an expression that has no operator or separator \\
 	outside brackets with the same or less precedence \\
 	than operator or separator $O$
 	\end{tabular}
 \label{O-SUBEXPRESSION}
-\\[6ex]
-\emkey{text-expression} ::= an expression parsable by the text parser
-\label{TEXT-EXPRESSION}
 \end{tabular}
 
 \end{indpar}
@@ -2614,9 +2618,6 @@ radix indicator & \secref{RADIX-INDICATOR-DEFINITION} \\
 unit specifier & \secref{UNIT-SPECIFIER-DEFINITION} \\
 expression parser & \secref{EXPRESSION-PARSER-DEFINITION} \\
 operator & \secref{OPERATOR-DEFINITION} \\
-phrase separator & \secref{PHRASE-SEPARATOR-DEFINITION} \\
-sentence terminator & \secref{SENTENCE-TERMINATOR-DEFINITION} \\
-section initiator & \secref{SECTION-INITIATOR-DEFINITION}
 \end{tabular}
 \end{center}
 
@@ -2652,8 +2653,8 @@ following two parsing definitions are standardly in the
 parsing definition stack:
 
 \begin{indpar}\begin{verbatim}
-define operator "-" [operator] infix has precedence 10
-define phrase separator "-" [text]
+define operator "-" [operator] infix has precedence 5000
+define operator "--" [text] nofix has precedence 300
 \end{verbatim}\end{indpar}
 
 The \verb|[ ]| brackets in these definitions surround comma
@@ -2661,12 +2662,12 @@ separated lists of parsing selectors that are attached to the
 definition.  Here there are two parsing selectors
 named `\verb|operator|' and `\verb|text|'.
 When the current parsing selector set contains `\verb|text|',
-but \underline{not} `\verb|operator|', then the `{\tt define phrase separator}'
-definition is effective, but not the `{\tt define operator}'
+but \underline{not} `\verb|operator|', then the `{\tt define operator "--"}'
+definition is effective, but not the `{\tt define operator "-"}'
 definition.  When the set does \underline{not}
 contain `\verb|text|', but contains `\verb|operator|',
-the `{\tt define operator}' definition is effective,
-but not the `{\tt define phrase separator}' definition.
+the `{\tt define operator "-"}' definition is effective,
+but not the `{\tt define operator "--"}' definition.
 
 The \key{current parsing selector set} is defined as the topmost entry in
 the \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK},
@@ -2814,20 +2815,18 @@ and then finally into
 \verb@(# (| 4 * ft |) + (| (# 5 + 3/4 #) * in |) #)@
 \end{center}
 
-Implicit brackets are added to parsed expressions as \verb|.initiator|'s
-and \verb|.terminator|'s.
-The text expression parser works differently, and does not use
-implicit brackets, but instead adds other kinds of \verb|.initiator|'s
-and \verb|.terminator|'s to subexpressions.
+Implicit brackets are represented in parsed expressions as the
+\underline{absence} of \verb|.initiator|'s
+and \verb|.terminator|'s.  Implicit brackets must be represented
+explicitly in text to be parsed if the parser would not otherwise
+insert them correctly.
 
-Bracket, indentation mark, operator, phrase separator,
-sentence terminator, and section
-header definitions may specify reformatters
+Bracket, indentation mark, and operator
+definitions may specify reformatters
 which reformat subexpressions after they have been normally parsed.
 A \key{reformatter}\label{REFORMATTER} is a function that
 is called with a parsed subexpression that is surrounded by brackets,
-introduced by an indentation mark, has a lead operator, has a sentence
-terminator, or has a section header.
+introduced by an indentation mark, or has a lead operator.
 The reformatter returns the reformatted subexpression.
 
 Parsing definitions may also specify evaluators
@@ -3051,8 +3050,7 @@ indented subexpression consisting of all following lines, and
 the \verb|:|'s at the end of the `\verb|if|' and `\verb|else|'
 lines each introduce one line indented subexpressions.
 
-If expression parsing were \underline{not} done, the output of the
-parser for the above example would be:
+The output of explicit subexpression recognigion for the above example is:
 
 \begin{indpar}\begin{verbatim}
 @1 = sum from X through Y "<--" integer X "," integer Y @2
@@ -3069,17 +3067,18 @@ parser for the above example would be:
 @11 = X "+" 1 {| .initiator = "("; .terminator = ")" |}
 \end{verbatim}\end{indpar}
 
-Note that expression parsing transforms these results
-significantly.  Operators are recognized, and
-\verb|@3| becomes:
+This explicit subexpression recognition output is feed into
+the rest of the parser which recognizes operators and
+transforms the results.
+for example, \verb|@3| becomes:
 
 \begin{indpar}\begin{verbatim}
-@3 = sum of integers from X through Y
+@3 = @12 {| .initiator = "`"; .terminator = "'" |}
+@12 = sum of integers from X through Y
          {| .initiator = capital; .terminator = "." |}
 \end{verbatim}\end{indpar}
 
-in which the \verb|` '| brackets have disappeared completely,
-\verb|"."| has been recognized as a \verb|.terminator|, and
+in which \verb|"."| has been recognized as a \verb|.terminator|, and
 capitalization has been encoded in as an \verb|.initiator|.
 
 The \mkey{indentation}{of line} of a line is the
@@ -3094,15 +3093,15 @@ example above.  If the mark is preceded in its definition by
 to another mark immediately preceding it.  For example,
 `\verb|= :|' may be written as `\verb|=:|'.
 
-An indented subexpression is a list of non-blank lines.
+An indented subexpression is a list of non-blank lines;
+blank lines in an indented subexpression are ignored.
 The \mkey{indentation}{of indented subexpression}
 of the subexpression is the indentation of the first non-blank line
 after the indentation mark.
 All lines in the subexpression list must begin with this indentation.
 Any line that has greater indentation continues the line previous
 to it.  The indented subexpression ends just before the next line
-with less indentation.  Blank lines in an indented subexpression
-are ignored.
+with less indentation.
 
 In order to describe indented subexpressions in syntax equations,
 the syntax categories \key{indentation-beginning}, \key{indentation-separator},
@@ -3134,8 +3133,7 @@ non-blank line indented
 the same as the first non-blank
 line of the file.  These elements are read and
 processed sequentially.  It is an error for a file non-blank
-line to have less
-indentation that the first non-blank line of the file.
+line to have less indentation than the first non-blank line of the file.
 
 Consider the file:
 
@@ -3234,7 +3232,10 @@ The \ikey{explicit subexpression recognition algorithm}{explicit subexpression
 recognition!algorithm} is the
 parsing subalgorithm that recognizes explicitly bracketed
 and indented subexpressions.  Here we describe this algorithm, which
-runs on the output of the lexeme replacement algorithm.
+runs before the lexeme replacement algorithm is run.
+
+The explicit subexpression recognition algorithm is
+applied to the lexeme sequence before lexical replacement.
 
 The algorithm maintains a
 stack of subexpression records, called the \key{subexpression stack}.
@@ -3243,15 +3244,22 @@ or an indentation mark definition,
 an indentation (column number), a subexpression list, and a line list.
 Any of these components may be missing.
 
+The bracket definition or indentation mark definition is the definition
+of the brackets or indentation mark that surrounds or initiates the
+subexpression currently being scanned.  The subexpression list contains
+the lexemes and sub-subexpressions already scanned in this subexpression.
+The line list contains the lexemes and sub-subexpressions already
+scanned from the subexpression's current line and its continuations.
+
 Initially the subexpression stack contains a single subexpression record with
 no definition pointer, indentation equal to 1, subexpression list equal
 to the lines read so far at top level, and line list that is either missing
 or contains what has been
 read so far from the current line.
 The stack cannot become empty;
-the bottommost indentation record on the stack is always the same.
+the bottommost subexpression record on the stack is always the same.
 
-The record at the top of the indentation stack is called the
+The record at the top of the subexpression stack is called the
 `\key{current subexpression record}'.  If it has an indentation, bracket
 definition, indentation mark definition, subexpression list, etc., these
 are called `current', as in `current indentation',
@@ -3259,13 +3267,12 @@ are called `current', as in `current indentation',
 The components of the definition are
 also called current, as in `current closing bracket'.
 
-The explicit subexpression recognition algorithm is
-applied to the lexeme sequence immediately after lexical replacement.
 At any point during algorithm execution the sequence of remaining input lexemes
 are referred to as the current input, and the first of these is
 referred to as the current input lexeme.  This lexeme
 may be the first or last in its file line, and if first, will
-have some indentation with respect to the beginning of its file line.
+have some indentation (i.e., beginning column number)
+with respect to the beginning of its file line.
 
 The explicit subexpression algorithm executes a loop each of whose
 iterations execute the following steps in order.
@@ -7586,15 +7593,12 @@ as in \verb|41 1/3|.
 
 \section{To Do}
 
+Describe matrix expression scanning that has no separators.
+Maybe it should not recognize operators outside parentheses?
+
+Describe blank lines as paragraph operators in text parsing.
+
 Describe the quote evaluator.\label{QUOTE-EVALUATOR}
-
-Describe the phrase separator definition.\label{PHRASE-SEPARATOR-DEFINITION}
-
-Describe the sentence terminator definition.
-\label{SENTENCE-TERMINATOR-DEFINITION}
-
-Describe the section initiator definition.
-\label{SECTION-INITIATOR-DEFINITION}
 
 Why doesn't `\verb|define qualifier xxx|' mean define expressions equal
 to `\verb|qualifier xxx|'.
