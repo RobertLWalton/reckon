@@ -3315,7 +3315,9 @@ If
 \item[(2)] this lexeme is a mark, and
 \item[(3)] there is a current indentation mark definition in the
 parsing definition stack which defines a gluing mark that is
-at the end of the current input lexeme, but not the whole lexeme,
+at the end of the current input lexeme, but not the whole lexeme
+(if there are several such definitions the one with the longest
+indentation mark is used),
 \end{list}
 then the current input lexeme is split in two and replaced by two lexemes.
 The second of these is the gluing indentation mark, and the first
@@ -3447,7 +3449,7 @@ then a new subexpression record is pushed into the subexpression stack.
 The new record has the current indentation mark definition as its
 definition, an empty subexpression list with the indentation mark as
 its {\tt .initiator}, missing indentation, and missing line list.
-A new parsing selector set computed using the current
+A new parsing selector set is computed using the current
 parsing selector set and the indentation mark definition
 {\em new-parsing-selectors}, and the new set is pushed into the
 parsing selector set stack.
@@ -3468,14 +3470,16 @@ If
 	      \setlength{\rightmargin}{0.5in}}%
 \item[(1)] there is a current bracket definition in the
 parsing definition stack which defines an opening bracket that matches an
-initial sequence in the current input,
+initial sequence in the current input
+(if there are several such definitions the one with the longest
+opening bracket is used),
 \end{list}
 then a new subexpression record is pushed into the subexpression stack.
 The new record has the current bracket definition as its
 definition, an empty subexpression list with bracket definition's
 opening and closing brackets as its {\tt .initiator} and {\tt .terminator},
 respectively, missing indentation, and missing line list.
-A new parsing selector set computed using the current
+A new parsing selector set is computed using the current
 parsing selector set and the bracket definition
 {\em new-parsing-selectors}, and the new set is pushed into the
 parsing selector set stack.
@@ -3490,10 +3494,15 @@ Then this loop iteration is terminated.
 The current input lexeme is removed from the current input and
 pushed to the end of the current line list, if that exists, or to the
 current subexpression list, otherwise.
+Then this loop iteration is terminated.
 \end{indpar}
 
 
 \end{indpar}
+
+Note that all other parsing is done after explicit subexpression
+recognition, and cannot affect execution of the explicit subexpression
+recognition algorithm.
 
 \subsection{Lexeme Replacement}
 \label{LEXEME-REPLACEMENT}
