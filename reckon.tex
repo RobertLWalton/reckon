@@ -3829,19 +3829,22 @@ The following are examples of illegal decimal numbers:
 radi\-ces to the used instead of decimal.  In fact, other number representation
 schemes are permitted.
 
-\begin{indpar}
+\begin{indpar}[1em]
 \emkey{radix-number} \\
 	\hspace*{0.5in}::= {\em radix-indicator}
 		        \verb|"| {\em radix-number-mark}
 		        {\em radix-number-mark}\,$^\star$ \verb|"|
-		        \\[1ex]
+		        {\em exponent-option} \\[1ex]
 \emkey{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 \emkey{radix-number-mark} ::= {\em character-representative}
-~~~~~ [See Figure \figref{CHARACTER-REPRESENTATIVES}]
+~~~~~ [See Figure \figref{CHARACTER-REPRESENTATIVES}] \\[1ex]
+{\em exponent-option} ::= {\em empty} $|$ {\em exponent} \\[1ex]
+{\em exponent} ::= see \pagref{EXPONENT}
 \end{indpar}
 
 A {\em radix-number} is thus a {\em radix-indicator} followed by
-any quoted string.  Some examples of legal {\em radix-numbers}
+any quoted string followed optionally by an exponent.
+Some examples of legal {\em radix-numbers}
 using standard {\em radix-indicators} are:
 
 \begin{indpar}[0.1in]
@@ -3870,9 +3873,12 @@ hexadecimal
 \end{tabular}
 \end{center}
 
-Standard {\em radix-indicators} permit a single decimal point, which must
-be followed by a digit, or alternatively, as single slash, which must
-be surrounded by digits.
+Standard {\em radix-indicators} permit a single point, which must
+be followed by a digit, or alternatively, a single slash, which must
+be surrounded by digits.  Standard radix indicators also permit an
+{\em exponent}, which has the same format as in a
+{\em scientific-number} (\pagref{SCIENTIFIC-NUMBER}), and indicates
+how to shift the point.
 Standard {\em radix-indicator}
 rules for comma location are the same as for {\em decimal-numbers}
 (\secref{DECIMAL-NUMBERS}), except the number of digits between commas may
@@ -3895,9 +3901,6 @@ When a {\em radix-number} is encountered during number parsing,
 it is surrounded by \verb|(# #)| implicit brackets.  Thus if
 \verb|B#"10011"| is input to number parsing,
 \verb|(# B # "10011" #)| will be output.
-
-Radix numbers are recognized after indentation lexemes have been
-inserted.
 
 {\em Radix-indicators} are defined by \skey{radix indicator definition}s:
 
@@ -3926,7 +3929,8 @@ will be recognized as such whenever it is followed by a quoted
 string in the input.
 
 The conversion function is passed the quoted string from a
-{\em radix-number} as its only argument, and must return
+{\em radix-number} and the exponent if present, in that order,
+as its arguments, and must return
 either a number if conversion is successful, or an error message
 otherwise.
 
@@ -3941,9 +3945,13 @@ followed by an exponent.
 \emkey{scientific-number} \begin{tabular}[t]{rl}
                         ::= & {\em decimal-number} {\em exponent} \\
 			$|$ & {\em radix-number} {\em exponent}
-		        \end{tabular} \\[1ex]
+		        \end{tabular}
+\label{SCIENTIFIC-NUMBER}
+\\[1ex]
 \emkey{exponent} ::= {\em exponent-indicator}
-		   {\em exponent-sign-and-digits} \\[1ex]
+		   {\em exponent-sign-and-digits}
+\label{EXPONENT}
+\\[1ex]
 \emkey{exponent-indicator} ::= \verb|e| $|$ \verb|E| \\[1ex]
 \emkey{exponent-sign-and-digits} ::= {\em decimal-digits}
 			    $|$ {\em sign} {\em decimal-digits}
@@ -4142,7 +4150,7 @@ used, e.g., even inside \verb|` '| quotes.
 
 Expression parsers are defined by
 \skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
-The topmost current expression parser definition
+The topmost active expression parser definition
 (\pagref{CURRENT-PARSING-DEFINITION})
 in the parsing stack names the parser used to parse expressions.
 
@@ -4166,19 +4174,13 @@ define expression parser -OPERATOR-PARSER- [operator]
 define expression parser -TEXT-PARSER- [text]
 \end{verbatim}\end{indpar}
 
-The `operator' parser has a definition selected by the `operator'
-parsing selector, and recognizes any
-operators whose definitions are current
-(list separators are treated as operators),
-whereas the `text' parser has a definition selected
-by the `text' selector, and recognizes phrase separators, sentence
-terminators, and section initiators whose definitions are current.
-The 'operator' parser does \underline{not} recognize
-any phrase separators, sentence terminators, or section initiators,
-and the `text'
-parser does \underline{not} recognize any operator
-definitions.
-
+The `{\tt operator}' selector makes the `operator' parser active,
+and the `{\tt text}' selector makes the `text' parser active.
+Both these parsers are similar, but they appear to behave
+differently because the different selectors activate different
+operator definitions.  Also the `text' parser recognizes
+blank lines as implied paragraph operators in some circumstances,
+whereas the `operator' parser does not.
 
 \subsection{The Operator Parser}
 \label{OPERATOR-PARSER}
@@ -4229,7 +4231,7 @@ The syntax of operator definitions is:
                     $|$ \ttmkey{nofix}{operator flag}
                     $|$ \ttmkey{afix}{operator flag}
 	\\[1ex]
-\emkey{precedence} ::= {\em sign-option} {\em decimal-integer}
+\emkey{precedence} ::= {\em sign-option} {\em decimal-natural}
 	\\[1ex]
 \emkey{sign-option} ::= {\em empty} $|$ \verb|+| $|$ \verb|-|
 	\\[1ex]
@@ -4267,14 +4269,14 @@ empty operands.  It may appear at the beginning or ending of
 an expression, or two nofix operators may be consecutive.
 
 An \ttkey{afix} operator is like a nofix operator but must follow
-another non-afix operator in the expression that has the same
+another operator in the expression that has the same
 precedence.  Explicit subexpressions bracketed by `\verb|{ }|'
 are standard afix operators with the same precedence
 as the \verb|<--| operator, so that an expression such as:
 \begin{center}
 \verb|sum from X through Y <-- integer X, integer Y { ... }|
 \end{center}
-parse as
+is parse as
 \begin{center}
 \verb|(sum from X through Y) <-- (integer X, integer Y) { ... }|
 \end{center}
@@ -4284,7 +4286,7 @@ and \underline{not} as
 \end{center}
 
 Inside a subexpression (with brackets removed),
-an operator that can be prefix if it begins the subexpression,
+an operator can be prefix if it begins the subexpression,
 or follows another operator that is not postfix.
 An operator can be postfix if it ends the
 subexpression or precedes another operator that is not prefix.  
@@ -4292,12 +4294,9 @@ An operator can be infix if it does not begin or end the subexpression,
 follow an operator that is prefix,
 or precede an operator that is postfix.
 
-A\label{FIXITY-RULES}
-nofix operator cannot be infix, prefix, postfix or afix.
-An afix operator cannot be infix, prefix, postfix or nofix.
-A postfix operator cannot be infix.
-Thus an operator may be only nofix, only afix, only infix,
-only prefix, only postfix, prefix and postfix, or prefix and infix.
+An\label{FIXITY-RULES}
+operator cannot have two kinds of fixity at once, except that
+a operator can be both prefix and infix, or both prefix and postfix.
 An operator that can be prefix
 and either postfix or infix is taken to be prefix if and only if it begins
 a subexpression or follows an operator previously
@@ -4327,10 +4326,10 @@ the reformatter for that operator is called and yields `\verb|* 6 y|'.
 Similarly the subexpression `\verb|-x|' is extracted but the reformatter
 for `\verb|-|' does not change it.
 Then the reformatter for `\verb|+|' is called
-with `\verb|(-x)+(* 6 y)|', since `\verb|+|' is the first operator in
+with `\verb/(|-x|)+(|* 6 y|)/', since `\verb|+|' is the first operator in
 this subexpression \underline{after} subexpressions have been handled.
-This reformatter returns `\verb|+ (-x) (* 6 y)|'.  Here we have
-use parentheses \verb|( )| to indicate implicit parentheses.
+This reformatter returns `\verb/+ (|-x|) (|* 6 y|)/'.  Here we have
+use parentheses \verb/(|  |)/ to indicate implicit parentheses.
 
 
 \subsubsection{Standard Operators}
@@ -4374,12 +4373,15 @@ precedence & reformatter	& type	& operator	& meaning
 	&			&		& \ttnbkey{=>}	& ditto \\
 +5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
 	&			&		& \ttnbkey{-}	& subtraction \\
-+5100	& \ttkey{product}	& \tt infix	&  \ttnbkey{*}
-							    & multiplication \\
-	&			&		& \ttnbkey{/}	& division \\
++5100	& \ttkey{product}	& \tt infix	& \ttnbkey{/}	& division \\
++5200	& \ttkey{product}	& \tt infix	& \ttnbkey{*}
+							& multiplication \\
++5300	& \ttkey{product}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
+							& exponentiation \\
 none	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
 	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
-	& 			& \tt prefix	&  \ttnbkey{@}	& object name \\
+	& 			& \tt prefix	&  \ttnbkey{@}	& object
+	                                                          identifier \\
 none	& \ttkey{subscript}	& \tt postfix	&  \ttnbkey{[...]}
 								& subscript \\
 \end{tabular}
@@ -4415,8 +4417,8 @@ are introduced by reformatting.  The syntax involving temporaries is:
 
 During reformatting, a subexpression may be replaced by
 a {\em temporary-definition} containing the subexpression.  This
-assigns the {\em temporary} to the value of the subexpression.
-Then the {\em temporary} can be used later in the reformatted
+defines the {\em temporary} as a name for the value of the subexpression.
+Then the {\em temporary} can be used in the reformatted
 expression to refer to this value.  An example is
 
 \begin{center}
@@ -4427,7 +4429,7 @@ expression to refer to this value.  An example is
 Here the temporary has been used to avoid computing \verb|y + 3|
 more than once.
 
-The {\em decimal-naturals} in {\em temporaries} are assigned so no
+The {\em decimal-naturals} in {\em temporaries} must be assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
 With these things in mind, the reformatters are:
@@ -4499,7 +4501,7 @@ mark are parsed like final \verb|{ }|
 bracketed subexpressions.  Because they are afix operators with the
 same precedence as \verb|<--|,
 `\verb|x <-- y { z }|' does \underline{not}
-end up as `\verb|<-- x ( y { z } )|', and we get results like:
+end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
 
 \hspace*{2em}\begin{tabular}{lcl}
 
@@ -4569,7 +4571,7 @@ and one of the forms:
 
 \hspace*{2em}\begin{tabular}{l}
 $e_1$ \verb|BUT NOT| $e_3$ \\
-$e_1$ \ldots{} \verb|BUT NOT| $e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
+$e_1$ \verb|BUT NOT| $e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
 $e_1$ \verb|AND| $e_2$ \verb|AND| \ldots{} \verb|BUT NOT| $e_3$ \\
 $e_1$ \verb|AND| $e_2$ \verb|AND| \ldots{} \verb|BUT NOT|
 $e_3$ \verb|OR| $e_4$ \verb|OR| \ldots{} \\
@@ -4651,20 +4653,26 @@ and the unary negation function \verb|-|.
 
 \bigskip
 
-\ttmkey{product}{reformatter} \hfill \NBOP{*} ~~~ \NBOP{/}
+\ttmkey{product}{reformatter} \hfill \NBOP{/} ~~~ \NBOP{*}
+					      ~~~ \NBOP{\CIRCUMFLEX}
 
 \begin{indpar}[0.5em]
-The different kinds of multiplication operators, \verb|*| and \verb|/|,
+These different operators, \verb|/|, \verb|*|, and \verb|^|,
+have different precedences and therefore
 cannot be mixed in the same expression.  There may not be more than one
-\verb|/| operator in the expression.  The results are rewritten using
-the multi-argument multiplication function \verb|*| or the binary
-division function \verb|/|.  E.g.:
+\verb|/| or \verb|^| operator in the expression.
+The results are rewritten using
+the multi-argument multiplication function \verb|*|,
+the binary division function \verb|/|, 
+or the binary exponentiation function \verb|^|. 
+E.g.:
 
 \hspace*{2em}\begin{tabular}{lcl}
 \verb|x * y * z| & $\Longrightarrow$ & \verb|* x y z| \\
 \verb|x / y| & $\Longrightarrow$ & \verb|/ x y| \\
+\verb|x ^ y| & $\Longrightarrow$ & \verb|^ x y| \\
 \verb|x / y / z| & $\Longrightarrow$ & error \\
-\verb|x * y / z| & $\Longrightarrow$ & error \\
+\verb|x ^ y ^ z| & $\Longrightarrow$ & error \\
 \end{tabular}
 
 \end{indpar}
@@ -7635,6 +7643,8 @@ Describe matrix expression scanning that has no separators.
 Maybe it should not recognize operators outside parentheses?
 
 Describe blank lines as paragraph operators in text parsing.
+
+Should temporaries be full-fledged names.
 
 Describe the quote evaluator.\label{QUOTE-EVALUATOR}
 
