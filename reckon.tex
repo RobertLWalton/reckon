@@ -235,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 22, 2009}
+\date{November 23, 2009}
  
 \maketitle
 
@@ -2643,9 +2643,9 @@ Parsing selectors are attached to parsing definitions,
 and at any time during parsing there is a set of parsing selectors called
 the `\key{current parsing selector set}\,' that determines which parsing
 definitions are effective.  Specifically, a definition has effect
-if a member of the current parsing selector set is attached to the definition.
-Such definitions are said to be `\key{current parsing definitions}'.%
-\label{CURRENT-PARSING-DEFINITION}
+if a member of the active parsing selector set is attached to the definition.
+Such definitions are said to be `\key{active parsing definitions}'.%
+\label{ACTIVE-PARSING-DEFINITION}
 
 For example, the
 following two parsing definitions are standardly in the
@@ -2698,7 +2698,7 @@ Selector  & Brackets  			& Selectors To \\[1ex]
 \end{tabular}\label{CONTEXT-SWITCHES}
 \end{center}
 
-Thus the \verb|{ }| brackets, whose definition is always current
+Thus the \verb|{ }| brackets, whose definition is always active
 (signified by `-' in the above table), pushes into the parsing
 selector set stack the set whose only member is the `operator'
 parsing selector.
@@ -2743,7 +2743,7 @@ parsing selector set stack.  These have the syntax:
 If a parsing definition does not give \emkey{parsing selectors}
 (i.e., the {\em parsing-selectors} are completely {\em empty}
 in the above syntax, with no \verb|[ ]| brackets present), then
-the definition is \underline{always} current.  Otherwise each
+the definition is \underline{always} active.  Otherwise each
 {\em parsing-selector} listed in the specification is attached to the
 definition.
 
@@ -3467,14 +3467,14 @@ If
 	      \setlength{\parsep}{0ex}%
 	      \setlength{\leftmargin}{0.5in}%
 	      \setlength{\rightmargin}{0.5in}}%
-\item[(1)] there is a current bracket definition in the
+\item[(1)] there is a active bracket definition in the
 parsing definition stack which defines an opening bracket that matches an
 initial sequence in the current input
 (if there are several such definitions the one with the longest
 opening bracket is used),
 \end{list}
 then a new subexpression record is pushed into the subexpression stack.
-The new record has the current bracket definition as its
+The new record has the active bracket definition as its
 definition, an empty subexpression list with bracket definition's
 opening and closing brackets as its {\tt .initiator} and {\tt .terminator},
 respectively, missing indentation, and missing line list.
@@ -4151,7 +4151,7 @@ used, e.g., even inside \verb|` '| quotes.
 Expression parsers are defined by
 \skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
 The topmost active expression parser definition
-(\pagref{CURRENT-PARSING-DEFINITION})
+(\pagref{ACTIVE-PARSING-DEFINITION})
 in the parsing stack names the parser used to parse expressions.
 
 Expression parser definitions have the syntax:
@@ -4699,12 +4699,9 @@ The expression is rewritten using the binary subscript function:
 
 
 The operator parser uses an input list which it initializes to the parser's
-list input argument.  Lexemes and subexpressions are removed from this
-as they are recognized by the parsing algorithm.
-
-and an output list which is initially
+input argument, and an output list which is initially
 empty.  The parser executes a parsing loop that removes lexemes
-from the beginning of the input list and adds {\em expression-items}
+from the beginning of the input list and adds lexemes and subexpressions
 to the end of the output list.  When the parser terminates, the output
 list becomes the returned parsed expression.
 
@@ -4713,9 +4710,12 @@ a single optional argument called the \key{terminating precedence}.
 The helper function parses an initial segment of the input list,
 discards this segment from the input list, and returns the parsed
 result of this segment as the helper function value.
-The initial segment is terminated the end of the input list,
+The initial segment is terminated by the end of the input list,
 or by an operator whose precedence
 is equal to or less than the terminating precedence argument.
+
+The parser proper does nothing but execute the helper function with
+a terminating precedence lower than that of any operator.
 
 The operator helper function has an output list which it initializes
 to be empty and into which it copies lexemes and subexpressions.
@@ -4729,37 +4729,40 @@ the output list is viewed as an expression.
 
 The helper function uses an operation called \key{reformatting the
 output list}.  This consists of calling the reformatter of the lead
-operator definition, and replacing the output list with the returned
-value.  If there is no lead operator, nothing is done.
+operator definition, and replacing the output list with the reformatter's
+returned value.  If there is no lead operator, nothing is done.
 
 The helper function also
-uses a suboperation known as \key{compacting the output list}.
+uses an operation called \key{compacting a list}.
 If the list contains zero or just one element, nothing is done.  Otherwise
 the list is replaced by a one element list whose only element is
-the previous output list.
+the previous list.
 
-In reading the following algorithm, it may be helpful to recall that an
+In reading the following algorithm, it may be useful to recall that an
 operator can have only one fixity, prefix, postfix, infix, nofix, or afix,
 except for the case of a prefix operator, which can also be either infix
 or postfix (but not both) (see \pagref{FIXITY-RULES}).
 
 After initializing its the output list to empty,
-the helper function executes a \key{parsing loop} that repeats the following:
+the helper function executes a \key{parsing loop} that repeats the
+following iteration:
 
 \begin{enumerate}
 
 \item The beginning of the input list is inspected to see if it
-begins with an current operator.  Afix operators are ignored.
-If more than one current operator qualifies, the operator whose definition
-is nearest the top of the parsing definition stack is selected.
+begins with an active operator (i.e., an operator with an active
+operator definition in the parsing stack).  Afix operators are ignored.
+If more than one active operator qualifies, the operator whose definition
+is nearest the top of the parsing definition stack is selected
+(even if it is shorter than the other operator).
 If the input list is empty, it does not begin with an operator.
 
-\item If the input list does not begin with a current operator,
+\item If the input list does not begin with a active operator,
 and the list is not empty, the lexeme or subexpression at the
 beginning of the input list is moved to the end of the output list, and
 the parsing loop iterates.
 
-\item If the input list is not empty, it begins with an operator.
+\item If the input list is not empty, it begins with an active operator.
 The \mkey{operator fixity}{in parsing loop}
 and \mkey{operator precedence}{in parsing loop} are determined as follows:
 
@@ -4774,20 +4777,19 @@ and the operator cannot be prefix or nofix, then an error operand
 is inserted into the output list, a parsing error is announced, and
 the operator fixity is determined by the following.
 
-\item If the output list is non-empty
-and the operator cannot be nofix, infix, or postfix,
-then an error nofix operator is inserted at the \underline{beginning}
-of the \underline{input list}, a parsing error is announced, and
-the parsing loop is iterated (so the error nofix operator will become
-the current operator).
-
 \item If the output list is non-empty and the operator can be postfix,
 infix, or nofix, the operator fixity is postfix if the operator can
 be postfix, infix if the operator can be infix, or nofix if the operator
 can be nofix (the operator cannot be more than one of these fixities).
 
+\item If the output list is non-empty
+and the operator cannot be postfix, infix, or nofix,
+then an error nofix operator is inserted at the \underline{beginning}
+of the \underline{input list}, a parsing error is announced,
+and the fixity is set to nofix.
+
 \item The operator precedence is set to the precedence
-in the operator definition if the operator fixity
+in the active operator definition if the active operator fixity
 is infix or nofix,
 and is otherwise the error precedence if the operator is an error
 nofix operator, the prefix precedence if the operator fixity is
@@ -4806,7 +4808,8 @@ and returned as the value of the helper function.
 
 \item If the output list is non-empty, it
 is reformatted and compacted (becoming the
-first operand of the current operator that is infix or nofix).
+first operand of the active operator that is infix or nofix, or
+the only operand of an active operator that is postfix).
 Note that because of what happens below, the output list cannot
 consist of one element that is an operator.
 
@@ -4817,7 +4820,7 @@ becomes the lead operator of the output list.
 
 \item
 If the operator fixity is prefix, infix, or nofix, then
-a \key{parsing subloop} that repeats the following is executed:
+a \key{parsing subloop} that repeats the following iteration is executed:
 
 \begin{enumerate}
 
@@ -4828,20 +4831,18 @@ the operator precedence as its terminating precedence argument.
 the operator fixity is prefix or infix, the returned parsed expression is
 replaced by an error operand, and a parsing error is announced.
 
-\item If the returned parsed expression contains more than
-one element, it is converted to a one element
-list whose only element is the returned parsed expression list.
-Then the returned parsed expression
-is added by concatenation to the end of the output list.
+\item The returned parsed expression is compacted, and then it
+is added by concatenation to the end of the output list (thus
+zero or one element is added to the output list).
 
 \item If the operator fixity is prefix, or if
-the input list now begins with a current operator that cannot be
+the input list now begins with a active operator that cannot be
 infix, nofix, or afix, or that has a precedence below the
 operator precedence,
 the parsing subloop terminates and the parsing loop iterates.
 
 \item The input list must now begin with an infix, nofix, or
-afix current operator whose precedence equals the operator precedence.
+afix active operator whose precedence equals the operator precedence.
 That operator is moved from the input list to the output list,
 and the parsing subloop iterates.
 
