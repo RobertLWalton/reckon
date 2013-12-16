@@ -1,2 +1,2 @@
 reckon:
-	latex reckon; makeindex reckon
+	pdflatex reckon; makeindex reckon
