@@ -235,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 23, 2009}
+\date{February 24, 2014}
  
 \maketitle
 
@@ -1150,76 +1150,32 @@ contains in order the following lexemes:
 
 \begin{indpar}
 \emkey{lexeme}
-	::= {\em symbol} $|$ {\em number}
-	\\[1ex]
-\emkey{symbol}
 	::= {\em word}
+	$|$ {\em number}
 	$|$ {\em mark}
-	$|$ {\em quoted-string}
 	$|$ {\em separator}
+	$|$ {\em quoted-string}
 \label{SYMBOL-LEXEME}
-	\\[2ex]
-\emkey{word} ::= {\em word-character} {\em word-character}\,$^\star$ \\[1ex]
-\emkey{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$ \\[1ex]
-\emkey{number-lexeme} ::=
+\\[2ex]
+\emkey{word} ::= {\em word-character} {\em word-character}\,$^\star$
+\\[1ex]
+\emkey{number} ::=
         {\em number-character} {\em number-character}\,$^\star$
-\label{NUMBER-LEXEME}
+\label{NUMBER}
+\\[1ex]
+\emkey{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$
+\\[1ex]
+\emkey{separator} ::= {\em separator-character}
 \\[1ex]
 \emkey{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"|
 \label{QUOTED-STRING}
-\\[1ex]
-\emkey{separator} ::= {\em separator-character}
 \\[2ex]
 \emkey{word-character} \begin{tabular}[t]{rl}
                      ::= & {\em letter} \\
 		     $|$ & \verb|'| followed by a letter \\
 		     \end{tabular}
 		     \\[1ex]
-\emkey{mark-character} \begin{tabular}[t]{rl}
-		     ::= &      \verb|+|%
-		             $|$\verb|-|%
-		             $|$\verb|*|%
-		             $|$\verb|/|%
-		             $|$\verb|\|%
-		             $|$\verb|~|%
-		             $|$\verb|@|%
-		             $|$\verb|#|%
-		             $|$\verb|$|%
-		             $|$\verb|%|%
-		             $|$\verb|^|%
-		             $|$\verb|&|%
-		             $|$\verb|=|%
-		             $|$\verb/|/%
-		             $|$\verb|<|%
-		             $|$\verb|>|%
-		             $|$\verb|_|%
-		             $|$\verb|!|%
-		             $|$\verb|?|%
-			     $|$\verb|:| \\
-		     $|$ & \verb|.| not followed by a {\em digit} \\
-		     $|$ & \verb|/| not surrounded by {\em digits} \\
-			\end{tabular}\\[1ex]
-\emkey{separator-character} \begin{tabular}[t]{rl}
-		::= &   \verb|(|
-	       	    $|$ \verb|)|
-	       	    $|$ \verb|[|
-	       	    $|$ \verb|]|
-	       	    $|$ \verb|{|
-	       	    $|$ \verb|}|
-	       	    $|$ \verb|;|
-	       	    $|$ \verb|`| \\
-		$|$ & \verb|,| not surrounded by {\em digits} \\
-		$|$ & \verb|'| not followed by a letter 
-		    \end{tabular}\\[1ex]
-\emkey{number-character} \begin{tabular}[t]{rl}
-		::= &   {\em digit} \\
-		$|$ & \verb|.| followed by by a {\em digit } \\
-		$|$ & \verb|,| surrounded by {\em digits} \\
-		$|$ & \verb|/| surrounded by {\em digits} \\
-		    \end{tabular}\\[1ex]
-\emkey{character-representative}
-    ::= see Figure~\figref{CHARACTER-REPRESENTATIVES} \\[1ex]
 \emkey{letter} ::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
 \emkey{lower-case-letter} ::=  \verb|a|%
 			    $|$\verb|b|%
@@ -1275,6 +1231,14 @@ contains in order the following lexemes:
 			    $|$\verb|Y|%
 			    $|$\verb|Z|
 			    \\[1ex]
+\emkey{number-character} \begin{tabular}[t]{rl}
+		::= &   {\em digit} \\
+		$|$ & \verb|.| followed by by a {\em digit } \\
+		$|$ & \verb|'| followed by by a {\em digit } \\
+		$|$ & \verb|,| surrounded by {\em digits} \\
+		$|$ & \verb|/| surrounded by {\em digits} \\
+		$|$ & \verb|:| surrounded by {\em digits} \\
+		    \end{tabular}\\[1ex]
 \emkey{digit} ::=  \verb|0|%
 		$|$\verb|1|%
 		$|$\verb|2|%
@@ -1284,7 +1248,50 @@ contains in order the following lexemes:
 		$|$\verb|6|%
 		$|$\verb|7|%
 		$|$\verb|8|%
-		$|$\verb|9|
+		$|$\verb|9| \\[1ex]
+\emkey{mark-character} \begin{tabular}[t]{rl}
+		     ::= &      \verb|+|%
+		             $|$\verb|-|%
+		             $|$\verb|*|%
+		             $|$\verb|/|%
+		             $|$\verb|\|%
+		             $|$\verb|~|%
+		             $|$\verb|@|%
+		             $|$\verb|#|%
+		             $|$\verb|$|%
+		             $|$\verb|%|%
+		             $|$\verb|^|%
+		             $|$\verb|&|%
+		             $|$\verb|=|%
+		             $|$\verb/|/%
+		             $|$\verb|<|%
+		             $|$\verb|>|%
+		             $|$\verb|_|%
+		             $|$\verb|!|%
+		             $|$\verb|?| \\
+		     $|$ & \verb|.| not followed by a {\em digit} \\
+		     $|$ & \verb|/| not surrounded by {\em digits} \\
+		     $|$ & \verb|:| not surrounded by {\em digits} \\
+			\end{tabular}\\[1ex]
+\emkey{separator-character} \begin{tabular}[t]{rl}
+		::= &   \verb|(|
+	       	    $|$ \verb|)|
+	       	    $|$ \verb|[|
+	       	    $|$ \verb|]|
+	       	    $|$ \verb|{|
+	       	    $|$ \verb|}|
+	       	    $|$ \verb|;|
+	       	    $|$ \verb|`| \\
+		$|$ & \verb|,| not surrounded by {\em digits} \\
+		$|$ & \verb|'| not followed by a letter or digit \\
+		    \end{tabular}\\[1ex]
+\emkey{character-representative} \begin{tabular}[t]{rl}
+		    ::= & {\em graphic-character} \\
+		    $|$ & {\em single-space-character} \\
+		    $|$ & {\em special-character-representative}
+		    \end{tabular}\\[1ex]
+\emkey{special-character-representative}
+    ::= see Figure~\figref{SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{indpar}
 
 \begin{boxedfigure}[t]
@@ -1332,8 +1339,8 @@ the single space character \\
 \end{indpar}
 
 
-\caption{Character Representatives}
-\label{CHARACTER-REPRESENTATIVES}
+\caption{Special Character Representatives}
+\label{SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
 
 A \key{word} is a sequence of letters that may include
