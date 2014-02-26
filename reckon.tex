@@ -235,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 24, 2014}
+\date{February 25, 2014}
  
 \maketitle
 
@@ -1349,25 +1349,30 @@ A \key{word} is a sequence of letters that may include
 a \verb|'| if it is followed by a letter.  A \key{mark} is a
 sequence of mark characters (e.g., \verb|+| and \verb|-|).
 A \key{separator} is a \underline{single} separator character.
-A \key{number-lexeme} is a sequence of digits, decimal points
-which are always followed by a digit, commas that are
-both preceded and followed by digits, and slashes that are
-both preceded and followed by digits.
+A \key{number} is a sequence of digits,
+decimal points followed by a digit,
+\verb|'| followed by a digit,
+commas both preceded and followed by digits,
+slashes both preceded and followed by digits,
+and colons both preceded and followed by digits.
 A quoted string is
 a sequence of \skey{character representative}s surrounded by
-the double quote character (\ttnbkey{"}), where most characters
+the double quote character (\ttnbkey{"}), where \skey{graphic character}s
 are their own representatives (\verb|A|, \verb|B|, \verb|0|, \verb|1|,
-etc.) but other characters are represented by a sequences of
-characters that begin with a backslash (e.g., \verb|\n| represents
-a new line character).
+etc.) but other characters are represented by character sequences
+that begin with {\tt <} and end with {\tt >}; e.g., {\tt <LF>} represents
+a line feed character.
 
 A \ttnbkey{'} is a word character if it is followed by a letter,
+a number character if it is followed by a digit,
 and a separator character otherwise.
 A \verb|.| is a number character (decimal point) if it
 is followed by a digit, and a mark character otherwise.
 A \ttnbkey{,} is a number character if surrounded by digits, and
 a separator character otherwise.
 A \ttnbkey{/} is a number character if surrounded by digits, and
+a mark character otherwise.
+A \ttnbkey{:} is a number character if surrounded by digits, and
 a mark character otherwise.
 
 Lexemes may be separated by \key{white-space}, which
@@ -1405,14 +1410,15 @@ stored as character strings, while numbers are stored as strings of binary
 digits.  When a number is input, stored, and then output,
 it may not be represented in output by the same sequence of characters
 as it was represented on input.  Thus the input \verb|007| may be output
-as \verb|7| and the input \verb|7.0| may also be output as \verb|7|.
+as \verb|7| and the input \verb|15/2| may also be output as \verb|7.5|.
 
 Symbols, however, are output in a manner more
 faithful to their input, though they can have differences
 related to quoting.
 An unquoted symbol is stored exactly as it is represented.
-A quoted symbol not containing \BACKSLASH{}
-is similarly stored.  Thus an unquoted symbol not containing \BACKSLASH{}
+A quoted symbol not containing a {\em special-character-representative}
+is similarly stored.  Thus an unquoted symbol not containing
+a {\em special-character-representative}
 is stored in exactly the same way as the same symbol surrounded by
 quotes.  For example, \verb|fie| and \verb|"fie"| store the same
 thing, as do \verb|+| and \verb|"+"|.
