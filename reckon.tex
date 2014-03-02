@@ -235,7 +235,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 25, 2014}
+\date{March 2, 2014}
  
 \maketitle
 
@@ -1126,7 +1126,7 @@ for every vessel:
 
 Input text is a sequence of characters.  This is scanned from
 left to right and top to bottom to produce a sequence of lexemes,
-which include words, marks, separators, numbers, and quoted strings.
+which include words, marks, separators, numerics, and quoted strings.
 
 For example, the input
 \begin{center}
@@ -1137,10 +1137,10 @@ contains in order the following lexemes:
 \begin{tabular}{ll}
 \tt x	& word \\
 \tt =	& mark \\
-\tt 7	& number \\
+\tt 7	& numeric \\
 \tt ft	& word \\
-\tt 1	& number \\
-\tt 3/4	& number \\
+\tt 1	& numeric \\
+\tt 3/4	& numeric \\
 \tt in	& word \\
 \tt ;	& separator \\
 \end{tabular}
@@ -1151,7 +1151,7 @@ contains in order the following lexemes:
 \begin{indpar}
 \emkey{lexeme}
 	::= {\em word}
-	$|$ {\em number}
+	$|$ {\em numeric}
 	$|$ {\em mark}
 	$|$ {\em separator}
 	$|$ {\em quoted-string}
@@ -1159,9 +1159,9 @@ contains in order the following lexemes:
 \\[2ex]
 \emkey{word} ::= {\em word-character} {\em word-character}\,$^\star$
 \\[1ex]
-\emkey{number} ::=
-        {\em number-character} {\em number-character}\,$^\star$
-\label{NUMBER}
+\emkey{numeric} ::=
+        {\em numeric-character} {\em numeric-character}\,$^\star$
+\label{NUMERIC}
 \\[1ex]
 \emkey{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$
 \\[1ex]
@@ -1231,7 +1231,7 @@ contains in order the following lexemes:
 			    $|$\verb|Y|%
 			    $|$\verb|Z|
 			    \\[1ex]
-\emkey{number-character} \begin{tabular}[t]{rl}
+\emkey{numeric-character} \begin{tabular}[t]{rl}
 		::= &   {\em digit} \\
 		$|$ & \verb|.| followed by by a {\em digit } \\
 		$|$ & \verb|'| followed by by a {\em digit } \\
@@ -1349,7 +1349,7 @@ A \key{word} is a sequence of letters that may include
 a \verb|'| if it is followed by a letter.  A \key{mark} is a
 sequence of mark characters (e.g., \verb|+| and \verb|-|).
 A \key{separator} is a \underline{single} separator character.
-A \key{number} is a sequence of digits,
+A \key{numeric} is a sequence of digits,
 decimal points followed by a digit,
 \verb|'| followed by a digit,
 commas both preceded and followed by digits,
@@ -1364,15 +1364,15 @@ that begin with {\tt <} and end with {\tt >}; e.g., {\tt <LF>} represents
 a line feed character.
 
 A \ttnbkey{'} is a word character if it is followed by a letter,
-a number character if it is followed by a digit,
+a numeric character if it is followed by a digit,
 and a separator character otherwise.
-A \verb|.| is a number character (decimal point) if it
+A \verb|.| is a numeric character (decimal point) if it
 is followed by a digit, and a mark character otherwise.
-A \ttnbkey{,} is a number character if surrounded by digits, and
+A \ttnbkey{,} is a numeric character if surrounded by digits, and
 a separator character otherwise.
-A \ttnbkey{/} is a number character if surrounded by digits, and
+A \ttnbkey{/} is a numeric character if surrounded by digits, and
 a mark character otherwise.
-A \ttnbkey{:} is a number character if surrounded by digits, and
+A \ttnbkey{:} is a numeric character if surrounded by digits, and
 a mark character otherwise.
 
 Lexemes may be separated by \key{white-space}, which
@@ -1404,65 +1404,43 @@ return to the beginning of a new line.
 {\em Horizontal-space-characters} before a {\em vertical-space-character}
 are ignored, as if they did not exist.
 
-Words, marks, quoted strings, and separators are called \skey{symbol}s,
-to distinguish them from numbers.  Inside the computer symbols are
-stored as character strings, while numbers are stored as strings of binary
-digits.  When a number is input, stored, and then output,
-it may not be represented in output by the same sequence of characters
-as it was represented on input.  Thus the input \verb|007| may be output
-as \verb|7| and the input \verb|15/2| may also be output as \verb|7.5|.
+{\em Numerics} represent numbers which are stored as strings of binary
+digits.  Several {\em numerics} may represent the same number.  For example,
+\verb|007| and \verb|7| both represent the same number,
+and \verb|15/2| and \verb|7.5| both represent the same number.
 
-Symbols, however, are output in a manner more
-faithful to their input, though they can have differences
-related to quoting.
-An unquoted symbol is stored exactly as it is represented.
-A quoted symbol not containing a {\em special-character-representative}
-is similarly stored.  Thus an unquoted symbol not containing
-a {\em special-character-representative}
-is stored in exactly the same way as the same symbol surrounded by
-quotes.  For example, \verb|fie| and \verb|"fie"| store the same
-thing, as do \verb|+| and \verb|"+"|.
+{\em Words}, {\em marks}, {\em separators}, and {\em quoted-strings}
+represent \skey{symbol}s which are stored as character strings.
+The character strings represented by
+{\em words}, {\em marks}, and {\em separators}
+are exactly the character strings of these lexemes.
+The character strings represented by a {\em quoted-string} with no
+{\em special-character-representatives}
+is just the {\em quoted-string} lexeme with its surrounding quotes ({\tt "})
+removed.  Thus, for example, \verb|fie| and \verb|"fie"| represent the
+same symbol, as do \verb|+| and \verb|"+"|.
 
-However, some symbols are recognized and treated specially by the parser.
-These \skey{special-symbol}s
-\label{SPECIAL-SYMBOL}
-must be quoted if you want to prevent such
-special recognition and treatment.  Thus in \verb|2 + 2| the \verb|+| is
-a {\em special-symbol}
-recognized by the parser as an operator, and the parser rewrites the expression
-as \verb|+ 2 2|.  But in \verb|2 "+" 2| the \verb|"+"| is not specially
-recognized and is not a {\em special-symbol}, and the parser does
-not rewrite the expression.
-
-A \emkey{name}\label{NAME} is
-a sequence of {\em non-special-symbols}
-and {\em decimal-naturals}  containing at least one
-{\em non-special-symbol}.  {\em Decimal-naturals}
-(\pagref{DECIMAL-NATURAL})
-are sequences of digits and commas denoting natural numbers
-(i.e., non-negative integers).
-{\em Names} are used to name things, such
-as functions and variables.
+Symbols and numbers are referred to as {\em atoms}.  The equations
 
 \begin{indpar}
-\emkey{name} ::=
-        {\em name-component}\,$^\star$
-        {\em non-special-symbol}
-        {\em name-component}\,$^\star$
-\\[1ex]
-\emkey{name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
-\label{NAME-COMPONENT}
-\\[1ex]
-\emkey{symbol} ::= {\em word} $|$ {\em mark } $|$ {\em quote-string}
-                              $|$ {\em separator }
-\label{SYMBOL}
-\\[1ex]
-\emkey{non-special-symbol} ::= {\em symbol} that is \underline{not}
-				specially treated by the parser
-\\[1ex]
-\emkey{decimal-natural} ::= {\em number-lexeme} that contains only
-			{\em digits} and {\em commas}
+\emkey{number} := {\em numeric}
+\label{NUMBER}\\[1ex]
+\emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
+               $|$ {\em quoted-string}
+\label{SYMBOL}\\[1ex]
+\emkey{atom} ::= {\em number} $|$ {\em symbol}
+\label{ATOM}
 \end{indpar}
+
+are imprecise because they mix non-lexemes with lexemes, but may
+be a useful aid to memory anyway.
+
+Input to the parser is a string of lexemes, while
+output from the parser contains atoms and not lexemes.  Thus
+to the parser, {\tt +} and {\tt "+"} are not the same when input, but when
+output they are the same.
+For instance, given {\tt x + y} as input the parser will output {\tt + x y},
+but given {\tt x "+" y} as input the parser will output {\tt x + y}.
 
 In order to indicate spacing, each lexeme is
 tagged with the column, line, and page number of its first character.
@@ -3730,7 +3708,7 @@ standardly confuse it with `\verb|person|'.
 \subsection{Number Recognition}
 \label{NUMBER-RECOGNITION}
 
-Number lexemes are decimal numbers with an optional decimal point
+Numeric lexemes are decimal numbers with an optional decimal point
 or slash
 and optional commas every 3 digits.  \ikey{Numbers}{number} are sequences of
 lexemes that are identified during \key{lexical number parsing},
@@ -3746,7 +3724,7 @@ The following are the top level syntax equations for numbers.
 				           $|$ {\em scientific-number}
 				           $|$ {\em number-pair}
 \end{indpar}%
-\label{REAL-NUMBER}\label{NUMBER}
+\label{REAL-NUMBER}
 
 Note that numbers are all unsigned.  Signs are all considered to
 be arithmetic operators (except for exponent signs in
