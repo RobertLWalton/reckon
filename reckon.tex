@@ -60,8 +60,8 @@
 	      \setlength{\parsep}{1ex}%
 	      \setlength{\labelwidth}{0in}%
 	      \setlength{\baselineskip}{1.5ex}%
-	      \setlength{\leftmargin}{1.0in}%
-	      \setlength{\rightmargin}{1.0in}}%
+	      \setlength{\leftmargin}{0.8in}%
+	      \setlength{\rightmargin}{0.8in}}%
     \item\@starttoc{toc}%
     \end{list}}
 \renewcommand\listoftables{%
@@ -210,7 +210,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 5, 2014}
+\date{March 6, 2014}
 
 \maketitle
 
@@ -535,7 +535,7 @@ For example:
 \verb|+     body mass index = 703.06958 * weight in lbs| \\
 \verb|+                     / (height in inches)^2| \\
 \verb|> all persons| \\
-\begin{tabular}{|r|l|l|r|r|r|r|}
+\begin{tabular}{@{}|r|l|l|r|r|r|r|@{}}
 \hline
 \multicolumn{1}{|c}{\bf ID} &
 \multicolumn{1}{|c}{\bf type} &
@@ -546,9 +546,9 @@ For example:
 \multicolumn{1}{|c|}{\bf \shortstack{body mass\\index}} \\
 \hline
 \tt @1000000 & person & Jack
-	     & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo & \tt 18.163738 \\
+	     & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo & \tt 18.1637 \\
 \tt @1000001 & person & Jill
-	     & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo & \tt 17.228258 \\
+	     & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo & \tt 17.2282 \\
 \hline
 \end{tabular}
 \end{indpar}
@@ -688,7 +688,7 @@ RECKON tends to ignore word endings: thus `{\tt person}' and
 `{\tt persons}' are to RECKON the same word.
 RECKON can even be told that `{\tt person}'
 and `{\tt people}' are the same word.
-`{\tt Jack's}', on the other hand, is treated an abbreviation
+On the other hand, `{\tt Jack's}' is treated an abbreviation
 of two separate words `{\tt Jack}' and `{\tt 's}', where `{\tt 's}' is
 a separate word by itself.
 
@@ -783,19 +783,23 @@ separators and sentence terminators off.
 RECKON can store information as expressions.  For example:
 
 \begin{indpar}
-\verb|> (a person named `Jack') is husband of (a person named `Jill') <--| \\
-\verb|> Y is wife of X <-- X is husband of Y|
+\verb|> (a person named `Jack') is husband of| \\
+\verb|>     (a person named `Jill') <--| \\
+\verb|>     Y is wife of X <-- X is husband of Y|
 \end{indpar}
 
 Here `\verb|<--|' means `is asserted' or `is asserted if'.
 All the assertions that have been made can be queried:
 
 \begin{indpar}
-\verb|> (a person named `Jill') is wife of (a person named `Jack') ?| \\
+\verb|> (a person named `Jill') is wife of| \\
+\verb|> (a person named `Jack') ?| \\
 \verb|true| \\
-\verb|> (a person named `Jack') is wife of (a person named `Jill') ?| \\
+\verb|> (a person named `Jack') is wife of| \\
+\verb|> (a person named `Jill') ?| \\
 \verb|false| \\
-\verb|> (a person named X) is wife of (a person named `Jack') ?| \\
+\verb|> (a person named X) is wife of| \\
+\verb|> (a person named `Jack') ?| \\
 \verb|X = `|Jill\verb|'| \\
 \verb|> X is wife of (a person named `Jack') ?| \\
 \verb|X = (a person named `Jill')| \\
@@ -873,7 +877,8 @@ You can also change how an expression is displayed.
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture} \\
-\verb|> `(a person named `Jill') is wife of (a person named `Jack')'| \\
+\verb|> `(a person named `Jill') is wife of| \\
+\verb|   (a person named `Jack')'| \\
 \verb|`|
 \raisebox{\ovalraise}{\begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
@@ -932,8 +937,10 @@ Displays can be used to make demonstrations:
 \verb|+     c = {circle 1.0 dotted center (0.0,0.0)}| \\
 \verb|+     x axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
 \verb|+     y axis = {arrow from (0.0,-0.75) to (0.0,0.75)}| \\
-\verb|+     line = {line from (0.0,0.0) to [(0.5*cos X, 0.5*sin X)]}| \\
-\verb|+     arc = {arc arrow from (0.7,0.0) to [(0.3*cos X, 0.3*sin X)]}| \\
+\verb|+     line = {line from (0.0,0.0)| \\
+\verb|+                  to [(0.5*cos X, 0.5*sin X)]}| \\
+\verb|+     arc = {arc arrow from (0.7,0.0)| \\
+\verb|+                      to [(0.3*cos X, 0.3*sin X)]}| \\
 \verb|+     theta = {Greek th}| \\
 \verb|+     value = {label (| \\
 \verb|+                `Depiction of Angle [theta]=[X]',| \\
@@ -1012,22 +1019,26 @@ for every board:
     on a board of dimension S:
         `Make a board of size SxS.'
         size = S
-        `Allowed vessels have lengths 2 (destroyer), 3 (cruiser),
-         5 (battleship).  vessels(L) is number of length L.'
-        array vessels of size 5 with initial element 0
+        `Allowed vessels have lengths 2 (destroyer),
+         3 (cruiser), 5 (battleship).  vessels(L) is
+         number of length L.'
+        array vessels of size 5
+              with initial element 0
         `maximum vessels(L) is maximum number of vessels of
          length L.'
-        array maximum vessels of size 5 with initial element 0
+        array maximum vessels of size 5
+              with initial element 0
         maximum vessels(2) = 5
         maximum vessels(3) = 2
         maximum vessels(5) = 1
-        `state(I,J) is `none', `miss', or `hit' iff shell has not
-         struck square (I,J), struck square (I,J) but that square
-         had no ship, or struck square (I,J) and hit a ship at
-         that square.'
+        `state(I,J) is `none', `miss', or `hit' iff shell
+         has not struck square (I,J), struck square (I,J)
+         but that square had no ship, or struck square (
+         ,J) and hit a ship at that square.'
         array hit of size (S,S) with initial element `none'
         `vessel(I,J) is the vessel at (I,J)'
-        array vessel of size (S,S) with initial element `none'
+        array vessel of size (S,S)
+              with initial element `none'
 \end{verbatim}
 
 \caption{Code for the Battleship Game, Part I}
@@ -1039,8 +1050,9 @@ for every board:
 
 \begin{verbatim}
 direction vector of D:
-    `given a direction N, NE, E, SE, S, SW, W, NW, return a vector
-     with unit components in the given direction.'
+    `given a direction N, NE, E, SE, S, SW, W, NW,
+     return a vector with unit components in the
+     given direction.'
     if D == `N':
         value = (1,0)
     else if D == `NE':
@@ -2039,8 +2051,8 @@ RECKON parsers in their full glory.  When this is done, the object
 representation is said to be `\key{cooked}\,' instead of `\key{raw}'.
 
 The syntax of {\em cooked-representations} is that of
-{\em raw-representations} with `{\em raw-}' replaced by {\em cooked-}
-and two syntax equations adjusted as follows:
+{\em raw-representations} with `{\em raw-}' replaced everywhere
+by `{\em cooked-}' and two syntax equations adjusted as follows:
 
 \begin{indpar}
 
@@ -2214,13 +2226,15 @@ A third example uses multiple indented lines to represent code, so that
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the object in
-Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
+Figures~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION-1}
+and~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION-2}.
 Note that here the \verb|:| indentation mark is used to introduce
 code, and not {\em attribute-representations}, and does
 \underline{not} play the same role as the \verb/:|/ indentation mark.
 
 
 \begin{boxedfigure}
+\small
 
 \begin{center}
 \begin{tabular}[t]{@{}l@{}}
@@ -2255,13 +2269,20 @@ code, and not {\em attribute-representations}, and does
 \verb|    1 = @133|\\
 \verb|    2 = @135|\\
 \verb|    .initiator = ":"|\\
-\end{tabular}
-~
-\begin{tabular}[t]{@{}l@{}}
 \verb/@137 =:|/\\
 \verb|    1 = function|\\
 \verb|    2 = @130|\\
-\verb|    3 = @136|\\[2ex]
+\verb|    3 = @136|\\
+\end{tabular}
+\end{center}
+\vspace*{-3ex}
+\caption{Example Code Object Representation I}
+\label{EXAMPLE-CODE-OBJECT-REPRESENTATION-1}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{center}
 \begin{picture}(4.0,5.5)
 \put(0,0){\framebox(4.0,5.5){}}
 \put(0.6,0.0){
@@ -2385,11 +2406,10 @@ code, and not {\em attribute-representations}, and does
 \put(3.35,0.40){\makebox(0,0)[r]{\tt 3}}
 }
 \end{picture}
-\end{tabular}
 \end{center}
 
-\caption{Example Code Object Representation}
-\label{EXAMPLE-CODE-OBJECT-REPRESENTATION}
+\caption{Example Code Object Representation II}
+\label{EXAMPLE-CODE-OBJECT-REPRESENTATION-2}
 \end{boxedfigure}
 
 Cooked representations may replace raw object identifiers in the
@@ -2805,7 +2825,7 @@ insert them correctly.
 
 Bracket, indentation mark, and operator
 definitions may specify reformatters
-which reformat subexpressions after they have been normally parsed.
+which reformat sub\-expressions after they have been normally parsed.
 A \key{reformatter}\label{REFORMATTER} is a function that
 is called with a parsed subexpression that is surrounded by brackets,
 introduced by an indentation mark, or has a lead operator.
@@ -3086,7 +3106,8 @@ to it.  The indented subexpression ends just before the next line
 with less indentation.
 
 In order to describe indented subexpressions in syntax equations,
-the syntax categories \key{indentation-beginning}, \key{indentation-separator},
+the syntax categories \ikey{indenta\-tion-beginning}{indentation-beginning},
+\key{indentation-separator},
 and \key{indentation-end} are used.
 An {\em indentation-beginning}\label{INDENTATION-BEGINNING2}
 occurs just after the {\em indentation-mark} that introduces the
@@ -3458,7 +3479,7 @@ opening bracket is used),
 then a new subexpression record is pushed into the subexpression stack.
 The new record has the active bracket definition as its
 definition, an empty subexpression list with bracket definition's
-opening and closing brackets as its {\tt .initiator} and {\tt .terminator},
+opening and closing brackets as its {\tt .initiator} and {\tt .ter\-min\-ator},
 respectively, missing indentation, and missing line list.
 A new parsing selector set is computed using the current
 parsing selector set and the bracket definition
@@ -3651,7 +3672,8 @@ first that replaces lexemes.
 \begin{list}{}{}
 
 \item
-\verb|define lexeme dictionary English lexeme dictionary [operator list]|\\[1ex]
+\verb|define lexeme dictionary| \\
+\verb|       English lexeme dictionary [operator list]|\\[1ex]
 This dictionary translates common English irregular plurals,
 to their singular form, and decomposes
 irregular possessives to their singular decomposed form.
@@ -3670,7 +3692,8 @@ Some example translations are:
 \end{center}
 
 \item
-\verb|define lexeme function English lexeme function [operator list]|\\[1ex]
+\verb|define lexeme function| \\
+\verb|       English lexeme function [operator list]|\\[1ex]
 This function translates common English standard plurals
 to their singular form, and decomposes
 standard possessives to their singular decomposed form.
@@ -3763,7 +3786,7 @@ Decimal Number Examples:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l@{~~~}l}
 123	& 1,234		& 12,345	& 1,234,567 \\
 123.0	& .123		& 0.0		& 1,234.987654	& 1,234.987,654 \\
 1/2	& 134/874	& 1,345/3	& 1234/987654   & 1,234/987,645
@@ -3796,7 +3819,7 @@ The following are examples of illegal decimal numbers:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l@{~~~}l}
 1.2.3	& 1.86,54	& 1,234567.892	& 12345.678,92	& 1.234567,892 \\
 3/4/5   & 3/0.5         & 1.45/3        & 1000/3,000    & 5/0
 \end{tabular}
@@ -3817,7 +3840,7 @@ schemes are permitted.
 		        {\em exponent-option} \\[1ex]
 \emkey{radix-indicator} ::= {\em symbol} {\em symbol}\,$^\star$ \\[1ex]
 \emkey{radix-number-mark} ::= {\em character-representative}
-~~~~~ [See Figure \figref{CHARACTER-REPRESENTATIVES}] \\[1ex]
+~~~~~ [See Figure \figref{SPECIAL-CHARACTER-REPRESENTATIVES}] \\[1ex]
 {\em exponent-option} ::= {\em empty} $|$ {\em exponent} \\[1ex]
 {\em exponent} ::= see \pagref{EXPONENT}
 \end{indpar}
@@ -3829,7 +3852,7 @@ using standard {\em radix-indicators} are:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+\begin{tabular}{@{}l@{~~~}l@{~~~}l@{~~~}l@{}}
 B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
 B\#"01101"	& O\#".7753"   & D\#"97.58"	& X\#".fe8a932b" \\
 B\#"0,1101"	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A,932B.7CCD,83" \\
@@ -3942,7 +3965,7 @@ standard radix indicators:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
 123e0		& 123e+2	& 123e-321	& 1,234e9 \\
 123E0		& 123E+2	& 123E-321	& 0.123,456e-3	\\
 .123e0	& .123e+2
@@ -3978,7 +4001,7 @@ The following are some examples of illegal scientific numbers:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l@{~~~}l}
 1,23e6	& 3/4e2	& B\#"5,7b63"e32  & O\#"2/3"e-2	& X\#".E.7"e-4
 \end{tabular}
 \end{indpar}
@@ -4006,7 +4029,7 @@ Some examples of number pairs are:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{l@{~~~~~~~~~~}l@{~~~~~~~~~~}l@{~~~~~~~~~~}l}
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
 1 1/2	& 55 3/4	& 174 15/16  & 1,234,567 2,875/3,408
 \end{tabular}
 \end{indpar}
@@ -6747,7 +6770,7 @@ equations, among which are:
 The last two equations are required to deduce the value of the evaluated
 variables \verb|X| and \verb|Y| that are needed for the guards
 \verb|number(X)| and \verb|number(Y)| and the block code statement
-`\verb|value = X + Y|\,'.  These last two equations are obtained by
+`{\tt value = X + Y}'.  These last two equations are obtained by
 the Evaluation Rule.  For example, to obtain the value \verb|2| for the
 evaluated variable \verb|X|, the value `\verb|(1+1)|' of the a associated
 unevaluated variable \verb|$X| is evaluated.  `\verb|(1+1)|' is
@@ -7047,7 +7070,7 @@ Some {\em variable-names} may be \mkey{inherited}{variable-name}
 from a {\em expression-definition} containing the block.
 Some are {\em output-variables} in {\em assignment-statements}
 or {\em right-sides}.
-Some are variables in the {\em patterns} of {\em assignment-patterns}.
+Some are variables in the {\em patterns} of {\em assign\-ment-patterns}.
 All the {\em variable-names}
 in the block are inherited or can be identified by looking at the left
 sides of {\em variable-assignments}, at the {\em output-variables}
