@@ -21,6 +21,8 @@
   
 \documentclass[12pt]{article}
 
+\usepackage[T1]{fontenc}
+\usepackage{times}
 \usepackage{makeidx}
 \usepackage{pictex}
 
@@ -85,10 +87,13 @@
     % Change notice.
 
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+\newcommand{\ttlkey}[2]{{\tt \bf #1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
@@ -104,6 +109,7 @@
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
+\newcommand{\emlkey}[2]{{\bf \em #1 #2}\index{#1@{\em #1}!#2@{\em #2}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
@@ -120,6 +126,17 @@
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
+\newcommand{\STAR}{{\Large $^\star$}}
+\newcommand{\PLUS}[1][]{{$^{+#1}$}}
+\newcommand{\QMARK}{{$^{\,\mbox{\footnotesize ?}}$}}
+\newcommand{\OPEN}{{$\{$}}
+\newcommand{\CLOSE}{{$\}$}}
+\newcommand{\BAR}{{\tt \bf |}}
+\newcommand{\DOUBLEBAR}{{\tt \bf |\hspace{-0.02pt}{}|}}
+\newcommand{\LEFTBRACKET}{{\tt \bf \{}}
+\newcommand{\RIGHTBRACKET}{{\tt \bf \}}}
+\newcommand{\LEFTSQUARE}{{\tt \bf [}}
+\newcommand{\RIGHTSQUARE}{{\tt \bf ]}}
 
 \newsavebox{\TILDEBOX}
 \begin{lrbox}{\TILDEBOX}
@@ -132,48 +149,6 @@
 \verb|\|
 \end{lrbox}
 \newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
-
-\newsavebox{\LEFTBRACKETBOX}
-\begin{lrbox}{\LEFTBRACKETBOX}
-\verb|{|
-\end{lrbox}
-\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
-
-\newsavebox{\RIGHTBRACKETBOX}
-\begin{lrbox}{\RIGHTBRACKETBOX}
-\verb|}|
-\end{lrbox}
-\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
-
-\newsavebox{\UNDERLINEBOX}
-\begin{lrbox}{\UNDERLINEBOX}
-\verb|_|
-\end{lrbox}
-\newcommand{\UNDERLINE}{\usebox{\UNDERLINEBOX}}
-
-\newsavebox{\CIRCUMFLEXBOX}
-\begin{lrbox}{\CIRCUMFLEXBOX}
-\verb|^|
-\end{lrbox}
-\newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
-
-\newsavebox{\BARBOX}
-\begin{lrbox}{\BARBOX}
-\verb/|/
-\end{lrbox}
-\newcommand{\BAR}{\usebox{\BARBOX}}
-
-\newsavebox{\LESSTHANBOX}
-\begin{lrbox}{\LESSTHANBOX}
-\verb/</
-\end{lrbox}
-\newcommand{\LESSTHAN}{\usebox{\LESSTHANBOX}}
-
-\newsavebox{\GREATERTHANBOX}
-\begin{lrbox}{\GREATERTHANBOX}
-\verb/>/
-\end{lrbox}
-\newcommand{\GREATERTHAN}{\usebox{\GREATERTHANBOX}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -235,8 +210,8 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 2, 2014}
- 
+\date{March 5, 2014}
+
 \maketitle
 
 \newpage
@@ -701,7 +676,8 @@ One can also iterate over data.
 \verb|116.5 lbs| \\
 \verb|> z = 10 + average weight of (all persons named Bill)| \\
 \verb|error `Cannot average 0 things.'| \\
-\verb|      occurred during: average weight of (all persons named Bill)| \\
+\verb|      occurred during: average weight of| \\
+\verb|                      (all persons named Bill)| \\
 \verb|      occurred during: 10 + ditto| \\
 \verb|      occurred during: z = ditto|
 \end{indpar}
@@ -1290,7 +1266,7 @@ contains in order the following lexemes:
 		    $|$ & {\em single-space-character} \\
 		    $|$ & {\em special-character-representative}
 		    \end{tabular}\\[1ex]
-\emkey{special-character-representative}
+\emlkey{special}{-character-representative}
     ::= see Figure~\figref{SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{indpar}
 
@@ -1357,22 +1333,22 @@ slashes both preceded and followed by digits,
 and colons both preceded and followed by digits.
 A quoted string is
 a sequence of \skey{character representative}s surrounded by
-the double quote character (\ttnbkey{"}), where \skey{graphic character}s
+the double quote character (\ttkey{"}), where \skey{graphic character}s
 are their own representatives (\verb|A|, \verb|B|, \verb|0|, \verb|1|,
 etc.) but other characters are represented by character sequences
 that begin with {\tt <} and end with {\tt >}; e.g., {\tt <LF>} represents
 a line feed character.
 
-A \ttnbkey{'} is a word character if it is followed by a letter,
+A \ttkey{'} is a word character if it is followed by a letter,
 a numeric character if it is followed by a digit,
 and a separator character otherwise.
 A \verb|.| is a numeric character (decimal point) if it
 is followed by a digit, and a mark character otherwise.
-A \ttnbkey{,} is a numeric character if surrounded by digits, and
+A \ttkey{,} is a numeric character if surrounded by digits, and
 a separator character otherwise.
-A \ttnbkey{/} is a numeric character if surrounded by digits, and
+A \ttkey{/} is a numeric character if surrounded by digits, and
 a mark character otherwise.
-A \ttnbkey{:} is a numeric character if surrounded by digits, and
+A \ttkey{:} is a numeric character if surrounded by digits, and
 a mark character otherwise.
 
 Lexemes may be separated by \key{white-space}, which
@@ -1493,7 +1469,7 @@ every other object and from every atom.  But it is nothing more.
 
 However, as a place in memory, an object has a identifier.  Objects are assigned
 \skey{raw object identifier}s
-of the form `\ttmnbkey{@}{in raw object identifier}$N$' where $N$
+of the form `\ttmkey{@}{in raw object identifier}$N$' where $N$
 is a natural number (non-negative integer).
 Raw object identifiers of this form are assigned only to objects
 that must be named in an output stream (e.g., printed output).
@@ -1582,27 +1558,48 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-object-representation} ::=
-\\\hspace*{0.5in}
-    {\em object-header} {\em raw-single-attribute-value}\,$^\star$
-    {\em raw-attribute-representations}
+\emkey{raw-object-representation}
+\\\hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em object-header} {\em raw-single-attribute-value}\,$^\star$
+          {\em raw-attribute-representations} \\
+    $|$ & \begin{tabular}[t]{@{}l@{}}
+	  {\em indenting-object-header} \\
+	  ~~~~{\em indentation-beginning}
+	      {\em raw-attribute-representation} \\
+	  ~~~~\{ {\em indentation-separator}
+	     {\em raw-attribute-representation} \}$^\star$ \\
+	  {\em indentation-end}
+	  \end{tabular}
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{object-header}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-identifier} \verb|=|
+    ::= & {\em object-identifier} \verb/=|/
           \ttmindex{=}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \verb|>|
+    $|$ & {\em object-identifier} \verb/>|/
           \ttmindex{>}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \verb|>>|
+    $|$ & {\em object-identifier} \verb/>>|/
+          \ttmindex{>>}{in {\em object-header}} \\
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{indenting-object-header}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em object-identifier} \verb/=|:/
+          \ttmindex{=}{in {\em object-header}} \\
+    $|$ & {\em object-identifier} \verb/>|:/
+          \ttmindex{>}{in {\em object-header}} \\
+    $|$ & {\em object-identifier} \verb/>>|:/
           \ttmindex{>>}{in {\em object-header}} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{object-identifier} ::=
-	\ttmnbkey{@}{in {\em object-identifier}} {\em decimal-natural}
+	\ttmkey{@}{in {\em object-identifier}} {\em decimal-natural}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1613,17 +1610,17 @@ The format of a \key{raw representation} is:
 \end{tabular}%
 
 \begin{tabular}{l}
-\emkey{raw-attribute-representations}
+\emlkey{raw-attribute}{-representations}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
-	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
-	$|$ & \underline{\LEFTBRACKET\BAR}
+	$|$ & \LEFTBRACKET\BAR{} \BAR\RIGHTBRACKET \\
+	$|$ & \LEFTBRACKET\BAR{}
 	      {\em raw-attribute-representation}
 	      \{ \verb|;| {\em raw-attribute-representation} \}$^\star$
-	      \underline{\BAR\RIGHTBRACKET} \\
+	      \BAR\RIGHTBRACKET{} \\
 	$|$ & \begin{tabular}[t]{@{}l@{}}
-	      \underline{:\BAR}{\em -indentation-mark} \\
+	      \BAR:{\em -indentation-mark} \\
 	      ~~~~{\em indentation-beginning}
 	          {\em raw-attribute-representation} \\
 	      ~~~~\{ {\em indentation-separator}
@@ -1634,7 +1631,7 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
+\emkey{raw-attribute}{-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-single-attribute-representation} \\
     $|$ & {\em double-attribute-representation} \\
@@ -1663,33 +1660,26 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{attribute-label-flags-option} ::=
     {\em empty} $|$
-    \underline{\tt [} {\em symbol}\,$^\star$ \underline{\tt ]}
+    \LEFTSQUARE{} {\em symbol}\,$^\star$ \RIGHTSQUARE{}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
 
 \begin{tabular}{l}
 \emkey{raw-single-attribute-value} ::= {\em atom} $|$ {\em object-identifier}
+				   $|$ {\em scientific-number}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{atom} ::= {\em non-special-symbol} $|$ {\em real-number}
+\emkey{atom} ::= see  \pagref{ATOM}
 \end{tabular}
 
 \begin{tabular}{l}
-{\em real-number} ::= see \pagref{NUMBER}
+\emkey{scientific-number} ::= {\em sign}\QMARK{}
 \end{tabular}
 
 \begin{tabular}{l}
-{\em symbol} ::= see \pagref{SYMBOL}
-\end{tabular}
-
-\begin{tabular}{l}
-{\em non-special-symbol} ::= see \pagref{SPECIAL-SYMBOL}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{double-attribute-representation} ::=
+\emlkey{double-attribute}{-representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option}
 	\verb|=|
@@ -1894,10 +1884,10 @@ The differences between \verb|=|, \verb|>|, and \verb|>>| in the
 {\em object-header} relate
 to what is done when an object or attribute label previously exists.
 Note that with the indentation convention, these become differences
-between \verb/=:|/, \verb/>:|/, and \verb/>>:|/.
+between \verb/=|:/, \verb/>|:/, and \verb/>>|:/.
 
-\ttmnbkey{=}{in {\em object-header}}
-(or \ttmnbkey{=:|}{in {\em object-header}})
+\ttmkey{=|}{in {\em object-header}}
+(or \ttmkey{=|:}{in {\em object-header}})
 indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
 {\em raw-object-representation} (it may have been defined as the value of an
@@ -1907,23 +1897,23 @@ representation, if it previously exists because it was part of a
 the same flags as it already has.
 
 At the other extreme,
-\ttmnbkey{>>}{in {\em object-header}}
-(or \ttmnbkey{>>:|}{in {\em object-header}})
+\ttmkey{>{}>}{in {\em object-header}}
+(or \ttmkey{>{}>|:}{in {\em object-header}})
 adds to existing objects.
 The object being represented can previously exist.  Any attribute
 representation in the object representation creates a new attribute value.
 Any flags on an attribute label are added to the flags of the label if
 that label already exists.
 
-\ttmnbkey{>}{in {\em object-header}}
-(or \ttmnbkey{>:|}{in {\em object-header}})
-is like \verb|>>| (or \verb|>>:|)
+\ttmkey{>}{in {\em object-header}}
+(or \ttmkey{>|:}{in {\em object-header}})
+is like \verb/>>|/ (or \verb/>>|:/)
 except that the object representation cannot
 add new values to previously existing attributes of the object represented.
 More precisely, the attribute label of any attribute representation in
 the object representation must not have previously (before the object
 representation is read) been an attribute label of the represented object.
-Thus \verb|>:| is used to introduce new attributes to an existing object.
+Thus \verb/>|:/ is used to introduce new attributes to an existing object.
 Note that reverse attribute labels are not attribute labels in the sense
 of this paragraph.
 
@@ -1936,7 +1926,7 @@ Usually one end of a double attribute is
 thought of as the primary end, and its object representation is used to
 include the sole representation of the double attribute.
 
-The {\em object-identifier} \ttnbkey{@0} is special; it always names
+The {\em object-identifier} \ttkey{@0} is special; it always names
 a particular object, the \ttnbdkey{GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
@@ -2054,12 +2044,12 @@ and two syntax equations adjusted as follows:
 
 \begin{indpar}
 
-\emkey{cooked-object-representation} ::=
+\emlkey{cooked-object}{-representation} ::=
 \\\hspace*{0.5in}
     {\em object-header} {\em expression-option}
     {\em cooked-attribute-representations}
 \\[1ex]
-\emkey{cooked-single-attribute-value} ::= {\em expression}
+\emlkey{cooked-single}{-attribute-value} ::= {\em expression}
 \\[1ex]
 {\em expression} ::= see section \secref{PARSING}
 
@@ -2634,7 +2624,7 @@ containing at least one {\em symbol},
 see \pagref{NAME}). 
 Parsing selectors are attached to parsing definitions,
 and at any time during parsing there is a set of parsing selectors called
-the `\key{current parsing selector set}\,' that determines which parsing
+the `\lkey{current parsing}{selector set}\,' that determines which parsing
 definitions are effective.  Specifically, a definition has effect
 if a member of the active parsing selector set is attached to the definition.
 Such definitions are said to be `\key{active parsing definitions}'.%
@@ -2661,7 +2651,7 @@ contain `\verb|text|', but contains `\verb|operator|',
 the `{\tt define operator "-"}' definition is effective,
 but not the `{\tt define operator "--"}' definition.
 
-The \key{current parsing selector set} is defined as the topmost entry in
+The \lkey{current parsing}{selector set} is defined as the topmost entry in
 the \key{parsing selector set stack},\label{PARSING-SELECTOR-SET-STACK},
 which contains parsing selector sets.  The members of the current
 parsing selector set are called
@@ -3220,8 +3210,7 @@ are not used outside explicit brackets.
 \subsubsection{Explicit Subexpression Recognition Algorithm}
 \label{EXPLICIT-SUBEXPRESSION-RECOGNITION-ALGORITHM}
 
-The \ikey{explicit subexpression recognition algorithm}{explicit subexpression
-recognition!algorithm} is the
+The \lkey{explicit subexpression}{recognition algorithm} is the
 parsing subalgorithm that recognizes explicitly bracketed
 and indented subexpressions.  Here we describe this algorithm, which
 runs before the lexeme replacement algorithm is run.
@@ -3252,7 +3241,7 @@ The stack cannot become empty;
 the bottommost subexpression record on the stack is always the same.
 
 The record at the top of the subexpression stack is called the
-`\key{current subexpression record}'.  If it has an indentation, bracket
+`\lkey{current subexpression}{record}'.  If it has an indentation, bracket
 definition, indentation mark definition, subexpression list, etc., these
 are called `current', as in `current indentation',
 `current bracket definition', or `current subexpression list'.
@@ -3518,22 +3507,20 @@ Note that lexeme replacement is done after explicit subexpression recognition,
 and cannot affect brackets or indentation marks.
 
 Lexeme replacement may be done by either a dictionary or a function.
-Replacement is controlled by \skey{lexeme replacement definition}s
+Replacement is controlled by \slkey{lexeme replacement}{definition}s
 in the parsing definition stack (\secref{PARSING-DEFINITION-STACK}).
 The are two kinds of lexeme replacement definitions,
 dictionary and function, have the syntax:
 
 \begin{indpar}
-\emkey{lexeme-replacement-definition}\,
+\emlkey{lexeme-replacement}{-definition}\,
 		     \begin{tabular}[t]{rl}
                      ::= & {\em lexeme-dictionary-definition} \\
 		     $|$ & {\em lexeme-function-definition}
 		     \end{tabular}
 \label{LEXEME-REPLACEMENT-DEFINITION}%
 		     \\[1ex]
-\emikey{lexeme-dictionary-definition}
-       {lexeme-dictionary-@{\em lexeme-dictionary-}!definition@{\em definition}}
-           \\
+\emlkey{lexeme-dictionary}{-definition} \\
 	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
 	                   \verb|define | & \verb|lexeme dictionary|
                                             {\em dictionary-name}
@@ -3547,11 +3534,11 @@ dictionary and function, have the syntax:
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
 \emkey{lexeme-dictionary-entries}
-                    ::= \underline{\LEFTBRACKET}
+                    ::= \LEFTBRACKET{}
 		        {\em lexeme-dictionary-entry-list}
-			\underline{\RIGHTBRACKET}
+			\RIGHTBRACKET{}
 		    \\[1ex]
-\emkey{lexeme-dictionary-entry-list} \\
+\emlkey{lexeme-dictionary}{-entry-list} \\
 		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
                      ::= & {\em empty} \\
                      $|$ & {\em lexeme-dictionary-entry} \\
@@ -4102,7 +4089,7 @@ recognized.
 \subsubsection{Unit Multiplication Insertion}
 \label{UNIT-MULTIPLICATION-INSERTION}
 
-The \key{unit multiplication insertion} phase of
+The \lkey{unit multiplication}{insertion} phase of
 parsing inserts a multiplication operator lexeme, `\verb|*|',
 before a {\em postfix-unit-specifier}, and
 after a {\em prefix-unit-specifier}, unless the point at which the
@@ -4142,7 +4129,7 @@ Note that number recognition is done regardless of the expression parser
 used, e.g., even inside \verb|` '| quotes.
 
 Expression parsers are defined by
-\skey{expression parser definition}s\label{EXPRESSION-PARSER-DEFINITION}.
+\slkey{expression parser}{definition}s\label{EXPRESSION-PARSER-DEFINITION}.
 The topmost active expression parser definition
 (\pagref{ACTIVE-PARSING-DEFINITION})
 in the parsing stack names the parser used to parse expressions.
@@ -4150,7 +4137,7 @@ in the parsing stack names the parser used to parse expressions.
 Expression parser definitions have the syntax:
 
 \begin{indpar}
-\emkey{expression-parser-definition} ::=\\
+\emlkey{expression-parser}{-definition} ::=\\
 \hspace*{0.5in}\verb|define expression parser| {\em parser-name}
 				               {\em parsing-selectors} \\[1ex]
 \emkey{parser-name} ::= {\em name} \\[1ex]
@@ -4337,45 +4324,45 @@ The following are the standard operators
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
 -1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
-+0000	& \ttkey{define}	& \tt nofix	& \ttnbkey{<--}	& define \\
++0000	& \ttkey{define}	& \tt nofix	& \ttkey{<-{}-}	& define \\
 	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
 							 ... \RIGHTBRACKET}
 								& block \\
-+1000	& \ttkey{assign}	& \tt infix	& \ttnbkey{=}	& assignment \\
-     	&               	&          	& \ttnbkey{+=}	& increment \\
-     	&               	&          	& \ttnbkey{-=}	& decrement \\
-     	&               	&          	& \ttnbkey{*=}	& multiply by \\
-     	&               	&          	& \ttnbkey{/=}	& divide by \\
++1000	& \ttkey{assign}	& \tt infix	& \ttkey{=}	& assignment \\
+     	&               	&          	& \ttkey{+=}	& increment \\
+     	&               	&          	& \ttkey{-=}	& decrement \\
+     	&               	&          	& \ttkey{*=}	& multiply by \\
+     	&               	&          	& \ttkey{/=}	& divide by \\
 +2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
 +3000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
 	&			&		& \ttkey{NOT}  & logical not \\
 	&			&		& \ttkey{BUT}  & logical filler
 								 \\
-+4000 	& \ttkey{compare}	& \tt infix	& \ttnbkey{==}	& equal \\
-	&			&		& \ttnbkey{/=}  & not equal \\
-	&			&		& \ttnbkey{!=}	& ditto \\
-	&		      	&		& \ttnbkey{<}	& less than \\
-	&			&		& \ttnbkey{<=}	& less than or
++4000 	& \ttkey{compare}	& \tt infix	& \ttkey{==}	& equal \\
+	&			&		& \ttkey{/=}  & not equal \\
+	&			&		& \ttkey{!=}	& ditto \\
+	&		      	&		& \ttkey{<}	& less than \\
+	&			&		& \ttkey{<=}	& less than or
 								  equal \\
-	&			&		& \ttnbkey{=<}	& ditto \\
-	&		      	&		& \ttnbkey{>}	& greater than
+	&			&		& \ttkey{=<}	& ditto \\
+	&		      	&		& \ttkey{>}	& greater than
 									\\
-	&			&		& \ttnbkey{>=}	& greater than
+	&			&		& \ttkey{>=}	& greater than
 								  or equal \\
-	&			&		& \ttnbkey{=>}	& ditto \\
-+5000	& \ttkey{sum}		& \tt infix	&  \ttnbkey{+}	& addition \\
-	&			&		& \ttnbkey{-}	& subtraction \\
-+5100	& \ttkey{product}	& \tt infix	& \ttnbkey{/}	& division \\
-+5200	& \ttkey{product}	& \tt infix	& \ttnbkey{*}
+	&			&		& \ttkey{=>}	& ditto \\
++5000	& \ttkey{sum}		& \tt infix	&  \ttkey{+}	& addition \\
+	&			&		& \ttkey{-}	& subtraction \\
++5100	& \ttkey{product}	& \tt infix	& \ttkey{/}	& division \\
++5200	& \ttkey{product}	& \tt infix	& \ttkey{*}
 							& multiplication \\
-+5300	& \ttkey{product}	& \tt infix	& \ttnbkey{\CIRCUMFLEX}
++5300	& \ttkey{product}	& \tt infix	& \ttkey{\^~}
 							& exponentiation \\
-none	& none			& \tt prefix	&  \ttnbkey{-}	& minus \\
-	& 			& \tt prefix	&  \ttnbkey{+}	& plus \\
-	& 			& \tt prefix	&  \ttnbkey{@}	& object
+none	& none			& \tt prefix	&  \ttkey{-}	& minus \\
+	& 			& \tt prefix	&  \ttkey{+}	& plus \\
+	& 			& \tt prefix	&  \ttkey{@}	& object
 	                                                          identifier \\
-none	& \ttkey{subscript}	& \tt postfix	&  \ttnbkey{[...]}
+none	& \ttkey{subscript}	& \tt postfix	&  \ttkey{[...]}
 								& subscript \\
 \end{tabular}
 
@@ -4473,8 +4460,8 @@ returning
 
 \bigskip
 
-\ttmkey{define}{reformatter} \hfill \NBOP{<--} ~~~
-	\NBOP{\LEFTBRACKET \RIGHTBRACKET} ~~~ \OP{:}
+\ttmkey{define}{reformatter} \hfill \OP{<-{}-} ~~~
+	\OP{\LEFTBRACKET \RIGHTBRACKET} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 
@@ -4518,8 +4505,8 @@ end up as `\verb|<-- x ( y { z } )|', and instead we get results like:
 \bigskip
 
 
-\ttmkey{assign}{reformatter} \hfill \NBOP{=} ~~~ \NBOP{+=} ~~~ \NBOP{-=}
-				           ~~~ \NBOP{*=} ~~~ \NBOP{/=}
+\ttmkey{assign}{reformatter} \hfill \OP{=} ~~~ \OP{+=} ~~~ \OP{-=}
+				           ~~~ \OP{*=} ~~~ \OP{/=}
 
 \begin{indpar}[0.5em]
 If there is only one operator, it is simply moved to the front.  If there
@@ -4602,10 +4589,10 @@ explicit brackets, unless there is a {\tt BUT NOT}.  Thus:
 \bigskip
 
 \ttmkey{compare}{reformatter} \hfill
-	\NBOP{=} ~~~ \NBOP{<} ~~~ \NBOP{>} ~~~
-	\NBOP{/=} ~~~ \NBOP{!=} ~~~
-	\NBOP{=>} ~~~ \NBOP{>=} ~~~
-	\NBOP{=<} ~~~ \NBOP{<=}
+	\OP{=} ~~~ \OP{<} ~~~ \OP{>} ~~~
+	\OP{/=} ~~~ \OP{!=} ~~~
+	\OP{=>} ~~~ \OP{>=} ~~~
+	\OP{=<} ~~~ \OP{<=}
 
 \begin{indpar}[0.5em]
 The expression is rewritten using a multi-argument {\tt AND}
@@ -4633,7 +4620,7 @@ E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
 
 \bigskip
 
-\ttmkey{sum}{reformatter} \hfill \NBOP{+} ~~~ \NBOP{-}
+\ttmkey{sum}{reformatter} \hfill \OP{+} ~~~ \OP{-}
 
 \begin{indpar}[0.5em]
 The results are rewritten using the multi-argument summation function \verb|+|
@@ -4646,8 +4633,8 @@ and the unary negation function \verb|-|.
 
 \bigskip
 
-\ttmkey{product}{reformatter} \hfill \NBOP{/} ~~~ \NBOP{*}
-					      ~~~ \NBOP{\CIRCUMFLEX}
+\ttmkey{product}{reformatter} \hfill \OP{/} ~~~ \OP{*}
+					      ~~~ \OP{\^~}
 
 \begin{indpar}[0.5em]
 These different operators, \verb|/|, \verb|*|, and \verb|^|,
@@ -4672,7 +4659,7 @@ E.g.:
 
 \bigskip
 
-\ttmkey{subscript}{reformatter} \hfill \NBOP{[~...~]}
+\ttmkey{subscript}{reformatter} \hfill \OP{[~...~]}
 
 \begin{indpar}[0.5em]
 The expression is rewritten using the binary subscript function:
@@ -4720,7 +4707,7 @@ and its definition is called the \key{lead operator definition}.
 This definition provides things like reformatters and evaluators when
 the output list is viewed as an expression.
 
-The helper function uses an operation called \key{reformatting the
+The helper function uses an operation called \lkey{reformatting}{the
 output list}.  This consists of calling the reformatter of the lead
 operator definition, and replacing the output list with the reformatter's
 returned value.  If there is no lead operator, nothing is done.
@@ -5484,7 +5471,7 @@ A {\em word} consisting of an initial capital letter followed
 by zero or more lower case letters is converted
 to an all lower case word if it begins a sentence.
 A {\em word} consisting of an initial
-\verb|^|\index{^@{\tt \CIRCUMFLEX}} followed by an upper
+\ttkey{\^~} followed by an upper
 case letter followed by zero or more lower case letters has the
 initial \verb|^| removed.
 
@@ -5516,8 +5503,9 @@ Some examples follow:
 \end{tabular}
 & parses as &
 \begin{tabular}{@{}l@{}}
-\verb|[-PARAGRAPH- [-SENTENCE- Bill swung .]| \\
-\verb|             [-SENTENCE- but he missed !]]|
+\verb|[-PARAGRAPH-| \\
+\verb|    [-SENTENCE- Bill swung .]| \\
+\verb|    [-SENTENCE- but he missed !]]|
 \end{tabular}
 \\[5ex]
 \begin{tabular}{@{}l@{}}
@@ -5531,10 +5519,12 @@ Some examples follow:
 \begin{tabular}{@{}l@{}}
 \verb|[-SECTION-| \\
 \verb|   [-PARAGRAPH-| \\
-\verb|      [-SENTENCE- I liked the party .]]| \\
+\verb|      [-SENTENCE-| \\
+\verb|          I liked the party .]]| \\
 \verb|   [-PARAGRAPH-| \\
-\verb|      [-SENTENCE- later , we caught the| \\
-\verb|                  bus .]]]| \\
+\verb|      [-SENTENCE-| \\
+\verb|          later , we caught| \\
+\verb|                  the bus .]]]| \\
 \end{tabular}
 
 \end{tabular}
@@ -5962,11 +5952,11 @@ syntax equations:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Restricted Symmetry Rule}{restricted symmetry rule}:]%
+\item [\ikey{Restricted Symmetry Rule}{restricted!symmetry rule}:]%
 \label{RESTRICTED-SYMMETRY-RULE}
 From $e_1$ {\tt :=:} $v$ we deduce $v$ {\tt :=:} $e_1$.
 
-\item [\ikey{Restricted Transitivity Rule}{restricted transitivity rule}:]%
+\item [\ikey{Restricted Transitivity Rule}{restricted!transitivity rule}:]%
 \label{RESTRICTED-TRANSITIVITY-RULE}
 From $v$ {\tt :=:} $e_1$ and $v$ {\tt :=:} $e_2$
 we deduce $e_1$ {\tt :=:} $e_2$.
@@ -6094,13 +6084,13 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
-	$|$ & \underline{\LEFTBRACKET\BAR} \underline{\BAR\RIGHTBRACKET} \\
-	$|$ & \underline{\LEFTBRACKET\BAR}
+	$|$ & \LEFTBRACKET\BAR{} \BAR\RIGHTBRACKET{} \\
+	$|$ & \LEFTBRACKET\BAR{}
 	      \begin{tabular}[t]{@{}l@{}}
 	      {\em pattern-attribute-representation} \\
 	      \{ \verb|;|
 	              {\em pattern-attribute-representation} \}$^\star$
-	      \underline{\BAR\RIGHTBRACKET} \\
+	      \BAR\RIGHTBRACKET{} \\
 	      \end{tabular}
 	\end{tabular}
 \\[1ex]
@@ -6173,7 +6163,7 @@ in the represented {\em syntax-expression}.
 See \secref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\verb|...?|'
-in the {\em pattern} is an \key{optional repeated pattern clause}
+in the {\em pattern} is an \lkey{optional repeated}{pattern clause}
 and must appear one or more times or not at all
 in the represented {\em syntax-expression}.
 See \secref{REPEATED-PATTERN-CLAUSES} for examples.
@@ -6210,21 +6200,17 @@ arranging the pattern clauses in the correct order,
 and removing {\em optional-attribute-representations}.
 For example, given the pattern equation:
 
-\begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
-\verb/replace {b} by {5 + c} in (exp 1)/
-	& \verb/replace ($X) . in ($Y) . by ($Z)/ \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\verb/replace {b} by {5 + c} in (exp 1) :=~/ \\
+\verb/    replace ($X) . in ($Y) . by ($Z)/
+\end{indpar}
 
 The pattern may be unfolded so the equation becomes:
 
-\begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
-\verb/replace {b} by {5 + c} in (exp 1)/
-	& \verb/replace ($X) by ($Z) in ($Y)/ \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\verb/replace {b} by {5 + c} in (exp 1) :=~/ \\
+\verb/    replace ($X) by ($Z) in ($Y)/
+\end{indpar}
 
 The \key{Propagation Rule} (\pagref{PROPAGATION-RULE})
 may be applied to a pattern
@@ -6263,9 +6249,12 @@ pattern equations can be promoted and become the following
 four syntax equations:
 
 \begin{center}
+\begin{tabular}{c}
+\verb/replace {b} by {5 + c} in (exp 1)/ \\
+\verb/:=:/ \\
+\verb/replace ($X) by ($Z) in ($Y)/ \\
+\end{tabular} \\[2ex]
 \begin{tabular}{r@{\tt ~:=:~}l}
-\verb/replace {b} by {5 + c} in (exp 1)/
-	& \verb/replace ($X) by ($Z) in ($Y)/ \\
 \verb/{b}/ & \verb/($X)/ \\
 \verb/{5 + c}/ & \verb/($Z)/ \\
 \verb/(exp 1)/ & \verb/($Y)/ \\
@@ -6313,12 +6302,10 @@ are unfolded, and this affects all equations containing the pattern.
 The last sentence of the Pattern Unfolding Rule needs explanation.
 Suppose we start with the pattern equation:
 
-\begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
-\verb/replace {b} [by {5 + c} in (exp 1)]/
-	& \verb/replace ($X) [. in ($Y) . by ($Z)]/ \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\verb/replace {b} [by {5 + c} in (exp 1)] :=~/ \\
+\verb/    replace ($X) [. in ($Y) . by ($Z)]/
+\end{indpar}
 
 which is similar to our previous equation except the clauses are
 now in a subexpression.  At the top level there is only one clause,
@@ -6339,9 +6326,12 @@ when this is done, \underline{all} the equations containing the pattern are
 affected, and we have the 4 equations
 
 \begin{center}
+\begin{tabular}{c}
+\verb/replace {b} [by {5 + c} in (exp 1)]/ \\
+\verb/:=~/ \\
+\verb/replace ($X) [by ($Z) in ($Y)]/ \\
+\end{tabular} \\[2ex]
 \begin{tabular}{r@{\tt ~:=\TILDE~}l}
-\verb/replace {b} [by {5 + c} in (exp 1)]/
-	& \verb/replace ($X) [by ($Z) in ($Y)]/ \\
 \verb/replace/ & \verb/replace/ \\
 \verb/{b}/ & \verb/($X)/ \\
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[by ($Z) in ($Y)]/ \\
@@ -6358,12 +6348,10 @@ In other words, because the pattern in the equation
 
 was a subexpression of the pattern in the equation
 
-\begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
-\verb/replace {b} [by {5 + c} in (exp 1)]/
-	& \verb/replace ($X) [. in ($Y) . by ($Z)]/ \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\verb/replace {b} [by {5 + c} in (exp 1)] :=~/ \\
+\verb/  replace ($X) [. in ($Y) . by ($Z)]/
+\end{indpar}
 
 then what appears to be two copies of the same pattern is in fact
 only one copy, and unfolding either of these unfolds the other in
@@ -6646,33 +6634,29 @@ yields
 \label{PLACE-HOLDING-SYNTAX-VARIABLES}
 
 A `\verb|$|' by itself can be used as a syntax variable called
-a \key{place holding syntax variable} that has the special
+a \lkey{place holding}{syntax variable} that has the special
 property that each of its original equation occurrences
 is treated as if it were a \underline{different} variable.  The syntax is:
 
 \begin{indpar}
-\emkey{place-holding-syntax-variable} ::= \ttnbkey{\$}
+\emlkey{place-holding}{-syntax-variable} ::= \ttnbkey{\$}
 \end{indpar}
 
 More specifically, whenever \verb|$| appears in an original
 equation, it is replaced by a unique new syntax variable name. 
 For example, the pattern equation:
 
-\begin{center}
-\begin{tabular}{r@{\tt ~:=:~}l}
-\verb/replace {b} by {5 + c} in (exp 1)/
-	& \verb/replace ($X) . by $ . in $/ \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\verb/replace {b} by {5 + c} in (exp 1) :=:/ \\
+\verb/    replace ($X) . by $ . in $/
+\end{indpar}
 
 is treated as if it were
 
-\begin{center}
-\begin{tabular}{r@{\tt ~:=:~}l}
-\verb/replace {b} by {5 + c} in (exp 1)/
-	& \verb/replace ($X) . by ($1$) . in ($2$)/ \\
-\end{tabular}
-\end{center}
+\begin{indpar}
+\verb/replace {b} by {5 + c} in (exp 1) :=:/ \\
+\verb/    replace ($X) . by ($1$) . in ($2$)/
+\end{indpar}
 
 where `\verb|$1$|' and `\verb|$2$|' are unique new
 syntax variable names created by the RECKON system.
@@ -6686,7 +6670,7 @@ syntax variable names created by the RECKON system.
 Syntax variables whose names begin with \verb|$|
 take values that are syntax expressions
 which are \underline{not} evaluated.  Such syntax variables are called
-\key{unevaluated syntax variables}.  With every unevaluated syntax
+\lkey{unevaluated}{syntax variables}.  With every unevaluated syntax
 variable there can be associated an \key{evaluated syntax variable}
 whose name is made by omitting the \verb|$| from the beginning of the
 unevaluated syntax variable name.  Thus \verb|X| is associated with
@@ -6777,7 +6761,7 @@ following:
 \begin{indpar}
 \begin{list}{}{}
 \item [\ikey{Evaluated Variable Pattern Rule}%
-{evaluated variable pattern rule}:]%
+{evaluated variable!pattern rule}:]%
 \label{EVALUATED-VARIABLE-PROMOTION-RULE}
 If an evaluated syntax variable $v$ appears in a pattern, it is 
 replaced in the pattern by its associated unevaluated variable
@@ -6919,7 +6903,7 @@ the expression:
 
 The new expression definition has a different context, given by
 the second argument, than the first argument does.  The special
-value \ttmnbkey{UNDEFINED}{argument of!an expression-definition@{\tt an
+value \ttmnbkey{UNDEFINED}{argument of an!expression-definition@{\tt
 expression-definition}} can be given as the {\em context} argument
 to create a new expression definition whose pattern, constraints, and block
 are the same as those of {\em expression-definition} argument
@@ -7020,7 +7004,7 @@ The code of a block has the following syntax:
 	::= & {\em variable-assignment-statement} \\
 	$|$ & {\em pattern-assignment-statement}
 	\end{tabular} \\[1ex]
-\emkey{variable-assignment-statement} ::=
+\emlkey{variable}{-assignment-statement} ::=
 	{\em output-variable} \ttkey{=} {\em right-side} \\[1ex]
 \emkey{right-side} \
     \begin{tabular}[t]{rl}
@@ -7032,7 +7016,7 @@ The code of a block has the following syntax:
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
 \emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
 \emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}] \\[1ex]
-\emkey{pattern-assignment-statement} ::=
+\emlkey{pattern}{-assignment-statement} ::=
 	{\em pattern} \verb|~=~|\index{~=~@{\tt \TILDE=\TILDE}}
 	{\em right-side} \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
@@ -7562,34 +7546,35 @@ item.
 The following statements operate on the side effect mode stack:
 
 \begin{list}{}{}
-\item[\ttkey{begin executing side effects}]~~~Push a new item with side effect
+\item[\ttlkey{begin executing}{side effects}]~~~Push a new item with side effect
 execute mode onto the side effect mode stack.  Before the push the
 stack must be empty or the top item in the stack must have execute or
 error mode.
 
-\item[\ttkey{end executing side effects}]~~~Pop the top item from
+\item[\ttlkey{end executing}{side effects}]~~~Pop the top item from
 the side effect mode stack.  This top item must have
 execute mode.
 
-\item[\ttkey{begin forbidding side effects}]~~~Push a new item with side effect
+\item[\ttlkey{begin forbidding}{side effects}]~~~Push
+a new item with side effect
 error mode onto the side effect mode stack.  Before the push the
 stack must be empty or the top item in the stack must have execute or
 error mode.
 
-\item[\ttkey{end forbidding side effects}]~~~Pop the top item from the
+\item[\ttlkey{end forbidding}{side effects}]~~~Pop the top item from the
 side effect mode stack.  This top item must have
 error mode.
 
-\item[\ttkey{delay side effects}]~~~Push a new item with side effect
+\item[\ttlkey{delay}{side effects}]~~~Push a new item with side effect
 delay mode onto the side effect mode stack.
 
-\item[\ttkey{commit side effects}]~~~Pop the top item from the
+\item[\ttlkey{commit}{side effects}]~~~Pop the top item from the
 side effect mode stack.  This top item must have
 delay mode.  It the resulting stack has a new top item that is not
 delay mode, discard the contents of the {\tt undo} stack, and execute
 and then discard the contents of the {\tt todo} stack.
 
-\item[\ttkey{abort side effects}]~~~Pop the item from the
+\item[\ttlkey{abort side}{effects}]~~~Pop the item from the
 the side effect mode stack.  This top item must have
 delay mode.  Consider the {\tt todo} and {\tt undo} list positions
 of the new item at the top of the stack, or take these positions to be
@@ -7642,8 +7627,8 @@ Should temporaries be full-fledged names.
 
 Describe the quote evaluator.\label{QUOTE-EVALUATOR}
 
-Why doesn't `\verb|define qualifier xxx|' mean define expressions equal
-to `\verb|qualifier xxx|'.
+Why doesn't `{\tt define qualifier xxx}' mean define expressions equal
+to `{qual\-i\-fier\EOL{} xxx}'.
 
 \verb|missing(#X)| is true if \verb|#X| is a null node.
 \verb|integer(#X)| is true if \verb|#X| is an integer.
