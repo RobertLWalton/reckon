@@ -94,7 +94,6 @@
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
 \newcommand{\ttlkey}[2]{{\tt \bf #1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
-% < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
@@ -1665,14 +1664,14 @@ The format of a \key{raw representation} is:
 \index{label!attribute}
 
 \begin{tabular}{l}
-\emkey{label} ::= {\em atom}\,$^\star$
+\emkey{label} ::= {\em atom}\,$^\star$ \\
 \end{tabular}%
 \index{label}
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags-option} ::=
     {\em empty} $|$
-    \LEFTSQUARE{} {\em symbol}\,$^\star$ \RIGHTSQUARE{}
+    \LEFTSQUARE{} {\em atom}\,$^\star$ \RIGHTSQUARE{}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
@@ -1683,11 +1682,17 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{atom} ::= see  \pagref{ATOM}
+\emkey{atom} ::= see \pagref{ATOM}
+                 but avoid~~{\tt \bf |~~\}~~=~~;~~|:~~]}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{scientific-number} ::= {\em sign}\QMARK{}
+\emkey{scientific-number}
+    ::= {\em sign}\QMARK{} {\em decimal-number} {\em exponent}\QMARK \\
+\emkey{sign} ::= {\tt +} $|$ {\tt -} \\
+\emkey{decimal-number}
+    ::= {\em digit}\PLUS{}\{{\tt .}{\em digit}\PLUS{}\}\QMARK{} \\
+\emkey{exponent} ::= \{{\tt E}$|${\tt e}\}{\em sign}\QMARK{}{\em digit}\PLUS{}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1714,15 +1719,18 @@ The format of a \key{raw representation} is:
 (they are at the parser's top level)
 and are separated by implicit {\em indentation-separators} placed
 just before each non-indented line (see \pagref{TOP-LEVEL} for details).
-Their syntax can
-use either \verb/{|  |}/ brackets and \verb|;| separators, or
-the \verb/:|/ indentation mark and {\em indentation-separators}.
-To replace \verb/{|  |}/ and \verb|;| by indentation,
-indent appropriately placing the \verb/{|/, \verb|;|, and \verb/|}/
-brackets and separators at line ends, replace \verb/{|/ by \verb/:|/,
-and delete the \verb|;|'s and \verb/|}/'s.
-The \verb/:|/ can be glued to a previous mark, i.e.,
-\verb/=  :|/ can be replaced by \verb/=:|/.  For example,
+Their special syntactic marker is the {\tt \bf =|} sign.
+They can
+use either {\tt \bf \{|~~|\}} brackets and {\tt \bf ;} separators, or
+the {\tt \bf |:} indentation mark and {\em indentation-separators}.
+To replace {\tt \bf \{|  |\}} and {\tt \bf ;} by indentation,
+indent appropriately placing the {\tt \bf \{|}, {\tt \bf |\}}, and {\tt \bf ;}
+brackets and separators at line ends, replace {\tt \bf \{|} by {\tt \bf |:},
+and delete the {\tt \bf |\}}'s and {\tt \bf ;}'s.
+A {\tt \bf =|~~|:} sequence at a line end can be abbreviated by {\tt \bf =|:},
+and similarly {\tt \bf >|~~|:} and {\tt \bf >{}>|~~|:} can be abbreviated
+by {\tt \bf >|:} and {\tt \bf >{}>|:}.
+For example,
 
 \begin{indpar}\begin{verbatim}
 @1 = {| type = woman; name = Jill; husband = @2 wife |};
@@ -1732,11 +1740,11 @@ The \verb/:|/ can be glued to a previous mark, i.e.,
 becomes
 
 \begin{indpar}\begin{verbatim}
-@1 =:|
+@1 =|:
     type = woman
     name = Jill
     husband = @2 wife
-@2 =:|
+@2 =|:
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -1781,36 +1789,24 @@ between the two objects which has the
 label {\tt husband} when going from \verb|@1| to \verb|@2|
 and the label {\tt wife} when going in the reverse direction.
 
-Note that in this syntax
-only \emkey{non-special-symbols} may be used as {\em atoms}
-that are parts of labels or attribute values.  A \key{special symbol}
-is something like \verb|=| or \verb|+| that is given a special
-interpretation during parsing.  In order to use a special symbol
-as an atom in an attribute label or value,
-it must be quoted; e.g., \verb|"="| must be used instead
-of \verb|=| in a label.  This prevents the symbol from being confused with
-the \verb|=| that follows the label.  In general, quoting a word or mark in an
-attribute label or value never hurts,
-as if the word or mark is not special, its quoted and unquoted
-versions have the same meaning; e.g., \verb|"type"| and \verb|type|
-denote the same symbol.  Consequently,
-it is a good idea to quote any mark that is
-used in a label, and also to quote words that are used
-as operators, such as \verb|"if"|, \verb|"then"|, and \verb|"else"|.
+Note that in this syntax {\em atoms} such as {\tt \bf =} must be
+avoided, as they will be confused with symbols recognized by the
+parser (to end a {\em label} in this case).
+You can use {\tt \bf "="} instead.
 
 A {\em raw-attribute-representation} is ignored if it is {\em empty},
 which allows superfluous `\verb|;|'s in a list of
 {\em raw-attribute-representations}.
 
-Note lastly that the \verb/{| |}/ brackets, which are used in object
-representation, are distinct from the \verb|{ }| brackets, which are
+Note lastly that the {\tt \bf \{| |\}} brackets, which are used in object
+representation, are distinct from the {\tt \bf \{ \}} brackets, which are
 used to bracket executable code.
 
 It is possible to place \skey{attribute flag}s on attribute labels
-by putting flag characters in \verb|[ ]| brackets after a label.
-The flag characters are those of one or more {\em symbols} enclosed
-in the \verb|[ ]| brackets.  The parser does not try to give special
-interpretation to these symbols, so they need not be quoted.
+by putting flag characters in {\tt \bf [ ]} brackets after a label.
+The flag characters are those of one or more {\em atoms} enclosed
+in the {\tt \bf [ ]} brackets.  If {\tt \bf ]} is used as one of
+these {\em atoms} is must be quoted as in {\tt \bf "]"}.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -1853,7 +1849,7 @@ have been added to some of the attributes:
 
 In the picture the attribute flags have been added as superscripts on the
 attribute labels, and in the text the flags have been added as characters
-in symbols inside \verb|[ ]| brackets that
+in symbols inside {\tt \bf [ ]} brackets that
 follow attribute labels.
 
 Several attributes of the same object (arrows sourced at the object)
@@ -1892,11 +1888,11 @@ attributes labeled \verb|child|, is:
 We say that the value of the \verb|child| attribute of \verb|@1| is
 the set to two elements, \verb|@2| and \verb|@3|.
 
-The differences between \verb|=|, \verb|>|, and \verb|>>| in the
+The differences between {\tt \bf =}, {\tt \bf >}, and {\tt \bf >{}>} in the
 {\em object-header} relate
 to what is done when an object or attribute label previously exists.
-Note that with the indentation convention, these become differences
-between \verb/=|:/, \verb/>|:/, and \verb/>>|:/.
+Note that with the abreviation convention, these also become differences
+between {\tt \bf =|:}, {\tt \bf >|:}, and {\tt \bf >{}>|:}.
 
 \ttmkey{=|}{in {\em object-header}}
 (or \ttmkey{=|:}{in {\em object-header}})
@@ -1919,13 +1915,13 @@ that label already exists.
 
 \ttmkey{>}{in {\em object-header}}
 (or \ttmkey{>|:}{in {\em object-header}})
-is like \verb/>>|/ (or \verb/>>|:/)
+is like {\tt \bf >{}>} (or {\tt \bf >{}>|:})
 except that the object representation cannot
 add new values to previously existing attributes of the object represented.
 More precisely, the attribute label of any attribute representation in
 the object representation must not have previously (before the object
 representation is read) been an attribute label of the represented object.
-Thus \verb/>|:/ is used to introduce new attributes to an existing object.
+Thus {\tt \bf >|:} is used to introduce new attributes to an existing object.
 Note that reverse attribute labels are not attribute labels in the sense
 of this paragraph.
 
@@ -1945,7 +1941,7 @@ variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
 object itself, a situation which can be achieved by the data representation:
 
 \begin{indpar}\begin{verbatim}
-@0>:|
+@0>|:
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
@@ -1956,42 +1952,14 @@ is an example of such a label.
 The RECKON parser (\secref{PARSING})
 parses\label{RAW-PARSING}
 {\em raw-representations}.
-Because special
-symbols are avoided in attribute labels and values, the parser does
-little with these.  However, the parser
-does two things that affect attribute labels
-and values.
-
-The first is recognizing several lexeme {\em real-numbers}
-(\secref{NUMBER-RECOGNITION}),
-such as \verb|1.23e-2| and \verb|1 3/4|.  In all cases
-a single numeric atom is stored inside the computer, and
-details of its representation are lost.  Thus \verb|1.23e-2| and
-\verb|0.0123| store the same number, and \verb|1 3/4| and \verb|7/4|
-store the same number.
-
-The second thing the parser does to attribute labels and values
-is lexeme replacement (\secref{LEXEME-REPLACEMENT}).  Thus the
-{\em raw-attribute-representation}
-\begin{center}
-\verb|Mary's power = people|
-\end{center}
-would standardly be turned into
-\begin{center}
-\verb|Mary 's power = person|
-\end{center}
-since possessives are standardly separated and
-plural nouns are standardly replaced by singular nouns.
-Of course you can prevent this parser action by using \verb|"| quotes.
-Thus
-\begin{center}
-\verb|Mary's power = "people"|
-\end{center}
-is turned by the parse into
-\begin{center}
-\verb|Mary 's power = "people"|
-\end{center}
-That is, the unquoted lexemes may be replaced but not the quoted lexemes.
+Because atoms like {\tt \bf =} and {\tt \bf |}
+are avoided in attribute labels and values, the parser does
+nothing with these.  However after parsing {\em quoted-strings}
+and {\em scientific-numbers} are replaced by single {\em atoms}.
+In the latter case, the {\em atoms} are {\em numbers} represented
+as 64-bit IEEE binary floating point values.  Thus the attribute
+values {\tt \bf 5} and {\tt \bf "5"} produce vary different values:
+the first is an IEEE number and the second a 1-character string.
 
 \subsection{Lists}
 
