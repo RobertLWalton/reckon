@@ -101,14 +101,14 @@
 \newcommand{\ttnbdkey}[1]{{\tt .#1}\index{#1@{\tt .#1}}}
 \newcommand{\tttkey}[1]{{\tt <{\bf #1}>}\index{#1@{\tt <#1>}}}
 \newcommand{\tttmkey}[2]{{\tt <{\bf #1}>}\index{#1@{\tt <#1>}!#2}}
-\newcommand{\tttbkey}[1]{{\tt <{\bf #1}\BAR\ldots\BAR{\bf #1}>}%
-    \index{#1@{\tt <#1\BAR\ldots\BAR#1>}}}
-\newcommand{\tttbmkey}[2]{{\tt <{\bf #1}\BAR\ldots\BAR{\bf #1}>}%
-    \index{#1@{\tt <#1\BAR\ldots\BAR#1>}!#2}}
+\newcommand{\tttbkey}[1]{{\TT {<#1|}\ldots\TT{|#1>}}%
+    \index{#1@\TT{<#1|}\ldots\TT{|#1>}}}
+\newcommand{\tttbmkey}[2]{{\TT{<#1|}\ldots\TT{|#1>}}%
+    \index{#1@\TT{<#1|}\ldots\TT{|#1>}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
-\newcommand{\emlkey}[2]{{\bf \em #1 #2}\index{#1@{\em #1}!#2@{\em #2}}}
+\newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
@@ -122,6 +122,7 @@
 \newcommand{\appref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
 \newcommand{\figref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
+\newcommand{\pagnote}[1]{$\,^{p\,\pageref{#1}}$}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
@@ -130,24 +131,7 @@
 \newcommand{\QMARK}{{$^{\,\mbox{\footnotesize ?}}$}}
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
-\newcommand{\BAR}{{\tt \bf |}}
-\newcommand{\DOUBLEBAR}{{\tt \bf |\hspace{-0.02pt}{}|}}
-\newcommand{\LEFTBRACKET}{{\tt \bf \{}}
-\newcommand{\RIGHTBRACKET}{{\tt \bf \}}}
-\newcommand{\LEFTSQUARE}{{\tt \bf [}}
-\newcommand{\RIGHTSQUARE}{{\tt \bf ]}}
-
-\newsavebox{\TILDEBOX}
-\begin{lrbox}{\TILDEBOX}
-\verb|~|
-\end{lrbox}
-\newcommand{\TILDE}{\usebox{\TILDEBOX}}
-
-\newsavebox{\BACKSLASHBOX}
-\begin{lrbox}{\BACKSLASHBOX}
-\verb|\|
-\end{lrbox}
-\newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
+\newcommand{\TT}[1]{{\tt \bf #1}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -209,7 +193,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 6, 2014}
+\date{March 7, 2014}
 
 \maketitle
 
@@ -1153,6 +1137,7 @@ contains in order the following lexemes:
 \emkey{mark} ::= {\em mark-character} {\em mark-character}\,$^\star$
 \\[1ex]
 \emkey{separator} ::= {\em separator-character}
+\label{SEPARATOR}
 \\[1ex]
 \emkey{quoted-string} ::=
     \verb|"| {\em character-representative}\,$^\star$ \verb|"|
@@ -1587,24 +1572,24 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{object-header}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-identifier} \verb/=|/
+    ::= & {\em object-identifier} \TT{=|}
           \ttmindex{=}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \verb/>|/
+    $|$ & {\em object-identifier} \TT{>|}
           \ttmindex{>}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \verb/>>|/
-          \ttmindex{>>}{in {\em object-header}} \\
+    $|$ & {\em object-identifier} \TT{>{}>|}
+          \ttmindex{>{}>}{in {\em object-header}} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{indenting-object-header}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-identifier} \verb/=|:/
+    ::= & {\em object-identifier} \TT{=|:}
           \ttmindex{=}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \verb/>|:/
+    $|$ & {\em object-identifier} \TT{>|:}
           \ttmindex{>}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \verb/>>|:/
-          \ttmindex{>>}{in {\em object-header}} \\
+    $|$ & {\em object-identifier} \TT{>{}>|:}
+          \ttmindex{>{}>}{in {\em object-header}} \\
     \end{tabular}
 \end{tabular}
 
@@ -1625,13 +1610,13 @@ The format of a \key{raw representation} is:
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
-	$|$ & \LEFTBRACKET\BAR{} \BAR\RIGHTBRACKET \\
-	$|$ & \LEFTBRACKET\BAR{}
+	$|$ & \TT{\{| |\}} \\
+	$|$ & \TT{\{|}
 	      {\em raw-attribute-representation}
-	      \{ \verb|;| {\em raw-attribute-representation} \}$^\star$
-	      \BAR\RIGHTBRACKET{} \\
+	      \{ \TT{;} {\em raw-attribute-representation} \}$^\star$
+	      \TT{|\}} \\
 	$|$ & \begin{tabular}[t]{@{}l@{}}
-	      \BAR:{\em -indentation-mark} \\
+	      \TT{|:}{\em -indentation-mark} \\
 	      ~~~~{\em indentation-beginning}
 	          {\em raw-attribute-representation} \\
 	      ~~~~\{ {\em indentation-separator}
@@ -1664,26 +1649,28 @@ The format of a \key{raw representation} is:
 \index{label!attribute}
 
 \begin{tabular}{l}
-\emkey{label} ::= {\em atom}\,$^\star$ \\
+\emkey{label} ::= {\em raw-atom}\,$^\star$ \\
 \end{tabular}%
 \index{label}
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags-option} ::=
     {\em empty} $|$
-    \LEFTSQUARE{} {\em atom}\,$^\star$ \RIGHTSQUARE{}
+    \TT{[} {\em raw-atom}\,$^\star$ \TT{]}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
 
 \begin{tabular}{l}
-\emkey{raw-single-attribute-value} ::= {\em atom} $|$ {\em object-identifier}
+\emkey{raw-single-attribute-value} ::= {\em raw-atom}
+                                   $|$ {\em object-identifier}
 				   $|$ {\em scientific-number}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{atom} ::= see \pagref{ATOM}
-                 but avoid~~{\tt \bf |~~\}~~=~~;~~|:~~]}
+\emkey{raw-atom} ::= {\em atom}\pagnote{ATOM} ~
+                 but not {\em separator}\pagnote{SEPARATOR} ~or~
+		 \TT{|} ~or~ \TT{=} ~or~ \TT{|:}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1719,17 +1706,17 @@ The format of a \key{raw representation} is:
 (they are at the parser's top level)
 and are separated by implicit {\em indentation-separators} placed
 just before each non-indented line (see \pagref{TOP-LEVEL} for details).
-Their special syntactic marker is the {\tt \bf =|} sign.
+Their special syntactic marker is the \TT{=|} sign.
 They can
-use either {\tt \bf \{|~~|\}} brackets and {\tt \bf ;} separators, or
-the {\tt \bf |:} indentation mark and {\em indentation-separators}.
-To replace {\tt \bf \{|  |\}} and {\tt \bf ;} by indentation,
-indent appropriately placing the {\tt \bf \{|}, {\tt \bf |\}}, and {\tt \bf ;}
-brackets and separators at line ends, replace {\tt \bf \{|} by {\tt \bf |:},
-and delete the {\tt \bf |\}}'s and {\tt \bf ;}'s.
-A {\tt \bf =|~~|:} sequence at a line end can be abbreviated by {\tt \bf =|:},
-and similarly {\tt \bf >|~~|:} and {\tt \bf >{}>|~~|:} can be abbreviated
-by {\tt \bf >|:} and {\tt \bf >{}>|:}.
+use either \TT{\{|~~|\}} brackets and \TT{;} separators, or
+the \TT{|:} indentation mark and {\em indentation-separators}.
+To replace \TT{\{|  |\}} and \TT{;} by indentation,
+indent appropriately placing the \TT{\{|}, \TT{|\}}, and \TT{;}
+brackets and separators at line ends, replace \TT{\{|} by \TT{|:},
+and delete the \TT{|\}}'s and \TT{;}'s.
+A \TT{=|~~|:} sequence at a line end can be abbreviated by \TT{=|:},
+and similarly \TT{>|~~|:} and \TT{>{}>|~~|:} can be abbreviated
+by \TT{>|:} and \TT{>{}>|:}.
 For example,
 
 \begin{indpar}\begin{verbatim}
@@ -1789,24 +1776,24 @@ between the two objects which has the
 label {\tt husband} when going from \verb|@1| to \verb|@2|
 and the label {\tt wife} when going in the reverse direction.
 
-Note that in this syntax {\em atoms} such as {\tt \bf =} must be
+Note that in this syntax {\em atoms} such as \TT{=} must be
 avoided, as they will be confused with symbols recognized by the
 parser (to end a {\em label} in this case).
-You can use {\tt \bf "="} instead.
+You can use \TT{"="} instead.
 
 A {\em raw-attribute-representation} is ignored if it is {\em empty},
 which allows superfluous `\verb|;|'s in a list of
 {\em raw-attribute-representations}.
 
-Note lastly that the {\tt \bf \{| |\}} brackets, which are used in object
-representation, are distinct from the {\tt \bf \{ \}} brackets, which are
+Note lastly that the \TT{\{| |\}} brackets, which are used in object
+representation, are distinct from the \TT{\{ \}} brackets, which are
 used to bracket executable code.
 
 It is possible to place \skey{attribute flag}s on attribute labels
-by putting flag characters in {\tt \bf [ ]} brackets after a label.
+by putting flag characters in \TT{[ ]} brackets after a label.
 The flag characters are those of one or more {\em atoms} enclosed
-in the {\tt \bf [ ]} brackets.  If {\tt \bf ]} is used as one of
-these {\em atoms} is must be quoted as in {\tt \bf "]"}.
+in the \TT{[ ]} brackets.  If \TT{]} is used as one of
+these {\em atoms} is must be quoted as in \TT{"]"}.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -1849,7 +1836,7 @@ have been added to some of the attributes:
 
 In the picture the attribute flags have been added as superscripts on the
 attribute labels, and in the text the flags have been added as characters
-in symbols inside {\tt \bf [ ]} brackets that
+in symbols inside \TT{[ ]} brackets that
 follow attribute labels.
 
 Several attributes of the same object (arrows sourced at the object)
@@ -1888,11 +1875,11 @@ attributes labeled \verb|child|, is:
 We say that the value of the \verb|child| attribute of \verb|@1| is
 the set to two elements, \verb|@2| and \verb|@3|.
 
-The differences between {\tt \bf =}, {\tt \bf >}, and {\tt \bf >{}>} in the
+The differences between \TT{=}, \TT{>}, and \TT{>{}>} in the
 {\em object-header} relate
 to what is done when an object or attribute label previously exists.
 Note that with the abreviation convention, these also become differences
-between {\tt \bf =|:}, {\tt \bf >|:}, and {\tt \bf >{}>|:}.
+between \TT{=|:}, \TT{>|:}, and \TT{>{}>|:}.
 
 \ttmkey{=|}{in {\em object-header}}
 (or \ttmkey{=|:}{in {\em object-header}})
@@ -1915,13 +1902,13 @@ that label already exists.
 
 \ttmkey{>}{in {\em object-header}}
 (or \ttmkey{>|:}{in {\em object-header}})
-is like {\tt \bf >{}>} (or {\tt \bf >{}>|:})
+is like \TT{>{}>} (or \TT{>{}>|:})
 except that the object representation cannot
 add new values to previously existing attributes of the object represented.
 More precisely, the attribute label of any attribute representation in
 the object representation must not have previously (before the object
 representation is read) been an attribute label of the represented object.
-Thus {\tt \bf >|:} is used to introduce new attributes to an existing object.
+Thus \TT{>|:} is used to introduce new attributes to an existing object.
 Note that reverse attribute labels are not attribute labels in the sense
 of this paragraph.
 
@@ -1952,13 +1939,14 @@ is an example of such a label.
 The RECKON parser (\secref{PARSING})
 parses\label{RAW-PARSING}
 {\em raw-representations}.
-Because atoms like {\tt \bf =} and {\tt \bf |}
+Because atoms like \TT{=} and \TT{|:}
 are avoided in attribute labels and values, the parser does
-nothing with these.  However after parsing {\em quoted-strings}
+nothing with attribute labels and values.
+However after parsing {\em quoted-strings}
 and {\em scientific-numbers} are replaced by single {\em atoms}.
 In the latter case, the {\em atoms} are {\em numbers} represented
 as 64-bit IEEE binary floating point values.  Thus the attribute
-values {\tt \bf 5} and {\tt \bf "5"} produce vary different values:
+values \TT{5} and \TT{"5"} produce vary different values:
 the first is an IEEE number and the second a 1-character string.
 
 \subsection{Lists}
@@ -1971,7 +1959,7 @@ then these values are said to form a \key{list} that is represented
 by the object.  An example is
 
 \begin{indpar}\begin{verbatim}
-@93 =:|
+@93 =|:
     1 = this
     2 = is
     3 = a
@@ -1990,7 +1978,7 @@ and \verb|.initiator|.  An alternative {\em raw-object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
-@93 = this is a sentence:|
+@93 = this is a sentence|:
     .terminator = "."
     .initiator = capital
 \end{verbatim}\end{indpar}
@@ -1999,9 +1987,9 @@ Any {\em raw-single-attribute-values} following the {\em object-header}
 are assigned as values of the attributes labeled \verb|1|, \verb|2|,
 \verb|3|, \ldots.  Additional attribute values can be given by
 following these by either
-\verb/{| |}/ bracketed and
-\verb|;| separated {\em raw-attribute-representations}, or alternatively by
-\verb/:|/ and then by indented
+\TT{\{| |\}} bracketed and
+\TT{;} separated {\em raw-attribute-representations}, or alternatively by
+\TT{|:} and then by indented
 {\em raw-attribute-representations}.
 
 \subsection{Cooked Representations}
@@ -2160,7 +2148,7 @@ is the cooked representation of the objects
 \put(1.60,0.65){\oval(3.2,0.3)}
 \put(0.80,0.50){\vector(0,-1){0.3}}
 \put(0.75,0.35){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.80,0.10){\makebox(0,0)[c]{\tt "\LEFTBRACKET"}}
+\put(0.80,0.10){\makebox(0,0)[c]{\TT{"\{"}}}
 \put(1.30,0.50){\vector(0,-1){1.1}}
 \put(1.25,0.35){\makebox(0,0)[r]{\tt 1}}
 \put(1.70,0.50){\vector(0,-1){0.4}}
@@ -2173,7 +2161,7 @@ is the cooked representation of the objects
 \put(2.70,-0.40){\makebox(0,0)[c]{\tt ";"}}
 \put(2.90,0.50){\vector(0,-1){0.3}}
 \put(2.95,0.35){\makebox(0,0)[l]{\tt .terminator}}
-\put(2.90,0.10){\makebox(0,0)[c]{\tt "\RIGHTBRACKET"}}
+\put(2.90,0.10){\makebox(0,0)[c]{\TT{"\}"}}}
 }
 \end{picture}
 \end{center}
@@ -3523,9 +3511,9 @@ dictionary and function, have the syntax:
 {\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
 	\\[1ex]
 \emkey{lexeme-dictionary-entries}
-                    ::= \LEFTBRACKET{}
+                    ::= \TT{\{}
 		        {\em lexeme-dictionary-entry-list}
-			\RIGHTBRACKET{}
+			\TT{\}}
 		    \\[1ex]
 \emlkey{lexeme-dictionary}{-entry-list} \\
 		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
@@ -4316,8 +4304,7 @@ precedence & reformatter	& type	& operator	& meaning
 \\[2ex]
 -1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
 +0000	& \ttkey{define}	& \tt nofix	& \ttkey{<-{}-}	& define \\
-	&			& \tt afix	& \ttkey{\LEFTBRACKET{}
-							 ... \RIGHTBRACKET}
+	&			& \tt afix	& \ttkey{\TT{\{} \ldots \TT{\}}}
 								& block \\
 +1000	& \ttkey{assign}	& \tt infix	& \ttkey{=}	& assignment \\
      	&               	&          	& \ttkey{+=}	& increment \\
@@ -4452,7 +4439,7 @@ returning
 \bigskip
 
 \ttmkey{define}{reformatter} \hfill \OP{<-{}-} ~~~
-	\OP{\LEFTBRACKET \RIGHTBRACKET} ~~~ \OP{:}
+	\OP{\{ \}} ~~~ \OP{:}
 
 \begin{indpar}[0.5em]
 
@@ -5788,7 +5775,7 @@ would if a guard evaluated to false.
 	        ~~~ [see \pagref{SYNTAX-EQUATIONS}]
 	 	\\[1ex]
 \emkey{pattern-equation} ::= {\em syntax-expression}
-		{\tt :=\TILDE} {\em constraint-pattern}
+		\TT{:=\~~} {\em constraint-pattern}
 	        ~~~ [see \pagref{PATTERN-EQUATIONS}]
 		\\[1ex]
 {\em constraint-pattern} ::= {\em pattern-object}
@@ -5818,7 +5805,7 @@ would if a guard evaluated to false.
 The \mkey{pattern}{in expression definition} of an expression definition
 is the subexpression before the \verb|<--|.  If the expression definition
 with pattern $p$ is being matched to the expression $e$,
-the pattern equation $p$ {\tt :=\TILDE} $e$ is asserted, the
+the pattern equation $p$ \TT{:=\~~} $e$ is asserted, the
 constraint syntax and pattern equations in the definition
 are asserted, and the definition guards are required to evaluate
 to \verb|true|.  Default equations are asserted as necessary.
@@ -6041,7 +6028,7 @@ a set of syntax expressions.  Patterns are used in
 a {\em pattern}.  The syntax of a pattern equations and patterns is:
 
 \begin{indpar}
-\emkey{pattern-equation} ::= {\em syntax-expression} \ttnbkey{:=\TILDE}
+\emkey{pattern-equation} ::= {\em syntax-expression} \ttnbkey{:=\~~}
 			    {\em pattern}
 			    \\[1ex]
 \emkey{pattern} ::= {\em pattern-object}
@@ -6075,13 +6062,13 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
-	$|$ & \LEFTBRACKET\BAR{} \BAR\RIGHTBRACKET{} \\
-	$|$ & \LEFTBRACKET\BAR{}
+	$|$ & \TT{\{| |\}} \\
+	$|$ & \TT{\{|}
 	      \begin{tabular}[t]{@{}l@{}}
 	      {\em pattern-attribute-representation} \\
 	      \{ \verb|;|
 	              {\em pattern-attribute-representation} \}$^\star$
-	      \BAR\RIGHTBRACKET{} \\
+	      \TT{|\}} \\
 	      \end{tabular}
 	\end{tabular}
 \\[1ex]
@@ -6209,7 +6196,7 @@ equation whose right side pattern has been unfolded.  Thus in the
 example just given one may may deduce:
 
 \begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\begin{tabular}{r@{\TT{~:=\~~~}}l}
 \verb/{b}/ & \verb/($X)/ \\
 \verb/{5 + c}/ & \verb/($Z)/ \\
 \verb/(exp 1)/ & \verb/($Y)/ \\
@@ -6262,8 +6249,8 @@ a syntax expression, and $p$ a pattern:
 \begin{list}{}{}
 \item [\ikey{Pattern Transitivity Rule}{pattern transitivity rule}:]%
 \label{PATTERN-TRANSITIVITY-RULE}
-From $v$ {\tt :=:} $e$ and $v$ {\tt :=\TILDE} $p$
-we deduce $e$ {\tt :=\TILDE} $p$.
+From $v$ {\tt :=:} $e$ and $v$ \TT{:=\~~} $p$
+we deduce $e$ \TT{:=\~~} $p$.
 \end{list}
 \end{indpar}
 
@@ -6304,7 +6291,7 @@ so the pattern is already unfolded, and by the Propagation Rule
 we get
 
 \begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\begin{tabular}{r@{\TT{~:=\~~~}}l}
 \verb/replace/ & \verb/replace/ \\
 \verb/{b}/ & \verb/($X)/ \\
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
@@ -6322,7 +6309,7 @@ affected, and we have the 4 equations
 \verb/:=~/ \\
 \verb/replace ($X) [by ($Z) in ($Y)]/ \\
 \end{tabular} \\[2ex]
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\begin{tabular}{r@{\TT{~:=\~~~}}l}
 \verb/replace/ & \verb/replace/ \\
 \verb/{b}/ & \verb/($X)/ \\
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[by ($Z) in ($Y)]/ \\
@@ -6332,7 +6319,7 @@ affected, and we have the 4 equations
 In other words, because the pattern in the equation
 
 \begin{center}
-\begin{tabular}{r@{\tt ~:=\TILDE~}l}
+\begin{tabular}{r@{\TT{~:=\~~~}}l}
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
 \end{tabular}
 \end{center}
@@ -6405,7 +6392,7 @@ For example, given the equations:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X) . in direction ($Y) ?/ \\
+\verb/sort x/ & \TT{:=\~~} & \verb/sort ($X) . in direction ($Y) ?/ \\
 \verb/$Y/ & \tt :=? & \verb|ascending|
 \end{tabular}
 \end{center}
@@ -6414,7 +6401,7 @@ the pattern in the first equation will be unfolded to give the equation:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X)/ \\
+\verb/sort x/ & \TT{:=\~~} & \verb/sort ($X)/ \\
 \end{tabular}
 \end{center}
 
@@ -6536,7 +6523,7 @@ For example, the pattern equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \tt :=\TILDE & \verb/sort ($X) . ascending ASCENDING ??/ \\
+\verb/sort x/ & \TT{:=\~~} & \verb/sort ($X) . ascending ASCENDING ??/ \\
 \end{tabular}
 \end{center}
 
@@ -6553,7 +6540,7 @@ and the pattern equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x ascending/ & \tt :=\TILDE &
+\verb/sort x ascending/ & \TT{:=\~~} &
 	\verb/sort ($X) . ascending ASCENDING ??/ \\
 \end{tabular}
 \end{center}
@@ -6580,7 +6567,7 @@ is created.  For example, when the pattern in the equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x by 5 by 10/ & \tt :=\TILDE
+\verb/increment x by 5 by 10/ & \TT{:=\~~}
 			      & \verb/increment ($X) . by ($Y) ...?/ \\
 \end{tabular}
 \end{center}
@@ -6589,7 +6576,7 @@ is unfolded, the following equations result:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x by 5 by 10/ & \tt :=\TILDE
+\verb/increment x by 5 by 10/ & \TT{:=\~~}
 			      & \verb/increment ($X) by ($Y$1) by ($Y$2)/ \\
 \verb/$Y/ & \tt :=: & \verb|($Y$1, $Y$2)|
 \end{tabular}
@@ -6606,7 +6593,7 @@ resulting list to be empty.  Thus
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x/ & \tt :=\TILDE
+\verb/increment x/ & \TT{:=\~~}
 			      & \verb/increment ($X) . by ($Y) ...?/ \\
 \end{tabular}
 \end{center}
@@ -6615,7 +6602,7 @@ yields
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x/ & \tt :=\TILDE
+\verb/increment x/ & \TT{:=\~~}
 			      & \verb/increment ($X)/ \\
 \verb/$Y/ & \tt :=: & \verb|()|
 \end{tabular}
@@ -6726,12 +6713,12 @@ equations, among which are:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sum (1+1) and (5+5)/ & \tt :=\TILDE
+\verb/sum (1+1) and (5+5)/ & \TT{:=\~~}
 			      & \verb/sum ($X) and ($Y)/ \\
 \verb/$X/ & \tt :=: & \verb/(1+1)/ \\
-\verb/$Y/ & \tt :=:\TILDE & \verb/(5+5)/ \\
+\verb/$Y/ & \TT{:=:\~~} & \verb/(5+5)/ \\
 \verb/X/ & \tt :=: & \verb/2/ \\
-\verb/Y/ & \tt :=:\TILDE & \verb/10/ \\
+\verb/Y/ & \TT{:=:\~~} & \verb/10/ \\
 \end{tabular}
 \end{center}
 
@@ -7008,7 +6995,7 @@ The code of a block has the following syntax:
 \emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
 \emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}] \\[1ex]
 \emlkey{pattern}{-assignment-statement} ::=
-	{\em pattern} \verb|~=~|\index{~=~@{\tt \TILDE=\TILDE}}
+	{\em pattern} \verb|~=~|\index{~=~@{\TT{\~~=\~~}}}
 	{\em right-side} \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
 \emkey{unguarded-subblock} ::= \verb|{| {\em statement-group} \verb|}| \\[1ex]
@@ -7050,7 +7037,7 @@ When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 were in the {\em block} proper.  Thus variables named in the
 {\em subblock} are variables named in the {\em block}.\footnote{
 RECKON does not have the notion of name space nesting, because the
-{\tt \LEFTBRACKET\RIGHTBRACKET} brackets that would
+\TT{\{ \}} brackets that would
 indicate nesting can be implied by the {\tt :} construction.}
 
 For example, in
