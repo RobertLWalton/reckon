@@ -193,7 +193,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 9, 2014}
+\date{March 11, 2014}
 
 \maketitle
 
@@ -1414,39 +1414,104 @@ output they are the same.
 For instance, given {\tt x + y} as input the parser will output {\tt + x y},
 but given {\tt x "+" y} as input the parser will output {\tt x + y}.
 
-In order to indicate spacing, each lexeme is
-tagged with the column, line, and page number of its first character.
-This can be used to determine the indentation and extent of the lexeme.
-Using this information, {\em indented-subexpressions} are recognized
-which are lists of lines with the same indentation.
-{\em Indented-subexpressions} (\pagref{INDENTED-SUBEXPRESSION})
-are introduced by {\em indentation-marks}
-(\secref{INDENTATION-MARKS}), which are lexemes.
-Lines in an {\em indented-subexpression} are separated by implicit
-\skey{indentation-separator}s\label{INDENTATION-SEPARATOR}
-that are placed at the beginning of each
-line but the first.
-An implicit \key{indentation-beginning}\label{INDENTATION-BEGINNING}
-is placed after the {\em indentation-mark}
-and before the first the line in an {\em indented-subexpression}.
-An implicit \key{indentation-end}\label{INDENTATION-END}
-is placed after
-all the lines in an {\em indented-subexpression}.
-Although {\em indentation-marks} are lexemes,
-{\em indentation-separators}, {\em indentation-beginnings},
-and {\em indentation-ends} are syntax categories but not lexemes.
-Their presence is implied by indentation, and they have no characters
-of their own.
-Details are in Section~\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION}.
+Lexemes are contained in lines.  Line beginnings
+are translated into a special lexeme which is
+input to the parser.  Lines can also be organized into subparagraphs
+whose beginnings and endings are translated into special sequences of
+lexemes that are input to the parser.
 
-\begin{indpar}
-\emkey{indentation-beginning} ::= see text, \pagref{INDENTATION-BEGINNING}
-				and \pagref{INDENTATION-BEGINNING2} \\[1ex]
-\emkey{indentation-separator} ::= see text, \pagref{INDENTATION-SEPARATOR}
-				and \pagref{INDENTATION-SEPARATOR2} \\[1ex]
-\emkey{indentation-end} ::= see text, \pagref{INDENTATION-END}
-				and \pagref{INDENTATION-END2}
-\end{indpar}
+A line beginning translates into the lexeme `\ttkey{<\$\$>}'.
+
+A line can be \mkey{continued}{line} on the next line by giving that next line
+an indentation greater than that of the line being continued.  Thus
+
+\begin{indpar}\begin{verbatim}
+This is a line
+     which is continued
+   and continued.
+\end{verbatim}\end{indpar}
+
+translates to the lexeme squence
+
+\begin{indpar}\begin{verbatim}
+<$$> This is a line which is continued and continued .
+\end{verbatim}\end{indpar}
+
+All that has been done here is to omit the \TT{<\$\$>} line beginning
+lexemes of the continuation lines.
+
+Blank lines are ignored unless they appear just before a non-continuation
+line, in which case they are indicated by a announcing the beginning
+of the non-continuation line by two \TT{<\$\$>} lexemes instead of just
+one.  Thus
+
+\begin{indpar}\begin{verbatim}
+This is a line
+     which is continued.
+
+
+
+And more.
+\end{verbatim}\end{indpar}
+
+translates to the lexeme squence
+
+\begin{indpar}\begin{verbatim}
+<$$> This is a line which is continued . <$$> <$$> And more .
+\end{verbatim}\end{indpar}
+
+A \key{subparagraph}, also known as a \key{subblock},
+is introduced by a `\ttmkey{:}{introducing subparagraph}'
+at the end of a line.  This translates to the lexeme sequence
+`\ttkey{<\$BEGIN\$>}' and also specifies that the next non-blank
+line is not a continuation of any previous line.  The indentation
+of this next non-blank line becomes the indentation of the
+subparagraph, and all the lines of the subparagraph.  When a
+line with smaller indentation is encountered, it is interpreted
+as the first line beyond the end of the subparagraph, and
+the lexeme squence `\ttkey{<\$END\$>}' is inserted just after
+the end of the last lexeme in the last subparagraph line (or
+just after \TT{<\$BEGIN\$>} if the subparagraph is empty).
+Thus
+
+\begin{indpar}\begin{verbatim}
+This is a line:
+     And a subparagraph
+         line.
+     And another.
+
+And more.
+\end{verbatim}\end{indpar}
+
+translates to the lexeme sequence
+
+\begin{indpar}\begin{verbatim}
+<$$> This is a line
+<$ BEGIN $> <$$> And a subparagraph line.
+<$$> And another.  <$ END $>
+<$$> <$$> And more.
+\end{verbatim}\end{indpar}
+
+\TT{<\$END\$>} sequences are added at the end of a file to
+match any unmatched \TT{<\$BEGIN\$>} sequences from subparagraphs
+that extend to the end of file.
+
+A line ending `\TT{:}' is a character and not a lexeme; if it
+is at the end of a {\em mark}, it is removed from the {\em mark}.
+Thus
+
+\begin{indpar}\begin{verbatim}
+x =:
+     y = 5
+     z = 10
+\end{verbatim}\end{indpar}
+
+translates to the lexeme sequence
+
+\begin{indpar}\begin{verbatim}
+<$$> x = <$ BEGIN $> <$$> y = 5 <$$> z = 10 <$END$>
+\end{verbatim}\end{indpar}
+
 
 \section{Low Level Data}
 
@@ -1540,17 +1605,17 @@ When this is done, a textual representation of the object set is used
 in the file.  The simplest representation is the raw representation,
 which we now describe.
 
-The format of a \key{raw representation} is:
+A \key{raw representation} is a special case of a {\em data-representation}.
+This special case makes minimal use of the parser and is used when
+data is to be automatically written to a file.
+
+The syntax of the parts of a {\em data-representation} which are used
+in a raw representation is:
+
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{raw-representation}
-\\\hspace*{0.5in}\begin{tabular}[t]{rl}
-                 ::= & {\em empty} \\
-		 $|$ & {\em raw-object-representation} \\
-		     & \{ {\em indentation-separator}
-		          {\em raw-object-representation} \}$^\star$
-		 \end{tabular}
+\emkey{data-representation} ::= {\em data-object-representation}\STAR{} \\
 \end{tabular}
 
 \begin{tabular}{l}
