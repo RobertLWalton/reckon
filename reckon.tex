@@ -112,7 +112,6 @@
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
-\newcommand{\emxkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
 
 \newcommand{\opt}{$^!$}
 
@@ -193,7 +192,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 11, 2014}
+\date{March 12, 2014}
 
 \maketitle
 
@@ -1129,6 +1128,7 @@ contains in order the following lexemes:
 \label{SYMBOL-LEXEME}
 \\[2ex]
 \emkey{word} ::= {\em word-character} {\em word-character}\,$^\star$
+\label{WORD}
 \\[1ex]
 \emkey{numeric} ::=
         {\em numeric-character} {\em numeric-character}\,$^\star$
@@ -1420,7 +1420,7 @@ input to the parser.  Lines can also be organized into subparagraphs
 whose beginnings and endings are translated into special sequences of
 lexemes that are input to the parser.
 
-A line beginning translates into the lexeme `\ttkey{<\$\$>}'.
+A line beginning translates into the lexeme `\ttkey{<*>}'.
 
 A line can be \mkey{continued}{line} on the next line by giving that next line
 an indentation greater than that of the line being continued.  Thus
@@ -1434,16 +1434,16 @@ This is a line
 translates to the lexeme squence
 
 \begin{indpar}\begin{verbatim}
-<$$> This is a line which is continued and continued .
+<*> This is a line which is continued and continued .
 \end{verbatim}\end{indpar}
 
-All that has been done here is to omit the \TT{<\$\$>} line beginning
+All that has been done here is to omit the \TT{<*>} line beginning
 lexemes of the continuation lines.
 
 Blank lines are ignored unless they appear just before a non-continuation
-line, in which case they are indicated by a announcing the beginning
-of the non-continuation line by two \TT{<\$\$>} lexemes instead of just
-one.  Thus
+line, in which case they are indicated by announcing the beginning
+of the non-continuation line by the two lexemes `\TT{<\#> <*>}'
+instead of just one `\TT{<*>}' lexeme.  Thus
 
 \begin{indpar}\begin{verbatim}
 This is a line
@@ -1457,21 +1457,25 @@ And more.
 translates to the lexeme squence
 
 \begin{indpar}\begin{verbatim}
-<$$> This is a line which is continued . <$$> <$$> And more .
+<*> This is a line which is continued . <#> <*> And more .
 \end{verbatim}\end{indpar}
+
+A single \TT{<\#>} lexeme is also placed at the beginning of
+a file that begins with a non-blank line, as if a blank line 
+had been inserted at the beginning of the file.
 
 A \key{subparagraph}, also known as a \key{subblock},
 is introduced by a `\ttmkey{:}{introducing subparagraph}'
 at the end of a line.  This translates to the lexeme sequence
-`\ttkey{<\$BEGIN\$>}' and also specifies that the next non-blank
+`\ttkey{<\$}' and also specifies that the next non-blank
 line is not a continuation of any previous line.  The indentation
 of this next non-blank line becomes the indentation of the
 subparagraph, and all the lines of the subparagraph.  When a
 line with smaller indentation is encountered, it is interpreted
 as the first line beyond the end of the subparagraph, and
-the lexeme squence `\ttkey{<\$END\$>}' is inserted just after
+the lexeme squence `\ttkey{\$>}' is inserted just after
 the end of the last lexeme in the last subparagraph line (or
-just after \TT{<\$BEGIN\$>} if the subparagraph is empty).
+just after \TT{<\$} if the subparagraph is empty).
 Thus
 
 \begin{indpar}\begin{verbatim}
@@ -1486,14 +1490,14 @@ And more.
 translates to the lexeme sequence
 
 \begin{indpar}\begin{verbatim}
-<$$> This is a line
-<$ BEGIN $> <$$> And a subparagraph line.
-<$$> And another.  <$ END $>
-<$$> <$$> And more.
+<*> This is a line
+<$ <*> And a subparagraph line.
+<*> And another. $>
+<#> <*> And more.
 \end{verbatim}\end{indpar}
 
-\TT{<\$END\$>} sequences are added at the end of a file to
-match any unmatched \TT{<\$BEGIN\$>} sequences from subparagraphs
+\TT{\$>} sequences are added at the end of a file to
+match any unmatched \TT{<\$} sequences from subparagraphs
 that extend to the end of file.
 
 A line ending `\TT{:}' is a character and not a lexeme; if it
@@ -1509,7 +1513,7 @@ x =:
 translates to the lexeme sequence
 
 \begin{indpar}\begin{verbatim}
-<$$> x = <$ BEGIN $> <$$> y = 5 <$$> z = 10 <$END$>
+<*> x = <$ <*> y = 5 <*> z = 10 $>
 \end{verbatim}\end{indpar}
 
 
@@ -1607,7 +1611,7 @@ which we now describe.
 
 A \key{raw representation} is a special case of a {\em data-representation}.
 This special case makes minimal use of the parser and is used when
-data is to be automatically written to a file.
+data is written to a file without any attempt to format the data.
 
 The syntax of the parts of a {\em data-representation} which are used
 in a raw representation is:
@@ -1619,48 +1623,19 @@ in a raw representation is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-object-representation}
-\\\hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-header} {\em raw-single-attribute-value}\,$^\star$
-          {\em raw-attribute-representations} \\
-    $|$ & \begin{tabular}[t]{@{}l@{}}
-	  {\em indenting-object-header} \\
-	  ~~~~{\em indentation-beginning}
-	      {\em raw-attribute-representation} \\
-	  ~~~~\{ {\em indentation-separator}
-	     {\em raw-attribute-representation} \}$^\star$ \\
-	  {\em indentation-end}
-	  \end{tabular}
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{object-header}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-identifier} \TT{=|}
-          \ttmindex{=}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \TT{>|}
-          \ttmindex{>}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \TT{>{}>|}
-          \ttmindex{>{}>}{in {\em object-header}} \\
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{indenting-object-header}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-identifier} \TT{=|:}
-          \ttmindex{=}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \TT{>|:}
-          \ttmindex{>}{in {\em object-header}} \\
-    $|$ & {\em object-identifier} \TT{>{}>|:}
-          \ttmindex{>{}>}{in {\em object-header}} \\
-    \end{tabular}
+\emkey{data-object-representation}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        ::= \TT{<*>} & {\em object-identifier}
+	               {\em data-assignment-operator}
+		       {\em object-list}\QMARK{} \\
+	             & {\em attribute-representation-subparagraph}\QMARK{} \\
+        \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{object-identifier} ::=
-	\ttmkey{@}{in {\em object-identifier}} {\em decimal-natural}
+	\ttmkey{@}{in {\em object-identifier}} {\em decimal-natural} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1668,45 +1643,56 @@ in a raw representation is:
 \\\hspace*{0.5in}
 {\em numeric} lexeme containing only digits and commas
               (\pagref{DECIMAL-NATURAL})
-\end{tabular}%
-
-\begin{tabular}{l}
-\emlkey{raw-attribute}{-representations}
-\\\hspace*{0.5in}
-	\begin{tabular}[t]{rl}
-        ::= & {\em empty} \\
-	$|$ & \TT{\{| |\}} \\
-	$|$ & \TT{\{|}
-	      {\em raw-attribute-representation}
-	      \{ \TT{;} {\em raw-attribute-representation} \}$^\star$
-	      \TT{|\}} \\
-	$|$ & \begin{tabular}[t]{@{}l@{}}
-	      \TT{|:}{\em -indentation-mark} \\
-	      ~~~~{\em indentation-beginning}
-	          {\em raw-attribute-representation} \\
-	      ~~~~\{ {\em indentation-separator}
-	         {\em raw-attribute-representation} \}$^\star$ \\
-	      {\em indentation-end}
-	      \end{tabular}
-	\end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-attribute}{-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em raw-single-attribute-representation} \\
-    $|$ & {\em double-attribute-representation} \\
-    $|$ & {\em empty}
+\emkey{data-assignment-operator} ::= ~~~
+	\ttmkey{=}{data assignment operator} $|$
+	\ttmkey{=>}{data assignment operator} $|$
+	\ttmkey{=>{}>}{data assignment operator}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{object-list}
+    \begin{tabular}[t]{rl}
+    ::= & {\em raw-atom-list} \\
+    $|$ & other (see \pagref{OBJECT-LIST})
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emxkey{raw-single-attribute-}{representation} ::=
+\emkey{raw-atom-list} ::= \TT{|} {\em raw-atom}\STAR{} \TT{|} \\
+\end{tabular}
+
+\begin{tabular}{l}
+\emlkey{attribute-representation}{-subparagraph}
+    ::= \TT{<\$} {\em attribute-representation}\STAR{} \TT{\$>}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{attribute-representation}\label{ATTRIBUTE-REPRESENTATION}
+    \begin{tabular}[t]{rl}
+    ::= & {\em single-attribute-representation} \\
+    $|$ & {\em double-attribute-representation} \\
+    $|$ & \TT{<\#>}
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emlkey{single-attribute-}{representation}
+    \begin{tabular}[t]{rl}
+    ::= & {\em raw-single-attribute-representation} \\
+    $|$ & other (see \pagref{OBJECT-LIST})
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emlkey{raw-single-attribute-}{representation} ::=
 \\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
+	{\em attribute-label} {\em attribute-label-flags}\QMARK{} \TT{=}
 	{\em raw-single-attribute-value}
 \end{tabular}%
-\index{value!attribute}
+\index{value!raw attribute}
 
 \begin{tabular}{l}
 \emkey{attribute-label} ::= {\em label}
@@ -1719,12 +1705,15 @@ in a raw representation is:
 \index{label}
 
 \begin{tabular}{l}
-\emkey{attribute-label-flags-option} ::=
-    {\em empty} $|$
-    \TT{[} {\em raw-atom}\,$^\star$ \TT{]}
+\emkey{attribute-label-flags} ::=
+    \TT{[} {\em flag-atom} \TT{]}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
+
+\begin{tabular}{l}
+\emkey{flag-atom} ::= {\em raw-atom} but not {\em numeric}
+\end{tabular}
 
 \begin{tabular}{l}
 \emkey{raw-single-attribute-value} ::= {\em raw-atom}
@@ -1734,8 +1723,12 @@ in a raw representation is:
 
 \begin{tabular}{l}
 \emkey{raw-atom} ::= {\em atom}\pagnote{ATOM} ~
-                 but not {\em separator}\pagnote{SEPARATOR} ~or~
-		 \TT{|} ~or~ \TT{=} ~or~ \TT{|:}
+                 but not {\em separator-atom}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{separator-atom} ::= {\em separator}\pagnote{SEPARATOR}
+    $|$ \TT{|} $|$ \TT{=} $|$ \TT{<*>} $|$ \TT{<\#>} $|$ \TT{<\$} $|$ \TT{\$>}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1750,11 +1743,13 @@ in a raw representation is:
 \begin{tabular}{l}
 \emlkey{double-attribute}{-representation} ::=
 \\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags-option}
-	\verb|=|
+	{\em attribute-label} {\em attribute-label-flags}\QMARK{}
+	\TT{=}
 \\\hspace*{0.5in}
-	{\em double-attribute-value} {\em reverse-attribute-label}
-	{\em attribute-label-flags-option}
+	{\em double-attribute-value}
+\\\hspace*{0.5in}
+	\TT{=} {\em reverse-attribute-label}
+	{\em attribute-label-flags}\QMARK{}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1767,36 +1762,15 @@ in a raw representation is:
 
 \end{indpar}
 
-{\em Raw-object-representations} are lines in the file being read
-(they are at the parser's top level)
-and are separated by implicit {\em indentation-separators} placed
-just before each non-indented line (see \pagref{TOP-LEVEL} for details).
-Their special syntactic marker is the \TT{=|} sign.
-They can
-use either \TT{\{|~~|\}} brackets and \TT{;} separators, or
-the \TT{|:} indentation mark and {\em indentation-separators}.
-To replace \TT{\{|  |\}} and \TT{;} by indentation,
-indent appropriately placing the \TT{\{|}, \TT{|\}}, and \TT{;}
-brackets and separators at line ends, replace \TT{\{|} by \TT{|:},
-and delete the \TT{|\}}'s and \TT{;}'s.
-A \TT{=|~~|:} sequence at a line end can be abbreviated by \TT{=|:},
-and similarly \TT{>|~~|:} and \TT{>{}>|~~|:} can be abbreviated
-by \TT{>|:} and \TT{>{}>|:}.
+{\em Raw-object-representations} are lines beginning with \TT{@}.
 For example,
 
 \begin{indpar}\begin{verbatim}
-@1 = {| type = woman; name = Jill; husband = @2 wife |};
-@2 = {| type = man; name = Jack |}
-\end{verbatim}\end{indpar}
-
-becomes
-
-\begin{indpar}\begin{verbatim}
-@1 =|:
+@1 =:
     type = woman
     name = Jill
-    husband = @2 wife
-@2 =|:
+    husband = @2 = wife
+@2 =:
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -1843,22 +1817,18 @@ and the label {\tt wife} when going in the reverse direction.
 
 Note that in this syntax {\em atoms} such as \TT{=} must be
 avoided, as they will be confused with symbols recognized by the
-parser (to end a {\em label} in this case).
+parser (to delimit {\em labels} in this case).
 You can use \TT{"="} instead.
 
-A {\em raw-attribute-representation} is ignored if it is {\em empty},
-which allows superfluous `\verb|;|'s in a list of
-{\em raw-attribute-representations}.
-
-Note lastly that the \TT{\{| |\}} brackets, which are used in object
-representation, are distinct from the \TT{\{ \}} brackets, which are
-used to bracket executable code.
+The \TT{<\#>} {\em attribute-representations} is ignored; that is,
+blank lines amoung the {\em attribute-representations} are ignored.
 
 It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters in \TT{[ ]} brackets after a label.
-The flag characters are those of one or more {\em atoms} enclosed
-in the \TT{[ ]} brackets.  If \TT{]} is used as one of
-these {\em atoms} is must be quoted as in \TT{"]"}.
+The flag characters are those of a {\em raw-atom} enclosed
+in the \TT{[ ]} brackets.  It may be necessary to make
+this {\em raw-atom} a {\em quoted-string} in order to include digits
+are separator characters.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -1912,9 +1882,9 @@ attributes labeled \verb|child|, is:
 \begin{center}
 \begin{tabular}{l@{\hspace*{1in}}l}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@1 =|:/\\
-\verb|    child = @2 parent|\\
-\verb|    child = @3 parent|\\
+\verb/@1 =:/\\
+\verb|    child = @2 = parent|\\
+\verb|    child = @3 = parent|\\
 \end{tabular}
 &
 \begin{picture}(3.0,1.5)
@@ -1940,42 +1910,37 @@ attributes labeled \verb|child|, is:
 We say that the value of the \verb|child| attribute of \verb|@1| is
 the set to two elements, \verb|@2| and \verb|@3|.
 
-The differences between \TT{=}, \TT{>}, and \TT{>{}>} in the
+The differences between \TT{=}, \TT{=>}, and \TT{=>{}>} in the
 {\em object-header} relate
 to what is done when an object or attribute label previously exists.
-Note that with the abreviation convention, these also become differences
-between \TT{=|:}, \TT{>|:}, and \TT{>{}>|:}.
 
-\ttmkey{=|}{in {\em object-header}}
-(or \ttmkey{=|:}{in {\em object-header}})
+\ttmkey{=}{in {\em object-header}}
 indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
-{\em raw-object-representation} (it may have been defined as the value of an
+{\em object-representation} (it may have been defined as the value of an
 attribute).  Second, any attribute label represented in the object
 representation, if it previously exists because it was part of a
 {\em double-attribute-representation}, must be represented with exactly
 the same flags as it already has.
 
 At the other extreme,
-\ttmkey{>{}>}{in {\em object-header}}
-(or \ttmkey{>{}>|:}{in {\em object-header}})
+\ttmkey{=>{}>}{in {\em object-header}}
 adds to existing objects.
 The object being represented can previously exist.  Any attribute
 representation in the object representation creates a new attribute value.
 Any flags on an attribute label are added to the flags of the label if
 that label already exists.
 
-\ttmkey{>}{in {\em object-header}}
-(or \ttmkey{>|:}{in {\em object-header}})
-is like \TT{>{}>} (or \TT{>{}>|:})
+\ttmkey{=>}{in {\em object-header}}
+is like \TT{=>{}>}
 except that the object representation cannot
 add new values to previously existing attributes of the object represented.
 More precisely, the attribute label of any attribute representation in
 the object representation must not have previously (before the object
 representation is read) been an attribute label of the represented object.
-Thus \TT{>|:} is used to introduce new attributes to an existing object.
+Thus \TT{=>} is used to introduce new attributes to an existing object.
 Note that reverse attribute labels are not attribute labels in the sense
-of this paragraph.
+of this paragraph [TBD ??].
 
 Double attributes must have only one representation.  If they
 are given two representations, one for each end of the attribute
@@ -1990,10 +1955,11 @@ The {\em object-identifier} \ttkey{@0} is special; it always names
 a particular object, the \ttnbdkey{GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
-object itself, a situation which can be achieved by the data representation:
+object itself, a situation which can be achieved by the
+{\em object-representation}:
 
 \begin{indpar}\begin{verbatim}
-@0>|:
+@0=>:
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
@@ -2001,18 +1967,20 @@ Labels beginning with `\ttkey{.}' are reserved for use by
 the RECKON system, and should not be defined by RECKON users.  {\tt .GLOBAL}
 is an example of such a label.
 
-The RECKON parser (\secref{PARSING})
-parses\label{RAW-PARSING}
-{\em raw-representations}.
-Because atoms like \TT{=} and \TT{|:}
+The RECKON parser (\secref{PARSING}) parses
+{\em object-representations}.
+Because atoms like \TT{=} and \TT{|}
 are avoided in attribute labels and values, the parser does
-nothing with attribute labels and values.
+nothing with attribute labels and values.%
+\label{RAW-PARSING}
 However after parsing {\em quoted-strings}
 and {\em scientific-numbers} are replaced by single {\em atoms}.
 In the latter case, the {\em atoms} are {\em numbers} represented
 as 64-bit IEEE binary floating point values.  Thus the attribute
 values \TT{5} and \TT{"5"} produce vary different values:
 the first is an IEEE number and the second a 1-character string.
+
+[TBD: name processing of labels??]
 
 \subsection{Lists}
 
@@ -2024,7 +1992,7 @@ then these values are said to form a \key{list} that is represented
 by the object.  An example is
 
 \begin{indpar}\begin{verbatim}
-@93 =|:
+@93 =:
     1 = this
     2 = is
     3 = a
@@ -2043,28 +2011,25 @@ and \verb|.initiator|.  An alternative {\em raw-object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
-@93 =| this is a sentence |:
+@93 = | this is a sentence |:
     .terminator = "."
     .initiator = capital
 \end{verbatim}\end{indpar}
 
-Any {\em raw-single-attribute-values} following the {\em object-header}
+The {\em raw-atoms} surrounded by `\TT{|}'s in a {\em raw-atom-list}
+within an {\em object-representation}
 are assigned as values of the attributes labeled \verb|1|, \verb|2|,
 \verb|3|, \ldots.  Additional attribute values can be given by
-following these by either
-\TT{\{| |\}} bracketed and
-\TT{;} separated {\em raw-attribute-representations}, or alternatively by
-\TT{|:} and then by indented
-{\em raw-attribute-representations}.
+following the {\em raw-atom-list} by a line ending `\TT{:}' that begins an
+{\em attribute-representation-subparagraph}.
 
 \subsection{Cooked Representations}
 
 As noted above (\pagref{RAW-PARSING}),
-{\em raw-single-attribute-values} in a {\em raw-representation}
+{\em single-attribute-values} in a raw {\em object-representation}
 are mostly left alone by the RECKON parsers.  This is because the
-use of special symbols are not allowed in these, aside from
-{\em radix-indicators} and {\em exponent-indicators} which are
-only recognized when adjacent to quoted string or number lexemes.
+use of symbols specially recognized by the parser
+are not allowed in these, a few exceptions.
 
 However, special symbols can be used in attribute value representations
 to create attribute values that are complex objects produced by the
@@ -6122,7 +6087,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 		       $|$ \ttmkey{...}{pattern qualifier}
 		       $|$ \ttmkey{...?}{pattern qualifier}
 	\\[1ex]
-\emxkey{pattern-attribute-}{representations}
+\emlkey{pattern-attribute-}{representations}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= & {\em empty} \\
@@ -6136,17 +6101,17 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 	      \end{tabular}
 	\end{tabular}
 \\[1ex]
-\emxkey{pattern-attribute-}{representation} ::=
+\emlkey{pattern-attribute-}{representation} ::=
 \\\hspace*{0.5in}
     {\em required-attribute-representation}
     $|$ {\em optional-attribute-representation}
 \\[1ex]
-\emxkey{required-pattern-attribute-}{representation} ::=
+\emlkey{required-pattern-attribute-}{representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=|
 	      {\em pattern}
 \\[1ex]
-\emxkey{optional-pattern-}{attribute-representation} ::=
+\emlkey{optional-pattern-}{attribute-representation} ::=
 \\\hspace*{0.5in}
 	{\em attribute-label} {\em attribute-label-flags-option} \verb|=?|
 	      {\em pattern}
