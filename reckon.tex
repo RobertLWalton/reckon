@@ -192,7 +192,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 12, 2014}
+\date{March 13, 2014}
 
 \maketitle
 
@@ -1422,12 +1422,14 @@ lexemes that are input to the parser.
 
 A line beginning translates into the lexeme `\ttkey{<*>}'.
 
-A line can be \mkey{continued}{line} on the next line by giving that next line
+A line can be \mkey{continued}{line} on the next non-blank
+line by giving that next non-blank line
 an indentation greater than that of the line being continued.  Thus
 
 \begin{indpar}\begin{verbatim}
 This is a line
      which is continued
+
    and continued.
 \end{verbatim}\end{indpar}
 
@@ -1439,30 +1441,6 @@ translates to the lexeme squence
 
 All that has been done here is to omit the \TT{<*>} line beginning
 lexemes of the continuation lines.
-
-Blank lines are ignored unless they appear just before a non-continuation
-line, in which case they are indicated by announcing the beginning
-of the non-continuation line by the two lexemes `\TT{<\#> <*>}'
-instead of just one `\TT{<*>}' lexeme.  Thus
-
-\begin{indpar}\begin{verbatim}
-This is a line
-     which is continued.
-
-
-
-And more.
-\end{verbatim}\end{indpar}
-
-translates to the lexeme squence
-
-\begin{indpar}\begin{verbatim}
-<*> This is a line which is continued . <#> <*> And more .
-\end{verbatim}\end{indpar}
-
-A single \TT{<\#>} lexeme is also placed at the beginning of
-a file that begins with a non-blank line, as if a blank line 
-had been inserted at the beginning of the file.
 
 A \key{subparagraph}, also known as a \key{subblock},
 is introduced by a `\ttmkey{:}{introducing subparagraph}'
@@ -1515,6 +1493,31 @@ translates to the lexeme sequence
 \begin{indpar}\begin{verbatim}
 <*> x = <$ <*> y = 5 <*> z = 10 $>
 \end{verbatim}\end{indpar}
+
+Blank lines are ignored unless they appear just before a non-continuation
+line outside any subparagraph,
+in which case they are translated into the `\ttkey{<\#>}' lexeme.
+Note that a blank line before another blank line is ignored.  Thus
+
+\begin{indpar}\begin{verbatim}
+This is a line
+     which is continued.
+
+
+
+And more.
+\end{verbatim}\end{indpar}
+
+translates to the lexeme squence
+
+\begin{indpar}\begin{verbatim}
+<*> This is a line which is continued . <#> <*> And more .
+\end{verbatim}\end{indpar}
+
+
+A single \TT{<\#>} lexeme is also placed at the beginning of
+a file that begins with a non-blank line, as if a blank line 
+had been inserted at the beginning of the file.
 
 
 \section{Low Level Data}
@@ -2029,16 +2032,17 @@ As noted above (\pagref{RAW-PARSING}),
 {\em single-attribute-values} in a raw {\em object-representation}
 are mostly left alone by the RECKON parsers.  This is because the
 use of symbols specially recognized by the parser
-are not allowed in these, a few exceptions.
+are not allowed in these, with a few exceptions.
 
-However, special symbols can be used in attribute value representations
-to create attribute values that are complex objects produced by the
-RECKON parsers in their full glory.  When this is done, the object
-representation is said to be `\key{cooked}\,' instead of `\key{raw}'.
+However, if bracketted lists can be used as object and attribute
+values, and if used, these will invoke the full parser.  Also
+\TT{=>} and \TT{=>>} assignments can be used for attributes as
+well as full objects.
+{\em Object-representations} that contain such are called
+\skey{cooked representation}s, in contrast to raw representations.
 
-The syntax of {\em cooked-representations} is that of
-{\em raw-representations} with `{\em raw-}' replaced everywhere
-by `{\em cooked-}' and two syntax equations adjusted as follows:
+The syntax of {\em object-representations} is extended to include
+cooked representations by the following:
 
 \begin{indpar}
 
