@@ -192,7 +192,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 13, 2014}
+\date{March 15, 2014}
 
 \maketitle
 
@@ -2031,12 +2031,12 @@ following the {\em raw-atom-list} by a line ending `\TT{:}' that begins an
 As noted above (\pagref{RAW-PARSING}),
 {\em single-attribute-values} in a raw {\em object-representation}
 are mostly left alone by the RECKON parsers.  This is because the
-use of symbols specially recognized by the parser
-are not allowed in these, with a few exceptions.
+symbols specially recognized by the parser
+are not allowed in raw representations, with a few exceptions.
 
-However, if bracketted lists can be used as object and attribute
+However, bracketed lists can be used as object and attribute
 values, and if used, these will invoke the full parser.  Also
-\TT{=>} and \TT{=>>} assignments can be used for attributes as
+\TT{=>} and \TT{=>{}>} assignments can be used for attributes as
 well as full objects.
 {\em Object-representations} that contain such are called
 \skey{cooked representation}s, in contrast to raw representations.
@@ -2044,18 +2044,96 @@ well as full objects.
 The syntax of {\em object-representations} is extended to include
 cooked representations by the following:
 
-\begin{indpar}
+\begin{indpar}[0.5em]
 
-\emlkey{cooked-object}{-representation} ::=
-\\\hspace*{0.5in}
-    {\em object-header} {\em expression-option}
-    {\em cooked-attribute-representations}
+\begin{tabular}{l}
+\emkey{object-list}
+    \begin{tabular}[t]{rl}
+    ::= & {\em raw-atom-list} \\
+    $|$ & {\em bracketed-list} \\
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{bracketed-list}\label{BRACKETED-LIST}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{(} {\em prefix-0-list} \TT{)} \\
+    $|$ & \TT{[} {\em prefix-0-list} \TT{]} \\
+    $|$ & \TT{`} {\em prefix-0-list} \TT{'} \\
+    $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} \\
+    $|$ & \TT{\{}{\em type} {\em properties}\QMARK{}
+          \TT{| }{\em prefix-0-list}
+          \TT{|\}} \\
+    $|$ & \TT{\{}{\em type} {\em properties}\QMARK{}
+          \TT{| }{\em prefix-0-list}
+          \TT{|} {\em type} {\em properties}\QMARK{}\TT{\}} \\
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{type} ::= {\em word}\PLUS{} $|$ \TT{.}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{list-opening} ::= \TT{(} $|$ \TT{[} $|$
+                         \TT{`}\PLUS{} $|$ \TT{\{|} $|$ 
+			 \TT{\{}{\em type}
+		         \{ \TT{:} {\em properties} \}\QMARK{} \TT{|} \\
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{list-closing} ::= \TT{)} $|$ \TT{]} $|$
+                         \TT{'}\PLUS{} $|$ \TT{|\}} $|$ 
+                         \TT{|} \{ {\em properties} \TT{:}  \}\QMARK{}
+			 {\em type}\TT{\}} \\
+\end{tabular}
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{prefix-n-list}
+    & ::= & \{ {\em prefix-n} {\em prefix-n+1-list} \}\STAR{} \\
+    & $|$ & {\em list-element}\STAR{} \\
+\emkey{prefix-n}
+    & ::= & {\em prefix} \\
+\emkey{prefix}\label{PREFIX}
+    & ::= & \TT{\{}{\em type} \{ \TT{:} {\em properties} \}\QMARK{} \TT{\}}
 \\[1ex]
-\emlkey{cooked-single}{-attribute-value} ::= {\em expression}
-\\[1ex]
-{\em expression} ::= see section \secref{PARSING}
+\multicolumn{3}{c}{All {\em prefix-n}'s in a {\em prefix-n-list}
+                   have the same type.}
+\end{tabular}
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{list-element}
+    & ::= & {\em word} $|$ {\em data-separator} $|$ {\em list} \\
+\emkey{data-separator}\label{DATA-SEPARATOR}
+    & ::= & {\em separator} not in {\em non-data-separator} \\
+\emkey{non-data-separator}
+    & ::= & {\em strict-separator} $|$ \TT{`}\PLUS{} $|$ \TT{'}\PLUS{}
+\end{tabular}
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{properties} & ::= & {\em property}
+		           \{ \TT{,} {\em property} \}\STAR{} \\
+\emkey{property} & ::= & {\em property-label} \TT{=} {\em property-value} \\
+                 & $|$ & {\em property-label} \\
+                 & $|$ & \TT{no}{\em property-label} \\
+                 & $|$ & \TT{no-}{\em property-label} \\
+                 & $|$ & \TT{no~}{\em property-label} \\
+\emkey{property-label} & ::= & {\em property-label-word}\PLUS{} \\
+\emkey{property-label-word} & ::= & {\em word} other than `\TT{=}' \\
+\emkey{property-value} & ::= & {\em value-symbol}\PLUS $|${\em list} \\
+\emkey{value-symbol} & ::= & {\em symbol} other than {\em non-value-symbol} \\
+\emkey{non-value-symbol} & ::= & `\TT{=}' $|$ `\TT{,}' $|$
+			         `\TT{`}\PLUS' $|$ `\TT{'}\PLUS' $|$
+		                  {\em strict-separator}
+
+\end{tabular}
 
 \end{indpar}
+
+TBD
 
 In the {\em cooked-object-representation} the list of {\em raw-single-attribute-values} that could follow the {\em object-header} has been replaced by
 an {\em expression}, while a {\em cooked-single-attribute-value} can be
@@ -5028,17 +5106,17 @@ is converted by the text parser to
     .terminator = "."
 \end{verbatim}\end{indpar}
 
-Here the entire bracketted subexpression
+Here the entire bracketed subexpression
 `\verb/<section(1)|/ \ldots{} \verb/|>/'
 also is the lowest precedence operator which reformats everything that
 follows (and in general everything following up to the next operator of
 equal or lower precedence or a closing outer bracket) into a single list.
-It attaches the bracketted text to this list as the {\tt .title} attribute.
+It attaches the bracketed text to this list as the {\tt .title} attribute.
 Also the `\verb/<section>/' operator is programmed to attach its argument,
 `\verb|1|' in this case, to the list as the {\tt .level} attribute
 
-In general named operators can be used in bracketted form to attach
-a bracketted expression as a {\tt .title} attribute to the same text
+In general named operators can be used in bracketed form to attach
+a bracketed expression as a {\tt .title} attribute to the same text
 the operator attaches its {\tt .text-type} to.  In general some
 named operators or brackets are programmed to take arguments which
 they may use to control formatting or compute text attribute values
@@ -5123,7 +5201,7 @@ Unnamed brackets, namely
 `\verb|(| \ldots{} \verb|)|',
 `\verb|[| \ldots{} \verb|]|', and
 `\verb|{| \ldots{} \verb|}|',
-produce bracketted subexpressions just as they do for other
+produce bracketed subexpressions just as they do for other
 parsers.  Thus the text
 
 \begin{indpar}\begin{verbatim}
