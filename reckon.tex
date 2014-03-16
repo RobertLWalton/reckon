@@ -1421,13 +1421,29 @@ numerics:
 \emkey{name} := {\em name-lexeme}\STAR{} ~ {\em non-numeric-name-lexeme}
                 ~ {\em name-lexeme}\STAR{}
 \label{NAME}\\[1ex]
+\emkey{name-lexeme} ::= {\em lexeme} other than {\em non-name-lexeme} \\[1ex]
+\emkey{non-name-lexeme}
+    ::= {\em separator} $|$ \TT{=} $|$ \TT{:} $|$ \TT{<*>} $|$ \TT{<\#>} \\[1ex]
 \emkey{non-numeric-name-lexeme}
-    ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string} \\[1ex]
-\emkey{name-lexeme} ::= {\em numeric} $|$ {\em non-numeric-name-lexeme}
+    ::= {\em name-lexeme} other than {\em numeric}
+\label{NON-NUMERIC-NAME-LEXEME}
 \end{indpar}
 
 If a syntactic unit {\em X-name} is used, the syntactic equation
 `{\em X-name} ::= {\em name}' is implied.
+
+{\em Numerics} do not uniquely represent atoms, but {\em numerics} with
+only digits and no high order \TT{0}'s do.  These are:
+
+\begin{indpar}
+\emkey{decimal-natural} := \TT{0} $|$ {\em non-zero-digit} {\em digit}\STAR{}
+				  $|$ {decimal-natural-with-commas}
+\label{DECIMAL-NATURAL} \\[1ex]
+\emkey{non-zero-digit} := {\em digit} other than \TT{0} \\[1ex]
+\emkey{decimal-natural-with-commas}
+    := {\em non-zero-digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
+       \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{}
+\end{indpar}
 
 Lexemes are contained in lines.  Line beginnings
 are translated into a special lexeme which is
@@ -1460,15 +1476,15 @@ lexemes of the continuation lines.
 A \key{subparagraph}, also known as a \key{subblock},
 is introduced by a `\ttmkey{:}{introducing subparagraph}'
 at the end of a line.  This translates to the lexeme sequence
-`\ttkey{<\$}' and also specifies that the next non-blank
+`\ttkey{\{:}' and also specifies that the next non-blank
 line is not a continuation of any previous line.  The indentation
 of this next non-blank line becomes the indentation of the
 subparagraph, and all the lines of the subparagraph.  When a
 line with smaller indentation is encountered, it is interpreted
 as the first line beyond the end of the subparagraph, and
-the lexeme squence `\ttkey{\$>}' is inserted just after
+the lexeme squence `\ttkey{:\}}' is inserted just after
 the end of the last lexeme in the last subparagraph line (or
-just after \TT{<\$} if the subparagraph is empty).
+just after \TT{\{:} if the subparagraph is empty).
 Thus
 
 \begin{indpar}\begin{verbatim}
@@ -1484,13 +1500,13 @@ translates to the lexeme sequence
 
 \begin{indpar}\begin{verbatim}
 <*> This is a line
-<$ <*> And a subparagraph line.
-<*> And another. $>
+{: <*> And a subparagraph line.
+<*> And another. :}
 <#> <*> And more.
 \end{verbatim}\end{indpar}
 
-\TT{\$>} sequences are added at the end of a file to
-match any unmatched \TT{<\$} sequences from subparagraphs
+`\TT{:\}}' sequences are added at the end of a file to
+match any unmatched `\TT{\{:}' sequences from subparagraphs
 that extend to the end of file.
 
 A line ending `\TT{:}' is a character and not a lexeme; if it
@@ -1506,7 +1522,7 @@ x =:
 translates to the lexeme sequence
 
 \begin{indpar}\begin{verbatim}
-<*> x = <$ <*> y = 5 <*> z = 10 $>
+<*> x = {: <*> y = 5 <*> z = 10 :}
 \end{verbatim}\end{indpar}
 
 Blank lines are ignored unless they appear just before a non-continuation
@@ -1673,18 +1689,18 @@ in a raw representation is:
 \begin{tabular}{l}
 \emkey{object-list}
     \begin{tabular}[t]{rl}
-    ::= & {\em raw-atom-list} \\
+    ::= & {\em raw-element-list} \\
     $|$ & other (see \pagref{OBJECT-LIST})
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-atom-list} ::= \TT{|} {\em raw-atom}\STAR{} \TT{|} \\
+\emkey{raw-element-list} ::= \TT{|} {\em raw-element}\STAR{} \TT{|} \\
 \end{tabular}
 
 \begin{tabular}{l}
 \emlkey{attribute-representation}{-subparagraph}
-    ::= \TT{<\$} {\em attribute-representation}\STAR{} \TT{\$>}
+    ::= \TT{\{:} {\em attribute-representation}\STAR{} \TT{:\}}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1718,7 +1734,8 @@ in a raw representation is:
 \index{label!attribute}
 
 \begin{tabular}{l}
-\emkey{label} ::= {\em raw-atom}\,$^\star$ \\
+\emkey{label} ::= {\em name}\pagnote{NAME}
+              $|$ {\em decimal-natural}\pagnote{DECIMAL-NATURAL}
 \end{tabular}%
 \index{label}
 
@@ -1730,7 +1747,8 @@ in a raw representation is:
 \index{attribute label!flags}
 
 \begin{tabular}{l}
-\emkey{flag-atom} ::= {\em raw-atom} but not {\em numeric}
+\emkey{flag-atom}
+    ::= {\em non-numeric-name-lexeme}\pagnote{NON-NUMERIC-NAME-LEXEME}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1746,7 +1764,7 @@ in a raw representation is:
 
 \begin{tabular}{l}
 \emkey{separator-atom} ::= {\em separator}\pagnote{SEPARATOR}
-    $|$ \TT{|} $|$ \TT{=} $|$ \TT{<*>} $|$ \TT{<\#>} $|$ \TT{<\$} $|$ \TT{\$>}
+    $|$ \TT{|} $|$ \TT{=} $|$ \TT{<*>} $|$ \TT{<\#>}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2063,7 +2081,7 @@ cooked representations by the following:
 \begin{indpar}[0.5em]
 
 \begin{tabular}{l}
-\emkey{object-list}
+\emkey{object-list}\label{OBJECT-LIST}
     \begin{tabular}[t]{rl}
     ::= & {\em raw-atom-list} \\
     $|$ & {\em bracketed-list} \\
@@ -2087,7 +2105,7 @@ cooked representations by the following:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{type} ::= {\em word}\PLUS{} $|$ \TT{.}
+\emkey{type} ::= {\em name}\pagnote{NAME}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2102,10 +2120,8 @@ cooked representations by the following:
 
 \begin{tabular}{l}
 \emkey{prefix-n-list}
-    \begin{tabular}[t]{rl}
-    ::= & \{ {\em prefix-n} {\em prefix-n+1-list} \}\STAR{} \\
-    $|$ & {\em list-element}\STAR{} \\
-    \end{tabular}
+    ::= \{ {\em prefix-n} {\em prefix-n+1-list} \}\STAR{}
+    $|$ {\em list-element}\STAR{} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2114,7 +2130,7 @@ cooked representations by the following:
 
 \begin{tabular}{l}
 \emkey{prefix}\label{PREFIX}
-    ::= \TT{\{}{\em type} \{ \TT{:} {\em properties} \}\QMARK{} \TT{\}}
+    ::= \TT{\{}{\em type} {\em properties}\QMARK{} \TT{\}}
 \\[1ex]
 \end{tabular}
 
@@ -2122,20 +2138,21 @@ cooked representations by the following:
 All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{center}
 
-\begin{tabular}{rcl}
-\hspace*{1.7in} \\[-2ex]
+\begin{tabular}{l}
 \emkey{list-element}
-    & ::= & {\em word} $|$ {\em data-separator} $|$ {\em list} \\
-\emkey{data-separator}\label{DATA-SEPARATOR}
-    & ::= & {\em separator} not in {\em non-data-separator} \\
-\emkey{non-data-separator}
-    & ::= & {\em strict-separator} $|$ \TT{`}\PLUS{} $|$ \TT{'}\PLUS{}
+    ::= {\em name-lexeme} $|$ {\em bracketed-list} \\
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{properties}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{:} {\em property} \{ \TT{,} {\em property} \}\STAR{} \\
+    $|$ & \TT{\{:} \{ \TT{<*>} {\em property} \}\STAR{} \TT{:\}} \\
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{rcl}
 \hspace*{1.7in} \\[-2ex]
-\emkey{properties} & ::= & {\em property}
-		           \{ \TT{,} {\em property} \}\STAR{} \\
 \emkey{property} & ::= & {\em property-label} \TT{=} {\em property-value} \\
                  & $|$ & {\em property-label} \\
                  & $|$ & \TT{no}{\em property-label} \\
@@ -3843,15 +3860,8 @@ an optional decimal point or slash.
 		              $|$ & {\em decimal-numerator}\verb|/|%
 		                    {\em decimal-denominator} \\
 		              \end{tabular} \\[1ex]
-\emkey{decimal-integer} ::= {\em decimal-natural}
+\emkey{decimal-integer} ::= {\em decimal-natural}\pagref{DECIMAL-NATURAL}
 \label{DECIMAL-INTEGER}
-\\[1ex]
-\emkey{decimal-natural} \begin{tabular}[t]{rl}
-                         ::= & {\em decimal-digits} \\
-                         $|$ & {\em decimal-digits}
-			       \verb|,| {\em digit} {\em digit} {\em digit}
-			 \end{tabular}
-\label{DECIMAL-NATURAL}
 \\[1ex]
 \emkey{decimal-fraction} \begin{tabular}[t]{rl}
                          ::= & {\em decimal-digits} \\
