@@ -1708,7 +1708,6 @@ in a raw representation is:
     \begin{tabular}[t]{rl}
     ::= & {\em single-attribute-representation} \\
     $|$ & {\em double-attribute-representation} \\
-    $|$ & \TT{<\#>}
     \end{tabular}
 \end{tabular}
 
@@ -1856,15 +1855,13 @@ avoided, as they will be confused with symbols recognized by the
 parser (to delimit {\em labels} in this case).
 You can use \TT{"="} instead.
 
-The \TT{<\#>} {\em attribute-representations} is ignored; that is,
-blank lines amoung the {\em attribute-representations} are ignored.
-
 It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters in \TT{[ ]} brackets after a label.
-The flag characters are those of a {\em raw-atom} enclosed
+The flag characters are those of a {\em non-numeric-name-lexeme}
+(i.e., {\em word}, most {\em marks}, or {\em quoted-string}) enclosed
 in the \TT{[ ]} brackets.  It may be necessary to make
 this {\em raw-atom} a {\em quoted-string} in order to include digits
-are separator characters.
+or separator characters.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -2151,21 +2148,23 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
     \end{tabular}
 \end{tabular}
 
-\begin{tabular}{rcl}
-\hspace*{1.7in} \\[-2ex]
-\emkey{property} & ::= & {\em property-label} \TT{=} {\em property-value} \\
-                 & $|$ & {\em property-label} \\
-                 & $|$ & \TT{no}{\em property-label} \\
-                 & $|$ & \TT{no-}{\em property-label} \\
-                 & $|$ & \TT{no~}{\em property-label} \\
-\emkey{property-label} & ::= & {\em property-label-word}\PLUS{} \\
-\emkey{property-label-word} & ::= & {\em word} other than `\TT{=}' \\
-\emkey{property-value} & ::= & {\em value-symbol}\PLUS $|${\em list} \\
-\emkey{value-symbol} & ::= & {\em symbol} other than {\em non-value-symbol} \\
-\emkey{non-value-symbol} & ::= & `\TT{=}' $|$ `\TT{,}' $|$
-			         `\TT{`}\PLUS' $|$ `\TT{'}\PLUS' $|$
-		                  {\em strict-separator}
+\begin{tabular}{l}
+\emkey{property}
+    \begin{tabular}[t]{rl}
+    ::= & {\em property-label} \TT{=} {\em property-value} \\
+    $|$ & {\em property-label} \\
+    $|$ & \TT{no}{\em property-label} \\
+    $|$ & \TT{no-}{\em property-label} \\
+    $|$ & \TT{no~}{\em property-label} \\
+    \end{tabular}
+\end{tabular}
 
+\begin{tabular}{l}
+\emkey{property-label} ::= {\em label}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{property-value} ::= {\em raw-atom-list}
 \end{tabular}
 
 \end{indpar}
