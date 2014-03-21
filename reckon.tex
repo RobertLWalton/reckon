@@ -1373,15 +1373,20 @@ did not exist, except that a warning message may be issued.  However
 no warning is issued for \emskey{carriage-return}s that are next to
 a {\em vertical-space-character}.
 
+The tabs used by the {\em horizontal-tab} character are set every
+8 columns.
+
 Every {\em vertical-space-character} causes the current position to
 return to the beginning of a new line.
 {\em Horizontal-space-characters} before a {\em vertical-space-character}
 are ignored, as if they did not exist.
+Warning messages are issued for {\em form-feeds} and {\em vertical-tabs}
+that occur when the column position is not at the beginning of a line.
 
 {\em Numerics} represent numbers which are stored as strings of binary
 digits.  Several {\em numerics} may represent the same number.  For example,
 \TT{007} and \TT{7} both represent the same number,
-and \TT{15/2} and \TT{7.5} both represent the same number.
+and \TT{15/2}, \TT{7.5}, and \TT{7.50} all represent the same number.
 
 {\em Words}, {\em marks}, {\em separators}, and {\em quoted-strings}
 represent \skey{symbol}s which are stored as character strings.
@@ -1439,13 +1444,16 @@ only digits and no high order \TT{0}'s do.  These are:
 
 \begin{indpar}
 \emkey{decimal-natural} := \TT{0} $|$ {\em non-zero-digit} {\em digit}\STAR{}
-				  $|$ {decimal-natural-with-commas}
 \label{DECIMAL-NATURAL} \\[1ex]
-\emkey{non-zero-digit} := {\em digit} other than \TT{0} \\[1ex]
-\emkey{decimal-natural-with-commas}
-    := {\em non-zero-digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
-       \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{}
+\emkey{non-zero-digit} := {\em digit} other than \TT{0}
 \end{indpar}
+
+Given a non-negative integer {\em number} atom, there is a unique
+{\em decimal-natural} representing it.  Note that
+{\em decimal-naturals} cannot contain commas, as if they could,
+either all {\em decimal-natural}
+representations of an integer would have to contain commas,
+or the representations would not be unique.
 
 Lexemes are contained in lines.  Line beginnings
 are translated into a special lexeme which is
