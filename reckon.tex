@@ -1428,9 +1428,11 @@ numerics:
 \emkey{name} := {\em name-lexeme}\STAR{} ~ {\em non-numeric-name-lexeme}
                 ~ {\em name-lexeme}\STAR{}
 \label{NAME}\\[1ex]
-\emkey{name-lexeme} ::= {\em lexeme} other than {\em non-name-lexeme} \\[1ex]
+\emkey{name-lexeme} ::= {\em lexeme} other than {\em non-name-lexeme}
+\label{NAME-LEXEME} \\[1ex]
 \emkey{non-name-lexeme}
-    ::= {\em separator} $|$ \TT{=} $|$ \TT{:} $|$ \TT{<*>} $|$ \TT{<\#>} \\[1ex]
+    ::= {\em separator} $|$ \TT{=} $|$ \TT{:}
+                        $|$ \TT{<*>} $|$ \TT{<\#>} \\[1ex]
 \emkey{non-numeric-name-lexeme}
     ::= {\em name-lexeme} other than {\em numeric}
 \label{NON-NUMERIC-NAME-LEXEME}
@@ -1457,7 +1459,7 @@ or the representations would not be unique.
 
 Lexemes are contained in lines.  Line beginnings
 are translated into a special lexeme which is
-input to the parser.  Lines can also be organized into subparagraphs
+input to the parser.  Lines can also be organized into indented subparagraphs
 whose beginnings and endings are translated into special sequences of
 lexemes that are input to the parser.
 
@@ -1493,7 +1495,7 @@ subparagraph, and all the lines of the subparagraph.  When a
 line with smaller indentation is encountered, it is interpreted
 as the first line beyond the end of the subparagraph, and
 the lexeme squence `\ttkey{:\}}' is inserted just after
-the end of the last lexeme in the last subparagraph line (or
+the last lexeme in the last subparagraph line (or
 just after \TT{\{:} if the subparagraph is empty).
 Thus
 
@@ -1502,17 +1504,16 @@ This is a line:
      And a subparagraph
          line.
      And another.
-
 And more.
 \end{verbatim}\end{indpar}
 
 translates to the lexeme sequence
 
 \begin{indpar}\begin{verbatim}
-<*> This is a line
-{: <*> And a subparagraph line.
+<*> This is a line {:
+<*> And a subparagraph line.
 <*> And another. :}
-<#> <*> And more.
+<*> And more.
 \end{verbatim}\end{indpar}
 
 `\TT{:\}}' sequences are added at the end of a file to
@@ -1679,14 +1680,8 @@ in a raw representation is:
 
 \begin{tabular}{l}
 \emkey{object-identifier} ::=
-	\ttmkey{@}{in {\em object-identifier}} {\em decimal-natural} \\
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{decimal-natural} ::=
-\\\hspace*{0.5in}
-{\em numeric} lexeme containing only digits and commas
-              (\pagref{DECIMAL-NATURAL})
+	\ttmkey{@}{in {\em object-identifier}}
+	{\em decimal-natural}\pagnote{DECIMAL-NATURAL} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1700,12 +1695,13 @@ in a raw representation is:
 \emkey{object-list}
     \begin{tabular}[t]{rl}
     ::= & {\em raw-element-list} \\
-    $|$ & other (see \pagref{OBJECT-LIST})
+    $|$ & other not used in raw representation (see \pagref{OBJECT-LIST})
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-element-list} ::= \TT{|} {\em raw-element}\STAR{} \TT{|} \\
+\emkey{raw-element-list}
+    ::= \TT{|} {\em raw-single-attribute-value}\STAR{} \TT{|} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1725,7 +1721,7 @@ in a raw representation is:
 \emlkey{single-attribute-}{representation}
     \begin{tabular}[t]{rl}
     ::= & {\em raw-single-attribute-representation} \\
-    $|$ & other (see \pagref{OBJECT-LIST})
+    $|$ & other not used in raw representation (see \pagref{OBJECT-LIST})
     \end{tabular}
 \end{tabular}
 
@@ -1750,40 +1746,24 @@ in a raw representation is:
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags} ::=
-    \TT{[} {\em flag-atom} \TT{]}
+    \TT{[} {\em flag-lexeme}\STAR{} \TT{]}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
 
 \begin{tabular}{l}
-\emkey{flag-atom}
-    ::= {\em non-numeric-name-lexeme}\pagnote{NON-NUMERIC-NAME-LEXEME}
+\emkey{flag-lexeme}
+    ::= {\em name-lexeme}\pagnote{NAME-LEXEME}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-single-attribute-value} ::= {\em raw-atom}
+\emkey{raw-single-attribute-value} ::= {\em name-lexeme}
+                                   $|$ {\em concatenated-quoted-strings}
                                    $|$ {\em object-identifier}
 				   $|$ {\em scientific-number}
+				   $|$ {\em radix-number}
 \end{tabular}
 
-\begin{tabular}{l}
-\emkey{raw-atom} ::= {\em atom}\pagnote{ATOM} ~
-                 but not {\em separator-atom}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{separator-atom} ::= {\em separator}\pagnote{SEPARATOR}
-    $|$ \TT{|} $|$ \TT{=} $|$ \TT{<*>} $|$ \TT{<\#>}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{scientific-number}
-    ::= {\em sign}\QMARK{} {\em decimal-number} {\em exponent}\QMARK \\
-\emkey{sign} ::= \TT{+} $|$ \TT{-} \\
-\emkey{decimal-number}
-    ::= {\em digit}\PLUS{}\{\TT{.}{\em digit}\PLUS{}\}\QMARK{} \\
-\emkey{exponent} ::= \{\TT{E}$|$\TT{e}\}{\em sign}\QMARK{}{\em digit}\PLUS{}
-\end{tabular}
 
 \begin{tabular}{l}
 \emlkey{double-attribute}{-representation} ::=
@@ -1807,7 +1787,7 @@ in a raw representation is:
 
 \end{indpar}
 
-{\em Raw-object-representations} are lines beginning with \TT{@}.
+{\em Data-representations} are lines beginning with \TT{@}.
 For example,
 
 \begin{indpar}\begin{verbatim}
@@ -1820,7 +1800,7 @@ For example,
     name = Jack
 \end{verbatim}\end{indpar}
 
-These are {\em raw-representations} of an object pair that can
+These are {\em data-representations} of an object pair that can
 be represented pictorially as:
 
 \begin{center}
@@ -1860,18 +1840,17 @@ between the two objects which has the
 label \TT{husband} when going from \TT{@1} to \TT{@2}
 and the label \TT{wife} when going in the reverse direction.
 
-Note that in this syntax {\em atoms} such as \TT{=} must be
-avoided, as they will be confused with symbols recognized by the
+Note that in this syntax {\em lexemes} such as \TT{=} must be
+avoided, as they will be confused with {\em lexemes} recognized by the
 parser (to delimit {\em labels} in this case).
 You can use \TT{"="} instead.
 
 It is possible to place \skey{attribute flag}s on attribute labels
-by putting flag characters in \TT{[ ]} brackets after a label.
-The flag characters are those of a {\em non-numeric-name-lexeme}
-(i.e., {\em word}, most {\em marks}, or {\em quoted-string}) enclosed
-in the \TT{[ ]} brackets.  It may be necessary to make
-this {\em raw-atom} a {\em quoted-string} in order to include digits
-or separator characters.
+by putting flag characters in {\em flag-lexemes} inside
+\TT{[ ]} brackets after a label.
+It may be necessary to use a
+{\em quoted-string} {\em flag-lexeme} in order to include
+separator characters as flag characters.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -1913,9 +1892,8 @@ have been added to some of the attributes:
 \end{center}
 
 In the picture the attribute flags have been added as superscripts on the
-attribute labels, and in the text the flags have been added as characters
-in symbols inside \TT{[ ]} brackets that
-follow attribute labels.
+attribute labels, and in the text the flags have been added
+inside \TT{[ ]} brackets that follow attribute labels.
 
 Several attributes of the same object (arrows sourced at the object)
 may have the same attribute
