@@ -1664,11 +1664,7 @@ in a raw representation is:
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{data-representation} ::= {\em data-object-representation}\STAR{} \\
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{data-object-representation}
+\emkey{data-representation}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= \TT{<*>} & {\em object-identifier}
@@ -1865,8 +1861,8 @@ have been added to some of the attributes:
 \verb|    name[+] = Jack|\\
 \end{tabular}
 ~~~~~~~~~
-\begin{picture}(3.0,1.5)
-\put(0,0){\framebox(3.0,1.5){}}
+\begin{picture}(3.2,1.5)
+\put(0,0){\framebox(3.2,1.5){}}
 \put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
 \put(0.7,1.15){\oval(0.8,0.3)}
 \put(0.5,1.00){\vector(0,-1){0.5}}
@@ -1909,8 +1905,8 @@ attributes labeled \TT{child}, is:
 \verb|    child = @3 = parent|\\
 \end{tabular}
 &
-\begin{picture}(3.0,1.5)
-\put(0,0){\framebox(3.0,1.5){}}
+\begin{picture}(3.1,1.5)
+\put(0,0){\framebox(3.1,1.5){}}
 \put(0.3,1.00){\makebox(2.4,0.3){\tt @1}}
 \put(1.5,1.15){\oval(2.4,0.3)}
 \put(0.65,1.00){\vector(0,-1){0.6}}
@@ -1932,37 +1928,43 @@ attributes labeled \TT{child}, is:
 We say that the value of the \TT{child} attribute of \TT{@1} is
 the set to two elements, \TT{@2} and \TT{@3}.
 
-The differences between \TT{=}, \TT{=>}, and \TT{=>{}>} in the
-{\em object-header} relate
+The differences between \TT{=}, \TT{=>}, and \TT{=>{}>} in a
+{\em data-representation} relate
 to what is done when an object or attribute label previously exists.
 
-\ttmkey{=}{in {\em object-header}}
+\ttmkey{=}{in {\em data-representation}}
 indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
-{\em object-representation} (it may have been defined as the value of an
-attribute).  Second, any attribute label represented in the object
-representation, if it previously exists because it was part of a
+{\em data-representation} (it may have been defined as the value of an
+attribute).  Second, any attribute label represented in the
+{\em data-representation}, if it previously exists because it was part of a
 {\em double-attribute-representation}, must be represented with exactly
 the same flags as it already has.
 
 At the other extreme,
-\ttmkey{=>{}>}{in {\em object-header}}
+\ttmkey{=>{}>}{in {\em data-representation}}
 adds to existing objects.
 The object being represented can previously exist.  Any attribute
-representation in the object representation creates a new attribute value.
+representation in the {\em data-representation} creates a new attribute value
+to be added to the set of values of the given attribute label (which
+is created if it did not previously exist).
 Any flags on an attribute label are added to the flags of the label if
 that label already exists.
 
-\ttmkey{=>}{in {\em object-header}}
+\ttmkey{=>}{in {\em data-representation}}
 is like \TT{=>{}>}
-except that the object representation cannot
-add new values to previously existing attributes of the object represented.
-More precisely, the attribute label of any attribute representation in
-the object representation must not have previously (before the object
-representation is read) been an attribute label of the represented object.
+except that the {\em data-representation} cannot
+add new values to previously existing attributes of the object begin
+represented.
+More precisely, the {\em attribute-label} of any {\em attribute-representation}
+in the {\em data-representation} must not have previously (before the
+{\em data-representation} is read)
+been an attribute label of the represented object.
 Thus \TT{=>} is used to introduce new attributes to an existing object.
 Note that reverse attribute labels are not attribute labels in the sense
-of this paragraph [TBD ??].
+of this paragraph.  Thus \TT{=>} {\em data-representations} for
+different objects may each contain {\em double-attribute-representations}
+with the same {\em double-attribute-value} and {\em reverse-attribute-label}.
 
 Double attributes must have only one representation.  If they
 are given two representations, one for each end of the attribute
@@ -1978,7 +1980,7 @@ a particular object, the \ttnbdkey{GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named \TT{.GLOBAL} and has as its value the \TT{.GLOBAL}
 object itself, a situation which can be achieved by the
-{\em object-representation}:
+{\em data-representation}:
 
 \begin{indpar}\begin{verbatim}
 @0=>:
@@ -1990,7 +1992,7 @@ the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
 is an example of such a label.
 
 The RECKON parser (\secref{PARSING}) parses
-{\em object-representations}.
+{\em data-representations}.
 Because atoms like \TT{=} and \TT{|}
 are avoided in attribute labels and values, the parser does
 nothing with attribute labels and values.%
@@ -2039,7 +2041,7 @@ to the one just given is:
 \end{verbatim}\end{indpar}
 
 The {\em raw-atoms} surrounded by `\TT{|}'s in a {\em raw-atom-list}
-within an {\em object-representation}
+within an {\em data-representation}
 are assigned as values of the attributes labeled \TT{1}, \TT{2},
 \TT{3}, \ldots.  Additional attribute values can be given by
 following the {\em raw-atom-list} by a line ending `\TT{:}' that begins an
@@ -2048,7 +2050,7 @@ following the {\em raw-atom-list} by a line ending `\TT{:}' that begins an
 \subsection{Cooked Representations}
 
 As noted above (\pagref{RAW-PARSING}),
-{\em single-attribute-values} in a raw {\em object-representation}
+{\em single-attribute-values} in a raw {\em data-representation}
 are mostly left alone by the RECKON parsers.  This is because the
 symbols specially recognized by the parser
 are not allowed in raw representations, with a few exceptions.
@@ -2060,7 +2062,7 @@ well as full objects.
 {\em Object-representations} that contain such are called
 \skey{cooked representation}s, in contrast to raw representations.
 
-The syntax of {\em object-representations} is extended to include
+The syntax of {\em data-representations} is extended to include
 cooked representations by the following:
 
 \begin{indpar}[0.5em]
@@ -2159,7 +2161,9 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 
 TBD
 
-In the {\em cooked-object-representation} the list of {\em raw-single-attribute-values} that could follow the {\em object-header} has been replaced by
+In the cooked {\em data-representation}
+the list of {\em raw-single-attribute-values} that could follow
+the {\em object-header} has been replaced by
 an {\em expression}, while a {\em cooked-single-attribute-value} can be
 any {\em expression}
 
