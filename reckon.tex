@@ -1690,13 +1690,13 @@ in a raw representation is:
 \begin{tabular}{l}
 \emkey{object-list}
     \begin{tabular}[t]{rl}
-    ::= & {\em raw-element-list} \\
+    ::= & {\em raw-list} \\
     $|$ & other not used in raw representation (see \pagref{OBJECT-LIST})
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-element-list}
+\emkey{raw-list}
     ::= \TT{|} {\em raw-single-attribute-value}\STAR{} \TT{|} \\
 \end{tabular}
 
@@ -1993,16 +1993,69 @@ is an example of such a label.
 
 The RECKON parser (\secref{PARSING}) parses
 {\em data-representations}.
-Because atoms like \TT{=} and \TT{|}
-are avoided in attribute labels and values, the parser does
-nothing with attribute labels and values.%
+Because lexemes like \TT{=} and \TT{|}
+are avoided in attribute labels and in raw representation values,
+the parser does little with attribute labels and attribute values.%
 \label{RAW-PARSING}
-However after parsing {\em quoted-strings}
-and {\em scientific-numbers} are replaced by single {\em atoms}.
-In the latter case, the {\em atoms} are {\em numbers} represented
-as 64-bit IEEE binary floating point values.  Thus the attribute
-values \TT{5} and \TT{"5"} produce vary different values:
-the first is an IEEE number and the second a 1-character string.
+The parser does, however, perform name mapping on attribute labels
+and recognize and process {\em concatenated-quoted-stringss},
+{\em scientific-numbers}, and {\em radix-numbers}.  In doing the
+latter for a {\em raw-list}, the lexemes are in the list are scanned
+left to right and the longest sequence of lexemes that represents an
+atom is accepted as an atom representative at each stage of the scan.
+Thus the {\em raw-list}
+\begin{center}
+\tt 5 e + 2 e 3 4 "e" 3
+\end{center}
+translates as (see \secref{SCIENTIFIC-NUMBER-RECOGNITION}):
+\begin{center}
+\tt
+\begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
+5 e + 2 & \rm number & 500 \\
+e	& \rm symbol & e \\
+3	& \rm number & 3 \\
+4	& \rm number & 4 \\
+"e"	& \rm symbol & e \\
+3	& \rm number & 3 \\
+\end{tabular}
+\end{center}
+
+the {\em raw-list}
+
+\begin{center}
+"5" 5 "6" \# "7" \# "8" "\#" "9"
+\end{center}
+translates as (see \secref{RADIX-NUMBER-RECOGNITION}):
+\begin{center}
+\tt
+\begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
+
+"5"			& \rm symbol & 5 \\
+5			& \rm number & 5 \\
+"6" \# "7" \# "8"	& \rm symbol & 678 \\
+"\#"			& \rm symbol & \# \\
+"9"			& \rm symbol & 9 \\
+\end{tabular}
+\end{center}
+
+and the {\em raw-list}
+
+\begin{center}
+b \# "1010" b \# "10" \# "1" e 1 b "\#" "1010"
+\end{center}
+translates as (see \secref{CONCATENATED-QUOTED-STRING-RECOGNITION}):
+\begin{center}
+\tt
+\begin{tabular}{r@{~~$\Longrightarrow$~~}rll}
+b \# "1010"		& \rm number & 10 \\
+b \# "10" \# "1" e 1	& \rm number & 10
+			& \rm (same as {\tt b \# "101" e 1}) \\
+b			& \rm symbol & b \\		
+"\#"			& \rm symbol & \# \\		
+"1010"			& \rm symbol & 1010 \\		
+\end{tabular}
+\end{center}
+
 
 [TBD: name processing of labels??]
 
@@ -2040,11 +2093,11 @@ to the one just given is:
     .initiator = capital
 \end{verbatim}\end{indpar}
 
-The {\em raw-atoms} surrounded by `\TT{|}'s in a {\em raw-atom-list}
+The {\em raw-atoms} surrounded by `\TT{|}'s in a {\em raw-list}
 within an {\em data-representation}
 are assigned as values of the attributes labeled \TT{1}, \TT{2},
 \TT{3}, \ldots.  Additional attribute values can be given by
-following the {\em raw-atom-list} by a line ending `\TT{:}' that begins an
+following the {\em raw-list} by a line ending `\TT{:}' that begins an
 {\em attribute-representation-subparagraph}.
 
 \subsection{Cooked Representations}
@@ -2070,7 +2123,7 @@ cooked representations by the following:
 \begin{tabular}{l}
 \emkey{object-list}\label{OBJECT-LIST}
     \begin{tabular}[t]{rl}
-    ::= & {\em raw-atom-list} \\
+    ::= & {\em raw-list} \\
     $|$ & {\em bracketed-list} \\
     \end{tabular}
 \end{tabular}
@@ -2154,7 +2207,7 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{property-value} ::= {\em raw-atom-list}
+\emkey{property-value} ::= {\em raw-list}
 \end{tabular}
 
 \end{indpar}
