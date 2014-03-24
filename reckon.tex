@@ -355,8 +355,8 @@ and \TT{``[[g]]''} evaluates to \TT{`[g]'}.}
 \verb/+           Reading this document is good, but.../ \\
 \verb/+           / \\
 \verb/+           [z].'/ \\
-This document is meant to be read.  Reading this document is good, but\ldots \\
-\\
+This document is meant to be read.  Reading this document is good, but\ldots
+\\[2ex]
 I thought he said `hello'. \\
 \verb|> `When you add [x] and [y] you get [x+y].'| \\
 \verb|`|When you add 9 and 17 you get 26.\verb|'| \\
@@ -1650,29 +1650,27 @@ and the label of the arrow directed toward the object is the
 \mkey{reverse attribute label}{of double attribute} of the double attribute.
 
 
-\subsection{Raw Representations}
-\label{RAW-REPRESENTATIONS}
+\subsection{Raw Object Representations}
+\label{RAW-OBJECT-REPRESENTATIONS}
 
 A set of objects can be written to a text file or read from a text file.
 When this is done, a textual representation of the object set is used
-in the file.  The simplest representation is the raw representation,
-which we now describe.
+in the file.  The simplest representation of an object
+is the \key{raw object representation}, which we now describe.
 
-A \key{raw representation} is a special case of a {\em data-representation}.
+A raw object representation is a special case of an {\em object-representation}.
 This special case makes minimal use of the parser and is used when
 data is written to a file without any attempt to format the data.
 
-The syntax of the parts of a {\em data-representation} which are used
-in a raw representation is:
-
+The syntax of an {\em object-representation} is:
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{data-representation}
+\emkey{object-representation}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         ::= \TT{<*>} & {\em object-identifier}
-	               {\em data-assignment-operator}
+	               {\em object-assignment-operator}
 		       {\em object-list}\QMARK{} \\
 	             & {\em attribute-representation-subparagraph}\QMARK{} \\
         \end{tabular}
@@ -1685,23 +1683,14 @@ in a raw representation is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{data-assignment-operator} ::= ~~~
-	\ttmkey{=}{data assignment operator} $|$
-	\ttmkey{=>}{data assignment operator} $|$
-	\ttmkey{=>{}>}{data assignment operator}
+\emkey{object-assignment-operator} ::= ~~~
+	\ttmkey{=}{object assignment operator} $|$
+	\ttmkey{=>}{object assignment operator} $|$
+	\ttmkey{=>{}>}{object assignment operator}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-list}
-    \begin{tabular}[t]{rl}
-    ::= & {\em raw-list} \\
-    $|$ & other not used in raw representation (see \pagref{OBJECT-LIST})
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{raw-list}
-    ::= {\em raw-single-attribute-value}\STAR{} \\
+\emkey{object-list} ::= {\em single-attribute-value}\STAR{}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1718,25 +1707,40 @@ in a raw representation is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{single-attribute-}{representation}
+\emlkey{single-attribute-}{representation} ::=
+\\\hspace*{0.5in}
+	\TT{<*>}
+	{\em attribute-label} {\em attribute-label-flags}\QMARK{}
+	\begin{tabular}[t]{@{}l@{}}
+	{\em attribute-assignment-operator} \\
+	{\em single-attribute-value}
+	\end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{single-attribute-value}
     \begin{tabular}[t]{rl}
-    ::= & {\em raw-single-attribute-representation} \\
-    $|$ & other not used in raw representation (see \pagref{OBJECT-LIST})
+    ::= & {\em name-lexeme} \\
+    $|$ & {\em concatenated-quoted-strings} \\
+    $|$ & {\em object-identifier} \\
+    $|$ & {\em scientific-number} \\
+    $|$ & {\em radix-number} \\
+    $|$ & {\em bracketed-list} (not used in raw representation)
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{raw-single-attribute-}{representation} ::=
-\\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags}\QMARK{} \TT{=}
-	{\em raw-single-attribute-value}
-\end{tabular}%
-\index{value!raw attribute}
+\emkey{attribute-assignment-operator}
+    \begin{tabular}[t]{rll}
+    ::= & \TT{=} \\
+    $|$ & \TT{=>}    & (not used in raw representation) \\
+    $|$ & \TT{=>{}>} & (not used in raw representation) \\
+    \end{tabular}
+\end{tabular}
 
 \begin{tabular}{l}
 \emkey{attribute-label} ::= {\em label}
-\end{tabular}%
-\index{label!attribute}
+\end{tabular}
 
 \begin{tabular}{l}
 \emkey{label} ::= {\em name}\pagnote{NAME}
@@ -1756,25 +1760,17 @@ in a raw representation is:
     ::= {\em name-lexeme}\pagnote{NAME-LEXEME}
 \end{tabular}
 
-\begin{tabular}{l}
-\emkey{raw-single-attribute-value} ::= {\em name-lexeme}
-                                   $|$ {\em concatenated-quoted-strings}
-                                   $|$ {\em object-identifier}
-				   $|$ {\em scientific-number}
-				   $|$ {\em radix-number}
-\end{tabular}
-
 
 \begin{tabular}{l}
 \emlkey{double-attribute}{-representation} ::=
 \\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags}\QMARK{}
-	\TT{=}
-\\\hspace*{0.5in}
-	{\em double-attribute-value}
-\\\hspace*{0.5in}
+	\TT{<*>} {\em attribute-label} {\em attribute-label-flags}\QMARK{}
+\\\hspace*{1.0in}
+	\begin{tabular}[t]{@{}l@{}}
+	\TT{=} {\em double-attribute-value} \\
 	\TT{=} {\em reverse-attribute-label}
-	{\em attribute-label-flags}\QMARK{}
+	       {\em attribute-label-flags}\QMARK{}
+	\end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1787,7 +1783,12 @@ in a raw representation is:
 
 \end{indpar}
 
-{\em Data-representations} are lines beginning with \TT{@}.
+Raw object representations do not make any use of the syntax
+elements indicated above; specifically, {\em bracketed-lists} are
+not used as {\em single-attribute-values} and \TT{=>} and \TT{=>{}>}
+are not used as {\em attribute-assignment-operators}.
+
+{\em Object-representations} are lines beginning with \TT{@}.
 For example,
 
 \begin{indpar}\begin{verbatim}
@@ -1800,7 +1801,7 @@ For example,
     name = Jack
 \end{verbatim}\end{indpar}
 
-These are {\em data-representations} of an object pair that can
+These are {\em object-representations} of an object pair that can
 be represented pictorially as:
 
 \begin{center}
@@ -1933,40 +1934,40 @@ We say that the value of the \TT{child} attribute of \TT{@1} is
 the set to two elements, \TT{@2} and \TT{@3}.
 
 The differences between \TT{=}, \TT{=>}, and \TT{=>{}>} in a
-{\em data-representation} relate
+{\em object-representation} relate
 to what is done when an object or attribute label previously exists.
 
-\ttmkey{=}{in {\em data-representation}}
+\ttmkey{=}{in {\em object-representation}}
 indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
-{\em data-representation} (it may have been defined as the value of an
+{\em object-representation} (it may have been defined as the value of an
 attribute).  Second, any attribute label represented in the
-{\em data-representation}, if it previously exists because it was part of a
+{\em object-representation}, if it previously exists because it was part of a
 {\em double-attribute-representation}, must be represented with exactly
 the same flags as it already has.
 
 At the other extreme,
-\ttmkey{=>{}>}{in {\em data-representation}}
+\ttmkey{=>{}>}{in {\em object-representation}}
 adds to existing objects.
 The object being represented can previously exist.  Any attribute
-representation in the {\em data-representation} creates a new attribute value
+representation in the {\em object-representation} creates a new attribute value
 to be added to the set of values of the given attribute label (which
 is created if it did not previously exist).
 Any flags on an attribute label are added to the flags of the label if
 that label already exists.
 
-\ttmkey{=>}{in {\em data-representation}}
+\ttmkey{=>}{in {\em object-representation}}
 is like \TT{=>{}>}
-except that the {\em data-representation} cannot
+except that the {\em object-representation} cannot
 add new values to previously existing attributes of the object begin
 represented.
 More precisely, the {\em attribute-label} of any {\em attribute-representation}
-in the {\em data-representation} must not have previously (before the
-{\em data-representation} is read)
+in the {\em object-representation} must not have previously (before the
+{\em object-representa\-tion} is read)
 been an attribute label of the represented object.
 Thus \TT{=>} is used to introduce new attributes to an existing object.
 Note that reverse attribute labels are not attribute labels in the sense
-of this paragraph.  Thus \TT{=>} {\em data-representations} for
+of this paragraph.  Thus \TT{=>} {\em object-representations} for
 different objects may each contain {\em double-attribute-representations}
 with the same {\em double-attribute-value} and {\em reverse-attribute-label}.
 
@@ -1984,7 +1985,7 @@ a particular object, the \ttnbdkey{GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named \TT{.GLOBAL} and has as its value the \TT{.GLOBAL}
 object itself, a situation which can be achieved by the
-{\em data-representation}:
+{\em object-representation}:
 
 \begin{indpar}\begin{verbatim}
 @0=>:
@@ -1995,19 +1996,19 @@ Labels beginning with `\ttkey{.}' are reserved for use by
 the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
 is an example of such a label.
 
-The RECKON parser (\secref{PARSING}) parses {\em data-representations}.
-However, within {\em data-representations} (lines beginning with \TT{@})
+The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
+However, within {\em object-representa\-tions} (lines beginning with \TT{@})
 the parser does not recognize operators outside bracketed lists, and as
 raw representations have no bracketed lists, the parser does not recognize
-operators in raw {\em data-representations}.%
+operators in raw {\em object-representations}.%
 \label{RAW-PARSING}
 The parser does, however,
 recognize and process {\em concatenated-quoted-strings},
 {\em scientific-numbers}, and {\em radix-numbers}.
-In doing this for a {\em raw-list}, the lexemes in the list are scanned
+In doing this for a {\em object-list}, the lexemes in the list are scanned
 left to right and the longest sequence of lexemes that represents an
 atom is accepted as an atom representative at each stage of the scan.
-Thus the {\em raw-list}
+Thus the {\em object-list}
 \begin{center}
 \tt 5 e + 2 e 3 4 "e" 3
 \end{center}
@@ -2024,7 +2025,7 @@ e	& \rm symbol & e \\
 \end{tabular}
 \end{center}
 
-the {\em raw-list}
+the {\em object-list}
 
 \begin{center}
 "5" 5 "6" \# "7" \# "8" "\#" "9"
@@ -2042,7 +2043,7 @@ translates as (see \secref{RADIX-NUMBER-RECOGNITION}):
 \end{tabular}
 \end{center}
 
-and the {\em raw-list}
+and the {\em object-list}
 
 \begin{center}
 b \# "1010" b \# "10" \# "1" e 1 b "\#" "1010"
@@ -2062,7 +2063,7 @@ b			& \rm symbol & b \\
 
 
 The parser also does name processing of attribute labels in a raw
-{\em data-representation}.
+{\em object-representation}.
 
 \subsection{Lists}
 
@@ -2089,7 +2090,7 @@ which represents the list
 \end{indpar}
 
 but also has some additional attributes, labeled \TT{.terminator}
-and \TT{.initiator}.  An alternative raw {\em data-representation}
+and \TT{.initiator}.  An alternative raw {\em object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
@@ -2098,73 +2099,28 @@ to the one just given is:
     .terminator = "."
 \end{verbatim}\end{indpar}
 
-The {\em raw-single-attribute-values} in a {\em raw-list}
-within an {\em data-representation}
+The {\em single-attribute-values} in a {\em object-list}
+within an {\em object-representation}
 are assigned as values of the attributes labeled \TT{1}, \TT{2},
 \TT{3}, \ldots.  Additional attribute values can be given by
-following the {\em raw-list} by a line ending `\TT{:}' that begins an
+following the {\em object-list} by a line ending `\TT{:}' that begins an
 {\em attribute-representation-subparagraph}, which in this case
 gives values to the \TT{.initiator} and \TT{.terminator} attributes.
 
 \subsection{Cooked Representations}
 
-If a {\em data-representation} contains a bracketed list, operators
+If a {\em object-representation} contains a bracketed list, operators
 are recognized by the parser within this list, and the representaton
 is said to be `\key{cooked}' instead of raw.  Also if
 the \TT{=>} and \TT{=>{}>} {\em data-assignment-operators}
 are used in place of the \TT{=} within any {\em attribute-representation}
-in the {\em data-representation}, that representation is
+in the {\em object-representation}, that representation is
 said to be `cooked'.
 
-The syntax of {\em data-representations} is extended to include
-cooked representations by completing the following:
+The syntax of {\em object-representations} is augmented by adding
+the following definition of {\em bracketed-list}:
 
-\begin{indpar}[0.5em]
-
-\begin{tabular}{l}
-\emkey{object-list}\label{OBJECT-LIST}
-    \begin{tabular}[t]{rl}
-    ::= & {\em raw-list} \\
-    $|$ & {\em bracketed-list} \\
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emlkey{single-attribute-}{representation}
-    \begin{tabular}[t]{rl}
-    ::= & {\em raw-single-attribute-representation} \\
-    ::= & {\em cooked-single-attribute-representation} \\
-    \end{tabular}
-\end{tabular}
-
-\end{indpar}
-
-and adding the following:
-
-\begin{indpar}[0.5em]
-
-\begin{tabular}{l}
-\emlkey{cooked-single-}{attribute-representation} ::=
-\\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags}\QMARK{}
-        \begin{tabular}[t]{@{}l@{}}
-	{\em data-assignment-operator} \\
-	{\em cooked-single-attribute-value}
-	\end{tabular}
-\end{tabular}%
-\index{value!cooked attribute}
-
-\begin{tabular}{l}
-\emlkey{cooked-single-}{attribute-value}
-    \begin{tabular}[t]{rl}
-    ::= & {\em name-lexeme} \\
-    $|$ & {\em concatenated-quoted-strings} \\
-    $|$ & {\em object-identifier} \\
-    $|$ & {\em scientific-number} \\
-    $|$ & {\em radix-number} \\
-    $|$ & {\em bracketed-list} \\
-    \end{tabular}
-\end{tabular}
+\begin{indpar}[0.5in]
 
 \begin{tabular}{l}
 \emkey{bracketed-list}\label{BRACKETED-LIST}
@@ -2218,7 +2174,7 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 
 \begin{tabular}{l}
 \emkey{list-element}
-    ::= {\em name-lexeme} $|$ {\em bracketed-list} \\
+    ::= {\em single-attribute-value}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2234,9 +2190,7 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
     \begin{tabular}[t]{rl}
     ::= & {\em property-label} \TT{=} {\em property-value} \\
     $|$ & {\em property-label} \\
-    $|$ & \TT{no}{\em property-label} \\
-    $|$ & \TT{no-}{\em property-label} \\
-    $|$ & \TT{no~}{\em property-label} \\
+    $|$ & \TT{no} {\em property-label} \\
     \end{tabular}
 \end{tabular}
 
@@ -2245,17 +2199,17 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{property-value} ::= {\em raw-list}
+\emkey{property-value} ::= {\em single-attribute-value}
 \end{tabular}
 
 \end{indpar}
 
 TBD
 
-In the cooked {\em data-representation}
+In the cooked {\em object-representation}
 the list of {\em raw-single-attribute-values} that could follow
 the {\em object-header} has been replaced by
-an {\em expression}, while a {\em cooked-single-attribute-value} can be
+an {\em expression}, while a {\em single-attribute-value} can be
 any {\em expression}
 
 As a first example,
@@ -5172,7 +5126,7 @@ another.  For example:
 in which the \TT{<r|  |r>} bracketed {\em labels} are references
 to the labeled bold text and labeled paragraph.  For convenience
 `\TT{<k|}{\em text}\TT{|k>}' can be used to abbreviate
-`\TT{<b:} {\em text}\TT{|}{\em text}\TT{|b>}', e.g.,
+`\TT{<b:} {\em text}\TT{|}{\em text}\TT{|b>}', for example,
 `\TT{<k|porch|k>}' could be used above instead of
 `\TT{<b: porch|porch|b>}' (the text type `\ttmkey{k}{text type}'
 denotes a `keyword').
