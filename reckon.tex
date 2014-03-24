@@ -193,7 +193,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 21, 2014}
+\date{March 24, 2014}
 
 \maketitle
 
@@ -1438,6 +1438,10 @@ numerics:
 \label{NON-NUMERIC-NAME-LEXEME}
 \end{indpar}
 
+[TBD should marks be excluded from names (so quotes are required)?
+Then flag-lexemes would be words, decimal-naturals, marks, and
+quoted strings, but not separators.]
+
 If a syntactic unit {\em X-name} is used, the syntactic equation
 `{\em X-name} ::= {\em name}' is implied.
 
@@ -1697,7 +1701,7 @@ in a raw representation is:
 
 \begin{tabular}{l}
 \emkey{raw-list}
-    ::= \TT{|} {\em raw-single-attribute-value}\STAR{} \TT{|} \\
+    ::= {\em raw-single-attribute-value}\STAR{} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1991,16 +1995,16 @@ Labels beginning with `\ttkey{.}' are reserved for use by
 the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
 is an example of such a label.
 
-The RECKON parser (\secref{PARSING}) parses
-{\em data-representations}.
-Because lexemes like \TT{=} and \TT{|}
-are avoided in attribute labels and in raw representation values,
-the parser does little with attribute labels and attribute values.%
+The RECKON parser (\secref{PARSING}) parses {\em data-representations}.
+However, within {\em data-representations} (lines beginning with \TT{@})
+the parser does not recognize operators outside bracketed lists, and as
+raw representations have no bracketed lists, the parser does not recognize
+operators in raw {\em data-representations}.%
 \label{RAW-PARSING}
-The parser does, however, perform name mapping on attribute labels
-and recognize and process {\em concatenated-quoted-stringss},
-{\em scientific-numbers}, and {\em radix-numbers}.  In doing the
-latter for a {\em raw-list}, the lexemes are in the list are scanned
+The parser does, however,
+recognize and process {\em concatenated-quoted-strings},
+{\em scientific-numbers}, and {\em radix-numbers}.
+In doing this for a {\em raw-list}, the lexemes in the list are scanned
 left to right and the longest sequence of lexemes that represents an
 atom is accepted as an atom representative at each stage of the scan.
 Thus the {\em raw-list}
@@ -2057,7 +2061,8 @@ b			& \rm symbol & b \\
 \end{center}
 
 
-[TBD: name processing of labels??]
+The parser also does name processing of attribute labels in a raw
+{\em data-representation}.
 
 \subsection{Lists}
 
@@ -2074,8 +2079,8 @@ by the object.  An example is
     2 = is
     3 = a
     4 = sentence
-    .terminator = "."
     .initiator = capital
+    .terminator = "."
 \end{verbatim}\end{indpar}
 
 which represents the list
@@ -2084,39 +2089,35 @@ which represents the list
 \end{indpar}
 
 but also has some additional attributes, labeled \TT{.terminator}
-and \TT{.initiator}.  An alternative {\em raw-object-representation}
+and \TT{.initiator}.  An alternative raw {\em data-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
-@93 = | this is a sentence |:
-    .terminator = "."
+@93 = this is a sentence:
     .initiator = capital
+    .terminator = "."
 \end{verbatim}\end{indpar}
 
-The {\em raw-atoms} surrounded by `\TT{|}'s in a {\em raw-list}
+The {\em raw-single-attribute-values} in a {\em raw-list}
 within an {\em data-representation}
 are assigned as values of the attributes labeled \TT{1}, \TT{2},
 \TT{3}, \ldots.  Additional attribute values can be given by
 following the {\em raw-list} by a line ending `\TT{:}' that begins an
-{\em attribute-representation-subparagraph}.
+{\em attribute-representation-subparagraph}, which in this case
+gives values to the \TT{.initiator} and \TT{.terminator} attributes.
 
 \subsection{Cooked Representations}
 
-As noted above (\pagref{RAW-PARSING}),
-{\em single-attribute-values} in a raw {\em data-representation}
-are mostly left alone by the RECKON parsers.  This is because the
-symbols specially recognized by the parser
-are not allowed in raw representations, with a few exceptions.
-
-However, bracketed lists can be used as object and attribute
-values, and if used, these will invoke the full parser.  Also
-\TT{=>} and \TT{=>{}>} assignments can be used for attributes as
-well as full objects.
-{\em Object-representations} that contain such are called
-\skey{cooked representation}s, in contrast to raw representations.
+If a {\em data-representation} contains a bracketed list, operators
+are recognized by the parser within this list, and the representaton
+is said to be `\key{cooked}' instead of raw.  Also if
+the \TT{=>} and \TT{=>{}>} {\em data-assignment-operators}
+are used in place of the \TT{=} within any {\em attribute-representation}
+in the {\em data-representation}, that representation is
+said to be `cooked'.
 
 The syntax of {\em data-representations} is extended to include
-cooked representations by the following:
+cooked representations by completing the following:
 
 \begin{indpar}[0.5em]
 
@@ -2124,6 +2125,43 @@ cooked representations by the following:
 \emkey{object-list}\label{OBJECT-LIST}
     \begin{tabular}[t]{rl}
     ::= & {\em raw-list} \\
+    $|$ & {\em bracketed-list} \\
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emlkey{single-attribute-}{representation}
+    \begin{tabular}[t]{rl}
+    ::= & {\em raw-single-attribute-representation} \\
+    ::= & {\em cooked-single-attribute-representation} \\
+    \end{tabular}
+\end{tabular}
+
+\end{indpar}
+
+and adding the following:
+
+\begin{indpar}[0.5em]
+
+\begin{tabular}{l}
+\emlkey{cooked-single-}{attribute-representation} ::=
+\\\hspace*{0.5in}
+	{\em attribute-label} {\em attribute-label-flags}\QMARK{}
+        \begin{tabular}[t]{@{}l@{}}
+	{\em data-assignment-operator} \\
+	{\em cooked-single-attribute-value}
+	\end{tabular}
+\end{tabular}%
+\index{value!cooked attribute}
+
+\begin{tabular}{l}
+\emlkey{cooked-single-}{attribute-value}
+    \begin{tabular}[t]{rl}
+    ::= & {\em name-lexeme} \\
+    $|$ & {\em concatenated-quoted-strings} \\
+    $|$ & {\em object-identifier} \\
+    $|$ & {\em scientific-number} \\
+    $|$ & {\em radix-number} \\
     $|$ & {\em bracketed-list} \\
     \end{tabular}
 \end{tabular}
@@ -6840,7 +6878,7 @@ unevaluated syntax variable name.  Thus \TT{X} is associated with
 \TT{\$X}.  The syntax is:
 
 \begin{indpar}
-\emkey{unevaluated-syntax-variable}
+\emlkey{unevaluated-syntax-}{variable}
 			\begin{tabular}[t]{rl}
 			::= & \TT{\$} {\em capitalized-word } \\
 			$|$ & \TT{\$} \TT{(} {\em capitalized-word }
