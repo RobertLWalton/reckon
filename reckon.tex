@@ -193,7 +193,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 24, 2014}
+\date{March 25, 2014}
 
 \maketitle
 
@@ -1690,7 +1690,22 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-list} ::= {\em single-attribute-value}\STAR{}
+\emkey{object-list}
+    \begin{tabular}[t]{rl}
+    ::= & {\em atom-value}\STAR{} \\
+    $|$ & {\em bracketed-list} (not used in raw representation)
+    \end{tabular}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{atom-value}
+    \begin{tabular}[t]{rl}
+    ::= & {\em name-lexeme} \\
+    $|$ & {\em concatenated-quoted-strings} \\
+    $|$ & {\em object-identifier} \\
+    $|$ & {\em scientific-number} \\
+    $|$ & {\em radix-number} \\
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1720,11 +1735,7 @@ The syntax of an {\em object-representation} is:
 \begin{tabular}{l}
 \emkey{single-attribute-value}
     \begin{tabular}[t]{rl}
-    ::= & {\em name-lexeme} \\
-    $|$ & {\em concatenated-quoted-strings} \\
-    $|$ & {\em object-identifier} \\
-    $|$ & {\em scientific-number} \\
-    $|$ & {\em radix-number} \\
+    ::= & {\em atom-value} \\
     $|$ & {\em bracketed-list} (not used in raw representation)
     \end{tabular}
 \end{tabular}
@@ -1785,8 +1796,8 @@ The syntax of an {\em object-representation} is:
 
 Raw object representations do not make any use of the syntax
 elements indicated above; specifically, {\em bracketed-lists} are
-not used as {\em single-attribute-values} and \TT{=>} and \TT{=>{}>}
-are not used as {\em attribute-assignment-operators}.
+not used (as {\em object-lists} or {\em single-attribute-values}),
+and \TT{=>} and \TT{=>{}>} are not used as {\em attribute-assignment-operators}.
 
 {\em Object-representations} are lines beginning with \TT{@}.
 For example,
@@ -1857,11 +1868,11 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@1 =|:/\\
+\verb/@1 =:/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
 \verb|    husband[*] = @2 wife[*]|\\
-\verb/@2 =|:/\\
+\verb/@2 =:/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
 \end{tabular}
@@ -2099,7 +2110,7 @@ to the one just given is:
     .terminator = "."
 \end{verbatim}\end{indpar}
 
-The {\em single-attribute-values} in a {\em object-list}
+The {\em atom-values} in a {\em object-list}
 within an {\em object-representation}
 are assigned as values of the attributes labeled \TT{1}, \TT{2},
 \TT{3}, \ldots.  Additional attribute values can be given by
@@ -2204,13 +2215,15 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 
 \end{indpar}
 
-TBD
+{\em Prefixes}, {\em types}, and {\em properties} are explained
+below.  First we give some examples involving just parsed untyped
+{\em bracketed-lists} without {\em properties}.  In some of these
+the fact is used that
+`\TT{\{!~!\}}' brackets translate to a list of \TT{.type} \TT{"!"}.
 
 In the cooked {\em object-representation}
-the list of {\em raw-single-attribute-values} that could follow
-the {\em object-header} has been replaced by
-an {\em expression}, while a {\em single-attribute-value} can be
-any {\em expression}
+the list of {\em atom-values} can be followed by a single
+{\em bracketed-list}.  A simple first example is:
 
 As a first example,
 
@@ -2218,41 +2231,41 @@ As a first example,
 @93 = `This is a sentence.'
 \end{verbatim}\end{indpar}
 
-is the cooked representation of the object
+which is the cooked representation of the object
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@93 =|:/\\
+\verb/@93 =:/\\
 \verb|    1 = this|\\
 \verb|    2 = is|\\
 \verb|    3 = a|\\
 \verb|    4 = sentence|\\
-\verb|    .terminator = "."|\\
 \verb|    .initiator = capital|\\
+\verb|    .terminator = "."|\\
 \end{tabular}
 ~~~~~
-\begin{picture}(4.1,1.5)
-\put(0,0){\framebox(4.1,1.5){}}
-\put(0.3,1.00){\makebox(3.4,0.3){\tt @93}}
-\put(2.0,1.15){\oval(3.4,0.3)}
-\put(1.00,1.00){\vector(0,-1){0.4}}
-\put(0.95,0.85){\makebox(0,0)[r]{\tt .initiator}}
-\put(1.00,0.50){\makebox(0,0)[c]{\tt capital}}
-\put(1.50,1.00){\vector(0,-1){0.6}}
-\put(1.45,0.85){\makebox(0,0)[r]{\tt 1}}
-\put(1.50,0.30){\makebox(0,0)[c]{\tt this}}
-\put(1.85,1.00){\vector(0,-1){0.6}}
-\put(1.80,0.85){\makebox(0,0)[r]{\tt 2}}
-\put(1.85,0.30){\makebox(0,0)[c]{\tt is}}
-\put(2.10,1.00){\vector(0,-1){0.6}}
-\put(2.05,0.85){\makebox(0,0)[r]{\tt 3}}
-\put(2.10,0.30){\makebox(0,0)[c]{\tt a}}
-\put(2.60,1.00){\vector(0,-1){0.6}}
-\put(2.55,0.85){\makebox(0,0)[r]{\tt 4}}
-\put(2.60,0.30){\makebox(0,0)[c]{\tt sentence}}
-\put(3.00,1.00){\vector(0,-1){0.4}}
-\put(3.00,0.50){\makebox(0,0)[c]{\tt "."}}
-\put(3.05,0.85){\makebox(0,0)[l]{\tt .terminator}}
+\begin{picture}(4.4,1.5)
+\put(0,0){\framebox(4.4,1.5){}}
+\put(0.4,1.00){\makebox(3.4,0.3){\tt @93}}
+\put(2.1,1.15){\oval(3.4,0.3)}
+\put(1.10,1.00){\vector(0,-1){0.4}}
+\put(1.05,0.85){\makebox(0,0)[r]{\tt .initiator}}
+\put(1.10,0.50){\makebox(0,0)[c]{\tt capital}}
+\put(1.60,1.00){\vector(0,-1){0.6}}
+\put(1.55,0.85){\makebox(0,0)[r]{\tt 1}}
+\put(1.60,0.30){\makebox(0,0)[c]{\tt this}}
+\put(1.95,1.00){\vector(0,-1){0.6}}
+\put(1.90,0.85){\makebox(0,0)[r]{\tt 2}}
+\put(1.95,0.30){\makebox(0,0)[c]{\tt is}}
+\put(2.20,1.00){\vector(0,-1){0.6}}
+\put(2.15,0.85){\makebox(0,0)[r]{\tt 3}}
+\put(2.20,0.30){\makebox(0,0)[c]{\tt a}}
+\put(2.70,1.00){\vector(0,-1){0.6}}
+\put(2.65,0.85){\makebox(0,0)[r]{\tt 4}}
+\put(2.70,0.30){\makebox(0,0)[c]{\tt sentence}}
+\put(3.10,1.00){\vector(0,-1){0.4}}
+\put(3.10,0.50){\makebox(0,0)[c]{\tt "."}}
+\put(3.15,0.85){\makebox(0,0)[l]{\tt .terminator}}
 \end{picture}
 \end{center}
 
@@ -2260,37 +2273,36 @@ is the cooked representation of the object
 The second example contains simple code:
 
 \begin{indpar}\begin{verbatim}
-@45 = { straight 3.2; left; straight (y + 9.4) }
+@45 = {! straight 3.2; left; straight (y + 9.4) !}
 \end{verbatim}\end{indpar}
 
-is the cooked representation of the objects
+which is the cooked representation of the objects
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@42 =|:/\\
+\verb/@42 =:/\\
 \verb|    1 = straight|\\
 \verb|    2 = 3.2|\\
-\verb/@43 =|:/\\
+\verb/@43 =:/\\
 \verb|    1 = "+"|\\
 \verb|    2 = y|\\
 \verb|    3 = 9.4|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb/@44 =|:/\\
+\verb/@44 =:/\\
 \verb|    1 = straight|\\
 \verb|    2 = @43|\\
-\verb/@45 =|:/\\
+\verb/@45 =:/\\
 \verb|    1 = @42|\\
 \verb|    2 = left|\\
 \verb|    3 = @44|\\
-\verb|    .initiator = "{"|\\
-\verb|    .terminator = "}"|\\
+\verb|    .type = "!"|\\
 \verb|    .separator = ";"|\\
 \end{tabular}
 ~~~~~
-\begin{picture}(4.1,3.7)
-\put(0,0){\framebox(4.1,3.7){}}
-\put(1.4,0.0){
+\begin{picture}(4.4,3.7)
+\put(0,0){\framebox(4.4,3.7){}}
+\put(1.5,0.0){
 \put(0.0,0.90){\makebox(2.0,0.3){\tt @43}}
 \put(1.0,1.05){\oval(2.0,0.3)}
 \put(0.40,0.90){\vector(0,-1){0.4}}
@@ -2309,7 +2321,7 @@ is the cooked representation of the objects
 \put(1.60,0.40){\makebox(0,0)[c]{\tt ")"}}
 \put(1.65,0.75){\makebox(0,0)[l]{\tt .terminator}}
 }
-\put(0.6,1.3){
+\put(0.7,1.3){
 \put(0.0,0.50){\makebox(1.2,0.3){\tt @42}}
 \put(0.60,0.65){\oval(1.2,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.3}}
@@ -2319,7 +2331,7 @@ is the cooked representation of the objects
 \put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
 \put(0.90,0.10){\makebox(0,0)[c]{\tt 3.2}}
 }
-\put(2.2,1.3){
+\put(2.3,1.3){
 \put(0.0,0.50){\makebox(1.2,0.3){\tt @44}}
 \put(0.60,0.65){\oval(1.2,0.3)}
 \put(0.30,0.50){\vector(0,-1){0.3}}
@@ -2328,12 +2340,12 @@ is the cooked representation of the objects
 \put(0.90,0.50){\vector(0,-1){0.6}}
 \put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
 }
-\put(0.2,2.7){
+\put(0.3,2.7){
 \put(0.0,0.50){\makebox(3.2,0.3){\tt @45}}
 \put(1.60,0.65){\oval(3.2,0.3)}
 \put(0.80,0.50){\vector(0,-1){0.3}}
-\put(0.75,0.35){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.80,0.10){\makebox(0,0)[c]{\TT{"\{"}}}
+\put(0.75,0.35){\makebox(0,0)[r]{\tt .type}}
+\put(0.80,0.10){\makebox(0,0)[c]{\TT{"!"}}}
 \put(1.30,0.50){\vector(0,-1){1.1}}
 \put(1.25,0.35){\makebox(0,0)[r]{\tt 1}}
 \put(1.70,0.50){\vector(0,-1){0.4}}
@@ -2344,34 +2356,28 @@ is the cooked representation of the objects
 \put(2.70,0.50){\vector(0,-1){0.8}}
 \put(2.75,-0.15){\makebox(0,0)[l]{\tt .separator}}
 \put(2.70,-0.40){\makebox(0,0)[c]{\tt ";"}}
-\put(2.90,0.50){\vector(0,-1){0.3}}
-\put(2.95,0.35){\makebox(0,0)[l]{\tt .terminator}}
-\put(2.90,0.10){\makebox(0,0)[c]{\TT{"\}"}}}
 }
 \end{picture}
 \end{center}
 
-Note that here the \TT{\{ \}} brackets surround code and not
-{\em attribute-representations}.  They do \underline{not}
-play the same role as \TT{\{|  |\}} brackets.
-
 A third example uses multiple indented lines to represent code, so that
 
 \begin{indpar}\begin{verbatim}
-@138 = function (x,y):
+@138 = {! function (x,y):
 
-          if (x > y):
-              return y
-          else:
-              return x
+            if (x > y):
+                return y
+            else:
+                return x
+       !}
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the object in
 Figures~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION-1}
 and~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION-2}.
 Note that here the \TT{:} indentation mark is used to introduce
-code, and not {\em attribute-representations}, and does
-\underline{not} play the same role as the \TT{:|} indentation mark.
+subparagraphs within the code,
+and not {\em attribute-representations}.
 
 
 \begin{boxedfigure}
@@ -2379,38 +2385,38 @@ code, and not {\em attribute-representations}, and does
 
 \begin{center}
 \begin{tabular}[t]{@{}l@{}}
-\verb/@130 =|:/\\
+\verb/@130 =:/\\
 \verb|    1 = x|\\
 \verb|    2 = y|\\
 \verb|    .separator = ","|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb/@131 =|:/\\
+\verb/@131 =:/\\
 \verb|    1 = ">"|\\
 \verb|    2 = x|\\
 \verb|    3 = y|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb/@132 =|:/\\
+\verb/@132 =:/\\
 \verb|    1 = return|\\
 \verb|    2 = y|\\
-\verb|    .initiator = ":"|\\
-\verb/@133 =|:/\\
+\verb|    .type = ":"|\\
+\verb/@133 =:/\\
 \verb|    1 = if|\\
 \verb|    2 = @131|\\
 \verb|    3 = @132|\\
-\verb/@134 =|:/\\
+\verb/@134 =:/\\
 \verb|    1 = return|\\
 \verb|    2 = x|\\
-\verb|    .initiator = ":"|\\
-\verb/@135 =|:/\\
+\verb|    .type = ":"|\\
+\verb/@135 =:/\\
 \verb|    1 = else|\\
 \verb|    2 = @134|\\
-\verb/@136 =|:/\\
+\verb/@136 =:/\\
 \verb|    1 = @133|\\
 \verb|    2 = @135|\\
-\verb|    .initiator = ":"|\\
-\verb/@137 =|:/\\
+\verb|    .type = ":"|\\
+\verb/@137 =:/\\
 \verb|    1 = function|\\
 \verb|    2 = @130|\\
 \verb|    3 = @136|\\
@@ -2448,7 +2454,7 @@ code, and not {\em attribute-representations}, and does
 \put(0.0,0.50){\makebox(1.3,0.3){\tt @132}}
 \put(0.65,0.65){\oval(1.3,0.3)}
 \put(0.20,0.50){\vector(0,-1){0.25}}
-\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .type}}
 \put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
 \put(0.70,0.50){\vector(0,-1){0.25}}
 \put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
@@ -2461,7 +2467,7 @@ code, and not {\em attribute-representations}, and does
 \put(0.0,0.50){\makebox(1.3,0.3){\tt @134}}
 \put(0.65,0.65){\oval(1.3,0.3)}
 \put(0.20,0.50){\vector(0,-1){0.25}}
-\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .type}}
 \put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
 \put(0.70,0.50){\vector(0,-1){0.25}}
 \put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
@@ -2502,7 +2508,7 @@ code, and not {\em attribute-representations}, and does
 \put(0.2,1.00){\makebox(1.3,0.3){\tt @136}}
 \put(0.85,1.15){\oval(1.3,0.3)}
 \put(0.40,1.00){\vector(0,-1){0.25}}
-\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .type}}
 \put(0.40,0.65){\makebox(0,0)[c]{\tt ":"}}
 \put(0.70,1.00){\line(0,-1){0.65}}
 \put(0.60,0.35){\oval(0.2,0.2)[br]}
@@ -2532,18 +2538,21 @@ code, and not {\em attribute-representations}, and does
 \put(1.55,1.25){\makebox(0,0)[l]{\tt .separator}}
 \put(2.55,1.15){\makebox(0,0)[l]{\tt ","}}
 }
-\put(0.2,4.5){
-\put(0.0,0.50){\makebox(3.6,0.30){\tt @137}}
-\put(1.80,0.65){\oval(3.6,0.3)}
-\put(0.30,0.50){\vector(0,-1){0.25}}
-\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
-\put(0.30,0.15){\makebox(0,0)[c]{\tt function}}
-\put(1.25,0.50){\vector(0,-1){0.5}}
-\put(1.20,0.40){\makebox(0,0)[r]{\tt 2}}
-\put(3.40,0.50){\line(0,-1){1.35}}
-\put(3.30,-0.85){\oval(0.2,0.2)[br]}
-\put(3.30,-0.95){\vector(-1,0){0.5}}
-\put(3.35,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(0.0,4.5){
+\put(0.1,0.50){\makebox(4.0,0.30){\tt @137}}
+\put(1.90,0.65){\oval(4.0,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .type}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt "!"}}
+\put(0.90,0.50){\vector(0,-1){0.25}}
+\put(0.85,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.90,0.15){\makebox(0,0)[c]{\tt function}}
+\put(1.45,0.50){\vector(0,-1){0.5}}
+\put(1.40,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(3.60,0.50){\line(0,-1){1.35}}
+\put(3.50,-0.85){\oval(0.2,0.2)[br]}
+\put(3.50,-0.95){\vector(-1,0){0.5}}
+\put(3.55,0.40){\makebox(0,0)[r]{\tt 3}}
 }
 \end{picture}
 \end{center}
@@ -2556,21 +2565,22 @@ Cooked representations may replace raw object identifiers in the
 description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
-@291 =|:
+@291 =:
       text = `This is a sentence.'
-      outline = { straight 3.2, left, straight (y + 9.4) }
-      min = function (x,y):
+      outline = {! straight 3.2, left, straight (y + 9.4) !}
+      min = {! function (x,y):
 
-                if (x > y):
-                    return y
-                else:
-                    return x
+                  if (x > y):
+                      return y
+                  else:
+                      return x
+	    !}
 \end{verbatim}\end{indpar}
 
 which is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
-@291 =|:
+@291 =:
     text = @93
     outline = @45
     min = @137
@@ -2581,7 +2591,7 @@ given the above examples.
 One question left unanswered by the discussion so far is whether
 
 \begin{indpar}\begin{verbatim}
-@291 =|:
+@291 =:
     text A = `This is a sentence.'
     text B = `This is a sentence.'
 \end{verbatim}\end{indpar}
@@ -2589,7 +2599,7 @@ One question left unanswered by the discussion so far is whether
 represents
 
 \begin{indpar}\begin{verbatim}
-@291 =|:
+@291 =:
     text A = @93
     text B = @93
 \end{verbatim}\end{indpar}
@@ -2597,7 +2607,7 @@ represents
 or instead
 
 \begin{indpar}\begin{verbatim}
-@291 =|:
+@291 =:
     text A = @93
     text B = @999
 \end{verbatim}\end{indpar}
@@ -2610,6 +2620,8 @@ rule is that unless otherwise indicated, only immutable objects
 have the property that their cooked representations can replace
 their raw object identifiers in the cooked representations of other
 objects.
+
+TBD
 
 \section{Parsing}
 \label{PARSING}
@@ -3303,7 +3315,7 @@ parser, it becomes the object \TT{@6} in:
 @12 = {| .initiator = ":" |}
 \end{verbatim}\end{indpar}
 
-Note the list \TT{@12} introduced by line `\TT{z =|:}' is
+Note the list \TT{@12} introduced by line `\TT{z =:}' is
 empty, because the next line is indented by less than
 this line, and therefore the indented subexpression containing
 this line ends right after the line.
@@ -3322,7 +3334,7 @@ and the third and last element is \TT{@14} in:
 \end{verbatim}\end{indpar}
 
 Here \TT{@15} is the empty list because the file ends
-after the line `\TT{@5 =|:}' that introduces it.
+after the line `\TT{@5 =:}' that introduces it.
 
 It is a general rule\label{INDENTATION-EQUIVALENCE-RULE}
 of RECKON that lists with \TT{\{~\}} brackets
