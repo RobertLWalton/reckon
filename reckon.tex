@@ -193,7 +193,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 25, 2014}
+\date{March 26, 2014}
 
 \maketitle
 
@@ -372,24 +372,24 @@ Modern math computes with expressions, and not just numbers.
 You can compute with \skey{math expression}s in RECKON.
 
 \begin{indpar}
-\verb|> f = {10x^2 - 3.67x - 0.04}| \\
-\verb|{|$10x^2-3.67x-0.04$\verb|}| \\
-\verb|> h = (- 0.96 + 0.67x) in x| \\
-\verb|{|$-0.96+0.67x$\verb|}| \\
-\verb|> (f + h) in x| \\
-\verb|{|$10x^2-3x-1$\verb|}| \\
-\verb|> solve (f + h = 0) for x| \\
-\verb|{|$x = (-0.2, 0.5)$\verb|}| \\
-\verb|> (f + h) at (x = (3, 4, 5))| \\
-\verb|(78.95, 145.28, 231.61)| \\
-\verb|> g = {integral (x ^ 2 dx)}| \\
-\verb|{|$\int x^2 dx$\verb|}| \\
-\verb|> simplify g| \\
-\verb|{|$\frac{1}{3} x^3$\verb|}| \\
-\verb|> v = g from (x = 1) to (x = 5)| \\
-\verb|41 1/3| \\
-\verb|> out = `The value of {[g] from (x = 1) to (x = 5)} is [v].'| \\
-\verb|`|The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb|'|
+\verb/> f = {| 10x^2 - 3.67x - 0.04 |}/ \\
+\verb/{|/ $10x^2-3.67x-0.04$ \verb/|}/ \\
+\verb/> h = (- 0.96 + 0.67x) in x/ \\
+\verb/{|/ $-0.96+0.67x$ \verb/|}/ \\
+\verb/> (f + h) in x/ \\
+\verb/{|/ $10x^2-3x-1$ \verb/|}/ \\
+\verb/> solve (f + h = 0) for x/ \\
+\verb/{|/ $x = (-0.2, 0.5)$ \verb/|}/ \\
+\verb/> (f + h) at (x = (3, 4, 5))/ \\
+\verb/(78.95, 145.28, 231.61)/ \\
+\verb/> g = {| integral (x ^ 2 dx) |}/ \\
+\verb/{|/ $\int x^2 dx$ \verb/|}/ \\
+\verb/> simplify g/ \\
+\verb/{|/ $\frac{1}{3} x^3$ \verb/|}/ \\
+\verb/> v = g from (x = 1) to (x = 5)/ \\
+\verb:41 1/3: \\
+\verb/> out = `The value of {[g] from (x = 1) to (x = 5)} is [v].'/ \\
+\verb/`/The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.\verb/'/
 \end{indpar}
 
 Matrices are another kind of data that you can compute
@@ -2073,9 +2073,6 @@ b			& \rm symbol & b \\
 \end{center}
 
 
-The parser also does name processing of attribute labels in a raw
-{\em object-representation}.
-
 \subsection{Lists}
 
 Objects are implemented so that attributes whose labels are small
@@ -2139,28 +2136,39 @@ the following definition of {\em bracketed-list}:
     ::= & \TT{(} {\em prefix-0-list} \TT{)} \\
     $|$ & \TT{[} {\em prefix-0-list} \TT{]} \\
     $|$ & \TT{`} {\em prefix-0-list} \TT{'} \\
+    $|$ & \TT{\{} {\em m-type} {\em prefix-0-list} {\em m-type} \TT{\}} \\
     $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} \\
-    $|$ & \TT{\{} {\em type} {\em properties}\QMARK{}
+    $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
           \TT{|} {\em prefix-0-list}
           \TT{|\}} \\
-    $|$ & \TT{\{} {\em type} {\em properties}\QMARK{}
+    $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
           \TT{| } {\em prefix-0-list}
-          \TT{|} {\em type} {\em properties}\QMARK{} \TT{\}} \\
+          \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{type} ::= {\em name}\pagnote{NAME}
+\emkey{m-type} ::= {\em mark}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{list-opening} ::= \TT{(} $|$ \TT{[} $|$ \TT{`} $|$ \TT{\{|} $|$
-			 \TT{\{} {\em type} {\em properties}\QMARK{} \TT{|} \\
+\emkey{w-type} ::= {\em name}\pagnote{NAME} other than {\em mark}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{list-closing} ::= \TT{)} $|$ \TT{]} $|$ \TT{'} $|$ \TT{|\}} $|$ 
-                         \TT{|} {\em type} {\em properties}\QMARK{} \TT{\}} \\
+\emkey{type} ::= {\em m-type} $|$ {\em w-type}
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{list-opening} ::= \TT{(} $|$ \TT{[} $|$ \TT{`} $|$ \TT{\{|}
+                     $|$ \TT{\{} {\em m-type}
+                     $|$ \TT{\{} {\em w-type} {\em properties}\QMARK{} \TT{|} \\
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{list-closing} ::= \TT{)} $|$ \TT{]} $|$ \TT{'} $|$ \TT{|\}}
+                     $|$ {\em m-type} \TT{\}}
+                     $|$ \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2175,7 +2183,8 @@ the following definition of {\em bracketed-list}:
 
 \begin{tabular}{l}
 \emkey{prefix}\label{PREFIX}
-    ::= \TT{\{}{\em type} {\em properties}\QMARK{} \TT{\}}
+    ::= \TT{\{} {\em m-type} \TT{\}}
+    $|$ \TT{\{} {\em w-type} {\em properties}\QMARK{} \TT{\}}
 \\[1ex]
 \end{tabular}
 
@@ -2621,7 +2630,189 @@ have the property that their cooked representations can replace
 their raw object identifiers in the cooked representations of other
 objects.
 
+We now elaborate on the syntax and internal representation
+of {\em bracketed-lists}.
+
+A {\em list-closing} must match the {\em list-opening} of the last unclosed
+list.  The closing `\TT{)}' matches only `\TT{(}', the closing
+`\TT{]}' matches only `\TT{[}', and the
+closing `\TT{'}' matches only `\TT{`}'.
+
+Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
+the lexemes before the `\TT{\}}' must match, though not
+exactly, the lexemes after the `\TT{\{}'.  Specifically, any
+`\TT{\}}' must be proceeded by a `\TT{|}', `{\em m-type}', or
+`\TT{|} {\em w-type} {\em properties}\QMARK{}' phrase, and the
+corresponding `\TT{\{}' must be followed by a `\TT{|}', {\em m-type},
+or `{\em w-type} {\em properties}\QMARK{} \TT{|}' phrase respectively
+with any the {\em type} before the `\TT{\}}' being equal to the
+{\em type} after the `\TT{\{}'.
+
+A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
+
+A {\em list-closing} is recognized even if it fails to match the
+last unclosed {\em list-opening}, but in this case the {\em list-closing}
+is treated as an error, and is either ignored if it does not
+match any unclosed {\em list-opening}, or generates missing
+{\em list-closings} if the {\em list-closing} matches some non-last unclosed
+{\em list-opening}.
+
+A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
+in error.
+
 TBD
+
+The two-{\em symbol} sequence `{\tt \{\}}'
+is an abbreviation for the empty list,
+and is equivalent to `{\tt \{|~|\}}'.
+
+`{\tt ||\}}' is an abbreviation of `{\tt |~|\}}' when the latter is used to
+denote an empty list that (optionally) has a {\em type} and {\em properties}.
+
+{\em Lists} may be parsed after they have been read.  Operators, including
+separators such as the semi-colon `{\tt ;}'
+and comma `{\tt ,}', are recognized by such a parse.  See
+\itemref{PARSING} for details.
+
+{\em Prefixes} are an unusual kind of separator
+that must appear at the beginning of the list as well as between
+elements of the list, and their appearance at the beginning of the list
+announces their use as a separator for the list and also establishes their
+precedence relative to other {\em prefix} separators.
+More explicitly, the type of the first {\em prefix-n} in a {\em prefix-n-list}
+specifies that all {\em prefixes} of that type shall be {\em prefix-n}'s,
+and {\em prefixes} of other types shall not be {\em prefix-n}'s.
+
+More algorithmically, during a left to right scan of a {\em prefix-0-list},
+there is a stack of `\key{open list prefix types}'.  Initially we are
+at the beginning of a sublist which is the entire {\em prefix-0-list}.
+Then:
+\begin{enumerate}
+
+\item
+When a {\em prefix} of a type that is not in the stack appears at the
+beginning of a sublist, its type is pushed into the stack, and a sublist
+of that type beginning just after the {\em prefix} is begun.
+
+\item
+When a {\em prefix} of a type that is in the stack appears, it pops the
+stack until the type is the top of the stack.  Sublists of popped types
+are terminated.  The sublist of the type now at the top of the stack
+is terminated.  A new sublist of that type beginning just after the
+{\em prefix} is begun.
+
+\item
+When a {\em prefix} of a type that is not in the stack appears inside
+(not at the beginning of) a sublist, it is announced as an error and
+ignored.
+
+\item
+Each sublist is associated with a {\em prefix} that begins the
+sublist.  The type and properties of this {\em prefix} become the
+type and properties of the sublist.
+
+\end{enumerate}
+
+
+These rules imply that a {\em prefix} that is not in the stack is
+in error unless it occurs at the beginning of a {\em prefix-0-list}
+or occurs immediately after a {\em prefix} whose type was placed
+in the stack.
+
+Thus we have the following example parse of a {\em prefix-0-list}:
+
+\begin{tabular}{lll}
+Text	& Separator &  Syntactic Category
+\\\hline
+\tt \{p\} \{s\} This is a sentence.	& \tt \{p\} & \em prefix-0-list \\
+\tt ~~~ \{s\} And another. \\
+\tt \{p\} \{s\} And a new \{foo\} paragraph.
+\\\hline
+\tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list \\
+\tt \{s\} And another.
+\\\hline
+\tt This is a sentence.	& (none) & \em prefix-2-list
+\\\hline
+\tt And another. & (none) & \em prefix-2-list
+\\\hline
+\tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
+\\\hline
+\tt And a new \{foo\} paragraph. & (none) & \em prefix-2-list \\
+			       &        & {\tt \{foo\}} is in error \\
+			       &        & and is ignored (deleted).
+\end{tabular}
+
+The {\em prefix-0-list} in this example is equivalent to:
+\begin{indpar}\begin{verbatim}
+{|  {p|  {s| This is a sentence . |}
+         {s| And another . |} |}
+    {p|  {s| And a new paragraph . |} |} |}
+             // `{foo}' deleted
+\end{verbatim}\end{indpar}
+
+The untyped lists, such as the parenthesized lists, are actually
+equivalent to typed lists as follows:
+\begin{center}
+\begin{tabular}{ll}
+Untyped List Form	& Equivalent Typed List Form
+\\\hline
+{\tt (} \ldots{} {\tt )}	& {\tt \{"("|} \ldots{} {\tt |\}} \\
+{\tt [} \ldots{} {\tt ]}	& {\tt \{"["|} \ldots{} {\tt |\}} \\
+{\tt `} \ldots{} {\tt '}	& {\tt \{"`"|} \ldots{} {\tt |\}} \\
+{\tt ``} \ldots{} {\tt ''}	& {\tt \{"``"|} \ldots{} {\tt |\}} \\
+{\tt ```} \ldots{} {\tt '''}	& {\tt \{"```"|} \ldots{} {\tt |\}} \\
+\multicolumn{2}{c}{etc.} \\
+{\tt \{|} \ldots{} {\tt |\}}	& {\tt \{.|} \ldots{} {\tt |\}} \\
+\end{tabular}
+\end{center}
+
+Thus the type of a `{\tt (~)}' parenthesized list is {\tt "("} and
+the type of a `{\tt \{|~|\}}' bracketed list is just `{\tt .}'.
+
+A {\em property} is a label/value pair.
+Lists can have elements which are in a sequence and properties which
+have labels.  Actually, the list elements are automatically assigned
+the property labels `{\tt 0}', `{\tt 1}', `{\tt 2}', \ldots{}, so
+\begin{center}
+\tt \{| a b c |\}
+\end{center}
+is equivalent to, among other things, any of the following:
+\begin{center}
+\tt \{.:~0 = a, 1 = b, 2 = c | |\} \\
+\tt \{.:~2 = c, 0 = a, 1 = b | |\} \\
+\tt \{.| a b | 2 = c:~.\} \\
+\tt \{.| a | 2 = c, 1 = b:~.\}
+\end{center}
+
+A {\em property-value} that consists of more than one {\em value-symbol}
+is equivalent to a {\tt \{|~|\}} list of these {\em value-symbols}.
+Thus `{\tt kind = prefix infix}' is equivalent to
+`{\tt kind = \{|prefix infix|\}}'.
+
+If no {\em property-value} is given, it is implicitly `{\tt true}'
+if the {\em property-label} does not begin with `{\tt no}',
+`{\tt no-}', or `{\tt no~}'.
+Otherwise the `{\tt no}', `{\tt no-}', or `{\tt no~}' is removed
+from the {\em property-label} and the {\em property-value}
+is implicitly `{\tt false}'.  For example,
+\begin{center}
+\tt \{my type:~format, no-capitalize, noadjust, no tweak\}
+\end{center}
+is equivalent to
+\begin{center}
+\tt
+\begin{tabular}{@{}l@{}}
+\{my type:~format = true, capitalize = false, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~adjust = false, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~tweak = false\} \\
+\end{tabular}
+\end{center}
+
+If no {\em property-value} is given,
+it is an error if the {\em property-label} begins with
+`{\tt no}', `{\tt no-}', or `{\tt no~}' and is not still a {\em property-label}
+after the `{\tt no}', `{\tt no-}', or `{\tt no~}' are removed (e.g.,
+`{\tt no`set}' or `{\tt no}' by itself would be in error).
 
 \section{Parsing}
 \label{PARSING}
