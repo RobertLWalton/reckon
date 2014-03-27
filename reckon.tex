@@ -100,6 +100,7 @@
 \newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1!#2}}}
 \newcommand{\ttnbdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
 \newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
 \newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
@@ -372,20 +373,20 @@ Modern math computes with expressions, and not just numbers.
 You can compute with \skey{math expression}s in RECKON.
 
 \begin{indpar}
-\verb/> f = {| 10x^2 - 3.67x - 0.04 |}/ \\
-\verb/{|/ $10x^2-3.67x-0.04$ \verb/|}/ \\
+\verb/> f = {< 10x^2 - 3.67x - 0.04 >}/ \\
+\verb/{</ $10x^2-3.67x-0.04$ \verb/>}/ \\
 \verb/> h = (- 0.96 + 0.67x) in x/ \\
-\verb/{|/ $-0.96+0.67x$ \verb/|}/ \\
+\verb/{</ $-0.96+0.67x$ \verb/>}/ \\
 \verb/> (f + h) in x/ \\
-\verb/{|/ $10x^2-3x-1$ \verb/|}/ \\
+\verb/{</ $10x^2-3x-1$ \verb/>}/ \\
 \verb/> solve (f + h = 0) for x/ \\
-\verb/{|/ $x = (-0.2, 0.5)$ \verb/|}/ \\
+\verb/{</ $x = (-0.2, 0.5)$ \verb/>}/ \\
 \verb/> (f + h) at (x = (3, 4, 5))/ \\
 \verb/(78.95, 145.28, 231.61)/ \\
-\verb/> g = {| integral (x ^ 2 dx) |}/ \\
-\verb/{|/ $\int x^2 dx$ \verb/|}/ \\
+\verb/> g = {< integral (x ^ 2 dx) >}/ \\
+\verb/{</ $\int x^2 dx$ \verb/>}/ \\
 \verb/> simplify g/ \\
-\verb/{|/ $\frac{1}{3} x^3$ \verb/|}/ \\
+\verb/{</ $\frac{1}{3} x^3$ \verb/>}/ \\
 \verb/> v = g from (x = 1) to (x = 5)/ \\
 \verb:41 1/3: \\
 \verb/> out = `The value of {[g] from (x = 1) to (x = 5)} is [v].'/ \\
@@ -799,34 +800,34 @@ RECKON supports pictorial data
 that are expressions displayed as pictures:
 
 \begin{indpar}
-\verb|> x = {circle 0.4}| \\[1ex]
+\verb/> x = {<circle 0.4>}/ \\[1ex]
 \begin{picture}(0.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \end{picture} \\
-\verb|> y = {rectangle (0.4,0.2)}| \\[1ex]
+\verb/> y = {<rectangle (0.4,0.2)>}/ \\[1ex]
 \begin{picture}(0.4,0.2)
 \put(0,0){\framebox(0.4,0.2){}}
 \end{picture} \\
-\verb|> z = {(circle 0.4) labeled `Jack'}| \\[1ex]
+\verb/> z = {<(circle 0.4) labeled `Jack'>}/ \\[1ex]
 \begin{picture}(0.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \put(0.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> {([x] right of [y]) above [z]}| \\[1ex]
+\verb/> {<([x] right of [y]) above [z]>}/ \\[1ex]
 \begin{picture}(0.8,0.8)
 \put(0.6,0.6){\circle{0.4}}
 \put(0.0,0.5){\framebox(0.4,0.2){}}
 \put(0.4,0.2){\circle{0.4}}
 \put(0.2,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> {row([x],[y],[z])}| \\[1ex]
+\verb/> {<row([x],[y],[z])>}/ \\[1ex]
 \begin{picture}(1.4,0.4)
 \put(0.2,0.2){\circle{0.4}}
 \put(0.4,0.1){\framebox(0.4,0.2){}}
 \put(1.0,0.2){\circle{0.4}}
 \put(0.8,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> p = {column (row([x],[y],[z]), row([z],[y],[x]))}| \\[1ex]
+\verb/> p = {<column (row([x],[y],[z]), row([z],[y],[x]))>}/ \\[1ex]
 \begin{picture}(1.4,0.8)
 \put(0.2,0.6){\circle{0.4}}
 \put(0.4,0.5){\framebox(0.4,0.2){}}
@@ -837,15 +838,15 @@ that are expressions displayed as pictures:
 \put(0.2,0.2){\circle{0.4}}
 \put(0.0,0.0){\makebox(0.4,0.4){Jack}}
 \end{picture} \\
-\verb|> raw x| \\
-\verb|{circle 0.4}| \\
-\verb|> raw p| \\
-\verb|{column (row (circle 0.4,| \\
-\verb|              rectangle (0.4,0.2),| \\
-\verb|              (circle 0.4) labeled `Jack'),| \\
-\verb|         row ((circle 0.4) labeled `Jack',| \\
-\verb|              rectangle (0.4,0.2),| \\
-\verb|              circle 0.4))}|
+\verb/> raw x/ \\
+\verb/{<circle 0.4>}/ \\
+\verb/> raw p/ \\
+\verb/{<column (row (circle 0.4,/ \\
+\verb/               rectangle (0.4,0.2),/ \\
+\verb/               (circle 0.4) labeled `Jack'),/ \\
+\verb/          row ((circle 0.4) labeled `Jack',/ \\
+\verb/               rectangle (0.4,0.2),/ \\
+\verb/               circle 0.4))>}/
 \end{indpar}
 
 You can also change how an expression is displayed.
@@ -854,16 +855,16 @@ You can also change how an expression is displayed.
 \newlength{\ovalraise}
 \setlength{\ovalraise}{-0.1in}
 \addtolength{\ovalraise}{0.8ex}
-\verb|> display ( P ) <-- person ( P ) has name ( X ):| \\
-\verb|>     value = {oval (0.4,0.2) labeled [X]}| \\
-\verb|> (a person named `Jack')| \\
+\verb/> display ( P ) <-- person ( P ) has name ( X ):/ \\
+\verb/>     value = {<oval (0.4,0.2) labeled [X]>}/ \\
+\verb/> (a person named `Jack')/ \\
 \begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture} \\
-\verb|> `[a person named `Jill'] is wife of| \\
-\verb|   [a person named `Jack']'| \\
-\verb|`|
+\verb/> `[a person named `Jill'] is wife of/ \\
+\verb/   [a person named `Jack']'/ \\
+\verb/`/
 \raisebox{\ovalraise}{\begin{picture}(0.4,0.2)
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jill}}
@@ -873,7 +874,7 @@ You can also change how an expression is displayed.
 \put(0.2,0.1){\oval(0.4,0.2)}
 \put(0.0,0.0){\makebox(0.4,0.2){Jack}}
 \end{picture}}
-\verb|'|
+\verb/'/
 \end{indpar}
 
 Displays can be used to make demonstrations:
@@ -917,24 +918,24 @@ Displays can be used to make demonstrations:
 \tt @1000045 & demo & 45 degrees \\
 \hline
 \end{tabular} \\[0.5ex]
-\verb|> display ( D ) <-- demo ( D ) with angle ( X ):| \\
-\verb|+     c = {circle 1.0 dotted center (0.0,0.0)}| \\
-\verb|+     x axis = {arrow from (-0.75,0.0) to (0.75,0.0)}| \\
-\verb|+     y axis = {arrow from (0.0,-0.75) to (0.0,0.75)}| \\
-\verb|+     line = {line from (0.0,0.0)| \\
-\verb|+                  to [(0.5*cos X, 0.5*sin X)]}| \\
-\verb|+     arc = {arc arrow from (0.7,0.0)| \\
-\verb|+                      to [(0.3*cos X, 0.3*sin X)]}| \\
-\verb|+     theta = {Greek th}| \\
-\verb|+     value = {label (| \\
-\verb|+                `Depiction of Angle [theta]=[X]',| \\
-\verb|+                overlap (| \\
-\verb|+                  [c],| \\
-\verb|+                  [x axis] labeled `X Axis',| \\
-\verb|+                  [y axis] labeled `Y Axis',| \\
-\verb|+                  [line],| \\
-\verb|+                  [arc] labeled `[theta]' ) ) }| \\
-\verb|> show x| \\
+\verb/> display ( D ) <-- demo ( D ) with angle ( X ):/ \\
+\verb/+     c = {<circle 1.0 dotted center (0.0,0.0)>}/ \\
+\verb/+     x axis = {<arrow from (-0.75,0.0) to (0.75,0.0)>}/ \\
+\verb/+     y axis = {<arrow from (0.0,-0.75) to (0.0,0.75)>}/ \\
+\verb/+     line = {<line from (0.0,0.0)/ \\
+\verb/+                   to [(0.5*cos X, 0.5*sin X)]>}/ \\
+\verb/+     arc = {<arc arrow from (0.7,0.0)/ \\
+\verb/+                       to [(0.3*cos X, 0.3*sin X)]>}/ \\
+\verb/+     theta = {<Greek th>}/ \\
+\verb/+     value = {<label (/ \\
+\verb/+                `Depiction of Angle [theta]=[X]',/ \\
+\verb/+                overlap (/ \\
+\verb/+                  [c],/ \\
+\verb/+                  [x axis] labeled `X Axis',/ \\
+\verb/+                  [y axis] labeled `Y Axis',/ \\
+\verb/+                  [line],/ \\
+\verb/+                  [arc] labeled `[theta]' ) ) >}/ \\
+\verb/> show x/ \\
 See `Depiction of Angle $\theta=45^\circ$' \\
 \verb|> increment x by -15 degrees| \\
 See `Depiction of Angle $\theta=30^\circ$'
@@ -1722,7 +1723,9 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{single-attribute-}{representation} ::=
+\emlkey{single-attribute-}{representation}%
+\label{SINGLE-ATTRIBUTE-REPRESENTATION}
+::=
 \\\hspace*{0.5in}
 	\TT{<*>}
 	{\em attribute-label} {\em attribute-label-flags}\QMARK{}
@@ -2138,6 +2141,7 @@ the following definition of {\em bracketed-list}:
     $|$ & \TT{`} {\em prefix-0-list} \TT{'} \\
     $|$ & \TT{\{} {\em m-type} {\em prefix-0-list} {\em m-type} \TT{\}} \\
     $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} \\
+    $|$ & \TT{\{<} {\em prefix-0-list} \TT{>\}} \\
     $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
           \TT{|} {\em prefix-0-list}
           \TT{|\}} \\
@@ -2148,7 +2152,7 @@ the following definition of {\em bracketed-list}:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{m-type} ::= {\em mark}
+\emkey{m-type} ::= {\em mark} other than \TT{<} or \TT{>}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2641,14 +2645,17 @@ closing `\TT{'}' matches only `\TT{`}'.
 Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
 the lexemes before the `\TT{\}}' must match, though not
 exactly, the lexemes after the `\TT{\{}'.  Specifically, any
-`\TT{\}}' must be proceeded by a `\TT{|}', `{\em m-type}', or
+`\TT{\}}' must be proceeded by a `\TT{|}', `\TT{>}', `{\em m-type}', or
 `\TT{|} {\em w-type} {\em properties}\QMARK{}' phrase, and the
-corresponding `\TT{\{}' must be followed by a `\TT{|}', {\em m-type},
-or `{\em w-type} {\em properties}\QMARK{} \TT{|}' phrase respectively
+corresponding `\TT{\{}' must be followed by a `\TT{|}', `\TT{<}', {\em m-type},
+or `{\em w-type} {\em properties}\QMARK{} \TT{|}' phrase respectively,
 with any the {\em type} before the `\TT{\}}' being equal to the
 {\em type} after the `\TT{\{}'.
 
 A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
+
+A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
+in error.
 
 A {\em list-closing} is recognized even if it fails to match the
 last unclosed {\em list-opening}, but in this case the {\em list-closing}
@@ -2657,22 +2664,16 @@ match any unclosed {\em list-opening}, or generates missing
 {\em list-closings} if the {\em list-closing} matches some non-last unclosed
 {\em list-opening}.
 
-A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
-in error.
-
-TBD
-
-The two-{\em symbol} sequence `{\tt \{\}}'
-is an abbreviation for the empty list,
-and is equivalent to `{\tt \{|~|\}}'.
-
-`{\tt ||\}}' is an abbreviation of `{\tt |~|\}}' when the latter is used to
-denote an empty list that (optionally) has a {\em type} and {\em properties}.
-
-{\em Lists} may be parsed after they have been read.  Operators, including
-separators such as the semi-colon `{\tt ;}'
-and comma `{\tt ,}', are recognized by such a parse.  See
-\itemref{PARSING} for details.
+In general, a `\TT{\{~\}}' bracketed list has a {\em type} which becomes
+the \ttdmkey{type}{of list} attribute of the list, the {\em properties}
+become list attributes (their syntax and semantics mimic
+that of a {\em single-attribute-representation}%
+\pagnote{SINGLE-ATTRIBUTE-REPRESENTATION}), and the elements of the
+list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
+As special cases, `\TT{\{|~|\}}' lists have no attributes except for
+list elements, and `\TT{\{<~>\}}' lists have the \TT{.type} attribute
+value \TT{<>}.  Note that this means that `\TT{\{||\}}' denotes the
+empty object with no attributes at all.
 
 {\em Prefixes} are an unusual kind of separator
 that must appear at the beginning of the list as well as between
@@ -2682,6 +2683,8 @@ precedence relative to other {\em prefix} separators.
 More explicitly, the type of the first {\em prefix-n} in a {\em prefix-n-list}
 specifies that all {\em prefixes} of that type shall be {\em prefix-n}'s,
 and {\em prefixes} of other types shall not be {\em prefix-n}'s.
+
+TBD
 
 More algorithmically, during a left to right scan of a {\em prefix-0-list},
 there is a stack of `\key{open list prefix types}'.  Initially we are
@@ -2813,6 +2816,11 @@ it is an error if the {\em property-label} begins with
 `{\tt no}', `{\tt no-}', or `{\tt no~}' and is not still a {\em property-label}
 after the `{\tt no}', `{\tt no-}', or `{\tt no~}' are removed (e.g.,
 `{\tt no`set}' or `{\tt no}' by itself would be in error).
+
+{\em Lists} may be parsed after they have been read.  Operators, including
+separators such as the semi-colon `{\tt ;}'
+and comma `{\tt ,}', are recognized by such a parse.  See
+\itemref{PARSING} for details.
 
 \section{Parsing}
 \label{PARSING}
