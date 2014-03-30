@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 26, 2014}
+\date{March 30, 2014}
 
 \maketitle
 
@@ -2672,7 +2672,7 @@ that of a {\em single-attribute-representation}%
 list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
 As special cases, `\TT{\{|~|\}}' lists have no attributes except for
 list elements, and `\TT{\{<~>\}}' lists have the \TT{.type} attribute
-value \TT{<>}.  Note that this means that `\TT{\{||\}}' denotes the
+value \TT{"<>"}.  Note that this means that `\TT{\{||\}}' denotes the
 empty object with no attributes at all.
 
 {\em Prefixes} are an unusual kind of separator
@@ -2684,9 +2684,7 @@ More explicitly, the type of the first {\em prefix-n} in a {\em prefix-n-list}
 specifies that all {\em prefixes} of that type shall be {\em prefix-n}'s,
 and {\em prefixes} of other types shall not be {\em prefix-n}'s.
 
-TBD
-
-More algorithmically, during a left to right scan of a {\em prefix-0-list},
+Algorithmically, during a left to right scan of a {\em prefix-0-list},
 there is a stack of `\key{open list prefix types}'.  Initially we are
 at the beginning of a sublist which is the entire {\em prefix-0-list}.
 Then:
@@ -2753,24 +2751,20 @@ The {\em prefix-0-list} in this example is equivalent to:
              // `{foo}' deleted
 \end{verbatim}\end{indpar}
 
-The untyped lists, such as the parenthesized lists, are actually
-equivalent to typed lists as follows:
+The untyped lists, such as the parenthesized lists, do \underline{not}
+have \TT{.type} attributes, but instead have \TT{.initiator} and
+\TT{.terminator} attributes as follows:
 \begin{center}
-\begin{tabular}{ll}
-Untyped List Form	& Equivalent Typed List Form
+\begin{tabular}{lll}
+Untyped List Form	& \TT .initiator & \TT .terminator
 \\\hline
-{\tt (} \ldots{} {\tt )}	& {\tt \{"("|} \ldots{} {\tt |\}} \\
-{\tt [} \ldots{} {\tt ]}	& {\tt \{"["|} \ldots{} {\tt |\}} \\
-{\tt `} \ldots{} {\tt '}	& {\tt \{"`"|} \ldots{} {\tt |\}} \\
-{\tt ``} \ldots{} {\tt ''}	& {\tt \{"``"|} \ldots{} {\tt |\}} \\
-{\tt ```} \ldots{} {\tt '''}	& {\tt \{"```"|} \ldots{} {\tt |\}} \\
-\multicolumn{2}{c}{etc.} \\
-{\tt \{|} \ldots{} {\tt |\}}	& {\tt \{.|} \ldots{} {\tt |\}} \\
+\TT (~\ldots~)		& \TT "("	 & \TT ")" \\
+\TT [~\ldots~]		& \TT "["	 & \TT "]" \\
+\TT `~\ldots~'		& \TT "`"	 & \TT "'" \\
 \end{tabular}
 \end{center}
 
-Thus the type of a `{\tt (~)}' parenthesized list is {\tt "("} and
-the type of a `{\tt \{|~|\}}' bracketed list is just `{\tt .}'.
+TBD
 
 A {\em property} is a label/value pair.
 Lists can have elements which are in a sequence and properties which
