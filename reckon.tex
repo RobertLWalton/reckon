@@ -2145,6 +2145,8 @@ the following definition of {\em bracketed-list}:
     $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
           \TT{|} {\em prefix-0-list}
           \TT{|\}} \\
+    $|$ & \TT{\{|} {\em prefix-0-list}
+          \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
     $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
           \TT{| } {\em prefix-0-list}
           \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
@@ -2764,36 +2766,34 @@ Untyped List Form	& \TT .initiator & \TT .terminator
 \end{tabular}
 \end{center}
 
-TBD
+A \key{property} is a label/value pair.  The term `property' is
+computationally equivalent to `attribute'.
+\ikey{Lists}{list}
+can have elements which are in a sequence and properties which
+have labels.  The term `list' is computationally equivalent to `object'.
 
-A {\em property} is a label/value pair.
-Lists can have elements which are in a sequence and properties which
-have labels.  Actually, the list elements are automatically assigned
+List elements are automatically assigned
 the property labels `{\tt 0}', `{\tt 1}', `{\tt 2}', \ldots{}, so
 \begin{center}
-\tt \{| a b c |\}
+\tt \{< a b c >\}
 \end{center}
 is equivalent to, among other things, any of the following:
 \begin{center}
-\tt \{.:~0 = a, 1 = b, 2 = c | |\} \\
-\tt \{.:~2 = c, 0 = a, 1 = b | |\} \\
-\tt \{.| a b | 2 = c:~.\} \\
-\tt \{.| a | 2 = c, 1 = b:~.\}
+\begin{tabular}{l}
+\tt \{"<>":~0 = a, 1 = b, 2 = c ||\} \\
+\tt \{"<>":~2 = c, 0 = a, 1 = b ||\} \\
+\tt \{| a b | "<>": 2 = c \} \\
+\tt \{"<>": 2 = c | a | "<>": 1 = b \}
+\end{tabular}
 \end{center}
 
-A {\em property-value} that consists of more than one {\em value-symbol}
-is equivalent to a {\tt \{|~|\}} list of these {\em value-symbols}.
-Thus `{\tt kind = prefix infix}' is equivalent to
-`{\tt kind = \{|prefix infix|\}}'.
-
 If no {\em property-value} is given, it is implicitly `{\tt true}'
-if the {\em property-label} does not begin with `{\tt no}',
-`{\tt no-}', or `{\tt no~}'.
-Otherwise the `{\tt no}', `{\tt no-}', or `{\tt no~}' is removed
+if the {\em property-label} does not begin with the word `{\tt no}'.
+Otherwise the `{\tt no}' is removed
 from the {\em property-label} and the {\em property-value}
 is implicitly `{\tt false}'.  For example,
 \begin{center}
-\tt \{my type:~format, no-capitalize, noadjust, no tweak\}
+\tt \{my type:~format, no capitalize, no adjust, tweak = 5\}
 \end{center}
 is equivalent to
 \begin{center}
@@ -2801,19 +2801,18 @@ is equivalent to
 \begin{tabular}{@{}l@{}}
 \{my type:~format = true, capitalize = false, \\
 ~~~~~~~~~~~~~~~~~~~~~~~~~adjust = false, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~tweak = false\} \\
+~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5\} \\
 \end{tabular}
 \end{center}
 
 If no {\em property-value} is given,
-it is an error if the {\em property-label} begins with
-`{\tt no}', `{\tt no-}', or `{\tt no~}' and is not still a {\em property-label}
-after the `{\tt no}', `{\tt no-}', or `{\tt no~}' are removed (e.g.,
-`{\tt no`set}' or `{\tt no}' by itself would be in error).
+it is an error if the {\em property-label} is
+`{\tt no}' by itself.
 
 {\em Lists} may be parsed after they have been read.  Operators, including
 separators such as the semi-colon `{\tt ;}'
-and comma `{\tt ,}', are recognized by such a parse.  See
+and comma `{\tt ,}', are recognized by such a parse.  As part of parsing,
+a list may be reformatted.  See
 \itemref{PARSING} for details.
 
 \section{Parsing}
