@@ -1400,8 +1400,13 @@ The character strings represented by a {\em quoted-string} with no
 is just the {\em quoted-string} lexeme with its surrounding quotes (\TT{"})
 removed.  Thus, for example, \TT{fie} and \TT{"fie"} represent the
 same symbol, as do \TT{+} and \TT{"+"}.
+{\em Special-character-representatives} inside the \TT{"}'s of a
+quoted string may be used to represent various characters: for
+example, the {\em quoted-string} \TT{"<Q>Help!<Q>"} represents the
+7-character symbol \TT{"Help!"}.
 
-Symbols and numbers are referred to as {\em atoms}.  The equations
+
+Symbols and numbers are referred to as \skey{atom}s.  The equations
 
 \begin{indpar}
 \emkey{number} := {\em numeric}
@@ -1423,45 +1428,28 @@ output they are the same.
 For instance, given \TT{x + y} as input the parser will output \TT{+ x y},
 but given \TT{x "+" y} as input the parser will output \TT{x + y}.
 
-A \key{name} is a sequence of non-separator lexemes not all of which are
-numerics:
+A \key{name} is a sequence of atoms represented by a sequence of
+{\em word}, {\em numeric}, and {\em quoted-string} lexemes:
 
 \begin{indpar}
-\emkey{name} := {\em name-lexeme}\STAR{} ~ {\em non-numeric-name-lexeme}
-                ~ {\em name-lexeme}\STAR{}
+\emkey{name} := {\em name-lexeme}\PLUS{}
 \label{NAME}\\[1ex]
-\emkey{name-lexeme} ::= {\em lexeme} other than {\em non-name-lexeme}
-\label{NAME-LEXEME} \\[1ex]
-\emkey{non-name-lexeme}
-    ::= {\em separator} $|$ \TT{=} $|$ \TT{:}
-                        $|$ \TT{<*>} $|$ \TT{<\#>} \\[1ex]
-\emkey{non-numeric-name-lexeme}
-    ::= {\em name-lexeme} other than {\em numeric}
-\label{NON-NUMERIC-NAME-LEXEME}
+\emkey{name-lexeme} ::= {\em word} $|$ {\em numeric} $|$ {\em quoted-string}
+\label{NAME-LEXEME}
 \end{indpar}
 
-[TBD should marks be excluded from names (so quotes are required)?
-Then flag-lexemes would be words, decimal-naturals, marks, and
-quoted strings, but not separators.]
+A name is said to be a \key{natural-number} if and only if it consists
+of just one non-negative integer number atom.
+
+The lexemes of a name are sometimes combined with each other to
+represent an atom of the name.  So for example, the names
+`\TT{1e5}', `\TT{100000}', and `\TT{100,000}' all represent
+the same one atom {\em natural-number} name (here `\TT{1e5}'
+is the 3-lexeme name `\TT{1 e 5}' which is scientific notation
+for a single number atom).
 
 If a syntactic unit {\em X-name} is used, the syntactic equation
 `{\em X-name} ::= {\em name}' is implied.
-
-{\em Numerics} do not uniquely represent atoms, but {\em numerics} with
-only digits and no high order \TT{0}'s do.  These are:
-
-\begin{indpar}
-\emkey{decimal-natural} := \TT{0} $|$ {\em non-zero-digit} {\em digit}\STAR{}
-\label{DECIMAL-NATURAL} \\[1ex]
-\emkey{non-zero-digit} := {\em digit} other than \TT{0}
-\end{indpar}
-
-Given a non-negative integer {\em number} atom, there is a unique
-{\em decimal-natural} representing it.  Note that
-{\em decimal-naturals} cannot contain commas, as if they could,
-either all {\em decimal-natural}
-representations of an integer would have to contain commas,
-or the representations would not be unique.
 
 Lexemes are contained in lines.  Line beginnings
 are translated into a special lexeme which is
