@@ -1438,7 +1438,16 @@ A \key{name} is a sequence of atoms represented by a sequence of
 \label{NAME-LEXEME}
 \end{indpar}
 
-A name is said to be a \key{natural-number} if and only if it consists
+Names are used to name both variables and constants.  Thus \TT{123}
+generally names an integer constant, but can also be the label of
+an element in a vector, \TT{"123"} generally names a symbol constant, \TT{X}
+generally names a variable, and \TT{"X"} generally names a symbol constant.
+Thus the role of a name may depend on the lexemes in the name and not
+just the atoms these represent.  Also in some contexts the roles of
+names may differ from their usual roles.
+
+A name is said to be a \key{natural-number}\label{NATURAL-NUMBER}
+if and only if it consists
 of just one non-negative integer number atom.
 
 The lexemes of a name are sometimes combined with each other to
@@ -1447,6 +1456,14 @@ represent an atom of the name.  So for example, the names
 the same one atom {\em natural-number} name (here `\TT{1e5}'
 is the 3-lexeme name `\TT{1 e 5}' which is scientific notation
 for a single number atom).
+
+A \key{simple-name} is a name that represents a single atom
+in a direct way, such as `\TT{100,000}' and `\TT{1e5}'.
+A \key{compound-name} is a name that is parsed to represent
+an expression, such as the name `\TT{george's weight}' which
+is parsed to represent `\TT{george 's weight}' where \TT{'s}
+has become an operator (like the `\TT{.}' operator in C, C++,
+or other programming languages).
 
 If a syntactic unit {\em X-name} is used, the syntactic equation
 `{\em X-name} ::= {\em name}' is implied.
@@ -1554,6 +1571,12 @@ translates to the lexeme squence
 A single \TT{<\#>} lexeme is also placed at the beginning of
 a file that begins with a non-blank line, as if a blank line 
 had been inserted at the beginning of the file.
+
+
+\section{Simple Names}
+
+A \key{simple name} is a {\em name} that represents a single
+atom in a direct way without use of dictionaries (see \pagref{DICTIONARY}).
 
 
 \section{Low Level Data}
@@ -1669,7 +1692,7 @@ The syntax of an {\em object-representation} is:
 \begin{tabular}{l}
 \emkey{object-identifier} ::=
 	\ttmkey{@}{in {\em object-identifier}}
-	{\em decimal-natural}\pagnote{DECIMAL-NATURAL} \\
+	{\em natural-number}\pagnote{NATURAL-NUMBER} \\
 \end{tabular}
 
 \begin{tabular}{l}
