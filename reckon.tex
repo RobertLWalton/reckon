@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 23, 2014}
+\date{April 25, 2014}
 
 \maketitle
 
@@ -1385,13 +1385,14 @@ are ignored, as if they did not exist.
 Warning messages are issued for {\em form-feeds} and {\em vertical-tabs}
 that occur when the column position is not at the beginning of a line.
 
-{\em Numerics} represent \key{numbers} which are stored as strings of binary
+{\em Numerics} represent \key{numbers}\label{NUMBER} which are stored
+as strings of binary
 digits.  Several {\em numerics} may represent the same number.  For example,
 \TT{007} and \TT{7} both represent the same number,
 and \TT{15/2}, \TT{7.5}, and \TT{7.50} all represent the same number.
 
 {\em Words}, {\em marks}, {\em separators}, and {\em quoted-strings}
-represent \skey{symbol}s which are stored as character strings.
+represent \skey{symbol}s\label{SYMBOL} which are stored as character strings.
 The character strings represented by
 {\em words}, {\em marks}, and {\em separators}
 are exactly the character strings of these lexemes.
@@ -1427,46 +1428,6 @@ to the parser, \TT{+} and \TT{"+"} are not the same when input, but when
 output they are the same.
 For instance, given \TT{x + y} as input the parser will output \TT{+ x y},
 but given \TT{x "+" y} as input the parser will output \TT{x + y}.
-
-A \key{name} is a sequence of atoms represented by a sequence of
-{\em word}, {\em numeric}, and {\em quoted-string} lexemes:
-
-\begin{indpar}
-\emkey{name} := {\em name-lexeme}\PLUS{}
-\label{NAME}\\[1ex]
-\emkey{name-lexeme} ::= {\em word} $|$ {\em numeric} $|$ {\em quoted-string}
-\label{NAME-LEXEME}
-\end{indpar}
-
-Names are used to name both variables and constants.  Thus \TT{123}
-generally names an integer constant, but can also be the label of
-an element in a vector, \TT{"123"} generally names a symbol constant, \TT{X}
-generally names a variable, and \TT{"X"} generally names a symbol constant.
-Thus the role of a name may depend on the lexemes in the name and not
-just the atoms these represent.  Also in some contexts the roles of
-names may differ from their usual roles.
-
-A name is said to be a \key{natural-number}\label{NATURAL-NUMBER}
-if and only if it consists
-of just one non-negative integer number atom.
-
-The lexemes of a name are sometimes combined with each other to
-represent an atom of the name.  So for example, the names
-`\TT{1e5}', `\TT{100000}', and `\TT{100,000}' all represent
-the same one atom {\em natural-number} name (here `\TT{1e5}'
-is the 3-lexeme name `\TT{1 e 5}' which is scientific notation
-for a single number atom).
-
-A \key{simple-name} is a name that represents a single atom
-in a direct way, such as `\TT{100,000}' and `\TT{1e5}'.
-A \key{compound-name} is a name that is parsed to represent
-an expression, such as the name `\TT{george's weight}' which
-is parsed to represent `\TT{george 's weight}' where \TT{'s}
-has become an operator (like the `\TT{.}' operator in C, C++,
-or other programming languages).
-
-If a syntactic unit {\em X-name} is used, the syntactic equation
-`{\em X-name} ::= {\em name}' is implied.
 
 Lexemes are contained in lines.  Line beginnings
 are translated into a special lexeme which is
@@ -1573,10 +1534,105 @@ a file that begins with a non-blank line, as if a blank line
 had been inserted at the beginning of the file.
 
 
-\section{Simple Names}
+\section{Names}
 
-A \key{simple name} is a {\em name} that represents a single
-atom in a direct way without use of dictionaries (see \pagref{DICTIONARY}).
+A \key{name} is a sequence of atoms represented by a sequence
+of {\em atom-names}:
+
+\begin{indpar}
+\emkey{name} := {\em atom-name}\PLUS{}
+\label{NAME}\\[1ex]
+\emkey{atom-name}
+    \begin{tabular}[t]{rl}
+    ::= & {\em word} \\
+    $|$ & {\em quoted-string} \\
+    $|$ & {\em scientific-number} \\
+    $|$ & {\em date} \\
+    $|$ & {\em time} \\
+    $|$ & {\em concatenated-quoted-string} \\
+    $|$ & {\em radix-number} \\
+    \end{tabular}
+\label{NAME-LEXEME}
+\end{indpar}
+
+Generally {\em names} consist of {\em words}, {\em numerics}, and
+{\em quoted-strings}, but \underline{not} {\em marks} or {\em separators}.
+An atom that is a {\em mark} or {\em separator} can be represented in
+a {\em name} by a {\em quoted-string}.  However there are three {\em marks}
+that can appear in particular locations within {\em names}:
+\TT{+}, \TT{-}, and \TT{\#}.
+
+An \emkey{atom-name} represents a single atom.  {\em Words} and
+{\em quoted-strings}, if they are single-lexeme {\em atom-names},
+represent symbols as described on \pagref{SYMBOL}.
+{\em Numerics}, if they are single-lexeme {\em atom-names}
+consisting of just decimal digits with an optional decimal point or
+alternatively an optional fraction indicator \TT{/} represent a number,
+as described on \pagref{NUMBER}.
+Other {\em atom-names} are more complex; some examples are
+`\TT{12:45:00}' which represents the {\em time} $60*(60*12+45)+00$ seconds,
+`\TT{03/14/27}' which represents the {\em date} March 14, 2027,
+expressed as seconds relative to January 1, 0000,
+and `\TT{1.3e5}', which represents the {\em scientific-number}
+$1.3*10^{5}$.
+
+Names are used to name both variables and constants.  Thus \TT{123}
+generally names an integer constant, but can also be the label of
+an element in a vector, \TT{"123"} generally names a symbol constant, \TT{X}
+generally names a variable, and \TT{"X"} generally names a symbol constant.
+Thus the role of a name may depend on the lexemes in the name and not
+just the atoms these represent.  Also in some contexts the roles of
+names may differ from their usual roles.
+
+A name is said to be a \key{natural-number}\label{NATURAL-NUMBER}
+if and only if it consists
+of just one non-negative integer number atom.
+
+After the representation of a name is converted into a sequence
+of atoms, this sequence may be further parsed into an expression.
+Such names are called `compound names'.  For example, the name
+`\TT{george's weight}' is parsed to make the expression
+`\TT{george 's weight}' where \TT{'s} has become an operator
+(like the `\TT{.}' operator in C, C++, or other programming languages).
+See \itemref{COMPOUND-NAMES} for details.
+
+If a syntactic unit {\em X-name} is used, the syntactic equation
+`{\em X-name} ::= {\em name}' is implied.
+
+Multi-lexeme {\em atom-names}, and the more complex single-lexeme
+{\em atom-names}, are described in the following sections.
+
+\subsection{Scientific Numbers}
+
+A \key{scientific number} is a {\em numeric} which contains only
+digits plus an optional decimal point and optional commas,
+with an optional preceeding sign and an optional trailing exponent:
+
+\begin{indpar}
+\emkey{scientific-number} := {\em sign}\QMARK{} {\em scientific-numeric}
+			     {\em exponent}\QMARK{}
+\label{SCIENTIFIC-NUMBER}\\[1ex]
+\emkey{sign} ::= \TT{+} $|$ \TT{-} \\[1ex]
+\emkey{scientific-numeric} ::= {\em natural-number}
+       $|$ {\em natural-number}\TT{.}{\em natural-fraction} \\[1ex]
+\emkey{natural-number} ::= {\em digit}\PLUS{}
+	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
+	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{} \\[1ex]
+\emkey{natural-fraction} ::= {\em digit}\PLUS{}
+	$|$ \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
+	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{} \\[1ex]
+\emkey{exponent} ::= {\em exponent-indicator} {\em sign}\QMARK{}
+                     {\em natural-number} \\[1ex] 
+\emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
+\end{indpar}
+
+{\em Commas} must be every three {\em digits} from the end of
+a {\em natural-number} or the beginning of a {\em natural-fraction}.
+An {\em exponent} shifts the decimal point (including the implied
+decimal point at the end of the {\em scientific-numeric} that has
+no decimal point); a positive exponent shifts right and a negative
+exponent shifts left.
+
 
 
 \section{Low Level Data}
