@@ -1410,11 +1410,9 @@ example, the {\em quoted-string} \TT{"<Q>Help!<Q>"} represents the
 Symbols and numbers are referred to as \skey{atom}s.  The equations
 
 \begin{indpar}
-\emkey{number} := {\em numeric}
-\label{NUMBER}\\[1ex]
+\emkey{number} := {\em numeric} \\[1ex]
 \emkey{symbol} ::= {\em word} $|$ {\em mark} $|$ {\em separator}
-               $|$ {\em quoted-string}
-\label{SYMBOL}\\[1ex]
+               $|$ {\em quoted-string} \\[1ex]
 \emkey{atom} ::= {\em number} $|$ {\em symbol}
 \label{ATOM}
 \end{indpar}
@@ -1584,10 +1582,6 @@ Thus the role of a name may depend on the lexemes in the name and not
 just the atoms these represent.  Also in some contexts the roles of
 names may differ from their usual roles.
 
-A name is said to be a \key{natural-number}\label{NATURAL-NUMBER}
-if and only if it consists
-of just one non-negative integer number atom.
-
 After the representation of a name is converted into a sequence
 of atoms, this sequence may be further parsed into an expression.
 Such names are called `compound names'.  For example, the name
@@ -1603,6 +1597,7 @@ Multi-lexeme {\em atom-names}, and the more complex single-lexeme
 {\em atom-names}, are described in the following sections.
 
 \subsection{Scientific Numbers}
+\label{SCIENTIFIC-NUMBER}
 
 A \key{scientific number} is a {\em numeric} which contains only
 digits plus an optional decimal point and optional commas,
@@ -1610,30 +1605,92 @@ with an optional preceeding sign and an optional trailing exponent:
 
 \begin{indpar}
 \emkey{scientific-number} := {\em sign}\QMARK{} {\em scientific-numeric}
-			     {\em exponent}\QMARK{}
-\label{SCIENTIFIC-NUMBER}\\[1ex]
+			     {\em exponent}\QMARK{} \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-} \\[1ex]
-\emkey{scientific-numeric} ::= {\em natural-number}
-       $|$ {\em natural-number}\TT{.}{\em natural-fraction} \\[1ex]
-\emkey{natural-number} ::= {\em digit}\PLUS{}
+\emkey{scientific-numeric} ::= {\em integral-numeric}
+       $|$ {\em integral-numeric}\TT{.}{\em fractional-numeric} \\[1ex]
+\emkey{integral-numeric} ::= {\em digit}\PLUS{}
 	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
 	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{} \\[1ex]
-\emkey{natural-fraction} ::= {\em digit}\PLUS{}
+\emkey{fractional-numeric} ::= {\em digit}\PLUS{}
 	$|$ \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{} \\[1ex]
 \emkey{exponent} ::= {\em exponent-indicator} {\em sign}\QMARK{}
-                     {\em natural-number} \\[1ex] 
+                     {\em integral-numeric} \\[1ex] 
 \emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
 \end{indpar}
 
 {\em Commas} must be every three {\em digits} from the end of
-a {\em natural-number} or the beginning of a {\em natural-fraction}.
+a {\em integral-numeric} or the beginning of a {\em fractional-numeric}.
+If the {\em scientific-numeric} contains a decimal point, it must
+be preceeded by a digit (write \TT{0.5} and not \TT{.5}).
 An {\em exponent} shifts the decimal point (including the implied
 decimal point at the end of the {\em scientific-numeric} that has
 no decimal point); a positive exponent shifts right and a negative
 exponent shifts left.
 
+\subsection{Dates}
 
+A \key{date} is an {\em atom-name} that names an integer atom
+which gives the \key{Julian Day Number} of the day times
+the number of seconds in one day ($60*60*24=86,400$).
+The Julian Day Number system assigns day \TT{0} to the day starting
+at noon on January 1, 4713 BC, in the Gregorian Calendar (extended
+backwards), and counts days forward and backward
+from this day.\footnote{Julian Day Numbers are used for dates in astronomy.}
+Note that in this system days start at noon, and not at midnight.
+
+A variety of different date formats may be used:
+
+\begin{indpar}
+\emkey{date} \begin{tabular}[t]{rl}
+	     ::= & {\em month}\TT{/}{\em day}\TT{/}{\em year}
+	           {\em era}\QMARK{} \\
+	     $|$ &  {\em day} {\em month-name} {\em year} \\
+	     $|$ &  {\em year-name}
+	     \end{tabular}
+\label{DATE}\\[1ex]
+\emkey{month} ::=  {\em digit}\QMARK{} {\em digit} \\[1ex]
+\emkey{month-name}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{jan} $|$ \TT{Jan} $|$ \TT{January} \\
+    $|$ & \TT{feb} $|$ \TT{Feb} $|$ \TT{February} \\
+    $|$ & \TT{mar} $|$ \TT{Mar} $|$ \TT{March} \\
+    $|$ & \TT{apr} $|$ \TT{Apr} $|$ \TT{April} \\
+    $|$ & \TT{may} $|$ \TT{May} $|$ \TT{May} \\
+    $|$ & \TT{jun} $|$ \TT{Jun} $|$ \TT{June} \\
+    $|$ & \TT{jul} $|$ \TT{Jul} $|$ \TT{July} \\
+    $|$ & \TT{aug} $|$ \TT{Aug} $|$ \TT{August} \\
+    $|$ & \TT{sep} $|$ \TT{Sep} $|$ \TT{September} \\
+    $|$ & \TT{oct} $|$ \TT{Oct} $|$ \TT{October} \\
+    $|$ & \TT{nov} $|$ \TT{Nov} $|$ \TT{November} \\
+    $|$ & \TT{dec} $|$ \TT{Dec} $|$ \TT{December} \\
+    \end{tabular} \\[1ex]
+\emkey{day} ::=  {\em digit}\QMARK{} {\em digit} \\[1ex]
+\emkey{year}
+    \begin{tabular}[t]{rl}
+    ::= & {\em digit}\STAR{}
+          {\em digit} {\em digit} {\em digit} {\em digit}  \\
+    $|$ & {\em digit} {\em digit}
+    \end{tabular} \\[1ex]
+\emkey{year-name} ::=  \TT{'} {\em digit} {\em digit} \\[1ex]
+\emkey{era} ::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
+                         $|$ \TT{BCG} $|$ \TT{BCJ}  \\[1ex]
+\end{indpar}
+
+If no {\em era} is given, a date is interpreted as being AD and in the
+Gregorian Calendar if it is on or after 15 October 1582, and
+in the Julian Calendar otherwise.
+A \TT{G} at the end of an {\em era} indicates the date is in the
+Gregorian Calendar, and a \TT{J} indicates the date is in the Julian
+Calendar.  If neither is given, the date is Gregorian if it is on
+or after 15 October 1582, and Julian otherwise.  If no {\em era}
+is given, \TT{AD} is assumed.  Years always begin at the midnight just
+before January 1.  There is no year \TT{0}; \TT{1AD} is immediately preceeded
+by \TT{1BC}.
+
+A date consisting of just a {\em year-name} refers to January 1 of that
+year; e.g., \TT{'05} and \TT{01/01/2005} are the same date.
 
 \section{Low Level Data}
 
@@ -4354,7 +4411,6 @@ followed by an exponent.
                         ::= & {\em decimal-number} {\em exponent} \\
 			$|$ & {\em radix-number} {\em exponent}
 		        \end{tabular}
-\label{SCIENTIFIC-NUMBER}
 \\[1ex]
 \emkey{exponent} ::= {\em exponent-indicator}
 		   {\em exponent-sign-and-digits}
