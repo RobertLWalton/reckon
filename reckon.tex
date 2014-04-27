@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 25, 2014}
+\date{April 27, 2014}
 
 \maketitle
 
@@ -1635,7 +1635,7 @@ A \key{date} is an {\em atom-name} that names an integer atom
 which gives the \key{Julian Day Number} of the day times
 the number of seconds in one day ($60*60*24=86,400$).
 The Julian Day Number system assigns day \TT{0} to the day starting
-at noon on January 1, 4713 BC, in the Gregorian Calendar (extended
+at noon GMT on January 1, 4713 BC, in the Gregorian Calendar (extended
 backwards), and counts days forward and backward
 from this day.\footnote{Julian Day Numbers are used for dates in astronomy.}
 Note that in this system days start at noon, and not at midnight.
@@ -1646,7 +1646,9 @@ A variety of different date formats may be used:
 \emkey{date} \begin{tabular}[t]{rl}
 	     ::= & {\em month}\TT{/}{\em day}\TT{/}{\em year}
 	           {\em era}\QMARK{} \\
-	     $|$ &  {\em day} {\em month-name} {\em year} \\
+	     $|$ &  {\em day} {\em month-name} {\em year} {\em era}\QMARK{} \\
+	     $|$ &  {\em day} {\em month-name} {\em year-name}
+	            {\em era}\QMARK{} \\
 	     $|$ &  {\em year-name}
 	     \end{tabular}
 \label{DATE}\\[1ex]
@@ -1681,8 +1683,8 @@ A variety of different date formats may be used:
 If no {\em era} is given, a date is interpreted as being AD and in the
 Gregorian Calendar if it is on or after 15 October 1582, and
 in the Julian Calendar otherwise.
-A \TT{G} at the end of an {\em era} indicates the date is in the
-Gregorian Calendar, and a \TT{J} indicates the date is in the Julian
+A `\TT{G}' at the end of an {\em era} indicates the date is in the
+Gregorian Calendar, and a `\TT{J}' indicates the date is in the Julian
 Calendar.  If neither is given, the date is Gregorian if it is on
 or after 15 October 1582, and Julian otherwise.  If no {\em era}
 is given, \TT{AD} is assumed.  Years always begin at the midnight just
@@ -1691,6 +1693,14 @@ by \TT{1BC}.
 
 A date consisting of just a {\em year-name} refers to January 1 of that
 year; e.g., \TT{'05} and \TT{01/01/2005} are the same date.
+
+Two digit {\em years} and {\em year-names} refer to years between
+\TT{1951} and \TT{2050}.
+
+\subsection{Times}
+
+A \key{time} is a {\em numeric} containing digits, possibly a decimal
+point, and one or two colons:
 
 \section{Low Level Data}
 
