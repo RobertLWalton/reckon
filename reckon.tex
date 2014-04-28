@@ -1539,7 +1539,8 @@ of {\em atom-names}:
 
 \begin{indpar}
 \emkey{name} := {\em atom-name}\PLUS{}
-\label{NAME}\\[1ex]
+\label{NAME}
+\\[1ex]
 \emkey{atom-name}
     \begin{tabular}[t]{rl}
     ::= & {\em word} \\
@@ -1551,7 +1552,7 @@ of {\em atom-names}:
     $|$ & {\em concatenated-quoted-string} \\
     $|$ & {\em radix-number} \\
     \end{tabular}
-\label{NAME-LEXEME}
+\label{ATOM-NAME}
 \end{indpar}
 
 Generally {\em names} consist of {\em words}, {\em numerics}, and
@@ -1615,7 +1616,6 @@ and a single \TT{/}, optionally preceeded by a {\em sign} and an
 	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{}
 \\[1ex]
 \emkey{fractional-numeric} :::= {\em digit}\PLUS{} \TT{/} {\em digit}\PLUS{}
-\\[1ex]
 \end{indpar}
 
 Some examples are: \TT{1/3},~~~\TT{+~48/97},~~~\TT{42~3/8},~~~\TT{-10~6/10}.
@@ -1708,7 +1708,7 @@ A variety of different date formats may be used:
     \end{tabular} \\[1ex]
 \emkey{year-name} ::=  \TT{'} {\em digit} {\em digit} \\[1ex]
 \emkey{era} ::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
-                         $|$ \TT{BCG} $|$ \TT{BCJ}  \\[1ex]
+                         $|$ \TT{BCG} $|$ \TT{BCJ}
 \end{indpar}
 
 If no {\em era} is given, a date is interpreted as being AD and in the
@@ -1767,8 +1767,11 @@ and/or a time zone, and optionally surrounded by a date.
     $|$ & \TT{HST} $|$ \TT{HDT} \\
     $|$ & \TT{CAT} \\
     $|$ & \TT{NT} \\
-    \end{tabular} \\[1ex]
+    \end{tabular}
 \end{indpar}
+
+\subsection{Concatenated Quoted Strings}
+\label{CONCATENATED-QUOTED-STRINGS}
 
 \section{Low Level Data}
 
@@ -1883,7 +1886,12 @@ The syntax of an {\em object-representation} is:
 \begin{tabular}{l}
 \emkey{object-identifier} ::=
 	\ttmkey{@}{in {\em object-identifier}}
-	{\em natural-number}\pagnote{NATURAL-NUMBER} \\
+	{\em natural-number-name} \\
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{natural-number-name} ::= {\em atom-name}\pagnote{ATOM-NAME}
+    representing a single non-negative integer atom
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1896,20 +1904,14 @@ The syntax of an {\em object-representation} is:
 \begin{tabular}{l}
 \emkey{object-list}
     \begin{tabular}[t]{rl}
-    ::= & {\em atom-value}\STAR{} \\
+    ::= & {\em object-element}\STAR{} \\
     $|$ & {\em bracketed-list} (not used in raw representation)
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{atom-value}
-    \begin{tabular}[t]{rl}
-    ::= & {\em name-lexeme} \\
-    $|$ & {\em concatenated-quoted-strings} \\
-    $|$ & {\em object-identifier} \\
-    $|$ & {\em scientific-number} \\
-    $|$ & {\em radix-number} \\
-    \end{tabular}
+\emkey{object-element}
+    ::= {\em object-identifier} $|$ {\em atom-name}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1941,7 +1943,7 @@ The syntax of an {\em object-representation} is:
 \begin{tabular}{l}
 \emkey{single-attribute-value}
     \begin{tabular}[t]{rl}
-    ::= & {\em atom-value} \\
+    ::= & {\em object-element} \\
     $|$ & {\em bracketed-list} (not used in raw representation)
     \end{tabular}
 \end{tabular}
@@ -1956,14 +1958,8 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{attribute-label} ::= {\em label}
+\emkey{attribute-label} ::= {\em name}\pagnote{NAME}
 \end{tabular}
-
-\begin{tabular}{l}
-\emkey{label} ::= {\em name}\pagnote{NAME}
-              $|$ {\em decimal-natural}\pagnote{DECIMAL-NATURAL}
-\end{tabular}%
-\index{label}
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags} ::=
@@ -1974,7 +1970,7 @@ The syntax of an {\em object-representation} is:
 
 \begin{tabular}{l}
 \emkey{flag-lexeme}
-    ::= {\em name-lexeme}\pagnote{NAME-LEXEME}
+    ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string}
 \end{tabular}
 
 
@@ -1995,7 +1991,7 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{reverse-attribute-label} ::= {\em label}
+\emkey{reverse-attribute-label} ::= {\em name}
 \end{tabular}
 
 \end{indpar}
@@ -2265,7 +2261,7 @@ and the {\em object-list}
 \begin{center}
 b \# "1010" b \# "10" \# "1" e 1 b "\#" "1010"
 \end{center}
-translates as (see \secref{CONCATENATED-QUOTED-STRING-RECOGNITION}):
+translates as (see \secref{CONCATENATED-QUOTED-STRINGS}):
 \begin{center}
 \tt
 \begin{tabular}{r@{~~$\Longrightarrow$~~}rll}
@@ -3017,6 +3013,9 @@ separators such as the semi-colon `{\tt ;}'
 and comma `{\tt ,}', are recognized by such a parse.  As part of parsing,
 a list may be reformatted.  See
 \itemref{PARSING} for details.
+
+\section{Compound Names}
+\label{COMPOUND-NAMES}
 
 \section{Parsing}
 \label{PARSING}
