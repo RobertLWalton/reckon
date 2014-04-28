@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 27, 2014}
+\date{April 28, 2014}
 
 \maketitle
 
@@ -1544,6 +1544,7 @@ of {\em atom-names}:
     \begin{tabular}[t]{rl}
     ::= & {\em word} \\
     $|$ & {\em quoted-string} \\
+    $|$ & {\em fractional-number} \\
     $|$ & {\em scientific-number} \\
     $|$ & {\em date} \\
     $|$ & {\em time} \\
@@ -1596,6 +1597,36 @@ If a syntactic unit {\em X-name} is used, the syntactic equation
 Multi-lexeme {\em atom-names}, and the more complex single-lexeme
 {\em atom-names}, are described in the following sections.
 
+\subsection{Fractional Numbers}
+\label{FRACTIONAL-NUMBER}
+
+A \key{fractional number} is a {\em numeric} with contains only digits
+and a single \TT{/}, optionally preceeded by a {\em sign} and an
+{\em integer-numeric}:
+
+\begin{indpar}
+\emkey{fractional-number} :=
+    {\em sign}\QMARK{} {\em integral-numeric}\QMARK{} {\em fractional-numeric}
+\\[1ex]
+\emkey{sign} ::= \TT{+} $|$ \TT{-}
+\\[1ex]
+\emkey{integral-numeric} :::= {\em digit}\PLUS{}
+	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
+	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{}
+\\[1ex]
+\emkey{fractional-numeric} :::= {\em digit}\PLUS{} \TT{/} {\em digit}\PLUS{}
+\\[1ex]
+\end{indpar}
+
+Some examples are: \TT{1/3},~~~\TT{+~48/97},~~~\TT{42~3/8},~~~\TT{-10~6/10}.
+
+Internally a fraction is stored as an IEEE double precision floating
+point number.  If an internally stored number can print as a fraction
+with a small denominator more accurately than it can be printed with
+some given number of decimal places, it may in some contexts be
+printed as a fraction.  Thus in these contexts a number input as
+\TT{1/3} will print as \TT{1/3} and not as \TT{0.333333}.
+
 \subsection{Scientific Numbers}
 \label{SCIENTIFIC-NUMBER}
 
@@ -1607,13 +1638,13 @@ with an optional preceeding sign and an optional trailing exponent:
 \emkey{scientific-number} := {\em sign}\QMARK{} {\em scientific-numeric}
 			     {\em exponent}\QMARK{} \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-} \\[1ex]
-\emkey{scientific-numeric} ::= {\em integral-numeric}
-       $|$ {\em integral-numeric}\TT{.}{\em fractional-numeric} \\[1ex]
-\emkey{integral-numeric} ::= {\em digit}\PLUS{}
+\emkey{scientific-numeric} :::= {\em integral-numeric}
+       {\em fractional-part}\QMARK{} \\[1ex]
+\emkey{integral-numeric} :::= {\em digit}\PLUS{}
 	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
 	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{} \\[1ex]
-\emkey{fractional-numeric} ::= {\em digit}\PLUS{}
-	$|$ \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
+\emkey{fractional-part} :::= \TT{.} {\em digit}\PLUS{}
+	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{} \\[1ex]
 \emkey{exponent} ::= {\em exponent-indicator} {\em sign}\QMARK{}
                      {\em integral-numeric} \\[1ex] 
@@ -1621,7 +1652,7 @@ with an optional preceeding sign and an optional trailing exponent:
 \end{indpar}
 
 {\em Commas} must be every three {\em digits} from the end of
-a {\em integral-numeric} or the beginning of a {\em fractional-numeric}.
+a {\em integral-numeric} or the beginning of a {\em fractional-part}.
 If the {\em scientific-numeric} contains a decimal point, it must
 be preceeded by a digit (write \TT{0.5} and not \TT{.5}).
 An {\em exponent} shifts the decimal point (including the implied
@@ -1700,7 +1731,44 @@ Two digit {\em years} and {\em year-names} refer to years between
 \subsection{Times}
 
 A \key{time} is a {\em numeric} containing digits, possibly a decimal
-point, and one or two colons:
+point, and one or two colons, optionally followed by a meridiem indiaction
+and/or a time zone, and optionally surrounded by a date.
+
+\begin{indpar}
+\emkey{time} \begin{tabular}[t]{rl}
+    := & {\em time-numeric} {\em meridiem}\QMARK{} {\em time-zone}\QMARK{}
+    \end{tabular}
+\\[1ex]
+\emkey{time-numeric} :::= {\em digit}\QMARK{} {\em digit}
+        \TT{:} {\em digit} {\em digit}
+	\{ \TT{:} {\em digit} {\em digit}
+	          {\em fractional-part}\QMARK{} \}\QMARK{}
+\\[1ex]
+\emkey{meridiem} ::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
+\\[1ex]
+\emkey{time-zone}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{GMT} $|$ \TT{UTC} $|$ \TT{UT} $|$
+          \TT{UTC} {\em sign} {\em digit} {\em digit}\QMARK{} \\
+    $|$ & \TT{WET} $|$ \TT{CET} $|$ \TT{EET} \\
+    $|$ & \TT{WAT} $|$ \TT{BT} $|$ \TT{CCT} \\
+    $|$ & \TT{IDLE} $|$ \TT{IDLW} \\
+    $|$ & \TT{JST} $|$ \TT{JDT} \\
+    $|$ & \TT{GST} $|$ \TT{GDT} \\
+    $|$ & \TT{NZST} $|$ \TT{NZDT} \\
+    $|$ & \TT{AT} \\
+    $|$ & \TT{AST} $|$ \TT{ADT} \\
+    $|$ & \TT{EST} $|$ \TT{EDT} \\
+    $|$ & \TT{CST} $|$ \TT{CDT} \\
+    $|$ & \TT{MST} $|$ \TT{MDT} \\
+    $|$ & \TT{PST} $|$ \TT{PDT} \\
+    $|$ & \TT{YST} $|$ \TT{YDT} \\
+    $|$ & \TT{AHST} $|$ \TT{AHDT} \\
+    $|$ & \TT{HST} $|$ \TT{HDT} \\
+    $|$ & \TT{CAT} \\
+    $|$ & \TT{NT} \\
+    \end{tabular} \\[1ex]
+\end{indpar}
 
 \section{Low Level Data}
 
