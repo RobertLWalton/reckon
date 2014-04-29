@@ -1968,7 +1968,7 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{single-attribute-value}
+\emkey{single-attribute-value}\label{SINGLE-ATTRIBUTE-VALUE}
     \begin{tabular}[t]{rl}
     ::= & {\em object-element} \\
     $|$ & {\em bracketed-list} (not used in raw representation)
@@ -2299,6 +2299,7 @@ by the object.  An example is
     2 = is
     3 = a
     4 = sentence
+    .type = "`'"
     .initiator = capital
     .terminator = "."
 \end{verbatim}\end{indpar}
@@ -2308,12 +2309,14 @@ which represents the list
 \verb|this is a sentence|
 \end{indpar}
 
-but also has some additional attributes, labeled \TT{.terminator}
-and \TT{.initiator}.  An alternative raw {\em object-representation}
+but also has some additional attributes, labeled \TT{.type},
+\TT{.initiator}, and \TT{.terminator}.
+An alternative raw {\em object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
 @93 = this is a sentence:
+    .type = "`'"
     .initiator = capital
     .terminator = "."
 \end{verbatim}\end{indpar}
@@ -2350,14 +2353,18 @@ the following definition of {\em bracketed-list}:
     $|$ & \TT{\{} {\em m-type} {\em prefix-0-list} {\em m-type} \TT{\}} \\
     $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} \\
     $|$ & \TT{\{<} {\em prefix-0-list} \TT{>\}} \\
-    $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
+    $|$ & \TT{\{(} {\em prefix-0-list} \TT{)\}} \\
+    $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} \\
+    $|$ & \TT{\{`} {\em prefix-0-list} \TT{'\}} \\
+    $|$ & \TT{\{\{} {\em prefix-0-list} \TT{\}\}} \\
+    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
           \TT{|} {\em prefix-0-list}
           \TT{|\}} \\
     $|$ & \TT{\{|} {\em prefix-0-list}
-          \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
-    $|$ & \TT{\{} {\em w-type} {\em properties}\QMARK{}
+          \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
+    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
           \TT{| } {\em prefix-0-list}
-          \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
+          \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
     \end{tabular}
 \end{tabular}
 
@@ -2366,7 +2373,7 @@ the following definition of {\em bracketed-list}:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{w-type} ::= {\em name}\pagnote{NAME} other than {\em mark}
+\emkey{w-type} ::= {\em name}\pagnote{NAME}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2374,15 +2381,23 @@ the following definition of {\em bracketed-list}:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{list-opening} ::= \TT{(} $|$ \TT{[} $|$ \TT{`} $|$ \TT{\{|}
-                     $|$ \TT{\{} {\em m-type}
-                     $|$ \TT{\{} {\em w-type} {\em properties}\QMARK{} \TT{|} \\
+\emkey{list-opening}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{(} $|$ \TT{[} $|$ \TT{`} $|$ \TT{\{|} $|$
+          \TT{\{<} $|$ \TT{\{(} $|$ \TT{\{[} $|$ \TT{\{`} $|$ \TT{\{\{} \\
+    $|$ & \TT{\{} {\em m-type} \\
+    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{} \TT{|} \\
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{list-closing} ::= \TT{)} $|$ \TT{]} $|$ \TT{'} $|$ \TT{|\}}
-                     $|$ {\em m-type} \TT{\}}
-                     $|$ \TT{|} {\em w-type} {\em properties}\QMARK{} \TT{\}} \\
+\emkey{list-closing}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{)} $|$ \TT{]} $|$ \TT{'} $|$ \TT{|\}} $|$
+          \TT{>\}} $|$ \TT{)\}} $|$ \TT{]\}} $|$ \TT{'\}} $|$ \TT{\}\}} \\
+    $|$ & {\em m-type} \TT{\}} \\
+    $|$ & \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2398,7 +2413,7 @@ the following definition of {\em bracketed-list}:
 \begin{tabular}{l}
 \emkey{prefix}\label{PREFIX}
     ::= \TT{\{} {\em m-type} \TT{\}}
-    $|$ \TT{\{} {\em w-type} {\em properties}\QMARK{} \TT{\}}
+    $|$ \TT{\{} {\em w-type} {\em attributes}\QMARK{} \TT{\}}
 \\[1ex]
 \end{tabular}
 
@@ -2407,40 +2422,41 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{center}
 
 \begin{tabular}{l}
-\emkey{list-element}
-    ::= {\em single-attribute-value}
+\emkey{list-element} ::= {\em single-attribute-value}%
+                         \pagnote{SINGLE-ATTRIBUTE-VALUE}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{properties}
+\emkey{attributes}
     \begin{tabular}[t]{rl}
-    ::= & \TT{:} {\em property} \{ \TT{,} {\em property} \}\STAR{} \\
-    $|$ & \TT{\{:} \{ \TT{<*>} {\em property} \}\STAR{} \TT{:\}} \\
+    ::= & \TT{:} {\em attribute} \{ \TT{,} {\em attribute} \}\STAR{} \\
+    $|$ & \TT{\{:} \{ \TT{<*>} {\em attribute} \}\STAR{} \TT{:\}} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{property}
+\emkey{attribute}
     \begin{tabular}[t]{rl}
-    ::= & {\em property-label} \TT{=} {\em property-value} \\
-    $|$ & {\em property-label} \\
-    $|$ & \TT{no} {\em property-label} \\
+    ::= & {\em attribute-label} \TT{=} {\em attribute-value} \\
+    $|$ & {\em attribute-label} \\
+    $|$ & \TT{no} {\em attribute-label} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{property-label} ::= {\em label}
+\emkey{attribute-label} ::= {\em label}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{property-value} ::= {\em single-attribute-value}
+\emkey{attribute-value} ::= {\em single-attribute-value}%
+                            \pagnote{SINGLE-ATTRIBUTE-VALUE}
 \end{tabular}
 
 \end{indpar}
 
-{\em Prefixes}, {\em types}, and {\em properties} are explained
+{\em Prefixes}, {\em types}, and {\em attributes} are explained
 below.  First we give some examples involving just parsed untyped
-{\em bracketed-lists} without {\em properties}.  In some of these
+{\em bracketed-lists} without {\em attributes}.  In some of these
 the fact is used that
 `\TT{\{!~!\}}' brackets translate to a list of \TT{.type} \TT{"!"}.
 
@@ -2463,32 +2479,36 @@ which is the cooked representation of the object
 \verb|    2 = is|\\
 \verb|    3 = a|\\
 \verb|    4 = sentence|\\
+\verb|    .type = "`'|"\\
 \verb|    .initiator = capital|\\
 \verb|    .terminator = "."|\\
 \end{tabular}
 ~~~~~
-\begin{picture}(4.4,1.5)
-\put(0,0){\framebox(4.4,1.5){}}
-\put(0.4,1.00){\makebox(3.4,0.3){\tt @93}}
-\put(2.1,1.15){\oval(3.4,0.3)}
-\put(1.10,1.00){\vector(0,-1){0.4}}
-\put(1.05,0.85){\makebox(0,0)[r]{\tt .initiator}}
-\put(1.10,0.50){\makebox(0,0)[c]{\tt capital}}
-\put(1.60,1.00){\vector(0,-1){0.6}}
-\put(1.55,0.85){\makebox(0,0)[r]{\tt 1}}
-\put(1.60,0.30){\makebox(0,0)[c]{\tt this}}
-\put(1.95,1.00){\vector(0,-1){0.6}}
-\put(1.90,0.85){\makebox(0,0)[r]{\tt 2}}
-\put(1.95,0.30){\makebox(0,0)[c]{\tt is}}
-\put(2.20,1.00){\vector(0,-1){0.6}}
-\put(2.15,0.85){\makebox(0,0)[r]{\tt 3}}
-\put(2.20,0.30){\makebox(0,0)[c]{\tt a}}
-\put(2.70,1.00){\vector(0,-1){0.6}}
-\put(2.65,0.85){\makebox(0,0)[r]{\tt 4}}
-\put(2.70,0.30){\makebox(0,0)[c]{\tt sentence}}
-\put(3.10,1.00){\vector(0,-1){0.4}}
-\put(3.10,0.50){\makebox(0,0)[c]{\tt "."}}
-\put(3.15,0.85){\makebox(0,0)[l]{\tt .terminator}}
+\begin{picture}(5.4,1.5)
+\put(0,0){\framebox(5.4,1.5){}}
+\put(0.2,1.00){\makebox(4.4,0.3){\tt @93}}
+\put(2.4,1.15){\oval(4.4,0.3)}
+\put(0.80,1.00){\vector(0,-1){0.4}}
+\put(0.75,0.85){\makebox(0,0)[r]{\tt .type}}
+\put(0.80,0.50){\makebox(0,0)[c]{\tt "`'"}}
+\put(2.10,1.00){\vector(0,-1){0.4}}
+\put(2.05,0.85){\makebox(0,0)[r]{\tt .initiator}}
+\put(2.10,0.50){\makebox(0,0)[c]{\tt capital}}
+\put(2.60,1.00){\vector(0,-1){0.6}}
+\put(2.55,0.85){\makebox(0,0)[r]{\tt 1}}
+\put(2.60,0.30){\makebox(0,0)[c]{\tt this}}
+\put(2.95,1.00){\vector(0,-1){0.6}}
+\put(2.90,0.85){\makebox(0,0)[r]{\tt 2}}
+\put(2.95,0.30){\makebox(0,0)[c]{\tt is}}
+\put(3.20,1.00){\vector(0,-1){0.6}}
+\put(3.15,0.85){\makebox(0,0)[r]{\tt 3}}
+\put(3.20,0.30){\makebox(0,0)[c]{\tt a}}
+\put(3.70,1.00){\vector(0,-1){0.6}}
+\put(3.65,0.85){\makebox(0,0)[r]{\tt 4}}
+\put(3.70,0.30){\makebox(0,0)[c]{\tt sentence}}
+\put(4.10,1.00){\vector(0,-1){0.4}}
+\put(4.10,0.50){\makebox(0,0)[c]{\tt "."}}
+\put(4.15,0.85){\makebox(0,0)[l]{\tt .terminator}}
 \end{picture}
 \end{center}
 
@@ -2856,9 +2876,9 @@ Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
 the lexemes before the `\TT{\}}' must match, though not
 exactly, the lexemes after the `\TT{\{}'.  Specifically, any
 `\TT{\}}' must be proceeded by a `\TT{|}', `\TT{>}', `{\em m-type}', or
-`\TT{|} {\em w-type} {\em properties}\QMARK{}' phrase, and the
+`\TT{|} {\em w-type} {\em attributes}\QMARK{}' phrase, and the
 corresponding `\TT{\{}' must be followed by a `\TT{|}', `\TT{<}', {\em m-type},
-or `{\em w-type} {\em properties}\QMARK{} \TT{|}' phrase respectively,
+or `{\em w-type} {\em attributes}\QMARK{} \TT{|}' phrase respectively,
 with any the {\em type} before the `\TT{\}}' being equal to the
 {\em type} after the `\TT{\{}'.
 
@@ -2875,7 +2895,7 @@ match any unclosed {\em list-opening}, or generates missing
 {\em list-opening}.
 
 In general, a `\TT{\{~\}}' bracketed list has a {\em type} which becomes
-the \ttdmkey{type}{of list} attribute of the list, the {\em properties}
+the \ttdmkey{type}{of list} attribute of the list, the {\em attributes}
 become list attributes (their syntax and semantics mimic
 that of a {\em single-attribute-representation}%
 \pagnote{SINGLE-ATTRIBUTE-REPRESENTATION}), and the elements of the
@@ -2919,8 +2939,8 @@ ignored.
 
 \item
 Each sublist is associated with a {\em prefix} that begins the
-sublist.  The type and properties of this {\em prefix} become the
-type and properties of the sublist.
+sublist.  The type and attributes of this {\em prefix} become the
+type and attributes of the sublist.
 
 \end{enumerate}
 
@@ -2977,7 +2997,7 @@ Untyped List Form	& \TT .initiator & \TT .terminator
 A \key{property} is a label/value pair.  The term `property' is
 computationally equivalent to `attribute'.
 \ikey{Lists}{list}
-can have elements which are in a sequence and properties which
+can have elements which are in a sequence and attributes which
 have labels.  The term `list' is computationally equivalent to `object'.
 
 List elements are automatically assigned
