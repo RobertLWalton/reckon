@@ -1996,8 +1996,8 @@ The syntax of an {\em object-representation} is:
 
 \end{indpar}
 
-Raw object representations do not make any use of the syntax
-elements indicated above; specifically, {\em bracketed-lists} are
+Raw object representations do not make any use of some of the syntax
+elements mentioned above; specifically, {\em bracketed-lists} are
 not used (as {\em object-lists} or {\em single-attribute-values}),
 and \TT{=>} and \TT{=>{}>} are not used as {\em attribute-assignment-operators}.
 
@@ -2054,17 +2054,12 @@ between the two objects which has the
 label \TT{husband} when going from \TT{@1} to \TT{@2}
 and the label \TT{wife} when going in the reverse direction.
 
-Note that in this syntax {\em lexemes} such as \TT{=} must be
-avoided, as they will be confused with {\em lexemes} recognized by the
-parser (to delimit {\em labels} in this case).
-You can use \TT{"="} instead.
-
 It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters in {\em flag-lexemes} inside
 \TT{[ ]} brackets after a label.
 It may be necessary to use a
 {\em quoted-string} {\em flag-lexeme} in order to include
-separator characters as flag characters.
+separator characters or digits as flag characters.
 The following is the same as the above example except that flags
 have been added to some of the attributes:
 
@@ -2172,7 +2167,7 @@ that label already exists.
 \ttmkey{=>}{in {\em object-representation}}
 is like \TT{=>{}>}
 except that the {\em object-representation} cannot
-add new values to previously existing attributes of the object begin
+add new values to previously existing attributes of the object being
 represented.
 More precisely, the {\em attribute-label} of any {\em attribute-representation}
 in the {\em object-representation} must not have previously (before the
@@ -2195,7 +2190,7 @@ include the sole representation of the double attribute.
 
 The {\em object-identifier} \ttkey{@0} is special; it always names
 a particular object, the \ttnbdkey{GLOBAL} object,
-whose its attributes are called \skey{global variables}.  One of the global
+whose attributes are called \skey{global variables}.  One of the global
 variables is named \TT{.GLOBAL} and has as its value the \TT{.GLOBAL}
 object itself, a situation which can be achieved by the
 {\em object-representation}:
@@ -2216,14 +2211,15 @@ raw representations have no bracketed lists, the parser does not recognize
 operators in raw {\em object-representations}.%
 \label{RAW-PARSING}
 The parser does, however,
-recognize and process {\em concatenated-quoted-strings},
-{\em scientific-numbers}, and {\em radix-numbers}.
-In doing this for a {\em object-list}, the lexemes in the list are scanned
-left to right and the longest sequence of lexemes that represents an
-atom is accepted as an atom representative at each stage of the scan.
+recognize and process {\em atom-names}.
+In doing this for an {\em object-list}, the lexemes in the list are scanned
+left to right and the longest sequence of lexemes that comprises an
+{\em atom-name} or {\em object-identifier}
+is accepted as the representative of an atom or object identifier at
+each stage of the scan.
 Thus the {\em object-list}
 \begin{center}
-\tt 5 e + 2 e 3 4 "e" 3
+\tt 5 e + 2 e 3 4 "e" 3 @ 7 e 5
 \end{center}
 translates as (see \secref{SCIENTIFIC-NUMBER-RECOGNITION}):
 \begin{center}
@@ -2235,6 +2231,9 @@ e	& \rm symbol & e \\
 4	& \rm number & 4 \\
 "e"	& \rm symbol & e \\
 3	& \rm number & 3 \\
+@ 7	& \rm object identifier & @ 7 \\
+e	& \rm symbol & e \\
+5	& \rm number & 5 \\
 \end{tabular}
 \end{center}
 
@@ -2309,8 +2308,8 @@ to the one just given is:
     .terminator = "."
 \end{verbatim}\end{indpar}
 
-The {\em atom-values} in a {\em object-list}
-within an {\em object-representation}
+The {\em atom-names} and {\em object-identifiers} in a {\em object-list}
+within an {\em object-representation} name atoms or object identifiers that
 are assigned as values of the attributes labeled \TT{1}, \TT{2},
 \TT{3}, \ldots.  Additional attribute values can be given by
 following the {\em object-list} by a line ending `\TT{:}' that begins an
