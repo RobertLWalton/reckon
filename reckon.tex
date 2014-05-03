@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 2, 2014}
+\date{May 3, 2014}
 
 \maketitle
 
@@ -1943,7 +1943,8 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{single-attribute-label} ::= {\em name}\pagnote{NAME}
+\emkey{single-attribute-label}\label{SINGLE-ATTRIBUTE-LABEL}
+    ::= {\em name}\pagnote{NAME}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -1976,9 +1977,12 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{double-attribute}{-representation} ::=
+\emlkey{double-attribute}{-representation}%
+\label{DOUBLE-ATTRIBUTE-REPRESENTATION}
+    ::=
 \\\hspace*{0.5in}
-	\TT{<*>} {\em double-attribute-label} {\em attribute-label-flags}\QMARK{}
+	\TT{<*>} {\em double-attribute-label}
+	         {\em attribute-label-flags}\QMARK{}
 \\\hspace*{1.0in}
 	\begin{tabular}[t]{@{}l@{}}
 	\TT{=} {\em double-attribute-value} \\
@@ -2443,19 +2447,22 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \begin{tabular}{l}
 \emkey{attribute}
     \begin{tabular}[t]{rl}
-    ::= & {\em attribute-label} \TT{=} {\em attribute-value} \\
-    $|$ & {\em attribute-label} \\
-    $|$ & \TT{no} {\em attribute-label} \\
+    ::= & {\em raw-attribute-representation} \\
+    $|$ & {\em single-attribute-label}\pagnote{SINGLE-ATTRIBUTE-LABEL} \\
+    $|$ & \TT{no} {\em single-attribute-label} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{attribute-label} ::= {\em label}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{attribute-value} ::= {\em single-attribute-value}%
-                            \pagnote{SINGLE-ATTRIBUTE-VALUE}
+\emkey{raw-attribute-representation} \\
+\hspace*{0.3in}
+    \begin{tabular}[t]{rl}
+    ::= & {\em single-attribute-representation}%
+          \pagnote{SINGLE-ATTRIBUTE-REPRESENTATION}
+	  with \TT{=} {\em attribute-assignment-operator} \\
+    $|$ & {\em double-attribute-representation}%
+          \pagnote{DOUBLE-ATTRIBUTE-REPRESENTATION}
+    \end{tabular}
 \end{tabular}
 
 \end{indpar}
@@ -2896,17 +2903,25 @@ closing `\TT{'}' matches only `\TT{`}'.
 Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
 the lexemes before the `\TT{\}}' must match, though not
 exactly, the lexemes after the `\TT{\{}'.  Specifically, any
-`\TT{\}}' must be proceeded by a `\TT{|}', `\TT{>}', `{\em m-type}', or
-`\TT{|} {\em w-type} {\em attributes}\QMARK{}' phrase, and the
-corresponding `\TT{\{}' must be followed by a `\TT{|}', `\TT{<}', {\em m-type},
-or `{\em w-type} {\em attributes}\QMARK{} \TT{|}' phrase respectively,
-with any the {\em type} before the `\TT{\}}' being equal to the
-{\em type} after the `\TT{\{}'.
+`\TT{\}}' must be proceeded by a
+`\TT{|}', `\TT{>}', `\TT{)}', `\TT{]}', `\TT{'}', `\TT{\}}',
+`{\em m-type}', or `\TT{|} {\em w-type} {\em attributes}\QMARK{}' phrase,
+and the corresponding `\TT{\{}' must be followed respectively
+by a
+`\TT{|}', `\TT{<}', `\TT{(}', `\TT{[}', `\TT{`}', `\TT{\{}',
+`{\em m-type}', or `{\em w-type} {\em attributes}\QMARK{} \TT{|}' phrase,
+and if either list opening or list closing has a {\em type}, both must
+have the same {\em type}.
+As special cases,
+`\TT{\{} {\em w-type} {\em attributes}\QMARK{} \TT{|}' can be matched by
+`\TT{|\}}' and `\TT{\{|}' can match
+`\TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}}'.
 
 A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
 
 A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
-in error.
+in error, as is a `\TT{\}}' that does not end a {\em list-opening} or
+{\em prefix}.
 
 A {\em list-closing} is recognized even if it fails to match the
 last unclosed {\em list-opening}, but in this case the {\em list-closing}
@@ -2915,16 +2930,65 @@ match any unclosed {\em list-opening}, or generates missing
 {\em list-closings} if the {\em list-closing} matches some non-last unclosed
 {\em list-opening}.
 
-In general, a `\TT{\{~\}}' bracketed list has a {\em type} which becomes
-the \ttdmkey{type}{of list} attribute of the list, the {\em attributes}
-become list attributes (their syntax and semantics mimic
-that of a {\em single-attribute-representation}%
-\pagnote{SINGLE-ATTRIBUTE-REPRESENTATION}), and the elements of the
+\ikey{Untyped bracketed lists}{untyped bracketed list}
+are given an \ttdmkey{initiator}{of bracketed list}
+equal to their {\em list-opening} and a
+\ttdmkey{terminator}{of bracketed list} equal to their {\em list-closing}.
+This includes lists with \TT{.initiators} `\TT{(}', `\TT{[}', `\TT{`}',
+`\TT{\{<}', `\TT{\{(}', `\TT{\{[}', `\TT{\{`}', `\TT{\{\{}',
+and \TT{.terminators} `\TT{)}', `\TT{]}', `\TT{'}',
+`\TT{>\}}', `\TT{)\}}', `\TT{]\}}', `\TT{'\}}', `\TT{\}\}}',
+but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
+
+\ikey{Typed bracketed lists}{typed bracketed list} are tiven a
+\ttdmkey{type}{of list} attribute equal to their {\em m-type} or
+{\em w-type}.
+
+The elements of the
 list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
-As special cases, `\TT{\{|~|\}}' lists have no attributes except for
-list elements, and `\TT{\{<~>\}}' lists have the \TT{.type} attribute
-value \TT{"<>"}.  Note that this means that `\TT{\{||\}}' denotes the
-empty object with no attributes at all.
+
+`\TT{\{|\ldots|\}}' lists are given no special attributes.
+Note that `\TT{\{||\}}' denotes the empty list with no attributes
+at all.
+
+{\em Attributes} in a {\em w-typed} bracketed list can be the same as
+raw {\em attribute-representations}, or they can be just a label with
+no flags or value.  In the latter case, if
+the {\em attribute-label} does not begin with the word `\TT{no}',
+the value `\TT{true}' is implied, and if the label does begin with
+`\TT{no}', the `\TT{no}' is removed from the beginning of the label
+and the value `\TT{false}' is implied.
+If no value is given, it is an error if the label is just
+`{\tt no}' by itself.
+
+TBD
+
+Some examples are as follows.
+\begin{center}
+\tt \{| a b c |\}
+\end{center}
+is equivalent to, among other things, any of the following:
+\begin{center}
+\begin{tabular}{l}
+\tt \{"<>":~0 = a, 1 = b, 2 = c ||\} \\
+\tt \{"<>":~2 = c, 0 = a, 1 = b ||\} \\
+\tt \{| a b | "<>": 2 = c \} \\
+\tt \{"<>": 2 = c | a | "<>": 1 = b \}
+\end{tabular}
+\end{center}
+
+\begin{center}
+\tt \{my type:~format, no capitalize, no adjust, tweak = 5\}
+\end{center}
+is equivalent to
+\begin{center}
+\tt
+\begin{tabular}{@{}l@{}}
+\{my type:~format = true, capitalize = false, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~adjust = false, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5\} \\
+\end{tabular}
+\end{center}
 
 {\em Prefixes} are an unusual kind of separator
 that must appear at the beginning of the list as well as between
@@ -3001,62 +3065,6 @@ The {\em prefix-0-list} in this example is equivalent to:
     {p|  {s| And a new paragraph . |} |} |}
              // `{foo}' deleted
 \end{verbatim}\end{indpar}
-
-The untyped lists, such as the parenthesized lists, do \underline{not}
-have \TT{.type} attributes, but instead have \TT{.initiator} and
-\TT{.terminator} attributes as follows:
-\begin{center}
-\begin{tabular}{lll}
-Untyped List Form	& \TT .initiator & \TT .terminator
-\\\hline
-\TT (~\ldots~)		& \TT "("	 & \TT ")" \\
-\TT [~\ldots~]		& \TT "["	 & \TT "]" \\
-\TT `~\ldots~'		& \TT "`"	 & \TT "'" \\
-\end{tabular}
-\end{center}
-
-A \key{property} is a label/value pair.  The term `property' is
-computationally equivalent to `attribute'.
-\ikey{Lists}{list}
-can have elements which are in a sequence and attributes which
-have labels.  The term `list' is computationally equivalent to `object'.
-
-List elements are automatically assigned
-the property labels `{\tt 0}', `{\tt 1}', `{\tt 2}', \ldots{}, so
-\begin{center}
-\tt \{< a b c >\}
-\end{center}
-is equivalent to, among other things, any of the following:
-\begin{center}
-\begin{tabular}{l}
-\tt \{"<>":~0 = a, 1 = b, 2 = c ||\} \\
-\tt \{"<>":~2 = c, 0 = a, 1 = b ||\} \\
-\tt \{| a b | "<>": 2 = c \} \\
-\tt \{"<>": 2 = c | a | "<>": 1 = b \}
-\end{tabular}
-\end{center}
-
-If no {\em property-value} is given, it is implicitly `{\tt true}'
-if the {\em property-label} does not begin with the word `{\tt no}'.
-Otherwise the `{\tt no}' is removed
-from the {\em property-label} and the {\em property-value}
-is implicitly `{\tt false}'.  For example,
-\begin{center}
-\tt \{my type:~format, no capitalize, no adjust, tweak = 5\}
-\end{center}
-is equivalent to
-\begin{center}
-\tt
-\begin{tabular}{@{}l@{}}
-\{my type:~format = true, capitalize = false, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~adjust = false, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5\} \\
-\end{tabular}
-\end{center}
-
-If no {\em property-value} is given,
-it is an error if the {\em property-label} is
-`{\tt no}' by itself.
 
 {\em Lists} may be parsed after they have been read.  Operators, including
 separators such as the semi-colon `{\tt ;}'
