@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 3, 2014}
+\date{May 22, 2014}
 
 \maketitle
 
@@ -1128,6 +1128,7 @@ contains in order the following lexemes:
 	$|$ {\em mark}
 	$|$ {\em separator}
 	$|$ {\em quoted-string}
+	$|$ {\em comment}
 \label{SYMBOL-LEXEME}
 \\[2ex]
 \emkey{word} :::= {\em word-character} {\em word-character}\,$^\star$
@@ -1139,12 +1140,17 @@ contains in order the following lexemes:
 \\[1ex]
 \emkey{mark} :::= {\em mark-character} {\em mark-character}\,$^\star$
 \\[1ex]
-\emkey{separator} :::= {\em separator-character}
+\emkey{separator}
+	:::= {\em separator-character} except \TT{|} $|$ \TT{|}\PLUS{}
 \label{SEPARATOR}
 \\[1ex]
 \emkey{quoted-string} :::=
     \TT{"} {\em character-representative}\,$^\star$ \TT{"}
 \label{QUOTED-STRING}
+\\[1ex]
+\emkey{comment} :::=
+    \TT{//} {\em comment-character}\,$^\star$ \TT{"}
+\label{COMMENT}
 \\[2ex]
 \emkey{word-character} \begin{tabular}[t]{rl}
                      :::= & {\em letter} \\
@@ -1266,7 +1272,9 @@ contains in order the following lexemes:
 		    $|$ & {\em special-character-representative}
 		    \end{tabular}\\[1ex]
 \emlkey{special}{-character-representative}
-    :::= see Figure~\figref{SPECIAL-CHARACTER-REPRESENTATIVES}
+    :::= see Figure~\figref{SPECIAL-CHARACTER-REPRESENTATIVES} \\
+\emkey{comment-character}
+    :::= {\em graphic-character} $|$ {\em horizontal-space-character}
 \end{indpar}
 
 \begin{boxedfigure}[!t]
@@ -1323,14 +1331,15 @@ contains in order the following lexemes:
 A \key{word} is a sequence of letters that may include
 a \TT{'} if it is followed by a letter.  A \key{mark} is a
 sequence of mark characters (e.g., \TT{+} and \TT{-}).
-A \key{separator} is a \underline{single} separator character.
+A \key{separator} is a single separator character or
+a sequence of one or more \TT{|}'s.
 A \key{numeric} is a sequence of digits,
 decimal points followed by a digit,
 \TT{'} followed by a digit,
 commas both preceded and followed by digits,
 slashes both preceded and followed by digits,
 and colons both preceded and followed by digits.
-A quoted string is
+A \key{quoted-string} is
 a sequence of \skey{character representative}s surrounded by
 the double quote character (\ttkey{"}), where \skey{graphic character}s
 other than \TT{"}
@@ -1338,18 +1347,21 @@ are their own representatives (\TT{A}, \TT{B}, \TT{0}, \TT{1},
 etc.) but other characters are represented by character sequences
 that begin with \TT{<} and end with \TT{>}; e.g., \TT{<LF>} represents
 a line feed character and \TT{<Q>} represents \TT{"}.
+A \key{comment} is a pair of \TT{/}'s followed by a sequence
+of {\em graphic-} and {\em white-space-characters}.
 
-A \ttkey{'} is a word character if it is followed by a letter,
-a numeric character if it is followed by a digit,
-and a separator character otherwise.
-A \TT{.} is a numeric character (decimal point) if it
-is followed by a digit, and a mark character otherwise.
-A \ttkey{,} is a numeric character if surrounded by digits, and
-a separator character otherwise.
-A \ttkey{/} is a numeric character if surrounded by digits, and
-a mark character otherwise.
-A \ttkey{:} is a numeric character if surrounded by digits, and
-a mark character otherwise.
+Outside {\em quoted-strings} and {\em comments},
+a \ttkey{'} is a {\em word-character} if it is followed by a letter,
+a {\em numeric-character} if it is followed by a digit,
+and a {\em separator-character} otherwise.
+Similarly a \TT{.} is a {\em numeric-character} (decimal point) if it
+is followed by a digit, and a {\em mark-character} otherwise;
+a \ttkey{,} is a {\em numeric-character} if surrounded by digits, and
+a {\em separator-character} otherwise;
+a \ttkey{/} is a {\em numeric-character} if surrounded by digits, and
+a {\em mark-character} otherwise;
+and a \ttkey{:} is a {\em numeric-character} if surrounded by digits, and
+a {\em mark-character} otherwise.
 
 Lexemes may be separated by \key{white-space}, which
 is a sequence of white-space characters (single space, horizontal tab, form
@@ -1376,6 +1388,8 @@ character sequences that must \underline{not} be separated by {\em white-space}.
 The symbol `\ttmkey{::=}{in syntax equation}'
 is used in syntax equations that define sequences of lexemes that may
 and sometimes must be separated by {\em white-space}.
+{\em Comments} are treated as lexemes, but are discarded before the
+lexeme stream is transmitted to the parser.
 
 Non-{\em white-space} control characters are ignored, as if they
 did not exist, except that a warning message may be issued.  However
@@ -1428,16 +1442,22 @@ input to the parser.  Lines can also be organized into indented subparagraphs
 whose beginnings and endings are translated into special sequences of
 lexemes that are input to the parser.
 
-A line beginning translates into the lexeme `\ttkey{<*>}'.
+A non-blank line beginning translates into the lexeme `\ttkey{<*>}', unless
+the line is the first non-blank line of an indented
+subparagraph (see below).
 
-A line can be \mkey{continued}{line} on the next non-blank
-line by giving that next non-blank line
-an indentation greater than that of the line being continued.  Thus
+A non-blank line can be \mkey{continued}{line} by a following sequence of
+\emkey{continuation-lines}.  These must be non-blank and
+have an indentation greater than that of the \emkey{continuted-line}.
+However their indentations may differ, as long
+as each is indented more than that of the initial {\em continued-line}.
+A {\em continuation-line} may contain just a {\em comment}.
+Thus
 
 \begin{indpar}\begin{verbatim}
 This is a line
      which is continued
-
+       // A comment.
    and continued.
 \end{verbatim}\end{indpar}
 
@@ -1545,7 +1565,7 @@ of {\em atom-names}:
     $|$ & {\em date}\pagnote{DATE} \\
     $|$ & {\em time}\pagnote{TIME} \\
     $|$ & {\em concatenated-quoted-string}%
-          \pagnote{CONCATENATED-QUOTED-STRING} \\
+          \pagnote{CONCATENATED-QUOTED-STRINGS} \\
     $|$ & {\em radix-number}\pagnote{RADIX-NUMBER} \\
     \end{tabular}
 \label{ATOM-NAME}
@@ -1790,7 +1810,7 @@ As another example, \TT{NZST}, New Zealand Standard Time, is the same
 as \TT{UTC+12:00}.
 
 \subsection{Concatenated Quoted Strings}
-\label{CONCATENATED-QUOTED-STRING}
+\label{CONCATENATED-QUOTED-STRINGS}
 
 \subsection{Radix Numbers}
 \label{RADIX-NUMBER}
