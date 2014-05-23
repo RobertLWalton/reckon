@@ -1474,14 +1474,23 @@ A \key{subparagraph}, also known as a \key{subblock},
 is introduced by a `\ttmkey{:}{introducing subparagraph}'
 at the end of a line.  This translates to the lexeme sequence
 `\ttkey{\{:}' and also specifies that the next non-blank
-line is not a continuation of any previous line.  The indentation
-of this next non-blank line becomes the indentation of the
+line is not a continuation of any previous line.  If the
+indentation of this next non-blank line is larger than the
+indentation of the line ending with `\TT{:}', this
+indentation becomes the indentation of the
 subparagraph, and all the lines of the subparagraph.  When a
 line with smaller indentation is encountered, it is interpreted
 as the first line beyond the end of the subparagraph, and
 the lexeme squence `\ttkey{:\}}' is inserted just after
 the last lexeme in the last subparagraph line (or
 just after \TT{\{:} if the subparagraph is empty).
+
+Each subparagraph line but the first begins with a `\TT{<*>}'
+lexeme.  This `\TT{<*>}' lexeme is suppressed for the first
+line, so it serves as a line separator within
+the subparagraph `\TT{\{:\ldots:\}}'.
+
+
 Thus
 
 \begin{indpar}\begin{verbatim}
@@ -1496,10 +1505,15 @@ translates to the lexeme sequence
 
 \begin{indpar}\begin{verbatim}
 <*> This is a line {:
-<*> And a subparagraph line.
-<*> And another. :}
+        And a subparagraph line.
+    <*> And another. :}
 <*> And more.
 \end{verbatim}\end{indpar}
+
+If the next non-blank line after a line ending in `\TT{:}' does
+not have a greater indent than the line ending in `\TT{:}', the
+subparagraph is empty, and all that happens is that the line
+ending `\TT{:}' is replaced by `\TT{\{:~:\}}'.
 
 `\TT{:\}}' sequences are added at the end of a file to
 match any unmatched `\TT{\{:}' sequences from subparagraphs
@@ -1523,26 +1537,30 @@ translates to the lexeme sequence
 
 Blank lines are ignored unless they appear just before a non-continuation
 line outside any subparagraph,
-in which case they are translated into the `\ttkey{<\#>}' lexeme.
+in which case they are translated into the `\ttkey{<\#>}' lexeme if
+the line they appear before is not indented, and into the
+`\ttkey{<\#\#>}' lexeme if the line they appear before is indented.
 Note that a blank line before another blank line is ignored.  Thus
 
 \begin{indpar}\begin{verbatim}
 This is a line
      which is continued.
 
-
-
 And more.
+
+   And yet more.
 \end{verbatim}\end{indpar}
 
 translates to the lexeme squence
 
 \begin{indpar}\begin{verbatim}
-<*> This is a line which is continued . <#> <*> And more .
+<*> This is a line which is continued .
+<#> <*> And more .
+<##> <*> And yet more .
 \end{verbatim}\end{indpar}
 
 
-A single \TT{<\#>} lexeme is also placed at the beginning of
+A single \TT{<\#>} or \TT{<\#\#>} lexeme is also placed at the beginning of
 a file that begins with a non-blank line, as if a blank line 
 had been inserted at the beginning of the file.
 
