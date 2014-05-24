@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 22, 2014}
+\date{May 24, 2014}
 
 \maketitle
 
@@ -1417,23 +1417,37 @@ represent \skey{symbol}s\label{SYMBOL} which are stored as character strings.
 The character strings represented by
 {\em words}, {\em marks}, and {\em separators}
 are exactly the character strings of these lexemes.
-The character strings represented by a {\em quoted-string} with no
+
+The character string represented by a {\em quoted-string} with no
 {\em special-character-representatives}
-is just the {\em quoted-string} lexeme with its surrounding quotes (\TT{"})
-removed.  Thus, for example, \TT{fie} and \TT{"fie"} represent the
-same symbol, as do \TT{+} and \TT{"+"}.
-{\em Special-character-representatives} inside the \TT{"}'s of a
+is just the {\em quoted-string} lexeme in its entirety,
+including its surrounding quotes (\TT{"}).
+{\em Special-charac\-ter-representatives} inside the \TT{"}'s of a
 quoted string may be used to represent various characters: for
 example, the {\em quoted-string} \TT{"<Q>Help!<Q>"} represents the
-7-character symbol \TT{"Help!"}.
+9-character symbol \TT{""Help!""}.
 
 Symbols and numbers are referred to as \skey{atom}s.
 
-Input to the parser is a string of lexemes, while
-output from the parser contains atoms and not lexemes.  Thus
-to the parser, \TT{+} and \TT{"+"} are not the same when input, but when
+Symbols that begin and end with \TT{"}'s are called \key{quoted symbols}.
+In many contexts, such symbols are \skey{dequote}d\label{DEQUOTE}
+by having their
+beginning and ending \TT{"}'s removed.  Dequoting a symbol that does
+not begin with \TT{"} or does not end with \TT{"} does nothing to the
+symbol.  Dequoting a number atom does nothing to the atom.
+
+In other contexts symbols
+are \skey{quote protect}{ed} by converting them to {\em quoted-string}
+lexemes if and only if they are not the character strings of a
+{\em word} lexeme.  Quote protecting a number atom does nothing to
+the atom.
+
+Input to the parser is a string of atoms that have not been dequoted,
+while output from the parser is dequoted.
+Thus \TT{+} and \TT{"+"} are not the same when input, but when
 output they are the same.
-For instance, given \TT{x + y} as input the parser will output \TT{+ x y},
+For instance, given \TT{x + y} as input the parser will recognize
+\TT{+} as an operator and output \TT{+ x y},
 but given \TT{x "+" y} as input the parser will output \TT{x + y}.
 
 Lexemes are contained in lines.  Line beginnings
@@ -1596,6 +1610,11 @@ a {\em name} by a {\em quoted-string}.  However there are three {\em marks}
 that can appear in particular locations within {\em names}:
 \TT{+}, \TT{-}, and \TT{\#}.
 
+The parser accepts a string of lexemes that is an {\em atom-name}
+and outputs a string of atoms that is the name.  This name is
+\underline{not} dequoted (see \pagref{DEQUOTE}) but is usually
+dequoted before it is used.
+
 An \emkey{atom-name} represents a single atom.  {\em Words} and
 {\em quoted-strings}, if they are single-lexeme {\em atom-names},
 represent symbols as described on \pagref{SYMBOL}.
@@ -1606,7 +1625,8 @@ as described on \pagref{NUMBER}.
 Other {\em atom-names} are more complex; some examples are
 `\TT{12:45:00}' which represents the {\em time} $60*(60*12+45)+00$ seconds,
 `\TT{03/14/27}' which represents the {\em date} March 14, 2027,
-expressed as seconds relative to January 1, 0000,
+expressed as seconds relative to
+noon GMT on January 1, 4713 BC\pagnote{DATE},
 and `\TT{1.3e5}', which represents the {\em scientific-number}
 $1.3*10^{5}$.
 
@@ -1695,7 +1715,7 @@ no decimal point); a positive exponent shifts right and a negative
 exponent shifts left.
 
 \subsection{Dates}
-\label{DATE}
+\label{DATES}
 
 A \key{date} is an {\em atom-name} that names an integer atom
 which gives the \key{Julian Day Number} of the day times
