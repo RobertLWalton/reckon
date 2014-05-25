@@ -1442,6 +1442,9 @@ lexemes if and only if they are not the character strings of a
 {\em word} lexeme.  Quote protecting a number atom does nothing to
 the atom.
 
+Also symbols can be \ikey{quoted}{quote!a symbol} by adding a \TT{"}
+character to each end.
+
 Input to the parser is a string of atoms that have not been dequoted,
 while output from the parser is dequoted.
 Thus \TT{+} and \TT{"+"} are not the same when input, but when
@@ -1750,16 +1753,11 @@ A variety of different date formats may be used:
 \\[1ex]
 \emkey{date-numeric} :::= {\em month}\TT{/}{\em day}\TT{/}{\em year}
 \\[1ex]
-\emkey{month} :::=  {\em digit}\QMARK{} {\em digit}
+\emkey{month} :::=  {\em digit}\PLUS{}
 \\[1ex]
-\emkey{day} :::=  {\em digit}\QMARK{} {\em digit}
+\emkey{day} :::=  {\em digit}\PLUS{}
 \\[1ex]
-\emkey{year} ::= {\em short-year} $|$ {\em long-year}
-\\[1ex]
-\emkey{short-year} ::= {\em digit} {\em digit}
-\\[1ex]
-\emkey{long-year} ::= {\em digit}\STAR{}
-                      {\em digit} {\em digit} {\em digit} {\em digit}
+\emkey{year} :::= {\em digit}\PLUS{}
 \\[1ex]
 \emkey{month-name}
     \begin{tabular}[t]{rl}
@@ -1777,9 +1775,9 @@ A variety of different date formats may be used:
     $|$ & \TT{dec} $|$ \TT{Dec} $|$ \TT{December} \\
     \end{tabular}
 \\[1ex]
-\emkey{year-name} ::=  {\em long-year} $|$ {\em short-year-name}
+\emkey{year-name} ::=  {\em year} $|$ {\em short-year-name}
 \\[1ex]
-\emkey{short-year-name} ::=  \TT{'} {\em digit} {\em digit}
+\emkey{short-year-name} ::=  \TT{'} {\em digit}\PLUS{}
 \\[1ex]
 \emkey{weekday}
     \begin{tabular}[t]{rl}
@@ -1814,22 +1812,30 @@ A date consisting of just a {\em month-name} and a {\em year-name}
 refers to the first day of the month; e.g., \TT{May '05} and
 \TT{05/01/2005} are the same date.
 
-Two {\em digit} {\em short-years} refer to years within the
-$[-49,+50]$ range from of the current year.  They are never output, but may be
-input.  {\em Short-years} that might refer to years in the
-ranges $[-49,-41]$ or $[41,50]$ from the current year
-cause warning messages to be issued.
+If no {\em era} is given and the {\em year} is \TT{999} or less,
+the {\em year} is taken to denote the year nearest the current
+year which ends in the same digits as given in {\em year}.
+Thus in 2014 \TT{97} denotes 1997 and \TT{114} denotes 2114.
+
+A warning message is issued if {\em month} is out of the range
+\TT{1..12}, but the date is still computed letting \TT{0} denote
+December of the previous year, \TT{13} denote January of the
+next year, etc.  A warning message is issued if {\em day} is
+\TT{0} or too large for the given month and year, but again
+the date is still computed with \TT{0} denoting the last day of
+the previous month, etc.
 
 \subsection{Times}
 \label{TIMES}
 
 A \key{time} is a {\em numeric} containing digits, possibly a decimal
 point, and one or two colons, optionally followed by a meridiem indication
-and/or a time zone, and optionally surrounded by a date.
+and/or a time zone, and optionally followed by or surrounded by a date.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
-    ::= & {\em time-of-day} {\em date}\QMARK{} \\
+    ::= & {\em time-interval} \\
+    $|$ & {\em time-of-day} {\em date}\QMARK{} \\
     $|$ & {\em weekday}\QMARK{} {\em month-name} {\em day}
           {\em time-of-day} {\em year-name} {\em era}\QMARK{} \\
     $|$ & {\em weekday}\QMARK{} {\em day} {\em month-name}
@@ -1915,6 +1921,16 @@ GMT day.
 
 \subsection{Concatenated Quoted Strings}
 \label{CONCATENATED-QUOTED-STRINGS}
+
+A \key{concatenated quoted string} is a seqence of {\em quoted-strings}
+separated by \TT{\#} marks that denotes a single symbol
+made by concatenating the separate dequoted {\em quoted-string}
+symbols and quoting the result.
+
+\begin{indpar}
+\emkey{concatenated-quoted-string} ::=
+    {\em quoted-string} \{ \TT{\#} {\em quoted-string} \}\STAR{}
+\end{indpar}
 
 \subsection{Radix Numbers}
 \label{RADIX-NUMBERS}
