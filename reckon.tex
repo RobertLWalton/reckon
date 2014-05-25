@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 24, 2014}
+\date{May 25, 2014}
 
 \maketitle
 
@@ -1728,8 +1728,8 @@ A \key{date} is an {\em atom-name} that names an integer atom
 which gives the \key{Julian Day Number} of the day times
 the number of seconds in one day ($60*60*24=86,400$).
 The Julian Day Number system assigns day \TT{0} to the day starting
-at noon GMT on January 1, 4713 BC, in the Gregorian Calendar (extended
-backwards), and counts days forward and backward
+at noon GMT on January 1, 4713 BC, in the Gregorian Calendar extended
+backwards, and counts days forward and backward
 from this day.\footnote{Julian Day Numbers are used for dates in astronomy.}
 Note that in this system days start at noon, and not at midnight.
 
@@ -1737,11 +1737,14 @@ A variety of different date formats may be used:
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
-	     ::= & {\em date-numeric} {\em era}\QMARK{} \\
-	     $|$ &  {\em day} {\em month-name} {\em year} {\em era}\QMARK{} \\
-	     $|$ &  {\em day} {\em month-name} {\em year-name}
-	            {\em era}\QMARK{} \\
-	     $|$ &  {\em year-name}
+	     ::= & {\em weekday}\QMARK{} {\em date-numeric} {\em era}\QMARK{} \\
+	     $|$ & {\em weekday}\QMARK{} {\em month-name} {\em day}
+	           {\em year-name} {\em era}\QMARK{} \\
+	     $|$ & {\em weekday}\QMARK{} {\em day} {\em month-name}
+	           {\em year-name} {\em era}\QMARK{} \\
+	     $|$ & {\em month-name} {\em year-name}
+	           {\em era}\QMARK{} \\
+	     $|$ & {\em short-year-name}
 	     \end{tabular}
 \label{DATE}
 \\[1ex]
@@ -1751,12 +1754,12 @@ A variety of different date formats may be used:
 \\[1ex]
 \emkey{day} :::=  {\em digit}\QMARK{} {\em digit}
 \\[1ex]
-\emkey{year}
-    \begin{tabular}[t]{rl}
-    ::= & {\em digit}\STAR{}
-          {\em digit} {\em digit} {\em digit} {\em digit}  \\
-    $|$ & {\em digit} {\em digit}
-    \end{tabular}
+\emkey{year} ::= {\em short-year} $|$ {\em long-year}
+\\[1ex]
+\emkey{short-year} ::= {\em digit} {\em digit}
+\\[1ex]
+\emkey{long-year} ::= {\em digit}\STAR{}
+                      {\em digit} {\em digit} {\em digit} {\em digit}
 \\[1ex]
 \emkey{month-name}
     \begin{tabular}[t]{rl}
@@ -1774,28 +1777,48 @@ A variety of different date formats may be used:
     $|$ & \TT{dec} $|$ \TT{Dec} $|$ \TT{December} \\
     \end{tabular}
 \\[1ex]
-\emkey{year-name} ::=  \TT{'} {\em digit} {\em digit}
+\emkey{year-name} ::=  {\em long-year} $|$ {\em short-year-name}
+\\[1ex]
+\emkey{short-year-name} ::=  \TT{'} {\em digit} {\em digit}
+\\[1ex]
+\emkey{weekday}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{Mon} $|$ \TT{Monday} \\
+    $|$ & \TT{Tue} $|$ \TT{Tues} $|$ \TT{Tuesday} \\
+    $|$ & \TT{Wed} $|$ \TT{Wednesday} \\
+    $|$ & \TT{Thu} $|$ \TT{Thur} $|$ \TT{Thursday} \\
+    $|$ & \TT{Fri} $|$ \TT{Friday} \\
+    $|$ & \TT{Sat} $|$ \TT{Satday} \\
+    $|$ & \TT{Sun} $|$ \TT{Sunday} \\
+    \end{tabular}
 \\[1ex]
 \emkey{era} ::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
                          $|$ \TT{BCG} $|$ \TT{BCJ}
 \end{indpar}
 
-If no {\em era} is given, a date is interpreted as being AD and in the
-Gregorian Calendar if it is on or after 15 October 1582, and
-in the Julian Calendar otherwise.
+{\em Weekdays} are superfluous; if they are input and are wrong,
+a warning message is issued.
+
+The default {\em era} is \TT{AD}.
 A `\TT{G}' at the end of an {\em era} indicates the date is in the
 Gregorian Calendar, and a `\TT{J}' indicates the date is in the Julian
 Calendar.  If neither is given, the date is Gregorian if it is on
-or after 15 October 1582, and Julian otherwise.  If no {\em era}
-is given, \TT{AD} is assumed.  Years always begin at the midnight just
-before January 1.  There is no year \TT{0}; \TT{1AD} is immediately preceeded
+or after 15 October 1582, and Julian otherwise.  Years always begin
+at the midnight just before January 1.
+There is no year \TT{0}; \TT{1AD} is immediately preceeded
 by \TT{1BC}.
 
 A date consisting of just a {\em year-name} refers to January 1 of that
 year; e.g., \TT{'05} and \TT{01/01/2005} are the same date.
+A date consisting of just a {\em month-name} and a {\em year-name}
+refers to the first day of the month; e.g., \TT{May '05} and
+\TT{05/01/2005} are the same date.
 
-Two digit {\em years} and {\em year-names} refer to years between
-\TT{1951} and \TT{2050}.
+Two {\em digit} {\em short-years} refer to years within the
+$[-49,+50]$ range from of the current year.  They are never output, but may be
+input.  {\em Short-years} that might refer to years in the
+ranges $[-49,-41]$ or $[41,50]$ from the current year
+cause warning messages to be issued.
 
 \subsection{Times}
 \label{TIMES}
@@ -1806,18 +1829,28 @@ and/or a time zone, and optionally surrounded by a date.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
-    ::= & {\em time-numeric} {\em meridiem}\QMARK{} {\em time-zone}\QMARK{} \\
-    $|$ & {\em time-numeric} {\em meridiem}\QMARK{} {\em time-zone}\QMARK{}
-    		{\em date-numeric} {\em era}\QMARK{} \\
-    ::= & {\em time-numeric} {\em meridiem}\QMARK{} {\em time-zone}\QMARK{} \\
+    ::= & {\em time-of-day} {\em date}\QMARK{} \\
+    $|$ & {\em weekday}\QMARK{} {\em month-name} {\em day}
+          {\em time-of-day} {\em year-name} {\em era}\QMARK{} \\
+    $|$ & {\em weekday}\QMARK{} {\em day} {\em month-name}
+          {\em time-of-day} {\em year-name} {\em era}\QMARK{} \\
     \end{tabular}
 \\[1ex]
-\emkey{time-numeric} :::= {\em digit}\QMARK{} {\em digit}
-        \TT{:} {\em digit} {\em digit}
-	\{ \TT{:} {\em digit} {\em digit}
-	          {\em fractional-part}\QMARK{} \}\QMARK{}
+\emkey{time-of-day}
+    ::= {\em time-numeric} {\em meridiem}\QMARK{} {\em time-zone}\QMARK{}
+\\[1ex]
+\emkey{time-numeric} :::= {\em hour} \TT{:} {\em minute}
+                          \{ \TT{:} {\em seconds} \}\QMARK{}
+\\[1ex]
+\emkey{hour} :::= {\em digit}\QMARK{} {\em digit}
+\\[1ex]
+\emkey{minute} :::= {\em digit} {\em digit}
+\\[1ex]
+\emkey{seconds} :::=
+	{\em digit} {\em digit} {\em fractional-part}\QMARK{}
 \\[1ex]
 \emkey{meridiem} ::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
+                 $|$ \TT{noon} $|$ \TT{midnight}
 \\[1ex]
 \emkey{time-zone}
     \begin{tabular}[t]{rl}
@@ -1844,6 +1877,25 @@ and/or a time zone, and optionally surrounded by a date.
     \end{tabular}
 \end{indpar}
 
+A {\em time-numeric} represents the number
+$60*(60*hour+minute)+seconds$.  A {\em minutes} or
+{\em seconds} value equal or greater than $60$ causes a warning
+message to be issued.
+
+A {\em meridiem} limits the {\em time-numeric}
+to be equal to or greater than \TT{0:00} and strictly less than
+\TT{13:00}; else a warning message is issued.  A \TT{noon}
+or \TT{midnight} {\em meridiem} limits the {\em time-numeric}
+to be equal to \TT{12:00}; else a warning message is issued.
+The absence of a {\em meridiem} limits the {\em time-numeric}
+to be equal to or less than {\TT 24:00}.
+
+If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
+{\em time-numeric} values equal to or greater than \TT{12:00}.
+If \TT{pm} or \TT{PM} is given, $12$ hours is added to
+{\em time-numeric} values that are strictly less than \TT{12:00}.
+The time \TT{12:00 midnight} is interpreted as \TT{24:00}.
+
 A {\em time-zone} such as \TT{UTC-05:00} refers to Greenwich Mean Time
 (\TT{UTC}, Temps Universel Coordonn\'e in French)
 minus 5 hours (\TT{-05:00}) and is the same as
@@ -1853,6 +1905,13 @@ go in Daylight Savings Time, they convert to Eastern Daylight Time, or
 
 As another example, \TT{NZST}, New Zealand Standard Time, is the same
 as \TT{UTC+12:00}.
+
+If a {\em time-zone} is given, the difference between the {\em time-zone}
+time and GMT is subtracted from the {\em time-numeric}.
+Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-numeric},
+and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-numeric}.
+It is possible to get negative numbers, which indicate a time in the previous
+GMT day.
 
 \subsection{Concatenated Quoted Strings}
 \label{CONCATENATED-QUOTED-STRINGS}
