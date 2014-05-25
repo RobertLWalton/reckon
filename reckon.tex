@@ -1427,7 +1427,7 @@ quoted string may be used to represent various characters: for
 example, the {\em quoted-string} \TT{"<Q>Help!<Q>"} represents the
 9-character symbol \TT{""Help!""}.
 
-Symbols and numbers are referred to as \skey{atom}s.
+Symbols and numbers are referred to as \skey{atom}s.\label{ATOM}
 
 Symbols that begin and end with \TT{"}'s are called \key{quoted symbols}.
 In many contexts, such symbols are \skey{dequote}d\label{DEQUOTE}
@@ -1592,13 +1592,13 @@ of {\em atom-names}:
     \begin{tabular}[t]{rl}
     ::= & {\em word} \\
     $|$ & {\em quoted-string} \\
-    $|$ & {\em fractional-number}\pagnote{FRACTIONAL-NUMBER} \\
-    $|$ & {\em scientific-number}\pagnote{SCIENTIFIC-NUMBER} \\
-    $|$ & {\em date}\pagnote{DATE} \\
-    $|$ & {\em time}\pagnote{TIME} \\
+    $|$ & {\em fractional-number}\pagnote{FRACTIONAL-NUMBERS} \\
+    $|$ & {\em scientific-number}\pagnote{SCIENTIFIC-NUMBERS} \\
+    $|$ & {\em date}\pagnote{DATES} \\
+    $|$ & {\em time}\pagnote{TIMES} \\
     $|$ & {\em concatenated-quoted-string}%
           \pagnote{CONCATENATED-QUOTED-STRINGS} \\
-    $|$ & {\em radix-number}\pagnote{RADIX-NUMBER} \\
+    $|$ & {\em radix-number}\pagnote{RADIX-NUMBERS} \\
     \end{tabular}
 \label{ATOM-NAME}
 \end{indpar}
@@ -1610,33 +1610,35 @@ a {\em name} by a {\em quoted-string}.  However there are three {\em marks}
 that can appear in particular locations within {\em names}:
 \TT{+}, \TT{-}, and \TT{\#}.
 
-The parser accepts a string of lexemes that is an {\em atom-name}
-and outputs a string of atoms that is the name.  This name is
-\underline{not} dequoted (see \pagref{DEQUOTE}) but is usually
+The parser inputs a {\em name} that is a string of lexemes
+and outputs a {\em name} that is the sequence of those atoms whose
+{\em atom-names} appear in the input.  The output is \underline{not}
+dequoted (see \pagref{DEQUOTE}), but is often
 dequoted before it is used.
 
 An \emkey{atom-name} represents a single atom.  {\em Words} and
 {\em quoted-strings}, if they are single-lexeme {\em atom-names},
 represent symbols as described on \pagref{SYMBOL}.
 {\em Numerics}, if they are single-lexeme {\em atom-names}
-consisting of just decimal digits with an optional decimal point or
-alternatively an optional fraction indicator \TT{/} represent a number,
-as described on \pagref{NUMBER}.
+consisting of just decimal digits with an optional decimal point, or
+alternatively if they have an optional fraction indicator \TT{/},
+represent a numbers, as described on \pagref{NUMBER}.
 Other {\em atom-names} are more complex; some examples are
-`\TT{12:45:00}' which represents the {\em time} $60*(60*12+45)+00$ seconds,
-`\TT{03/14/27}' which represents the {\em date} March 14, 2027,
-expressed as seconds relative to
-noon GMT on January 1, 4713 BC\pagnote{DATE},
-and `\TT{1.3e5}', which represents the {\em scientific-number}
+`\TT{12:45:13}' which represents the {\em time}\pagnote{TIMES}
+$60*(60*12+45)+13$ seconds,
+`\TT{03/14/27}' which represents the {\em date}\pagnote{DATES}
+March 14, 2027, expressed as seconds relative to
+noon GMT on January 1, 4713 BC,
+and `\TT{1.3e5}', which represents the
+{\em scientific-number}\pagnote{SCIENTIFIC-NUMBERS}
 $1.3*10^{5}$.
 
 Names are used to name both variables and constants.  Thus \TT{123}
 generally names an integer constant, but can also be the label of
 an element in a vector, \TT{"123"} generally names a symbol constant, \TT{X}
 generally names a variable, and \TT{"X"} generally names a symbol constant.
-Thus the role of a name may depend on the lexemes in the name and not
-just the atoms these represent.  Also in some contexts the roles of
-names may differ from their usual roles.
+In many contexts, names are dequoted, in which
+case \TT{X} and \TT{"X"} represent the same name.
 
 After the representation of a name is converted into a sequence
 of atoms, this sequence may be further parsed into an expression.
@@ -1653,14 +1655,14 @@ Multi-lexeme {\em atom-names}, and the more complex single-lexeme
 {\em atom-names}, are described in the following sections.
 
 \subsection{Fractional Numbers}
-\label{FRACTIONAL-NUMBER}
+\label{FRACTIONAL-NUMBERS}
 
 A \key{fractional number} is a {\em numeric} with contains only digits
 and a single \TT{/}, optionally preceeded by a {\em sign} and an
 {\em integer-numeric}:
 
 \begin{indpar}
-\emkey{fractional-number} :=
+\emkey{fractional-number} ::=
     {\em sign}\QMARK{} {\em integral-numeric}\QMARK{} {\em fractional-numeric}
 \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-}
@@ -1681,15 +1683,20 @@ some given number of decimal places, it may in some contexts be
 printed as a fraction.  Thus in these contexts a number input as
 \TT{1/3} will print as \TT{1/3} and not as \TT{0.333333}.
 
+The fraction \TT{0/0} denotes the IEEE \key{NaN} value, which
+stands of `Not a Number'.  The fraction \TT{$N$/0} for $N>0$
+denotes \TT{+inf}, or plus infinity, while \TT{-~$N$/0} denotes
+\TT{-inf}, or minus infinity.
+
 \subsection{Scientific Numbers}
-\label{SCIENTIFIC-NUMBER}
+\label{SCIENTIFIC-NUMBERS}
 
 A \key{scientific number} is a {\em numeric} which contains only
 digits plus an optional decimal point and optional commas,
 with an optional preceeding sign and an optional trailing exponent:
 
 \begin{indpar}
-\emkey{scientific-number} := {\em sign}\QMARK{} {\em scientific-numeric}
+\emkey{scientific-number} ::= {\em sign}\QMARK{} {\em scientific-numeric}
 			     {\em exponent}\QMARK{} \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-} \\[1ex]
 \emkey{scientific-numeric} :::= {\em integral-numeric}
@@ -1791,7 +1798,7 @@ Two digit {\em years} and {\em year-names} refer to years between
 \TT{1951} and \TT{2050}.
 
 \subsection{Times}
-\label{TIME}
+\label{TIMES}
 
 A \key{time} is a {\em numeric} containing digits, possibly a decimal
 point, and one or two colons, optionally followed by a meridiem indication
@@ -1851,7 +1858,7 @@ as \TT{UTC+12:00}.
 \label{CONCATENATED-QUOTED-STRINGS}
 
 \subsection{Radix Numbers}
-\label{RADIX-NUMBER}
+\label{RADIX-NUMBERS}
 
 \section{Low Level Data}
 
