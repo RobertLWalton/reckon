@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 25, 2014}
+\date{May 27, 2014}
 
 \maketitle
 
@@ -2127,7 +2127,17 @@ The syntax of an {\em object-representation} is:
 
 \begin{tabular}{l}
 \emlkey{attribute-representation}{-subparagraph}
-    ::= \TT{\{:} {\em attribute-representation}\STAR{} \TT{:\}}
+    ::= \TT{\{:} {\em attribute-representation-list} \TT{:\}}
+\end{tabular}
+
+\begin{tabular}{l}
+\emlkey{attribute-representation}{-list}
+\\\hspace*{0.5in}
+    \begin{tabular}[t]{rl}
+    ::= & {\em empty} \\
+    $|$ & {\em attribute-representation}
+          \{ \TT{<*>} {\em attribute-representation} \}\STAR{}
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2143,7 +2153,6 @@ The syntax of an {\em object-representation} is:
 \label{SINGLE-ATTRIBUTE-REPRESENTATION}
 ::=
 \\\hspace*{0.5in}
-	\TT{<*>}
 	{\em single-attribute-label} {\em attribute-label-flags}\QMARK{}
 	\begin{tabular}[t]{@{}l@{}}
 	{\em attribute-assignment-operator} \\
@@ -2190,8 +2199,8 @@ The syntax of an {\em object-representation} is:
 \label{DOUBLE-ATTRIBUTE-REPRESENTATION}
     ::=
 \\\hspace*{0.5in}
-	\TT{<*>} {\em double-attribute-label}
-	         {\em attribute-label-flags}\QMARK{}
+	{\em double-attribute-label}
+	{\em attribute-label-flags}\QMARK{}
 \\\hspace*{1.0in}
 	\begin{tabular}[t]{@{}l@{}}
 	\TT{=} {\em double-attribute-value} \\
@@ -2369,8 +2378,8 @@ exist, or if it does exist, must not have been defined by any previous
 {\em object-representation} (it may have been defined as the value of an
 attribute).  Second, any attribute label represented in the
 {\em object-representation}, if it previously exists because it was part of a
-{\em double-attribute-representation}, must be represented with exactly
-the same flags as it already has.
+{\em double-attribute-representation} of another {\em object-representation},
+must be represented with exactly the same flags as it already has.
 
 At the other extreme,
 \ttmkey{=>{}>}{in {\em object-representation}}
