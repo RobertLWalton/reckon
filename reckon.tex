@@ -92,6 +92,7 @@
 \newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
 \newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
@@ -2579,25 +2580,28 @@ the following definition of {\em bracketed-list}:
 
 \begin{tabular}{l}
 \emkey{bracketed-list}\label{BRACKETED-LIST}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{(} {\em prefix-0-list} \TT{)} \\
+    \begin{tabular}[t]{rlcl}
+    ::= & \TT{(} {\em prefix-0-list} \TT{)} &
     $|$ & \TT{[} {\em prefix-0-list} \TT{]} \\
     $|$ & \TT{`} {\em prefix-0-list} \TT{'} \\
-    $|$ & \TT{\{} {\em m-type} {\em prefix-0-list} {\em m-type} \TT{\}} \\
-    $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} \\
+    $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} &
     $|$ & \TT{\{<} {\em prefix-0-list} \TT{>\}} \\
-    $|$ & \TT{\{(} {\em prefix-0-list} \TT{)\}} \\
+    $|$ & \TT{\{(} {\em prefix-0-list} \TT{)\}} &
     $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} \\
-    $|$ & \TT{\{`} {\em prefix-0-list} \TT{'\}} \\
+    $|$ & \TT{\{`} {\em prefix-0-list} \TT{'\}} &
     $|$ & \TT{\{\{} {\em prefix-0-list} \TT{\}\}} \\
+    $|$ & \TT{\{} {\em m-type} {\em prefix-0-list} {\em m-type} \TT{\}} \\
     $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
           \TT{|} {\em prefix-0-list}
           \TT{|\}} \\
+    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
+          \TT{||\}} \\
     $|$ & \TT{\{|} {\em prefix-0-list}
           \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
-    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
+    $|$ & \TT{\{||} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
+    $|$ & \multicolumn{3}{l}{\TT{\{} {\em w-type} {\em attributes}\QMARK{}
           \TT{| } {\em prefix-0-list}
-          \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
+          \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}}} \\
     \end{tabular}
 \end{tabular}
 
@@ -3138,6 +3142,11 @@ As special cases,
 `\TT{|\}}' and `\TT{\{|}' can match
 `\TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}}'.
 
+A beginning `\TT{\{||}' is equivalent to `\TT{\{|~|}', that is, in this
+case the two `\TT{|}' are treated as separate 1-character lexemes, and
+the `\TT{|~|}' denotes an empty list.  Similarly `\TT{||\}}' is
+equivalent to `\TT{|~|\}}' and denotes and empty list.
+
 A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
 
 A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
@@ -3156,10 +3165,10 @@ are given an \ttdmkey{initiator}{of bracketed list}
 equal to their {\em list-opening} and a
 \ikey{\TT{.termin\-ator}}{terminator@{\tt .terminator}!of bracketed list}
 equal to their {\em list-closing}.
-This includes lists with \TT{.initiators} `\TT{(}', `\TT{[}', `\TT{`}',
-`\TT{\{<}', `\TT{\{(}', `\TT{\{[}', `\TT{\{`}', `\TT{\{\{}',
-and \TT{.terminators} `\TT{)}', `\TT{]}', `\TT{'}',
-`\TT{>\}}', `\TT{)\}}', `\TT{]\}}', `\TT{'\}}', `\TT{\}\}}',
+This includes lists with \TT{.initiators} \TT{"("}, \TT{"["}, \TT{"`"},
+\TT{"\{<"}, \TT{"\{("}, \TT{"\{["}, \TT{"\{`"}, \TT{"\{\{"},
+and \TT{.terminators} \TT{")"}, \TT{"]"}, \TT{"'"},
+\TT{">\}"}, \TT{")\}"}, \TT{"]\}"}, \TT{"'\}"}, \TT{"\}\}"},
 but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
 
 \ikey{Typed bracketed lists}{typed bracketed list} are given a
@@ -3168,13 +3177,16 @@ but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
 (the empty {\em quoted-string}) is not given any \TT{.type} attribute
 at all.
 
-The elements of the
-list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
-
 `\TT{\{|\ldots|\}}' lists are given no special attributes.
 Note that `\TT{\{||\}}' denotes the empty list with no attributes
 at all, and is equivalent to `\TT{\{""||\}}' (the list with {\em w-type}
 \TT{""}).
+
+The elements of the
+list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
+In general the attributes of an object with these labels are referred
+to as the \smkey{list element}s{of object} of the object, and their
+sequence is the \mkey{list}{of object} of the object.
 
 {\em Attributes} in a {\em w-typed} bracketed list can be the same as
 raw {\em attribute-representations}, or they can be just a label with
@@ -3184,7 +3196,7 @@ the value `\TT{true}' is implied, and if the label does begin with
 `\TT{no}', the `\TT{no}' is removed from the beginning of the label
 and the value `\TT{false}' is implied.
 If no value is given, it is an error if the label is just
-`{\tt no}' by itself.
+`\TT{no}' by itself.
 
 Some examples are as follows.  First:
 \begin{center}
@@ -3204,14 +3216,14 @@ is equivalent to, among other things, any of the following:
 Second:
 
 \begin{center}
-\tt \{my type:~format, no capitalize, tweak = 5\}
+\tt \{my list:~format, no capitalize, tweak = 5| a b c |\}
 \end{center}
 is equivalent to
 \begin{center}
 \tt
 \begin{tabular}{@{}l@{}}
-\{my type:~format = true, capitalize = false, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5\} \\
+\{my list:~format = true, capitalize = false, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5| a b c |\} \\
 \end{tabular}
 \end{center}
 
@@ -3220,9 +3232,10 @@ that must appear at the beginning of the list as well as between
 elements of the list, and their appearance at the beginning of the list
 announces their use as a separator for the list and also establishes their
 precedence relative to other {\em prefix} separators.
-More explicitly, the type of the first {\em prefix-n} in a {\em prefix-n-list}
-specifies that all {\em prefixes} of that type shall be {\em prefix-n}'s,
-and {\em prefixes} of other types shall not be {\em prefix-n}'s.
+More explicitly, the {\em type} of the first {\em prefix-n}
+in a {\em prefix-n-list}
+specifies that all {\em prefixes} of that {\em type} shall be {\em prefix-n}'s,
+and {\em prefixes} of other {\em types} shall not be {\em prefix-n}'s.
 
 Algorithmically, during a left to right scan of a {\em prefix-0-list},
 there is a stack of `\key{open list prefix types}'.  Initially we are
@@ -3285,13 +3298,20 @@ Text	& Separator &  Syntactic Category
 
 The {\em prefix-0-list} in this example is equivalent to:
 \begin{indpar}\begin{verbatim}
-{|  {p|  {s| This is a sentence . |}
-         {s| And another . |} |}
-    {p|  {s| And a new paragraph . |} |} |}
-             // `{foo}' deleted
+{p|  {s| This is a sentence . |}
+     {s| And another . |} |}
+{p|  {s| And a new paragraph . |} |}
+         // `{foo}' deleted
 \end{verbatim}\end{indpar}
 
-{\em Lists} may be parsed after they have been read.  Operators, including
+\section{Parsing}
+\label{PARSING}
+
+{\em Bracketted lists} are parsed after they have been read.  There are
+several types of parsing as determined by the brackets:
+
+
+Operators, including
 separators such as the semi-colon `{\tt ;}'
 and comma `{\tt ,}', are recognized by such a parse.  As part of parsing,
 a list may be reformatted.  See
@@ -3301,7 +3321,6 @@ a list may be reformatted.  See
 \label{COMPOUND-NAMES}
 
 \section{Parsing}
-\label{PARSING}
 
 A program is written in a text file.  The file is read and
 converted to a sequence of lexemes, where each lexeme is tagged
