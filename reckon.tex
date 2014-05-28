@@ -194,7 +194,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 27, 2014}
+\date{May 28, 2014}
 
 \maketitle
 
@@ -2228,6 +2228,11 @@ elements mentioned above; specifically, {\em bracketed-lists} are
 not used (as {\em object-lists} or {\em single-attribute-values}),
 and \TT{=>} and \TT{=>{}>} are not used as {\em attribute-assignment-operators}.
 
+All {\em atom-names} in a raw object representation are dequoted.  Thus
+\TT{"X"} and \TT{X} represent the same symbol atom,
+whereas \TT{0123} represents the number atom $123$ while \TT{"0123"}
+represents the symbol atom \TT{0123}.
+
 {\em Object-representations} are lines beginning with \TT{@}.
 For example,
 
@@ -2534,8 +2539,8 @@ which represents the list
 \end{indpar}
 
 but also has some additional attributes, labeled \TT{.type},
-\TT{.initiator}, \TT{.terminator}
-\TT{capitalize}, and \TT{end mark}.
+\TT{.initiator}, \TT{.terminator},
+\TT{cap\-it\-al\-ize}, and \TT{end mark}.
 An alternative raw {\em object-representation}
 to the one just given is:
 
@@ -2560,7 +2565,7 @@ gives values to the \TT{.type}, \TT{.initiator}, \TT{.terminator},
 \subsection{Cooked Representations}
 
 If an {\em object-representation} contains a bracketed list, operators
-are recognized by the parser within this list, and the representaton
+are recognized by the parser within this list, and the representation
 is said to be `\key{cooked}' instead of raw.  Also if
 the \TT{=>} and \TT{=>{}>} {\em data-assignment-operators}
 are used in place of the \TT{=} within any {\em attribute-representation}
@@ -2691,17 +2696,13 @@ below.  First we give some examples involving just parsed untyped
 the fact is used that
 `\TT{\{!~!\}}' brackets translate to a list of \TT{.type} \TT{"!"}.
 
-In the cooked {\em object-representation}
-the list of {\em atom-values} can be followed by a single
-{\em bracketed-list}.  A simple first example is:
-
 As a first example,
 
 \begin{indpar}\begin{verbatim}
 @93 = `This is a sentence.'
 \end{verbatim}\end{indpar}
 
-which is the cooked representation of the object
+is the cooked representation of the object
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
@@ -2758,7 +2759,7 @@ The second example contains simple code:
 @45 = {! straight 3.2; left; straight (y + 9.4) !}
 \end{verbatim}\end{indpar}
 
-which is the cooked representation of the objects
+is the cooked representation of the objects
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
@@ -2863,10 +2864,10 @@ and not {\em attribute-representations}.
 
 
 \begin{boxedfigure}
-\small
 
 \begin{center}
-\begin{tabular}[t]{@{}l@{}}
+\begin{tabular}[t]{l@{\hspace*{1in}}l}
+\begin{tabular}[t]{l}
 \verb/@130 =:/\\
 \verb|    1 = x|\\
 \verb|    2 = y|\\
@@ -2887,6 +2888,7 @@ and not {\em attribute-representations}.
 \verb|    1 = if|\\
 \verb|    2 = @131|\\
 \verb|    3 = @132|\\
+\end{tabular} & \begin{tabular}[t]{l}
 \verb/@134 =:/\\
 \verb|    1 = return|\\
 \verb|    2 = x|\\
@@ -2904,6 +2906,7 @@ and not {\em attribute-representations}.
 \verb|    2 = @130|\\
 \verb|    3 = @136|\\
 \verb|    .type = "!"|\\
+\end{tabular}
 \end{tabular}
 \end{center}
 \vspace*{-3ex}
@@ -3066,7 +3069,7 @@ description of other objects, as in
 	    !}
 \end{verbatim}\end{indpar}
 
-which is the cooked representation of the object
+is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
 @291 =:
@@ -3151,7 +3154,8 @@ match any unclosed {\em list-opening}, or generates missing
 \ikey{Untyped bracketed lists}{untyped bracketed list}
 are given an \ttdmkey{initiator}{of bracketed list}
 equal to their {\em list-opening} and a
-\ttdmkey{terminator}{of bracketed list} equal to their {\em list-closing}.
+\ikey{\TT{.termin\-ator}}{terminator@{\tt .terminator}!of bracketed list}
+equal to their {\em list-closing}.
 This includes lists with \TT{.initiators} `\TT{(}', `\TT{[}', `\TT{`}',
 `\TT{\{<}', `\TT{\{(}', `\TT{\{[}', `\TT{\{`}', `\TT{\{\{}',
 and \TT{.terminators} `\TT{)}', `\TT{]}', `\TT{'}',
