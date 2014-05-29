@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 28, 2014}
+\date{May 29, 2014}
 
 \maketitle
 
@@ -1961,7 +1961,7 @@ The {\em radix-indicators} have the following denotations:
 \begin{center}
 \begin{tabular}{cll}
 \bf Radix Indicator	& \bf Meaning	& \bf Digits
-\\\hline
+\\[1ex]
 \TT{B}			& binary	& \TT{0}, \TT{1} \\
 \TT{O}			& octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 					  \TT{4}, \TT{5}, \TT{6}, \TT{7} \\
@@ -3310,12 +3310,20 @@ The {\em prefix-0-list} in this example is equivalent to:
 {\em Bracketted lists} are parsed after they have been read.  There are
 several types of parsing as determined by the brackets:
 
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l}
+\bf Brackets & \bf Selectors & \bf Context Selectors & \bf Usage \\[1ex]
+\TT{\{*\ldots*\}} & comment & all & comment \\
+\TT{`\ldots'} & text & all but comment & text \\
+\TT{\{+\ldots+\}} & operator, code & all but comment & unevaluted code \\
+\TT{\{\{\ldots\}\}} & operator & all but comment & unevaluated expression \\
+\TT{[\ldots]} & operator & text & evaluated expression in text \\
+\TT{[\ldots]} & inherited & all but comment and text & subexpression \\
+\TT{(\ldots)} & inherited & all but comment & subexpression \\
+\TT{(|\ldots|)} & inherited & all but comment & subexpression \\
+\end{tabular}
+\end{center}
 
-Operators, including
-separators such as the semi-colon `{\tt ;}'
-and comma `{\tt ,}', are recognized by such a parse.  As part of parsing,
-a list may be reformatted.  See
-\itemref{PARSING} for details.
 
 \section{Compound Names}
 \label{COMPOUND-NAMES}
