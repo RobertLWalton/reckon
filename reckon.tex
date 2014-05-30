@@ -3307,6 +3307,31 @@ The {\em prefix-0-list} in this example is equivalent to:
 \section{Parsing}
 \label{PARSING}
 
+Input is read and parsed to form objects from {\em bracketed-lists}.
+These lists are then further parsed to find operators, separators,
+numeric units (e.g., \TT{lb} and \TT{\$}), and some other constructions
+such as possessives (\TT{George's weight}).  The input to this parsing
+is an object, and more specifically, its elements, which are atoms or
+other objects, and the following attributes: \TT{.type}, \TT{.initiator},
+\TT{.terminator}, \TT{.separator}.
+
+We will refer to the objects being parsed as {\em bracketed-lists}, even
+though they are data objects and not strings of lexemes.
+
+Note that the atoms in these lists have \underline{not} been dequoted;
+in cooked data representations only atoms outside brackets are dequoted.
+
+Parsing at this point is a top down process.  First operators and
+subexpressions are discovered, as part of operator parsing.  Subexpressions
+are then parsed independently (except for context, see below),
+and then a reformatter is invoked to reorganize the object.
+
+A subexpression may not have any operators.  In this case other kinds of
+parsing are applied to it.  
+
+
+However, as a last step in parsing, atoms are dequoted.
+
 {\em Bracketted lists} are parsed after they have been read.  There are
 several types of parsing as determined by the brackets:
 
