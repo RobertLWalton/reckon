@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 29, 2014}
+\date{May 30, 2014}
 
 \maketitle
 
@@ -3308,12 +3308,10 @@ The {\em prefix-0-list} in this example is equivalent to:
 \label{PARSING}
 
 Input is read and parsed to form objects from {\em bracketed-lists}.
-These lists are then further parsed to find operators, separators,
+These objects are then further parsed to find operators, separators,
 numeric units (e.g., \TT{lb} and \TT{\$}), and some other constructions
 such as possessives (\TT{George's weight}).  The input to this parsing
-is an object, and more specifically, its elements, which are atoms or
-other objects, and the following attributes: \TT{.type}, \TT{.initiator},
-\TT{.terminator}, \TT{.separator}.
+is an object element list consisting of atoms and subobjects.
 
 We will refer to the objects being parsed as {\em bracketed-lists}, even
 though they are data objects and not strings of lexemes.
@@ -3321,16 +3319,33 @@ though they are data objects and not strings of lexemes.
 Note that the atoms in these lists have \underline{not} been dequoted;
 in cooked data representations only atoms outside brackets are dequoted.
 
-Parsing at this point is a top down process.  First operators and
-subexpressions are discovered, as part of operator parsing.  Subexpressions
-are then parsed independently (except for context, see below),
-and then a reformatter is invoked to reorganize the object.
+Parsing at this point is a top down process.  The parser is organized
+into passes which are applied to the object element list in order until
+one of the passes succeeds.  The first pass handles operators, the second
+numeric units, the third possessives, and the forth dequoting.
+If a pass succeeds it may discover subexpressions, which are formed
+into objects and parsed independently as they are discovered.
+In general parsing modifies the object being parsed.
 
-A subexpression may not have any operators.  In this case other kinds of
-parsing are applied to it.  
+\subsection{Parsing Contexts}
+\label{PARSING-CONTEXTS}
 
+During parsing both the parsing passes and definitions of parsing units such as
+operators are turned on or off by manipulating a \key{parsing context},
+which is just a set of \skey{parsing selector}s.  Thus the passes and
+definitions appropriate to text processing are turned on by the
+`\TT{text}' selector, and those appropriate to expression parsing are
+turned on by the `\TT{expression}' selector.
 
-However, as a last step in parsing, atoms are dequoted.
+The parsing context can only be changed by \underline{explicit} brackets.  So,
+for example, the `\TT{\{\{\ldots\}\}}' brackets always set the
+parsing context to just the `\TT{expression}' selector during the
+parse of the `\TT{\{\{\ldots\}\}}' bracketed list.
+As another example, `\TT{(\ldots)}' brackets do not change the
+parsing context but instead inherit it from their containing object.
+
+TBD
+
 
 {\em Bracketted lists} are parsed after they have been read.  There are
 several types of parsing as determined by the brackets:
