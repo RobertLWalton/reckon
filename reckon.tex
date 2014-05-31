@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 30, 2014}
+\date{May 31, 2014}
 
 \maketitle
 
@@ -3338,31 +3338,41 @@ definitions appropriate to text processing are turned on by the
 turned on by the `\TT{expression}' selector.
 
 The parsing context can only be changed by \underline{explicit} brackets.  So,
-for example, the `\TT{\{\{\ldots\}\}}' brackets always set the
-parsing context to just the `\TT{expression}' selector during the
-parse of the `\TT{\{\{\ldots\}\}}' bracketed list.
+for example, the \TT{`\ldots'} brackets always set the
+parsing context to just the `\TT{text}' selector during the
+parse of the \TT{`\ldots'} bracketed list.
 As another example, `\TT{(\ldots)}' brackets do not change the
 parsing context but instead inherit it from their containing object.
 
-TBD
-
-
-{\em Bracketted lists} are parsed after they have been read.  There are
-several types of parsing as determined by the brackets:
+The following is a list of the standard selector-changing brackets:
 
 \begin{center}
-\begin{tabular}{l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l}
+\begin{tabular}{l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2in}}
 \bf Brackets & \bf Selectors & \bf Context Selectors & \bf Usage \\[1ex]
-\TT{\{*\ldots*\}} & comment & all & comment \\
-\TT{`\ldots'} & text & all but comment & text \\
-\TT{\{+\ldots+\}} & operator, code & all but comment & unevaluted code \\
-\TT{\{\{\ldots\}\}} & operator & all but comment & unevaluated expression \\
-\TT{[\ldots]} & operator & text & evaluated expression in text \\
-\TT{[\ldots]} & inherited & all but comment and text & subexpression \\
-\TT{(\ldots)} & inherited & all but comment & subexpression \\
-\TT{(|\ldots|)} & inherited & all but comment & subexpression \\
+\TT{\{*\ldots*\}} & none & all & comment \\
+\TT{`\ldots'} & \TT{text} & all & text \\
+\TT{\{!\ldots!\}} & \TT{operator}, \TT{code} & all
+    & unevaluated code \\
+\TT{\{\{\ldots\}\}} & \TT{operator}, \TT{math} & all
+    & unevaluated math expression \\
+\TT{[\ldots]} & \TT{operator} & \TT{text} or \TT{math}
+    & evaluated expression in text or math expression \\
 \end{tabular}
 \end{center}
+
+According to this table, in any parsing context the \TT{\{*\ldots*\}}
+brackets turn off all selectors,
+the \TT{`\ldots'} brackets change
+the context to have just the `\TT{text}' selector,
+the \TT{\{!\ldots!\}} brackets change
+the context to have both the `\TT{operator}' and `\TT{code} selectors,
+and so forth.
+
+Brackets not listed do not change the parsing context.
+The \TT{[\ldots]} brackets only change the parsing context if their
+contining parsing context has the `\TT{text}' or `\TT{math}' selectors.
+None of the brackets change the context if there are no selectors on
+in the current parsing context, as is the case inside a comment.
 
 
 \section{Compound Names}
