@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 31, 2014}
+\date{June 1, 2014}
 
 \maketitle
 
@@ -3370,13 +3370,496 @@ and so forth.
 
 Brackets not listed do not change the parsing context.
 The \TT{[\ldots]} brackets only change the parsing context if their
-contining parsing context has the `\TT{text}' or `\TT{math}' selectors.
+containing parsing context has the `\TT{text}' or `\TT{math}' selectors.
 None of the brackets change the context if there are no selectors on
-in the current parsing context, as is the case inside a comment.
+in the current parsing context, as is the case inside a \TT{\{*\ldots*\}}
+comment (but unquoted brackets are still recognized and must match inside
+the comment).
+
+\subsection{The Operator Parsing Pass}
+\label{THE-OPERATOR-PARSING-PASS}
+
+The following are the standard operators enabled by the `\TT{operator}'
+selector:
+
+\begin{center}
+
+\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+precedence & reformatter	& type	& operator	& meaning 
+\\[2ex]
+-1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
++0000	& \ttkey{define}	& \tt nofix	& \ttkey{<-{}-}	& define \\
+	&			& \tt afix	& \ttkey{\TT{\{} \ldots \TT{\}}}
+								& block \\
++1000	& \ttkey{assign}	& \tt infix	& \ttkey{=}	& assignment \\
+     	&               	&          	& \ttkey{+=}	& increment \\
+     	&               	&          	& \ttkey{-=}	& decrement \\
+     	&               	&          	& \ttkey{*=}	& multiply by \\
+     	&               	&          	& \ttkey{/=}	& divide by \\
++2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
++3000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
+	&			&		& \ttkey{OR}	& logical or \\
+	&			&		& \ttkey{NOT}  & logical not \\
+	&			&		& \ttkey{BUT}  & logical filler
+								 \\
++4000 	& \ttkey{compare}	& \tt infix	& \ttkey{==}	& equal \\
+	&			&		& \ttkey{/=}  & not equal \\
+	&			&		& \ttkey{!=}	& ditto \\
+	&		      	&		& \ttkey{<}	& less than \\
+	&			&		& \ttkey{<=}	& less than or
+								  equal \\
+	&			&		& \ttkey{=<}	& ditto \\
+	&		      	&		& \ttkey{>}	& greater than
+									\\
+	&			&		& \ttkey{>=}	& greater than
+								  or equal \\
+	&			&		& \ttkey{=>}	& ditto \\
++5000	& \ttkey{sum}		& \tt infix	&  \ttkey{+}	& addition \\
+	&			&		& \ttkey{-}	& subtraction \\
++5100	& \ttkey{product}	& \tt infix	& \ttkey{/}	& division \\
++5200	& \ttkey{product}	& \tt infix	& \ttkey{*}
+							& multiplication \\
++5300	& \ttkey{product}	& \tt infix	& \ttkey{\^~}
+							& exponentiation \\
+none	& none			& \tt prefix	&  \ttkey{-}	& minus \\
+	& 			& \tt prefix	&  \ttkey{+}	& plus \\
+	& 			& \tt prefix	&  \ttkey{@}	& object
+	                                                          identifier \\
+none	& \ttkey{subscript}	& \tt postfix	&  \ttkey{[...]}
+								& subscript \\
+\end{tabular}
+
+\end{center}
+
+
+Below be describe the effects of standard operator reformatters.
+We use notation such as
+
+\hspace*{2em}\begin{tabular}{lcl}
+\verb|x = y = z + w| & $\Longrightarrow$ & \verb|= x ( = y (+ x w))| \\
+\verb|x AND AND y| & $\Longrightarrow$ & error
+\end{tabular}
+
+Here $\Longrightarrow$ means `is reformatted as'.  Furthermore, the
+parentheses introduced by the rewrite are \underline{implied},
+which means that the lists they bracket have \underline{no}
+\TT{.initiator} or \TT{.terminator}, and the parentheses are
+merely written here to indicate sublists in the expression structure.
+
+Reformatters can detect parsing errors, such the missing operand
+in `\TT{x AND AND y}'.
+
+Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
+are introduced by reformatting.  The syntax involving temporaries is:
+
+\begin{indpar}
+\emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
+\emkey{temporary} ::= \TT{\$} {\em decimal-natural} \\[1ex]
+{\em decimal-natural} ::= see \pagref{DECIMAL-NATURAL}
+\end{indpar}
+
+During reformatting, a subexpression may be replaced by
+a {\em temporary-definition} containing the subexpression.  This
+defines the {\em temporary} as a name for the value of the subexpression.
+Then the {\em temporary} can be used in the reformatted
+expression to refer to this value.  An example is
+
+\begin{center}
+\verb|x == y + 3 == z| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (== x ($ 563 (+ y 3))) (== ($ 563) z)|
+\end{center}
+
+Here the temporary has been used to avoid computing \TT{y + 3}
+more than once.
+
+The {\em decimal-naturals} in {\em temporaries} must be assigned so no
+two {\em temporary-definitions} ever have the same {\em temporary}.
+
+With these things in mind, the reformatters are:
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{operator-parsing-instruction}
+    & ::= & \TT{\{ operator parsing instruction:} \\
+    &     & ~~~ \TT{name =} {\em operator-name}\TT{,} \\
+    &     & ~~~ \TT{kind =} {\em operator-kind}\PLUS{} \\
+    &     & ~~~ \{ \TT{, undefine} \}\QMARK{} \\
+    &     & ~~~ \{ \TT{, type =}
+                   {\em operator-type} \}\QMARK{} \\
+    &     & ~~~ \{ \TT{, precedence =}
+                   {\em operator-precedence} \}\QMARK{} \\
+    &     & ~~~ \{ \TT{, reformatter =}
+                   {\em operator-reformatter} \}\QMARK{} \\
+    &     & \TT{||\}} \\
+\emkey{operator-name}
+    & ::= & {\em word}\PLUS{} \\
+\emkey{operator-kind}
+    & ::= & \TT{prefix} $|$ \TT{infix} $|$ \TT{postfix} $|$
+            \TT{nofix} $|$ \TT{afix} \\
+\emkey{operator-type}
+    & ::= & {\em word}\PLUS{} \\
+\emkey{operator-precedence}
+    & ::= & 32 bit signed integer \\
+\emkey{operator-reformatter}
+    & ::= & \TT{infix} $|$ \TT{unary} \\
+    & $|$ & \TT{binary} $|$ \TT{infix-to-and} \\
+    & $|$ & \TT{right-associative} $|$ \TT{left-associative} \\
+    & $|$ & \TT{separator} $|$ \TT{summation} \\
+\end{tabular}
+
+List \key{parsing} is performed by a left to right scan.
+At each point in the scan an attempt is made to find an
+operator parsing instruction whose name begins at the scan point.
+Some instructions are rejected on the basis of their kind and
+the scan point position:
+for example, an infix instruction is rejected if the scan point is
+at the beginning of the list, at the end of the list, right after
+a just-recognized prefix operator, etc.  If there are non-rejected
+instructions, those with the longest names beginning at the scan
+point are selected, and among these, the one earliest in the list
+is used.  Unless that instruction has the undefined flag, in which case the
+process is repeated with only shorter names allowed.
+
+With this in mind the possible operator parsing instruction
+\ikey{kinds}{kind!of operator parsing instruction}
+are recognized according to the following rules:
+
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}\ttkey{prefix} \\
+To be recognized a prefix operator must begin the list,
+or immediately follow a previously recognized prefix, infix, nofix,
+or afix operator of less precedence,
+or immediately follow a previously recognized prefix operator of
+equal precedence.
+Also the prefix operator may not end the list.
+
+\hspace*{-0.3in}\ttkey{postfix} \\
+To be recognized a postfix operator must immediately follow a non-operator,
+or a postfix, nofix, or afix operator of higher
+precedence, or another postfix operator of equal precedence.
+
+\hspace*{-0.3in}\ttkey{infix} \\
+To be recognized an infix operator must immediately follow a non-operator,
+or a postfix, nofix, or afix operator of higher precedence.
+Also the infix operator may not end the list.
+
+\hspace*{-0.3in}\ttkey{nofix} \\
+A nofix operator is always recognizable.
+
+\hspace*{-0.3in}\ttkey{afix} \\
+To be recognized an afix operator must appear after another
+operator of equal precedence without any intervening operator
+of less precedence.
+
+\end{indpar}
+
+During the left to right scan, errors are detected and processed
+as follows:
+
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}after \ttkey{prefix} \\
+If an operator is found after a prefix operator that has lower
+precedence than the prefix operator, or that has equal precedence
+and is not itself a prefix operator, an error operand is inserted
+between the two operators and an error is announced.
+
+\hspace*{-0.3in}after \ttkey{infix} \\
+If an operator is found after an infix operator that has
+precedence lower than or equal to that of the infix operator,
+an error operand is inserted
+after the infix operator and an error is announced.
+
+\hspace*{-0.3in}after \ttkey{postfix} \\
+If an non-operator is found after a postfix operator,
+or if an operator is found that has
+precedence higher than the postfix operator,
+or if a non-postfix operator is found that has
+precedence equal to the postfix operator,
+an error nofix operator of precedence one less than the
+postfix operator is inserted after the postfix operator,
+and an error is announced.
+
+\end{indpar}
+
+The output of the parse is obeys the following context
+free grammar:
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+{\em expression-n}
+    & ::= & {\em prefix-operand-n} {\em operand-continuation-n}\QMARK{} \\
+    & $|$ & {\em operator-continuation-n} \\
+    & $|$ & {\em symbol}\PLUS{} not part of an operator \\
+{\em operand-continuation-n}
+    & ::= & {\em infix-operator-n} {\em expression-n+1}
+                                   {\em operand-continuation-n}\QMARK{} \\
+    & $|$ & {\em infix-operator-n} {\em postfix-operand-n} \\
+    & $|$ & {\em nofix-operator-n} {\em operator-continuation-n}\QMARK{} \\
+    & $|$ & {\em afix-operator-n} {\em operator-continuation-n}\QMARK{} \\
+{\em operator-continuation-n}
+    & ::= & {\em expression-n+1} {\em operand-continuation-n}\QMARK{} \\
+    & $|$ & {\em postfix-operand-n} \\
+    & $|$ & {\em nofix-operator-n} {\em operator-continuation-n}\QMARK{} \\
+    & $|$ & {\em afix-operator-n} {\em operator-continuation-n}\QMARK{} \\
+{\em prefix-operand-n}
+    & ::= & {\em prefix-operator-n} {\em expression-n+1} \\
+    & $|$ & {\em prefix-operator-n} {\em prefix-operand-n} \\
+{\em postfix-operand-n}
+    & ::= & {\em expression-n+1} {\em postfix-operator-n} \\
+    & $|$ & {\em postfix-operand-n} {\em postfix-operator-n} \\
+{\em prefix-operator-n}
+    & ::= & prefix operator of precedence n \\
+{\em infix-operator-n}
+    & ::= & infix operator of precedence n \\
+{\em postfix-operator-n}
+    & ::= & postfix operator of precedence n \\
+{\em nofix-operator-n}
+    & ::= & nofix operator of precedence n \\
+{\em afix-operator-n}
+    & ::= & afix operator of precedence n \\
+\end{tabular}
+
+Here {\em expression-n} denotes an expression whose operators are of
+precedence n.
+Not reflected in the above is the rule that an afix operator cannot
+be the first operator in an expression.
+
+A {\em operator-parsing-instruction} may associate an
+{\em operator-reformatter} with an operator.  After parsing a list,
+if the first operator in a resulting expression has an
+associated {\em operator-reformater}, the expression is reformatted
+according to that reformater.  For example, if the `\TT{*}' operator
+has the `\TT{infix}' reformatter, then expression
+`\TT{5 * x * y}' will be reformatted as `\TT{* 5 x y}'.  If in
+addition the operator `\TT{/}' has the same {\em operator-precedence}
+as `\TT{*}' the expression `\TT{5 * x / y}' would be declared to
+be in error because the `\TT{infix}' reformatter insists that
+all operators in an expression it reformats be the same.
+
+The possible reformatters are:
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.3in}\ttkey{infix} \\
+Only allowed for operators of `\TT{infix}' kind (so the expression
+must have alternating operands and operators and must begin and end
+with an operand).
+
+It is an error if all the operators in the expression are not
+the same operator.
+The first of these operators is moved to the
+beginning of the expression and the remaining operators are removed
+from the expression.
+
+\hspace*{-0.3in}\ttkey{unary} \\
+It is an error unless there is only one operator in the expression
+and it is at the beginning of the expression.  The expression is
+not itself changed.
+
+\hspace*{-0.3in}\ttkey{binary} \\
+It is an error unless there is only one operator in the expression
+and it is surrounded by operands.  The operator is moved to the
+beginning of the expression.
+
+\hspace*{-0.3in}\ttkey{right-associative} \\
+Only allowed for operators of `\TT{infix}' kind (so the expression
+must have alternating operands and operators and must begin and end
+with an operand).
+
+Brackets are introduced so the operators are all binary and the
+rightmost is done first, and then all the binary operators are moved
+to the beginning of their subexpressions:
+e.g., 
+\begin{center}
+\tt x = y -= z += 5
+\end{center}
+becomes
+\begin{center}
+\tt = x \{| -= y \{| += z 5 |\} |\}
+\end{center}
+if `\TT{=}', `\TT{-=}', and `\TT{+=}' have the same precedence and
+`\TT{=}' has this reformatter.
+
+\hspace*{-0.3in}\ttkey{left-associative} \\
+Like \TT{right-associative} except that brackets are introduced
+so the leftmost is done first:
+e.g.,
+\begin{center}
+\tt x + y - z + 5
+\end{center}
+would become
+\begin{center}
+\tt + \{|- \{| + x y |\} z |\} 5
+\end{center}
+if `\TT{+}' and `\TT{-}' have the same precedence and `\TT{+}' has
+this reformatter.
+
+\hspace*{-0.3in}\ttkey{separator} \\
+Only allowed for operators of `\TT{nofix}' kind.
+
+It is an error if all the operators in the expression are not
+the same operator.
+
+Empty lists (i.e., \TT{\{\}} lists) are inserted so that all
+the operators become infix.
+Then all the operators are removed and the \TT{operator-name} is made
+into the value of the `\TT{.separator}' property of the list.
+
+Thus if `{,}' is a nofix operator with this reformatter,
+the expression
+\begin{center}
+\tt , w x,, y, z,
+\end{center}
+is reformatted to
+\begin{center}
+\tt \{., .separator = ","| \{\} \{| w x |\} \{\} y z \{\} |\}
+\end{center}
+
+
+\end{indpar}
+
+It is possible to make new reformatters using \skey{reformatter constructor}s
+and a \key{reformater construction instruction} of the form: 
+
+\begin{tabular}{rcl}
+\hspace*{1.0in} \\[-2ex]
+\multicolumn{3}{l}{\emkey{reformatter-construction-instruction}} \\
+    & ::= & \TT{\{ reformatter construction instruction:} \\
+    &     & ~~~ \TT{name =} {\em constructed-reformatter-name}\TT{,} \\
+    &     & ~~~ \TT{constructor =} {\em reformatter-constructor-name}\TT{,} \\
+    &     & ~~~ \TT{arguments =} {\em reformatter-argument-list} \\
+    &     & \TT{||\}} \\
+\end{tabular}
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{constructed-reformatter-name}
+    & ::= & {\em word}\PLUS{} \\
+\emkey{reformatter-constructor-name}
+    & ::= & \TT{infix-to-and} $|$ \TT{summation} \\
+\emkey{reformatter-argument-list}
+    & ::= & \TT{(} {\em reformatter-argument}
+            \{ \TT{,} {\em reformatter-argument} \}\STAR{} \TT{)} \\
+\emkey{reformatter-argument}
+    & ::= & {\em word}\PLUS{} \\
+\end{tabular}
+
+A {\em quoted-symbol} {\em word} in a {\em reformatter-argument} represents
+the {\em symbol} quoted.  E.g., \TT{"+"} and \TT{+} are equivalent
+(but \TT{""+""} represents \TT{"+"} for what its worth).
+
+\begin{indpar}[0.5in]
+
+\hspace*{-0.3in}\ttkey{summation}
+        \TT{(} {\em plus-op}\TT{,} {\em minus-op} \TT{)} \\
+Only allowed for operators of `\TT{infix}' kind (so the expression
+must have alternating operands and operators and must begin and end
+with an operand).
+
+It is an error unless all the operators in the expression are either
+{\em plus-op} or {\em minus-op}.
+
+Each `{\em minus-op operand}' subsequence of the expression is
+replaced by
+\begin{center}
+{\em plus-op} \verb/{|/ {\em minus-op} {\em operand} \verb/|}/
+\end{center}
+and then the expression is processed as by the \TT{infix} reformatter,
+copying the first {\em plus-op} operator
+to the beginning of the expression while
+removing all the other {\em plus-op} operators.
+
+Thus if `\TT{+}' has this reformatter with
+arguments \TT{(+,-)}, and `\TT{+}' and `\TT{-} are infix
+operators with the same precedence, then the expression
+\begin{center}
+\tt w + x - y + z 
+\end{center}
+is first changed to
+\begin{center}
+\tt w + x + \{| - y |\} + z 
+\end{center}
+and finally reformatted as
+\begin{center}
+\tt + w x \{| - y |\} z
+\end{center}
+
+\hspace*{-0.3in}\ttkey{infix-to-and} \TT{(} {\em and-op} \TT{)} \\
+Only allowed for operators of `\TT{infix}' kind (so the expression
+must have alternating operands and operators and must begin and end
+with an operand).
+This reformatter is used for infix comparison operators such as
+`\TT{<}', `\TT{==}', `\TT{<=}'.
+
+Each operator is executed separately from left to right and the
+results combined by the `{\em and-op}' operator.  Thus
+\begin{center}
+\em x1 op1 x2 op2 x3
+\end{center}
+becomes
+\begin{center}
+\tt {\em and-op} \{| {\em op1} {\em x1} {\em x2} |\}
+                 \{| {\em op2} {\em x2} {\em x3} |\}
+\end{center}
+
+\underline{except} that temporaries are introduced to prevent
+non-end operands from being evaluated more than once, so the
+actual final reformatting of the example just given is
+\begin{center}
+\tt {\em and-op} \{| {\em op1} {\em x1} \{| = \#1 {\em x2} |\} |\}
+                 \{| {\em op2} \#1 {\em x3} |\}
+\end{center}
+
+where `\TT{\#1}' denotes a temporary variable.
+
+
+\end{indpar}
+
+
 
 
 \section{Compound Names}
 \label{COMPOUND-NAMES}
+
+\subsection{Parser Control}
+\label{PARSER-CONTROL}
+
+After input text is scanned into symbols and these are parsed into
+typed lists, each typed list may optionally be parsed further using
+instructions in a parsing table associated with the type of the list.
+A \key{parsing table} is a list
+of \skey{operator parsing instruction}s which have the form:
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{operator-parsing-instruction}
+    & ::= & \TT{\{ operator parsing instruction:} \\
+    &     & ~~~ \TT{name =} {\em operator-name}\TT{,} \\
+    &     & ~~~ \TT{kind =} {\em operator-kind}\PLUS{} \\
+    &     & ~~~ \{ \TT{, undefine} \}\QMARK{} \\
+    &     & ~~~ \{ \TT{, type =}
+                   {\em operator-type} \}\QMARK{} \\
+    &     & ~~~ \{ \TT{, precedence =}
+                   {\em operator-precedence} \}\QMARK{} \\
+    &     & ~~~ \{ \TT{, reformatter =}
+                   {\em operator-reformatter} \}\QMARK{} \\
+    &     & \TT{||\}} \\
+\emkey{operator-name}
+    & ::= & {\em word}\PLUS{} \\
+\emkey{operator-kind}
+    & ::= & \TT{prefix} $|$ \TT{infix} $|$ \TT{postfix} $|$
+            \TT{nofix} $|$ \TT{afix} \\
+\emkey{operator-type}
+    & ::= & {\em word}\PLUS{} \\
+\emkey{operator-precedence}
+    & ::= & 32 bit signed integer \\
+\emkey{operator-reformatter}
+    & ::= & \TT{infix} $|$ \TT{unary} \\
+    & $|$ & \TT{binary} $|$ \TT{infix-to-and} \\
+    & $|$ & \TT{right-associative} $|$ \TT{left-associative} \\
+    & $|$ & \TT{separator} $|$ \TT{summation} \\
+\end{tabular}
 
 \section{Parsing}
 
