@@ -3379,31 +3379,63 @@ the comment).
 \subsection{The Operator Parsing Pass}
 \label{THE-OPERATOR-PARSING-PASS}
 
-The following are the standard operators enabled by the `\TT{operator}'
-selector:
+The following are the standard operators enabled by various selectors:
 
-\begin{center}
+Enabled by `\TT{code}' selector:
 
-\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
 
 precedence & reformatter	& type	& operator	& meaning 
 \\[2ex]
--1000	& \ttkey{separator}	& \tt nofix	& \ttkey{;}	& separator \\
-+0000	& \ttkey{define}	& \tt nofix	& \ttkey{<-{}-}	& define \\
-	&			& \tt afix	& \ttkey{\TT{\{} \ldots \TT{\}}}
-								& block \\
-+1000	& \ttkey{assign}	& \tt infix	& \ttkey{=}	& assignment \\
+-2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{<*>}	& separator \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
+-1000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{;}	& separator \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
++0000	& \ttkey{define}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
+	&			& \TT{afix}
+	                        & \ttkey{\TT{\{:\ldots:\}}}
+				& block \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
++1000	& \ttkey{assign}	& \TT{infix}	& \ttkey{=}	& assignment \\
      	&               	&          	& \ttkey{+=}	& increment \\
      	&               	&          	& \ttkey{-=}	& decrement \\
      	&               	&          	& \ttkey{*=}	& multiply by \\
      	&               	&          	& \ttkey{/=}	& divide by \\
-+2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
-+3000	& \ttkey{logical}	& \tt nofix	& \ttkey{AND}	& logical and \\
+\end{tabular}
+
+Enabled by `\TT{operator}' selector:
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
+
+precedence & reformatter	& type	& operator	& meaning 
+\\[2ex]
+
++2000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{,}	& separator \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
++3000	& \ttkey{logical}	& \TT{nofix}	& \ttkey{AND}	& logical and \\
 	&			&		& \ttkey{OR}	& logical or \\
 	&			&		& \ttkey{NOT}  & logical not \\
 	&			&		& \ttkey{BUT}  & logical filler
 								 \\
-+4000 	& \ttkey{compare}	& \tt infix	& \ttkey{==}	& equal \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
++4000 	& \ttkey{compare}	& \TT{infix}	& \ttkey{==}	& equal \\
 	&			&		& \ttkey{/=}  & not equal \\
 	&			&		& \ttkey{!=}	& ditto \\
 	&		      	&		& \ttkey{<}	& less than \\
@@ -3415,22 +3447,78 @@ precedence & reformatter	& type	& operator	& meaning
 	&			&		& \ttkey{>=}	& greater than
 								  or equal \\
 	&			&		& \ttkey{=>}	& ditto \\
-+5000	& \ttkey{sum}		& \tt infix	&  \ttkey{+}	& addition \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
++5000	& \ttkey{sum}		& \TT{infix}	&  \ttkey{+}	& addition \\
 	&			&		& \ttkey{-}	& subtraction \\
-+5100	& \ttkey{product}	& \tt infix	& \ttkey{/}	& division \\
-+5200	& \ttkey{product}	& \tt infix	& \ttkey{*}
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
++5100	& \ttkey{product}	& \TT{infix}	& \ttkey{/}	& division \\
++5200	& \ttkey{product}	& \TT{infix}	& \ttkey{*}
 							& multiplication \\
-+5300	& \ttkey{product}	& \tt infix	& \ttkey{\^~}
++5300	& \ttkey{product}	& \TT{infix}	& \ttkey{\^~}
 							& exponentiation \\
-none	& none			& \tt prefix	&  \ttkey{-}	& minus \\
-	& 			& \tt prefix	&  \ttkey{+}	& plus \\
-	& 			& \tt prefix	&  \ttkey{@}	& object
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.0in} & \hspace*{0.6in} & \hspace*{0.6in} \\[-2ex]
+none	& none			& \TT{prefix}	&  \ttkey{-}	& minus \\
+	& 			& \TT{prefix}	&  \ttkey{+}	& plus \\
+	& 			& \TT{prefix}	&  \ttkey{@}	& object
 	                                                          identifier \\
-none	& \ttkey{subscript}	& \tt postfix	&  \ttkey{[...]}
+none	& \ttkey{subscript}	& \TT{postfix}	&  \ttkey{[...]}
 								& subscript \\
 \end{tabular}
 
-\end{center}
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+precedence & reformatter	& type	& operator	& meaning 
+\\[2ex]
+-1000	& \ttkey{separator}	& \TT{nofix}	& \ttkey{;}	& separator \\
++0000	& \ttkey{define}	& \TT{nofix}	& \ttkey{<-{}-}	& define \\
+	&			& \TT{afix}	& \ttkey{\TT{\{} \ldots \TT{\}}}
+								& block \\
++1000	& \ttkey{assign}	& \TT{infix}	& \ttkey{=}	& assignment \\
+     	&               	&          	& \ttkey{+=}	& increment \\
+     	&               	&          	& \ttkey{-=}	& decrement \\
+     	&               	&          	& \ttkey{*=}	& multiply by \\
+     	&               	&          	& \ttkey{/=}	& divide by \\
++2000	& \ttkey{separator}	&		& \ttkey{,}	& separator \\
++3000	& \ttkey{logical}	& \TT{nofix}	& \ttkey{AND}	& logical and \\
+	&			&		& \ttkey{OR}	& logical or \\
+	&			&		& \ttkey{NOT}  & logical not \\
+	&			&		& \ttkey{BUT}  & logical filler
+								 \\
++4000 	& \ttkey{compare}	& \TT{infix}	& \ttkey{==}	& equal \\
+	&			&		& \ttkey{/=}  & not equal \\
+	&			&		& \ttkey{!=}	& ditto \\
+	&		      	&		& \ttkey{<}	& less than \\
+	&			&		& \ttkey{<=}	& less than or
+								  equal \\
+	&			&		& \ttkey{=<}	& ditto \\
+	&		      	&		& \ttkey{>}	& greater than
+									\\
+	&			&		& \ttkey{>=}	& greater than
+								  or equal \\
+	&			&		& \ttkey{=>}	& ditto \\
++5000	& \ttkey{sum}		& \TT{infix}	&  \ttkey{+}	& addition \\
+	&			&		& \ttkey{-}	& subtraction \\
++5100	& \ttkey{product}	& \TT{infix}	& \ttkey{/}	& division \\
++5200	& \ttkey{product}	& \TT{infix}	& \ttkey{*}
+							& multiplication \\
++5300	& \ttkey{product}	& \TT{infix}	& \ttkey{\^~}
+							& exponentiation \\
+none	& none			& \TT{prefix}	&  \ttkey{-}	& minus \\
+	& 			& \TT{prefix}	&  \ttkey{+}	& plus \\
+	& 			& \TT{prefix}	&  \ttkey{@}	& object
+	                                                          identifier \\
+none	& \ttkey{subscript}	& \TT{postfix}	&  \ttkey{[...]}
+								& subscript \\
+\end{tabular}
 
 
 Below be describe the effects of standard operator reformatters.
@@ -3701,7 +3789,7 @@ Only allowed for operators of `\TT{nofix}' kind.
 It is an error if all the operators in the expression are not
 the same operator.
 
-Empty lists (i.e., \TT{\{\}} lists) are inserted so that all
+Empty lists (i.e., \TT{\{||\}} lists) are inserted so that all
 the operators become infix.
 Then all the operators are removed and the \TT{operator-name} is made
 into the value of the `\TT{.separator}' property of the list.
@@ -3713,7 +3801,7 @@ the expression
 \end{center}
 is reformatted to
 \begin{center}
-\tt \{., .separator = ","| \{\} \{| w x |\} \{\} y z \{\} |\}
+\tt \{"", .separator = ","| \{||\} \{| w x |\} \{||\} y z \{||\} |\}
 \end{center}
 
 
