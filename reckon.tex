@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 2, 2014}
+\date{June 3, 2014}
 
 \maketitle
 
@@ -3335,6 +3335,32 @@ If a pass succeeds it may discover subexpressions, which are formed
 into objects and parsed independently as they are discovered.
 In general parsing modifies the object being parsed.
 
+The standard passes in order from first to last are:
+
+\begin{center}
+\begin{tabular}%
+  {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
+\bf Pass & \bf Context & \bf Usage \\[1ex]
+\TT{operators} & \TT{expression}, \TT{text}
+	& parse operators \\
+\TT{units} & \TT{expression}
+	& parse numeric units \\
+\TT{possessives} & \TT{expression}
+	& parse possessives \\
+\TT{dequote} & \TT{expression}, \TT{text}
+	& dequote symbols \\
+\end{tabular}
+\end{center}
+
+Parsing contexts are described in the next section.
+
+Tables such
+as this are constructed from parsing instructions which appear
+in a list called the parsing stack.  Parsing instructions can be
+pushed into the stack and later popped from the stack in order
+to undo their affects.  See \itemref{PARSING-INSTRUCTIONS} for
+details.
+
 \subsection{Parsing Contexts}
 \label{PARSING-CONTEXTS}
 
@@ -3342,8 +3368,8 @@ During parsing both the parsing passes and definitions of parsing units such as
 operators are turned on or off by manipulating a \key{parsing context},
 which is just a set of \skey{parsing selector}s.  Thus the passes and
 definitions appropriate to text processing are turned on by the
-`\TT{text}' selector, and those appropriate to expression parsing are
-turned on by the `\TT{expression}' selector.
+`\TT{text}' selector, and those appropriate to code parsing are
+turned on by the `\TT{code}' selector.
 
 The parsing context can only be changed by \underline{explicit} brackets.  So,
 for example, the \TT{`\ldots'} brackets always set the
@@ -3357,15 +3383,23 @@ The following is a list of the standard selector-changing brackets:
 \begin{center}
 \begin{tabular}%
   {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
-	     &		     & \bf Context \\
-\bf Brackets & \bf Selectors & \bf Selectors & \bf Usage \\[1ex]
-\TT{\{*\ldots*\}} & none & all & comment \\
-\TT{`\ldots'} & \TT{text} & all & text \\
-\TT{\{!\ldots!\}} & \TT{operator}, \TT{code} & all
+\bf Brackets & \bf Context & \bf New Context & \bf Usage \\[1ex]
+\TT{\{*\ldots*\}} & all & none & comment \\
+\TT{`\ldots'} & all & \TT{text} & text \\
+\TT{\{!\ldots!\}} & all & \begin{tabular}[t]{@{}l@{}}
+                          \TT{expression}, \\
+			  \TT{code}
+			  \end{tabular}
     & unevaluated code \\
-\TT{\{|\ldots|\}} & \TT{operator}, \TT{math} & all
+\TT{\{|\ldots|\}} & all & \begin{tabular}[t]{@{}l@{}}
+                          \TT{expression}, \\
+			  \TT{math}
+			  \end{tabular}
     & unevaluated math subexpression \\
-\TT{[\ldots]} & \TT{operator} & \TT{text} or \TT{math}
+\TT{[\ldots]} & \begin{tabular}[t]{@{}l@{}}
+              \TT{text}, \\
+	      \TT{math}
+	      \end{tabular} & \TT{expression}
     & evaluated subexpression in text or math expression \\
 \end{tabular}
 \end{center}
@@ -3375,7 +3409,7 @@ brackets turn off all selectors,
 the \TT{`\ldots'} brackets change
 the context to have just the `\TT{text}' selector,
 the \TT{\{!\ldots!\}} brackets change
-the context to have both the `\TT{operator}' and `\TT{code} selectors,
+the context to have both the `\TT{expression}' and `\TT{code} selectors,
 and so forth.
 
 Brackets not listed do not change the parsing context.
