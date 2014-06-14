@@ -2501,12 +2501,14 @@ In doing this for an {\em object-list}, the lexemes in the list are scanned
 left to right and the longest sequence of lexemes that comprises an
 {\em atom-name} or {\em object-identifier}
 is accepted as the representative of an atom or object identifier at
-each stage of the scan.
+each stage of the scan.  After the atoms are scanned in this manner,
+they are dequoted (symbols that begin and end with \TT{"} have
+these characters removed: see page \pagref{DEQUOTE}).
 Thus the {\em object-list}
 \begin{center}
 \tt 5 e + 2 e 3 4 "e" 3 @ 7 e 5
 \end{center}
-translates as (see \secref{SCIENTIFIC-NUMBER-RECOGNITION}):
+translates as (see \itemref{SCIENTIFIC-NUMBERS}):
 \begin{center}
 \tt
 \begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
@@ -2527,7 +2529,7 @@ the {\em object-list}
 \begin{center}
 "5" 5 "6" \# "7" \# "8" "\#" "9"
 \end{center}
-translates as (see \secref{RADIX-NUMBER-RECOGNITION}):
+translates as (see \itemref{CONCATENATED-QUOTED-STRINGS}):
 \begin{center}
 \tt
 \begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
@@ -2545,7 +2547,7 @@ and the {\em object-list}
 \begin{center}
 b \# "1010" b \# "10" \# "1" e 1 b "\#" "1010"
 \end{center}
-translates as (see \secref{CONCATENATED-QUOTED-STRINGS}):
+translates as (see \itemref{RADIX-NUMBERS}):
 \begin{center}
 \tt
 \begin{tabular}{r@{~~$\Longrightarrow$~~}rll}
@@ -3564,6 +3566,18 @@ Precedence & Reformatter	& Kind	& Name		& Meaning
 							& multiplication \\
 +6300	& \TT{binary}	& \TT{infix}	& \ttkey{\^~}
 							& exponentiation \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.5in} & \hspace*{0.8in} & \hspace*{0.6in} \\[-2ex]
++10000	& \TT{right}		& \TT{infix}	& \ttkey{OF}	& attribute \\
+     	& \TT{associative}     	&          	& \ttkey{of}	& selector \\
+\end{tabular}
+
+\hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
+\hspace*{0.8in} & \hspace*{1.5in} & \hspace*{0.8in} & \hspace*{0.6in} \\[-2ex]
++11000	& \TT{left}		& \TT{infix}	& \ttkey{'S}	& attribute \\
+     	& \TT{associative}     	&          	& \ttkey{'s}	& selector \\
 \end{tabular}
 
 \hspace*{0.2in}\begin{tabular}{rll@{\hspace*{2em}}l@{\hspace*{2em}}l}
