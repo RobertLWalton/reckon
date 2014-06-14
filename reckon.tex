@@ -1735,6 +1735,20 @@ An {\em exponent} shifts the decimal point (including the implied
 decimal point at the end of the {\em scientific-numeric} that has
 no decimal point); a positive exponent shifts right and a negative
 exponent shifts left.
+Note that exponents cannot contain commas.
+
+Some examples are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
+123e0		& 123e-2	& 123e-321	& 1,234e9 \\
+123E0		& 123E-2	& 123E-321	& 0.123,456e-3	\\
+.123e3	& .123e+1
+				& 0.123,456e-3 & 1,234.567890e6 \\
+\end{tabular}
+\end{indpar}
+
 
 \subsection{Dates}
 \label{DATES}
@@ -1950,7 +1964,7 @@ symbols and quoting the result.
 
 A \key{radix number} consists of an optional sign, a radix-indicator
 followed by a \TT{\#},
-a sequence of digits and an optional decimal point
+a sequence of digits with an optional point and optional commas
 inside a concatenated quoted string, and an optional exponent.
 
 \begin{indpar}
@@ -1970,31 +1984,53 @@ inside a concatenated quoted string, and an optional exponent.
 The {\em radix-indicators} have the following denotations:
 
 \begin{center}
-\begin{tabular}{cll}
-\bf Radix Indicator	& \bf Meaning	& \bf Digits
+\begin{tabular}{clll}
+\bf Radix Indicator
+	& \bf Meaning	& \bf Digits 		& \bf Comma Positions
 \\[1ex]
-\TT{B}			& binary	& \TT{0}, \TT{1} \\
-\TT{O}			& octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
-					  \TT{4}, \TT{5}, \TT{6}, \TT{7} \\
-\TT{D}			& decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
-					  \TT{4}, \TT{5}, \TT{6}, \TT{7}
-					  \TT{8}, \TT{9} \\
-\TT{X}			& hexa-decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
-					  \TT{4}, \TT{5}, \TT{6}, \TT{7}
-					  \TT{8}, \TT{9}, \\
-			&		& \TT{A}, \TT{B}, \TT{C}, \TT{D},
-					  \TT{E}, \TT{F}, \\
-			&		& \TT{a}, \TT{b}, \TT{c}, \TT{d},
-					  \TT{e}, \TT{f} \\
+\TT{B}	& binary	& \TT{0}, \TT{1}	& every 3 or 4 digits \\
+\TT{O}	& octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
+			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
+			  			& every 3 or 4 digits \\
+\TT{D}	& decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
+			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
+			  \TT{8}, \TT{9}	& every 3 digits \\
+\TT{X}	& hexa-decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
+			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
+			  \TT{8}, \TT{9},	& every 4 digits \\
+	&		& \TT{A}, \TT{B}, \TT{C}, \TT{D},
+			  \TT{E}, \TT{F}, \\
+	&		& \TT{a}, \TT{b}, \TT{c}, \TT{d},
+			  \TT{e}, \TT{f} \\
 \end{tabular}
 \end{center}
+
+Some example {\em radix-numbers} are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
+B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
+B\#"101101"E2	& O\#".7753"   & D\#"97.58"	& X\#".fe8a"e-4 \\
+B\#"10,1101"E+2	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A.7CCD,83" \\
+B\#"101,101"E2	& O\#"0.2345,6"  & D\#".123,5"	& X\#"E8A,932B.7C" \\
+\end{tabular}
+\end{indpar}
+
+There may be at most one point.  If commas are used, the number
+of digits between successive commas or between a point and its
+neighboring comma must be the same, and must be allowed.  However,
+commas may be used before the point without being used after the
+point, and vice versa.
 
 Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMBERS}
 the {\em exponent} shifts the decimal point right (if +) or left (if -)
 by some number of digits (in the given radix).
 
 Characters in the {\em concatenated-quoted-string} other than allowed
-digits are ignored and a warning message is issued.
+digits, a single point, and commas in the correct positions
+are ignored (if there is more than one point only the first is not
+ignored) and a warning or error message is issued.
 
 \section{Low Level Data}
 
@@ -4095,57 +4131,9 @@ of \skey{operator parsing instruction}s which have the form:
 \end{tabular}
 
 
-\subsubsection{Radix Number Recognition}
-\label{RADIX-NUMBER-RECOGNITION}
-
-Obsolete!
-
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{@{}l@{~~~}l@{~~~}l@{~~~}l@{}}
-B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
-B\#"01101"	& O\#".7753"   & D\#"97.58"	& X\#".fe8a932b" \\
-B\#"0,1101"	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A,932B.7CCD,83" \\
-\end{tabular}
-\end{indpar}
-
-The following {\em radix-indicators} are standard.
-
-\begin{center}
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
-Radix	& Radix		 & Allowed Number	& Allowed Digits \\
-Name	& Indicators     & Marks (Digits)	& Between Commas \\[1ex]
-binary	& \tt b\#~~~B\#	 & \tt 0 1		& 3 or 4 \\
-octal	& \tt o\#~~~O\#	 & \tt 0 1 2 3 4 5 6 7	& 3 \\
-decimal	& \tt d\#~~~D\#	 & \tt 0 1 2 3 4 5 6 7 8 9
-						& 3 \\
-hexadecimal
-	& \tt x\#~~~X\#	 & \tt 0 1 2 3 4 5 6 7 8 9
-						& 4 \\
-	&		 & \tt a b c d e f A B C D E F
-\end{tabular}
-\end{center}
 
 
 
-\subsubsection{Scientific Number Recognition}
-\label{SCIENTIFIC-NUMBER-RECOGNITION}
-
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
-123e0		& 123e+2	& 123e-321	& 1,234e9 \\
-123E0		& 123E+2	& 123E-321	& 0.123,456e-3	\\
-.123e0	& .123e+2
-				& 0.123,456e-3 & 1,234.567890e6 \\
-X\#"a9"e0	& B\#"1011"e-3	& O\#"0.7753"e-5
-					    & X\#"0.FE8A,932B,E"e+5 \\
-\end{tabular}
-\end{indpar}
-
-Note that exponents cannot contain commas.
 
 \subsubsection{Number Pair Recognition}
 \label{NUMBER-PAIR-RECOGNITION}
