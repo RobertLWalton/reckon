@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 13, 2014}
+\date{June 14, 2014}
 
 \maketitle
 
@@ -390,7 +390,8 @@ $\int x^2 dx$ \\
 $\frac{1}{3} x^3$ \\
 \verb/> v = g from (x = 1) to (x = 5)/ \\
 \verb:41 1/3: \\
-\verb/> out = `The value of {|[g] from (x = 1) to (x = 5)|} is [v].'/ \\
+\verb/> out = `The value of {|[g] from (x = 1) to (x = 5)|}/ \\
+\verb/>        is [v].'/ \\
 The value of $\int_{x = 1}^{x = 5} x^2 dx$ is $41\frac{1}{3}$.
 \end{indpar}
 
@@ -1650,7 +1651,7 @@ Such names are called `compound names'.  For example, the name
 `\TT{george's weight}' is parsed to make the expression
 `\TT{george 's weight}' where \TT{'s} has become an operator
 (like the `\TT{.}' operator in C, C++, or other programming languages).
-See \itemref{COMPOUND-NAMES} for details.
+See \itemref{POSSESSIVES-PARSER-PASS} for details.
 
 If a syntactic unit {\em X-name} is used, the syntactic equation
 `{\em X-name} ::= {\em name}' is implied.
@@ -3367,7 +3368,7 @@ Tables such
 as this are constructed from parsing instructions which appear
 in a list called the parsing stack.  Parsing instructions can be
 pushed into the stack and later popped from the stack in order
-to undo their affects.  See \itemref{PARSING-INSTRUCTIONS} for
+to undo their affects.  See \itemref{PARSER-CONTROL} for
 details.
 
 \subsection{Parsing Contexts}
@@ -3908,6 +3909,99 @@ In computable expressions the phrase `\TT{weight of X}' and
 \key{possessives parser pass} which reformats them as
 `\TT{.~weight X}'.
 
+The following are standard possessives:
+
+\hspace*{0.2in}\begin{tabular}{llllll}
+\hspace*{1.0in} & \hspace*{0.8in} & \hspace*{0.8in} & \hspace*{0.4in} &
+                  \hspace*{0.7in} \\[-2ex]
+
+Possessive	& Type
+\\[2ex]
+\TT{of}		& preposition \\
+\TT{'s}		& suffix \\
+\end{tabular}
+
+This parser first inspects all the {\em words} of the subexpression
+and splits any {\em word}-ending possessive suffix off from its
+{\em word}.  Thus the subexpression `\TT{weight of george's wife}'
+becomes `\TT{weight of george 's wife}'.
+
+After doing this the possessives parser pass checks to see if the
+resulting subexpression has any possessive prepositions or
+suffixes and also has the syntax:
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{possessive-subexpression}
+    & ::= & \begin{tabular}[t]{l}
+            {\em possessive-prepositional-prefix}\QMARK{} \\
+            {\em possessive-suffix-prefix}\QMARK{} \\
+            {\em non-possessive-name}
+	    \end{tabular}
+\\[1ex]
+\emkey{non-possessive-name} & ::= & \begin{tabular}[t]{l}
+                          {\em name}\pagnote{NAME} that does not contain
+			  any \\ possessive prefixes or prepositions
+			  \end{tabular}
+\\[1ex]
+\emkey{possessive-prepositional-prefix} & ::= &
+    {\em non-possessive-name}  {\em possessive-preposition}
+\\[1ex]
+\emkey{possessive-suffix-prefix} & ::= &
+    {\em non-possessive-name}  {\em possessive-suffix}
+\end{tabular}
+
+If the subexpression does not have any possessive prepositions or
+suffixes, or does not have the syntax of a {\em possessive-subexpression},
+the possessives parser pass leaves the subexpression unchanged.
+
+Otherwise the pass reformats the subexpression by recursively applying
+first the rewrite:
+\begin{center}
+$n$ {\em possessive-preposition} $e$ $\Longrightarrow$
+    \TT{.} $n$ $e'$
+\end{center}
+and then the rewrite rule:
+\begin{center}
+$e$ {\em possessive-suffix} $n$ $\Longrightarrow$
+    \TT{.} $n$ $e'$
+\end{center}
+where
+\begin{center}
+$n$ is a {\em non-possessive-name} \\
+$e$ is a {\em possessive-subexpression} \\
+$e'$ is \TT{\{.} $e$ \TT{.\}} if $e$ has more than one element \\
+$e'$ is $e$ if $e$ has just one element
+\end{center}
+
+Thus
+\begin{center}
+\TT{X of Y} $\Longrightarrow$ \TT{.~X Y}
+\\
+\TT{X of Y 's Z} $\Longrightarrow$
+    \TT{.~X \{.~Y 's Z .\}} $\Longrightarrow$
+    \TT{.~X \{.~.~Z Y .\}}
+\\
+\TT{X' Y} $\Longrightarrow$ \TT{.~Y X}
+\\
+\TT{X 's Y 's Z} $\Longrightarrow$
+    \TT{.~Z \{.~X 's Y .\}} $\Longrightarrow$
+    \TT{.~Z \{.~.~Y X .\}}
+\\
+\TT{X of Y 's Z} $\Longrightarrow$
+    \TT{.~X \{.~Y 's Z .\}} $\Longrightarrow$
+    \TT{.~X \{.~.~Z Y .\}}
+\end{center}
+
+but \underline{not}
+\begin{center}
+\TT{X of Y 's Z} $\Longrightarrow$
+    \TT{.~Z \{.~X of Y .\}} $\Longrightarrow$
+    \TT{.~Z \{.~.~Y X .\}}
+\\
+WRONG ORDER OF RULE APPLICATION!
+\end{center}
+
 \subsection{Units Parser Pass}
 \label{UNITS-PARSER-PASS}
 
@@ -4001,219 +4095,10 @@ of \skey{operator parsing instruction}s which have the form:
 \end{tabular}
 
 
-\subsection{Lexeme Replacement}
-\label{LEXEME-REPLACEMENT}
-
-TBD: obsolete?
-
-The \key{lexeme replacement}
-process replaces a string of one or more lexemes by a string of zero or
-more lexemes.  Lexeme replacement is done on sequences of lexemes
-in each subexpression produced
-by the explicit subexpression recognition algorithm
-(\secref{EXPLICIT-SUBEXPRESSION-RECOGNITION-ALGORITHM}).
-These subexpressions are lists that may contain elements that are
-subexpressions, and not lexemes, and lexeme replacement cannot cross over
-the boundary created by such subexpression elements.
-The lists do \underline{not} include brackets or
-indentation marks, which
-have become \TT{.initiator}'s and \TT{.terminators} of the subexpression
-lists.  However, if a subexpression is just a single lexeme by itself,
-that subexpression is treated as a list of one lexeme.
-
-Note that lexeme replacement is done after explicit subexpression recognition,
-and cannot affect brackets or indentation marks.
-
-Lexeme replacement may be done by either a dictionary or a function.
-Replacement is controlled by \slkey{lexeme replacement}{definition}s
-in the parsing definition stack (\secref{PARSING-DEFINITION-STACK}).
-The are two kinds of lexeme replacement definitions,
-dictionary and function, have the syntax:
-
-\begin{indpar}
-\emlkey{lexeme-replacement}{-definition}\,
-		     \begin{tabular}[t]{rl}
-                     ::= & {\em lexeme-dictionary-definition} \\
-		     $|$ & {\em lexeme-function-definition}
-		     \end{tabular}
-\label{LEXEME-REPLACEMENT-DEFINITION}%
-		     \\[1ex]
-\emlkey{lexeme-dictionary}{-definition} \\
-	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
-	                   \TT{define} & \TT{lexeme dictionary}
-                                            {\em dictionary-name}
-					    {\em parsing-selectors} \\
-				& {\em lexeme-dictionary-entries}
-		     \end{tabular} \\[1ex]
-\emkey{dictionary-name} ::= {\em name}
-	\\[1ex]
-{\em name} ::= see \pagref{NAME}
-	\\[1ex]
-{\em parsing-selectors} ::= see \pagref{PARSING-SELECTORS}
-	\\[1ex]
-\emkey{lexeme-dictionary-entries}
-                    ::= \TT{\{}
-		        {\em lexeme-dictionary-entry-list}
-			\TT{\}}
-		    \\[1ex]
-\emlkey{lexeme-dictionary}{-entry-list} \\
-		     \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-                     ::= & {\em empty} \\
-                     $|$ & {\em lexeme-dictionary-entry} \\
-		     $|$ & {\em lexeme-dictionary-entry-list} \TT{;}
-		           {\em lexeme-dictionary-entry}
-		     \end{tabular} \\[1ex]
-\emkey{lexeme-dictionary-entry} \\
-    \hspace*{0.5in}::=
-	{\em replaced-lexemes} \TT{==>} {\em replacing-lexemes}
-	$|$ {\em empty}
-	\\[1ex]
-\emkey{replaced-lexemes} ::= {\em name}
-	\\[1ex]
-\emkey{replacing-lexemes} ::= {\em empty} $|$ {\em name }
-	\\[1ex]
-\emkey{lexeme-function-definition} \\
-	\hspace*{0.5in}::= \TT{define lexeme function}
-				{\em function-name}
-				{\em parsing-selectors} \\[1ex]
-\emkey{function-name} ::= {\em name}
-\label{FUNCTION-NAME}
-\end{indpar}
-
-A \emkey{lexeme-dictionary-entry} gives a sequence of lexemes
-that is to be replaced
-and a sequence of lexemes that replace it.  For example, the entry
-
-\begin{center}
-\verb|people ==> person|
-\end{center}
-
-causes the word `\TT{people}' to be replaced by the word `\TT{person}'.
-
-Its possible to add entries to an existing dictionary using the
-statement:
-\begin{indpar}
-\emikey{lexeme-dictionary-extension}
-       {lexeme-dictionary-@{\em lexeme-extension-}!extension@{\em extension}}
-           \\
-	\hspace*{0.5in}::= \begin{tabular}[t]{@{}l@{}l@{}}
-	                   \TT{define} & \TT{lexeme dictionary}
-                                            {\em dictionary-name}
-					    \TT{extension} \\
-				& {\em lexeme-dictionary-entries}
-		           \end{tabular}
-\end{indpar}
-
-Such extension statements are not definitions in the strict sense, and
-do not appear in the parsing stack.  They must reference dictionaries
-that already exist.
-
-A \key{lexeme function} is a function that is called with a list of
-lexemes as its single argument and which returns either
-`\TT{false}' if the lexeme at the beginning of the list is not to be
-replaced, or returns a pair consisting of first a list of replacing
-lexemes and second the in input list with the replaced lexemes removed
-from its beginning.
-For example, given the lexeme function definition
-
-\begin{indpar}
-\begin{verbatim}
-define lexeme function replace people [operator]
-\end{verbatim}
-\end{indpar}
-
-and the function definition
-
-\begin{indpar}
-\begin{verbatim}
-replace people X <-- list ( X ):
-    if first X == `people':
-        value = ( `person', rest X )
-    else:
-        value = false
-\end{verbatim}
-\end{indpar}
-
-then
-
-\begin{center}
-\verb|replace people `people with hats'| $\Longrightarrow$
-\verb|(`person',`with hats')|
-
-\verb|replace people `fee fie foe fum'| $\Longrightarrow$ \verb|false|
-\end{center}
-
-
-Lexeme replacement is \underline{not} recursive: the replacement lexemes are
-not themselves subject to replacement.
-
-A quoted string in a {\em replaced-lexemes} or {\em replacing-lexemes}
-sequence of lexemes denotes the lexeme made by removing its outer quotes.
-Thus \TT{","} denotes the separator
-\TT{,} and \TT{"",""} denotes the quoted string \TT{","}. [TBD]
-
-If several different lexeme replacement definitions could be used to
-replace lexemes at the beginning of a lexeme sequence, the topmost
-definition in the parsing definition stack
-(\secref{PARSING-DEFINITION-STACK}) is used.
-If two replacement definitions in the same dictionary could be used,
-the one with the longest {\em replaced-lexemes} is used.  It is an error if
-two entries in the same dictionary have the same {\em replaced-lexemes}.
-
-The following lexeme dictionaries and functions are
-defined in the initial parsing definition stack.
-Their definitions are ordered in the
-stack so the first given below is at the top of the stack and is the
-first that replaces lexemes.
-
-\begin{list}{}{}
-
-\item
-\verb|define lexeme dictionary| \\
-\verb|       English lexeme dictionary [operator list]|\\[1ex]
-This dictionary translates common English irregular plurals,
-to their singular form, and decomposes
-irregular possessives to their singular decomposed form.
-This dictionary also protects irregular singular forms that might be
-mistaken for regular plural forms (e.g., `\TT{news}').
-Some example translations are:
-
-\begin{center}
-\begin{tabular}{l}
-\verb|people| $\longrightarrow$ \verb|[person]| \\
-\verb|women| $\longrightarrow$ \verb|[woman]| \\
-\verb|geese| $\longrightarrow$ \verb|[goose]| \\
-\verb|fungi| $\longrightarrow$ \verb|[fungus]| \\
-\verb|news| $\longrightarrow$ \verb|[news]| \\
-\end{tabular}
-\end{center}
-
-\item
-\verb|define lexeme function| \\
-\verb|       English lexeme function [operator list]|\\[1ex]
-This function translates common English standard plurals
-to their singular form, and decomposes
-standard possessives to their singular decomposed form.
-Some example translations are:
-
-\begin{center}
-\begin{tabular}{l}
-\verb|boys| $\longrightarrow$ \verb|[boy]| \\
-\verb|boy's| $\longrightarrow$ \verb|[boy 's]| \\
-\verb|boxes| $\longrightarrow$ \verb|[box]| \\
-\end{tabular}
-\end{center}
-
-\end{list}
-
-Because RECKON, outside the context of quotes,
-insists on mapping different forms of a word to a single
-word, some subtleties of language are lost.  For example, `\TT{people}'
-can be a singular word referring to a group of people, but RECKON will
-standardly confuse it with `\TT{person}'.
-
 \subsubsection{Radix Number Recognition}
 \label{RADIX-NUMBER-RECOGNITION}
+
+Obsolete!
 
 
 \begin{indpar}[0.1in]
