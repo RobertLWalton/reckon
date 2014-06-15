@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 14, 2014}
+\date{June 15, 2014}
 
 \maketitle
 
@@ -1651,7 +1651,7 @@ Such names are called `compound names'.  For example, the name
 `\TT{george's weight}' is parsed to make the expression
 `\TT{george 's weight}' where \TT{'s} has become an operator
 (like the `\TT{.}' operator in C, C++, or other programming languages).
-See \itemref{POSSESSIVES-PARSER-PASS} for details.
+See \itemref{PARSER-SUFFIX-PASS} for details.
 
 If a syntactic unit {\em X-name} is used, the syntactic equation
 `{\em X-name} ::= {\em name}' is implied.
@@ -3389,12 +3389,12 @@ The standard passes in order from first to last are:
 \begin{tabular}%
   {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
 \bf Pass & \bf Context & \bf Usage \\[1ex]
+\TT{suffix} & \TT{expression}
+	& split suffixes from words \\
 \TT{operators} & \TT{expression}, \TT{text}
 	& parse operators \\
 \TT{units} & \TT{expression}
 	& parse numeric units \\
-\TT{possessives} & \TT{expression}
-	& parse possessives \\
 \TT{dequoting} & \TT{expression}, \TT{text}
 	& dequote symbols \\
 \end{tabular}
@@ -3468,10 +3468,26 @@ in the current parsing context, as is the case inside a \TT{\{*\ldots*\}}
 comment (but unquoted brackets are still recognized and must match inside
 the comment).
 
-\subsection{Operator Parser Pass}
-\label{OPERATOR-PARSER-PASS}
+\subsection{Parser Suffix Pass}
+\label{PARSER-SUFFIX-PASS}
 
-The \key{operator parser pass} identifies operators in a subexpression
+The \key{parser suffix pass} splits suffixes from words so that
+they may be recognized as operators.  Thus `\TT{George's}'
+is split to become `\TT{George~'s}'.
+
+The following are standard suffixes:
+
+\begin{center}
+\TT{'s} ~~~ \TT{'S}
+\end{center}
+
+Suffixes split from words are usually recognized as operators
+by the parser operator pass.
+
+\subsection{Parser Operator Pass}
+\label{PARSER-OPERATOR-PASS}
+
+The \key{parser operator pass} identifies operators in a subexpression
 and reformats subexpressions in which operators are found.  Each
 operator can be enabled or disabled according to the current parser
 context.
@@ -3951,107 +3967,6 @@ more than once.
 The {\em decimal-naturals} in {\em temporaries} are assigned so no
 two {\em temporary-definitions} ever have the same {\em temporary}.
 
-\subsection{Possessives Parser Pass}
-\label{POSSESSIVES-PARSER-PASS}
-
-In computable expressions the phrase `\TT{weight of X}' and
-`\TT{X's weight}' are equivalent.  Both are parsed by the
-\key{possessives parser pass} which reformats them as
-`\TT{.~weight X}'.
-
-The following are standard possessives:
-
-\hspace*{0.2in}\begin{tabular}{llllll}
-\hspace*{1.0in} & \hspace*{0.8in} & \hspace*{0.8in} & \hspace*{0.4in} &
-                  \hspace*{0.7in} \\[-2ex]
-
-Possessive	& Type
-\\[2ex]
-\TT{of}		& preposition \\
-\TT{'s}		& suffix \\
-\end{tabular}
-
-This parser first inspects all the {\em words} of the subexpression
-and splits any {\em word}-ending possessive suffix off from its
-{\em word}.  Thus the subexpression `\TT{weight of george's wife}'
-becomes `\TT{weight of george 's wife}'.
-
-After doing this the possessives parser pass checks to see if the
-resulting subexpression has any possessive prepositions or
-suffixes and also has the syntax:
-
-\begin{tabular}{rcl}
-\hspace*{1.7in} \\[-2ex]
-\emkey{possessive-subexpression}
-    & ::= & \begin{tabular}[t]{l}
-            {\em possessive-prepositional-prefix}\QMARK{} \\
-            {\em possessive-suffix-prefix}\QMARK{} \\
-            {\em non-possessive-name}
-	    \end{tabular}
-\\[1ex]
-\emkey{non-possessive-name} & ::= & \begin{tabular}[t]{l}
-                          {\em name}\pagnote{NAME} that does not contain
-			  any \\ possessive prefixes or prepositions
-			  \end{tabular}
-\\[1ex]
-\emkey{possessive-prepositional-prefix} & ::= &
-    {\em non-possessive-name}  {\em possessive-preposition}
-\\[1ex]
-\emkey{possessive-suffix-prefix} & ::= &
-    {\em non-possessive-name}  {\em possessive-suffix}
-\end{tabular}
-
-If the subexpression does not have any possessive prepositions or
-suffixes, or does not have the syntax of a {\em possessive-subexpression},
-the possessives parser pass leaves the subexpression unchanged.
-
-Otherwise the pass reformats the subexpression by recursively applying
-first the rewrite:
-\begin{center}
-$n$ {\em possessive-preposition} $e$ $\Longrightarrow$
-    \TT{.} $n$ $e'$
-\end{center}
-and then the rewrite rule:
-\begin{center}
-$e$ {\em possessive-suffix} $n$ $\Longrightarrow$
-    \TT{.} $n$ $e'$
-\end{center}
-where
-\begin{center}
-$n$ is a {\em non-possessive-name} \\
-$e$ is a {\em possessive-subexpression} \\
-$e'$ is \TT{\{.} $e$ \TT{.\}} if $e$ has more than one element \\
-$e'$ is $e$ if $e$ has just one element
-\end{center}
-
-Thus
-\begin{center}
-\TT{X of Y} $\Longrightarrow$ \TT{.~X Y}
-\\
-\TT{X of Y 's Z} $\Longrightarrow$
-    \TT{.~X \{.~Y 's Z .\}} $\Longrightarrow$
-    \TT{.~X \{.~.~Z Y .\}}
-\\
-\TT{X' Y} $\Longrightarrow$ \TT{.~Y X}
-\\
-\TT{X 's Y 's Z} $\Longrightarrow$
-    \TT{.~Z \{.~X 's Y .\}} $\Longrightarrow$
-    \TT{.~Z \{.~.~Y X .\}}
-\\
-\TT{X of Y 's Z} $\Longrightarrow$
-    \TT{.~X \{.~Y 's Z .\}} $\Longrightarrow$
-    \TT{.~X \{.~.~Z Y .\}}
-\end{center}
-
-but \underline{not}
-\begin{center}
-\TT{X of Y 's Z} $\Longrightarrow$
-    \TT{.~Z \{.~X of Y .\}} $\Longrightarrow$
-    \TT{.~Z \{.~.~Y X .\}}
-\\
-WRONG ORDER OF RULE APPLICATION!
-\end{center}
-
 \subsection{Units Parser Pass}
 \label{UNITS-PARSER-PASS}
 
@@ -4100,6 +4015,40 @@ Degrees K	& \TT{K} & & postfix & continuous & \TT{1.0 C + 273.15} \\
                   \hspace*{0.7in} \\[-2ex]
 Person		& \TT{person} & \TT{persons}, & postfix & discrete \\
 		&	  & \TT{people} \\ 
+\end{tabular}
+
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{units-subexpression}
+    & ::= & \begin{tabular}[t]{l}
+            {\em unit-prefix-subexpression}\QMARK{} \\
+            {\em unitless-name}
+            {\em unit-suffix-subexpression}\QMARK{} \\
+	    \end{tabular}
+\\[1ex]
+\emkey{unitless-name} & ::= & \begin{tabular}[t]{l}
+                          {\em name}\pagnote{NAME} that does not contain
+			  any \\ {\em unit} or {\em unit-subexpression}
+			  \end{tabular}
+\\[1ex]
+\emkey{unit-prefix-subexpression} & ::= & {\em prefix-unit}\PLUS{} \\
+				  & $|$ & {\em unit-subexpression}
+\\[1ex]
+\emkey{unit-postfix-subexpression} & ::= & {\em postfix-unit}\PLUS{} \\
+                                   & $|$ & {\em postfix-unit}\STAR{}
+					   \TT{per}
+					   {\em postfix-unit}\PLUS{} \\
+				   & $|$ & {\em unit-subexpression}
+\\[1ex]
+\emkey{unit-subexpression} & ::= & \TT{(} {\em unit-expression} \TT{)}
+\\[1ex]
+\emkey{unit-expression} & ::= & {\em unit-primary}
+				\{ \TT{*} {\em unit-primary} \}\STAR{} \\
+			& $|$ & {\em unit-primary}
+				\TT{/} {\em unit-primary}
+\\[1ex]
+\emkey{unit-primary} & ::= & {\em unit} \\
+		     & $|$ & \TT{(} {\em unit-expression} \TT{)}
 \end{tabular}
 
 \subsection{Dequoting Parser Pass}
