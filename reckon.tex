@@ -3993,6 +3993,8 @@ Unit		& Singular & Plural & Fixity & Type & Equivalent
 Gram\BU		& \TT{g} & & postfix & continuous \\
 Pound		& \TT{lb} & \TT{lbs} & postfix & continuous
                                                & \TT{453.59237 g} \\
+Ounce		& \TT{oz} &          & postfix & continuous
+                                               & \TT{28.349523 g} \\
 Kilogram	& \TT{kg} & & postfix & continuous & \TT{1000 g} \\
 \end{tabular}
 
@@ -4034,14 +4036,26 @@ following syntax:
 
 \begin{indpar}
 \emkey{units-subexpression}
-    ::= \begin{tabular}[t]{@{}l}
-        {\em unit-prefix-subexpression}\QMARK{} \\
-        {\em unitless-name} \\
-        {\em unit-suffix-subexpression}\QMARK{} \\
-	\end{tabular}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em unit-phrase}\PLUS{} \\
+    $|$ & {\em unit-prefix-subexpression} \\
+        & {\em unitless-name} \\
+        & {\em unit-suffix-subexpression}\QMARK{} \\
+    $|$ & {\em bifrucated-number} \\
+    \end{tabular}
 \\[1ex]
-\emkey{unitless-name} ::= {\em name}\pagnote{NAME} that does not contain
+\emkey{unit-phrase} ::= {\em unitless-name} {\em unit-suffix-subexpression}
+\\[1ex]
+\emkey{unitless-name}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em bifrucated-number} \\
+    $|$ & other {\em name}\pagnote{NAME} that does not contain
 			  any {\em unit} or {\em unit-subexpression}
+    \end{tabular}
+\\[1ex]
+\emkey{bifrucated-number} ::= {\em integer} {\em unsigned-fraction}
+\\[1ex]
+\emkey{unsigned-fraction} ::= {\em number} in the range $[0,1)$
 \\[1ex]
 \emkey{unit-prefix-subexpression} ::= {\em prefix-unit}\PLUS{}
 \\[1ex]
@@ -4069,22 +4083,45 @@ following syntax:
 
 If the pass finds any {\em unit} or {\em unit-expression} but
 the subexpression does not conform to the above syntax, an error
-message is issued.  Otherwise the subexpression is reformatted
+message is issued.  If there is no {\em unit} or {\em unit-expression}
+and the subexpression is not a {\em bifructed-number}, the
+pass leaves the expression alone.  Otherwise the subexpression is reformatted
 according to the following rules:
 \begin{itemize}
-\item[(1)] A `\TT{*}' is placed between consecutive {\em unit-primaries},
+\item[(1)] A `\TT{+}' is placed between consecutive {\em unit-phrases}.
+\item[(2)] A `\TT{*}' is placed between consecutive {\em unit-primaries},
 after any {\em unit-prefix-subexpression}, and before any
 {\em unit-postfix-subexpression}.
-\item[(2)] Any `\TT{per}' is replaced by `\TT{/}'.
-\item[(3)] Then subexpressions containing infix \TT{*}'s are
-reformatted as per the operator pass.  This removes infix \TT{*}'s and
-puts a \TT{*} at the beginning of the subexpression containing them.
-\item[(4)] Lastly nested subexpressions beginning with \TT{*} are
+\item[(3)] Any `\TT{per}' is replaced by `\TT{/}', any
+{\em unit-postfix-subexpression} containing it is surrounded by
+\TT{\{|~|\}} brackets, and if there is no {\em postfix-unit} before
+the `\TT{per}', a `\TT{1.0}' is inserted before the `\TT{/}'. Thus
+\begin{center}
+\TT{40 lb per sec } $\Longrightarrow$ \TT{40 * \{| lb / sec |\}} \\
+\TT{40 per sec } $\Longrightarrow$ \TT{40 * \{| 1.0 / sec |\}}
+\end{center}
+\item[(4)] Then subexpressions containing infix \TT{+}'s,\TT{*}'s, or
+\TT{/}'s are
+reformatted as per the operator pass.  This moves infix operators
+to the beginning of the subexpression containing them.
+\item[(6)] Next nested subexpressions beginning with \TT{*} are
 collapsed: e.g.,
 \begin{center}
-\TT{* X \{|~* y z |\} W} $\Longrightarrow$ \TT{* X y z W}.
+\TT{* X \{|~* y z |\} W} $\Longrightarrow$ \TT{* X y z W}
+\end{center}
+\item[(7)] Lastly the two {\em numbers} in each {\em bifrucated-number}
+are combined by addition.  E.g.,
+\begin{center}
+\TT{40 1/5} $\Longrightarrow$ \TT{40.2}
 \end{center}
 \end{itemize}
+
+The following are examples of parser units pass subexpression reformatting:
+\begin{center}
+\TT{40 lb 3 oz} $\Longrightarrow$ \TT{+ \{| * 40 lb |\} \{| * 3 oz |\}}
+\\
+\TT{100 m per sec} $\Longrightarrow$ \TT{* 100 \{| / m sec |\}}
+\end{center}
 
 
 
