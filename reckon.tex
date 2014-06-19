@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 16, 2014}
+\date{June 19, 2014}
 
 \maketitle
 
@@ -1688,7 +1688,7 @@ as in `\TT{42~3/8}', to represent two distinct numbers in a list,
 whereas `\TT{42.3/8}' with the `\TT{.}' represents just one number,
 namely the sum of 42 and 3/8.
 However in situations where the units parser pass
-(see \itemref{UNITS-PARSER-PASS}) is used on the
+(see \itemref{PARSER-UNITS-PASS}) is used on the
 subexpression `\TT{42~3/8}', this subexpression is recognized as
 representing the single number `\TT{42.3/8}'.
 
@@ -2205,7 +2205,7 @@ The syntax of an {\em object-representation} is:
 	{\em single-attribute-label} {\em attribute-label-flags}\QMARK{}
 	\begin{tabular}[t]{@{}l@{}}
 	{\em attribute-assignment-operator} \\
-	{\em single-attribute-value}
+	{\em single-attribute-value}\STAR{}
 	\end{tabular}
 \end{tabular}
 
@@ -2698,7 +2698,7 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
 \begin{tabular}{l}
 \emkey{prefix-n-list}
     ::= \{ {\em prefix-n} {\em prefix-n+1-list} \}\STAR{}
-    $|$ {\em list-element}\STAR{} \\
+    $|$ {\em simple-list} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2717,6 +2717,7 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{center}
 
 \begin{tabular}{l}
+\emkey{simple-list} ::= {\em list-element}\STAR{} \\
 \emkey{list-element} ::= {\em single-attribute-value}%
                          \pagnote{SINGLE-ATTRIBUTE-VALUE}
 \end{tabular}
@@ -2725,7 +2726,8 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \emkey{attributes}
     \begin{tabular}[t]{rl}
     ::= & \TT{:} {\em attribute} \{ \TT{,} {\em attribute} \}\STAR{} \\
-    $|$ & \TT{\{:} \{ \TT{<*>} {\em attribute} \}\STAR{} \TT{:\}} \\
+    $|$ & \TT{\{:} {\em attribute} \{ \TT{<*>} {\em attribute} \}\STAR{}
+          \TT{:\}} \\
     \end{tabular}
 \end{tabular}
 
@@ -3218,6 +3220,12 @@ match any unclosed {\em list-opening}, or generates missing
 {\em list-closings} if the {\em list-closing} matches some non-last unclosed
 {\em list-opening}.
 
+{\em Simple-lists} may be parsed after they have been read.
+Operators, including
+separators such as the semi-colon `\TT{;}'
+and comma `\TT{,}', are recognized by such a parse.  See
+\itemref{PARSING} for details.
+
 \ikey{Untyped bracketed lists}{untyped bracketed list}
 are given an \ttdmkey{initiator}{of bracketed list}
 equal to their {\em list-opening} and a
@@ -3354,16 +3362,16 @@ Text	& Separator &  Syntactic Category
 \tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
 \\\hline
 \tt And a new \{foo\} paragraph. & (none) & \em prefix-2-list \\
-			       &        & {\tt \{foo\}} is in error \\
+			       &        & \TT{\{foo\}} is in error \\
 			       &        & and is ignored (deleted).
 \end{tabular}
 
 The {\em prefix-0-list} in this example is equivalent to:
 \begin{indpar}\begin{verbatim}
-{p|  {s| This is a sentence . |}
-     {s| And another . |} |}
-{p|  {s| And a new paragraph . |} |}
-         // `{foo}' deleted
+{|  {p|  {s| This is a sentence . |}
+         {s| And another . |} |}
+    {p|  {s| And a new paragraph . |} |} |}
+             // `{foo}' deleted
 \end{verbatim}\end{indpar}
 
 \section{Parsing}
