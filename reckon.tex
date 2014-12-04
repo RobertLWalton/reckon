@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 19, 2014}
+\date{December 4, 2014}
 
 \maketitle
 
@@ -1132,27 +1132,32 @@ contains in order the following lexemes:
 	$|$ {\em comment}
 \label{SYMBOL-LEXEME}
 \\[2ex]
-\emkey{word} :::= {\em word-character} {\em word-character}\,$^\star$
+\emkey{word} :::= {\em word-prefix-character}\QMARK{}
+                  {\em word-character}\PLUS{}
 \label{WORD}
 \\[1ex]
-\emkey{numeric} :::=
-        {\em numeric-character} {\em numeric-character}\,$^\star$
+\emkey{numeric} :::= {\em numeric-character}\PLUS{}
 \label{NUMERIC}
 \\[1ex]
-\emkey{mark} :::= {\em mark-character} {\em mark-character}\,$^\star$
+\emkey{mark} :::= {\em mark-character}\PLUS{}
 \\[1ex]
 \emkey{separator}
 	:::= {\em separator-character} except \TT{|} $|$ \TT{|}\PLUS{}
 \label{SEPARATOR}
 \\[1ex]
 \emkey{quoted-string} :::=
-    \TT{"} {\em character-representative}\,$^\star$ \TT{"}
+    \TT{"} {\em character-representative}\STAR{} \TT{"}
 \label{QUOTED-STRING}
 \\[1ex]
 \emkey{comment} :::=
-    \TT{//} {\em comment-character}\,$^\star$ \TT{"}
+    \TT{//} {\em comment-character}\STAR{} \TT{"}
 \label{COMMENT}
 \\[2ex]
+\emkey{word-prefix-character} \begin{tabular}[t]{@{}r@{~}l@{}}
+                     :::= \TT{.} & followed by a {\em letter} \\
+		                 & and not preceeded by a {\em mark-character}
+		     \end{tabular}
+		     \\[1ex]
 \emkey{word-character} \begin{tabular}[t]{rl}
                      :::= & {\em letter} \\
 		     $|$ & \TT{'} followed by a letter \\
@@ -1215,8 +1220,8 @@ contains in order the following lexemes:
 			    \\[1ex]
 \emkey{numeric-character} \begin{tabular}[t]{rl}
 		:::= &   {\em digit} \\
-		$|$ & \TT{.} followed by by a {\em digit } \\
 		$|$ & \TT{'} followed by by a {\em digit } \\
+		$|$ & \TT{.} surrounded by {\em digits} \\
 		$|$ & \TT{,} surrounded by {\em digits} \\
 		$|$ & \TT{/} surrounded by {\em digits} \\
 		$|$ & \TT{:} surrounded by {\em digits} \\
@@ -1250,7 +1255,12 @@ contains in order the following lexemes:
 		             $|$\TT{\_}%
 		             $|$\TT{!}%
 		             $|$\TT{?} \\
-		     $|$ & \TT{.} not followed by a {\em digit} \\
+		     $|$ & \TT{.} \begin{tabular}[t]{@{}l@{}}
+		                  not surrounded by {\em digits} \\
+		                  and either preceeded by
+				             a {\em mark-character} \\
+		                  or not followed by a {\em letter} \\
+				  \end{tabular} \\
 		     $|$ & \TT{/} not surrounded by {\em digits} \\
 		     $|$ & \TT{:} not surrounded by {\em digits} \\
 			\end{tabular}\\[1ex]
@@ -1369,8 +1379,7 @@ is a sequence of white-space characters (single space, horizontal tab, form
 feed, etc.), but is not itself a lexeme.
 
 \begin{indpar}
-\emkey{white-space} :::= {\em white-space-character}
-                         {\em white-space-character}\,$^\star$ \\[1ex]
+\emkey{white-space} :::= {\em white-space-character}\PLUS{} \\[1ex]
 \emkey{white-space-character}
     \begin{tabular}[t]{rl}
     :::= & {\em horizontal-space-character} \\
@@ -3992,7 +4001,7 @@ and divisors.  For example, `\TT{35~ft~lb}' is reformatted as
 
 The following are standard units:
 
-\newcommand{\BU}{$^\star$}
+\newcommand{\BU}{\STAR{}}
 
 \hspace*{0.2in}\begin{tabular}{llllll}
 \hspace*{1.0in} & \hspace*{0.8in} & \hspace*{0.8in} & \hspace*{0.4in} &
@@ -4228,8 +4237,7 @@ and a {\em unit-specifier}.
 The syntax equations are:
 
 \begin{indpar}
-\emkey{number-unit-group} ::= {\em number-unit-pair}
-			    {\em number-unit-pair}\,$^\star$ \\[1ex]
+\emkey{number-unit-group} ::= {\em number-unit-pair}\PLUS{} \\[1ex]
 \emkey{number-unit-pair} \begin{tabular}[t]{r@{~}l}
                      ::= & {\em prefix-unit-specifier} {\em real-number} \\
                      $|$ & {\em real-number} {\em postfix-unit-specifier} \\
@@ -4340,12 +4348,12 @@ have the syntax:
 {\em arguments-option} ::= {\em empty} $|$ \TT{(} {\em argument-list} \TT{)}
     \\[1ex]
 {\em argument-list} ::= {\em empty}
-                    $|$ {\em argument} \{ \TT{,} {\em argument} \}$^\star$
+                    $|$ {\em argument} \{ \TT{,} {\em argument} \}\STAR{}
     \\[1ex]
 {\em argument} ::= {\em name} $|$ {\em number} $|$ {\em quoted-string}
     \\[1ex]
 {\em labels-option} ::= {\em empty} $|$ \TT{:} {\em label}
-				\{ \TT{,} {\em label} \}$^\star$
+				\{ \TT{,} {\em label} \}\STAR{}
     \\[1ex]
 {\em label} ::= {\em name}
     \\[1ex]
@@ -4685,7 +4693,7 @@ precedences, and so cannot appear together in the same expression.
 
 The expression must have the form
 \begin{center}
-\{ {\em operator} {\em subexpression} {\em subexpression}$^\star$ \}$^\star$
+\{ {\em operator} {\em subexpression} {\em subexpression}\STAR{} \}\STAR{}
 \end{center}
 
 That is, {\em operators}
@@ -4738,8 +4746,8 @@ specifies that the entire paragraph is to be indented.
 
 The expression must have the form
 \begin{center}
-\{ \TT{<s>}{\em -option} {\em subexpression} {\em subexpression}$^\star$
-	{\em terminator} \}$^\star$
+\{ \TT{<s>}{\em -option} {\em subexpression} {\em subexpression}\STAR{}
+	{\em terminator} \}\STAR{}
 \end{center}
 where the {\em terminator} is one of `\ttmkey{.}{terminator}',
 `\ttmkey{?}{terminator}', or `\ttmkey{!}{terminator}'.
@@ -4786,9 +4794,8 @@ precedences, and so cannot appear together in the same expression.
 
 The expression must have the form
 \begin{center}
-\{ {\em subexpression} {\em subexpression}$^\star$
-	{\em operator} \}$^\star$
-{\em subexpression} {\em subexpression}$^\star$
+\{ {\em subexpression} {\em subexpression}\STAR{}
+	{\em operator} \}\STAR{} {\em subexpression}\PLUS{}
 \end{center}
 where all the {\em operators} must be the same (i.e., if you
 mix `\TT{;}' and `\TT{:}'
@@ -4905,16 +4912,16 @@ possibly followed by a phrase.  However, a paragraph cannot be empty.
 The syntax of the result is:
 
 \begin{indpar}
-\emkey{section} ::= \TT{[-SECTION-} {\em paragraph} {\em paragraph}\,$^\star$
+\emkey{section} ::= \TT{[-SECTION-} {\em paragraph}\PLUS{}
                   \TT{]} \\[1ex]
 \emkey{paragraph}
 	\begin{tabular}[t]{rl}
-	::= &  \TT{[-PARAGRAPH-} {\em sentence} {\em sentence}\,$^\star$
+	::= &  \TT{[-PARAGRAPH-} {\em sentence}\PLUS{}
 	       \TT{]} \\
-	$|$ &  \TT{[-PARAGRAPH-} {\em sentence}\,$^\star$ {\em phrase}
+	$|$ &  \TT{[-PARAGRAPH-} {\em sentence}\STAR{} {\em phrase}
 	       \TT{]}
 	\end{tabular} \\[1ex]
-\emkey{sentence} ::= \TT{[-SENTENCE-} {\em sentence-non-terminator}\,$^\star$
+\emkey{sentence} ::= \TT{[-SENTENCE-} {\em sentence-non-terminator}\STAR{}
                                     {\em sentence-terminator}
                   \TT{]} \\[1ex]
 \emkey{phrase}
@@ -4922,7 +4929,7 @@ The syntax of the result is:
 	::= &  \TT{[} \begin{tabular}[t]{@{}l@{}}
 			{\em sentence-non-terminator}
 			{\em sentence-non-terminator} \\
-		        {\em sentence-non-terminator}\,$^\star$ \TT{]}
+		        {\em sentence-non-terminator}\STAR{} \TT{]}
 			\end{tabular} \\
 	$|$ &  {\em sentence-non-terminator}
 	\end{tabular} \\[1ex]
@@ -5265,7 +5272,7 @@ would if a guard evaluated to false.
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
 \emkey{constraint-list-option} ::= {\em empty} $|$ {\em constraint-list} \\[1ex]
 \emkey{constraint-list}
-    ::= {\em constraint} \{ \TT{,} {\em constraint} \}$^\star$ \\[1ex]
+    ::= {\em constraint} \{ \TT{,} {\em constraint} \}\STAR{} \\[1ex]
 \emkey{constraint} ::= \TT{,}{\em -subexpression}
 	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{constraint} ::= {\em syntax-equation}
@@ -5291,16 +5298,16 @@ would if a guard evaluated to false.
 \hspace*{3em}{\em syntax-variable}
 		\TT{:=:} {\em alternative}
 		          \TT{|} {\em alternative}
-			  \{ \TT{|} {\em alternative} \}$^\star$
+			  \{ \TT{|} {\em alternative} \}\STAR{}
 	                  ~~~ [see \pagref{ALTERNATIVE-EQUATIONS}]
 		\\[1ex]
-\emkey{alternative} ::= {\em atom} {\em atom}$^\star$
+\emkey{alternative} ::= {\em atom}\PLUS{}
 		\\[1ex]
 \emkey{guard} ::= \TT{,}{\em -subexpression}
 	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{block-option} ::= {\em empty} $|$ \TT{\{ \}} $|$ {\em block} \\[1ex]
 \emkey{block} ::= \TT{\{} {\em statement}
-                           \{ \TT{;} {\em statement} \}$^\star$ \TT{\}}
+                           \{ \TT{;} {\em statement} \}\STAR{} \TT{\}}
 	    \\[1ex]
 {\em statement} ::= see \pagref{STATEMENT}
 \end{indpar}
@@ -5343,7 +5350,7 @@ The syntax of a syntax equation is:
 			\begin{tabular}[t]{rl}
 			::= & \TT{\$} {\em capitalized-word } \\
 			$|$ & \TT{\$} \TT{(} {\em capitalized-word }
-			      {\em name-component}\,$^\star$ \TT{)} \\
+			      {\em name-component}\STAR{} \TT{)} \\
 			$|$ & {\em place-holding-syntax-variable}
 			    ~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\
 			$|$ & {\em evaluated-syntax-variable}
@@ -5540,7 +5547,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-object} ::=
     \begin{tabular}[t]{l}
     {\em pattern-term-option}
-        \{ {\em pattern-separator} {\em pattern-term} \}$^\star$ \\
+        \{ {\em pattern-separator} {\em pattern-term} \}\STAR{} \\
     {\em pattern-attribute-representations}
     \end{tabular}
 \label{PATTERN-OBJECT}
@@ -5549,7 +5556,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-separator} ::= \ttmkey{.}{pattern separator} \\[1ex]
 \emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-qualifier-option}
 	\\[1ex]
-\emkey{pattern-clause} ::= {\em pattern-factor} {\em pattern-factor}\,$^\star$
+\emkey{pattern-clause} ::= {\em pattern-factor}\PLUS{}
 	\\[1ex]
 \emkey{pattern-factor} ::= {\em pattern-object} $|$ {\em atom}
 		       $|$ {\em syntax-variable} \\[1ex]
@@ -5570,7 +5577,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 	      \begin{tabular}[t]{@{}l@{}}
 	      {\em pattern-attribute-representation} \\
 	      \{ \TT{;}
-	              {\em pattern-attribute-representation} \}$^\star$
+	              {\em pattern-attribute-representation} \}\STAR{}
 	      \TT{|\}} \\
 	      \end{tabular}
 	\end{tabular}
@@ -5934,9 +5941,9 @@ one of several alternative values.
 \hspace*{3em}{\em syntax-variable}
 		\TT{:=:} {\em alternative}
 		          \TT{|} {\em alternative}
-			  \{ \TT{|} {\em alternative} \}$^\star$
+			  \{ \TT{|} {\em alternative} \}\STAR{}
 		\\[1ex]
-\emkey{alternative} ::= {\em atom} {\em atom}$^\star$
+\emkey{alternative} ::= {\em atom}\PLUS{}
 \end{indpar}
 
 For example,
@@ -6162,12 +6169,12 @@ unevaluated syntax variable name.  Thus \TT{X} is associated with
 			\begin{tabular}[t]{rl}
 			::= & \TT{\$} {\em capitalized-word } \\
 			$|$ & \TT{\$} \TT{(} {\em capitalized-word }
-			      {\em name-component}\,$^\star$ \TT{)} \\
+			      {\em name-component}\STAR{} \TT{)} \\
 			\end{tabular}
 \\[1ex]
 \emkey{evaluated-syntax-variable} 
 			::= {\em capitalized-word }
-			{\em name-component}\,$^\star$
+			{\em name-component}\STAR{}
 \\[1ex]
 {\em name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
 			 ~~~ [as per \pagref{NAME-COMPONENT}]
@@ -6451,16 +6458,16 @@ The code of a block has the following syntax:
 
 \begin{indpar}
 \emkey{block} ::= \TT{\{} {\em group}
-                         \{ {\em sequence-break} {\em group} \}$^\star$
+                         \{ {\em sequence-break} {\em group} \}\STAR{}
 			 \TT{\}} \\[1ex]
-\emkey{sequence-break} ::= \ttnbkey{-----}\TT{-}$^\star$
+\emkey{sequence-break} ::= \ttnbkey{-----}\TT{-}\STAR{}
 	(1 word consisting of 5 or more \TT{-}'s) \\[1ex]
 \emkey{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
 \emkey{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}
-    \{ \TT{;} {\em declaration} \}$^\star$ \\[1ex]
+    \{ \TT{;} {\em declaration} \}\STAR{} \\[1ex]
 \emkey{statement-group} ::= {\em statement}
-	\{ \TT{;} {\em statement} \}$^\star$ \\[1ex]
+	\{ \TT{;} {\em statement} \}\STAR{} \\[1ex]
 \emkey{declaration} ::= {\em expression-definition} $|$ {\em empty} \\[1ex]
 \emkey{expression-definition} ::= see \pagref{EXPRESSION-DEFINITION} \\[1ex]
 \emkey{statement}
@@ -6491,7 +6498,7 @@ The code of a block has the following syntax:
     \begin{tabular}[t]{rl}
     ::= & {\em operator-expression} \\
     $|$ & {\em operator-expression} \ttnbkey{=>} {\em output-variable}
-		\{ \TT{,} {\em output-variable} \}$^\star$
+		\{ \TT{,} {\em output-variable} \}\STAR{}
     \end{tabular} \\[1ex]
 {\em operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
@@ -6507,7 +6514,7 @@ The code of a block has the following syntax:
 \emkey{if-statement} ::=
       \begin{tabular}[t]{l}
       \ttkey{if} {\em guard} {\em unguarded-subblock} \\
-      {\em else-if-continuation}\,$^\star$ \\
+      {\em else-if-continuation}\STAR{} \\
       {\em else-continuation-option}
       \end{tabular} \\[1ex]
 \emkey{else-if-continuation} ::=
