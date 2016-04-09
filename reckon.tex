@@ -114,7 +114,7 @@
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
-\newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
+\newcommand{\emikey}[2]{{\bf \em #1}\index{\em #2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
 \newcommand{\opt}{$^!$}
@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 8, 2016}
+\date{April 9, 2016}
 
 \maketitle
 
@@ -1148,262 +1148,93 @@ contains in order the following lexemes:
 
 \begin{indpar}
 \emkey{lexeme}
-	::= {\em word}
-	$|$ {\em numeric}
-	$|$ {\em mark}
+	::= {\em word} $|$ {\em mark} $|$ {\em numeric}
 	$|$ {\em separator}
 	$|$ {\em quoted-string}
 	$|$ {\em comment}
-\label{SYMBOL-LEXEME}
+\label{LEXEME}
 \\[2ex]
-\emkey{word} :::= {\em word-prefix-character}\QMARK{}
-                  {\em word-character}\PLUS{}
-\label{WORD}
+\emkey{strict-separator} :::= \TT{(} $|$ \TT{)} $|$
+				 \TT{[} $|$ \TT{]} $|$
+				 \{ $|$ \} $|$
+				 \TT{|}\PLUS{}
+\\[0.5ex]
+\emkey{strict-separator-character} :::= \TT{(} $|$ \TT{)} $|$
+                                           \TT{[} $|$ \TT{]} $|$
+				           \{ $|$ \} $|$
+				           \TT{|}
 \\[1ex]
-\emkey{numeric} :::= {\em numeric-character}\PLUS{}
-\label{NUMERIC}
+\emkey{quoted-string}
+    :::= \TT{"} {\em character-representative}\STAR{} \TT{"}
+\\[0.5ex]
+\emkey{character-representative}
+    \begin{tabular}[t]{rl}
+    :::= & {\em graphic-character} other than \TT{"} \\
+    $|$  & {\em single-space-character} \\
+    $|$  & {\em special-character-representative} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{graphic-character} :::= character that prints some mark
 \\[1ex]
-\emkey{mark} :::= {\em mark-character}\PLUS{}
-\\[1ex]
+\emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
+                       not beginning with \TT{//}
+\\[0.5ex]
+\emkey{lexical-item-character} :::= {\em graphic-character}
+	other than {\em strict-separator-character} or \TT{"}
+
+\emkey{lexical-item} :::= {\em leading-separator}\STAR{}
+			  {\em middle-lexeme}\QMARK{}
+                          {\em trailing-separator}\STAR{}
+\\[0.5ex]
+\emkey{middle-lexeme} :::=
+    \begin{tabular}[t]{l}
+    {\em lexical-item} \\
+    not beginning with a {\em leading-separator} \\
+    or ending with a {\em trailing-separator} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{leading-separator} :::= \TT{`}
+\\[0.5ex]
+\emkey{trailing-separator} :::= \TT{'} $|$
+				   \TT{!}\PLUS{} $|$
+				   \TT{?}\PLUS{} $|$
+				   \TT{.}\PLUS{} $|$
+				   \TT{:}\PLUS{} $|$
+				   \TT{;} $|$
+				   \TT{,}
+\\[0.5ex]
+\emkey{word} :::= {\em middle-lexeme} that has a letter before any digit
+\\[0.5ex]
+\emkey{numeric} :::= {\em middle-lexeme} that has a digit before any letter
+\\[0.5ex]
+\emkey{mark} :::= {\em middle-lexeme} other than {\em word} or {\em numeric}
+\\[0.5ex]
 \emkey{separator}
-	:::= {\em separator-character} except \TT{|} $|$ \TT{|}\PLUS{}
-\label{SEPARATOR}
-\\[1ex]
-\emkey{quoted-string} :::=
-    \TT{"} {\em character-representative}\STAR{} \TT{"}
-\label{QUOTED-STRING}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em strict-separator} \\
+    $|$ & {\em leading-separator} \\
+    $|$ & {\em trailing-separator}
+    \end{tabular}
+\\[0.5ex]
+\emkey{symbol} :::= {\em word} $|$ {\em mark} $|$ {\em separator}
+                $|$ {\em quoted-string}
 \\[1ex]
 \emkey{comment} :::=
-    \TT{//} {\em comment-character}\STAR{} \TT{"}
+    \TT{//} {\em comment-character}\,$^\star$
+\\[1ex]
+\emkey{comment-character} :::= {\em graphic-character}
+                           $|$ {\em horizontal-space-character}
 \label{COMMENT}
-\\[2ex]
-\emkey{word-prefix-character} \begin{tabular}[t]{@{}r@{~}l@{}}
-                     :::= \TT{.} & followed by a {\em letter} \\
-		                 & and not preceeded by a {\em mark-character}
-		     \end{tabular}
-		     \\[1ex]
-\emkey{word-character} \begin{tabular}[t]{rl}
-                     :::= & {\em letter} \\
-		     $|$ & \TT{'} followed by a letter \\
-		     \end{tabular}
-		     \\[1ex]
-\emkey{letter} :::= {\em lower-case-letter} $|$ {\em upper-case-letter} \\[1ex]
-\emkey{lower-case-letter} :::=  \TT{a}%
-			    $|$\TT{b}%
-			    $|$\TT{c}%
-			    $|$\TT{d}%
-			    $|$\TT{e}%
-			    $|$\TT{f}%
-			    $|$\TT{g}%
-			    $|$\TT{h}%
-			    $|$\TT{i}%
-			    $|$\TT{j}%
-			    $|$\TT{k}%
-			    $|$\TT{l}%
-			    $|$\TT{m}%
-			    $|$\TT{n}%
-			    $|$\TT{o}%
-			    $|$\TT{p}%
-			    $|$\TT{q}%
-			    $|$\TT{r}%
-			    $|$\TT{s}%
-			    $|$\TT{t}%
-			    $|$\TT{u}%
-			    $|$\TT{v}%
-			    $|$\TT{w}%
-			    $|$\TT{x}%
-			    $|$\TT{y}%
-			    $|$\TT{z}
-			    \\[1ex]
-\emkey{upper-case-letter} :::=  \TT{A}%
-			    $|$\TT{B}%
-			    $|$\TT{C}%
-			    $|$\TT{D}%
-			    $|$\TT{E}%
-			    $|$\TT{F}%
-			    $|$\TT{G}%
-			    $|$\TT{H}%
-			    $|$\TT{I}%
-			    $|$\TT{J}%
-			    $|$\TT{K}%
-			    $|$\TT{L}%
-			    $|$\TT{M}%
-			    $|$\TT{N}%
-			    $|$\TT{O}%
-			    $|$\TT{P}%
-			    $|$\TT{Q}%
-			    $|$\TT{R}%
-			    $|$\TT{S}%
-			    $|$\TT{T}%
-			    $|$\TT{U}%
-			    $|$\TT{V}%
-			    $|$\TT{W}%
-			    $|$\TT{X}%
-			    $|$\TT{Y}%
-			    $|$\TT{Z}
-			    \\[1ex]
-\emkey{numeric-character} \begin{tabular}[t]{rl}
-		:::= &   {\em digit} \\
-		$|$ & \TT{'} followed by by a {\em digit } \\
-		$|$ & \TT{.} surrounded by {\em digits} \\
-		$|$ & \TT{,} surrounded by {\em digits} \\
-		$|$ & \TT{/} surrounded by {\em digits} \\
-		$|$ & \TT{:} surrounded by {\em digits} \\
-		    \end{tabular}\\[1ex]
-\emkey{digit} :::=  \TT{0}%
-		$|$\TT{1}%
-		$|$\TT{2}%
-		$|$\TT{3}%
-		$|$\TT{4}%
-		$|$\TT{5}%
-		$|$\TT{6}%
-		$|$\TT{7}%
-		$|$\TT{8}%
-		$|$\TT{9} \\[1ex]
-\emkey{mark-character} \begin{tabular}[t]{rl}
-		     :::= &      \TT{+}%
-		             $|$\TT{-}%
-		             $|$\TT{*}%
-		             $|$\TT{/}%
-		             $|$\TT{\textbackslash}%
-		             $|$\TT{\~{ }}%
-		             $|$\TT{@}%
-		             $|$\TT{\#}%
-		             $|$\TT{\$}%
-		             $|$\TT{\%}%
-		             $|$\TT{\^{ }}%
-		             $|$\TT{\&}%
-		             $|$\TT{=}%
-		             $|$\TT{<}%
-		             $|$\TT{>}%
-		             $|$\TT{\_}%
-		             $|$\TT{!}%
-		             $|$\TT{?} \\
-		     $|$ & \TT{.} \begin{tabular}[t]{@{}l@{}}
-		                  not surrounded by {\em digits} \\
-		                  and either preceeded by
-				             a {\em mark-character} \\
-		                  or not followed by a {\em letter} \\
-				  \end{tabular} \\
-		     $|$ & \TT{/} not surrounded by {\em digits} \\
-		     $|$ & \TT{:} not surrounded by {\em digits} \\
-			\end{tabular}\\[1ex]
-\emkey{separator-character} \begin{tabular}[t]{rl}
-		:::= &   \TT{(}
-	       	    $|$ \TT{)}
-	       	    $|$ \TT{[}
-	       	    $|$ \TT{]}
-	       	    $|$ \TT{\{}
-	       	    $|$ \TT{\}}
-	       	    $|$ \TT{;}
-	       	    $|$ \TT{|}
-	       	    $|$ \TT{`} \\
-		$|$ & \TT{,} not surrounded by {\em digits} \\
-		$|$ & \TT{'} not followed by a letter or digit \\
-		    \end{tabular}\\[1ex]
-\emkey{character-representative} \begin{tabular}[t]{rl}
-		    :::= & {\em graphic-character} other than \TT{"} \\
-		    $|$ & {\em single-space-character} \\
-		    $|$ & {\em special-character-representative}
-		    \end{tabular}\\[1ex]
-\emlkey{special}{-character-representative}
-    :::= see Figure~\figref{SPECIAL-CHARACTER-REPRESENTATIVES} \\
-\emkey{comment-character}
-    :::= {\em graphic-character} $|$ {\em horizontal-space-character}
+
 \end{indpar}
-
-\begin{boxedfigure}[!t]
-
-\begin{center}
-\begin{tabular}{lp{2in}}
-\tttkey{NUL} & nul \\
-\tttkey{SOH} & start of heading \\
-\tttkey{STX} & start of text \\
-\tttkey{ETX} & end of text \\
-\tttkey{EOT} & end of transmission \\
-\tttkey{ENQ} & enquiry \\
-\tttkey{ACK} & acknowledge \\
-\tttkey{BEL} & bell \\
-\tttkey{BS}  & backspace \\
-\tttkey{HT}  & horizontal tab \\
-\tttkey{LF}  & line feed \\
-\tttkey{VT}  & vertical tab \\
-\tttkey{FF}  & form feed \\
-\tttkey{CR}  & carriage ret \\
-\tttkey{SO}  & shift out \\
-\tttkey{SI}  & shift in \\
-\tttkey{DLE} & data link escape
-\\[1ex]
-\tttkey{NL}  & new line (equals \TT{<LF>}) \\
-\end{tabular}
-\begin{tabular}{lp{2in}}
-\tttkey{DC1} & device control 1 \\
-\tttkey{DC2} & device control 2 \\
-\tttkey{DC3} & device control 3 \\
-\tttkey{DC4} & device control 4 \\
-\tttkey{NAK} & negative ack. \\
-\tttkey{SYN} & synchronous idle \\
-\tttkey{ETB} & end of transmission block \\
-\tttkey{CAN} & cancel \\
-\tttkey{EM}  & end of medium \\
-\tttkey{SUB} & substitute \\
-\tttkey{ESC} & escape \\
-\tttkey{FS}  & file separator \\
-\tttkey{GS}  & group separator \\
-\tttkey{RS}  & record separator \\
-\tttkey{US}  & unit separator \\
-\tttkey{SP}  & single space \\
-\tttkey{DEL} & delete
-\\[1ex]
-\tttkey{Q}  & double quote (\TT{"}) \\
-\end{tabular}
-\end{center}
-
-\caption{Special Character Representatives}
-\label{SPECIAL-CHARACTER-REPRESENTATIVES}
-\end{boxedfigure}
-
-A \key{word} is a sequence of letters that may include
-a \TT{'} if it is followed by a letter.  A \key{mark} is a
-sequence of mark characters (e.g., \TT{+} and \TT{-}).
-A \key{separator} is a single separator character or
-a sequence of one or more \TT{|}'s.
-A \key{numeric} is a sequence of digits,
-decimal points followed by a digit,
-\TT{'} followed by a digit,
-commas both preceded and followed by digits,
-slashes both preceded and followed by digits,
-and colons both preceded and followed by digits.
-A \key{quoted-string} is
-a sequence of \skey{character representative}s surrounded by
-the double quote character (\ttkey{"}), where \skey{graphic character}s
-other than \TT{"}
-are their own representatives (\TT{A}, \TT{B}, \TT{0}, \TT{1},
-etc.) but other characters are represented by character sequences
-that begin with \TT{<} and end with \TT{>}; e.g., \TT{<LF>} represents
-a line feed character and \TT{<Q>} represents \TT{"}.
-A \key{comment} is a pair of \TT{/}'s followed by a sequence
-of {\em graphic-} and {\em white-space-characters}.
-
-Outside {\em quoted-strings} and {\em comments},
-a \ttkey{'} is a {\em word-character} if it is followed by a letter,
-a {\em numeric-character} if it is followed by a digit,
-and a {\em separator-character} otherwise.
-Similarly a \TT{.} is a {\em numeric-character} (decimal point) if it
-is followed by a digit, and a {\em mark-character} otherwise;
-a \ttkey{,} is a {\em numeric-character} if surrounded by digits, and
-a {\em separator-character} otherwise;
-a \ttkey{/} is a {\em numeric-character} if surrounded by digits, and
-a {\em mark-character} otherwise;
-and a \ttkey{:} is a {\em numeric-character} if surrounded by digits, and
-a {\em mark-character} otherwise.
 
 Lexemes may be separated by \key{white-space}, which
 is a sequence of white-space characters (single space, horizontal tab, form
 feed, etc.), but is not itself a lexeme.
 
 \begin{indpar}
-\emkey{white-space} :::= {\em white-space-character}\PLUS{} \\[1ex]
+\emkey{white-space} :::= {\em white-space-character}
+                         {\em white-space-character}\,$^\star$ \\[1ex]
 \emkey{white-space-character}
     \begin{tabular}[t]{rl}
     :::= & {\em horizontal-space-character} \\
@@ -1411,46 +1242,79 @@ feed, etc.), but is not itself a lexeme.
     \end{tabular}
     \\[1ex]
 \emkey{horizontal-space-character} :::=
-    \key{space} $|$ \key{horizontal-tab} \\[1ex]
-\emkey{vertical-space-character} :::=
-    \key{line-feed} $|$ \key{vertical-tab} $|$ \key{form-feed}
+    \key{single-space-character} $|$ \key{horizontal-tab-character} \\[1ex]
+\emkey{vertical-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & \key{line-feed-character} \\
+    $|$ & \key{vertical-tab-character} \\
+    $|$ & \key{form-feed-character} \\
+    \end{tabular}
 \end{indpar}
+
+The character set is UTF-8 encoded UNICODE.
 
 The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
 that define lexemes or parts of lexemes whose syntactic elements are
 character sequences that must \underline{not} be separated by {\em white-space}.
 The symbol `\ttmkey{::=}{in syntax equation}'
 is used in syntax equations that define sequences of lexemes that may
-and sometimes must be separated by {\em white-space}.
+and sometimes must be separated by \emkey{white-space}.
 {\em Comments} are treated as lexemes, but are discarded before the
 lexeme stream is transmitted to the parser.
 
 Non-{\em white-space} control characters are ignored, as if they
 did not exist, except that a warning message may be issued.  However
-no warning is issued for \emskey{carriage-return}s that are next to
+no warning is issued for \emskey{carriage-return-character}s that are next to
 a {\em vertical-space-character}.
 
-The tabs used by the {\em horizontal-tab} character are set every
+The tabs stops used by the \emkey{horizontal-tab-character} are set every
 8 columns.
 
-Every {\em vertical-space-character} causes the current position to
+Every \emkey{vertical-space-character} causes the current position to
 return to the beginning of a new line.
-{\em Horizontal-space-characters} before a {\em vertical-space-character}
+\emikey{Horizontal-space-characters}{horizontal-space-character}
+before a {\em vertical-space-character}
 are ignored, as if they did not exist.
-Warning messages are issued for {\em form-feeds} and {\em vertical-tabs}
+Warning messages are issued for \emskey{form-feed-character}s
+and \emskey{vertical-tab-character}s
 that occur when the column position is not at the beginning of a line.
 
-{\em Numerics} represent \key{numbers}\label{NUMBER} which are stored
+The definition of a \emkey{middle-lexeme} is unusual: it is what is left over
+after removing \emkey{leading-separators} and \emkey{trailing-separators}
+from a \emkey{lexical-item}.  The lexical scan first scans a
+{\em lexical-item}, and then removes
+{\em leading-separators} and {\em trailing-separators} from it.
+Also {\em trailing-separators} are removed
+from the end of a {\em lexical-item} by a right-to-left scan, and not
+the usual left-to-right scan which is used for everything else.
+Thus the {\em lexical-item} `\TT{`4,987,{},::'}' yields the
+{\em leading-separator} `\TT{`}', the {\em middle-lexeme} `\TT{4,987}',
+and the four {\em trailing-separators} `\TT{,}' `\TT{,}', `\TT{::}', and
+`\TT{'}'.
+
+{\em Middle-lexemes} are divided into the
+the three classes, \emkey{words}, \emkey{numerics}, and \emkey{marks}.
+Unlike some other languages, {\em marks} must be separated by
+{\em white-space} from {\em words} and {\em numerics}.
+
+\emikey{Numerics}{numerics}
+often represent \key{numbers}\label{NUMBER} which are stored
 as strings of binary
 digits.  Several {\em numerics} may represent the same number.  For example,
 \TT{007} and \TT{7} both represent the same number,
 and \TT{15/2}, \TT{7.5}, and \TT{7.50} all represent the same number.
+Some {\em numerics} may be split into an initial {\em numeric} denoting
+a number and a following {\em word} denoting a units measure.  E.g.,
+`\TT{5in}' might be split into `\TT{5}' and `\TT{in}' (for inches).
+See Section~\itemref{LEXEME-SPLITTING}.
 
 {\em Words}, {\em marks}, {\em separators}, and {\em quoted-strings}
 represent \skey{symbol}s\label{SYMBOL} which are stored as character strings.
 The character strings represented by
 {\em words}, {\em marks}, and {\em separators}
 are exactly the character strings of these lexemes.
+
+TBD
 
 The character string represented by a {\em quoted-string} with no
 {\em special-character-representatives}
