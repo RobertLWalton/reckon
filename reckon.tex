@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 9, 2016}
+\date{April 10, 2016}
 
 \maketitle
 
@@ -1314,16 +1314,85 @@ The character strings represented by
 {\em words}, {\em marks}, and {\em separators}
 are exactly the character strings of these lexemes.
 
-TBD
+The string of characters represented by a
+\emkey{quoted-string}\label{QUOTED-STRING}
+is recognized by
+a left-to-right scan in which each {\em character-representative}
+is translated into one UNICODE character.
+Most characters
+simply translate to themselves, but {\em special-character-representatives}
+are sequences of characters that represent just one UNICODE character.
+The beginning and ending quotes (\TT{"}) are \underline{not}
+included in the represented character string.
 
-The character string represented by a {\em quoted-string} with no
-{\em special-character-representatives}
-is just the {\em quoted-string} lexeme in its entirety,
-including its surrounding quotes (\TT{"}).
-{\em Special-charac\-ter-representatives} inside the \TT{"}'s of a
-quoted string may be used to represent various characters: for
-example, the {\em quoted-string} \TT{"<Q>Help!<Q>"} represents the
-9-character symbol \TT{""Help!""}.
+Figure \itemref{SPECIAL-CHARACTER-REPRESENTATIVES} defines
+{\em special-character-representatives}.  Mnemonics are given
+for ASCII control characters and the \TT{"} character.
+For other characters, any hexadecimal number in
+\TT{<~>} brackets that begins with a decimal digit is interpreted as
+representing the UNICODE character whose character code is the given
+hexadecimal number.  Thus that \TT{<FF>} represents the ASCII form feed,
+while \TT{<0FF>} represents the UNICODE \"y character which has character
+code FF in hexadecimal.
+
+\begin{boxedfigure}[!t]
+
+\begin{center}
+\begin{tabular}{lp{2in}}
+\tttkey{NUL} & nul \\
+\tttkey{SOH} & start of heading \\
+\tttkey{STX} & start of text \\
+\tttkey{ETX} & end of text \\
+\tttkey{EOT} & end of transmission \\
+\tttkey{ENQ} & enquiry \\
+\tttkey{ACK} & acknowledge \\
+\tttkey{BEL} & bell \\
+\tttkey{BS}  & backspace \\
+\tttkey{HT}  & horizontal tab \\
+\tttkey{LF}  & line feed \\
+\tttkey{VT}  & vertical tab \\
+\tttkey{FF}  & form feed \\
+\tttkey{CR}  & carriage ret \\
+\tttkey{SO}  & shift out \\
+\tttkey{SI}  & shift in \\
+\tttkey{DLE} & data link escape
+\\[1ex]
+\tttkey{NL}  & new line (equals \TT{<LF>}) \\
+\end{tabular}
+\begin{tabular}{lp{2in}}
+\tttkey{DC1} & device control 1 \\
+\tttkey{DC2} & device control 2 \\
+\tttkey{DC3} & device control 3 \\
+\tttkey{DC4} & device control 4 \\
+\tttkey{NAK} & negative ack. \\
+\tttkey{SYN} & synchronous idle \\
+\tttkey{ETB} & end of transmission block \\
+\tttkey{CAN} & cancel \\
+\tttkey{EM}  & end of medium \\
+\tttkey{SUB} & substitute \\
+\tttkey{ESC} & escape \\
+\tttkey{FS}  & file separator \\
+\tttkey{GS}  & group separator \\
+\tttkey{RS}  & record separator \\
+\tttkey{US}  & unit separator \\
+\tttkey{SP}  & single space \\
+\tttkey{DEL} & delete
+\\[1ex]
+\tttkey{Q}  & double quote (\TT{"}) \\
+\end{tabular}
+\\[1ex]
+{\em special-character-representative}
+    \begin{tabular}[t]{@{}rl}
+    :::= & one of the above \\
+     $|$ & \TT{<} {\em decimal-digit} {\em hexadecimal-digit}\STAR{} \TT{>}
+    \end{tabular}
+\end{center}
+
+\caption{Special Character Representatives}
+\label{SPECIAL-CHARACTER-REPRESENTATIVES}
+\end{boxedfigure}
+
+TBD
 
 Symbols and numbers are referred to as \skey{atom}s.\label{ATOM}
 
