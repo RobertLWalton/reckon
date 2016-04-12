@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 10, 2016}
+\date{April 12, 2016}
 
 \maketitle
 
@@ -1392,51 +1392,21 @@ code FF in hexadecimal.
 \label{SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
 
-TBD
-
 Symbols and numbers are referred to as \skey{atom}s.\label{ATOM}
 
-Symbols that begin and end with \TT{"}'s are called \key{quoted symbols}.
-In many contexts, such symbols are \skey{dequote}d\label{DEQUOTE}
-by having their
-beginning and ending \TT{"}'s removed.  Dequoting a symbol that does
-not begin with \TT{"} or does not end with \TT{"} does nothing to the
-symbol.  Dequoting a number atom does nothing to the atom.
+Lexemes are contained in lines, and are tagged with the line and column numbers
+of their first character and of the first character following the lexeme
+(or of an imaginary end-of-file character).
+Physical lines that begin with a comment can contain only that comment,
+and are called \skey{comment line}s.
+The beginning column number of the
+first lexeme in a non-blank, non-comment physical line is called
+the \mkey{indent}{of physical line} of the physical line
+and can be used to indicate that one physical line is a
+continuation of the current logical line
+and to organize lines into indented subparagraphs.
 
-In other contexts symbols
-are \skey{quote protect}{ed} by converting them to {\em quoted-string}
-lexemes if and only if they are not the character strings of a
-{\em word} lexeme.  Quote protecting a number atom does nothing to
-the atom.
-
-Also symbols can be \ikey{quoted}{quote!a symbol} by adding a \TT{"}
-character to each end.
-
-Input to the parser is a string of atoms that have not been dequoted,
-while output from the parser is dequoted.
-Thus \TT{+} and \TT{"+"} are not the same when input, but when
-output they are the same.
-For instance, given \TT{x + y} as input the parser will recognize
-\TT{+} as an operator and output \TT{+ x y},
-but given \TT{x "+" y} as input the parser will output \TT{x + y}.
-
-Lexemes are contained in lines.  Line beginnings
-are translated into a special lexeme which is
-input to the parser.  Lines can also be organized into indented subparagraphs
-whose beginnings and endings are translated into special sequences of
-lexemes that are input to the parser.
-
-A non-blank line beginning translates into the lexeme `\ttkey{<*>}', unless
-the line is the first non-blank line of an indented
-subparagraph (see below).
-
-A non-blank line can be \mkey{continued}{line} by a following sequence of
-\emkey{continuation-lines}.  These must be non-blank and
-have an indentation greater than that of the \emkey{continuted-line}.
-However their indentations may differ, as long
-as each is indented more than that of the initial {\em continued-line}.
-A {\em continuation-line} may contain just a {\em comment}.
-Thus
+Thus the physical lines:
 
 \begin{indpar}\begin{verbatim}
 This is a line
@@ -1445,111 +1415,136 @@ This is a line
    and continued.
 \end{verbatim}\end{indpar}
 
+represent one logical line containing the lexeme sequence:
+
+\begin{indpar}\begin{verbatim}
+This is a line which is continued and continued .
+\end{verbatim}\end{indpar}
+
+At any point there is an \key{current paragraph indent}, which is
+initially \TT{0}.  A physical
+line whose indent equals the current paragraph indent begins a new
+\key{logical line}.  A physical line whose indent exceeds the current
+paragraph indent continues the current logical line, and is called
+a \key{continuation line}, unless it is the first physical line of an indented
+paragraph as described in the following.
+
+A `\TT{:}' lexeme at the end of a physical line begins an
+\key{indented paragraph}.  If the indent of the next non-blank, non-comment
+physical line exceeds the current paragraph indent, the indent of this
+line becomes the new current paragraph indent, and this line
+begins the first logical line of the paragraph.  The paragraph
+ends just \underline{before} the next non-blank, non-comment physical line
+whose indent is less than the new paragraph indent, or just
+before the end-of-file if that occurs first.
+
+The current paragraph indent is saved when the paragraph begins
+and restored when the paragraph ends.  If the first non-blank, non-comment
+physical line after
+the `\TT{:}' has an indent that does not exceed the current paragraph
+indent (before it is reset), the paragraph is empty (has no logical lines).
+
+Thus we have:
+
+\begin{indpar}\begin{verbatim}
+This is a logical line.
+And another
+    logical line.
+And a logical line ending with an indented paragraph:
+
+    // A comment that can be ignored.
+    The first logical line of the
+        indented paragraph.
+
+    The second logical line
+        of the indented paragraph.
+    The third logical line of the indented
+        paragraph containing an indented subparagraph:
+
+            Line 1 of subparagraph.
+
+            Line 2 of subparagraph.
+
+        that is not at the end of this third logical
+             line.
+             // A comment that can be ignored.
+    The fourth logical line of the indented paragraph.
+// A comment that can be ignored.
+The line after the indented paragraph.
+\end{verbatim}\end{indpar}
+
+The paragraph becomes a subexpression of the logical line that included
+the paragraph beginning `\TT{:}'.  It is usually the last subexpression
+in this logical line, but need not be if the paragraph containing
+logical line has a continuation line after the paragraph, as is the
+case in the example where the third logical line of the indented
+paragraph contains an embedded subparagraph.
+
+There are some special rules for gluing together lexemes within
+a logical line:
+
+\begin{enumerate}
+\item Two consecutive \emskey{quoted-string}s in a logical line
+are concatenated \underline{after} {\em character-represen\-ta\-tives}
+have been replaced by the characters they represent.
+
+Thus \TT{"<" "LF" ">"} is equivalent to a single {\em quoted-string}
+lexeme with the 4 characters `\TT{<}', `\TT{L}', `\TT{F}', and
+`\TT{>}', whereas \TT{"<LF>"} is a {\em quoted-string} with only
+1 character, a line feed.
+
+\label{CONTINUATION-GLUING}
+\item
+If a physical line which is immediately followed by a continuation line
+ends with a {\em word-item} that
+contains 4 or more characters ending with a `\TT{-}',
+and the continuation line begins with a {\em word-item},
+the two {\em word-items}
+will be glued together with the line ending `\TT{-}' deleted.
+The {\em word-item} on the continuation line may also begin
+with a `\TT{-}', which will not be deleted.
+
+For example,
+
+\begin{indpar}\begin{verbatim}
+This is a word-
+     -that-is-con-
+     tinued.
+\end{verbatim}\end{indpar}
+
 translates to the lexeme squence
 
 \begin{indpar}\begin{verbatim}
-<*> This is a line which is continued and continued .
+This is a word-that-is-continued .
 \end{verbatim}\end{indpar}
 
-All that has been done here is to omit the \TT{<*>} line beginning
-lexemes of the continuation lines.
+\item
+If a physical line which is immediately followed by a continuation line
+ends with a {\em word-item} that
+contains 4 or more characters ending with a `\TT{\_}',
+`\TT{/}', `\TT{@}', or `\TT{\&}',
+and the continuation line begins with a {\em word-item},
+the two {\em word-items}
+will be glued together
+(but the line ending `\TT{\_}', `\TT{/}', `\TT{@}', `\TT{\&}'
+will \underline{not} be deleted).
 
-A \key{subparagraph}, also known as a \key{subblock},
-is introduced by a `\ttmkey{:}{introducing subparagraph}'
-at the end of a line.  This translates to the lexeme sequence
-`\ttkey{\{:}' and also specifies that the next non-blank
-line is not a continuation of any previous line.  If the
-indentation of this next non-blank line is larger than the
-indentation of the line ending with `\TT{:}', this
-indentation becomes the indentation of the
-subparagraph, and all the lines of the subparagraph.  When a
-line with smaller indentation is encountered, it is interpreted
-as the first line beyond the end of the subparagraph, and
-the lexeme squence `\ttkey{:\}}' is inserted just after
-the last lexeme in the last subparagraph line (or
-just after \TT{\{:} if the subparagraph is empty).
-
-Each subparagraph line but the first begins with a `\TT{<*>}'
-lexeme.  This `\TT{<*>}' lexeme is suppressed for the first
-line, so it serves as a line separator within
-the subparagraph `\TT{\{:\ldots:\}}'.
-
-
-Thus
+For example,
 
 \begin{indpar}\begin{verbatim}
-This is a line:
-     And a subparagraph
-         line.
-     And another.
-And more.
-\end{verbatim}\end{indpar}
-
-translates to the lexeme sequence
-
-\begin{indpar}\begin{verbatim}
-<*> This is a line {:
-        And a subparagraph line.
-    <*> And another. :}
-<*> And more.
-\end{verbatim}\end{indpar}
-
-If the next non-blank line after a line ending in `\TT{:}' does
-not have a greater indent than the line ending in `\TT{:}', the
-subparagraph is empty, and all that happens is that the line
-ending `\TT{:}' is replaced by `\TT{\{:~:\}}'.
-
-`\TT{:\}}' sequences are added at the end of a file to
-match any unmatched `\TT{\{:}' sequences from subparagraphs
-that extend to the end of file.  This is \underline{not}
-an error.
-
-A line ending `\TT{:}' is a character and not a lexeme; if it
-is at the end of a {\em mark}, it is removed from the {\em mark}.
-Thus
-
-\begin{indpar}\begin{verbatim}
-x =:
-     y = 5
-     z = 10
-\end{verbatim}\end{indpar}
-
-translates to the lexeme sequence
-
-\begin{indpar}\begin{verbatim}
-<*> x = {: y = 5 <*> z = 10 :}
-\end{verbatim}\end{indpar}
-
-Blank lines are ignored unless they appear just before a non-blank,
-non-continuation
-line outside any subparagraph,
-in which case they are translated into the `\ttkey{<\#>}' lexeme if
-the line they appear before is not indented, and into the
-`\ttkey{<\#\#>}' lexeme if the line they appear before is indented.
-Note that a blank line before another blank line is ignored.  Thus
-
-\begin{indpar}\begin{verbatim}
-This is a line
-     which is continued.
-
-And more.
-
-   And yet more.
+The URL is http://www.qed.fmp/
+    whatsits@
+    bits_and_
+    pieces.
 \end{verbatim}\end{indpar}
 
 translates to the lexeme squence
 
-\begin{indpar}\begin{verbatim}
-<*> This is a line which is continued .
-<#> <*> And more .
-<##> <*> And yet more .
+\begin{indpar}[0.1in]\begin{verbatim}
+The URL is http://www.qed.fmp/whatsits@bits_and_pieces .
 \end{verbatim}\end{indpar}
 
-
-A single \TT{<\#>} or \TT{<\#\#>} lexeme is also placed at the beginning of
-a file that begins with a non-blank line, as if a blank line 
-had been inserted at the beginning of the file.
-
+\end{enumerate}
 
 \section{Names}
 
