@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 12, 2016}
+\date{April 13, 2016}
 
 \maketitle
 
@@ -1134,7 +1134,7 @@ contains in order the following lexemes:
 \tt 7ft	& numeric	& \tt This & word \\
 \tt 1	& numeric	& \tt is & word \\
 \tt 3/4	& numeric	& \tt ( & (strict) separator \\
-\tt in	& word		& \tt we & word \\
+\tt in	& unit		& \tt we & word \\
 \tt ;	& (trailing) separator	& \tt think & word \\
 	& 		& \tt ) & (strict) separator \\
 	& 		& \tt a & word \\
@@ -1148,7 +1148,7 @@ contains in order the following lexemes:
 
 \begin{indpar}
 \emkey{lexeme}
-	::= {\em word} $|$ {\em mark} $|$ {\em numeric}
+	::= {\em middle-lexeme}
 	$|$ {\em separator}
 	$|$ {\em quoted-string}
 	$|$ {\em comment}
@@ -1203,12 +1203,6 @@ contains in order the following lexemes:
 				   \TT{;} $|$
 				   \TT{,}
 \\[0.5ex]
-\emkey{word} :::= {\em middle-lexeme} that has a letter before any digit
-\\[0.5ex]
-\emkey{numeric} :::= {\em middle-lexeme} that has a digit before any letter
-\\[0.5ex]
-\emkey{mark} :::= {\em middle-lexeme} other than {\em word} or {\em numeric}
-\\[0.5ex]
 \emkey{separator}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em strict-separator} \\
@@ -1216,7 +1210,7 @@ contains in order the following lexemes:
     $|$ & {\em trailing-separator}
     \end{tabular}
 \\[0.5ex]
-\emkey{symbol} :::= {\em word} $|$ {\em mark} $|$ {\em separator}
+\emkey{symbol} :::= {\em middle-lexeme} $|$ {\em separator}
                 $|$ {\em quoted-string}
 \\[1ex]
 \emkey{comment} :::=
@@ -1292,26 +1286,10 @@ Thus the {\em lexical-item} `\TT{`4,987,{},::'}' yields the
 and the four {\em trailing-separators} `\TT{,}' `\TT{,}', `\TT{::}', and
 `\TT{'}'.
 
-{\em Middle-lexemes} are divided into the
-the three classes, \emkey{words}, \emkey{numerics}, and \emkey{marks}.
-Unlike some other languages, {\em marks} must be separated by
-{\em white-space} from {\em words} and {\em numerics}.
-
-\emikey{Numerics}{numerics}
-often represent \key{numbers}\label{NUMBER} which are stored
-as strings of binary
-digits.  Several {\em numerics} may represent the same number.  For example,
-\TT{007} and \TT{7} both represent the same number,
-and \TT{15/2}, \TT{7.5}, and \TT{7.50} all represent the same number.
-Some {\em numerics} may be split into an initial {\em numeric} denoting
-a number and a following {\em word} denoting a units measure.  E.g.,
-`\TT{5in}' might be split into `\TT{5}' and `\TT{in}' (for inches).
-See Section~\itemref{LEXEME-SPLITTING}.
-
-{\em Words}, {\em marks}, {\em separators}, and {\em quoted-strings}
-represent \skey{symbol}s\label{SYMBOL} which are stored as character strings.
+{\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} are 
+represent as \skey{symbol}s\label{SYMBOL} which store character strings.
 The character strings represented by
-{\em words}, {\em marks}, and {\em separators}
+{\em middle-lexemes} and {\em separators}
 are exactly the character strings of these lexemes.
 
 The string of characters represented by a
@@ -1334,6 +1312,60 @@ representing the UNICODE character whose character code is the given
 hexadecimal number.  Thus that \TT{<FF>} represents the ASCII form feed,
 while \TT{<0FF>} represents the UNICODE \"y character which has character
 code FF in hexadecimal.
+
+\emikey{Middle-lexemes}{middle-lexeme} are further classified as
+follows:
+
+\begin{indpar}
+\emkey{middle-lexeme}
+    \begin{tabular}[t]{rl}
+    :::= & {\em word} \\
+    $|$ & {\em index} \\
+    $|$ & {\em numeric} \\
+    \end{tabular}
+\\[1ex]
+\emkey{word} ::=
+    \begin{tabular}[t]{l}
+    {\em middle-lexeme} that \\
+    (1) contains a letter \\
+    (2) contains only letters, digits
+    and the characters: \TT{`} \TT{'} \TT{.} \TT{-} \TT{\_} \\
+    (3) does not have any digit before its first letter \\
+    (4) does not begin with \TT{`} or end with \TT{'~.~-~\_} \\
+    \end{tabular}
+\\[1ex]
+\emkey{index} ::=
+    \begin{tabular}[t]{l}
+    {\em middle-lexeme} that \\
+    (1) contains only digits and the characters: \TT{.~-} \\
+    (2) surrounds every \TT{-} by digits \\
+    (3) follows every \TT{.} by a digit \\
+    \end{tabular}
+\\[1ex]
+\emkey{numeric} ::=
+    \begin{tabular}[t]{l}
+    {\em middle-lexeme} that \\
+    (1) contains a digit or \TT{\#} \\
+    (2) either contains a \TT{\#} or does not have a letter before the
+        first digit
+    \end{tabular}
+\\[1ex]
+\emkey{mark} ::= {\em middle-lexeme} that is not a {\em word} or {\em numeric}
+\end{indpar}
+
+There are many special kinds of {\em numerics}
+(see Section~\itemref{SPECIAL-NUMERICS})
+and {\em marks} (see Section~\itemref{SPECIAL-MARKS}): for
+example, \TT{05may1999} is a date {\em numeric} and \TT{/5.2/} is
+a format mark.  {\em Words}, however, never
+special, and can be used to form names of variables, constants, and functions.
+Some of these names, however, have builtin definitions, such as the
+words `\TT{ft}' and `\TT{in}' which in some contexts are units
+(see Section~\itemref{UNITS}),
+and `\TT{PI}' which is some contexts denotes the mathematical
+constant $\pi$.  {\em Indices} may, according to context, be used
+as non-initial components of names, or if they contain at most one
+`\TT{.}', may be used as a {\em numeric} denoting a number.
 
 \begin{boxedfigure}[!t]
 
@@ -1392,7 +1424,7 @@ code FF in hexadecimal.
 \label{SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
 
-Symbols and numbers are referred to as \skey{atom}s.\label{ATOM}
+
 
 Lexemes are contained in lines, and are tagged with the line and column numbers
 of their first character and of the first character following the lexeme
