@@ -1327,45 +1327,125 @@ follows:
 \emkey{word} ::=
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
-    (1) contains a letter \\
-    (2) contains only letters, digits
+    \begin{tabular}[t]{rll}
+        & (1) & contains a letter \\
+    and & (2) & contains only letters, digits
     and the characters: \TT{`} \TT{'} \TT{.} \TT{-} \TT{\_} \\
-    (3) does not have any digit before its first letter \\
-    (4) does not begin with \TT{`} or end with \TT{'~.~-~\_} \\
+    and & (3) & does not have any digit before its first letter \\
+    and & (4) & does not begin with \TT{`} or end with \TT{'~.~-~\_} \\
+    \end{tabular}
     \end{tabular}
 \\[1ex]
 \emkey{index} ::=
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
-    (1) contains only digits and the characters: \TT{.~-} \\
-    (2) surrounds every \TT{-} by digits \\
-    (3) follows every \TT{.} by a digit \\
+    \begin{tabular}[t]{rll}
+        & (1) & contains only digits and the characters: \TT{.~-} \\
+    and & (2) & surrounds every \TT{-} by digits \\
+    and & (3) & follows every \TT{.} by a digit \\
+    \end{tabular}
     \end{tabular}
 \\[1ex]
 \emkey{numeric} ::=
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
-    (1) contains a digit or \TT{\#} \\
-    (2) either contains a \TT{\#} or does not have a letter before the
-        first digit
+    \begin{tabular}[t]{rll}
+    either & (1) & contains a digit not preceeded by a letter \\
+    or     & (2) & contains a \TT{\#} and either a letter or a digit
+    \end{tabular}
     \end{tabular}
 \\[1ex]
 \emkey{mark} ::= {\em middle-lexeme} that is not a {\em word} or {\em numeric}
 \end{indpar}
 
-There are many special kinds of {\em numerics}
-(see Section~\itemref{SPECIAL-NUMERICS})
-and {\em marks} (see Section~\itemref{SPECIAL-MARKS}): for
-example, \TT{05may1999} is a date {\em numeric} and \TT{/5.2/} is
-a format mark.  {\em Words}, however, never
-special, and can be used to form names of variables, constants, and functions.
-Some of these names, however, have builtin definitions, such as the
-words `\TT{ft}' and `\TT{in}' which in some contexts are units
-(see Section~\itemref{UNITS}),
-and `\TT{PI}' which is some contexts denotes the mathematical
-constant $\pi$.  {\em Indices} may, according to context, be used
+There are many special kinds of {\em numerics} and {\em marks}:
+\begin{indpar}
+    \begin{tabular}[t]{lrl@{~~~~~}ll}
+  &     & & Section & Example \\[1ex]
+\multicolumn{5}{l}{\emkey{special-numeric}~~::=} \\
+~~~~
+  &     & {\em natural-number}
+        & \itemref{NATURAL-NUMBERS}
+        & \TT{43} \\
+  & $|$ & {\em fractional-number}
+        & \itemref{FRACTIONAL-NUMBERS}
+        & \TT{4/3} \\
+  & $|$ & {\em scientific-number}
+        & \itemref{SCIENTIFIC-NUMBERS}
+        & \TT{4.3} \\
+  & $|$ & {\em date}
+        & \itemref{DATES}
+        & \TT{4may1903} \\
+  & $|$ & {\em time}
+        & \itemref{TIMES}
+        & \TT{4:30} \\
+  & $|$ & {\em radix-number}
+        & \itemref{RADIX-NUMBERS}
+        & \TT{x\#43}
+\\[1ex]
+\multicolumn{5}{l}{\emkey{special-mark}~~::=} \\
+~~~~
+  &     & {\em unit}
+        & \itemref{UNITS}
+        & \TT{mi/hr} \\
+  & $|$ & {\em format}
+        & \itemref{FORMATS}
+        & \TT{/4.1/} \\
+    \end{tabular}
+\end{indpar}
+
+{\em Words}, however, are never
+special, and can be used to form names of variables, constants, and functions,
+which are called `\skey{defined names}':
+
+\begin{indpar}
+\emkey{defined-name} ::=
+    \{ {\em word} $|$ {\em quoted-string} \}
+    \{ {\em word} $|$ {\em quoted-string} $|$ {\em index} \}\STAR{} \\
+\end{indpar}
+
+Some {\em defined-names}, however, have builtin definitions, such as the
+words `\TT{ft}' and `\TT{inch}' which in some contexts denote the
+units `foot' and `inch' (see Section~\itemref{UNITS}),
+and `\TT{PI}' which in some contexts denotes the mathematical
+constant $\pi$ (see Section~\itemref{BUILTIN-CONSTANTS}).
+
+{\em Indices} are also {\em numerics}.
+They may, according to context, be used
 as non-initial components of names, or if they contain at most one
-`\TT{.}', may be used as a {\em numeric} denoting a number.
+`\TT{.}', be used as special {\em numeric} lexemes denoting numbers.
+Thus in
+
+\begin{indpar}\begin{verbatim}
+X 1 = 2
+Y 3.3 = 4.4
+Z .5 = .6
+\end{verbatim}\end{indpar}
+
+`\TT{1}', `\TT{3.3}', and `\TT{.5}' are used as {\em indices}
+in {\em defined-names}, while `\TT{2}', `\TT{4.4}', and `\TT{.6}'
+are used to denote numbers.
+
+{\em Quoted-strings} are used as if they were {\em words}.
+For example:
+
+\begin{indpar}\begin{verbatim}
+"+" = 5
+X = "+" + 1
+Y = `X + 3' 
+Z = `X'
+T = `"A line.<LF>"'
+\end{verbatim}\end{indpar}
+
+defines a variable named \TT{"+"} with value \TT{3}, a variable
+name \TT{X} with value \TT{4}, and
+a variable named \TT{Y} with value being the text \TT{X + 3},
+i.e., the vector whose 3 elements are the symbols
+\TT{X}, \TT{+}, and \TT{3}.  \TT{Z} is a variable whose
+value is a single symbol whose character string contains
+the single character \TT{X}.
+\TT{T} is a variable whose value is the single symbol
+whose character string is that of the {\em quoted-string} \TT{"A line.<LF>"}.
 
 \begin{boxedfigure}[!t]
 
