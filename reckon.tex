@@ -1561,27 +1561,22 @@ stands of `Not a Number'.  The fraction \TT{$N$/0} for $N>0$
 denotes \TT{+inf}, or plus infinity, while \TT{-~$N$/0} denotes
 \TT{-inf}, or minus infinity.
 
-\subsection{Scientific Numbers}
-\label{SCIENTIFIC-NUMBERS}
+\subsection{Scientific Numeric}
+\label{SCIENTIFIC-NUMERIC}
 
-A \key{scientific number} is a {\em numeric} which contains only
-digits plus an optional decimal point and optional commas,
-with an optional preceeding sign and an optional trailing exponent:
+A \emkey{scientific-numeric} is a {\em numeric} consisting
+of an {\em integral-numeric} optionally followed by a {\em fractional-part}
+which is optionally followed by an {\em exponent-part}:
 
 \begin{indpar}
-\emkey{scientific-number} ::= {\em sign}\QMARK{} {\em scientific-numeric}
-			     {\em exponent}\QMARK{} \\[1ex]
-\emkey{sign} ::= \TT{+} $|$ \TT{-} \label{SIGN} \\[1ex]
-\emkey{scientific-numeric} :::= {\em integral-numeric}
-       {\em fractional-part}\QMARK{} \\[1ex]
-\emkey{integral-numeric} :::= {\em digit}\PLUS{}
-	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
-	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{} \\[1ex]
+\emkey{scientific-numeric} ::= {\em integer-numeric}
+			       {\em fractional-part}\QMARK{}
+			       {\em exponent-part}\QMARK{} \\[1ex]
 \emkey{fractional-part} :::= \TT{.} {\em digit}\PLUS{}
 	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{} \\[1ex]
-\emkey{exponent} ::= {\em exponent-indicator} {\em sign}\QMARK{}
-                     {\em integral-numeric} \label{EXPONENT} \\[1ex] 
+\emkey{exponent-part} ::= {\em exponent-indicator} {\em sign}\QMARK{}
+                          {\em digit}\PLUS{} \\[1ex] 
 \emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
 \end{indpar}
 
@@ -1593,7 +1588,10 @@ An {\em exponent} shifts the decimal point (including the implied
 decimal point at the end of the {\em scientific-numeric} that has
 no decimal point); a positive exponent shifts right and a negative
 exponent shifts left.
-Note that exponents cannot contain commas.
+There may be at most one point.
+Commas may be used before the point without being used after the
+point, and vice versa.
+Exponents cannot contain commas.
 
 Some examples are:
 
@@ -1606,6 +1604,96 @@ Some examples are:
 				& 0.123,456e-3 & 1,234.567890e6 \\
 \end{tabular}
 \end{indpar}
+
+\subsection{Radix Numerics}
+\label{RADIX-NUMERIC}
+
+A \emkey{radix-numeric} is the same as a {\em scientific-numeric}
+except that it is prefaced (after any {\em sign}) by a
+{\em radix-indicator}, and the
+permissible {\em digits} and comma spacings depend upon this indicator:
+
+\begin{indpar}
+\emkey{radix-numeric} ::= \\
+\hspace*{0.2in}
+    {\em sign}\QMARK{} {\em radix-indicator}
+    {\em radix-natural-part}
+    {\em radix-fractional-part}\QMARK{}
+    {\em exponent-part}\QMARK{}
+\\[1ex]
+\emkey{sign} ::= \TT{+} $|$ \TT{-}
+\\[1ex]
+\emkey{radix-indicator} ::= \TT{B\#} $|$ \TT{b\#} $|$
+                            \TT{O\#} $|$ \TT{o\#} $|$
+			    \TT{D\#} $|$ \TT{d\#} $|$
+			    \TT{X\#} $|$ \TT{x\#}
+\\[1ex]
+\emkey{radix-natural-part} :::= {\em radix-digit}\PLUS{}
+	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
+\\[1ex]
+\emkey{radix-fractional-part} :::= {\em radix-digit}\PLUS{}
+	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
+\\[1ex]
+\emkey{exponent-part} ::= {\em exponent-indicator} {\em sign}\QMARK{}
+                          {\em digit}\PLUS{} \\[1ex] 
+\emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
+\end{indpar}
+
+The {\em radix-indicators} have the following denotations:
+
+\begin{center}
+\begin{tabular}{clll}
+\bf Radix Indicator
+	& \bf Meaning	& \bf Digits 		& \bf Comma Positions
+\\[1ex]
+\TT{B\#} or \TT{b\#}
+        & binary	& \TT{0}, \TT{1}	& every 2, 3, 4, or 5 digits \\
+\TT{O\#} or \TT{o\#}
+        & octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
+			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
+			  			& every 2, 3, or 4 digits \\
+\TT{D\#} or \TT{d\#}
+        & decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
+			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
+			  \TT{8}, \TT{9}	& every 3 digits \\
+\TT{X\#} or \TT{x\#}
+        & hexa-decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
+			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
+			  \TT{8}, \TT{9},	& every 2 or 4 digits \\
+	&		& \TT{A}, \TT{B}, \TT{C}, \TT{D},
+			  \TT{E}, \TT{F}, \\
+	&		& \TT{a}, \TT{b}, \TT{c}, \TT{d},
+			  \TT{e}, \TT{f} \\
+\end{tabular}
+\end{center}
+
+Only certain {\em radix-digits} are permitted: e.g., the digit \TT{2}
+is not allowed with \TT{B\#} and the digit \TT{E} is not allowed
+with \TT{D\#}.  Only certain comma spacings are permitted, and comma
+spacing must be consistent.  Thus \TT{x\#A,C9,BD,8F} is permitted but
+\TT{x\#A,C9B,D8F} is not (3-spacing not allowed for hexa-decimal),
+and \TT{x\#A,C9,BD8F} is not permitted (2-spacing combined with
+4-spacing is not consistent).
+There may be at most one point.
+Commas may be used before the point without being used after the
+point, and vice versa.
+
+Some example {\em radix-numbers} are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
+B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
+B\#"101101"E2	& O\#".7753"   & D\#"97.58"	& X\#".fe8a"e-4 \\
+B\#"10,1101"E+2	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A.7CCD,83" \\
+B\#"101,101"E2	& O\#"0.2345,6"  & D\#".123,5"	& X\#"E8A,932B.7C" \\
+\end{tabular}
+\end{indpar}
+
+Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMERIC}
+the {\em exponent-part} shifts the decimal point right (if +) or left (if -)
+by some number of digits (in the given radix).  The {\em digits}
+in the {\em exponent-part} are always decimal.
 
 
 \subsection{Dates}
@@ -1803,92 +1891,6 @@ and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-numeric}.
 It is possible to get negative numbers, which indicate a time in the previous
 GMT day.
 
-\subsection{Concatenated Quoted Strings}
-\label{CONCATENATED-QUOTED-STRINGS}
-
-A \key{concatenated quoted string} is a seqence of {\em quoted-strings}
-separated by \TT{\#} marks that denotes a single symbol
-made by concatenating the separate dequoted {\em quoted-string}
-symbols and quoting the result.
-
-\begin{indpar}
-\emkey{concatenated-quoted-string} ::=
-    {\em quoted-string} \{ \TT{\#} {\em quoted-string} \}\STAR{}
-    \label{CONCATENATED-QUOTED-STRING}
-\end{indpar}
-
-\subsection{Radix Numbers}
-\label{RADIX-NUMBERS}
-
-A \key{radix number} consists of an optional sign, a radix-indicator
-followed by a \TT{\#},
-a sequence of digits with an optional point and optional commas
-inside a concatenated quoted string, and an optional exponent.
-
-\begin{indpar}
-\emkey{radix-number} ::=
-    {\em sign}\QMARK{} {\em radix-indicator} \TT{\#}
-    {\em concatenated-quoted-string} {\em exponent}\QMARK{}
-\\[1ex]
-\emkey{sign} ::= see \pagref{SIGN}
-\\[1ex]
-\emkey{radix-indicator} ::= \TT{B} $|$ \TT{O} $|$ \TT{D} $|$ \TT{X}
-\\[1ex]
-\emkey{concatenated-quoted-string} ::= see \pagref{CONCATENATED-QUOTED-STRING}
-\\[1ex]
-\emkey{exponent} ::= see \pagref{EXPONENT}
-\end{indpar}
-
-The {\em radix-indicators} have the following denotations:
-
-\begin{center}
-\begin{tabular}{clll}
-\bf Radix Indicator
-	& \bf Meaning	& \bf Digits 		& \bf Comma Positions
-\\[1ex]
-\TT{B}	& binary	& \TT{0}, \TT{1}	& every 3 or 4 digits \\
-\TT{O}	& octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
-			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
-			  			& every 3 or 4 digits \\
-\TT{D}	& decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
-			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
-			  \TT{8}, \TT{9}	& every 3 digits \\
-\TT{X}	& hexa-decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
-			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
-			  \TT{8}, \TT{9},	& every 4 digits \\
-	&		& \TT{A}, \TT{B}, \TT{C}, \TT{D},
-			  \TT{E}, \TT{F}, \\
-	&		& \TT{a}, \TT{b}, \TT{c}, \TT{d},
-			  \TT{e}, \TT{f} \\
-\end{tabular}
-\end{center}
-
-Some example {\em radix-numbers} are:
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
-B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
-B\#"101101"E2	& O\#".7753"   & D\#"97.58"	& X\#".fe8a"e-4 \\
-B\#"10,1101"E+2	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A.7CCD,83" \\
-B\#"101,101"E2	& O\#"0.2345,6"  & D\#".123,5"	& X\#"E8A,932B.7C" \\
-\end{tabular}
-\end{indpar}
-
-There may be at most one point.  If commas are used, the number
-of digits between successive commas or between a point and its
-neighboring comma must be the same, and must be allowed.  However,
-commas may be used before the point without being used after the
-point, and vice versa.
-
-Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMBERS}
-the {\em exponent} shifts the decimal point right (if +) or left (if -)
-by some number of digits (in the given radix).
-
-Characters in the {\em concatenated-quoted-string} other than allowed
-digits, a single point, and commas in the correct positions
-are ignored (if there is more than one point only the first is not
-ignored) and a warning or error message is issued.
 
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
@@ -2521,7 +2523,7 @@ Thus the {\em object-list}
 \begin{center}
 \tt 5 e + 2 e 3 4 "e" 3 @ 7 e 5
 \end{center}
-translates as (see \itemref{SCIENTIFIC-NUMBERS}):
+translates as (see \itemref{SCIENTIFIC-NUMERIC}):
 \begin{center}
 \tt
 \begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
