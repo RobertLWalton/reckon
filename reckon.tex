@@ -1447,7 +1447,23 @@ the single character \TT{X}.
 \TT{T} is a variable whose value is the single symbol
 whose character string is that of the {\em quoted-string} \TT{"A line.<LF>"}.
 
-Special lexemes are described in the following sections.
+Special lexemes are described in the following sections.  Some of these
+represent numbers.  When translated into internal computer form,
+integers in the range
+\begin{center}
+$-9,007,199,254,740,992~~~~~..~~~~~+9,007,199,254,740,992$
+\end{center}
+are exactly represented, and numbers with absolute values in the range
+\begin{center}
+$2.2250738585072014\times 10^{-308}~~~~~..~~~~~1.7976931348623157\times
+                                                               10^{+308}$
+\end{center}
+are represented with a relative error of
+$2^{-53} \approx 1.110223\times 10^{-16}$,
+or $15.95$ decimal digits precision.  Numbers with absolute value less than
+$2.2250738585072014\times 10^{-308}$ are represented as zero.
+
+
 
 \begin{boxedfigure}[!t]
 
@@ -1571,12 +1587,15 @@ which is optionally followed by an {\em exponent-part}:
 \begin{indpar}
 \emkey{scientific-numeric} ::= {\em integer-numeric}
 			       {\em fractional-part}\QMARK{}
-			       {\em exponent-part}\QMARK{} \\[1ex]
+			       {\em exponent-part}\QMARK{}
+\\[1ex]
 \emkey{fractional-part} :::= \TT{.} {\em digit}\PLUS{}
 	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
-	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{} \\[1ex]
+	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
+\\[1ex]
 \emkey{exponent-part} ::= {\em exponent-indicator} {\em sign}\QMARK{}
-                          {\em digit}\PLUS{} \\[1ex] 
+                          {\em digit}\PLUS{}
+\\[1ex]
 \emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
 \end{indpar}
 
@@ -1717,16 +1736,32 @@ A variety of different date formats may be used:
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
-	     ::= & {\em weekday}\QMARK{} {\em date-numeric} {\em era}\QMARK{} \\
-	     $|$ & {\em weekday}\QMARK{} {\em month-name} {\em day}
+	     :::= & {\em weekday-modifier}\QMARK{}
+	           {\em date-numeric} {\em era}\QMARK{} \\
+	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name} {\em day}
 	           {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & {\em weekday}\QMARK{} {\em day} {\em month-name}
+	     $|$ & {\em weekday-modifier}\QMARK{} {\em day} {\em month-name}
 	           {\em year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em month-name} {\em year-name}
+	           {\em era}\QMARK{} \\
+	     $|$ & {\em month-name} \TT{-} {\em year-name}
 	           {\em era}\QMARK{} \\
 	     $|$ & {\em short-year-name}
 	     \end{tabular}
 \label{DATE}
+\\[1ex]
+\emkey{weekday-modifier} :::=  {\em weekday} \TT{\#}
+\\[1ex]
+\emkey{weekday}
+    \begin{tabular}[t]{rl}
+    :::= & \TT{Mon} $|$ \TT{Monday} \\
+    $|$ & \TT{Tue} $|$ \TT{Tues} $|$ \TT{Tuesday} \\
+    $|$ & \TT{Wed} $|$ \TT{Wednesday} \\
+    $|$ & \TT{Thu} $|$ \TT{Thur} $|$ \TT{Thursday} \\
+    $|$ & \TT{Fri} $|$ \TT{Friday} \\
+    $|$ & \TT{Sat} $|$ \TT{Satday} \\
+    $|$ & \TT{Sun} $|$ \TT{Sunday} \\
+    \end{tabular}
 \\[1ex]
 \emkey{date-numeric} :::= {\em month}\TT{/}{\em day}\TT{/}{\em year}
 \\[1ex]
@@ -1734,7 +1769,7 @@ A variety of different date formats may be used:
 \\[1ex]
 \emkey{day} :::=  {\em digit}\PLUS{}
 \\[1ex]
-\emkey{year} :::= {\em digit}\PLUS{}
+\emkey{year} :::= {\em digit} {\em digit}\PLUS{}
 \\[1ex]
 \emkey{month-name}
     \begin{tabular}[t]{rl}
@@ -1752,23 +1787,12 @@ A variety of different date formats may be used:
     $|$ & \TT{dec} $|$ \TT{Dec} $|$ \TT{December} \\
     \end{tabular}
 \\[1ex]
-\emkey{year-name} ::=  {\em year} $|$ {\em short-year-name}
+\emkey{year-name} :::=  {\em year} $|$ {\em short-year-name}
 \\[1ex]
-\emkey{short-year-name} ::=  \TT{'} {\em digit}\PLUS{}
+\emkey{short-year-name} :::=  \TT{'} {\em digit}\PLUS{}
 \\[1ex]
-\emkey{weekday}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{Mon} $|$ \TT{Monday} \\
-    $|$ & \TT{Tue} $|$ \TT{Tues} $|$ \TT{Tuesday} \\
-    $|$ & \TT{Wed} $|$ \TT{Wednesday} \\
-    $|$ & \TT{Thu} $|$ \TT{Thur} $|$ \TT{Thursday} \\
-    $|$ & \TT{Fri} $|$ \TT{Friday} \\
-    $|$ & \TT{Sat} $|$ \TT{Satday} \\
-    $|$ & \TT{Sun} $|$ \TT{Sunday} \\
-    \end{tabular}
-\\[1ex]
-\emkey{era} ::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
-                         $|$ \TT{BCG} $|$ \TT{BCJ}
+\emkey{era} :::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
+                          $|$ \TT{BCG} $|$ \TT{BCJ}
 \end{indpar}
 
 {\em Weekdays} are superfluous; if they are input and are wrong,
@@ -1786,7 +1810,8 @@ by \TT{1BC}.
 A date consisting of just a {\em year-name} refers to January 1 of that
 year; e.g., \TT{'05} and \TT{01/01/2005} are the same date.
 A date consisting of just a {\em month-name} and a {\em year-name}
-refers to the first day of the month; e.g., \TT{May '05} and
+refers to the first day of the month;
+e.g., \TT{May'05}. \TT{May05}, \TT{May-05}, and
 \TT{05/01/2005} are the same date.
 
 If no {\em era} is given and the {\em year} is \TT{999} or less,
@@ -1802,25 +1827,28 @@ next year, etc.  A warning message is issued if {\em day} is
 the date is still computed with \TT{0} denoting the last day of
 the previous month, etc.
 
+Most {\em dates} are {\em numerics}, but those beginning with
+a {\em month-name} are {\em words}.
+
 \subsection{Times}
 \label{TIMES}
 
 A \key{time} is a {\em numeric} containing digits, possibly a decimal
 point, and one or two colons, optionally followed by a meridiem indication
-and/or a time zone, and optionally followed by or surrounded by a date.
+and/or a time zone, and optionally preceeded by a colon and a date.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
-    ::= & {\em time-interval} \\
-    $|$ & {\em time-of-day} {\em date}\QMARK{} \\
-    $|$ & {\em weekday}\QMARK{} {\em month-name} {\em day}
-          {\em time-of-day} {\em year-name} {\em era}\QMARK{} \\
-    $|$ & {\em weekday}\QMARK{} {\em day} {\em month-name}
-          {\em time-of-day} {\em year-name} {\em era}\QMARK{} \\
+    :::= & {\em time-of-day} \\
+    $|$ & {\em date} \TT{:} {\em time-of-day} \\
     \end{tabular}
 \\[1ex]
-\emkey{time-of-day}
-    ::= {\em time-numeric} {\em meridiem}\QMARK{} {\em time-zone}\QMARK{}
+\emkey{time-of-day} \begin{tabular}[t]{rl}
+    :::= & {\em time-numeric} \\
+    $|$ & {\em time-numeric} {\em meridian} \\
+    $|$ & {\em time-numeric} {\em time-zone} \\
+    $|$ & {\em time-numeric} {\em meridian} \TT{:} {\em time-zone} \\
+    \end{tabular}
 \\[1ex]
 \emkey{time-numeric} :::= {\em hour} \TT{:} {\em minute}
                           \{ \TT{:} {\em seconds} \}\QMARK{}
@@ -1830,7 +1858,11 @@ and/or a time zone, and optionally followed by or surrounded by a date.
 \emkey{minute} :::= {\em digit} {\em digit}
 \\[1ex]
 \emkey{seconds} :::=
-	{\em digit} {\em digit} {\em fractional-part}\QMARK{}
+	{\em digit} {\em digit} {\em fractional-seconds}\QMARK{}
+\\[1ex]
+\emkey{fractional-seconds} :::= \TT{.} {\em digit}\PLUS{}
+	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
+	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
 \\[1ex]
 \emkey{meridiem} ::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
                  $|$ \TT{noon} $|$ \TT{midnight}
@@ -1862,11 +1894,11 @@ and/or a time zone, and optionally followed by or surrounded by a date.
 
 A {\em time-numeric} represents the number
 $60*(60*hour+minute)+seconds$.  A {\em minutes} or
-{\em seconds} value equal or greater than $60$ causes a warning
+{\em seconds} value equal or greater than $60$ merely causes a warning
 message to be issued.
 
 A {\em meridiem} limits the {\em time-numeric}
-to be equal to or greater than \TT{0:00} and strictly less than
+to be equal to or greater than \TT{1:00} and strictly less than
 \TT{13:00}; else a warning message is issued.  A \TT{noon}
 or \TT{midnight} {\em meridiem} limits the {\em time-numeric}
 to be equal to \TT{12:00}; else a warning message is issued.
@@ -1895,6 +1927,9 @@ Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-numeric},
 and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-numeric}.
 It is possible to get negative numbers, which indicate a time in the previous
 GMT day.
+
+{\em Times} are {\em numerics} except for those that begin with
+{\em month-names} which are {\em words}.
 
 
 \section{Logical Lines and Paragraphs}
