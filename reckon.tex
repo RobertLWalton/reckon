@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 14, 2016}
+\date{April 15, 2016}
 
 \maketitle
 
@@ -1619,6 +1619,7 @@ permissible {\em digits} and comma spacings depend upon this indicator:
     {\em sign}\QMARK{} {\em radix-indicator}
     {\em radix-natural-part}
     {\em radix-fractional-part}\QMARK{}
+    \TT{\#}
     {\em exponent-part}\QMARK{}
 \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-}
@@ -1683,10 +1684,11 @@ Some example {\em radix-numbers} are:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
-B\#"10110100"	& O\#"7534201" & D\#"9758"	& X\#"E8A932B" \\
-B\#"101101"E2	& O\#".7753"   & D\#"97.58"	& X\#".fe8a"e-4 \\
-B\#"10,1101"E+2	& O\#"2,3456"  & D\#".123,5"	& X\#"E8A.7CCD,83" \\
-B\#"101,101"E2	& O\#"0.2345,6"  & D\#".123,5"	& X\#"E8A,932B.7C" \\
+b\#10110100\#	& o\#7534201\#   & d\#9758\#	& x\#E8A932B\# \\
+b\#1011.0100\#	& o\#75.34201\#  & d\#97.58\#	& x\#E8,A9.32B\# \\
+b\#101101\#E2	& o\#0.7753\#    & d\#97.58\#e5	& X\#0.fe8a\#e-4 \\
+B\#10,1101\#E+2	& O\#2,3456\#E-3 & D\#0.123,5\#	& X\#E8A.7CCD,83\# \\
+B\#101,101\#e2	& O\#0.2345,6\#  & D\#0.123,5\#	& X\#E8A,932B.7C\# \\
 \end{tabular}
 \end{indpar}
 
@@ -1699,9 +1701,12 @@ in the {\em exponent-part} are always decimal.
 \subsection{Dates}
 \label{DATES}
 
-A \key{date} is an {\em atom-name} that names an integer atom
+A \key{date} is lexeme that denotes an integer
 which gives the \key{Julian Day Number} of the day times
-the number of seconds in one day ($60*60*24=86,400$).
+the number of seconds in one day ($60*60*24=86,400$).\footnote{
+On days in which there are leap seconds, the last second of the
+day is either double-length or zero-length, following the Network
+Time Protocol (NTP).}
 The Julian Day Number system assigns day \TT{0} to the day starting
 at noon GMT on January 1, 4713 BC, in the Gregorian Calendar extended
 backwards, and counts days forward and backward
