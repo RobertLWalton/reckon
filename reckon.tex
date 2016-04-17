@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 15, 2016}
+\date{April 17, 2016}
 
 \maketitle
 
@@ -1839,19 +1839,20 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
-    :::= & {\em time-of-day} \\
-    $|$ & {\em date} \TT{:} {\em time-of-day} \\
+    :::= & {\em time-interval} \\
+     $|$ & {\em time-of-day} \\
+     $|$ & {\em date} \TT{:} {\em time-interval} \\
+     $|$ & {\em date} \TT{:} {\em time-of-day} \\
     \end{tabular}
+\\[1ex]
+\emkey{time-interval} :::= {\em hour} \TT{:} {\em minute}
+                          \{ \TT{:} {\em seconds} \}\QMARK{}
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
-    :::= & {\em time-numeric} \\
-    $|$ & {\em time-numeric} {\em meridian} \\
-    $|$ & {\em time-numeric} {\em time-zone} \\
-    $|$ & {\em time-numeric} {\em meridian} \TT{:} {\em time-zone} \\
+    :::= & {\em time-interval} {\em meridian} \\
+     $|$ & {\em time-interval} {\em time-zone} \\
+     $|$ & {\em time-interval} {\em meridian} \TT{:} {\em time-zone} \\
     \end{tabular}
-\\[1ex]
-\emkey{time-numeric} :::= {\em hour} \TT{:} {\em minute}
-                          \{ \TT{:} {\em seconds} \}\QMARK{}
 \\[1ex]
 \emkey{hour} :::= {\em digit}\QMARK{} {\em digit}
 \\[1ex]
@@ -1869,28 +1870,14 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 \\[1ex]
 \emkey{time-zone}
     \begin{tabular}[t]{rl}
-    :::= & \TT{GMT} $|$ \TT{UTC} $|$
-           \TT{UTC} {\em sign} {\em digit}\QMARK{} {\em digit}
+    :::= & \TT{UTC} \\
+    $|$ & \TT{UTC} {\em sign} {\em digit}\QMARK{} {\em digit}
 	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
-    $|$ & \TT{WET} $|$ \TT{CET} $|$ \TT{EET} \\
-    $|$ & \TT{WAT} $|$ \TT{BT} $|$ \TT{CCT} \\
-    $|$ & \TT{IDLE} $|$ \TT{IDLW} \\
-    $|$ & \TT{JST} $|$ \TT{JDT} \\
-    $|$ & \TT{GST} $|$ \TT{GDT} \\
-    $|$ & \TT{NZST} $|$ \TT{NZDT} \\
-    $|$ & \TT{AT} \\
-    $|$ & \TT{AST} $|$ \TT{ADT} \\
-    $|$ & \TT{EST} $|$ \TT{EDT} \\
-    $|$ & \TT{CST} $|$ \TT{CDT} \\
-    $|$ & \TT{MST} $|$ \TT{MDT} \\
-    $|$ & \TT{PST} $|$ \TT{PDT} \\
-    $|$ & \TT{YST} $|$ \TT{YDT} \\
-    $|$ & \TT{AHST} $|$ \TT{AHDT} \\
-    $|$ & \TT{HST} $|$ \TT{HDT} \\
-    $|$ & \TT{CAT} \\
-    $|$ & \TT{NT} \\
+    $|$ & {\em defined-time-zoned}
     \end{tabular}
 \end{indpar}
+
+
 
 A {\em time-numeric} represents the number
 $60*(60*hour+minute)+seconds$.  A {\em minutes} or
@@ -1927,6 +1914,56 @@ Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-numeric},
 and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-numeric}.
 It is possible to get negative numbers, which indicate a time in the previous
 GMT day.
+
+\begin{indpar}\begin{verbatim}
+    define time zone MIT `Midway Islands Time'        UTC-11:00
+    define time zone HST `Hawaii Standard Time'       UTC-10:00
+    define time zone AST `Alaska Standard Time'       UTC-09:00
+    define time zone PST `Pacific Standard Time'      UTC-08:00
+    define time zone PNT `Phoenix Standard Time'      UTC-07:00
+    define time zone MST `Mountain Standard Time'     UTC-07:00
+    define time zone CST `Central Standard Time'      UTC-06:00
+    define time zone EST `Eastern Standard Time'      UTC-05:00
+    define time zone PRT `Puerto Rico Time'           UTC-04:00
+    define time zone CNT `Canada Newfoundland Time'   UTC-03:30
+    define time zone AGT `Argentina Standard Time'    UTC-03:00
+    define time zone BET `Brazil Eastern Time'        UTC-03:00
+    define time zone CAT `Central African Time'       UTC-01:00
+    define time zone GMT `Greenwich Mean Time'        UTC+00:00
+    define time zone WET `Western European Time'      UTC+00:00
+    define time zone MET `Middle European Time'       UTC+01:00
+    define time zone EET `Eastern European Time'      UTC+02:00
+    define time zone ART `Arabic Standard Time'       UTC+02:00
+    define time zone EAT `Eastern African Time'       UTC+03:00
+    define time zone MET `Middle East Time'           UTC+03:30
+    define time zone NET `Near East Time'             UTC+04:00
+    define time zone PLT `Pakistan Lahore Time'       UTC+05:00
+    define time zone IST `India Standard Time'        UTC+05:30
+    define time zone BST `Bangladesh Standard Time'   UTC+06:00
+    define time zone VST `Vietnam Standard Time'      UTC+07:00
+    define time zone CTT `China Taiwan Time'          UTC+08:00
+    define time zone JST `Japan Standard Time'        UTC+09:00
+    define time zone ACT `Australia Central Time'     UTC+09:30
+    define time zone AET `Australia Eastern Time'     UTC+10:00
+    define time zone SST `Soloman Standard Time'      UTC+11:00
+    define time zone NST `New Zealand Standard Time'  UTC+12:00
+    $|$ & \TT{WAT} $|$ \TT{BT} $|$ \TT{CCT} \\
+    $|$ & \TT{IDLE} $|$ \TT{IDLW} \\
+    $|$ & \TT{JST} $|$ \TT{JDT} \\
+    $|$ & \TT{GST} $|$ \TT{GDT} \\
+    $|$ & \TT{NZST} $|$ \TT{NZDT} \\
+    $|$ & \TT{AT} \\
+    $|$ & \TT{AST} $|$ \TT{ADT} \\
+    $|$ & \TT{EST} $|$ \TT{EDT} \\
+    $|$ & \TT{CST} $|$ \TT{CDT} \\
+    $|$ & \TT{MST} $|$ \TT{MDT} \\
+    $|$ & \TT{PST} $|$ \TT{PDT} \\
+    $|$ & \TT{YST} $|$ \TT{YDT} \\
+    $|$ & \TT{AHST} $|$ \TT{AHDT} \\
+    $|$ & \TT{HST} $|$ \TT{HDT} \\
+    $|$ & \TT{CAT} \\
+    $|$ & \TT{NT} \\
+\end{verbatim}\end{indpar}
 
 {\em Times} are {\em numerics} except for those that begin with
 {\em month-names} which are {\em words}.
