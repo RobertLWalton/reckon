@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 17, 2016}
+\date{April 18, 2016}
 
 \maketitle
 
@@ -1851,7 +1851,7 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 \emkey{time-of-day} \begin{tabular}[t]{rl}
     :::= & {\em time-interval} {\em meridian} \\
      $|$ & {\em time-interval} {\em time-zone} \\
-     $|$ & {\em time-interval} {\em meridian} \TT{:} {\em time-zone} \\
+     $|$ & {\em time-interval} {\em meridian} \TT{-} {\em time-zone} \\
     \end{tabular}
 \\[1ex]
 \emkey{hour} :::= {\em digit}\QMARK{} {\em digit}
@@ -1879,24 +1879,83 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 
 
 
-A {\em time-numeric} represents the number
+A {\em time-interval} represents the number
 $60*(60*hour+minute)+seconds$.  A {\em minutes} or
 {\em seconds} value equal or greater than $60$ merely causes a warning
 message to be issued.
 
-A {\em meridiem} limits the {\em time-numeric}
+A {\em meridiem} limits the {\em time-interval}
 to be equal to or greater than \TT{1:00} and strictly less than
 \TT{13:00}; else a warning message is issued.  A \TT{noon}
-or \TT{midnight} {\em meridiem} limits the {\em time-numeric}
+or \TT{midnight} {\em meridiem} limits the {\em time-interval}
 to be equal to \TT{12:00}; else a warning message is issued.
-The absence of a {\em meridiem} limits the {\em time-numeric}
+The absence of a {\em meridiem} limits the {\em time-interval}
 to be equal to or less than {\TT 24:00}.
 
 If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
-{\em time-numeric} values equal to or greater than \TT{12:00}.
+{\em time-interval} values equal to or greater than \TT{12:00}.
 If \TT{pm} or \TT{PM} is given, $12$ hours is added to
-{\em time-numeric} values that are strictly less than \TT{12:00}.
+{\em time-interval} values that are strictly less than \TT{12:00}.
 The time \TT{12:00 midnight} is interpreted as \TT{24:00}.
+
+\begin{boxedfigure}[t]
+
+\footnotesize
+
+\begin{center}
+\begin{tabular}{l|l}
+\begin{tabular}{@{}lll@{}}
+      &                               & UTC \\
+HST   & Hawaii Standard Time          & -10:00 \\
+AKST  & Alaska Standard Time          & -09:00 \\
+AKDT  & Alaska Daylight Time          & -08:00 \\
+PST   & Pacific Standard Time         & -08:00 \\
+PDT   & Pacific Daylight Time         & -07:00 \\
+MST   & Mountain Standard Time        & -07:00 \\
+MDT   & Mountain Daylight Time        & -06:00 \\
+CST   & Central Standard Time         & -06:00 \\
+CDT   & Central Daylight Time         & -05:00 \\
+EST   & Eastern Standard Time         & -05:00 \\
+EDT   & Eastern Datlight Time         & -04:00 \\
+AST   & Atlantic Standard Time        & -04:00 \\
+ADT   & Atlantic Daylight Time        & -03:00 \\
+ART   & Argentina Time                & -03:00 \\
+BRT   & Brasilia Time                 & -03:00 \\
+BRST  & Brasilia Summer Time          & -02:00 \\
+GMT   & Greenwich Mean Time           & +00:00 \\
+WET   & Western European Time         & +00:00 \\
+\end{tabular}
+&
+\begin{tabular}{@{}lll@{}}
+      &                               & UTC \\
+BST   & British Summer Time           & +01:00 \\
+CET   & Central European Time         & +01:00 \\
+WAT   & West Africa Time              & +01:00 \\
+CEST  & Central European Summer Time  & +02:00 \\
+EET   & Eastern European Time         & +02:00 \\
+CAT   & Central Africa Time           & +02:00 \\
+EEST  & Eastern European Summer Time  & +03:00 \\
+EAT   & Eastern Africa Time           & +03:00 \\
+GST   & Gulf Standard Time            & +04:00 \\
+PKT   & Pakistan Standard Time        & +05:00 \\
+IST   & India Standard Time           & +05:30 \\
+CST   & China Standard Time           & +08:00 \\
+JST   & Japan Standard Time           & +09:00 \\
+AWST  & Australia Western Standard Time        & +09:00 \\
+AWDT  & Australia Western Daylight Time        & +10:00 \\
+ACST  & Australia Central Standard Time        & +09:30 \\
+ACDT  & Australia Central Daylight Time        & +10:30 \\
+AEST  & Australia Eastern Standard Time        & +10:00 \\
+AEDT  & Australia Eastern Daylight Time        & +11:00 \\
+NZST  & New Zealand Standard Time     & +12:00 \\
+NZST  & New Zealand Daylight Time     & +13:00 \\
+\end{tabular}
+\end{tabular}
+\end{center}
+\vspace*{-3ex}
+\caption{Pre-Defined Time Zones}
+\label{PRE-DEFINED-TIME-ZONES}
+\end{boxedfigure}
 
 A {\em time-zone} such as \TT{UTC-05:00} refers to Greenwich Mean Time
 (\TT{UTC}, Temps Universel Coordonn\'e in French)
@@ -1909,56 +1968,47 @@ As another example, \TT{NZST}, New Zealand Standard Time, is the same
 as \TT{UTC+12:00}.
 
 If a {\em time-zone} is given, the difference between the {\em time-zone}
-time and GMT is subtracted from the {\em time-numeric}.
-Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-numeric},
-and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-numeric}.
+time and GMT is subtracted from the {\em time-interval}.
+Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
+and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval}.
 It is possible to get negative numbers, which indicate a time in the previous
 GMT day.
 
+The standard time zones pre-defined in RECKON are given in
+Figure~\ref{PRE-DEFINED-TIME-ZONES}.
+
+Additional time zones can be defined, or existing time zone
+definitions can be replaced, by the command:
 \begin{center}
-\begin{tabular}{lll}
-HST   & Hawaii Standard Time          & UTC-10:00 \\
-AKST  & Alaska Standard Time          & UTC-09:00 \\
-AKDT  & Alaska Daylight Time          & UTC-08:00 \\
-PST   & Pacific Standard Time         & UTC-08:00 \\
-PDT   & Pacific Daylight Time         & UTC-07:00 \\
-MST   & Mountain Standard Time        & UTC-07:00 \\
-MDT   & Mountain Daylight Time        & UTC-06:00 \\
-CST   & Central Standard Time         & UTC-06:00 \\
-CDT   & Central Daylight Time         & UTC-05:00 \\
-EST   & Eastern Standard Time         & UTC-05:00 \\
-EDT   & Eastern Datlight Time         & UTC-04:00 \\
-AST   & Atlantic Standard Time        & UTC-04:00 \\
-ADT   & Atlantic Daylight Time        & UTC-03:00 \\
-ART   & Argentina Time                & UTC-03:00 \\
-BRT   & Brasilia Time                 & UTC-03:00 \\
-BRST  & Brasilia Summer Time          & UTC-02:00 \\
-CAT   & Central African Time          & UTC-01:00 \\
-GMT   & Greenwich Mean Time           & UTC+00:00 \\
-WET   & Western European Time         & UTC+00:00 \\
-BST   & British Summer Time           & UTC+01:00 \\
-CET   & Central European Time         & UTC+01:00 \\
-WAT   & West Africa Time              & UTC+01:00 \\
-CEST  & Central European Summer Time  & UTC+02:00 \\
-EET   & Eastern European Time         & UTC+02:00 \\
-CAT   & Central Africa Time           & UTC+02:00 \\
-EEST  & Eastern European Summer Time  & UTC+03:00 \\
-EAT   & Eastern Africa Time           & UTC+03:00 \\
-GST   & Gulf Standard Time            & UTC+04:00 \\
-PKT   & Pakistan Standard Time        & UTC+05:00 \\
-IST   & India Standard Time           & UTC+05:30 \\
-CST   & China Standard Time           & UTC+08:00 \\
-JST   & Japan Standard Time           & UTC+09:00 \\
-AWST  & Australia Western Standard Time        & UTC+09:00 \\
-AWDT  & Australia Western Daylight Time        & UTC+10:00 \\
-ACST  & Australia Central Standard Time        & UTC+09:30 \\
-ACDT  & Australia Central Daylight Time        & UTC+10:30 \\
-AEST  & Australia Eastern Standard Time        & UTC+10:00 \\
-AEDT  & Australia Eastern Daylight Time        & UTC+11:00 \\
-NZST  & New Zealand Standard Time     & UTC+12:00 \\
-NZST  & New Zealand Daylight Time     & UTC+13:00 \\
-\end{tabular}
+\TT{define time zone} {\em short-name}
+    \TT{`}{\em long-name}\TT{' UTC}$\pm${\em offset}
 \end{center}
+
+as for example
+\begin{indpar}\begin{verbatim}
+define time zone WGST `West Greenland Summer Time' UTC-02:00
+define time zone AZOST `Azores Summer Time' UTC+00:00
+define time zone BST `Bangladesh Standard Time' UTC+06:00
+       // Replaces British Summer Time, UTC+01:00
+define time zone VLAT `Vladivostok Time' UTC+10:00
+\end{verbatim}\end{indpar}
+
+Short names may be capitalized or not in defining commands, and
+similarly in usage.
+
+Some example {\em times} are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{@{}l@{~~}l@{~~}l@{}}
+1:15	& 12:00   & 05:37:23 \\
+1:15am	& 12:00noon   & 05:37:23PM \\
+1:15edt	& 12:00est   & 05:37:23WDT \\
+1:15am-edt	& 12:00midnight-EET   & 05:37:23pm-WDT \\
+May1975:1:15am-edt	& 05/04/1999:00:00EET   & 05/07/99:17:37:23WDT \\
+may1975:1:15am-edt	& 04may'99:00:00EET   & 07May99:17:37:23WDT \\
+\end{tabular}
+\end{indpar}
 
 {\em Times} are {\em numerics} except for those that begin with
 {\em month-names} which are {\em words}.
