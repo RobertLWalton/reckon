@@ -2052,61 +2052,30 @@ Some examples are
 ft		& inch	& m	& kg \\
 lb*ft		& inch\textasciicircum 3    & kg*m & kg*m\textasciicircum 2 \\
 ft/sec		& ft/sec/sec	& m/sec\textasciicircum 2 & lb*ft/sec \\
+ft\textasciicircum 2/sec
+		& ft/sec*sec	& sec\textasciicircum 2/m\textasciicircum 2
+				& sec/lb*ft \\
 \end{tabular}
 \end{indpar}
 
+Note that there can be at most one `\TT{/}' in a {\em unit}, and
+`\TT{*}' takes precedence over `\TT{/}'.
+
 {\em Units} can be separate {\em word} lexemes, or they can be glued
-to a preceding {em numeric} lexeme from which they will be automatically
-split.  Thus `\TT{5inch}' and `\TT{5 inch}' are equivalent.
-
-TBD
-
-
-Units can be combined in a {\em unit-expression}
-by the operators `\TT{*}' for multiplication,
-`\TT{\textasciicircum}' for exponentiation, `\TT{/}' for division,
-`\TT{+}' for addition, and `\TT{-}' for subtraction:
+to a preceding {\em scientific-numeric} lexeme,
+from which they will be automatically split.  In addition several
+{\em glued-lexemes} of this kind can themselves be glued together:
 \begin{indpar}
-\emkey{unit-expression}
+\emkey{glued-lexeme}
     \begin{tabular}[t]{rl}
-    :::= & {\em unit-quotient} \\
-     $|$ & {\em unit-expression} \TT{+} {\em unit-number-constant} \\
-     $|$ & {\em unit-expression} \TT{-} {\em unit-number-constant} \\
+    :::= & \{ {\em scientific-numeric} {\em unit} \}\PLUS{} \\
+     $|$ & other
     \end{tabular}
-\\
-\emkey{unit-quotient}
-    \begin{tabular}[t]{rl}
-    :::= & {\em unit-product} \\
-     $|$ & {\em unit-quotient} \TT{/} {\em unit-number-constant} \\
-     $|$ & {\em unit-quotient} \TT{/} {\em unit-product} \\
-     $|$ & {\em unit-number-constant} \TT{/} {\em unit-product} \\
-    \end{tabular}
-\\
-\emkey{unit-product}
-    \begin{tabular}[t]{rl}
-    :::= & {\em unit-factor} \\
-     $|$ & {\em unit-number-constant} {\em unit-factor} \\
-     $|$ & {\em unit-number-constant} \TT{*} {\em unit-factor} \\
-     $|$ & {\em unit-product} \TT{*} {\em unit-number-constant} \\
-     $|$ & {\em unit-product} \TT{*} {\em unit-factor} \\
-    \end{tabular}
-\\
-\emkey{unit-factor}
-    \begin{tabular}[t]{rl}
-    :::= & {\em unit-name} \\
-     $|$ & {\em unit-name} \TT{\textasciicircum} {\em unit-number-constant} \\
-    \end{tabular}
-\\
-\emkey{unit-number-constant} ::=
-      {\em scientific-numeric} without any leading {\em sign}
 \end{indpar}
 
-{\em Unit-expressions} are single lexemes.
-The second operand of `\TT{\textasciicircum}', `\TT{+}', and
-`\TT{-}' must always be a {\em unit-number-constant}.  The `\TT{*}'
-may be omitted between a {\em unit-number-constant} and a following
-{\em unit-factor}.  Note that its is not possible to write factional
-exponents.
+
+Thus `\TT{5inch}' is a {\em glued-lexeme} that will be split into
+`\TT{5 inch}', and `\TT{4ft3inch}' will be split into `\TT{4 ft 3 inch}'.
 
 Units may be defined by statements of the form:
 \begin{center}
@@ -2119,24 +2088,66 @@ as for example
 define unit m
 define unit cm = 0.01m
 define unit inch = 2.54cm
-define unit ft = 12inch
+define unit ft = 12 inch
 define unit yd = 3ft
-define unit inch = yd/36
-define unit inch = ft/36
+define unit inch = yd / 36
+define unit inch = ft / 36
 define unit sqft = ft^3
 define unit cuft = ft^3
+define unit C
+define unit F = 1.8C + 32
+define unit K = C + 273.15
 \end{verbatim}\end{indpar}
 
-A unit may appear in many such statements in order to describe
-its relation to many other units.  The statements must be consistent;
+Here
+\begin{indpar}
+\emkey{unit-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em unit-quotient} \\
+    $|$ & {\em unit-expression} \TT{+} {\em unit-number-constant} \\
+    $|$ & {\em unit-expression} \TT{-} {\em unit-number-constant} \\
+    \end{tabular}
+\\
+\emkey{unit-quotient}
+    \begin{tabular}[t]{rl}
+    ::= & {\em unit-product} \\
+    $|$ & {\em unit-quotient} \TT{/} {\em unit-number-constant} \\
+    $|$ & {\em unit-quotient} \TT{/} {\em unit-product} \\
+    $|$ & {\em unit-number-constant} \TT{/} {\em unit-product} \\
+    \end{tabular}
+\\
+\emkey{unit-product}
+    \begin{tabular}[t]{rl}
+    ::= & {\em unit-factor} \\
+    $|$ & {\em unit-number-constant} \TT{*} {\em unit-factor} \\
+    $|$ & {\em unit-product} \TT{*} {\em unit-number-constant} \\
+    $|$ & {\em unit-product} \TT{*} {\em unit-factor} \\
+    \end{tabular}
+\\
+\emkey{unit-factor} ::= see above
+\\
+\emkey{unit-number-constant} ::=
+      {\em scientific-numeric} without any leading {\em sign}
+\end{indpar}
+
+Note that operators in {\em unit-expressions} are separate
+lexemes.
+Also, the second operand of `\TT{+}', and
+`\TT{-}' must always be a {\em unit-number-constant},
+it is not possible to write non-integral or negative exponents,
+and {\em unit-factors} are the same in {\em unit-expressions}
+as they are in {\em units}.
+
+A unit may appear in many `\TT{define unit}' statements in order to describe
+its relation to other units.  The statements must be consistent;
 e.g.,
 \begin{center}
-\tt inch = yd/36 = (3ft)/36 = 3*(12inch)/36 = (36*inch)/36 = 1inch
+\tt inch = yd / 36 = (3 ft) / 36 = 3 * (12 inch) / 36 = (36 inch) / 36 = 1 inch
 \end{center}
 Equations will be automatically derived from these statements
 when such can be done by linear algebra and simple substitution; e.g.
-`{\tt yd = 36inch}' and `{\tt sqft = 144inch\textasciicircum 2}'
-will be derived.
+`{\tt yd = 36 inch}' and `{\tt sqft = 144 inch\textasciicircum 2}'
+will be derived automatically when needed.
 
 
 \section{Logical Lines and Paragraphs}
