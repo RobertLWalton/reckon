@@ -195,7 +195,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 18, 2016}
+\date{April 19, 2016}
 
 \maketitle
 
@@ -1978,7 +1978,7 @@ The standard time zones pre-defined in RECKON are given in
 Figure~\ref{PRE-DEFINED-TIME-ZONES}.
 
 Additional time zones can be defined, or existing time zone
-definitions can be replaced, by the command:
+definitions can be replaced, by the statement:
 \begin{center}
 \TT{define time zone} {\em short-name}
     \TT{`}{\em long-name}\TT{' UTC}$\pm${\em offset}
@@ -1993,7 +1993,7 @@ define time zone BST `Bangladesh Standard Time' UTC+06:00
 define time zone VLAT `Vladivostok Time' UTC+10:00
 \end{verbatim}\end{indpar}
 
-Short names may be capitalized or not in defining commands, and
+Short names may be capitalized or not in defining statements, and
 similarly in usage.
 
 Some example {\em times} are:
@@ -2012,6 +2012,131 @@ may1975:1:15am-edt	& 04may'99:00:00EET   & 07May99:17:37:23WDT \\
 
 {\em Times} are {\em numerics} except for those that begin with
 {\em month-names} which are {\em words}.
+
+
+\subsection{Units}
+\label{UNITS}
+
+Values may have units, such as `\TT{ft}' for `feet' or
+`\TT{inch}' for inch (`\TT{in}' is useful as a preposition and
+is therefore not used as a unit).  Units can be combined in
+a single lexeme by using the operators
+`\TT{/}' for division,
+`\TT{*}' for multiplication,
+and `\TT{\textasciicircum}' for exponentiation:
+\begin{indpar}
+\emkey{unit}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-product} \\
+     $|$ & {\em unit-product} \TT{/} {\em unit-product} \\
+    \end{tabular}
+\\
+\emkey{unit-product}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-factor} \\
+     $|$ & {\em unit-product} \TT{*} {\em unit-factor} \\
+    \end{tabular}
+\\
+\emkey{unit-factor}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-name} \\
+     $|$ & {\em unit-name} \TT{\textasciicircum}
+           {\em unsigned-integral-numeric} \\
+    \end{tabular}
+\end{indpar}
+
+Some examples are
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
+ft		& inch	& m	& kg \\
+lb*ft		& inch\textasciicircum 3    & kg*m & kg*m\textasciicircum 2 \\
+ft/sec		& ft/sec/sec	& m/sec\textasciicircum 2 & lb*ft/sec \\
+\end{tabular}
+\end{indpar}
+
+{\em Units} can be separate {\em word} lexemes, or they can be glued
+to a preceding {em numeric} lexeme from which they will be automatically
+split.  Thus `\TT{5inch}' and `\TT{5 inch}' are equivalent.
+
+TBD
+
+
+Units can be combined in a {\em unit-expression}
+by the operators `\TT{*}' for multiplication,
+`\TT{\textasciicircum}' for exponentiation, `\TT{/}' for division,
+`\TT{+}' for addition, and `\TT{-}' for subtraction:
+\begin{indpar}
+\emkey{unit-expression}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-quotient} \\
+     $|$ & {\em unit-expression} \TT{+} {\em unit-number-constant} \\
+     $|$ & {\em unit-expression} \TT{-} {\em unit-number-constant} \\
+    \end{tabular}
+\\
+\emkey{unit-quotient}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-product} \\
+     $|$ & {\em unit-quotient} \TT{/} {\em unit-number-constant} \\
+     $|$ & {\em unit-quotient} \TT{/} {\em unit-product} \\
+     $|$ & {\em unit-number-constant} \TT{/} {\em unit-product} \\
+    \end{tabular}
+\\
+\emkey{unit-product}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-factor} \\
+     $|$ & {\em unit-number-constant} {\em unit-factor} \\
+     $|$ & {\em unit-number-constant} \TT{*} {\em unit-factor} \\
+     $|$ & {\em unit-product} \TT{*} {\em unit-number-constant} \\
+     $|$ & {\em unit-product} \TT{*} {\em unit-factor} \\
+    \end{tabular}
+\\
+\emkey{unit-factor}
+    \begin{tabular}[t]{rl}
+    :::= & {\em unit-name} \\
+     $|$ & {\em unit-name} \TT{\textasciicircum} {\em unit-number-constant} \\
+    \end{tabular}
+\\
+\emkey{unit-number-constant} ::=
+      {\em scientific-numeric} without any leading {\em sign}
+\end{indpar}
+
+{\em Unit-expressions} are single lexemes.
+The second operand of `\TT{\textasciicircum}', `\TT{+}', and
+`\TT{-}' must always be a {\em unit-number-constant}.  The `\TT{*}'
+may be omitted between a {\em unit-number-constant} and a following
+{\em unit-factor}.  Note that its is not possible to write factional
+exponents.
+
+Units may be defined by statements of the form:
+\begin{center}
+\TT{define unit} {\em unit-name}
+    \{ \TT{=} {\em unit-expression} \}\QMARK{}
+\end{center}
+
+as for example
+\begin{indpar}\begin{verbatim}
+define unit m
+define unit cm = 0.01m
+define unit inch = 2.54cm
+define unit ft = 12inch
+define unit yd = 3ft
+define unit inch = yd/36
+define unit inch = ft/36
+define unit sqft = ft^3
+define unit cuft = ft^3
+\end{verbatim}\end{indpar}
+
+A unit may appear in many such statements in order to describe
+its relation to many other units.  The statements must be consistent;
+e.g.,
+\begin{center}
+\tt inch = yd/36 = (3ft)/36 = 3*(12inch)/36 = (36*inch)/36 = 1inch
+\end{center}
+Equations will be automatically derived from these statements
+when such can be done by linear algebra and simple substitution; e.g.
+`{\tt yd = 36inch}' and `{\tt sqft = 144inch\textasciicircum 2}'
+will be derived.
 
 
 \section{Logical Lines and Paragraphs}
