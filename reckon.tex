@@ -25,6 +25,7 @@
 \usepackage{times}
 \usepackage{makeidx}
 \usepackage{pictex}
+\usepackage{etoolbox}
 
 \makeindex
 
@@ -97,8 +98,6 @@
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
 \newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
-\newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1!#2}}}
@@ -2179,6 +2178,154 @@ Hello	  & /7r/	& \VSP\VSP Hello \\
 5.4321	  & /6.2c/	& \VSP 5.43\VSP &
 \end{tabular}
 \end{indpar}
+
+A {\em format} is a {\em middle-lexeme} consisting of a sequence of
+{\em format-items} surrounded by and optionally separated by
+slashes `\TT{/}':
+\begin{indpar}
+\begin{tabular}{rcl}
+\hspace*{1.7in} \\[-2ex]
+\emkey{format}
+    & ::= & \TT{/} {\em format-item}
+                   \{ \TT{\QMARK{}/} {\em format-item} \}\STAR{} \TT{/}
+\end{tabular}
+\end{indpar}
+
+The following is a complete list of {\em format-items}.
+The items are presented in groups many of which conflict with each other;
+see the rules below for resolving conflicts. \\
+
+\newcommand{\BEGINGROUP}[2][]{
+\begin{tabular}{rllp{4.0in}}
+\hspace*{0.1in} & \hspace*{0.1in} & \hspace*{0.4in} \\[-2ex]
+& \multicolumn{3}{l}{{\bf #2}\ifstrequal{}{#1}{}{ ~~~~~ #1}} \\
+}
+\newcommand{\GROUPENTRY}[2][]{
+&& \ttmkey{#2}{table format}\ifstrequal{}{#1}{}{\TT{<}{\em #1}\TT{>}} &
+}
+\newcommand{\GROUPNEWLINE}{\\&&&}
+\newcommand{\ENDGROUP}{\end{tabular}}
+
+\BEGINGROUP{Bold Face Group}
+\GROUPENTRY{b} bold face \\
+\GROUPENTRY{!b} non-bold face [default] \\
+\ENDGROUP \\
+\BEGINGROUP{Italics Group}
+\GROUPENTRY{i} italics \\
+\GROUPENTRY{!i} non-italics [default] \\
+\ENDGROUP \\
+\BEGINGROUP{Font Group}
+\GROUPENTRY{rm} roman [default] \\
+\GROUPENTRY{tt} typewriter \\
+\ENDGROUP \\
+\BEGINGROUP{Adjust Group}
+\GROUPENTRY{r} right adjust [default for numbers] \\
+\GROUPENTRY{l} left adjust \\
+\GROUPENTRY{c} center adjust [default for symbols] \\
+\ENDGROUP \\
+\BEGINGROUP{Numeric Group}
+\GROUPENTRY[places]{.}
+    right adjust with {\em places} decimal places \\
+\GROUPENTRY[places]{0.}
+    ditto but with \TT{0} in the units position if less than \TT{1} \\
+\GROUPENTRY[time-format]{T}
+    format time (or date) as per below; \GROUPNEWLINE
+    conflicts with \TT{\%}, \TT{\$}, and \TT{,} \\
+\ENDGROUP \\
+\BEGINGROUP{Per Cent Sign Group}
+\GROUPENTRY{\%} multiply numbers by 100 and add a \% sign \\
+\GROUPENTRY{!\%} undo ditto \\
+\ENDGROUP \\
+\BEGINGROUP{Dollar Sign Group}
+\GROUPENTRY{\$} add \$ signs to numbers; \GROUPNEWLINE
+                make \TT{0.2} the Numeric Group default \\
+\GROUPENTRY{!\%} undo ditto \\
+\ENDGROUP \\
+\BEGINGROUP{Numeric Comma Group}
+\GROUPENTRY{,} add commas to numbers \\
+\GROUPENTRY{!,} undo ditto \\
+\ENDGROUP \\
+\BEGINGROUP[(no conflicts)]{Spacing Group}
+\GROUPENTRY[columns]{w}
+    adjust width by given number of {\em columns} \\
+\GROUPENTRY{!w}
+    set width to `only as wide as necessary' \\
+\GROUPENTRY[lines]{h}
+    adjust height by given number of {\em lines} \\
+\GROUPENTRY{!h}
+    set height to `only as high as necessary' \\
+\GROUPENTRY[points]{side}
+    adjust space to left and right of entry by {\em points} \\
+\GROUPENTRY[points]{left}
+    adjust space to left of entry by {\em points} \\
+\GROUPENTRY[points]{right}
+    adjust space to right of entry by {\em points} \\
+\GROUPENTRY[points]{top}
+    adjust space at top of entry by {\em points} \\
+\GROUPENTRY[points]{bottom}
+    adjust space at bottom of entry by {\em points} \\
+\ENDGROUP
+
+A {\em time-format} is a string of any characters that are
+allowed inside a word in which the following \emskey{time-code}s
+are replaced as indicated in the following:
+\begin{center}
+\begin{tabular}{lp{4.0in}}
+\ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
+\ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
+\ttmkey{ww}{{\em time-code}} & day of weak: \TT{01} \ldots{} \TT{07} \\
+\ttmkey{www}{{\em time-code}} & day of weak: \TT{sun} \ldots{} \TT{sat} \\
+\ttmkey{Www}{{\em time-code}} & day of weak: \TT{Sun} \ldots{} \TT{Sat} \\
+\ttmkey{WWW}{{\em time-code}} & day of weak: \TT{SUN} \ldots{} \TT{SAT} \\
+\ttmkey{mm}{{\em time-code}} & month: \TT{01} \ldots{} \TT{12} \\
+\ttmkey{mmm}{{\em time-code}} & month: \TT{jan} \ldots{} \TT{dec} \\
+\ttmkey{Mmm}{{\em time-code}} & month: \TT{Jan} \ldots{} \TT{Dec} \\
+\ttmkey{MMM}{{\em time-code}} & month: \TT{JAN} \ldots{} \TT{DEC} \\
+\ttmkey{yy}{{\em time-code}} & year: \TT{00} \ldots{} \TT{99} \\
+\ttmkey{yyyy}{{\em time-code}} & year: \TT{0000} \ldots{} \TT{9999} \\
+\ttmkey{xm}{{\em time-code}} & meridian: \TT{am} or \TT{pm} \\
+\ttmkey{XM}{{\em time-code}} & meridian: \TT{AM} or \TT{PM} \\
+\ttmkey{hh}{{\em time-code}} & hour: \TT{00} \ldots{} \TT{12}
+			       if xm or XM in {\em time-format} \\
+			     & or: \TT{00} \ldots{} \TT{23}
+			       if xm and XM \underline{not}
+			       in {\em time-format} \\
+\ttmkey{mm}{{\em time-code}} & minute: \TT{00} \ldots{} \TT{59} \\
+\ttmkey{ss}{{\em time-code}} & second: \TT{00} \ldots{} \TT{59} \\
+\ttmkey{\_}{{\em time-code}} & single space \\
+\ttmkey{zzz}{{\em time-code}} & local time zone (e.g. \TT{est}),
+                                and adjust time to be in that zone \\
+\ttmkey{ZZZ}{{\em time-code}} & local time zone (e.g. \TT{EST}),
+				and adjust time to be in that zone \\
+\ttmkey{gmt}{{\em time-code}} & do not replace,
+				and adjust time to be gmt \\
+\ttmkey{GMT}{{\em time-code}} & do not replace,
+				and adjust time to be gmt \\
+\ttmkey{\textbackslash}{{\em time-code}} & delete the `\TT{\textbackslash}'
+                                and keep the following character without
+				giving it a special interpretation
+\end{tabular}
+\end{center}
+
+Some example {\em time-formats} and associated times are:
+\begin{center}
+\tt
+\begin{tabular}{ll}
+mm/dd/yyyy & 02/21/2014 \\
+dd/mm/yyyy & 21/02/2014 \\
+mm/yyyy & 02/2014 \\
+www\_dd\_mmm\_'yy & fri 21 feb '14 \\
+Www\_ddmmmyy & Fri 21feb14 \\
+hh::mm:ss & 13:27:58 \\
+hh::mm:ssXM & 1:27:58PM \\
+hh::mm:ss & 00:27:58 \\
+hh::mm:ssXM & 12:27:58AM \\
+hh::mm:ss & 12:27:58 \\
+hh::mm:ssXM & 12:27:58PM \\
+Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy & Fri Feb 21 13:27:58 EST 2014 \\
+Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy & Fri Feb 21 18:27:58 GMT 2014 \\
+\end{tabular}
+\end{center}
 
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
@@ -4961,8 +5108,8 @@ precedence & reformatter	& operator	& meaning
 				& \ttkey{;}	& subsentence separator \\
 	&			& \ttkey{:}	& subsentence separator \\
 300	& \ttkey{text-separator}
-				& \ttnbkey{--}	& phrase separator \\
-	& 			& \ttnbkey{---}	& phrase separator \\
+				& \ttkey{--}	& phrase separator \\
+	& 			& \ttkey{---}	& phrase separator \\
 400	& \ttkey{text-separator}
 				& \ttkey{,}	& phrase separator \\
 \end{tabular}
@@ -5074,8 +5221,8 @@ This list is then the reformatted list for the sentence.
 
 \bigskip
 
-\ttmkey{text-separator}{reformatter} \hfill \ttmnbkey{--}{reformatting}
-				   ~~~ \ttmnbkey{---}{reformatting}
+\ttmkey{text-separator}{reformatter} \hfill \ttmkey{--}{reformatting}
+				   ~~~ \ttmkey{---}{reformatting}
 				   ~~~ \ttmkey{,}{reformatting}
 				   ~~~ \ttmkey{;}{reformatting}
 				   ~~~ \ttmkey{:}{reformatting}
@@ -5384,9 +5531,9 @@ blank lines.
 Paragraphs are classified as tabular or free-form according
 to whether their first line is a tabular format line.
 A \key{tabular format line} contains optional whitespace characters,
-followed by a `\ttmnbkey{+}{in tabular format line}', followed
+followed by a `\ttmkey{+}{in tabular format line}', followed
 by any number of `\TT{+}' or
-`\ttmnbkey{-}{in tabular format line}' characters,
+`\ttmkey{-}{in tabular format line}' characters,
 followed by a `\TT{+}' that ends the line, except that superfluous
 whitespace characters are allowed after the `line ending' {\tt+}.
 An example of a tabular paragraph is:
@@ -5474,7 +5621,7 @@ to the matching mode, as is described below
 (\secref{MATCHING-ALGORITHM}).
 
 A syntax variable name beginning with
-\ttmnbkey{\$}{in syntax variable name} denotes an unevaluated
+\ttmkey{\$}{in syntax variable name} denotes an unevaluated
 expression.  The same name without the \TT{\$} denotes the value
 of this unevaluated expression when it is evaluated
 in the context in which the unevaluated expression appears.
@@ -5633,7 +5780,7 @@ an atom, or an object whose attribute values are syntax expressions.
 The syntax of a syntax equation is:
 
 \begin{indpar}
-\emkey{syntax-equation} ::= {\em syntax-expression} \ttnbkey{:=:}
+\emkey{syntax-equation} ::= {\em syntax-expression} \ttkey{:=:}
 			    {\em syntax-expression}
 			    \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
@@ -5831,7 +5978,7 @@ a set of syntax expressions.  Patterns are used in
 a {\em pattern}.  The syntax of a pattern equations and patterns is:
 
 \begin{indpar}
-\emkey{pattern-equation} ::= {\em syntax-expression} \ttnbkey{:=\~~}
+\emkey{pattern-equation} ::= {\em syntax-expression} \ttkey{:=\~~}
 			    {\em pattern}
 			    \\[1ex]
 \emkey{pattern} ::= {\em pattern-object}
@@ -6185,7 +6332,7 @@ provided by default equations.  Default equations have the
 syntax:
 
 \begin{indpar}
-\emkey{default-equation} ::= {\em syntax-variable} \ttnbkey{:=?}
+\emkey{default-equation} ::= {\em syntax-variable} \ttkey{:=?}
 			     {\em default-value}
 \\[1ex]
 \emkey{default-value} ::= {\em syntax-expression}
@@ -6420,7 +6567,7 @@ property that each of its original equation occurrences
 is treated as if it were a \underline{different} variable.  The syntax is:
 
 \begin{indpar}
-\emlkey{place-holding}{-syntax-variable} ::= \ttnbkey{\$}
+\emlkey{place-holding}{-syntax-variable} ::= \ttkey{\$}
 \end{indpar}
 
 More specifically, whenever \TT{\$} appears in an original
@@ -6684,7 +6831,7 @@ the expression:
 
 The new expression definition has a different context, given by
 the second argument, than the first argument does.  The special
-value \ttmnbkey{UNDEFINED}{argument of an!expression-definition@{\tt
+value \ttmkey{UNDEFINED}{argument of an!expression-definition@{\tt
 expression-definition}} can be given as the {\em context} argument
 to create a new expression definition whose pattern, constraints, and block
 are the same as those of {\em expression-definition} argument
@@ -6753,7 +6900,7 @@ The code of a block has the following syntax:
 \emkey{block} ::= \TT{\{} {\em group}
                          \{ {\em sequence-break} {\em group} \}\STAR{}
 			 \TT{\}} \\[1ex]
-\emkey{sequence-break} ::= \ttnbkey{-----}\TT{-}\STAR{}
+\emkey{sequence-break} ::= \ttkey{-----}\TT{-}\STAR{}
 	(1 word consisting of 5 or more \TT{-}'s) \\[1ex]
 \emkey{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
@@ -6790,7 +6937,7 @@ The code of a block has the following syntax:
 \emkey{right-side} \
     \begin{tabular}[t]{rl}
     ::= & {\em operator-expression} \\
-    $|$ & {\em operator-expression} \ttnbkey{=>} {\em output-variable}
+    $|$ & {\em operator-expression} \ttkey{=>} {\em output-variable}
 		\{ \TT{,} {\em output-variable} \}\STAR{}
     \end{tabular} \\[1ex]
 {\em operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
@@ -7260,7 +7407,7 @@ When the method definition is called, the method code block
 is added temporarily to the code that contained
 the method definition.  The object whose code this is
 may be referred to within its
-code by the name \ttnbkey{SELF}, which may or may not also be an argument
+code by the name \ttkey{SELF}, which may or may not also be an argument
 of the method definition.  If it is an argument, the method definition
 has an implicit guard that requires the \TT{SELF} argument value to be
 equal to the object whose code contains the method definition.
