@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 26, 2016}
+\date{April 27, 2016}
 
 \maketitle
 
@@ -1739,8 +1739,6 @@ A variety of different date formats may be used:
 \emkey{date} \begin{tabular}[t]{rl}
 	     :::= & {\em weekday-modifier}\QMARK{}
 	           {\em date-numeric} {\em era}\QMARK{} \\
-	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name} {\em day}
-	           {\em year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em weekday-modifier}\QMARK{} {\em day} {\em month-name}
 	           {\em year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em month-name} {\em year-name}
@@ -2669,7 +2667,7 @@ followed by digits, and which turns all non-bracket parsing off.
 \emkey{atom-name}
     ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string}
                    $|$ {\em unquoted-numeric}
-		   $|$ {\em number-name} $|$ {\em label-name} \\
+		   $|$ {\em number-name} \\
 \emkey{unquoted-numeric}
     ::= {\em numeric} but not {\em scientific-numeric} \\
 \emkey{number-name}
@@ -2721,7 +2719,7 @@ followed by digits, and which turns all non-bracket parsing off.
 
 \begin{tabular}{l}
 \emkey{raw-single-attribute-value}\label{RAW-SINGLE-ATTRIBUTE-VALUE}
-    ::= {\em raw-element}
+    ::= {\em raw-element}\STAR{}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2740,7 +2738,8 @@ followed by digits, and which turns all non-bracket parsing off.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{double-attribute-label} ::= {\em name}\pagnote{NAME}
+\emkey{double-attribute-label}
+    ::= {\em defined-name}\pagnote{DEFINED-NAME}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2748,30 +2747,21 @@ followed by digits, and which turns all non-bracket parsing off.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{reverse-attribute-label} ::= {\em name}
+\emkey{reverse-attribute-label}
+    ::= {\em defined-name}\pagnote{DEFINED-NAME}
 \end{tabular}
 
 \end{indpar}
 
-Raw object representations do not make any use of some of the syntax
-elements mentioned above; specifically, {\em bracketed-lists} are
-not used (as {\em object-lists} or {\em single-attribute-values}),
-and \TT{=>} and \TT{=>{}>} are not used as {\em attribute-assignment-operators}.
-
-All {\em atom-names} in a raw object representation are dequoted.  Thus
-\TT{"X"} and \TT{X} represent the same symbol atom,
-whereas \TT{0123} represents the number atom $123$ while \TT{"0123"}
-represents the symbol atom \TT{0123}.
-
-{\em Object-representations} are lines beginning with \TT{@}.
+{\em Raw-object-representations} are lines beginning with \TT{*@}.
 For example,
 
 \begin{indpar}\begin{verbatim}
-@1 =:
+*@1 =:
     type = woman
     name = Jill
     husband = @2 = wife
-@2 =:
+*@2 =:
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -2827,11 +2817,11 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@1 =:/\\
+\verb/*@1 =:/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
 \verb|    husband[*] = @2 wife[*]|\\
-\verb/@2 =:/\\
+\verb/*@2 =:/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
 \end{tabular}
@@ -2875,7 +2865,7 @@ attributes labeled \TT{child}, is:
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \begin{tabular}{@{}l@{}}
 \\[-20ex]
-\verb/@1 =:/\\
+\verb/*@1 =:/\\
 \verb|    child = @2 = parent|\\
 \verb|    child = @3 = parent|\\
 \end{tabular}
@@ -2962,7 +2952,7 @@ object itself, a situation which can be achieved by the
 {\em object-representation}:
 
 \begin{indpar}\begin{verbatim}
-@0=>:
+*@0=>:
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
