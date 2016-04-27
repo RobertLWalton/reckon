@@ -1397,7 +1397,7 @@ There are many special kinds of {\em numerics} and {\em marks}:
 
 {\em Words}, however, are never
 special, and can be used to form names of variables, constants, and functions,
-which are called `\skey{defined names}':
+which are called `\skey{defined names}'\label{DEFINED-NAME}:
 
 \begin{indpar}
 \emkey{defined-name} ::=
@@ -2628,33 +2628,32 @@ is the \key{raw object representation}, which we now describe.
 A raw object representation is a special case of an {\em object-representation}.
 This special case makes minimal use of the parser and is used when
 data is written to a file without any attempt to format the data.
-The raw object representation is indicated by logical lines beginning
-with an {\em object-identifier} lexeme, which consists of a `\TT{@}'
-followed by digits.
 
-The syntax of an {\em object-representation} is:
+A {\em raw-object-representation} is a logical line beginning
+with a {\em raw-object-identifier} lexeme, which consists of `\TT{*@}'
+followed by digits, and which turns all non-bracket parsing off.
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{object-representation}
+\emkey{raw-object-representation}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
-        ::= {\em begll} & {\em object-identifier}
-	                  {\em object-assignment-operator}
-		          {\em object-list}\QMARK{} \\
-	                & {\em attribute-representation-subparagraph}\QMARK{} \\
+        := {\em bll} & {\em raw-object-identifier} ~
+	               {\em object-assignment-operator} ~
+	               {\em raw-element}\STAR{} \\
+	             & \{ {\em bip} ~
+		          {\em raw-attribute-representation}\STAR{} ~
+			  {\em eip} \}\QMARK{} ~ {\em ell} \\
         \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-identifier} ::=
+\emkey{raw-object-identifier} :::=
+	\ttmkey{*}{in {\em raw-object-identifier}}
+	{\em object-identifier} \\
+\emkey{object-identifier} :::=
 	\ttmkey{@}{in {\em object-identifier}}
-	{\em natural-number-name} \\
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{natural-number-name} ::= {\em atom-name}\pagnote{ATOM-NAME}
-    representing a single non-negative integer atom
+	{\em digit}\PLUS{} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2665,31 +2664,16 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-list}
-    \begin{tabular}[t]{rl}
-    ::= & {\em object-element}\STAR{} \\
-    $|$ & {\em bracketed-list} (not used in raw representation)
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{object-element}
-    ::= {\em object-identifier} $|$ {\em atom-name}
-\end{tabular}
-
-\begin{tabular}{l}
-\emlkey{attribute-representation}{-subparagraph}
-    ::= \TT{\{:} {\em attribute-representation-list} \TT{:\}}
-\end{tabular}
-
-\begin{tabular}{l}
-\emlkey{attribute-representation}{-list}
-\\\hspace*{0.5in}
-    \begin{tabular}[t]{rl}
-    ::= & {\em empty} \\
-    $|$ & {\em attribute-representation}
-          \{ \TT{<*>} {\em attribute-representation} \}\STAR{}
-    \end{tabular}
+\emkey{raw-element}
+    ::= {\em object-identifier} $|$ {\em atom-name} \\
+\emkey{atom-name}
+    ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string}
+                   $|$ {\em unquoted-numeric}
+		   $|$ {\em number-name} $|$ {\em label-name} \\
+\emkey{unquoted-numeric}
+    ::= {\em numeric} but not {\em scientific-numeric} \\
+\emkey{number-name}
+    ::= {\em scientific-numeric} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2701,20 +2685,21 @@ The syntax of an {\em object-representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{single-attribute-}{representation}%
-\label{SINGLE-ATTRIBUTE-REPRESENTATION}
+\emlkey{raw-single-attribute-}{representation}%
+\label{RAW-SINGLE-ATTRIBUTE-REPRESENTATION}
 ::=
 \\\hspace*{0.5in}
-	{\em single-attribute-label} {\em attribute-label-flags}\QMARK{}
-	\begin{tabular}[t]{@{}l@{}}
+	{\em bll} {\em single-attribute-label}
+	\begin{tabular}[t]{l}
+	{\em attribute-label-flags}\QMARK{} ~
 	{\em attribute-assignment-operator} \\
-	{\em single-attribute-value}\STAR{}
+	{\em raw-single-attribute-value}\STAR{} ~ {\em ell}
 	\end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{single-attribute-label}\label{SINGLE-ATTRIBUTE-LABEL}
-    ::= {\em name}\pagnote{NAME}
+    ::= {\em defined-name}\pagnote{DEFINED-NAME}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2731,19 +2716,12 @@ The syntax of an {\em object-representation} is:
 
 \begin{tabular}{l}
 \emkey{attribute-assignment-operator}
-    \begin{tabular}[t]{rll}
-    ::= & \TT{=} \\
-    $|$ & \TT{=>}    & (not used in raw representation) \\
-    $|$ & \TT{=>{}>} & (not used in raw representation) \\
-    \end{tabular}
+    ::= ~~ \TT{=} $|$ \TT{=>} $|$ \TT{=>{}>}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{single-attribute-value}\label{SINGLE-ATTRIBUTE-VALUE}
-    \begin{tabular}[t]{rl}
-    ::= & {\em object-element} \\
-    $|$ & {\em bracketed-list} (not used in raw representation)
-    \end{tabular}
+\emkey{raw-single-attribute-value}\label{RAW-SINGLE-ATTRIBUTE-VALUE}
+    ::= {\em raw-element}
 \end{tabular}
 
 \begin{tabular}{l}
