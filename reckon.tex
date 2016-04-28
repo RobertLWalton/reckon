@@ -1337,7 +1337,7 @@ follows:
     \end{tabular}
     \end{tabular}
 \\[1ex]
-\emkey{index} ::=
+\emkey{index}\label{INDEX} ::=
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
     \begin{tabular}[t]{rll}
@@ -1741,10 +1741,8 @@ A variety of different date formats may be used:
 	           {\em date-numeric} {\em era}\QMARK{} \\
 	     $|$ & {\em weekday-modifier}\QMARK{} {\em day} {\em month-name}
 	           {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & {\em month-name} {\em year-name}
-	           {\em era}\QMARK{} \\
-	     $|$ & {\em month-name} \TT{-} {\em year-name}
-	           {\em era}\QMARK{} \\
+	     $|$ & \{ {\em weekday-modifier} $|$ TT{\#} \} {\em month-name}
+	           {\em year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em short-year-name}
 	     \end{tabular}
 \label{DATE}
@@ -2538,10 +2536,10 @@ on top of these low level data.  An expression is either an atom or
 a particular kind of object.  A block is a particular kind of object,
 and a description is a particular kind of block.
 
-An \key{atom} is a symbol, a number, or a sequence of 0 or 2 or more atoms.
-A single atom is treated as if were a sequence of 1 atom, itself, and
-when atoms are being treated as sequences of atoms, they are referred to
-as `\skey{label}s'.
+An \key{atom} is a symbol, a number, or a label.
+A \key{label} is a sequence of 0 or more atoms.
+A single symbol or number is treated as if were a label whose only element
+is the symbol or number itself.
 
 An object is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
@@ -2638,28 +2636,25 @@ A raw object representation is a special case of an {\em object-representation}.
 This special case makes minimal use of the parser and is used when
 data is written to a file without any attempt to format the data.
 
-A {\em raw-object-representation} is a logical line beginning
-with a {\em raw-object-identifier} lexeme, which consists of `\TT{*@}'
+A {\em object-representation} is a logical line beginning
+with a {\em object-identifier} lexeme, which consists of `\TT{*@}'
 followed by digits, and which turns all non-bracket parsing off.
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{raw-object-representation}
+\emkey{object-representation}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
-        := {\em bll} & {\em raw-object-identifier} ~
+        := {\em bll} & {\em object-identifier} ~
 	               {\em object-assignment-operator} ~
-	               {\em raw-element}\STAR{} \\
+	               {\em object-element}\STAR{} \\
 	             & \{ {\em bip} ~
-		          {\em raw-attribute-representation}\STAR{} ~
+		          {\em attribute-representation}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
         \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-object-identifier} :::=
-	\ttmkey{*}{in {\em raw-object-identifier}}
-	{\em object-identifier} \\
 \emkey{object-identifier} :::=
 	\ttmkey{@}{in {\em object-identifier}}
 	{\em digit}\PLUS{} \\
@@ -2673,16 +2668,16 @@ followed by digits, and which turns all non-bracket parsing off.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-element}
+\emkey{object-element}
     ::= {\em object-identifier} $|$ {\em atom-name} \\
 \emkey{atom-name}
-    ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string}
-                   $|$ {\em unquoted-numeric}
-		   $|$ {\em number-name} \\
-\emkey{unquoted-numeric}
-    ::= {\em numeric} but not {\em scientific-numeric} \\
+    ::= {\em word} $|$ {\em quoted-string}
+		   $|$ {\em number-name} $|$ {\em bracketed-label} \\
 \emkey{number-name}
-    ::= {\em scientific-numeric} \\
+    ::= {\em integral-numeric} $|$ {\em fractional-numeric} $|$
+        {\em scientific-numeric} $|$ {\em radix-numeric} \\
+\emkey{bracketed-label}
+    ::= \TT{\{*}~~{\em atomic-name}\STAR{}~~\TT{*\}} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2694,21 +2689,21 @@ followed by digits, and which turns all non-bracket parsing off.
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{raw-single-attribute-}{representation}%
-\label{RAW-SINGLE-ATTRIBUTE-REPRESENTATION}
+\emlkey{single-attribute-}{representation}%
+\label{SINGLE-ATTRIBUTE-REPRESENTATION}
 ::=
 \\\hspace*{0.5in}
 	{\em bll} {\em single-attribute-label}
 	\begin{tabular}[t]{l}
 	{\em attribute-label-flags}\QMARK{} ~
 	{\em attribute-assignment-operator} \\
-	{\em raw-single-attribute-value}\STAR{} ~ {\em ell}
+	{\em single-attribute-values} ~ {\em ell}
 	\end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{single-attribute-label}\label{SINGLE-ATTRIBUTE-LABEL}
-    ::= {\em defined-name}\pagnote{DEFINED-NAME}
+    ::= {\em defined-name}\pagnote{DEFINED-NAME} $|$ {\em index}\pagnote{INDEX}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2729,8 +2724,11 @@ followed by digits, and which turns all non-bracket parsing off.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-single-attribute-value}\label{RAW-SINGLE-ATTRIBUTE-VALUE}
-    ::= {\em raw-element}\STAR{}
+\emkey{single-attribute-value}\label{SINGLE-ATTRIBUTE-VALUE}
+    ::= {\em atom-name}\STAR{} $|$ {\em object-identifier} \\
+\emkey{single-attribute-values}\label{SINGLE-ATTRIBUTE-VALUES}
+    ::= {\em single-attribute-value}
+        \{ \TT{,} {\em single-attribute-value} \}\STAR{}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2742,7 +2740,7 @@ followed by digits, and which turns all non-bracket parsing off.
 	{\em attribute-label-flags}\QMARK{}
 \\\hspace*{1.0in}
 	\begin{tabular}[t]{@{}l@{}}
-	\TT{=} {\em double-attribute-value} \\
+	\TT{=} {\em double-attribute-values} \\
 	\TT{=} {\em reverse-attribute-label}
 	       {\em attribute-label-flags}\QMARK{}
 	\end{tabular}
@@ -2751,20 +2749,22 @@ followed by digits, and which turns all non-bracket parsing off.
 \begin{tabular}{l}
 \emkey{double-attribute-label}
     ::= {\em defined-name}\pagnote{DEFINED-NAME}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{double-attribute-value} ::= {\em object-identifier}
-\end{tabular}
-
-\begin{tabular}{l}
+        $|$ {\em index}\pagnote{INDEX} \\
 \emkey{reverse-attribute-label}
     ::= {\em defined-name}\pagnote{DEFINED-NAME}
+        $|$ {\em index}\pagnote{INDEX} \\
+\end{tabular}
+
+\begin{tabular}{l}
+\emkey{double-attribute-value} ::= {\em object-identifier} \\
+\emkey{double-attribute-values}\label{DOUBLE-ATTRIBUTE-VALUES}
+    ::= {\em double-attribute-value}
+        \{ \TT{,} {\em double-attribute-value} \}\STAR{}
 \end{tabular}
 
 \end{indpar}
 
-{\em Raw-object-representations} are lines beginning with \TT{*@}.
+{\em Raw-object-representations} are lines beginning with \TT{@}.
 For example,
 
 \begin{indpar}\begin{verbatim}
@@ -3216,14 +3216,14 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \begin{tabular}{l}
 \emkey{attribute}
     \begin{tabular}[t]{rl}
-    ::= & {\em raw-attribute-representation} \\
+    ::= & {\em attribute-representation} \\
     $|$ & {\em single-attribute-label}\pagnote{SINGLE-ATTRIBUTE-LABEL} \\
     $|$ & \TT{no} {\em single-attribute-label} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-attribute-representation} \\
+\emkey{attribute-representation} \\
 \hspace*{0.3in}
     \begin{tabular}[t]{rl}
     ::= & {\em single-attribute-representation}%
