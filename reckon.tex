@@ -2637,7 +2637,7 @@ This special case makes minimal use of the parser and is used when
 data is written to a file without any attempt to format the data.
 
 A {\em object-representation} is a logical line beginning
-with a {\em object-identifier} lexeme, which consists of `\TT{*@}'
+with a {\em object-identifier} lexeme, which consists of `\TT{@}'
 followed by digits, and which turns all non-bracket parsing off.
 
 \begin{indpar}[0.5em]
@@ -2736,13 +2736,13 @@ followed by digits, and which turns all non-bracket parsing off.
 \label{DOUBLE-ATTRIBUTE-REPRESENTATION}
     ::=
 \\\hspace*{0.5in}
-	{\em double-attribute-label}
+	{\em bll} {\em double-attribute-label}
 	{\em attribute-label-flags}\QMARK{}
 \\\hspace*{1.0in}
 	\begin{tabular}[t]{@{}l@{}}
 	\TT{=} {\em double-attribute-values} \\
 	\TT{=} {\em reverse-attribute-label}
-	       {\em attribute-label-flags}\QMARK{}
+	       {\em attribute-label-flags}\QMARK{} {\em ell}
 	\end{tabular}
 \end{tabular}
 
@@ -2768,11 +2768,11 @@ followed by digits, and which turns all non-bracket parsing off.
 For example,
 
 \begin{indpar}\begin{verbatim}
-*@1 =:
+@1 =:
     type = woman
     name = Jill
     husband = @2 = wife
-*@2 =:
+@2 =:
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -2828,11 +2828,11 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/*@1 =:/\\
+\verb/@1 =:/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
 \verb|    husband[*] = @2 wife[*]|\\
-\verb/*@2 =:/\\
+\verb/@2 =:/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
 \end{tabular}
@@ -2876,7 +2876,7 @@ attributes labeled \TT{child}, is:
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \begin{tabular}{@{}l@{}}
 \\[-20ex]
-\verb/*@1 =:/\\
+\verb/@1 =:/\\
 \verb|    child = @2 = parent|\\
 \verb|    child = @3 = parent|\\
 \end{tabular}
@@ -2963,7 +2963,7 @@ object itself, a situation which can be achieved by the
 {\em object-representation}:
 
 \begin{indpar}\begin{verbatim}
-*@0=>:
+@0=>:
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
@@ -2972,77 +2972,15 @@ the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
 is an example of such a label.
 
 The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
-However, within {\em object-representa\-tions} (lines beginning with \TT{@})
-the parser does not recognize operators or compound names
-outside bracketed lists, and as
-raw representations have no bracketed lists, the parser does not recognize
-operators or compound names in raw {\em object-representations}.%
-\label{RAW-PARSING}
-The parser does, however,
-recognize and process {\em atom-names}.
-In doing this for an {\em object-list}, the lexemes in the list are scanned
-left to right and the longest sequence of lexemes that comprises an
-{\em atom-name} or {\em object-identifier}
-is accepted as the representative of an atom or object identifier at
-each stage of the scan.  After the atoms are scanned in this manner,
-they are dequoted (symbols that begin and end with \TT{"} have
-these characters removed: see page \pagref{DEQUOTE}).
-Thus the {\em object-list}
-\begin{center}
-\tt 5 e + 2 e 3 4 "e" 3 @ 7 e 5
-\end{center}
-translates as (see \itemref{SCIENTIFIC-NUMERIC}):
-\begin{center}
-\tt
-\begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
-5 e + 2 & \rm number & 500 \\
-e	& \rm symbol & e \\
-3	& \rm number & 3 \\
-4	& \rm number & 4 \\
-"e"	& \rm symbol & e \\
-3	& \rm number & 3 \\
-@ 7	& \rm object identifier & @ 7 \\
-e	& \rm symbol & e \\
-5	& \rm number & 5 \\
-\end{tabular}
-\end{center}
-
-the {\em object-list}
-
-\begin{center}
-"5" 5 "6" \# "7" \# "8" "\#" "9"
-\end{center}
-translates as (see \itemref{CONCATENATED-QUOTED-STRINGS}):
-\begin{center}
-\tt
-\begin{tabular}{r@{~~$\Longrightarrow$~~}rl}
-
-"5"			& \rm symbol & 5 \\
-5			& \rm number & 5 \\
-"6" \# "7" \# "8"	& \rm symbol & 678 \\
-"\#"			& \rm symbol & \# \\
-"9"			& \rm symbol & 9 \\
-\end{tabular}
-\end{center}
-
-and the {\em object-list}
-
-\begin{center}
-b \# "1010" b \# "10" \# "1" e 1 b "\#" "1010"
-\end{center}
-translates as (see \itemref{RADIX-NUMBERS}):
-\begin{center}
-\tt
-\begin{tabular}{r@{~~$\Longrightarrow$~~}rll}
-b \# "1010"		& \rm number & 10 \\
-b \# "10" \# "1" e 1	& \rm number & 10
-			& \rm (same as {\tt b \# "101" e 1}) \\
-b			& \rm symbol & b \\		
-"\#"			& \rm symbol & \# \\		
-"1010"			& \rm symbol & 1010 \\		
-\end{tabular}
-\end{center}
-
+However, within {\em object-representa\-tions} that begin with
+\TT{@} the parser only recognizes brackets and separators, and does
+not recognize operators, numeric units, formats, sentence and phrase
+terminators, etc.\label{RAW-PARSING}  The parser does recognize
+lists as described in the next sections.  In order to ensure that
+the parser does not mistakenly recognize {\em separators} and {\em marks}
+as delimiting lists,
+both {\em separators} and {\em marks} must be quoted as per \TT{"} when
+they are used in {\em atom-names}.
 
 \subsection{Lists}
 
