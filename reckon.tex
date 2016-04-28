@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 27, 2016}
+\date{April 28, 2016}
 
 \maketitle
 
@@ -2538,7 +2538,10 @@ on top of these low level data.  An expression is either an atom or
 a particular kind of object.  A block is a particular kind of object,
 and a description is a particular kind of block.
 
-An \key{atom} is a symbol or a number.
+An \key{atom} is a symbol, a number, or a sequence of 0 or 2 or more atoms.
+A single atom is treated as if were a sequence of 1 atom, itself, and
+when atoms are being treated as sequences of atoms, they are referred to
+as `\skey{label}s'.
 
 An object is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
@@ -2565,8 +2568,8 @@ hash table per stream.}
 There are two kinds of arrows: single and double.
 
 A \key{single arrow} is an arrow from an object to either another object
-or to an atom.  The arrow has a \key{label}, which is a sequence of zero or
-more atoms.
+or to an atom.  The arrow has a label, which is an atom, and is
+most commonly either a symbol or a small positive integer.
 
 A \key{double arrow} is a double headed arrow between two objects.
 It has a separate label for each direction, with each label being a
@@ -2577,10 +2580,12 @@ The difference between a double arrow and a pair of single arrows is that
 it is possible to delete only one direction of a pair of single arrows, but 
 when deleting a double arrow, both directions are deleted.
 
-An \key{arrow label} is a sequence of zero or more atoms.
+An \key{arrow label} is an atom (a.k.a., a label).
 Two arrows leaving the same object may have the same label.  Thus
 an object and an arrow label together name
 a set of arrows sourced at the object.
+We say that the object and label together specify a set of values,
+each of which is an atom or an object.
 
 \ikey{Arrow flags}{arrow flag} may be attached to arrow labels.
 More precisely, a set of arrow flags is defined for each object
@@ -2614,13 +2619,19 @@ of the double attribute,
 and the label of the arrow directed toward the object is the
 \mkey{reverse attribute label}{of double attribute} of the double attribute.
 
+For a given object, an attribute label may label both single and double
+arrows.  A distinction is made between the set of values of the single
+arrows, and the set of values of the double arrows.  The values of double
+arrows, of course, must all be objects, which the values of the single
+arrows may be either objects or atoms.
+
 
 \subsection{Raw Object Representations}
 \label{RAW-OBJECT-REPRESENTATIONS}
 
 A set of objects can be written to a text file or read from a text file.
 When this is done, a textual representation of the object set is used
-in the file.  The simplest representation of an object
+in the file.  The most basic representation of an object
 is the \key{raw object representation}, which we now describe.
 
 A raw object representation is a special case of an {\em object-representation}.
