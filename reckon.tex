@@ -188,15 +188,15 @@
         
 \title{Personal Reckoning Language\\[2ex]
        RECKON\\[2ex]
-       (Draft 1b)}
+       (Draft 2a)}
 
-\author{Robert L. Walton\thanks{Copyright 2008 Robert L. Walton.
+\author{Robert L. Walton\thanks{Copyright 2016 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 28, 2016}
+\date{May 6, 2016}
 
 \maketitle
 
@@ -365,11 +365,11 @@ and \TT{`{}`[[g]]'{}'} evaluates to \TT{`[g]'}.}
 
 \begin{indpar}
 \verb|> g = `hello'| \\
-\verb|`|hello\verb|'| \\
+hello \\
 \verb|> `[g] there'| \\
-\verb|`|hello there\verb|'| \\
+hello there \\
 \verb|> z = `I thought he said `[g]'.'| \\
-\verb|`|I thought he said `hello'.\verb|'| \\
+I thought he said `hello'. \\
 \verb/> notice = `This document is meant to be read./ \\
 \verb/+           Reading this document is good, but.../ \\
 \verb/+           / \\
@@ -378,7 +378,7 @@ This document is meant to be read.  Reading this document is good, but\ldots
 \\[2ex]
 I thought he said `hello'. \\
 \verb|> `When you add [x] and [y] you get [x+y].'| \\
-\verb|`|When you add 9 and 17 you get 26.\verb|'| \\
+When you add 9 and 17 you get 26. \\
 \verb|> `This is a paragraph.| \\
 \verb|> | \\
 \verb|> And a second paragraph.| \\
@@ -416,9 +416,9 @@ Matrices are another kind of data that you can compute
 with:
 
 \begin{indpar}
-\verb/> V = {< 1  2  3 >}/ \\
+\verb/> V =# {| 1  2  3 |}/ \\
 \verb/1 2 3/ \\
-\verb/> M =:/ \\
+\verb/> M =#:/ \\
 \verb/+     0  1   1/ \\
 \verb/+    -1  1   0/ \\
 \verb/+     1  0  -1/ \\
@@ -437,7 +437,8 @@ with:
 
 Another kind of datum you can compute with in RECKON is
 the block.  A \key{block} contains a set of variables, each of which
-can have a value which is an expression.  A block can also
+can have a value which is either an expression or the identifier of a
+block.  A block can also
 have code, which contains expressions that are evaluated under appropriate
 circumstances to produce values for the block's variables.
 
@@ -578,7 +579,7 @@ One can use definitions to define expressions that compute values:
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt @1000002 & \tt @1		& \tt 5	& \tt	10	& \tt 45 \\
+\tt @1000002 &       		& \tt 5	& \tt	10	& \tt 45 \\
 \tt @1000003 & \tt @1000002	& \tt 6	& \tt	10	& \tt 40 \\
 \tt @1000004 & \tt @1000003	& \tt 7	& \tt	10	& \tt 34 \\
 \tt @1000005 & \tt @1000004	& \tt 8	& \tt	10	& \tt 27 \\
@@ -598,14 +599,14 @@ One can use definitions to define expressions that compute values:
 \multicolumn{1}{|c}{\bf Y} &
 \multicolumn{1}{|c|}{\bf value} \\
 \hline
-\tt @1000002 & \tt @1		& \tt 5		& \tt	10	& \tt 45 \\
+\tt @1000002 &       		& \tt 5		& \tt	10	& \tt 45 \\
 \tt @1000003 & \tt @1000002	& \tt 6		& \tt	10	& \tt 40 \\
 \tt @1000004 & \tt @1000003	& \tt 7		& \tt	10	& \tt 34 \\
 \tt @1000005 & \tt @1000004	& \tt 8		& \tt	10	& \tt 27 \\
 \tt @1000006 & \tt @1000005	& \tt 9		& \tt	10	& \tt 19 \\
 \tt @1000007 & \tt @1000006	& \tt 10	& \tt	10	& \tt 10 \\
 \tt @1000008 & \tt @1000007	& \tt 11	& \tt	10	& \tt 0 \\
-\tt @1000009 & \tt @1		& \tt 1		& \tt	2	& \tt 3 \\
+\tt @1000009 &       		& \tt 1		& \tt	2	& \tt 3 \\
 \tt @1000010 & \tt @1000009	& \tt 2		& \tt	2	& \tt 2 \\
 \tt @1000011 & \tt @1000010	& \tt 3		& \tt	2	& \tt 0 \\
 \hline
@@ -697,9 +698,9 @@ On the other hand, `\TT{Jack's}' is treated an abbreviation
 of two separate words `\TT{Jack}' and `\TT{'s}', where `\TT{'s}' is
 a separate word by itself.
 
-Expressions are just strings of words and subexpressions.  Subexpressions
-must be parenthesized unless they consist of a single word, or unless
-they are delimited by operators.
+Expressions are just strings of words, numbers, and subexpressions.
+Subexpressions must be parenthesized unless they
+are delimited by operators.
 
 Lists of values can be stored in \skey{list}s, which are computed by comma
 separated lists in parentheses.  Thus
@@ -747,8 +748,8 @@ structure that is revealed, not the structure of the elements of the list.
 `\TT{the person named Jack}' is a printed representation of the
 internal name of a description.  Such printed representations are chosen
 automatically from the set of all possible representations, which
-in this case include `\TT{the person weighing 123 lbs}' and
-`\TT{the person named Jack weighing 123 lbs}'.
+in this case include `\TT{the person weighing 123 lbs}',
+`\TT{the person named Jack weighing 123 lbs}', and so forth.
 
 The `\TT{really raw}' form of a value identifies descriptions by their IDs.
 
@@ -779,10 +780,11 @@ turn
 evaluation off, while \verb|[|\ldots\verb|]| turns evaluation on.
 The brackets \verb|`|\ldots\verb|'| turn
 recognition of operators (e.g., \verb|+| and \verb|=|) off, and turn
-recognition of (sub)sentence terminators (e.g., `\verb|.|' and `\verb|;|') on,
+recognition of sentence and phrase terminators
+(e.g., `\verb|.|' and `\verb|;|') on,
 while \verb|[|\ldots\verb|]| and \verb|{{|\ldots\verb|}}|
 turn recognition of operators on, and turn recognition of
-sentence terminators off.
+sentence and phrase terminators off.
 
 RECKON can store information as expressions.  For example:
 
@@ -943,7 +945,7 @@ Displays can be used to make demonstrations:
 \verb/+     y axis = {{arrow from (0.0,-0.75) to (0.0,0.75)}}/ \\
 \verb/+     line = {{line from (0.0,0.0)/ \\
 \verb/+                   to [(0.5*cos X, 0.5*sin X)]}}/ \\
-\verb/+     arc = {{arc arrow from (0.7,0.0)/ \\
+\verb/+     arc = {{arc arrow from (0.3,0.0)/ \\
 \verb/+                       to [(0.3*cos X, 0.3*sin X)]}}/ \\
 \verb/+     theta = {{Greek th}}/ \\
 \verb/+     value = {{label (/ \\
