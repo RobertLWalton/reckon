@@ -1125,25 +1125,25 @@ which include words, marks, separators, numerics, and quoted strings.
 For example, the input
 \begin{center}
 \begin{tabular}{l}
-\verb|x = 7ft 1 3/4 in;| \\
+\verb|x = 7ft 1_3/4 in;| \\
 \verb|y = `This is (we think) a sentence.'|
 \end{tabular}
 \end{center}
 contains in order the following lexemes:
 \begin{center}
 \begin{tabular}{ll@{\hspace{1in}}ll}
-\tt x	& word 		& \tt y & word \\
-\tt =	& mark		& \tt ` & (leading) separator \\
-\tt 7ft	& numeric	& \tt This & word \\
-\tt 1	& numeric	& \tt is & word \\
-\tt 3/4	& numeric	& \tt ( & (strict) separator \\
-\tt in	& unit		& \tt we & word \\
-\tt ;	& (trailing) separator	& \tt think & word \\
-	& 		& \tt ) & (strict) separator \\
-	& 		& \tt a & word \\
-	& 		& \tt sentence & word \\
-	& 		& \tt . & (trailing) separator \\
-	& 		& \tt ' & (trailing) separator \\
+\tt x		& word 		& \tt y & word \\
+\tt =		& mark		& \tt ` & (leading) separator \\
+\tt 7ft		& numeric with embedded unit	& \tt This & word \\
+\tt 1\_3/4	& numeric	& \tt is & word \\
+\tt in		& unit		& \tt ( & (strict) separator \\
+\tt ;		& (trailing) separator	& \tt we & word \\
+		& 		& \tt think & word \\
+		& 		& \tt ) & (strict) separator \\
+		& 		& \tt a & word \\
+		& 		& \tt sentence & word \\
+		& 		& \tt . & (trailing) separator \\
+		& 		& \tt ' & (trailing) separator \\
 \end{tabular}
 \end{center}
 
@@ -1212,12 +1212,9 @@ contains in order the following lexemes:
     $|$ & {\em leading-separator} \\
     $|$ & {\em trailing-separator}
     \end{tabular}
-\\[0.5ex]
-\emkey{symbol} :::= {\em middle-lexeme} $|$ {\em separator}
-                $|$ {\em quoted-string}
 \\[1ex]
 \emkey{comment} :::=
-    \TT{//} {\em comment-character}\,$^\star$
+    \TT{//} {\em comment-character}\STAR{}
 \\[1ex]
 \emkey{comment-character} :::= {\em graphic-character}
                            $|$ {\em horizontal-space-character}
@@ -1230,8 +1227,7 @@ is a sequence of white-space characters (single space, horizontal tab, form
 feed, etc.), but is not itself a lexeme.
 
 \begin{indpar}
-\emkey{white-space} :::= {\em white-space-character}
-                         {\em white-space-character}\,$^\star$ \\[1ex]
+\emkey{white-space} :::= {\em white-space-character}\PLUS{} \\[1ex]
 \emkey{white-space-character}
     \begin{tabular}[t]{rl}
     :::= & {\em horizontal-space-character} \\
@@ -1289,11 +1285,12 @@ Thus the {\em lexical-item} `\TT{`4,987,{},::'}' yields the
 and the four {\em trailing-separators} `\TT{,}' `\TT{,}', `\TT{::}', and
 `\TT{'}'.
 
-{\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} are 
-represent as \skey{symbol}s\label{SYMBOL} which store character strings.
+{\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} can represent 
+\skey{symbol}s\label{SYMBOL} which store character strings.
 The character strings represented by
 {\em middle-lexemes} and {\em separators}
 are exactly the character strings of these lexemes.
+Some {\em middle-lexemes} can alternatively represent numbers.
 
 The string of characters represented by a
 \emkey{quoted-string}\label{QUOTED-STRING}
@@ -1320,32 +1317,17 @@ code FF in hexadecimal.
 follows:
 
 \begin{indpar}
-\emkey{middle-lexeme}
-    \begin{tabular}[t]{rl}
-    :::= & {\em word} \\
-    $|$ & {\em index} \\
-    $|$ & {\em numeric} \\
-    \end{tabular}
+\emkey{middle-lexeme} ::= {\em word} $|$ {\em numeric} $|$ {\em mark}
 \\[1ex]
 \emkey{word} ::=
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
     \begin{tabular}[t]{rll}
         & (1) & contains a letter \\
-    and & (2) & contains only letters, digits
-    and the characters: \TT{`} \TT{'} \TT{.} \TT{-} \TT{\_} \\
+    and & (2) & does not contain any \TT{\#} \\
     and & (3) & does not have any digit before its first letter \\
-    and & (4) & does not begin with \TT{`} or end with \TT{'~.~-~\_} \\
-    \end{tabular}
-    \end{tabular}
-\\[1ex]
-\emkey{index}\label{INDEX} ::=
-    \begin{tabular}[t]{l}
-    {\em middle-lexeme} that \\
-    \begin{tabular}[t]{rll}
-        & (1) & contains only digits and the characters: \TT{.~-} \\
-    and & (2) & surrounds every \TT{-} by digits \\
-    and & (3) & follows every \TT{.} by a digit \\
+    and & (4) & does not have any digit adjacent to a character \\
+        &     & that is neither a letter or a digit \\
     \end{tabular}
     \end{tabular}
 \\[1ex]
@@ -1353,8 +1335,10 @@ follows:
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
     \begin{tabular}[t]{rll}
-    either & (1) & contains a digit not preceeded by a letter \\
-    or     & (2) & contains a \TT{\#} and either a letter or a digit
+        & (1) & contains a digit or both a \TT{\#} and a letter \\
+    and & (2) & is not a {\em word} \\
+    and & (3) & does not begin or end with any of
+                \TT{<} \TT{>} \TT{\textbackslash} \TT{/}
     \end{tabular}
     \end{tabular}
 \\[1ex]
@@ -1363,28 +1347,42 @@ follows:
 
 There are many special kinds of {\em numerics} and {\em marks}:
 \begin{indpar}
-    \begin{tabular}[t]{lrl@{~~~~~}ll}
-  &     & & Section & Example \\[1ex]
+    \begin{tabular}[t]{lrl@{~~~~~}lll}
+  &     & & Section & Examples \\[1ex]
 \multicolumn{5}{l}{\emkey{special-numeric}~~::=} \\
 ~~~~
+  &     & {\em natural-numeric}
+        & \itemref{NATURAL-NUMERIC}
+        & \TT{43} 
+        & \TT{9,587} \\
   &     & {\em integral-numeric}
         & \itemref{INTEGRAL-NUMERIC}
-        & \TT{43} \\
+        & \TT{+43} 
+        & \TT{-9,587} \\
   & $|$ & {\em fractional-numeric}
         & \itemref{FRACTIONAL-NUMERIC}
-        & \TT{4/3} \\
+        & \TT{4/3}
+        & \TT{-1\_1/3} \\
   & $|$ & {\em scientific-numeric}
         & \itemref{SCIENTIFIC-NUMERIC}
-        & \TT{4.3} \\
+        & \TT{4.3}
+        & \TT{-0.0098} \\
   & $|$ & {\em date}
-        & \itemref{DATES}
-        & \TT{4may1903} \\
+        & \itemref{DATE}
+        & \TT{4may2003}
+        & \TT{may-03} \\
+  & $|$ & {\em time-interval}
+        & \itemref{TIME-INTERVAL}
+        & \TT{4:30}
+        & \TT{4:30:23.78} \\
   & $|$ & {\em time}
-        & \itemref{TIMES}
-        & \TT{4:30} \\
+        & \itemref{TIME}
+        & \TT{4:30pm}
+        & \TT{20may05:12:30pm:EDT} \\
   & $|$ & {\em radix-numeric}
         & \itemref{RADIX-NUMERIC}
-        & \TT{x\#43}
+        & \TT{x\#4b3e\#}
+        & \TT{b\#1.00110101001\#e+3}
 \\[1ex]
 \multicolumn{5}{l}{\emkey{special-mark}~~::=} \\
 ~~~~
@@ -1843,9 +1841,11 @@ and/or a time zone, and optionally preceeded by a colon and a date.
      $|$ & {\em date} \TT{:} {\em time-interval} \\
      $|$ & {\em date} \TT{:} {\em time-of-day} \\
     \end{tabular}
+\label{TIME}
 \\[1ex]
 \emkey{time-interval} :::= {\em hour} \TT{:} {\em minute}
                           \{ \TT{:} {\em seconds} \}\QMARK{}
+\label{TIME-INTERVAL}
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
     :::= & {\em time-interval} {\em meridian} \\
