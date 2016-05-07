@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 6, 2016}
+\date{May 7, 2016}
 
 \maketitle
 
@@ -1366,7 +1366,7 @@ There are many special kinds of {\em numerics}:
       {\em date}
     & \itemref{DATE}
     & \TT{4may2003}
-    & \TT{May-03} \\
+    & \TT{Fri-May-03} \\
       {\em time-interval}
     & \itemref{TIME-INTERVAL}
     & \TT{4:30}
@@ -1750,13 +1750,16 @@ A variety of different date formats may be used:
 	           {\em date-numeric} {\em era}\QMARK{} \\
 	     $|$ & {\em weekday-modifier}\QMARK{} {\em day} {\em month-name}
 	           {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & \{ {\em weekday-modifier} $|$ TT{\#} \} {\em month-name}
-	           {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & {\em short-year-name}
+	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name}
+	           \TT{-} {\em year-name} {\em era}\QMARK{} \\
+	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name}
+	           {\em short-year-name} {\em era}\QMARK{} \\
+	     $|$ & {\em year-name} {\em era} \\
+	     $|$ & {\em short-year-name} \\
 	     \end{tabular}
 \label{DATE}
 \\[1ex]
-\emkey{weekday-modifier} :::=  {\em weekday} \TT{\#}
+\emkey{weekday-modifier} :::=  {\em weekday} \TT{-}
 \\[1ex]
 \emkey{weekday}
     \begin{tabular}[t]{rl}
@@ -1817,7 +1820,7 @@ A date consisting of just a {\em year-name} refers to January 1 of that
 year; e.g., \TT{'05} and \TT{01/01/2005} are the same date.
 A date consisting of just a {\em month-name} and a {\em year-name}
 refers to the first day of the month;
-e.g., \TT{May'05}. \TT{May05}, \TT{May-05}, and
+e.g., \TT{May'05}, \TT{May-05}, and
 \TT{05/01/2005} are the same date.
 
 If no {\em era} is given and the {\em year} is \TT{999} or less,
@@ -1833,8 +1836,17 @@ next year, etc.  A warning message is issued if {\em day} is
 the date is still computed with \TT{0} denoting the last day of
 the previous month, etc.
 
-Most {\em dates} are {\em numerics}, but those beginning with
-a {\em month-name} are {\em words}.
+All {\em dates} are {\em numerics}.  Some examples are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{~~}l@{}}
+01/01/2000	& Jan-2000	 & jan-00	& 15mar44BC
+						& Thursday-03sep1752 \\
+'09		& 101BC		 & 101BCJ	& 101BCG
+						& Mon-08/23/99AD \\
+\end{tabular}
+\end{indpar}
 
 \subsection{Times}
 \label{TIMES}
@@ -1847,8 +1859,7 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 \emkey{time} \begin{tabular}[t]{rl}
     :::= & {\em time-interval} \\
      $|$ & {\em time-of-day} \\
-     $|$ & {\em date} \TT{:} {\em time-interval} \\
-     $|$ & {\em date} \TT{:} {\em time-of-day} \\
+     $|$ & {\em date} \TT{-} {\em time-of-day} \\
     \end{tabular}
 \label{TIME}
 \\[1ex]
@@ -1857,9 +1868,9 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 \label{TIME-INTERVAL}
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
-    :::= & {\em time-interval} {\em meridian} \\
-     $|$ & {\em time-interval} \TT{-} {\em time-zone} \\
-     $|$ & {\em time-interval} {\em meridian} \TT{-} {\em time-zone} \\
+    :::= & {\em time-interval} {\em meridian}\QMARK{}
+                         \{ \TT{-} {\em time-zone} \}\QMARK{} \\
+     $|$ & {\em time-interval} {\em time-zone} \\
     \end{tabular}
 \\[1ex]
 \emkey{hour} :::= {\em digit}\QMARK{} {\em digit}
@@ -2013,8 +2024,8 @@ Some example {\em times} are:
 1:15am	& 12:00noon   & 05:37:23PM \\
 1:15edt	& 12:00est   & 05:37:23WDT \\
 1:15am-edt	& 12:00midnight-EET   & 05:37:23pm-WDT \\
-May1975:1:15am-edt	& 05/04/1999:00:00EET   & 05/07/99:17:37:23WDT \\
-may1975:1:15am-edt	& 04may'99:00:00EET   & 07May99:17:37:23WDT \\
+May1975-1:15am-edt	& 05/04/1999-00:00EET   & 05/07/99-17:37:23WDT \\
+may1975-1:15am-edt	& 04may'99-00:00EET   & 07May99-17:37:23WDT \\
 \end{tabular}
 \end{indpar}
 
