@@ -1286,7 +1286,7 @@ and the four {\em trailing-separators} `\TT{,}' `\TT{,}', `\TT{::}', and
 `\TT{'}'.
 
 {\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} can represent 
-\skey{symbol}s\label{SYMBOL} which store character strings.
+\skey{symbol}s\label{SYMBOL} that store character strings.
 The character strings represented by
 {\em middle-lexemes} and {\em separators}
 are exactly the character strings of these lexemes.
@@ -1327,7 +1327,7 @@ follows:
     and & (2) & does not contain any \TT{\#} \\
     and & (3) & does not have any digit before its first letter \\
     and & (4) & does not have any digit adjacent to a character \\
-        &     & that is neither a letter or a digit \\
+        &     & that is neither a letter nor a digit \\
     \end{tabular}
     \end{tabular}
 \\[1ex]
@@ -1337,119 +1337,114 @@ follows:
     \begin{tabular}[t]{rll}
         & (1) & contains a digit or both a \TT{\#} and a letter \\
     and & (2) & is not a {\em word} \\
-    and & (3) & does not begin or end with any of
-                \TT{<} \TT{>} \TT{\textbackslash} \TT{/}
     \end{tabular}
     \end{tabular}
 \\[1ex]
 \emkey{mark} ::= {\em middle-lexeme} that is not a {\em word} or {\em numeric}
 \end{indpar}
 
-There are many special kinds of {\em numerics} and {\em marks}:
+There are many special kinds of {\em numerics}:
 \begin{indpar}
-    \begin{tabular}[t]{lrl@{~~~~~}lll}
-  &     & & Section & Examples \\[1ex]
-\multicolumn{5}{l}{\emkey{special-numeric}~~::=} \\
-~~~~
-  &     & {\em natural-numeric}
-        & \itemref{NATURAL-NUMERIC}
-        & \TT{43} 
-        & \TT{9,587} \\
-  &     & {\em integral-numeric}
-        & \itemref{INTEGRAL-NUMERIC}
-        & \TT{+43} 
-        & \TT{-9,587} \\
-  & $|$ & {\em fractional-numeric}
-        & \itemref{FRACTIONAL-NUMERIC}
-        & \TT{4/3}
-        & \TT{-1\_1/3} \\
-  & $|$ & {\em scientific-numeric}
-        & \itemref{SCIENTIFIC-NUMERIC}
-        & \TT{4.3}
-        & \TT{-0.0098} \\
-  & $|$ & {\em date}
-        & \itemref{DATE}
-        & \TT{4may2003}
-        & \TT{may-03} \\
-  & $|$ & {\em time-interval}
-        & \itemref{TIME-INTERVAL}
-        & \TT{4:30}
-        & \TT{4:30:23.78} \\
-  & $|$ & {\em time}
-        & \itemref{TIME}
-        & \TT{4:30pm}
-        & \TT{20may05:12:30pm:EDT} \\
-  & $|$ & {\em radix-numeric}
-        & \itemref{RADIX-NUMERIC}
-        & \TT{x\#4b3e\#}
-        & \TT{b\#1.00110101001\#e+3}
-\\[1ex]
-\multicolumn{5}{l}{\emkey{special-mark}~~::=} \\
-~~~~
-  &     & {\em unit}
-        & \itemref{UNITS}
-        & \TT{mi/hr} \\
-  & $|$ & {\em format}
-        & \itemref{FORMATS}
-        & \TT{/4.1/} \\
+    \begin{tabular}[t]{l@{~~~~~}lll}
+          & Section & Examples \\[1ex]
+      {\em natural-numeric}
+    & \itemref{NATURAL-NUMERIC}
+    & \TT{43} 
+    & \TT{9,587} \\
+      {\em integral-numeric}
+    & \itemref{INTEGRAL-NUMERIC}
+    & \TT{+43} 
+    & \TT{-9,587} \\
+      {\em fractional-numeric}
+    & \itemref{FRACTIONAL-NUMERIC}
+    & \TT{4/3}
+    & \TT{-1\_1/3} \\
+      {\em scientific-numeric}
+    & \itemref{SCIENTIFIC-NUMERIC}
+    & \TT{4.3}
+    & \TT{-0.0098} \\
+      {\em date}
+    & \itemref{DATE}
+    & \TT{4may2003}
+    & \TT{May-03} \\
+      {\em time-interval}
+    & \itemref{TIME-INTERVAL}
+    & \TT{4:30}
+    & \TT{4:30:23.78} \\
+      {\em time}
+    & \itemref{TIME}
+    & \TT{4:30pm}
+    & \TT{20may05:12:30pm-EDT} \\
+      {\em radix-numeric}
+    & \itemref{RADIX-NUMERIC}
+    & \TT{x\#4b3e\#}
+    & \TT{b\#1.00110101001\#e+3}
     \end{tabular}
 \end{indpar}
 
-{\em Words}, however, are never
-special, and can be used to form names of variables, constants, and functions,
+Some other kinds of special {\em middle-lexemes} are:
+\begin{indpar}
+    \begin{tabular}[t]{l@{~~~~~}lll}
+          & Section & Examples \\[1ex]
+      {\em natural-numeric}
+      {\em unit}
+    & \itemref{UNITS}
+    & \TT{mi}
+    & \TT{mi/hr} \\
+      {\em format}
+    & \itemref{FORMATS}
+    & \TT{/.1/}
+    & \TT{/10.1c/} \\
+    \end{tabular}
+\end{indpar}
+
+Non-{\em numerics} can be used to form names of variables,
+constants, and functions:
 which are called `\skey{defined names}'\label{DEFINED-NAME}:
 
 \begin{indpar}
-\emkey{defined-name} ::=
-    \{ {\em word} $|$ {\em quoted-string} \}
-    \{ {\em word} $|$ {\em quoted-string} $|$ {\em index} \}\STAR{}
+\emkey{name} ::=
+    \{ {\em word} $|$ {\em quoted-mark} $|$ {\em quoted-separator} \}\PLUS{}
+\\[1ex]
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
 \end{indpar}
 
-Some {\em defined-names} have builtin definitions, such as the
-words `\TT{ft}' and `\TT{inch}' which in some contexts denote the
-units `foot' and `inch' (see Section~\itemref{UNITS}),
-and `\TT{PI}' which in some contexts denotes the mathematical
-constant $\pi$ (see Section~\itemref{BUILTIN-CONSTANTS}).
+Note that digits can appear adjacent to leters in a name, but not
+elsewhere.
 
-{\em Indices} are also {\em numerics}.
-They may, according to context, be used
-as non-initial components of names, or if they contain at most one
-`\TT{.}', be used as special {\em numeric} lexemes denoting numbers.
-Thus in
+If a name is to be used as a constant it must be \TT{`~'} quoted.
 
-\begin{indpar}\begin{verbatim}
-X 1 = 2
-Y 3.3 = 4.4
-Z .5 = .6
-\end{verbatim}\end{indpar}
-
-`\TT{1}', `\TT{3.3}', and `\TT{.5}' are used as {\em indices}
-in {\em defined-names}, while `\TT{2}', `\TT{4.4}', and `\TT{.6}'
-are used to denote numbers.
-
-{\em Quoted-strings} are used as if they were {\em words}.
-For example:
+Some examples are:
 
 \begin{indpar}\begin{verbatim}
 "+" = 5
 X = "+" + 1
-Y = `X + 3' 
-Z = `X'
+Y15 = `X + 3' 
+Z0 = `X'
 T = `"A line.<LF>"'
 \end{verbatim}\end{indpar}
 
-defines a variable named \TT{"+"} with value \TT{3}, a variable
-name \TT{X} with value \TT{4}, and
-a variable named \TT{Y} with value being the text \TT{X + 3},
+These statements define
+a variable named \TT{"+"} with value \TT{5}, a variable
+name \TT{X} with value \TT{6}, and
+a variable named \TT{Y15} with value the text \TT{X + 3},
 i.e., the vector whose 3 elements are the symbols
-\TT{X}, \TT{+}, and \TT{3}.  \TT{Z} is a variable whose
+\TT{X}, \TT{+}, and \TT{3}.  \TT{Z0} is a variable whose
 value is a single symbol whose character string contains
 the single character \TT{X}.
 \TT{T} is a variable whose value is the single symbol
 whose character string is that of the {\em quoted-string} \TT{"A line.<LF>"}.
 
+Some {\em names} have builtin definitions, such as the
+words `\TT{ft}' and `\TT{inch}' which in some contexts denote the
+units `foot' and `inch' (see Section~\itemref{UNITS}),
+and `\TT{PI}' which in some contexts denotes the mathematical
+constant $\pi$ (see Section~\itemref{BUILTIN-CONSTANTS}).
+
 Special lexemes are described in the following sections.  Some of these
 represent numbers.  When translated into internal computer form,
+which is IEEE double precision floating point,
 integers in the range
 \begin{center}
 $-9,007,199,254,740,992~~~~~..~~~~~+9,007,199,254,740,992$
@@ -1542,6 +1537,8 @@ optionally preceeded by a {\em sign}:
 \emkey{sign} ::= \TT{+} $|$ \TT{-}
 \end{indpar}
 
+Note that commas, if present, must appear every 3 digits.
+
 \subsection{Fractional Numerics}
 \label{FRACTIONAL-NUMERIC}
 
@@ -1561,7 +1558,8 @@ more {\em digits}:
 
 Some examples are:
 \begin{center}
-\TT{1/3}~~~~~~\TT{+48/97}~~~~~~\TT{42\_3/8}~~~~~~\TT{-10\_7/10}.
+\tt
+1/3 ~~~~~~ +48/97 ~~~~~~ 42\_3/8 ~~~~~~ -10\_7/10
 \end{center}
 Here `\TT{\_}' denotes `and', as in \TT{10} and \TT{7/10}'ths,
 so the last example equals \TT{-10.7}.
@@ -1575,8 +1573,8 @@ printed as a fraction.  Thus in these contexts a number input as
 
 The fraction \TT{0/0} denotes the IEEE \key{NaN} value, which
 stands of `Not a Number'.  The fraction \TT{$N$/0} for $N>0$
-denotes \TT{+inf}, or plus infinity, while \TT{-~$N$/0} denotes
-\TT{-inf}, or minus infinity.
+denotes \TT{+Inf}, or plus infinity, while \TT{-$N$/0} denotes
+\TT{-Inf}, or minus infinity.
 
 \subsection{Scientific Numeric}
 \label{SCIENTIFIC-NUMERIC}
@@ -1628,15 +1626,16 @@ Some examples are:
 \subsection{Radix Numerics}
 \label{RADIX-NUMERIC}
 
-A \emkey{radix-numeric} is the same as a {\em scientific-numeric}
+A \emkey{radix-numeric} is the same as a {\em scientific-numeric},
 except that it is prefaced (after any {\em sign}) by a
-{\em radix-indicator}, and the
-permissible {\em digits} and comma spacings depend upon this indicator:
+{\em radix-indicator}, the (non-exponent) digits are surrounded by
+`\TT{\#}'s, and the
+permissible {\em digits} and comma spacings depend upon the radix indicator:
 
 \begin{indpar}
 \emkey{radix-numeric} ::= \\
 \hspace*{0.2in}
-    {\em sign}\QMARK{} {\em radix-indicator}
+    {\em sign}\QMARK{} {\em radix-indicator} \TT{\#}
     {\em radix-natural-part}
     {\em radix-fractional-part}\QMARK{}
     \TT{\#}
@@ -1644,15 +1643,15 @@ permissible {\em digits} and comma spacings depend upon this indicator:
 \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-}
 \\[1ex]
-\emkey{radix-indicator} ::= \TT{B\#} $|$ \TT{b\#} $|$
-                            \TT{O\#} $|$ \TT{o\#} $|$
-			    \TT{D\#} $|$ \TT{d\#} $|$
-			    \TT{X\#} $|$ \TT{x\#}
+\emkey{radix-indicator} ::= \TT{B} $|$ \TT{b} $|$
+                            \TT{O} $|$ \TT{o} $|$
+			    \TT{D} $|$ \TT{d} $|$
+			    \TT{X} $|$ \TT{x}
 \\[1ex]
 \emkey{radix-natural-part} :::= {\em radix-digit}\PLUS{}
 	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
 \\[1ex]
-\emkey{radix-fractional-part} :::= {\em radix-digit}\PLUS{}
+\emkey{radix-fractional-part} :::= \TT{.} {\em radix-digit}\PLUS{}
 	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
 \\[1ex]
 \emkey{exponent-part} ::= {\em exponent-indicator} {\em sign}\QMARK{}
@@ -1667,17 +1666,17 @@ The {\em radix-indicators} have the following denotations:
 \bf Radix Indicator
 	& \bf Meaning	& \bf Digits 		& \bf Comma Positions
 \\[1ex]
-\TT{B\#} or \TT{b\#}
+\TT{B} or \TT{b}
         & binary	& \TT{0}, \TT{1}	& every 2, 3, 4, or 5 digits \\
-\TT{O\#} or \TT{o\#}
+\TT{O} or \TT{o}
         & octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
 			  			& every 2, 3, or 4 digits \\
-\TT{D\#} or \TT{d\#}
+\TT{D} or \TT{d}
         & decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
 			  \TT{8}, \TT{9}	& every 3 digits \\
-\TT{X\#} or \TT{x\#}
+\TT{X} or \TT{x}
         & hexa-decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
 			  \TT{8}, \TT{9},	& every 2 or 4 digits \\
@@ -1689,15 +1688,16 @@ The {\em radix-indicators} have the following denotations:
 \end{center}
 
 Only certain {\em radix-digits} are permitted: e.g., the digit \TT{2}
-is not allowed with \TT{B\#} and the digit \TT{E} is not allowed
-with \TT{D\#}.  Only certain comma spacings are permitted, and comma
-spacing must be consistent.  Thus \TT{x\#A,C9,BD,8F} is permitted but
-\TT{x\#A,C9B,D8F} is not (3-spacing not allowed for hexa-decimal),
-and \TT{x\#A,C9,BD8F} is not permitted (2-spacing combined with
+is not allowed in \TT{B\#\ldots\#} and the digit \TT{E} is not allowed
+with \TT{D\#\ldots\#}.  Only certain comma spacings are permitted, and comma
+spacing must be consistent.  Thus \TT{x\#A,C9,BD,8F\#} is permitted but
+\TT{x\#A,C9B,D8F\#} is not (3-spacing not allowed for hexa-decimal),
+and \TT{x\#A,C9,BD8F\#} is not permitted (2-spacing combined with
 4-spacing is not consistent).
-There may be at most one point.
+There may be at most one decimal point.
 Commas may be used before the point without being used after the
-point, and vice versa.
+point, and vice versa, but if used in both places, the comma spacing
+must be the same.
 
 Some example {\em radix-numbers} are:
 
@@ -1849,7 +1849,7 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
     :::= & {\em time-interval} {\em meridian} \\
-     $|$ & {\em time-interval} {\em time-zone} \\
+     $|$ & {\em time-interval} \TT{-} {\em time-zone} \\
      $|$ & {\em time-interval} {\em meridian} \TT{-} {\em time-zone} \\
     \end{tabular}
 \\[1ex]
