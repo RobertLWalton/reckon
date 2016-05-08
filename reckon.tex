@@ -2218,7 +2218,7 @@ Hello	  & /rw7i/	& \it \VSP\VSP Hello \\
 \end{tabular}
 \end{indpar}
 
-A {\em format} is a {\em middle-lexeme} consisting of a sequence of
+A {\em format} is a {\em word} or {\em numeric} consisting of a sequence of
 {\em format-items} surrounded by and optionally separated by
 slashes `\TT{/}':
 \begin{indpar}
@@ -2231,10 +2231,13 @@ slashes `\TT{/}':
 \end{indpar}
 
 The following is a complete list of {\em format-items}.
-The items are presented in groups unless otherwise noted conflict
-with each other; see the rules below for resolving conflicts.
+All {\em format-items} contain either a letter or a digit, so all
+formats are either {\em words} or {\em numerics}.
 The slashes (\TT{/}) between {\em format-items} in a {\em format}
 may be omitted if no ambiguity arises.
+
+The items are presented in groups whose items, unless otherwise noted, conflict
+with each other; see the rules below for resolving conflicts.
 
 \newcommand{\BEGINGROUP}[2][]{
 \begin{tabular}{rllp{4.0in}}
@@ -2261,7 +2264,7 @@ may be omitted if no ambiguity arises.
 \ENDGROUP \\
 \BEGINGROUP{Background Color Group}
 \GROUPENTRY{gray} light gray background \\
-\GROUPENTRY{white} white background \\
+\GROUPENTRY{white} white background [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Adjust Group}
 \GROUPENTRY{r} right adjust [default for numbers] \\
@@ -2276,38 +2279,60 @@ may be omitted if no ambiguity arises.
 \GROUPENTRY{0}
     ditto but with zero {\em places} and \underline{no} decimal point \\
 \GROUPENTRY[precision]{p}
-    output with exactly {\em precision} significant decimal digits  \\
+    output with exactly {\em precision} significant decimal digits,
+    \GROUPNEWLINE
+    but avoid using exponent if it is more compact not too,
+    \GROUPNEWLINE
+    suppress low order fraction \TT{0}'s,
+    \GROUPNEWLINE
+    and suppress decimal point if there are no fraction digits
+    \GROUPNEWLINE
+    [default is `\TT{p6}'] \\
 \GROUPENTRY[time-format]{T}
     format time (or date) as per below; \GROUPNEWLINE
     conflicts with \TT{\%} \TT{\$} \TT{,} \TT{()} \TT{+} and \TT{-} \\
 \ENDGROUP \\
+\BEGINGROUP{Fraction Group}
+\GROUPENTRY[denominator]{f}
+    when a number is about to be output with a fractional part,
+    prefer a fractional representation with denominator less than
+    or equal to the value given, if that is more precise. \\
+\GROUPENTRY{!f}
+    do not use fractional representations with demonimators
+    \GROUPNEWLINE
+    [default] \\
+\ENDGROUP \\
 \BEGINGROUP{Unit Group}
-\GROUPENTRY{\%} multiply numbers by 100 and add a \% sign \\
-\GROUPENTRY{\$} add \$ sign to numbers; \GROUPNEWLINE
+\GROUPENTRY{u\%} multiply numbers by 100 and add a \% sign \\
+\GROUPENTRY{u\$} add \$ sign to numbers; \GROUPNEWLINE
                 make \TT{0.2} the Numeric Group default \\
-\GROUPENTRY{!unit} no unit
+\GROUPENTRY{!u} no unit [default]
 \ENDGROUP \\
 \BEGINGROUP{Sign Group}
-\GROUPENTRY{()} indicate negative numbers by parentheses instead of sign \\
-\GROUPENTRY{+} indicate positive and zero numbers by sign, + or - \\
-\GROUPENTRY{-} indicate negative numbers by sign (-) and positive by absence
-               of sign \\
+\GROUPENTRY{s()} indicate negative numbers by parentheses instead of sign \\
+\GROUPENTRY{s+} indicate positive and zero numbers by sign, + or - \\
+\GROUPENTRY{s-} indicate negative numbers by sign (-) and positive by absence
+               of sign [default] \\
 \ENDGROUP \\
-\BEGINGROUP{Numeric Comma Group}
-\GROUPENTRY{,} add commas to numbers \\
-\GROUPENTRY{!,} undo ditto \\
+\BEGINGROUP{Integer Comma Group}
+\GROUPENTRY{i,} add commas to integral parts of numbers [default] \\
+\GROUPENTRY{!i,} undo ditto \\
+\ENDGROUP \\
+\BEGINGROUP{Fraction Comma Group}
+\GROUPENTRY{f,} add commas to fractional parts of numbers \\
+\GROUPENTRY{!f,} undo ditto [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Width Group}
 \GROUPENTRY[columns]{w}
     adjust width by given number of {\em columns} \\
 \GROUPENTRY{!w}
-    set width to `only as wide as necessary' \\
+    set width to `only as wide as necessary' [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Height Group}
 \GROUPENTRY[lines]{h}
     adjust height by given number of {\em lines} \\
 \GROUPENTRY{!h}
-    set height to `only as high as necessary' \\
+    set height to `only as high as necessary' [default] \\
 \ENDGROUP \\
 \BEGINGROUP[(\TT{left} does not conflict with \TT{right})]%
            {Horizontal Margin Group}
@@ -2316,42 +2341,23 @@ may be omitted if no ambiguity arises.
 \GROUPENTRY[points]{left}
     adjust space to left of entry by {\em points} \\
 \GROUPENTRY[points]{right}
-    adjust space to right of entry by {\em points} \\
+    adjust space to right of entry by {\em points} \GROUPNEWLINE
+    [default is `\TT{side3}'] \\
 \ENDGROUP \\
 \BEGINGROUP[(no conflicts)]{Vertical Margin Group}
 \GROUPENTRY[points]{top}
     adjust space at top of entry by {\em points} \\
 \GROUPENTRY[points]{bottom}
-    adjust space at bottom of entry by {\em points} \\
+    adjust space at bottom of entry by {\em points} \GROUPNEWLINE
+    [default is `\TT{top3bottom3}'] \\
 \ENDGROUP
 
-To `adjust' a value V by a parameter P in the above is to
-set V to P if P has no sign, or to add P to the current V if
-P has a sign.  Thus `\TT{w7}' sets the width to 7 columns while
-`\TT{w-2}' subtracts two columns from the current width and
-`\TT{w+2}' adds two columns to the current width.
-
-The {\em format-items} are applied left to right, with a {\em format-item}
-cancelling conflicting {\em format-items} to its left.  In applying this
-rule, however, {\em format-items} that adjust a value by adding
-or subtracting a parameter to the value do not conflict with any
-{\em format-item}.
-
-In some contexts
-there are multiple formats applied in a given order.  For example,
-in tables the table format, column format, and row format are applied in
-order, so the column format overrides the table format, and the row
-format overrides the other formats.
-
-
-
-A {\em time-format} is a string of any characters that are
-allowed inside a word in which the following \emskey{time-code}s
-are replaced as indicated in the following:
+\begin{boxedfigure}[!t]
 \begin{center}
-\begin{tabular}{lp{4.0in}}
+\begin{tabular}{lp{4.5in}}
 \ttmkey{\{~\}}{{\em time-code}} & surround the format by \TT{\{~\}} if the
-				  format contains slashes \\
+				  format contains slashes; \\
+				& the \TT{\{~\}} are deleted \\
 \ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
 \ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
 \ttmkey{ww}{{\em time-code}} & day of weak: \TT{01} \ldots{} \TT{07} \\
@@ -2372,7 +2378,7 @@ are replaced as indicated in the following:
 			     & or: \TT{00} \ldots{} \TT{23}
 			       if xm and XM \underline{not}
 			       in {\em time-format} \\
-\ttmkey{mm}{{\em time-code}} & minute: \TT{00} \ldots{} \TT{59} \\
+\ttmkey{mm}{{\em time-code}} & minute: \TT{00} \ldots{} \TT{59}
                                if next to \TT{:} \\
 \ttmkey{ss}{{\em time-code}} & second: \TT{00} \ldots{} \TT{59} \\
 \ttmkey{\_}{{\em time-code}} & single space \\
@@ -2389,6 +2395,33 @@ are replaced as indicated in the following:
 				giving it a special interpretation
 \end{tabular}
 \end{center}
+\caption{Time Format Codes}
+\label{TIME-FORMAT-CODES}
+\end{boxedfigure}
+
+To `adjust' a value V by a parameter P in the above is to
+set V to P if P has no sign, or to add P to the current V if
+P has a sign.  Thus `\TT{w7}' sets the width to 7 columns while
+`\TT{w-2}' subtracts two columns from the current width and
+`\TT{w+2}' adds two columns to the current width.
+
+The {\em format-items} are applied left to right, with a {\em format-item}
+cancelling conflicting {\em format-items} to its left.  In applying this
+rule, however, {\em format-items} that adjust a value by adding
+or subtracting a parameter to the value do not conflict with any
+{\em format-item}.
+
+In some contexts
+there are multiple formats applied in a given order.  For example,
+in tables the table format, column format, and row format are applied in
+order, so column format items override table format items,
+and row format items override table and column format items.
+
+
+
+A {\em time-format} is a string of any characters that are
+allowed inside a {\em middle-lexeme} in which the following \emskey{time-code}s
+are replaced as indicated in Figure~\ref{TIME-FORMAT-CODES}.
 
 Some example {\em time-formats} and associated times are:
 \begin{center}
