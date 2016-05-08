@@ -1853,7 +1853,8 @@ next year, etc.  A warning message is issued if {\em day} is
 the date is still computed with \TT{0} denoting the last day of
 the previous month, etc.
 
-All {\em dates} are {\em numerics}.  Some examples are:
+All {\em dates} are {\em numerics}, as either a digit comes before
+any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 
 \begin{indpar}[0.1in]
 \tt
@@ -1917,7 +1918,7 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 
 A {\em time-interval} represents the number
 $60*(60*hour+minute)+seconds$.  A {\em minutes} or
-{\em seconds} value equal or greater than $60$ merely causes a warning
+{\em seconds} value equal to or greater than $60$ merely causes a warning
 message to be issued.
 
 A {\em meridiem} limits the {\em time-interval}
@@ -1926,7 +1927,7 @@ to be equal to or greater than \TT{1:00} and strictly less than
 or \TT{midnight} {\em meridiem} limits the {\em time-interval}
 to be equal to \TT{12:00}; else a warning message is issued.
 The absence of a {\em meridiem} limits the {\em time-interval}
-to be equal to or less than {\TT 24:00}.
+to be equal to or less than \TT{24:00}.
 
 If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
 {\em time-interval} values equal to or greater than \TT{12:00}.
@@ -1997,7 +1998,7 @@ A {\em time-zone} such as \TT{UTC-05:00} refers to Greenwich Mean Time
 (\TT{UTC}, Temps Universel Coordonn\'e in French)
 minus 5 hours (\TT{-05:00}) and is the same as
 Eastern Standard Time, or \TT{EST}.   When localities that use \TT{EST}
-go in Daylight Savings Time, they convert to Eastern Daylight Time, or
+go on Daylight Savings Time, they convert to Eastern Daylight Time, or
 \TT{EDT}, which is that same as \TT{UTC-04:00}.
 
 As another example, \TT{NZST}, New Zealand Standard Time, is the same
@@ -2032,7 +2033,8 @@ define time zone VLAT `Vladivostok Time' UTC+10:00
 Short names may be capitalized or not in defining statements, and
 similarly in usage.
 
-Some example {\em times} are:
+All {\em times} are {\em numerics}, as either a digit comes before
+any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 
 \begin{indpar}[0.1in]
 \tt
@@ -2045,10 +2047,6 @@ May1975-1:15am-edt	& 05/04/1999-00:00EET   & 05/07/99-17:37:23WDT \\
 may1975-1:15am-edt	& 04may'99-00:00EET   & 07May99-17:37:23WDT \\
 \end{tabular}
 \end{indpar}
-
-{\em Times} are {\em numerics} except for those that begin with
-{\em month-names} which are {\em words}.
-
 
 \subsection{Units}
 \label{UNITS}
@@ -2094,8 +2092,9 @@ ft\textasciicircum 2/sec
 \end{tabular}
 \end{indpar}
 
-Note that there can be at most one `\TT{/}' in a {\em unit}, and
-`\TT{*}' takes precedence over `\TT{/}'.
+Note that there can be at most one `\TT{/}' in a {\em unit},
+`\TT{*}' takes precedence over `\TT{/}', and `\TT{\textasciicircum}'
+takes precedence over `\TT{*}'.
 
 {\em Units} can be separate {\em word} lexemes, or they can be glued
 to a preceding {\em scientific-numeric} lexeme,
@@ -2127,7 +2126,7 @@ define unit inch = 2.54cm
 define unit ft = 12 inch
 define unit yd = 3ft
 define unit inch = yd / 36
-define unit inch = ft / 36
+define unit inch = ft / 12
 define unit sqft = ft^2
 define unit cuft = ft^3
 define unit degC
@@ -2140,27 +2139,29 @@ Here
 \emkey{unit-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em unit-quotient} \\
-    $|$ & {\em unit-expression} \TT{+} {\em unit-number-constant} \\
-    $|$ & {\em unit-expression} \TT{-} {\em unit-number-constant} \\
+    $|$ & {\em unit-quotient} \TT{+} {\em unit-number-constant} \\
+    $|$ & {\em unit-quotient} \TT{-} {\em unit-number-constant} \\
     \end{tabular}
 \\
 \emkey{unit-quotient}
     \begin{tabular}[t]{rl}
     ::= & {\em unit-product} \\
     $|$ & {\em unit-quotient} \TT{/} {\em unit-number-constant} \\
-    $|$ & {\em unit-quotient} \TT{/} {\em unit-product} \\
     $|$ & {\em unit-number-constant} \TT{/} {\em unit-product} \\
+    $|$ & {\em unit-product} \TT{/} {\em unit-product} \\
     \end{tabular}
 \\
 \emkey{unit-product}
     \begin{tabular}[t]{rl}
     ::= & {\em unit-factor} \\
+    $|$ & \{ {\em unit-number-constant} ~ {\em unit-name} \}\PLUS{} \\
     $|$ & {\em unit-number-constant} \TT{*} {\em unit-factor} \\
     $|$ & {\em unit-product} \TT{*} {\em unit-number-constant} \\
     $|$ & {\em unit-product} \TT{*} {\em unit-factor} \\
     \end{tabular}
 \\
-\emkey{unit-factor} ::= see above
+\emkey{unit-factor} ::= {\em unit-name}
+    \{ \TT{\textasciicircum} {\em natural-numeric} \}\QMARK{}
 \\
 \emkey{unit-number-constant} ::=
       {\em scientific-numeric} without any leading {\em sign}
@@ -2169,10 +2170,8 @@ Here
 Note that operators in {\em unit-expressions} are separate
 lexemes.
 Also, the second operand of `\TT{+}', and
-`\TT{-}' must always be a {\em unit-number-constant},
-it is not possible to write non-integral or negative exponents,
-and {\em unit-factors} are the same in {\em unit-expressions}
-as they are in {\em units}.
+`\TT{-}' must always be a {\em unit-number-constant}, and
+it is not possible to write non-integral or negative exponents.
 
 A unit may appear in many `\TT{define unit}' statements in order to describe
 its relation to other units.  The statements must be consistent;
