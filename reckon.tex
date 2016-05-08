@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 7, 2016}
+\date{May 8, 2016}
 
 \maketitle
 
@@ -1022,29 +1022,46 @@ The rest of this document is a reference manual for RECKON.
 
 \begin{verbatim}
 for every board:
-    on a board of dimension S:
+    on a board of size S:
         `Make a board of size SxS.'
         size = S
-        `Allowed vessels have lengths 2 (destroyer),
-         3 (cruiser), 5 (battleship).  vessels(L) is
-         number of length L.'
-        array vessels of size 5
-              with initial element 0
-        `maximum vessels(L) is maximum number of vessels of
-         length L.'
-        array maximum vessels of size 5
-              with initial element 0
-        maximum vessels(2) = 5
-        maximum vessels(3) = 2
-        maximum vessels(5) = 1
-        `state(I,J) is `none', `miss', or `hit' iff shell
-         has not struck square (I,J), struck square (I,J)
-         but that square had no ship, or struck square (
-         ,J) and hit a ship at that square.'
-        array hit of size (S,S) with initial element `none'
-        `vessel(I,J) is the vessel at (I,J)'
-        array vessel of size (S,S)
-              with initial element `none'
+        `state(I,J) is `safe' or `hit.''
+        array hit of size (S,S) with initial element `safe'
+        `vessel(I,J) is ID of vessel at (I,J) or `none'.'
+        array vessel of size (S,S) with initial element `none'
+
+for every vessel:
+    on a vessel of length L on board B:
+        `Make a vessel of length L on board B.'
+        length = L
+        board = B
+        temporary S = size of board
+        position = (0,0)
+        direction = (0,0)
+
+        location loop:
+            direction =
+                random ( (-1,-1), (-1,0), (-1,1), (0,1),
+                         (1,1), (1,0), (1,-1), (0,-1) )
+            position = ( random ( 0 .. S - 1 ),
+                         random ( 0 .. S - 1 ) )
+            check loop:
+                first p = position
+                first len = 1
+                if vessel(p) of board != `none':
+                    continue location loop
+                if len == length:
+                    finish check loop
+                next p = p + direction
+                next len = len + 1
+            install loop:
+                first p = position
+                first len = 1
+                vessel(p) of board = THIS
+                if len == length:
+                    finish check loop
+                next p = p + direction
+                next len = len + 1
 \end{verbatim}
 
 \caption{Code for the Battleship Game, Part I}
