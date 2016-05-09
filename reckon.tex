@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 8, 2016}
+\date{May 9, 2016}
 
 \maketitle
 
@@ -1021,47 +1021,36 @@ The rest of this document is a reference manual for RECKON.
 \begin{boxedfigure}
 
 \begin{verbatim}
+ship name = [`none', `submarine', `distroyer', `cruzier',
+                     `battleship', `carrier' ]
+
 for every board:
     on a board of size S:
-        `Make a board of size SxS.'
+        // Make a board of size SxS.
         size = S
-        `state(I,J) is `safe' or `hit.''
-        array hit of size (S,S) with initial element `safe'
-        `vessel(I,J) is ID of vessel at (I,J) or `none'.'
-        array vessel of size (S,S) with initial element `none'
+        // state(R, C) is `safe' or `hit'.
+        hit = an array of size (S, S)
+              with initial element `safe'
+        // vessel(R, C) is ID of vessel at (R, C) or `none'.
+        vessel = an array of size (S, S)
+                 with initial element `none'
+        ships = 0  // Number of ships
+        sunk  = 0  // Number of ships sunk
 
-for every vessel:
-    on a vessel of length L on board B:
-        `Make a vessel of length L on board B.'
-        length = L
-        board = B
-        temporary S = size of board
-        position = (0,0)
-        direction = (0,0)
-
-        location loop:
-            direction =
-                random ( (-1,-1), (-1,0), (-1,1), (0,1),
-                         (1,1), (1,0), (1,-1), (0,-1) )
-            position = ( random ( 0 .. S - 1 ),
-                         random ( 0 .. S - 1 ) )
-            check loop:
-                first p = position
-                first len = 1
-                if vessel(p) of board != `none':
-                    continue location loop
-                if len == length:
-                    finish check loop
-                next p = p + direction
-                next len = len + 1
-            install loop:
-                first p = position
-                first len = 1
-                vessel(p) of board = THIS
-                if len == length:
-                    finish check loop
-                next p = p + direction
-                next len = len + 1
+    on shoot at (R, C) on THIS:
+        if hit(R, C) == `hit':
+            return `no effect'
+        hit(R, C) = `hit'
+        if vessel(R, C) == `none':
+            return `miss'
+        add 1 to vessel(R, C)'s hits
+        temporary L = vessel(R, C)'s length
+        if vessel(R, C)'s hits == L:
+            message = `You shunk my [ship name(L)]!'
+            add 1 to sunk
+            if sunk == ships:
+                message = `[message] I lose!'
+            return message
 \end{verbatim}
 
 \caption{Code for the Battleship Game, Part I}
@@ -1071,27 +1060,43 @@ for every vessel:
 
 \begin{boxedfigure}
 
+\small
+
 \begin{verbatim}
-direction vector of D:
-    `given a direction N, NE, E, SE, S, SW, W, NW,
-     return a vector with unit components in the
-     given direction.'
-    if D == `N':
-        value = (1,0)
-    else if D == `NE':
-        value = (1,1)
-    else if D == `E':
-        value = (1,0)
-    else if D == `SE':
-        value = (1,-1)
-    else if D == `S':
-        value = (0,-1)
-    else if D == `SW':
-        value = (-1,-1)
-    else if D == `W':
-        value = (-1,0)
-    else if D == `NW':
-        value = (-1,1)
+for every vessel:
+    on a vessel of length L on board B:
+        // Make a vessel of length L on board B.
+        temporary S = size of B
+
+        direction =
+            random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
+                     (1, 1), (1, 0), (1, -1), (0, -1) ]
+        position = ( random ( 0 .. S - 1 ),
+                     random ( 0 .. S - 1 ) )
+        check loop:
+            first p = position
+            first len = 1
+            if vessel(p) of B != `none':
+                // Position conflicts with previous ship
+                retry function
+            if len == L:
+                finish check loop
+            next p = p + direction
+            next len = len + 1
+
+        install loop:
+            first p = position
+            first len = 1
+            vessel(p) of B = THIS
+            if len == L:
+                finish install loop
+            next p = p + direction
+            next len = len + 1
+
+        length = L
+        board = B
+        hits = 0  // Number hits on ship so far
+        add 1 to B's ships
 \end{verbatim}
 
 \caption{Code for the Battleship Game, Part II}
@@ -1102,13 +1107,13 @@ direction vector of D:
 
 \begin{verbatim}
 for every vessel:
-    on a vessel of length L with direction D from (I,J) on B:
+    on a vessel of length L with direction D from (I, J) on B:
         `make a vessel of length L positioned in direction D
-         from origin (I,J) on boards B; directions are N,
+         from origin (I, J) on boards B; directions are N,
          NE, E, SE, S, SW, W, NW'
         length = L
         direction = D
-        origin = (I,J)
+        origin = (I, J)
         vector = direction vector of D
         destination = L * vector + origin
         board = B
