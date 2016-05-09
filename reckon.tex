@@ -2451,55 +2451,82 @@ Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy & Fri Feb 21 18:27:58 GMT 2014 \\
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
 
-Lexemes are contained in lines, and are tagged with the line and column numbers
+Lexemes are contained in \skey{physical line}s,
+and are tagged with the line and column numbers
 of their first character and of the first character following the lexeme
 (or of an imaginary end-of-file character).
 Physical lines that begin with a comment can contain only that comment,
 and are called \skey{comment line}s.
 The beginning column number of the
 first lexeme in a non-blank, non-comment physical line is called
-the \mkey{indent}{of physical line} of the physical line
-and can be used to indicate that one physical line is a
-continuation of the current logical line
-and to organize lines into indented subparagraphs.
+the \mkey{indent}{of physical line} of the physical line.
+This indent can be used to group lines into \skey{indented subparagraph}s,
+and to indicate that one physical line is a continuation of a
+current \key{logical line}.
+Lines containing only whitespace are called \skey{blank line}s,
+and can be used to separate paragraphs.
 
-Thus the physical lines:
+There are two kinds of paragraphs, code and text.
+
+A \key{code paragraph}
+consists of a sequence of logical lines,
+each beginning at the same indent, the \key{paragraph indent}.
+Each logical line can be continued by a physical line with greater
+indent than the paragraph indent that is called a
+\key{continuation line}.  Thus in a code paragraph
+the physical lines:
 
 \begin{indpar}\begin{verbatim}
 This is a line
      which is continued
        // A comment.
    and continued.
+And this is a second line.
 \end{verbatim}\end{indpar}
 
-represent one logical line containing the lexeme sequence:
+represent two logical lines containing the lexeme sequences:
 
 \begin{indpar}\begin{verbatim}
 This is a line which is continued and continued .
 \end{verbatim}\end{indpar}
 
-At any point there is an \key{current paragraph indent}, which is
-initially \TT{0}.  A physical
-line whose indent equals the current paragraph indent begins a new
-\key{logical line}.  A physical line whose indent exceeds the current
-paragraph indent continues the current logical line, and is called
-a \key{continuation line}, unless it is the first physical line of an indented
-paragraph as described in the following.
+and
 
-A `\TT{:}' lexeme at the end of a physical line begins an
-\key{indented paragraph}.  If the indent of the next non-blank, non-comment
+\begin{indpar}\begin{verbatim}
+And this is a second line .
+\end{verbatim}\end{indpar}
+
+A \key{text paragraph} consists of a sequence of lexemes taken
+from a sequence of physical lines
+each with an indent at least as great at the paragraph indent.
+Thus in a text paragraph the physical lines:
+
+\begin{indpar}\begin{verbatim}
+This is a line. // With a comment
+And this is a second line.
+\end{verbatim}\end{indpar}
+
+represent the single lexeme sequence:
+
+\begin{indpar}\begin{verbatim}
+This is a line . And this is a second line .
+\end{verbatim}\end{indpar}
+
+A \key{top level paragraph} is a paragraph whose paragraph indent is \TT{0}.
+
+A `\TT{:}' lexeme at the end of a physical line begins a sequence of
+\key{indented subparagraphs}.  If the indent of the next non-blank, non-comment
 physical line exceeds the current paragraph indent, the indent of this
 line becomes the new current paragraph indent, and this line
-begins the first logical line of the paragraph.  The paragraph
-ends just \underline{before} the next non-blank, non-comment physical line
-whose indent is less than the new paragraph indent, or just
-before the end-of-file if that occurs first.
+begins the first physical line of a new paragraph.  Otherwise the
+sequence of indented subparagraphs is empty.
 
-The current paragraph indent is saved when the paragraph begins
-and restored when the paragraph ends.  If the first non-blank, non-comment
-physical line after
-the `\TT{:}' has an indent that does not exceed the current paragraph
-indent (before it is reset), the paragraph is empty (has no logical lines).
+The sequence of indented subparagraphs ends just before the next
+non-blank, non-comment physical line with less indent than the
+current paragraph indent, or just before the end of file if that
+occurs first.
+
+TBD
 
 Thus we have:
 
@@ -2602,6 +2629,11 @@ The URL is http://www.qed.fmp/whatsits@bits_and_pieces .
 \end{verbatim}\end{indpar}
 
 \end{enumerate}
+
+TBD: comment of less indent than next non-blank, non-comment line
+gives warning.
+
+TBD: bcp, ecp, btp, etp, bll, ell
 
 \section{Low Level Data}
 
