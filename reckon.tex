@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 9, 2016}
+\date{May 10, 2016}
 
 \maketitle
 
@@ -2525,6 +2525,43 @@ The sequence of indented subparagraphs ends just before the next
 non-blank, non-comment physical line with less indent than the
 current paragraph indent, or just before the end of file if that
 occurs first.
+
+At any point there is a \key{current paragraph type} in addition
+to the current paragraph indent.  This type specifies the current
+paragraph kind: code or text.s
+
+The paragraph type can be changed by a
+paragraph header that begins the first
+a non-blank, non-comment physical line at the beginning of a file
+or following a blank line.
+A paragraph header can be a prefix
+(\pagref{PREFIX}) of the form
+\begin{center}
+\TT{\{} {\em paragraph-type-name}
+        \{ \TT{:} {\em paragraph-attributes} \}\QMARK{} \TT{\}}
+\end{center}
+or the paragraph header may be implied by the first non-whitespace
+characters of the physical line; for example:
+\begin{center}
+\begin{tabular}{lll}
+\TT{*@}{\em digit}	& implies	& \TT{\{raw\}} \\
+\TT{-{}-{}-{}-{}-}	& implies	& \TT{\{table\}} \\
+\TT{={}={}={}={}=}	& implies	& \TT{\{table\}} \\
+\end{tabular}
+\end{center}
+Prefix paragraph headers are called \skey{explicit paragraph header}s,
+where as paragraph headers implied are called \skey{implied paragraph header}s.
+
+If the first
+a non-blank, non-comment physical line at the beginning of a file
+or following a blank line does \underline{not} begin with an explicit
+or implicit paragraph header, the line either continues the previous
+paragraph if the current paragraph type is a a code paragraph type,
+or begins a new paragraph of
+the current paragraph type if that is a text paragraph type.
+
+At the beginning of a file the current paragraph indent is \TT{0}
+and the current paragraph type is \TT{\{code\}}.
 
 TBD
 
