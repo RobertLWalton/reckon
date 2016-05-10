@@ -2512,6 +2512,9 @@ represent the single lexeme sequence:
 This is a line . And this is a second line .
 \end{verbatim}\end{indpar}
 
+In a text paragraph, all lines but the first are
+called \skey{continuation line}s.
+
 A \key{top level paragraph} is a paragraph whose paragraph indent is \TT{0}.
 
 A `\TT{:}' lexeme at the end of a physical line begins a sequence of
@@ -2571,7 +2574,7 @@ The first indented paragraph in a sequence introduced by a physical
 line ending `\TT{:}' also has type \TT{\{code\}}, unless the
 `\TT{:}' is preceeded by special indentation marks.
 
-Thus if a file begins with:
+As an example, consider a file beginning with:
 
 \begin{indpar}\begin{verbatim}
 `This is a text paragraph.  And
@@ -2591,6 +2594,8 @@ And a logical line ending with an indented code paragraph:
     The third logical line of the indented
         paragraph containing an indented
         code subparagraph:
+        // A warning message will be issued
+        // for these comment lines.
 
             Line 1 of subparagraph.
 
@@ -2604,15 +2609,27 @@ And a logical line ending with an indented code paragraph:
 The logical line after the indented paragraph.
 \end{verbatim}\end{indpar}
 
-The paragraph becomes a subexpression of the logical line that included
-the paragraph beginning `\TT{:}'.  It is usually the last subexpression
-in this logical line, but need not be if the paragraph containing
-logical line has a continuation line after the paragraph, as is the
-case in the example where the third logical line of the indented
-paragraph contains an embedded subparagraph.
+The first paragraph has an implied `\TT{\{quote\}}' prefix, and
+is a text paragraph.  The current paragraph type, `\TT{\{code\}}',
+is saved when this first paragraph starts, and restored when
+the first paragraph ends.  Consequently the rest of the text is
+a single `\TT{\{code\}}' paragraph.
+
+The third logical line of this paragraph ends with an indented paragraph,
+which is also by implication a `\TT{\{code\}}' paragraph.
+This indented paragraph has 4 logical lines, the third of which
+contains within it (not at its end) another indented subparagraph.
+
+A warning message is issued for any comment line whose indent is
+less that that of the next non-blank, non-comment physical line.
+This applies in the example to the comment lines just before the
+first logical line of the subparagraph.
 
 There are some special rules for gluing together lexemes within
-a logical line:
+a logical line.  When reading these rules, recall that in a text
+paragraph all lines but the first are continuation lines, while
+in a code paragraph, lines with greater indent than the current paragraph
+indent are continuation lines.
 
 \begin{enumerate}
 \item Two consecutive \emskey{quoted-string}s in a logical line
@@ -2677,10 +2694,18 @@ The URL is http://www.qed.fmp/whatsits@bits_and_pieces .
 
 \end{enumerate}
 
-TBD: comment of less indent than next non-blank, non-comment line
-gives warning.
+The following virtual lexemes are used in the rest of this document:
 
-TBD: bcp, ecp, btp, etp, bll, ell
+\begin{center}
+\begin{tabular}{ll@{\hspace*{1in}}ll}
+\emkey{bcp}	&	begin code paragraph &
+\emkey{ecp}	&	end code paragraph \\[0.5ex]
+\emkey{btp}	&	begin text paragraph &
+\emkey{etp}	&	end text paragraph \\[0.5ex]
+\emkey{bll}	&	begin logical line &
+\emkey{ell}	&	end logical line
+\end{tabular}
+\end{center}
 
 \section{Low Level Data}
 
