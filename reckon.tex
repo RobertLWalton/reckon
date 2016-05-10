@@ -2528,7 +2528,7 @@ occurs first.
 
 At any point there is a \key{current paragraph type} in addition
 to the current paragraph indent.  This type specifies the current
-paragraph kind: code or text.s
+paragraph kind: code or text.
 
 The paragraph type can be changed by a
 paragraph header that begins the first
@@ -2540,47 +2540,57 @@ A paragraph header can be a prefix
 \TT{\{} {\em paragraph-type-name}
         \{ \TT{:} {\em paragraph-attributes} \}\QMARK{} \TT{\}}
 \end{center}
-or the paragraph header may be implied by the first non-whitespace
+Such are called \skey{explicit paragraph header}s.
+
+Or the paragraph header may be implied by the first non-whitespace
 characters of the physical line; for example:
 \begin{center}
-\begin{tabular}{lll}
-\TT{*@}{\em digit}	& implies	& \TT{\{raw\}} \\
-\TT{-{}-{}-{}-{}-}	& implies	& \TT{\{table\}} \\
-\TT{={}={}={}={}=}	& implies	& \TT{\{table\}} \\
+\begin{tabular}{llll}
+\TT{*@}{\em digit}	& implies	& \TT{\{raw\}} 	  & kind is code \\
+\TT{-{}-{}-{}-{}-}	& implies	& \TT{\{table\}}  & kind is code \\
+\TT{={}={}={}={}=}	& implies	& \TT{\{table\}}  & kind is code \\
+\TT{`}			& implies	& \TT{\{quoted\}} & kind is text \\
 \end{tabular}
 \end{center}
-Prefix paragraph headers are called \skey{explicit paragraph header}s,
-where as paragraph headers implied are called \skey{implied paragraph header}s.
+Such are called \skey{implied paragraph header}s.
 
 If the first
 a non-blank, non-comment physical line at the beginning of a file
 or following a blank line does \underline{not} begin with an explicit
 or implicit paragraph header, the line either continues the previous
-paragraph if the current paragraph type is a a code paragraph type,
-or begins a new paragraph of
-the current paragraph type if that is a text paragraph type.
+paragraph if the current paragraph type,
+or begins a new paragraph of the current or a previous paragraph type.
+For example, if the current paragraph type is `\TT{code}',
+the previous paragraph is continued, whereas if it is `\TT{quoted}',
+a new paragraph of the type before the type of the last (`\TT{quoted}')
+paragraph is begun.
 
 At the beginning of a file the current paragraph indent is \TT{0}
 and the current paragraph type is \TT{\{code\}}.
+The first indented paragraph in a sequence introduced by a physical
+line ending `\TT{:}' also has type \TT{\{code\}}, unless the
+`\TT{:}' is preceeded by special indentation marks.
 
-TBD
-
-Thus we have:
+Thus if a file begins with:
 
 \begin{indpar}\begin{verbatim}
+`This is a text paragraph.  And
+a second sentence therein.'
+
 This is a logical line.
 And another
     logical line.
-And a logical line ending with an indented paragraph:
+And a logical line ending with an indented code paragraph:
 
-    // A comment that can be ignored.
+    // A comment line that can be ignored.
     The first logical line of the
         indented paragraph.
 
     The second logical line
         of the indented paragraph.
     The third logical line of the indented
-        paragraph containing an indented subparagraph:
+        paragraph containing an indented
+        code subparagraph:
 
             Line 1 of subparagraph.
 
@@ -2588,10 +2598,10 @@ And a logical line ending with an indented paragraph:
 
         that is not at the end of this third logical
              line.
-             // A comment that can be ignored.
+             // A comment line that can be ignored.
     The fourth logical line of the indented paragraph.
-// A comment that can be ignored.
-The line after the indented paragraph.
+// A comment line that can be ignored.
+The logical line after the indented paragraph.
 \end{verbatim}\end{indpar}
 
 The paragraph becomes a subexpression of the logical line that included
