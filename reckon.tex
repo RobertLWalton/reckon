@@ -1442,7 +1442,8 @@ which are called `\skey{defined names}'\label{DEFINED-NAME}:
 
 Note that digits can appear adjacent to leters in a name, or in
 {\em natural-indices} that cannot begin a name, but not
-elsewhere.  `\TT{\#}'s can appear only in {\em quoted-marks}.
+elsewhere.  {\em Natural-indices} cannot have high order
+zeros.  `\TT{\#}'s can appear only in {\em quoted-marks}.
 
 There is no difference between a {\em word} and a {\em quoted-word}
 in the name being represented,
@@ -2814,32 +2815,37 @@ and the label of the arrow directed toward the object is the
 For a given object, an attribute label may label both single and double
 arrows.  A distinction is made between the set of values of the single
 arrows, and the set of values of the double arrows.  The values of double
-arrows, of course, must all be objects, which the values of the single
+arrows, of course, must all be objects, while the values of the single
 arrows may be either objects or atoms.
 
 
-\subsection{Raw Object Representations}
+\subsection{Object Representations}
 \label{RAW-OBJECT-REPRESENTATIONS}
 
 A set of objects can be written to a text file or read from a text file.
-When this is done, a textual representation of the object set is used
+When this is done, a textual representation of the object set exists
 in the file.  The most basic representation of an object
-is the \key{raw object representation}, which we now describe.
+is the \key{object representation}, which we now describe.
 
-A raw object representation is a special case of an {\em object-representation}.
+An \key{raw object representation}
+is a special case of an {\em object-representation}.
 This special case makes minimal use of the parser and is used when
-data is written to a file without any attempt to format the data.
+data is written to a file with little attempt to format the data.
 
 A {\em object-representation} is a logical line beginning
-with a {\em object-identifier} lexeme, which consists of `\TT{@}'
-followed by digits, and which turns all non-bracket parsing off.
+with a {\em represented-object-identifier}
+lexeme, which consists of either `\TT{@}'
+or `\TT{!@}', followed by digits.  Use of `\TT{!@}' turns operator and
+text parsing off and makes the representation `\key{raw}'.  The use
+of just `\TT{@}' instead leaves operator and text parsing on and makes the
+representation `\key{cooked}'.
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
 \emkey{object-representation}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
-        := {\em bll} & {\em object-identifier} ~
+        := {\em bll} & {\em represented-object-identifier} ~
 	               {\em object-assignment-operator} ~
 	               {\em object-element}\STAR{} \\
 	             & \{ {\em bip} ~
@@ -2849,6 +2855,9 @@ followed by digits, and which turns all non-bracket parsing off.
 \end{tabular}
 
 \begin{tabular}{l}
+\emkey{represented-object-identifier} :::= {\em raw-object-identifier} $|$ {\em cooked-object-identifier} \\
+\emkey{raw-object-identifier} :::= \TT{!} {\em object-identifier} \\
+\emkey{cooked-object-identifier} :::= {\em object-identifier} \\
 \emkey{object-identifier} :::=
 	\ttmkey{@}{in {\em object-identifier}}
 	{\em digit}\PLUS{} \\
@@ -2867,11 +2876,13 @@ followed by digits, and which turns all non-bracket parsing off.
 \emkey{atom-name}
     ::= {\em word} $|$ {\em quoted-string}
 		   $|$ {\em number-name} $|$ {\em bracketed-label} \\
-\emkey{number-name}
-    ::= {\em integral-numeric} $|$ {\em fractional-numeric} $|$
-        {\em scientific-numeric} $|$ {\em radix-numeric} \\
+\emkey{number-name} \begin{tabular}[t]{rl}
+    ::= & {\em integral-numeric} $|$ {\em fractional-numeric} $|$
+          {\em scientific-numeric} \\
+    $|$ & {\em radix-numeric} $|$ {\em date} $|$ {\em time}
+    \end{tabular} \\
 \emkey{bracketed-label}
-    ::= \TT{\{*}~~{\em atomic-name}\STAR{}~~\TT{*\}} \\
+    ::= \TT{\{*}~~{\em atom-name}\STAR{}~~\TT{*\}} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2897,12 +2908,12 @@ followed by digits, and which turns all non-bracket parsing off.
 
 \begin{tabular}{l}
 \emkey{single-attribute-label}\label{SINGLE-ATTRIBUTE-LABEL}
-    ::= {\em defined-name}\pagnote{DEFINED-NAME} $|$ {\em index}\pagnote{INDEX}
+    ::= {\em name}\pagnote{NAME} $|$ {\em natural-index}\pagnote{NATURAL-INDEX}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags} ::=
-    \TT{[} {\em flag-lexeme}\STAR{} \TT{]}
+    \TT{[} {\em flag-lexeme} \TT{]}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
@@ -2942,11 +2953,11 @@ followed by digits, and which turns all non-bracket parsing off.
 
 \begin{tabular}{l}
 \emkey{double-attribute-label}
-    ::= {\em defined-name}\pagnote{DEFINED-NAME}
-        $|$ {\em index}\pagnote{INDEX} \\
+    ::= {\em name}\pagnote{NAME}
+        $|$ {\em natural-index}\pagnote{NATURAL-INDEX} \\
 \emkey{reverse-attribute-label}
-    ::= {\em defined-name}\pagnote{DEFINED-NAME}
-        $|$ {\em index}\pagnote{INDEX} \\
+    ::= {\em name}\pagnote{NAME}
+        $|$ {\em natural-index}\pagnote{NATURAL-INDEX} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -3012,7 +3023,7 @@ label \TT{husband} when going from \TT{@1} to \TT{@2}
 and the label \TT{wife} when going in the reverse direction.
 
 It is possible to place \skey{attribute flag}s on attribute labels
-by putting flag characters in {\em flag-lexemes} inside
+by putting flag characters in a {\em flag-lexeme} inside
 \TT{[ ]} brackets after a label.
 It may be necessary to use a
 {\em quoted-string} {\em flag-lexeme} in order to include
