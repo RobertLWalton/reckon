@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 10, 2016}
+\date{May 11, 2016}
 
 \maketitle
 
@@ -1406,9 +1406,8 @@ There are many special kinds of {\em numerics}:
 
 Some other kinds of special {\em middle-lexemes} are:
 \begin{indpar}
-    \begin{tabular}[t]{l@{~~~~~}lll}
+    \begin{tabular}[t]{l@{~~~~~~~~~~~~~~~}lll}
           & Section & Examples \\[1ex]
-      {\em natural-numeric}
       {\em unit}
     & \itemref{UNITS}
     & \TT{mi}
@@ -1425,17 +1424,25 @@ constants, and functions:
 which are called `\skey{defined names}'\label{DEFINED-NAME}:
 
 \begin{indpar}
-\emkey{name} ::=
+\emkey{name}\label{NAME} ::= \begin{tabular}[t]{l}
     \{ {\em word} $|$ {\em quoted-mark} $|$ {\em quoted-separator}
-    					$|$ {\em quoted-word} \}\PLUS{}
+    					$|$ {\em quoted-word} \} \\
+    \{ {\em word} $|$ {\em quoted-mark} $|$ {\em quoted-separator}
+    					$|$ {\em quoted-word}
+    					$|$ {\em natural-index} \} \\
+    \end{tabular}
 \\[1ex]
 \emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
-\emkey{quoted-word} :::= \TT{"} {\em word} \TT{"}
+\emkey{quoted-word} :::= \TT{"} {\em word} \TT{"} \\
+\emkey{natural-index}\label{NATURAL-INDEX}
+    :::= \TT{0} $|$ {\em non-zero-digit} {\em digit}\STAR{}
+			   ~~~ [there can be at most 15 {\em digits}]
 \end{indpar}
 
-Note that digits can appear adjacent to leters in a name, but not
-elsewhere.  Similarly `\TT{\#}'s can appear only in {\em quoted-marks}.
+Note that digits can appear adjacent to leters in a name, or in
+{\em natural-indices} that cannot begin a name, but not
+elsewhere.  `\TT{\#}'s can appear only in {\em quoted-marks}.
 
 There is no difference between a {\em word} and a {\em quoted-word}
 in the name being represented,
@@ -2746,19 +2753,26 @@ hash table per stream.}
 There are two kinds of arrows: single and double.
 
 A \key{single arrow} is an arrow from an object to either another object
-or to an atom.  The arrow has a label, which is an atom, and is
-most commonly either a symbol or a small positive integer.
+or to an atom.  The arrow has a label, which is a
+sequence of symbols and natural numbers.
 
 A \key{double arrow} is a double headed arrow between two objects.
 It has a separate label for each direction, with each label being a
-sequence of zero or more atoms.  A double arrow is equivalent to a
+sequence of symbols and natural numbers.
+A double arrow is equivalent to a
 \underline{related pair}
 of single arrows going in opposite directions between the same two objects.
 The difference between a double arrow and a pair of single arrows is that
 it is possible to delete only one direction of a pair of single arrows, but 
 when deleting a double arrow, both directions are deleted.
 
-An \key{arrow label} is an atom (a.k.a., a label).
+An \key{arrow label} is an atom that encodes a {\em name} (\pagref{NAME})
+or a single {\em natural-index} (\pagref{NATURAL-INDEX}).
+If the former, the atom is either
+a single symbol, or is a label with 2 or more elements, the first of
+which is a symbol, and the remainder of which are either symbols or
+natural indices.
+
 Two arrows leaving the same object may have the same label.  Thus
 an object and an arrow label together name
 a set of arrows sourced at the object.
