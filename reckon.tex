@@ -2846,8 +2846,9 @@ representation `\key{cooked}'.
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         := {\em bll} & {\em represented-object-identifier} ~
-	               {\em object-assignment-operator} ~
-	               {\em object-element}\STAR{} \\
+	               {\em object-assignment-operator} \\
+		     & \{ {\em unbracketed-list} $|$ {\em bracketed-list}
+		       \}\QMARK{} \\
 	             & \{ {\em bip} ~
 		          {\em attribute-representation}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
@@ -2871,6 +2872,7 @@ representation `\key{cooked}'.
 \end{tabular}
 
 \begin{tabular}{l}
+\emkey{unbrackted-list} ::= {\em object-element}\PLUS{} \\
 \emkey{object-element}
     ::= {\em object-identifier} $|$ {\em atom-name} \\
 \emkey{atom-name}
@@ -2930,7 +2932,8 @@ representation `\key{cooked}'.
 
 \begin{tabular}{l}
 \emkey{single-attribute-value}\label{SINGLE-ATTRIBUTE-VALUE}
-    ::= {\em atom-name}\STAR{} $|$ {\em object-identifier} \\
+    ::= {\em atom-name}\STAR{} $|$ {\em object-identifier}
+                               $|$ {\em bracketed-list} \\
 \emkey{single-attribute-values}\label{SINGLE-ATTRIBUTE-VALUES}
     ::= {\em single-attribute-value}
         \{ \TT{,} {\em single-attribute-value} \}\STAR{}
@@ -3276,16 +3279,20 @@ computes the `\TT{type}', `\TT{capitalize}', and `\TT{end mark}' attributes.
 
 \subsection{Bracket Parsing}
 
-If an {\em object-representation} contains a bracketed list, operators
-are recognized by the parser within this list, and the representation
-is said to be `\key{cooked}' instead of raw.  Also if
-the \TT{=>} and \TT{=>{}>} {\em data-assignment-operators}
-are used in place of the \TT{=} within any {\em attribute-representation}
-in the {\em object-representation}, that representation is
-said to be `cooked'.
+A {\em bracketed-list} represents an object in its own right,
+with the brackets becoming the \TT{.initiator} and \TT{.terminator}
+attributes of the object, and the elements between the brackets
+becoming the list elements of the object.
 
-The syntax of {\em object-representations} is augmented by adding
-the following definition of {\em bracketed-list}:
+If operator, text, suffix,
+and units parsing are enabled, they operate on the elements of each
+separate list, after {\em bracketed-lists} have been parsed.
+In raw {\em object-representations}, operator, text, suffix, and
+units parsing are disabled, while in cooked {\em object-representations},
+they are enabled.  In any case, parsing {\em bracketed-lists} is done
+first before any other kind of parsing.
+
+The syntax of a {\em bracketed-list} is:
 
 \begin{indpar}[0.5in]
 
@@ -3293,15 +3300,19 @@ the following definition of {\em bracketed-list}:
 \emkey{bracketed-list}\label{BRACKETED-LIST}
     \begin{tabular}[t]{rlcl}
     ::= & \TT{(} {\em prefix-0-list} \TT{)} &
-    $|$ & \TT{[} {\em prefix-0-list} \TT{]} \\
     $|$ & \TT{`} {\em prefix-0-list} \TT{'} \\
+    $|$ & \TT{[} {\em prefix-0-list} \TT{]} &
+    $|$ & \TT{`{}`} {\em prefix-0-list} \TT{'{}'} \\
+    $|$ & \TT{[[} {\em prefix-0-list} \TT{]]} &
+    $|$ & \TT{`{}`{}`} {\em prefix-0-list} \TT{'{}'{}'} \\
     $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} &
-    $|$ & \TT{\{<} {\em prefix-0-list} \TT{>\}} \\
-    $|$ & \TT{\{(} {\em prefix-0-list} \TT{)\}} &
-    $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} \\
+    $|$ & \TT{\{(} {\em prefix-0-list} \TT{)\}} \\
     $|$ & \TT{\{`} {\em prefix-0-list} \TT{'\}} &
+    $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} \\
+    $|$ & \TT{\{:} {\em prefix-0-list} \TT{:\}} &
     $|$ & \TT{\{\{} {\em prefix-0-list} \TT{\}\}} \\
-    $|$ & \TT{\{} {\em m-type} {\em prefix-0-list} {\em m-type} \TT{\}} \\
+    $|$ & \TT{\{} {\em m-type} {\em prefix-0-list}
+                               {\em reflected-m-type} \TT{\}} \\
     $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
           \TT{|} {\em prefix-0-list}
           \TT{|\}} \\
@@ -3325,7 +3336,9 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{m-type} ::= {\em mark} other than \TT{<} or \TT{>}
+\emkey{m-type} ::= {\em mark} other than \TT{<} or \TT{>} \\
+\emkey{reflected-m-type} ::= reflection of the matching {\em m-type}
+                             [see text] \\
 \end{tabular}
 
 \begin{tabular}{l}
