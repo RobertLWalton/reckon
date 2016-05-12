@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 11, 2016}
+\date{May 12, 2016}
 
 \maketitle
 
@@ -2969,20 +2969,28 @@ representation `\key{cooked}'.
 
 \end{indpar}
 
-{\em Raw-object-representations} are lines beginning with \TT{@}.
-For example,
+Raw {\em object-representations} only parse the punctuation given
+above plus brackets and separators.  Assuming that by custom
+all brackets and separators contain a
+{\em mark} or {\em separator} lexeme, it is never necessary
+to quote a {\em word} in a raw {\em object-representation}.
+This can be exploited by quoting just {\em marks},
+{\em separators}, and {\em numeric} symbols when outputting
+raw {\em object-representations}.
+
+For example:
 
 \begin{indpar}\begin{verbatim}
-@1 =:
+!@1 =:
     type = woman
     name = Jill
     husband = @2 = wife
-@2 =:
+!@2 =:
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
 
-These are {\em object-representations} of an object pair that can
+These are raw {\em object-representations} of an object pair that can
 be represented pictorially as:
 
 \begin{center}
@@ -3033,15 +3041,15 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@1 =:/\\
+\verb/!@1 =:/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
-\verb|    husband[*] = @2 wife[*]|\\
-\verb/@2 =:/\\
+\verb|    husband[*] = @2 = wife[*]|\\
+\verb/!@2 =:/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
 \end{tabular}
-~~~~~~~~~
+~~~~~~~
 \begin{picture}(3.2,1.5)
 \put(0,0){\framebox(3.2,1.5){}}
 \put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
@@ -3081,9 +3089,12 @@ attributes labeled \TT{child}, is:
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \begin{tabular}{@{}l@{}}
 \\[-20ex]
-\verb/@1 =:/\\
+\verb/!@1 =:/\\
 \verb|    child = @2 = parent|\\
-\verb|    child = @3 = parent|\\
+\verb|    child = @3 = parent|\\[1ex]
+or\\[1ex]
+\verb/!@1 =:/\\
+\verb|    child = @2,@3 = parent|\\
 \end{tabular}
 &
 \begin{picture}(3.1,1.5)
@@ -3168,7 +3179,7 @@ object itself, a situation which can be achieved by the
 {\em object-representation}:
 
 \begin{indpar}\begin{verbatim}
-@0=>:
+!@0=>:
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
@@ -3197,7 +3208,7 @@ then these values are said to form a \key{list} that is represented
 by the object.  An example is
 
 \begin{indpar}\begin{verbatim}
-@93 =:
+!@93 =:
     1 = this
     2 = is
     3 = a
@@ -3217,11 +3228,12 @@ which represents the list
 but also has some additional attributes, labeled \TT{.type},
 \TT{.initiator}, \TT{.terminator},
 \TT{cap\-it\-al\-ize}, and \TT{end mark}.
+
 An alternative raw {\em object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
-@93 = this is a sentence:
+!@93 = this is a sentence:
     .type = s
     .initiator = "`"
     .terminator = "'"
@@ -3238,7 +3250,31 @@ following the {\em object-list} by a line ending `\TT{:}' that begins an
 gives values to the \TT{.type}, \TT{.initiator}, \TT{.terminator},
 \TT{capitalize}, and \TT{end mark} attributes.
 
-\subsection{Cooked Representations}
+Another alternative raw representation to the ones just
+given is:
+
+\begin{indpar}\begin{verbatim}
+!@93 = `{s} this is a sentence':
+    capitalize = true
+    end mark = "."
+\end{verbatim}\end{indpar}
+
+This works because bracket parsing, explained in the next section,
+is turned on within a raw {\em object-representation}.
+
+An alternative \underline{cooked} representation to the ones just
+given is:
+
+\begin{indpar}\begin{verbatim}
+@93 = `This is a sentence.'
+\end{verbatim}\end{indpar}
+
+The absence of an initial `\TT{!}' and the presence of the \TT{`~'}
+quotes turns text parsing on, and this
+computes the `\TT{type}', `\TT{capitalize}', and `\TT{end mark}' attributes.
+
+
+\subsection{Bracket Parsing}
 
 If an {\em object-representation} contains a bracketed list, operators
 are recognized by the parser within this list, and the representation
