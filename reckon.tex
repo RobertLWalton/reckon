@@ -2861,8 +2861,7 @@ representation `\key{cooked}'.
 	\begin{tabular}[t]{rl}
         := {\em bll} & {\em represented-object-identifier} ~
 	               {\em object-assignment-operator} \\
-		     & \{ {\em unbracketed-list} $|$ {\em bracketed-list}
-		       \}\QMARK{} \\
+		     & {\em object-element}\STAR{} \\
 	             & \{ \TT{::} {\em bip} ~
 		          {\em attribute-representation}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
@@ -2886,9 +2885,8 @@ representation `\key{cooked}'.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{unbrackted-list} ::= {\em object-element}\PLUS{} \\
 \emkey{object-element}\label{OBJECT-ELEMENT}
-    ::= {\em object-identifier} $|$ {\em atom-name} \\
+    ::= {\em object-identifier} $|$ {\em atom-name} $|$ {\em bracketed-list} \\
 \emkey{atom-name}
     ::= {\em word} $|$ {\em quoted-string}
 		   $|$ {\em number-name} $|$ {\em bracketed-label} \\
@@ -2899,6 +2897,7 @@ representation `\key{cooked}'.
     \end{tabular} \\
 \emkey{bracketed-label}
     ::= \TT{\{*}~~{\em atom-name}\STAR{}~~\TT{*\}} \\
+\emkey{bracketed-list} ::= see \pagref{BRACKETED-LIST} \\
 \end{tabular}
 
 \begin{tabular}{l}
@@ -3289,6 +3288,107 @@ given is:
 The absence of an initial `\TT{!}' and the presence of the \TT{`~'}
 quotes turns text parsing on, and this
 computes the `\TT{type}', `\TT{capitalize}', and `\TT{end mark}' attributes.
+
+Notice there is am ambiguity in
+
+\begin{indpar}\begin{verbatim}
+!@93 = (X Y Z)::
+    weight = 55
+\end{verbatim}\end{indpar}
+
+which could either mean
+
+\begin{indpar}\begin{verbatim}
+!@93 =::
+    1 = X
+    2 = Y
+    3 = Z
+    .initiator = "("
+    .terminator = ")"
+    weight = 55
+\end{verbatim}\end{indpar}
+
+or it could mean
+
+\begin{indpar}\begin{verbatim}
+!@93 =::
+    1 = @94
+    weight = 55
+!@94 =::
+    1 = X
+    2 = Y
+    3 = Z
+    .initiator = "("
+    .terminator = ")"
+\end{verbatim}\end{indpar}
+
+When possible, the meaning that does not have a single element list
+is used.  Here it is the first meaning.  Similarly
+
+\begin{indpar}\begin{verbatim}
+!@93 = "this is a"
+       " long symbol with spaces in it"
+\end{verbatim}\end{indpar}
+
+means that \TT{@93} identifies not an object, but a symbol
+atom, and
+
+\begin{indpar}\begin{verbatim}
+!@93 = @94
+\end{verbatim}\end{indpar}
+
+means that \TT{@93} is an alternative designation for whatever
+\TT{@94} designates.
+
+In general,
+\begin{indpar}
+\emkey{object-representation}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        := {\em bll} & {\em represented-object-identifier} ~
+	               {\em object-assignment-operator} \\
+		     & {\em object-element} {\em ell} \\
+        \end{tabular}
+\end{indpar}
+
+means the {\em represented-object-identifier} identifies what
+the {\em object-element} denotes, which may be a single
+atom, another object identifier, or a bracketed list.
+And
+
+\begin{indpar}
+\emkey{object-representation}
+\\\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+        := {\em bll} & {\em represented-object-identifier} ~
+	               {\em object-assignment-operator} \\
+		     & {\em bracketed-list} \\
+	             & \{ \TT{::} {\em bip} ~
+		          {\em attribute-representation}\STAR{} ~
+			  {\em eip} \} ~ {\em ell} \\
+        \end{tabular}
+\end{indpar}
+
+means the {\em attribute-representations} add to the object
+represented by the {\em bracketed-list}.
+
+But of course
+
+\begin{indpar}\begin{verbatim}
+!@93 = X::
+    Y = 5
+\end{verbatim}\end{indpar}
+
+must mean
+
+\begin{indpar}\begin{verbatim}
+!@93 =::
+    1 = X
+    Y = 5
+\end{verbatim}\end{indpar}
+
+which has the single element list, as this is the only possible
+interpretation.
 
 
 \subsection{Bracket Parsing}
