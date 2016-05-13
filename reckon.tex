@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 12, 2016}
+\date{May 13, 2016}
 
 \maketitle
 
@@ -1104,6 +1104,8 @@ for every vessel:
 \end{boxedfigure}
 
 \begin{boxedfigure}
+
+\small
 
 \begin{verbatim}
 for every vessel:
@@ -2525,7 +2527,8 @@ called \skey{continuation line}s.
 
 A \key{top level paragraph} is a paragraph whose paragraph indent is \TT{0}.
 
-A `\TT{:}' lexeme at the end of a physical line begins a sequence of
+A `\TT{:}' or `\TT{::}'
+lexeme at the end of a physical line begins a sequence of
 \key{indented subparagraphs}.  If the indent of the next non-blank, non-comment
 physical line exceeds the current paragraph indent, the indent of this
 line becomes the new current paragraph indent, and this line
@@ -2569,7 +2572,7 @@ If the first
 a non-blank, non-comment physical line at the beginning of a file
 or following a blank line does \underline{not} begin with an explicit
 or implicit paragraph header, the line either continues the previous
-paragraph if the current paragraph type,
+paragraph,
 or begins a new paragraph of the current or a previous paragraph type.
 For example, if the current paragraph type is `\TT{code}',
 the previous paragraph is continued, whereas if it is `\TT{quoted}',
@@ -2579,8 +2582,8 @@ paragraph is begun.
 At the beginning of a file the current paragraph indent is \TT{0}
 and the current paragraph type is \TT{\{code\}}.
 The first indented paragraph in a sequence introduced by a physical
-line ending `\TT{:}' also has type \TT{\{code\}}, unless the
-`\TT{:}' is preceeded by special indentation marks.
+line ending with `\TT{:}' or `\TT{::}' also has type \TT{\{code\}}, unless the
+`\TT{:}' or `\TT{::}' is preceeded by special indentation marks.
 
 As an example, consider a file beginning with:
 
@@ -2706,14 +2709,25 @@ The following virtual lexemes are used in the rest of this document:
 
 \begin{center}
 \begin{tabular}{ll@{\hspace*{1in}}ll}
-\emkey{bcp}	&	begin code paragraph &
-\emkey{ecp}	&	end code paragraph \\[0.5ex]
-\emkey{btp}	&	begin text paragraph &
-\emkey{etp}	&	end text paragraph \\[0.5ex]
+\emkey{bip}	&	begin indented paragraphs &
+\emkey{eip}	&	end indented paragraphs \\[0.5ex]
 \emkey{bll}	&	begin logical line &
 \emkey{ell}	&	end logical line
 \end{tabular}
 \end{center}
+
+The sequence
+\begin{center}
+{\em indentation-mark} {\em bip} \ldots{} {\em eip}
+\end{center}
+denotes use of a physical line ending lexeme (or sequence of several),
+the \emkey{indentation-mark},
+followed by one or more indented paragraphs (the \ldots{}),
+followed by an end to the indented paragraphs.
+Example {\em indentation-marks} are `\TT{:} and `\TT{::}'.
+The {\em indentation-mark}
+determines whether the indented paragraphs are code or text.
+If code, the \ldots{} may be a sequence of logical lines.
 
 \section{Low Level Data}
 
@@ -2849,7 +2863,7 @@ representation `\key{cooked}'.
 	               {\em object-assignment-operator} \\
 		     & \{ {\em unbracketed-list} $|$ {\em bracketed-list}
 		       \}\QMARK{} \\
-	             & \{ {\em bip} ~
+	             & \{ \TT{::} {\em bip} ~
 		          {\em attribute-representation}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
         \end{tabular}
@@ -2873,7 +2887,7 @@ representation `\key{cooked}'.
 
 \begin{tabular}{l}
 \emkey{unbrackted-list} ::= {\em object-element}\PLUS{} \\
-\emkey{object-element}
+\emkey{object-element}\label{OBJECT-ELEMENT}
     ::= {\em object-identifier} $|$ {\em atom-name} \\
 \emkey{atom-name}
     ::= {\em word} $|$ {\em quoted-string}
@@ -2984,11 +2998,11 @@ raw {\em object-representations}.
 For example:
 
 \begin{indpar}\begin{verbatim}
-!@1 =:
+!@1 =::
     type = woman
     name = Jill
     husband = @2 = wife
-!@2 =:
+!@2 =::
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -3044,11 +3058,11 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/!@1 =:/\\
+\verb/!@1 =::/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
 \verb|    husband[*] = @2 = wife[*]|\\
-\verb/!@2 =:/\\
+\verb/!@2 =::/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
 \end{tabular}
@@ -3092,11 +3106,11 @@ attributes labeled \TT{child}, is:
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \begin{tabular}{@{}l@{}}
 \\[-20ex]
-\verb/!@1 =:/\\
+\verb/!@1 =::/\\
 \verb|    child = @2 = parent|\\
 \verb|    child = @3 = parent|\\[1ex]
 or\\[1ex]
-\verb/!@1 =:/\\
+\verb/!@1 =::/\\
 \verb|    child = @2,@3 = parent|\\
 \end{tabular}
 &
@@ -3211,7 +3225,7 @@ then these values are said to form a \key{list} that is represented
 by the object.  An example is
 
 \begin{indpar}\begin{verbatim}
-!@93 =:
+!@93 =::
     1 = this
     2 = is
     3 = a
@@ -3236,7 +3250,7 @@ An alternative raw {\em object-representation}
 to the one just given is:
 
 \begin{indpar}\begin{verbatim}
-!@93 = this is a sentence:
+!@93 = this is a sentence::
     .type = s
     .initiator = "`"
     .terminator = "'"
@@ -3257,7 +3271,7 @@ Another alternative raw representation to the ones just
 given is:
 
 \begin{indpar}\begin{verbatim}
-!@93 = `{s} this is a sentence':
+!@93 = `{s} this is a sentence'::
     capitalize = true
     end mark = "."
 \end{verbatim}\end{indpar}
@@ -3280,7 +3294,7 @@ computes the `\TT{type}', `\TT{capitalize}', and `\TT{end mark}' attributes.
 \subsection{Bracket Parsing}
 
 A {\em bracketed-list} represents an object in its own right,
-with the brackets becoming the \TT{.initiator} and \TT{.terminator}
+with the brackets becoming the \TT{.initia\-tor} and \TT{.termina\-tor}
 attributes of the object, and the elements between the brackets
 becoming the list elements of the object.
 
@@ -3297,9 +3311,10 @@ The syntax of a {\em bracketed-list} is:
 \begin{indpar}[0.5in]
 
 \begin{tabular}{l}
-\emkey{bracketed-list}\label{BRACKETED-LIST}
-    \begin{tabular}[t]{rlcl}
-    ::= & \TT{(} {\em prefix-0-list} \TT{)} &
+\emkey{bracketed-list}\label{BRACKETED-LIST} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{rl@{\hspace*{1in}}cl}
+        & \TT{(} {\em prefix-0-list} \TT{)} &
     $|$ & \TT{`} {\em prefix-0-list} \TT{'} \\
     $|$ & \TT{[} {\em prefix-0-list} \TT{]} &
     $|$ & \TT{`{}`} {\em prefix-0-list} \TT{'{}'} \\
@@ -3311,19 +3326,20 @@ The syntax of a {\em bracketed-list} is:
     $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} \\
     $|$ & \TT{\{:} {\em prefix-0-list} \TT{:\}} &
     $|$ & \TT{\{\{} {\em prefix-0-list} \TT{\}\}} \\
-    $|$ & \TT{\{} {\em m-type} {\em prefix-0-list}
-                               {\em reflected-m-type} \TT{\}} \\
-    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
+    $|$ & \multicolumn{3}{l}{\TT{\{} {\em mark-type} {\em prefix-0-list}
+                               {\em reflected-mark-type} \TT{\}}} \\
+    $|$ & \multicolumn{3}{l}{\TT{\{} {\em name-type} {\em attributes}\QMARK{}
           \TT{|} {\em prefix-0-list}
-          \TT{|\}} \\
-    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{}
-          \TT{||\}} \\
-    $|$ & \TT{\{|} {\em prefix-0-list}
-          \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
-    $|$ & \TT{\{||} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
-    $|$ & \multicolumn{3}{l}{\TT{\{} {\em w-type} {\em attributes}\QMARK{}
+          \TT{|\}}} \\
+    $|$ & \multicolumn{3}{l}{\TT{\{} {\em name-type} {\em attributes}\QMARK{}
+          \TT{||\}}} \\
+    $|$ & \multicolumn{3}{l}{\TT{\{|} {\em prefix-0-list}
+          \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}} \\
+    $|$ & \multicolumn{3}{l}{\TT{\{||} {\em name-type}
+          {\em attributes}\QMARK{} \TT{\}}} \\
+    $|$ & \multicolumn{3}{l}{\TT{\{} {\em name-type} {\em attributes}\QMARK{}
           \TT{| } {\em prefix-0-list}
-          \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}}} \\
+          \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}} \\
     $|$ & \TT{\{\}} \\
     \end{tabular}
 \end{tabular}
@@ -3336,36 +3352,40 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{m-type} ::= {\em mark} other than \TT{<} or \TT{>} \\
-\emkey{reflected-m-type} ::= reflection of the matching {\em m-type}
+\emkey{mark-type} ::= {\em mark} other than \TT{<} or \TT{>} \\
+\emkey{reflected-mark-type} ::= reflection of the matching {\em mark-type}
                              [see text] \\
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{w-type} ::= {\em name}\pagnote{NAME}
+\emkey{name-type} ::= {\em name}\pagnote{NAME}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{type} ::= {\em m-type} $|$ {\em w-type}
+\emkey{type} ::= {\em mark-type} $|$ {\em name-type}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{list-opening}
     \begin{tabular}[t]{rl}
-    ::= & \TT{(} $|$ \TT{[} $|$ \TT{`} $|$ \TT{\{|} $|$
-          \TT{\{<} $|$ \TT{\{(} $|$ \TT{\{[} $|$ \TT{\{`} $|$ \TT{\{\{} \\
-    $|$ & \TT{\{} {\em m-type} \\
-    $|$ & \TT{\{} {\em w-type} {\em attributes}\QMARK{} \TT{|} \\
+    ::= & \TT{(} $|$ \TT{[} $|$ \TT{[[} $|$
+          \TT{`} $|$\TT{`{}`} $|$ \TT{`{}`{}`} $|$
+	  \TT{\{|} $|$
+          \TT{\{`} $|$ \TT{\{:} $|$ \TT{\{(} $|$ \TT{\{[} $|$ \TT{\{\{} \\
+    $|$ & \TT{\{} {\em mark-type} \\
+    $|$ & \TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{list-closing}
     \begin{tabular}[t]{rl}
-    ::= & \TT{)} $|$ \TT{]} $|$ \TT{'} $|$ \TT{|\}} $|$
-          \TT{>\}} $|$ \TT{)\}} $|$ \TT{]\}} $|$ \TT{'\}} $|$ \TT{\}\}} \\
-    $|$ & {\em m-type} \TT{\}} \\
-    $|$ & \TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}} \\
+    ::= & \TT{)} $|$ \TT{]} $|$ \TT{]]} $|$
+          \TT{'} $|$\TT{'{}'} $|$  \TT{'{}'{}'} $|$
+	  \TT{|\}} $|$
+          \TT{'\}} $|$ \TT{:\}} $|$ \TT{)\}} $|$ \TT{]\}} $|$ \TT{\}\}} \\
+    $|$ & {\em mark-type} \TT{\}} \\
+    $|$ & \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}} \\
     \end{tabular}
 \end{tabular}
 
@@ -3381,8 +3401,8 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
 
 \begin{tabular}{l}
 \emkey{prefix}\label{PREFIX}
-    ::= \TT{\{} {\em m-type} \TT{\}}
-    $|$ \TT{\{} {\em w-type} {\em attributes}\QMARK{} \TT{\}}
+    ::= \TT{\{} {\em mark-type} \TT{\}}
+    $|$ \TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{\}}
 \\[1ex]
 \end{tabular}
 
@@ -3391,17 +3411,16 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{center}
 
 \begin{tabular}{l}
-\emkey{simple-list} ::= {\em list-element}\STAR{} \\
-\emkey{list-element} ::= {\em single-attribute-value}%
-                         \pagnote{SINGLE-ATTRIBUTE-VALUE}
+\emkey{simple-list} ::= {\em object-element}\STAR{} \\
+\emkey{object-element} ::= see \pagref{OBJECT-ELEMENT}
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{attributes}
     \begin{tabular}[t]{rl}
     ::= & \TT{:} {\em attribute} \{ \TT{,} {\em attribute} \}\STAR{} \\
-    $|$ & \TT{\{:} {\em attribute} \{ \TT{<*>} {\em attribute} \}\STAR{}
-          \TT{:\}} \\
+    $|$ & \TT{::} {\em bip} \{ {\em bll} {\em attribute} {\em ell} \}\STAR{}
+          {\em eip} \\
     \end{tabular}
 \end{tabular}
 
@@ -3423,6 +3442,7 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 	  with \TT{=} {\em attribute-assignment-operator} \\
     $|$ & {\em double-attribute-representation}%
           \pagnote{DOUBLE-ATTRIBUTE-REPRESENTATION}
+	  with \TT{=} {\em attribute-assignment-operator} \\
     \end{tabular}
 \end{tabular}
 
@@ -3444,7 +3464,7 @@ is the cooked representation of the object
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@93 =:/\\
+\verb/@93 =::/\\
 \verb|    1 = this|\\
 \verb|    2 = is|\\
 \verb|    3 = a|\\
@@ -3501,19 +3521,19 @@ is the cooked representation of the objects
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/@42 =:/\\
+\verb/@42 =::/\\
 \verb|    1 = straight|\\
 \verb|    2 = 3.2|\\
-\verb/@43 =:/\\
+\verb/@43 =::/\\
 \verb|    1 = "+"|\\
 \verb|    2 = y|\\
 \verb|    3 = 9.4|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb/@44 =:/\\
+\verb/@44 =::/\\
 \verb|    1 = straight|\\
 \verb|    2 = @43|\\
-\verb/@45 =:/\\
+\verb/@45 =::/\\
 \verb|    1 = @42|\\
 \verb|    2 = left|\\
 \verb|    3 = @44|\\
@@ -3606,40 +3626,40 @@ and not {\em attribute-representations}.
 \begin{center}
 \begin{tabular}[t]{l@{\hspace*{1in}}l}
 \begin{tabular}[t]{l}
-\verb/@130 =:/\\
+\verb/@130 =::/\\
 \verb|    1 = x|\\
 \verb|    2 = y|\\
 \verb|    .separator = ","|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb/@131 =:/\\
+\verb/@131 =::/\\
 \verb|    1 = ">"|\\
 \verb|    2 = x|\\
 \verb|    3 = y|\\
 \verb|    .initiator = "("|\\
 \verb|    .terminator = ")"|\\
-\verb/@132 =:/\\
+\verb/@132 =::/\\
 \verb|    1 = return|\\
 \verb|    2 = y|\\
 \verb|    .type = ":"|\\
-\verb/@133 =:/\\
+\verb/@133 =::/\\
 \verb|    1 = if|\\
 \verb|    2 = @131|\\
 \verb|    3 = @132|\\
 \end{tabular} & \begin{tabular}[t]{l}
-\verb/@134 =:/\\
+\verb/@134 =::/\\
 \verb|    1 = return|\\
 \verb|    2 = x|\\
 \verb|    .type = ":"|\\
-\verb/@135 =:/\\
+\verb/@135 =::/\\
 \verb|    1 = else|\\
 \verb|    2 = @134|\\
-\verb/@136 =:/\\
+\verb/@136 =::/\\
 \verb|    1 = @133|\\
 \verb|    2 = @135|\\
 \verb|    .type = ":"|\\
 \verb|    .separator = "<*>"|\\
-\verb/@137 =:/\\
+\verb/@137 =::/\\
 \verb|    1 = function|\\
 \verb|    2 = @130|\\
 \verb|    3 = @136|\\
@@ -3795,7 +3815,7 @@ Cooked representations may replace raw object identifiers in the
 description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
-@291 =:
+@291 =::
       text = `This is a sentence.'
       outline = {! straight 3.2, left, straight (y + 9.4) !}
       min = {! function (x,y):
@@ -3810,7 +3830,7 @@ description of other objects, as in
 is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
-@291 =:
+@291 =::
     text = @93
     outline = @45
     min = @137
@@ -3821,7 +3841,7 @@ given the above examples.
 One question left unanswered by the discussion so far is whether
 
 \begin{indpar}\begin{verbatim}
-@291 =:
+@291 =::
     text A = `This is a sentence.'
     text B = `This is a sentence.'
 \end{verbatim}\end{indpar}
@@ -3829,7 +3849,7 @@ One question left unanswered by the discussion so far is whether
 represents
 
 \begin{indpar}\begin{verbatim}
-@291 =:
+@291 =::
     text A = @93
     text B = @93
 \end{verbatim}\end{indpar}
@@ -3837,7 +3857,7 @@ represents
 or instead
 
 \begin{indpar}\begin{verbatim}
-@291 =:
+@291 =::
     text A = @93
     text B = @999
 \end{verbatim}\end{indpar}
@@ -3864,17 +3884,17 @@ the lexemes before the `\TT{\}}' must match, though not
 exactly, the lexemes after the `\TT{\{}'.  Specifically, any
 `\TT{\}}' must be proceeded by a
 `\TT{|}', `\TT{>}', `\TT{)}', `\TT{]}', `\TT{'}', `\TT{\}}',
-`{\em m-type}', or `\TT{|} {\em w-type} {\em attributes}\QMARK{}' phrase,
+`{\em mark-type}', or `\TT{|} {\em name-type} {\em attributes}\QMARK{}' phrase,
 and the corresponding `\TT{\{}' must be followed respectively
 by a
 `\TT{|}', `\TT{<}', `\TT{(}', `\TT{[}', `\TT{`}', `\TT{\{}',
-`{\em m-type}', or `{\em w-type} {\em attributes}\QMARK{} \TT{|}' phrase,
+`{\em mark-type}', or `{\em name-type} {\em attributes}\QMARK{} \TT{|}' phrase,
 and if either list opening or list closing has a {\em type}, both must
 have the same {\em type}.
 As special cases,
-`\TT{\{} {\em w-type} {\em attributes}\QMARK{} \TT{|}' can be matched by
+`\TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|}' can be matched by
 `\TT{|\}}' and `\TT{\{|}' can match
-`\TT{|} {\em w-type} {\em attributes}\QMARK{} \TT{\}}'.
+`\TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}'.
 
 A beginning `\TT{\{||}' is equivalent to `\TT{\{|~|}', that is, in this
 case the two `\TT{|}' are treated as separate 1-character lexemes, and
@@ -3912,19 +3932,19 @@ and \TT{.terminators} \TT{")"}, \TT{"]"}, \TT{"'"},
 but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
 
 \ikey{Typed bracketed lists}{typed bracketed list} are given a
-\ttdmkey{type}{of list} attribute equal to their {\em m-type} or their
-dequoted {\em w-type}.
+\ttdmkey{type}{of list} attribute equal to their {\em mark-type} or their
+dequoted {\em name-type}.
 
 Exceptions are
 lists with the form
 `\TT{\{|} {\em prefix-0-list} \TT{|\}}'.
-and lists with {\em w-type} \TT{""}
+and lists with {\em name-type} \TT{""}
 (the empty {\em quoted-string}).
 These are not given
 any \TT{.type}, \TT{.initiator}, or \TT{.terminator}.
-Thus `\TT{\{""||\}}' and `\TT{\{||\}}' both
-denote the empty list with no attributes at all.
-This can also be abbreviated by `\TT{\{\}}'.
+Empty lists with no attributes at all are representable by
+`\TT{\{""||\}}', `\TT{\{||\}}',
+and the abbreviation `\TT{\{\}}'.
 
 The elements of the
 list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
@@ -3932,7 +3952,7 @@ In general the attributes of an object with these labels are referred
 to as the \smkey{list element}s{of object} of the object, and their
 sequence is the \mkey{list}{of object} of the object.
 
-{\em Attributes} in a {\em w-typed} bracketed list can be the same as
+{\em Attributes} in a {\em name-typed} bracketed list can be the same as
 raw {\em attribute-representations}, or they can be just a label with
 no flags or value.  In the latter case, if
 the {\em attribute-label} does not begin with the word `\TT{no}',
