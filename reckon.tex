@@ -2863,7 +2863,8 @@ representation `\key{cooked}'.
 	               {\em object-assignment-operator} \\
 		     & {\em object-element}\STAR{} \\
 	             & \{ \TT{::} {\em bip} ~
-		          {\em attribute-representation}\STAR{} ~
+		          \{ {\em bll} {\em attribute-representation}
+			     {\em ell} \}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
         \end{tabular}
 \end{tabular}
@@ -2911,14 +2912,17 @@ representation `\key{cooked}'.
 \begin{tabular}{l}
 \emlkey{single-attribute-}{representation}%
 \label{SINGLE-ATTRIBUTE-REPRESENTATION}
-::=
 \\\hspace*{0.5in}
-	{\em bll} {\em single-attribute-label}
-	\begin{tabular}[t]{l}
-	{\em attribute-label-flags}\QMARK{} ~
-	\TT{=} ~
-	{\em single-attribute-values} ~ {\em ell}
-	\end{tabular}
+    \begin{tabular}[t]{rl}
+    ::= & {\em single-attribute-label}
+	  \begin{tabular}[t]{l}
+	  {\em attribute-label-flags}\QMARK{} ~
+	  \TT{=} ~
+	  {\em single-attribute-values}
+	  \end{tabular} \\
+    $|$ & {\em single-attribute-label} \\
+    $|$ & \TT{no} {\em single-attribute-label} \\
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2943,8 +2947,11 @@ representation `\key{cooked}'.
     ::= {\em atom-name}\STAR{} $|$ {\em object-identifier}
                                $|$ {\em bracketed-list} \\
 \emkey{single-attribute-values}\label{SINGLE-ATTRIBUTE-VALUES}
-    ::= {\em single-attribute-value}
-        \{ \TT{,} {\em single-attribute-value} \}\STAR{}
+    \begin{tabular}[t]{rl}
+    ::= & {\em single-attribute-value} \\
+    $|$ & \TT{\{*} {\em single-attribute-value}
+          \{ \TT{,} {\em single-attribute-value} \}\STAR{} \TT{*\}}
+    \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -2952,13 +2959,13 @@ representation `\key{cooked}'.
 \label{DOUBLE-ATTRIBUTE-REPRESENTATION}
     ::=
 \\\hspace*{0.5in}
-	{\em bll} {\em double-attribute-label}
+	{\em double-attribute-label}
 	{\em attribute-label-flags}\QMARK{}
 \\\hspace*{1.0in}
 	\begin{tabular}[t]{@{}l@{}}
 	\TT{=} {\em double-attribute-values} \\
 	\TT{=} {\em reverse-attribute-label}
-	       {\em attribute-label-flags}\QMARK{} {\em ell}
+	       {\em attribute-label-flags}\QMARK{}
 	\end{tabular}
 \end{tabular}
 
@@ -2974,8 +2981,11 @@ representation `\key{cooked}'.
 \begin{tabular}{l}
 \emkey{double-attribute-value} ::= {\em object-identifier} \\
 \emkey{double-attribute-values}\label{DOUBLE-ATTRIBUTE-VALUES}
-    ::= {\em double-attribute-value}
-        \{ \TT{,} {\em double-attribute-value} \}\STAR{}
+    \begin{tabular}[t]{rl}
+    ::= & {\em double-attribute-value} \\
+    $|$ & \TT{\{*} {\em double-attribute-value}
+          \{ \TT{,} {\em double-attribute-value} \}\STAR{} \TT{*\}}
+    \end{tabular}
 \end{tabular}
 
 \end{indpar}
@@ -3219,6 +3229,26 @@ so
          \TT{\{* X Y *\} = 1}
 \end{center}
 
+An attribute may have a single value, or a set of two or more
+values.  In the latter case, the values are written separated by
+commas (\TT{,}) and surrounded by \TT{\{*~*\}} brackets (the same
+as are used to surround the {\em atom-names} of several element label atoms).
+Thus
+\begin{center}
+\tt
+\begin{tabular}{l}
+!@83 =>:: \\
+~~~~X = Y 1 \\
+!@83 =>:: \\
+~~~~X = Y 2 \\
+\end{tabular}
+~~~~{\rm can be rewritten as}~~~~
+\begin{tabular}{l}
+!@83 =>:: \\
+~~~~X = \{* Y 1, Y 2 *\} \\
+\end{tabular}
+\end{center}
+
 The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
 However, within {\em object-representa\-tions} that begin with
 \TT{@} the parser only recognizes brackets and separators, and does
@@ -3426,7 +3456,6 @@ The syntax of a {\em bracketed-list} is:
 
 \begin{indpar}[0.5in]
 
-\begin{tabular}{l}
 \emkey{bracketed-list}\label{BRACKETED-LIST} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{rl@{\hspace*{1in}}cl}
@@ -3458,30 +3487,22 @@ The syntax of a {\em bracketed-list} is:
           \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}} \\
     $|$ & \TT{\{\}} \\
     \end{tabular}
-\end{tabular}
 
-\begin{tabular}{ll}
-In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
+In the above: \begin{tabular}[t]{l}
+               `\TT{||}' may be used to abbreviate `\TT{|~|}'
 		(two separate `\TT{|}'s) \\
-              & \TT{\{\}} may be used to abbreviate \TT{\{||\}}
+              \TT{\{\}} may be used to abbreviate \TT{\{||\}}
 	        (the empty list: see below)
-\end{tabular}
+	      \end{tabular}
 
-\begin{tabular}{l}
 \emkey{mark-type} ::= {\em mark} other than \TT{<} or \TT{>} \\
 \emkey{reflected-mark-type} ::= reflection of the matching {\em mark-type}
-                             [see text] \\
-\end{tabular}
+                             [see text]
 
-\begin{tabular}{l}
 \emkey{name-type} ::= {\em name}\pagnote{NAME}
-\end{tabular}
 
-\begin{tabular}{l}
 \emkey{type} ::= {\em mark-type} $|$ {\em name-type}
-\end{tabular}
 
-\begin{tabular}{l}
 \emkey{list-opening}
     \begin{tabular}[t]{rl}
     ::= & \TT{(} $|$ \TT{[} $|$ \TT{[[} $|$
@@ -3491,9 +3512,7 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
     $|$ & \TT{\{} {\em mark-type} \\
     $|$ & \TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|} \\
     \end{tabular}
-\end{tabular}
 
-\begin{tabular}{l}
 \emkey{list-closing}
     \begin{tabular}[t]{rl}
     ::= & \TT{)} $|$ \TT{]} $|$ \TT{]]} $|$
@@ -3503,66 +3522,39 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
     $|$ & {\em reverse-mark-type} \TT{\}} \\
     $|$ & \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}} \\
     \end{tabular}
-\end{tabular}
 
-\begin{tabular}{l}
 \emkey{prefix-n-list}
     ::= \{ {\em prefix-n} {\em prefix-n+1-list} \}\STAR{}
-    $|$ {\em simple-list} \\
-\end{tabular}
+    $|$ {\em simple-list}
 
-\begin{tabular}{l}
-\emkey{prefix-n} ::= {\em prefix} \\
-\end{tabular}
+\emkey{prefix-n} ::= {\em prefix}
 
-\begin{tabular}{l}
 \emkey{prefix}\label{PREFIX}
     ::= \TT{\{} {\em mark-type} \TT{\}}
     $|$ \TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{\}}
-\\[1ex]
-\end{tabular}
 
 \begin{center}
 All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 \end{center}
 
-\begin{tabular}{l}
 \emkey{simple-list} ::= {\em object-element}\STAR{} \\
 \emkey{object-element} ::= see \pagref{OBJECT-ELEMENT}
-\end{tabular}
 
-\begin{tabular}{l}
 \emkey{attributes}
     \begin{tabular}[t]{rl}
-    ::= & \TT{:} {\em attribute} \{ \TT{,} {\em attribute} \}\STAR{} \\
-    $|$ & \TT{::} {\em bip} \{ {\em bll} {\em attribute} {\em ell} \}\STAR{}
-          {\em eip} \\
+    ::= & \TT{:} {\em attribute-representation}
+                 \{ \TT{,} {\em attribute-representation} \}\STAR{} \\
+    $|$ & \TT{::} {\em bip} \{ {\em bll} {\em attribute-representation}
+                  {\em ell} \}\STAR{} {\em eip} \\
     \end{tabular}
-\end{tabular}
 
-\begin{tabular}{l}
-\emkey{attribute}
-    \begin{tabular}[t]{rl}
-    ::= & {\em attribute-representation} \\
-    $|$ & {\em single-attribute-label}\pagnote{SINGLE-ATTRIBUTE-LABEL} \\
-    $|$ & \TT{no} {\em single-attribute-label} \\
-    \end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{attribute-representation} \\
-\hspace*{0.3in}
-    \begin{tabular}[t]{rl}
-    ::= & {\em single-attribute-representation}%
-          \pagnote{SINGLE-ATTRIBUTE-REPRESENTATION}
-	  with \TT{=} {\em attribute-assignment-operator} \\
-    $|$ & {\em double-attribute-representation}%
-          \pagnote{DOUBLE-ATTRIBUTE-REPRESENTATION}
-	  with \TT{=} {\em attribute-assignment-operator} \\
-    \end{tabular}
-\end{tabular}
+\emkey{attribute-representation} ::= see \pagref{ATTRIBUTE-REPRESENTATION}
 
 \end{indpar}
+
+{\em Bracketed-lists} containing {\em prefixes} are described
+at the end of this section.  For now, we give examples of lists
+that contain no {\em prefixes}.
 
 A {\em list-closing} must match the {\em list-opening} of the last unclosed
 list.  The matching {\em list-openings} and {\em list-closings} that do
@@ -3598,10 +3590,10 @@ Thus, for example:
 
 \begin{center}
 \tt
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
 !@53 = \{| X Y Z |\} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3610,7 +3602,7 @@ Thus, for example:
 &
 \begin{tabular}[t]{l}
 !@53 = `{}`X Y Z'{}' \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3623,10 +3615,10 @@ Thus, for example:
 \bigskip
 \bigskip
 
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
 !@53 = ( X Y Z ) \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3637,7 +3629,7 @@ Thus, for example:
 &
 \begin{tabular}[t]{l}
 !@53 = \{\{X Y Z\}\} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3650,10 +3642,10 @@ Thus, for example:
 \bigskip
 \bigskip
 
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
 !@53 = `X Y Z' \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3664,7 +3656,7 @@ Thus, for example:
 &
 \begin{tabular}[t]{l}
 !@53 = \{`X Y Z'\} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3696,10 +3688,10 @@ Thus we have the examples:
 
 \begin{center}
 \tt
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
 !@53 = \{+ X Y Z +\} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3709,7 +3701,7 @@ Thus we have the examples:
 &
 \begin{tabular}[t]{l}
 !@53 = {<+ X Y Z +>} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3721,10 +3713,10 @@ Thus we have the examples:
 \bigskip
 \bigskip
 
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
 !@53 = \{\$\$ X Y Z \$\$\} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3734,7 +3726,7 @@ Thus we have the examples:
 &
 \begin{tabular}[t]{l}
 !@53 = \{\$* X Y Z *\$\} \\[1ex]
-\rm is equivalent to \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
 ~~~~2 = Y \\
@@ -3743,6 +3735,105 @@ Thus we have the examples:
 \end{tabular}
 \end{tabular}
 \end{center}
+
+{\em Bracketed-lists} with {\em named-types} but no {\em attributes}
+are similar but have the syntax:
+\begin{center}
+\TT{\{} {\em name-type}\QMARK{} \TT{|} {\em prefix-0-list}
+                                \TT{|} {\em name-type}\QMARK{} \TT{\}}
+\end{center}
+where the {\em name-type} must not be completely omitted, and if
+given twice, must be identical in both instances.
+Examples are:
+
+\begin{center}
+\tt
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = \{T| X Y Z |\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = T \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{T| X Y Z |T\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = T \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = \{| X Y Z |T\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = T \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{"*" 1| X Y Z |\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = "*" 1 \\
+\end{tabular}
+\end{tabular}
+\end{center}
+
+{\em Bracketed-lists} with {\em named-types} can have {\em attributes}.
+These are either comma separated {\em attribute-representations}
+placed after a \TT{:} following the {\em name-type}, or
+{\em attribute-representations} on one logical line each in an indented
+paragraph introduced by a physical line ending \TT{::} placed just
+after the {\em name-type}.  So, for example:
+\begin{center}
+\tt
+\begin{tabular}{l}
+!@27 = X Y Z:: \\
+~~~~.type = T \\
+~~~~J = 1 \\
+~~~~K = B 1 \\
+~~~~L = \{* 1, B 1 *\} \\
+\end{tabular}
+\begin{tabular}{c}
+\rm is \\
+\rm equivalent \\
+\rm to
+\end{tabular}
+\begin{tabular}{l}
+!@27 = \{| X Y Z | T:: \\
+~~~~~~~~~~~~J = 1 \\
+~~~~~~~~~~~~K = B 1 \\
+~~~~~~~~~~~~L = \{* 1, B 1 *\} \\
+~~~~~~~~|\} \\
+\end{tabular}
+\\[1ex]
+{\rm is equivalent to}
+\\[1ex]
+!@27 = \{| X Y Z | T: J = 1, K = B 1, L = \{* 1, B 1 *\} \}
+\\[1ex]
+{\rm is equivalent to}
+\\[1ex]
+!@27 = \{ T: J = 1, K = B 1, L = \{* 1, B 1 *\} | X Y Z |\}
+\end{center}
+
+
 
 TBD
 
