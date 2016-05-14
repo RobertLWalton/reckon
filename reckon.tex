@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 13, 2016}
+\date{May 14, 2016}
 
 \maketitle
 
@@ -3548,6 +3548,360 @@ All {\em prefix-n}'s in a {\em prefix-n-list} have the same type.
 
 \end{indpar}
 
+A {\em list-closing} must match the {\em list-opening} of the last unclosed
+list.  The matching {\em list-openings} and {\em list-closings} that do
+\underline{not} involve {\em types} are:
+\begin{center}
+\begin{tabular}{l@{~~~~~matches~~~~~}l@{\hspace*{1in}}l@{~~~~~matches~~~~~}l}
+\TT{(} & \TT{)} &
+\TT{`} & \TT{'} \\
+\TT{[} & \TT{]} &
+\TT{`{}`} & \TT{'{}'} \\
+\TT{[[} & \TT{]]} &
+\TT{`{}`{}`} & \TT{'{}'{}'} \\
+\TT{\{|} & \TT{|\}} &
+\TT{\{(} & \TT{)\}} \\
+\TT{\{`} & \TT{'\}} &
+\TT{\{[} & \TT{]\}} \\
+\TT{\{:} & \TT{:\}} &
+\TT{\{\{} & \TT{\}\}} \\
+\end{tabular}
+\end{center}
+
+These {\em list-openings} and {\em list-closings} that do
+\underline{not} involve {\em types} may \underline{not} be split
+across physical lines, even though some consists of two lexemes
+that may be separated by horizontal whitespace.
+These {\em list-openings} and {\em list-closings} become the
+\TT{.initiator} and \TT{.terminator} of the object represented
+by the {\em bracketed-list}, with the exception of the \TT{\{|~|\}}
+brackets, which enclose a pure list that has no attributes other
+than its list elements.
+
+Thus, for example:
+
+\begin{center}
+\tt
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}[t]{l}
+!@53 = \{| X Y Z |\} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = `{}`X Y Z'{}' \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.initiator = \{* "`" "`" *\} \\
+~~~~.terminator = \{* "'" "'" *\} \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}[t]{l}
+!@53 = ( X Y Z ) \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.initiator = "(" \\
+~~~~.terminator = ")" \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{\{X Y Z\}\} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.initiator = \{* "\{" "\{" *\} \\
+~~~~.terminator = \{* "\}" "\}" *\} \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}[t]{l}
+!@53 = `X Y Z' \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.initiator = "`" \\
+~~~~.terminator = "'" \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{`X Y Z'\} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.initiator = \{* "\{" "`" *\} \\
+~~~~.terminator = \{* "'" "\}" *\} \\
+\end{tabular}
+\end{tabular}
+\end{center}
+
+The 
+
+Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
+the lexemes before the `\TT{\}}' must match, though not
+exactly, the lexemes after the `\TT{\{}'.  Specifically, any
+`\TT{\}}' must be proceeded by a
+`\TT{|}', `\TT{>}', `\TT{)}', `\TT{]}', `\TT{'}', `\TT{\}}',
+`{\em mark-type}', or `\TT{|} {\em name-type} {\em attributes}\QMARK{}' phrase,
+and the corresponding `\TT{\{}' must be followed respectively
+by a
+`\TT{|}', `\TT{<}', `\TT{(}', `\TT{[}', `\TT{`}', `\TT{\{}',
+`{\em mark-type}', or `{\em name-type} {\em attributes}\QMARK{} \TT{|}' phrase,
+and if either list opening or list closing has a {\em type}, both must
+have the same {\em type}.
+As special cases,
+`\TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|}' can be matched by
+`\TT{|\}}' and `\TT{\{|}' can match
+`\TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}'.
+
+A beginning `\TT{\{||}' is equivalent to `\TT{\{|~|}', that is, in this
+case the two `\TT{|}' are treated as separate 1-character lexemes, and
+the `\TT{|~|}' denotes an empty list.  Similarly `\TT{||\}}' is
+equivalent to `\TT{|~|\}}' and denotes an empty list.
+
+A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
+
+A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
+in error, as is a `\TT{\}}' that does not end a {\em list-opening} or
+{\em prefix}.
+
+A {\em list-closing} is recognized even if it fails to match the
+last unclosed {\em list-opening}, but in this case the {\em list-closing}
+is treated as an error, and is either ignored if it does not
+match any unclosed {\em list-opening}, or generates missing
+{\em list-closings} if the {\em list-closing} matches some non-last unclosed
+{\em list-opening}.
+
+{\em Simple-lists} may be parsed after they have been read.
+Operators, including
+separators such as the semi-colon `\TT{;}'
+and comma `\TT{,}', are recognized by such a parse.  See
+\itemref{PARSING} for details.
+
+\ikey{Untyped bracketed lists}{untyped bracketed list}
+are given an \ttdmkey{initiator}{of bracketed list}
+equal to their {\em list-opening} and a
+\ikey{\TT{.termin\-ator}}{terminator@{\tt .terminator}!of bracketed list}
+equal to their {\em list-closing}.
+This includes lists with \TT{.initiators} \TT{"("}, \TT{"["}, \TT{"`"},
+\TT{"\{<"}, \TT{"\{("}, \TT{"\{["}, \TT{"\{`"}, \TT{"\{\{"},
+and \TT{.terminators} \TT{")"}, \TT{"]"}, \TT{"'"},
+\TT{">\}"}, \TT{")\}"}, \TT{"]\}"}, \TT{"'\}"}, \TT{"\}\}"},
+but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
+
+\ikey{Typed bracketed lists}{typed bracketed list} are given a
+\ttdmkey{type}{of list} attribute equal to their {\em mark-type} or their
+dequoted {\em name-type}.
+
+Exceptions are
+lists with the form
+`\TT{\{|} {\em prefix-0-list} \TT{|\}}'.
+and lists with {\em name-type} \TT{""}
+(the empty {\em quoted-string}).
+These are not given
+any \TT{.type}, \TT{.initiator}, or \TT{.terminator}.
+Empty lists with no attributes at all are representable by
+`\TT{\{""||\}}', `\TT{\{||\}}',
+and the abbreviation `\TT{\{\}}'.
+
+The elements of the
+list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
+In general the attributes of an object with these labels are referred
+to as the \smkey{list element}s{of object} of the object, and their
+sequence is the \mkey{list}{of object} of the object.
+
+{\em Attributes} in a {\em name-typed} bracketed list can be the same as
+raw {\em attribute-representations}, or they can be just a label with
+no flags or value.  In the latter case, if
+the {\em attribute-label} does not begin with the word `\TT{no}',
+the value `\TT{true}' is implied, and if the label does begin with
+`\TT{no}', the `\TT{no}' is removed from the beginning of the label
+and the value `\TT{false}' is implied.
+If no value is given, it is an error if the label is just
+`\TT{no}' by itself.
+
+Some examples are as follows.  First:
+\begin{center}
+\tt \{| a b c |\}
+\end{center}
+is equivalent to, among other things, any of the following:
+\begin{center}
+\begin{tabular}{l}
+\tt \{""| a b c |\} \\
+\tt \{"":~1 = a, 2 = b, 3 = c ||\} \\
+\tt \{"":~3 = c, 1 = a, 2 = b ||\} \\
+\tt \{| a b | "":~3 = c \} \\
+\tt \{"":~3 = c | a | "":~2 = b \}
+\end{tabular}
+\end{center}
+
+Second:
+
+\begin{center}
+\tt \{my list:~format, no capitalize, tweak = 5| a b c |\}
+\end{center}
+is equivalent to
+\begin{center}
+\tt
+\begin{tabular}{@{}l@{}}
+\{my list:~format = true, capitalize = false, \\
+~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5| a b c |\} \\
+\end{tabular}
+\end{center}
+
+{\em Prefixes} are an unusual kind of separator
+that must appear at the beginning of the list as well as between
+elements of the list, and their appearance at the beginning of the list
+announces their use as a separator for the list and also establishes their
+precedence relative to other {\em prefix} separators.
+More explicitly, the {\em type} of the first {\em prefix-n}
+in a {\em prefix-n-list}
+specifies that all {\em prefixes} of that {\em type} shall be {\em prefix-n}'s,
+and {\em prefixes} of other {\em types} shall not be {\em prefix-n}'s.
+
+Algorithmically, during a left to right scan of a {\em prefix-0-list},
+there is a stack of `\key{open list prefix types}'.  Initially we are
+at the beginning of a sublist which is the entire {\em prefix-0-list}.
+Then:
+\begin{enumerate}
+
+\item
+When a {\em prefix} of a type that is not in the stack appears at the
+beginning of a sublist, its type is pushed into the stack, and a sublist
+of that type beginning just after the {\em prefix} is begun.
+
+\item
+When a {\em prefix} of a type that is in the stack appears, it pops the
+stack until the type is the top of the stack.  Sublists of popped types
+are terminated.  The sublist of the type now at the top of the stack
+is terminated.  A new sublist of that type beginning just after the
+{\em prefix} is begun.
+
+\item
+When a {\em prefix} of a type that is not in the stack appears inside
+(not at the beginning of) a sublist, it is announced as an error and
+ignored.
+
+\item
+Each sublist is associated with a {\em prefix} that begins the
+sublist.  The type and attributes of this {\em prefix} become the
+type and attributes of the sublist.
+
+\end{enumerate}
+
+
+These rules imply that a {\em prefix} that is not in the stack is
+in error unless it occurs at the beginning of a {\em prefix-0-list}
+or occurs immediately after a {\em prefix} whose type was placed
+in the stack.
+
+Thus we have the following example parse of a {\em prefix-0-list}:
+
+\begin{tabular}{lll}
+Text	& Separator &  Syntactic Category
+\\\hline
+\tt \{p\} \{s\} This is a sentence.	& \tt \{p\} & \em prefix-0-list \\
+\tt ~~~ \{s\} And another. \\
+\tt \{p\} \{s\} And a new \{foo\} paragraph.
+\\\hline
+\tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list \\
+\tt \{s\} And another.
+\\\hline
+\tt This is a sentence.	& (none) & \em prefix-2-list
+\\\hline
+\tt And another. & (none) & \em prefix-2-list
+\\\hline
+\tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
+\\\hline
+\tt And a new \{foo\} paragraph. & (none) & \em prefix-2-list \\
+			       &        & \TT{\{foo\}} is in error \\
+			       &        & and is ignored (deleted).
+\end{tabular}
+
+The {\em prefix-0-list} in this example is equivalent to:
+\begin{indpar}\begin{verbatim}
+{|  {p|  {s| This is a sentence . |}
+         {s| And another . |} |}
+    {p|  {s| And a new paragraph . |} |} |}
+             // `{foo}' deleted
+\end{verbatim}\end{indpar}
+
+\section{Parsing}
+\label{PARSING}
+
+Input is read and parsed to form objects from {\em bracketed-lists}.
+These objects are then further parsed to find operators, separators,
+numeric units (e.g., \TT{lb} and \TT{\$}), and some other constructions
+such as possessives (\TT{George's weight}).  The input to this parsing
+is an object element list consisting of atoms and subobjects.
+
+We will refer to the objects being parsed as {\em bracketed-lists}, even
+though they are data objects and not strings of lexemes.
+
+Note that the atoms in these lists have \underline{not} been dequoted;
+in cooked data representations only atoms outside brackets are dequoted.
+
+Parsing at this point is a top down process.  The parser is organized
+into passes which are applied to the object element list in order until
+one of the passes succeeds.  The first pass handles operators, the second
+numeric units, the third possessives, and the forth dequoting.
+If a pass succeeds it may discover subexpressions, which are formed
+into objects and parsed independently as they are discovered.
+In general parsing modifies the object being parsed.
+
+The standard passes in order from first to last are:
+
+\begin{center}
+\begin{tabular}%
+  {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
+\bf Pass & \bf Context & \bf Usage \\[1ex]
+\TT{suffix} & \TT{expression}
+	& split suffixes from words \\
+\TT{operators} & \TT{expression}, \TT{text}
+	& parse operators \\
+\TT{units} & \TT{expression}
+	& parse numeric units \\
+\TT{dequoting} & \TT{expression}, \TT{text}
+	& dequote symbols \\
+\end{tabular}
+\end{center}
+
+Parsing contexts are described in the next section.
+
+Tables such
+as this are constructed from parsing instructions which appear
+in a list called the parsing stack.  Parsing instructions can be
+pushed into the stack and later popped from the stack in order
+to undo their affects.  See \itemref{PARSER-CONTROL} for
+details.
+
+\subsection{Parsing Examples}
+\label{PARSING-EXAMPLES}
+
 {\em Prefixes}, {\em types}, and {\em attributes} are explained
 below.  First we give some examples involving just parsed untyped
 {\em bracketed-lists} without {\em attributes}.  In some of these
@@ -3970,252 +4324,6 @@ rule is that unless otherwise indicated, only immutable objects
 have the property that their cooked representations can replace
 their raw object identifiers in the cooked representations of other
 objects.
-
-We now elaborate on the syntax and internal representation
-of {\em bracketed-lists}.
-
-A {\em list-closing} must match the {\em list-opening} of the last unclosed
-list.  The closing `\TT{)}' matches only `\TT{(}', the closing
-`\TT{]}' matches only `\TT{[}', and the
-closing `\TT{'}' matches only `\TT{`}'.
-
-Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
-the lexemes before the `\TT{\}}' must match, though not
-exactly, the lexemes after the `\TT{\{}'.  Specifically, any
-`\TT{\}}' must be proceeded by a
-`\TT{|}', `\TT{>}', `\TT{)}', `\TT{]}', `\TT{'}', `\TT{\}}',
-`{\em mark-type}', or `\TT{|} {\em name-type} {\em attributes}\QMARK{}' phrase,
-and the corresponding `\TT{\{}' must be followed respectively
-by a
-`\TT{|}', `\TT{<}', `\TT{(}', `\TT{[}', `\TT{`}', `\TT{\{}',
-`{\em mark-type}', or `{\em name-type} {\em attributes}\QMARK{} \TT{|}' phrase,
-and if either list opening or list closing has a {\em type}, both must
-have the same {\em type}.
-As special cases,
-`\TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|}' can be matched by
-`\TT{|\}}' and `\TT{\{|}' can match
-`\TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}'.
-
-A beginning `\TT{\{||}' is equivalent to `\TT{\{|~|}', that is, in this
-case the two `\TT{|}' are treated as separate 1-character lexemes, and
-the `\TT{|~|}' denotes an empty list.  Similarly `\TT{||\}}' is
-equivalent to `\TT{|~|\}}' and denotes an empty list.
-
-A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
-
-A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
-in error, as is a `\TT{\}}' that does not end a {\em list-opening} or
-{\em prefix}.
-
-A {\em list-closing} is recognized even if it fails to match the
-last unclosed {\em list-opening}, but in this case the {\em list-closing}
-is treated as an error, and is either ignored if it does not
-match any unclosed {\em list-opening}, or generates missing
-{\em list-closings} if the {\em list-closing} matches some non-last unclosed
-{\em list-opening}.
-
-{\em Simple-lists} may be parsed after they have been read.
-Operators, including
-separators such as the semi-colon `\TT{;}'
-and comma `\TT{,}', are recognized by such a parse.  See
-\itemref{PARSING} for details.
-
-\ikey{Untyped bracketed lists}{untyped bracketed list}
-are given an \ttdmkey{initiator}{of bracketed list}
-equal to their {\em list-opening} and a
-\ikey{\TT{.termin\-ator}}{terminator@{\tt .terminator}!of bracketed list}
-equal to their {\em list-closing}.
-This includes lists with \TT{.initiators} \TT{"("}, \TT{"["}, \TT{"`"},
-\TT{"\{<"}, \TT{"\{("}, \TT{"\{["}, \TT{"\{`"}, \TT{"\{\{"},
-and \TT{.terminators} \TT{")"}, \TT{"]"}, \TT{"'"},
-\TT{">\}"}, \TT{")\}"}, \TT{"]\}"}, \TT{"'\}"}, \TT{"\}\}"},
-but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
-
-\ikey{Typed bracketed lists}{typed bracketed list} are given a
-\ttdmkey{type}{of list} attribute equal to their {\em mark-type} or their
-dequoted {\em name-type}.
-
-Exceptions are
-lists with the form
-`\TT{\{|} {\em prefix-0-list} \TT{|\}}'.
-and lists with {\em name-type} \TT{""}
-(the empty {\em quoted-string}).
-These are not given
-any \TT{.type}, \TT{.initiator}, or \TT{.terminator}.
-Empty lists with no attributes at all are representable by
-`\TT{\{""||\}}', `\TT{\{||\}}',
-and the abbreviation `\TT{\{\}}'.
-
-The elements of the
-list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
-In general the attributes of an object with these labels are referred
-to as the \smkey{list element}s{of object} of the object, and their
-sequence is the \mkey{list}{of object} of the object.
-
-{\em Attributes} in a {\em name-typed} bracketed list can be the same as
-raw {\em attribute-representations}, or they can be just a label with
-no flags or value.  In the latter case, if
-the {\em attribute-label} does not begin with the word `\TT{no}',
-the value `\TT{true}' is implied, and if the label does begin with
-`\TT{no}', the `\TT{no}' is removed from the beginning of the label
-and the value `\TT{false}' is implied.
-If no value is given, it is an error if the label is just
-`\TT{no}' by itself.
-
-Some examples are as follows.  First:
-\begin{center}
-\tt \{| a b c |\}
-\end{center}
-is equivalent to, among other things, any of the following:
-\begin{center}
-\begin{tabular}{l}
-\tt \{""| a b c |\} \\
-\tt \{"":~1 = a, 2 = b, 3 = c ||\} \\
-\tt \{"":~3 = c, 1 = a, 2 = b ||\} \\
-\tt \{| a b | "":~3 = c \} \\
-\tt \{"":~3 = c | a | "":~2 = b \}
-\end{tabular}
-\end{center}
-
-Second:
-
-\begin{center}
-\tt \{my list:~format, no capitalize, tweak = 5| a b c |\}
-\end{center}
-is equivalent to
-\begin{center}
-\tt
-\begin{tabular}{@{}l@{}}
-\{my list:~format = true, capitalize = false, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5| a b c |\} \\
-\end{tabular}
-\end{center}
-
-{\em Prefixes} are an unusual kind of separator
-that must appear at the beginning of the list as well as between
-elements of the list, and their appearance at the beginning of the list
-announces their use as a separator for the list and also establishes their
-precedence relative to other {\em prefix} separators.
-More explicitly, the {\em type} of the first {\em prefix-n}
-in a {\em prefix-n-list}
-specifies that all {\em prefixes} of that {\em type} shall be {\em prefix-n}'s,
-and {\em prefixes} of other {\em types} shall not be {\em prefix-n}'s.
-
-Algorithmically, during a left to right scan of a {\em prefix-0-list},
-there is a stack of `\key{open list prefix types}'.  Initially we are
-at the beginning of a sublist which is the entire {\em prefix-0-list}.
-Then:
-\begin{enumerate}
-
-\item
-When a {\em prefix} of a type that is not in the stack appears at the
-beginning of a sublist, its type is pushed into the stack, and a sublist
-of that type beginning just after the {\em prefix} is begun.
-
-\item
-When a {\em prefix} of a type that is in the stack appears, it pops the
-stack until the type is the top of the stack.  Sublists of popped types
-are terminated.  The sublist of the type now at the top of the stack
-is terminated.  A new sublist of that type beginning just after the
-{\em prefix} is begun.
-
-\item
-When a {\em prefix} of a type that is not in the stack appears inside
-(not at the beginning of) a sublist, it is announced as an error and
-ignored.
-
-\item
-Each sublist is associated with a {\em prefix} that begins the
-sublist.  The type and attributes of this {\em prefix} become the
-type and attributes of the sublist.
-
-\end{enumerate}
-
-
-These rules imply that a {\em prefix} that is not in the stack is
-in error unless it occurs at the beginning of a {\em prefix-0-list}
-or occurs immediately after a {\em prefix} whose type was placed
-in the stack.
-
-Thus we have the following example parse of a {\em prefix-0-list}:
-
-\begin{tabular}{lll}
-Text	& Separator &  Syntactic Category
-\\\hline
-\tt \{p\} \{s\} This is a sentence.	& \tt \{p\} & \em prefix-0-list \\
-\tt ~~~ \{s\} And another. \\
-\tt \{p\} \{s\} And a new \{foo\} paragraph.
-\\\hline
-\tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list \\
-\tt \{s\} And another.
-\\\hline
-\tt This is a sentence.	& (none) & \em prefix-2-list
-\\\hline
-\tt And another. & (none) & \em prefix-2-list
-\\\hline
-\tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
-\\\hline
-\tt And a new \{foo\} paragraph. & (none) & \em prefix-2-list \\
-			       &        & \TT{\{foo\}} is in error \\
-			       &        & and is ignored (deleted).
-\end{tabular}
-
-The {\em prefix-0-list} in this example is equivalent to:
-\begin{indpar}\begin{verbatim}
-{|  {p|  {s| This is a sentence . |}
-         {s| And another . |} |}
-    {p|  {s| And a new paragraph . |} |} |}
-             // `{foo}' deleted
-\end{verbatim}\end{indpar}
-
-\section{Parsing}
-\label{PARSING}
-
-Input is read and parsed to form objects from {\em bracketed-lists}.
-These objects are then further parsed to find operators, separators,
-numeric units (e.g., \TT{lb} and \TT{\$}), and some other constructions
-such as possessives (\TT{George's weight}).  The input to this parsing
-is an object element list consisting of atoms and subobjects.
-
-We will refer to the objects being parsed as {\em bracketed-lists}, even
-though they are data objects and not strings of lexemes.
-
-Note that the atoms in these lists have \underline{not} been dequoted;
-in cooked data representations only atoms outside brackets are dequoted.
-
-Parsing at this point is a top down process.  The parser is organized
-into passes which are applied to the object element list in order until
-one of the passes succeeds.  The first pass handles operators, the second
-numeric units, the third possessives, and the forth dequoting.
-If a pass succeeds it may discover subexpressions, which are formed
-into objects and parsed independently as they are discovered.
-In general parsing modifies the object being parsed.
-
-The standard passes in order from first to last are:
-
-\begin{center}
-\begin{tabular}%
-  {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
-\bf Pass & \bf Context & \bf Usage \\[1ex]
-\TT{suffix} & \TT{expression}
-	& split suffixes from words \\
-\TT{operators} & \TT{expression}, \TT{text}
-	& parse operators \\
-\TT{units} & \TT{expression}
-	& parse numeric units \\
-\TT{dequoting} & \TT{expression}, \TT{text}
-	& dequote symbols \\
-\end{tabular}
-\end{center}
-
-Parsing contexts are described in the next section.
-
-Tables such
-as this are constructed from parsing instructions which appear
-in a list called the parsing stack.  Parsing instructions can be
-pushed into the stack and later popped from the stack in order
-to undo their affects.  See \itemref{PARSER-CONTROL} for
-details.
 
 \subsection{Parsing Contexts}
 \label{PARSING-CONTEXTS}
