@@ -3500,7 +3500,7 @@ In the above: & `\TT{||}' may be used to abbreviate `\TT{|~|}'
           \TT{'} $|$\TT{'{}'} $|$  \TT{'{}'{}'} $|$
 	  \TT{|\}} $|$
           \TT{'\}} $|$ \TT{:\}} $|$ \TT{)\}} $|$ \TT{]\}} $|$ \TT{\}\}} \\
-    $|$ & {\em mark-type} \TT{\}} \\
+    $|$ & {\em reverse-mark-type} \TT{\}} \\
     $|$ & \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}} \\
     \end{tabular}
 \end{tabular}
@@ -3675,7 +3675,76 @@ Thus, for example:
 \end{tabular}
 \end{center}
 
-The 
+A {\em bracketed-list} with a {\em mark-type} is similar to an untyped
+{\em bracketed-list}, but the {\em mark-type} becomes the \TT{.type}
+attribute of the list, and there is no \TT{.initiator} or \TT{.terminator}
+attribute.  Such a {\em bracketed-list} consists of
+a `\TT{\{} {\em mark-type}' list opening and a `{\em reverse-mark-type} \TT{\}}'
+list closing surrounding the list elements.
+The {\em mark-type} is a {\em mark} lexeme.  The {\em reverse-mark-type}
+is this same lexeme with the order of characters reveresed and the
+characters \TT{<} and \TT{>} interchanged, if they occur.  If the
+{\em mark-type} and {\em reverse-mark} type are identical, the
+{\em mark-type} becomes the \TT{.type} attribute value for the list.
+But if they are not identical, the label atom
+\begin{center}
+\TT{\{*} {\em mark-type} {\em reverse-mark-type} \TT{*\}}
+\end{center}
+becomes the \TT{.type} attribute value.
+
+Thus we have the examples:
+
+\begin{center}
+\tt
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}[t]{l}
+!@53 = \{+ X Y Z +\} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = "+" \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = {<+ X Y Z +>} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = "<+" "+>" \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.5in}}
+\begin{tabular}[t]{l}
+!@53 = \{\$\$ X Y Z \$\$\} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = "\$\$" \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{\$* X Y Z *\$\} \\[1ex]
+\rm is equivalent to \\[1ex]
+!@53 =:: \\
+~~~~1 = X \\
+~~~~2 = Y \\
+~~~~3 = Z \\
+~~~~.type = "\$*" "*\$" \\
+\end{tabular}
+\end{tabular}
+\end{center}
+
+TBD
 
 Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
 the lexemes before the `\TT{\}}' must match, though not
