@@ -2916,7 +2916,7 @@ representation `\key{cooked}'.
 	{\em bll} {\em single-attribute-label}
 	\begin{tabular}[t]{l}
 	{\em attribute-label-flags}\QMARK{} ~
-	{\em attribute-assignment-operator} \\
+	\TT{=} ~
 	{\em single-attribute-values} ~ {\em ell}
 	\end{tabular}
 \end{tabular}
@@ -2936,11 +2936,6 @@ representation `\key{cooked}'.
 \begin{tabular}{l}
 \emkey{flag-lexeme}
     ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{attribute-assignment-operator}
-    ::= ~~ \TT{=} $|$ \TT{=>} $|$ \TT{=>{}>}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -3195,13 +3190,34 @@ object itself, a situation which can be achieved by the
 {\em object-representation}:
 
 \begin{indpar}\begin{verbatim}
-!@0=>:
+!@0 =>::
     .GLOBAL = @0
 \end{verbatim}\end{indpar}
 
 Labels beginning with `\ttkey{.}' are reserved for use by
 the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
 is an example of such a label.
+
+An {\em attribute-value} that is a sequence of two or more {\em atom-names}
+abbreviates single {\em bracketed-label} atom that can be otherwise
+represented by placing the {\em atom-names} in \TT{\{*~*\}} brackets.  Thus the
+{\em attribute-representations}
+\begin{center}
+\TT{X = "\{" "["} ~~~~~~~~~~ and ~~~~~~~~~~ \TT{X = \{* "\{" "[" *\}}
+\end{center}
+are equivalent.  However, an {\em attribute-value} consisting of just
+one {\em atom-name} consists of just the named atom.
+
+{\em Attribute-labels}, which are {\em names}, are also sequences
+of {\em atom-names}, and also represent label atoms if there are two
+or more {\em atom-names} in the label.  If there is just one {\em atom-name},
+the label is the named atom.  However, names
+cannot contain {\em bracketed-labels},
+so
+\begin{center}
+\TT{X Y = 1} ~~~~~~~~~~ \underline{cannot} be rewritten as ~~~~~~~~~~
+         \TT{\{* X Y *\} = 1}
+\end{center}
 
 The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
 However, within {\em object-representa\-tions} that begin with
@@ -3599,8 +3615,8 @@ Thus, for example:
 ~~~~1 = X \\
 ~~~~2 = Y \\
 ~~~~3 = Z \\
-~~~~.initiator = \{* "`" "`" *\} \\
-~~~~.terminator = \{* "'" "'" *\} \\
+~~~~.initiator = "`" "`" \\
+~~~~.terminator = "'" "'" \\
 \end{tabular}
 \end{tabular}
 
@@ -3626,8 +3642,8 @@ Thus, for example:
 ~~~~1 = X \\
 ~~~~2 = Y \\
 ~~~~3 = Z \\
-~~~~.initiator = \{* "\{" "\{" *\} \\
-~~~~.terminator = \{* "\}" "\}" *\} \\
+~~~~.initiator = "\{" "\{" \\
+~~~~.terminator = "\}" "\}" \\
 \end{tabular}
 \end{tabular}
 
@@ -3653,8 +3669,8 @@ Thus, for example:
 ~~~~1 = X \\
 ~~~~2 = Y \\
 ~~~~3 = Z \\
-~~~~.initiator = \{* "\{" "`" *\} \\
-~~~~.terminator = \{* "'" "\}" *\} \\
+~~~~.initiator = "\{" "`" \\
+~~~~.terminator = "'" "\}" \\
 \end{tabular}
 \end{tabular}
 \end{center}
