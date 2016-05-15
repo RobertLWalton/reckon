@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 14, 2016}
+\date{May 15, 2016}
 
 \maketitle
 
@@ -3249,6 +3249,24 @@ Thus
 \end{tabular}
 \end{center}
 
+A {\em single-attribute-representation} of the form `\TT{X = true}'
+can be abbreviated as just `\TT{X}', while one of the form
+`\TT{X = false}' can be abbreviated as just `\TT{no X}'.  Thus
+\begin{center}
+\tt
+\begin{tabular}{l}
+@49 =>:: \\
+~~~~X = true \\
+~~~~Y = false \\
+\end{tabular}
+~~~~{\rm can be rewritten as}~~~~
+\begin{tabular}{l}
+@49 =>:: \\
+~~~~X \\
+~~~~no Y \\
+\end{tabular}
+\end{center}
+
 The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
 However, within {\em object-representa\-tions} that begin with
 \TT{@} the parser only recognizes brackets and separators, and does
@@ -3436,8 +3454,8 @@ must mean
 which has the single element list, as this is the only possible
 interpretation.
 
-
 \subsection{Bracket Parsing}
+\label{BRACKET-PARSING}
 
 A {\em bracketed-list} represents an object in its own right,
 with the brackets becoming the \TT{.initia\-tor} and \TT{.termina\-tor}
@@ -3873,36 +3891,8 @@ The {\em named-type} \TT{"{}"} is specially treated as denoting a missing
 The empty list can be denoted by any of `\TT{\{""||\}}', `\TT{\{||\}}',
 or the abbreviation `\TT{\{\}}'.
 
-TBD
-
-Some examples are as follows.  First:
-\begin{center}
-\tt \{| a b c |\}
-\end{center}
-is equivalent to, among other things, any of the following:
-\begin{center}
-\begin{tabular}{l}
-\tt \{""| a b c |\} \\
-\tt \{"":~1 = a, 2 = b, 3 = c ||\} \\
-\tt \{"":~3 = c, 1 = a, 2 = b ||\} \\
-\tt \{| a b | "":~3 = c \} \\
-\tt \{"":~3 = c | a | "":~2 = b \}
-\end{tabular}
-\end{center}
-
-Second:
-
-\begin{center}
-\tt \{my list:~format, no capitalize, tweak = 5| a b c |\}
-\end{center}
-is equivalent to
-\begin{center}
-\tt
-\begin{tabular}{@{}l@{}}
-\{my list:~format = true, capitalize = false, \\
-~~~~~~~~~~~~~~~~~~~~~~~~~tweak = 5| a b c |\} \\
-\end{tabular}
-\end{center}
+\subsection{Prefixes}
+\label{PREFIXES}
 
 {\em Prefixes} are an unusual kind of separator
 that must appear at the beginning of the list as well as between
@@ -3912,43 +3902,51 @@ precedence relative to other {\em prefix} separators.
 More explicitly, the {\em type} of the first {\em prefix-n}
 in a {\em prefix-n-list}
 specifies that all {\em prefixes} of that {\em type} shall be {\em prefix-n}'s,
-and {\em prefixes} of other {\em types} shall not be {\em prefix-n}'s.
+and {\em prefixes} of other {\em types} shall not be {\em prefix-n}'s,
+where {\em n} = {\em 0}, {\em 1}, {\em 2}, {\em 3}, \ldots{}
+is the priority of the {\em prefix} in the sense of operator
+hierarchy.
 
 Algorithmically, during a left to right scan of a {\em prefix-0-list},
 there is a stack of `\key{open list prefix types}'.  Initially we are
-at the beginning of a sublist which is the entire {\em prefix-0-list}.
+at the beginning of the {\em prefix-0-list} and the stack is empty.
 Then:
 \begin{enumerate}
 
 \item
-When a {\em prefix} of a type that is not in the stack appears at the
-beginning of a sublist, its type is pushed into the stack, and a sublist
-of that type beginning just after the {\em prefix} is begun.
+When a {\em prefix} of a type that is not in the stack is scanned,
+and the {\em prefix} follows a {\em prefix} or is at the
+beginning of the {\em prefix-0-list},
+the type of the {\em prefix} is pushed into the stack, and a new sublist
+of that type beginning with the {\em prefix} is started.
+This sublist is a {\em prefix-n-list} where {\em n} is the depth of
+the stack before the type is pushed.
 
 \item
-When a {\em prefix} of a type that is in the stack appears, it pops the
-stack until the type is the top of the stack.  Sublists of popped types
-are terminated.  The sublist of the type now at the top of the stack
-is terminated.  A new sublist of that type beginning just after the
-{\em prefix} is begun.
+When a {\em prefix} of a type that is in the stack is scanned, the
+stack is popped
+until the type is has been popped.  Sublists of popped types
+are terminated.
+The type of the {\em prefix} (which was just popped)
+is pushed into the stack, and a new sublist
+of that type beginning with the {\em prefix} is started.
+This sublist is a {\em prefix-n-list} where {\em n} is the depth of
+the stack before the type is pushed.
 
 \item
-When a {\em prefix} of a type that is not in the stack appears inside
-(not at the beginning of) a sublist, it is announced as an error and
-ignored.
+When a {\em prefix} of a type that is not in the stack is scanned,
+and the {\em prefix} follows a non-{\em prefix},
+the {\em prefix} is announced as an error and ignored as if it
+did not exist.  In particular, what immediately follows the {\em prefix}
+will still be treated as following a non-{\em prefix}.
 
 \item
-Each sublist is associated with a {\em prefix} that begins the
+Each sublist is associated with a {\em prefix} that starts the
 sublist.  The type and attributes of this {\em prefix} become the
 type and attributes of the sublist.
 
 \end{enumerate}
 
-
-These rules imply that a {\em prefix} that is not in the stack is
-in error unless it occurs at the beginning of a {\em prefix-0-list}
-or occurs immediately after a {\em prefix} whose type was placed
-in the stack.
 
 Thus we have the following example parse of a {\em prefix-0-list}:
 
@@ -3975,9 +3973,9 @@ Text	& Separator &  Syntactic Category
 
 The {\em prefix-0-list} in this example is equivalent to:
 \begin{indpar}\begin{verbatim}
-{|  {p|  {s| This is a sentence . |}
-         {s| And another . |} |}
-    {p|  {s| And a new paragraph . |} |} |}
+{|  {p|  {s| This is a sentence "." |}
+         {s| And another "." |} |}
+    {p|  {s| And a new paragraph "." |} |} |}
              // `{foo}' deleted
 \end{verbatim}\end{indpar}
 
