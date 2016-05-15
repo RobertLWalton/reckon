@@ -3821,7 +3821,7 @@ after the {\em name-type}.  So, for example:
 ~~~~~~~~~~~~J = 1 \\
 ~~~~~~~~~~~~K = B 1 \\
 ~~~~~~~~~~~~L = \{* 1, B 1 *\} \\
-~~~~~~~~|\} \\
+~~~~~~~|\} \\
 \end{tabular}
 \\[1ex]
 {\rm is equivalent to}
@@ -3834,91 +3834,46 @@ after the {\em name-type}.  So, for example:
 \end{center}
 
 
-
-TBD
-
-Any `\TT{\}}' must match a corresponding `\TT{\{}', and in addition,
-the lexemes before the `\TT{\}}' must match, though not
-exactly, the lexemes after the `\TT{\{}'.  Specifically, any
-`\TT{\}}' must be proceeded by a
-`\TT{|}', `\TT{>}', `\TT{)}', `\TT{]}', `\TT{'}', `\TT{\}}',
-`{\em mark-type}', or `\TT{|} {\em name-type} {\em attributes}\QMARK{}' phrase,
-and the corresponding `\TT{\{}' must be followed respectively
-by a
-`\TT{|}', `\TT{<}', `\TT{(}', `\TT{[}', `\TT{`}', `\TT{\{}',
-`{\em mark-type}', or `{\em name-type} {\em attributes}\QMARK{} \TT{|}' phrase,
-and if either list opening or list closing has a {\em type}, both must
-have the same {\em type}.
-As special cases,
-`\TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|}' can be matched by
-`\TT{|\}}' and `\TT{\{|}' can match
-`\TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}}'.
-
 A beginning `\TT{\{||}' is equivalent to `\TT{\{|~|}', that is, in this
 case the two `\TT{|}' are treated as separate 1-character lexemes, and
 the `\TT{|~|}' denotes an empty list.  Similarly `\TT{||\}}' is
 equivalent to `\TT{|~|\}}' and denotes an empty list.
 
-A `\TT{\}}' can also end a {\em prefix}, which is a separate case.
-
-A `\TT{\{}' that does not begin a {\em list-opening} or {\em prefix} is
-in error, as is a `\TT{\}}' that does not end a {\em list-opening} or
-{\em prefix}.
-
-A {\em list-closing} is recognized even if it fails to match the
-last unclosed {\em list-opening}, but in this case the {\em list-closing}
-is treated as an error, and is either ignored if it does not
-match any unclosed {\em list-opening}, or generates missing
-{\em list-closings} if the {\em list-closing} matches some non-last unclosed
-{\em list-opening}.
+The brackets `\TT{\{}' and `\TT{\}}' match, even if the {\em type-names}
+that follow `\TT{\{}' and preceed `\TT{\}}' fail to match.
+In the latter case it is a type match error.
 
 {\em Simple-lists} may be parsed after they have been read.
 Operators, including
-separators such as the semi-colon `\TT{;}'
-and comma `\TT{,}', are recognized by such a parse.  See
+separators such as comma `\TT{,},' are recognized by such a parse.  See
 \itemref{PARSING} for details.
 
-\ikey{Untyped bracketed lists}{untyped bracketed list}
-are given an \ttdmkey{initiator}{of bracketed list}
-equal to their {\em list-opening} and a
-\ikey{\TT{.termin\-ator}}{terminator@{\tt .terminator}!of bracketed list}
-equal to their {\em list-closing}.
-This includes lists with \TT{.initiators} \TT{"("}, \TT{"["}, \TT{"`"},
-\TT{"\{<"}, \TT{"\{("}, \TT{"\{["}, \TT{"\{`"}, \TT{"\{\{"},
-and \TT{.terminators} \TT{")"}, \TT{"]"}, \TT{"'"},
-\TT{">\}"}, \TT{")\}"}, \TT{"]\}"}, \TT{"'\}"}, \TT{"\}\}"},
-but \underline{not} `\TT{\{|\ldots|\}}' lists which are a special case.
+The {\em named-type} \TT{"{}"} is specially treated as denoting a missing
+\TT{.type} attribute.  Thus
+\begin{center}
+\tt
+\begin{tabular}{l}
+!@27 = X Y Z:: \\
+~~~~J = 1 \\
+~~~~K = B 1 \\
+\end{tabular}
+\begin{tabular}{c}
+\rm is \\
+\rm equivalent \\
+\rm to
+\end{tabular}
+\begin{tabular}{l}
+!@27 = \{| X Y Z | "":: \\
+~~~~~~~~~~~~J = 1 \\
+~~~~~~~~~~~~K = B 1 \\
+~~~~~~~|\} \\
+\end{tabular}
+\end{center}
 
-\ikey{Typed bracketed lists}{typed bracketed list} are given a
-\ttdmkey{type}{of list} attribute equal to their {\em mark-type} or their
-dequoted {\em name-type}.
+The empty list can be denoted by any of `\TT{\{""||\}}', `\TT{\{||\}}',
+or the abbreviation `\TT{\{\}}'.
 
-Exceptions are
-lists with the form
-`\TT{\{|} {\em prefix-0-list} \TT{|\}}'.
-and lists with {\em name-type} \TT{""}
-(the empty {\em quoted-string}).
-These are not given
-any \TT{.type}, \TT{.initiator}, or \TT{.terminator}.
-Empty lists with no attributes at all are representable by
-`\TT{\{""||\}}', `\TT{\{||\}}',
-and the abbreviation `\TT{\{\}}'.
-
-The elements of the
-list become the attributes labeled \TT{1}, \TT{2}, \TT{3}, \ldots.
-In general the attributes of an object with these labels are referred
-to as the \smkey{list element}s{of object} of the object, and their
-sequence is the \mkey{list}{of object} of the object.
-
-{\em Attributes} in a {\em name-typed} bracketed list can be the same as
-raw {\em attribute-representations}, or they can be just a label with
-no flags or value.  In the latter case, if
-the {\em attribute-label} does not begin with the word `\TT{no}',
-the value `\TT{true}' is implied, and if the label does begin with
-`\TT{no}', the `\TT{no}' is removed from the beginning of the label
-and the value `\TT{false}' is implied.
-If no value is given, it is an error if the label is just
-`\TT{no}' by itself.
+TBD
 
 Some examples are as follows.  First:
 \begin{center}
