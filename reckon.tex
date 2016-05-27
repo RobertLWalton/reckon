@@ -196,7 +196,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 15, 2016}
+\date{May 27, 2016}
 
 \maketitle
 
@@ -669,15 +669,18 @@ One can also iterate over data.
 \verb|> average weight of X <-- list X of persons:| \\
 \verb|+     first count = 0| \\
 \verb|+     first sum = 0| \\
-\verb|+     if X = ():| \\
-\verb|+         if count = 0:| \\
-\verb|+             value = error `Cannot average 0 things.'| \\
+\verb|+     if:| \\
+\verb|+         X = ():| \\
+\verb|+             if:| \\
+\verb|+                 count = 0:| \\
+\verb|+                     value = error `Cannot average| \\
+\verb|+                                    0 things.'| \\
+\verb|+             else:| \\
+\verb|+                 value = sum / count| \\
 \verb|+         else:| \\
-\verb|+             value = sum / count| \\
-\verb|+     else:| \\
-\verb|+         next count = count + 1| \\
-\verb|+         next sum = sum + the weight of (first X)| \\
-\verb|+         next X = rest X| \\
+\verb|+             next count = count + 1| \\
+\verb|+             next sum = sum + the weight of (first X)| \\
+\verb|+             next X = rest X| \\
 \verb|> average weight of (all persons)| \\
 \verb|116.5 lbs| \\
 \verb|> z = 10 + average weight of (all persons named Bill)| \\
@@ -1020,38 +1023,45 @@ The rest of this document is a reference manual for RECKON.
 
 \begin{boxedfigure}
 
-\begin{verbatim}
-ship name = [`none', `submarine', `distroyer', `cruzier',
-                     `battleship', `carrier' ]
+\small
 
+\begin{verbatim}
 for every board:
-    on a board of size S:
+    on a board of size S <--- integer S, 5 <= S:
         // Make a board of size SxS.
         size = S
-        // state(R, C) is `safe' or `hit'.
-        hit = an array of size (S, S)
-              with initial element `safe'
+        // state(R, C) is `untouched', `miss', `hit',
+        // or `sunk' (if final hit on ship).
+        state = an array of size (S, S)
+                with initial element `untouched'
         // vessel(R, C) is ID of vessel at (R, C) or `none'.
         vessel = an array of size (S, S)
                  with initial element `none'
         ships = 0  // Number of ships
         sunk  = 0  // Number of ships sunk
 
-    on shoot at (R, C) on THIS:
-        if hit(R, C) == `hit':
-            return `no effect'
-        hit(R, C) = `hit'
-        if vessel(R, C) == `none':
-            return `miss'
-        add 1 to vessel(R, C)'s hits
-        temporary L = vessel(R, C)'s length
-        if vessel(R, C)'s hits == L:
-            message = `You shunk my [ship name(L)]!'
-            add 1 to sunk
-            if sunk == ships:
-                message = `[message] I lose!'
-            return message
-\end{verbatim}
+    on shoot at (R, C) on THIS <--- integer R,  1 <= R <= size,
+                                    integer C,  1 <= C <= size:
+        if:
+            state(R,C) != `untouched':
+                value = state(R, C)
+            vessel(R, C) == `none':
+                value = `miss'
+            else:
+                v = vessel(R, C)
+                add 1 to v's hits
+                if:
+                    v's hits == v's length:
+                        add 1 to sunk
+                        value = `sunk'
+                    else:
+                        value = `hit'
+        if:
+            value == state(R, C):
+                value = `no effect;
+            else:
+                state(R, C) = value
+\end{verbatim}\vspace{-4ex}
 
 \caption{Code for the Battleship Game, Part I}
 \label{CODE-FOR-BATTLESHIP-1}
@@ -1064,10 +1074,10 @@ for every board:
 
 \begin{verbatim}
 for every vessel:
-    on a vessel of length L on board B:
+    on a vessel of length L on board B <---
+            integer L, 1 <= L <= 5:
         // Make a vessel of length L on board B.
         temporary S = size of B
-
         direction =
             random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
                      (1, 1), (1, 0), (1, -1), (0, -1) ]
@@ -1105,34 +1115,53 @@ for every vessel:
 
 \begin{boxedfigure}
 
-\small
+\footnotesize
 
 \begin{verbatim}
-for every vessel:
-    on a vessel of length L with direction D from (I, J) on B:
-        `make a vessel of length L positioned in direction D
-         from origin (I, J) on boards B; directions are N,
-         NE, E, SE, S, SW, W, NW'
-        length = L
-        direction = D
-        origin = (I, J)
-        vector = direction vector of D
-        destination = L * vector + origin
-        board = B
-        conflict =:
-            first p = origin
-            first k = 0
-            next k = k + 1
-            next p = p + vector
-            TBD
-        if L < 2 or L > 5:
-            value = error `bad length [L]'
-        else if maximum vessels(L) of B >= vessels(L) of B:
-            value = error `two many vessels of length [L]
-                           on board [B]'
-        else:
-            vessels(L) of B += 1
-\end{verbatim}
+for every board:
+    on display ( THIS ) for PLAYER
+            ~ with square size ( SQSIZE ) ? <---
+            PLAYER :=: owner | opponent,
+            SQSIZE SQSIZE :=? 0.25,
+            number SQSIZE, 0.05 <= SQSIZE:
+        value = {{ overlay }}
+        grid loop:
+            first rc = 0; next rc = rc + 1
+            first rcd = 0; next rcd = rcd + SQSIZE
+            once limit = size * SQSIZE
+            append {{ line from  (0, rcd) to (limit, rcd) }}
+                   {{ line from  (rcd, 0) to (rcd, limit) }}
+                   to value
+            if rc == size:
+                finish grid loop
+        r loop:
+            first r = 1; first rd = 0
+	    if r >= size:
+		finish r loop
+            next r = r + 1; next rd = rd + SQSIZE
+            c loop:
+                first c = 1; first cd = 0
+		if c >= size:
+		    finish c loop
+                next c = c + 1; next cd = cd + SQSIZE
+                if state(r, c) != `untouched':
+                    // X through square
+                    append {{ line from (rd, cd)
+                                   to (next rd, next cd ) }}
+                           {{ line from (rd, next cd)
+                                   to (rd, next cd ) }}
+                           to value
+                if ship(r, c) != `none'
+                   AND
+                   ( PLAYER == `owner'
+                     OR state(r, c ) == `sunk' ):
+                           c = [`s', `d', `c', `b', `C']
+                               [ship(r, c)'s length]
+                    append {{ box from (rd, cd)
+                                  to (next rd, next cd )
+                                  labeled large `[c]' }}
+                           to value
+\end{verbatim}\vspace{-4ex}
 
 \caption{Code for the Battleship Game, Part III}
 \label{CODE-FOR-BATTLESHIP-3}
