@@ -300,7 +300,8 @@ The current version of RECKON is not stable, because it has not been
 implemented, and because, unlike most programming languages, RECKON
 has lots of subtle important interactions between its various features.  The
 hope is that after implementation and experimentation a stable sensible
-version of RECKON, integrating all its data types, can be achieved.
+version of RECKON, integrating all its data types and supporting each
+with special syntax, can be achieved.
 
 \section{Overview}
 
@@ -335,7 +336,7 @@ of functions, predicates, and blocks.  Some examples involving numbers are:
 > x + y
 26
 > f (b, c, x) = b * x + c
-function (b, c, x) evaluates to (b * x + c)
+f (b, c, x) evaluates to (b * x + c)
 > f (10, x, y)
 179
 \end{verbatim}\end{indpar}
@@ -370,21 +371,25 @@ hello \\
 hello there \\
 \verb|> z = `I thought he said `[g]'.'| \\
 I thought he said `hello'. \\
-\verb/> notice = `This document is meant to be read./ \\
-\verb/+           Reading this document is good, but.../ \\
-\verb/+           / \\
-\verb/+           [z].'/ \\
+\verb/> notice = ``This document is meant to be read./ \\
+\verb/+            Reading this document is good, but.../ \\
+\verb/+            / \\
+\verb/+            [z].''/ \\
 This document is meant to be read.  Reading this document is good, but\ldots
 \\[2ex]
 I thought he said `hello'. \\
 \verb|> `When you add [x] and [y] you get [x+y].'| \\
 When you add 9 and 17 you get 26. \\
-\verb|> `This is a paragraph.| \\
+\verb|> ``This is a paragraph.| \\
 \verb|> | \\
-\verb|> And a second paragraph.| \\
-\verb|> With two sentences.'| \\
+\verb|>   And a second paragraph.| \\
+\verb|>   With thress sentences.| \\
+\verb/>   Use {tt|"`` ''"|} instead of {tt|"` '"|} if the text/ \\
+\verb|>   includes blank lines.''| \\
 This is a paragraph. \\[2ex]
-And a second paragraph. With two sentences.
+And a second paragraph. With three sentences. Use
+\TT{`{}`~'{}'} instead of \TT{`~'} if the text includes
+blank lines.
 \end{indpar}
 
 Modern math computes with expressions, and not just numbers.
@@ -809,7 +814,7 @@ All the assertions that have been made can be queried:
 \verb|false| \\
 \verb|> (a person named X) is wife of| \\
 \verb|+     (a person named `Jack') ?| \\
-\verb|X = `|Jill\verb|'| \\
+\verb|X = `Jill'| \\
 \verb|> X is wife of (a person named `Jack') ?| \\
 \verb|X = (a person named `Jill')| \\
 \verb|> @1000001 is wife of (a person named `Jack') ?| \\
@@ -1027,7 +1032,7 @@ The rest of this document is a reference manual for RECKON.
 
 \begin{verbatim}
 for every board:
-    on a board of size S <--- integer S, 5 <= S:
+    on a board of size S <-- integer S, 5 <= S:
         // Make a board of size SxS.
         size = S
         // state(R, C) is `untouched', `miss', `hit',
@@ -1040,8 +1045,8 @@ for every board:
         ships = 0  // Number of ships
         sunk  = 0  // Number of ships sunk
 
-    on shoot at (R, C) on THIS <--- integer R,  1 <= R <= size,
-                                    integer C,  1 <= C <= size:
+    on shoot at (R, C) on THIS <-- integer R,  1 <= R <= size,
+                                   integer C,  1 <= C <= size:
         if:
             state(R,C) != `untouched':
                 value = state(R, C)
@@ -1074,7 +1079,7 @@ for every board:
 
 \begin{verbatim}
 for every vessel:
-    on a vessel of length L on board B <---
+    on a vessel of length L on board B <--
             integer L, 1 <= L <= 5:
         // Make a vessel of length L on board B.
         temporary S = size of B
@@ -1120,10 +1125,9 @@ for every vessel:
 \begin{verbatim}
 for every board:
     on display ( THIS ) for PLAYER
-            ~ with square size ( SQSIZE ) ? <---
+            ~ with square size ( SQSIZE ) ? <--
             PLAYER :=: owner | opponent,
-            SQSIZE SQSIZE :=? 0.25,
-            number SQSIZE, 0.05 <= SQSIZE:
+            SQSIZE SQSIZE :=? 0.25, number SQSIZE, 0.05 <= SQSIZE:
         value = {{ overlay }}
         grid loop:
             first rc = 0; next rc = rc + 1
@@ -1136,13 +1140,13 @@ for every board:
                 finish grid loop
         r loop:
             first r = 1; first rd = 0
-	    if r >= size:
-		finish r loop
+            if r >= size:
+                finish r loop
             next r = r + 1; next rd = rd + SQSIZE
             c loop:
                 first c = 1; first cd = 0
-		if c >= size:
-		    finish c loop
+                if c >= size:
+                    finish c loop
                 next c = c + 1; next cd = cd + SQSIZE
                 if state(r, c) != `untouched':
                     // X through square
@@ -1155,11 +1159,11 @@ for every board:
                    AND
                    ( PLAYER == `owner'
                      OR state(r, c ) == `sunk' ):
-                           c = [`s', `d', `c', `b', `C']
+                           c = [`?', `S', `D', `C', `B', `A']
                                [ship(r, c)'s length]
                     append {{ box from (rd, cd)
                                   to (next rd, next cd )
-                                  labeled large `[c]' }}
+                                  labeled huge `[c]' }}
                            to value
 \end{verbatim}\vspace{-4ex}
 
@@ -6315,9 +6319,9 @@ would if a guard evaluated to false.
 
 \begin{indpar}
 \emkey{expression-definition} ::=
-	{\em pattern} \TT{<--} {\em constraint-list-option} {\em block-option}
+	{\em pattern} \TT{<-{}-} {\em constraint-list-option} {\em block-option}
 	\\[1ex]
-{\em pattern} ::= \TT{<--}{\em -subexpression}
+{\em pattern} ::= \TT{<-{}-}{\em -subexpression}
 	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 {\em pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
@@ -6364,7 +6368,7 @@ would if a guard evaluated to false.
 \end{indpar}
 
 The \mkey{pattern}{in expression definition} of an expression definition
-is the subexpression before the \TT{<--}.  If the expression definition
+is the subexpression before the \TT{<-{}-}.  If the expression definition
 with pattern $p$ is being matched to the expression $e$,
 the pattern equation $p$ \TT{:=\~~} $e$ is asserted, the
 constraint syntax and pattern equations in the definition
