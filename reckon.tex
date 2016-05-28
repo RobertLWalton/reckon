@@ -135,6 +135,8 @@
 \newcommand{\CLOSE}{{$\}$}}
 
 \newcommand{\VSP}{\textvisiblespace}
+\newcommand{\TILDE}{\textasciitilde}
+\newcommand{\CIRCUM}{\textasciicircum}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -1190,11 +1192,12 @@ contains in order the following lexemes:
 \begin{center}
 \begin{tabular}{ll@{\hspace{1in}}ll}
 \tt x		& word 		& \tt y & word \\
-\tt =		& mark		& \tt ` & (leading) separator \\
-\tt 7ft		& numeric with embedded unit	& \tt This & word \\
-\tt 1\_3/4	& numeric	& \tt is & word \\
-\tt in		& unit		& \tt ( & (strict) separator \\
-\tt ;		& (trailing) separator	& \tt we & word \\
+\tt =		& mark		& \tt =	& mark	\\
+\tt 7ft		& numeric with embedded unit & \tt ` & (leading) separator \\
+\tt 1\_3/4	& numeric	& \tt This & word \\
+\tt in		& unit		& \tt is & word \\
+\tt ;		& (trailing) separator	& \tt ( & (strict) separator \\
+		&		& \tt we & word \\
 		& 		& \tt think & word \\
 		& 		& \tt ) & (strict) separator \\
 		& 		& \tt a & word \\
@@ -1301,6 +1304,64 @@ feed, etc.), but is not itself a lexeme.
     \end{tabular}
 \end{indpar}
 
+\begin{boxedfigure}[!t]
+
+\begin{center}
+\begin{tabular}{lp{2in}}
+\tttkey{NUL} & nul \\
+\tttkey{SOH} & start of heading \\
+\tttkey{STX} & start of text \\
+\tttkey{ETX} & end of text \\
+\tttkey{EOT} & end of transmission \\
+\tttkey{ENQ} & enquiry \\
+\tttkey{ACK} & acknowledge \\
+\tttkey{BEL} & bell \\
+\tttkey{BS}  & backspace \\
+\tttkey{HT}  & horizontal tab \\
+\tttkey{LF}  & line feed \\
+\tttkey{VT}  & vertical tab \\
+\tttkey{FF}  & form feed \\
+\tttkey{CR}  & carriage ret \\
+\tttkey{SO}  & shift out \\
+\tttkey{SI}  & shift in \\
+\tttkey{DLE} & data link escape
+\\[1ex]
+\tttkey{NL}  & new line (equals \TT{<LF>}) \\
+\end{tabular}
+\begin{tabular}{lp{2in}}
+\tttkey{DC1} & device control 1 \\
+\tttkey{DC2} & device control 2 \\
+\tttkey{DC3} & device control 3 \\
+\tttkey{DC4} & device control 4 \\
+\tttkey{NAK} & negative ack. \\
+\tttkey{SYN} & synchronous idle \\
+\tttkey{ETB} & end of transmission block \\
+\tttkey{CAN} & cancel \\
+\tttkey{EM}  & end of medium \\
+\tttkey{SUB} & substitute \\
+\tttkey{ESC} & escape \\
+\tttkey{FS}  & file separator \\
+\tttkey{GS}  & group separator \\
+\tttkey{RS}  & record separator \\
+\tttkey{US}  & unit separator \\
+\tttkey{SP}  & single space \\
+\tttkey{DEL} & delete
+\\[1ex]
+\tttkey{Q}  & double quote (\TT{"}) \\
+\end{tabular}
+\\[1ex]
+{\em special-character-representative}
+    \begin{tabular}[t]{@{}rl}
+    :::= & one of the above \\
+     $|$ & \TT{<} {\em decimal-digit} {\em hexadecimal-digit}\STAR{} \TT{>}
+    \end{tabular}
+\end{center}
+
+\caption{Special Character Representatives}
+\label{SPECIAL-CHARACTER-REPRESENTATIVES}
+\end{boxedfigure}
+
+
 The character set is UTF-8 encoded UNICODE.
 
 The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
@@ -1313,7 +1374,7 @@ and sometimes must be separated by \emkey{white-space}.
 lexeme stream is transmitted to the parser.
 
 Non-{\em white-space} control characters are ignored, as if they
-did not exist, except that a warning message may be issued.  However
+did not exist, except that a warning message is issued.  However
 no warning is issued for \emskey{carriage-return-character}s that are next to
 a {\em vertical-space-character}.
 
@@ -1456,7 +1517,6 @@ Some other kinds of special {\em middle-lexemes} are:
 
 Non-{\em numerics} can be used to form names of variables,
 constants, and functions:
-which are called `\skey{defined names}'\label{DEFINED-NAME}:
 
 \begin{indpar}
 \emkey{name}\label{NAME} ::= \begin{tabular}[t]{l}
@@ -1501,7 +1561,7 @@ T = `"A line.<LF>"'
 
 These statements define
 a variable named \TT{"+"} with value \TT{5}, a variable
-name \TT{X} with value \TT{6}, and
+named \TT{X} with value \TT{6}, and
 a variable named \TT{Y15} with value the text \TT{X + 3},
 i.e., the vector whose 3 elements are the symbols
 \TT{X}, \TT{+}, and \TT{3}.  \TT{Z0} is a variable whose
@@ -1514,7 +1574,7 @@ Some {\em names} have builtin definitions, such as the
 words `\TT{ft}' and `\TT{inch}' which in some contexts denote the
 units `foot' and `inch' (see Section~\itemref{UNITS}),
 and `\TT{PI}' which in some contexts denotes the mathematical
-constant $\pi$ (see Section~\itemref{BUILTIN-CONSTANTS}).
+constant $\pi$ (see Figure~\itemref{BUILTIN-CONSTANTS}).
 
 Special lexemes are described in the following sections.  Some of these
 represent numbers.  When translated into internal computer form,
@@ -1533,64 +1593,29 @@ $2^{-53} \approx 1.110223\times 10^{-16}$,
 or $15.95$ decimal digits precision.  Numbers with absolute value less than
 $2.2250738585072014\times 10^{-308}$ are represented as zero.
 
+Numbers with absolute value equal to or greater than
+$1.7976931348623158\times 10^{+308}$ are represented a $+$ or $-$
+infinity, which can also be represented by the builtin constants
+\TT{+INF} and \TT{-INF}: see Figure~\itemref{BUILTIN-CONSTANTS}.
 
+Internally $+0$ and $-0$ are distinct, though in most computations
+they behave the same.  On output both are represented by \TT{+0}.
 
-\begin{boxedfigure}[!t]
+\begin{boxedfigure}[t]
 
 \begin{center}
-\begin{tabular}{lp{2in}}
-\tttkey{NUL} & nul \\
-\tttkey{SOH} & start of heading \\
-\tttkey{STX} & start of text \\
-\tttkey{ETX} & end of text \\
-\tttkey{EOT} & end of transmission \\
-\tttkey{ENQ} & enquiry \\
-\tttkey{ACK} & acknowledge \\
-\tttkey{BEL} & bell \\
-\tttkey{BS}  & backspace \\
-\tttkey{HT}  & horizontal tab \\
-\tttkey{LF}  & line feed \\
-\tttkey{VT}  & vertical tab \\
-\tttkey{FF}  & form feed \\
-\tttkey{CR}  & carriage ret \\
-\tttkey{SO}  & shift out \\
-\tttkey{SI}  & shift in \\
-\tttkey{DLE} & data link escape
-\\[1ex]
-\tttkey{NL}  & new line (equals \TT{<LF>}) \\
+\begin{tabular}{lll}
+\ttkey{PI}	& 3.141592653589793 & mathematical $\pi$ \\
+\ttkey{MATH E}	& 2.718281828459045 & mathematical $e$, Euler's constant \\
+\ttkey{+INF}	& + infinity & number too positive to represent \\
+\ttkey{-INF}	& - infinity & number too negative to represent \\
 \end{tabular}
-\begin{tabular}{lp{2in}}
-\tttkey{DC1} & device control 1 \\
-\tttkey{DC2} & device control 2 \\
-\tttkey{DC3} & device control 3 \\
-\tttkey{DC4} & device control 4 \\
-\tttkey{NAK} & negative ack. \\
-\tttkey{SYN} & synchronous idle \\
-\tttkey{ETB} & end of transmission block \\
-\tttkey{CAN} & cancel \\
-\tttkey{EM}  & end of medium \\
-\tttkey{SUB} & substitute \\
-\tttkey{ESC} & escape \\
-\tttkey{FS}  & file separator \\
-\tttkey{GS}  & group separator \\
-\tttkey{RS}  & record separator \\
-\tttkey{US}  & unit separator \\
-\tttkey{SP}  & single space \\
-\tttkey{DEL} & delete
-\\[1ex]
-\tttkey{Q}  & double quote (\TT{"}) \\
-\end{tabular}
-\\[1ex]
-{\em special-character-representative}
-    \begin{tabular}[t]{@{}rl}
-    :::= & one of the above \\
-     $|$ & \TT{<} {\em decimal-digit} {\em hexadecimal-digit}\STAR{} \TT{>}
-    \end{tabular}
 \end{center}
-
-\caption{Special Character Representatives}
-\label{SPECIAL-CHARACTER-REPRESENTATIVES}
+\vspace*{-3ex}
+\caption{Builtin Constants}
+\label{BUILTIN-CONSTANTS}
 \end{boxedfigure}
+
 
 
 \subsection{Integral Numerics}
@@ -1702,7 +1727,7 @@ Some examples are:
 
 A \emkey{radix-numeric} is the same as a {\em scientific-numeric},
 except that it is prefaced (after any {\em sign}) by a
-{\em radix-indicator}, the (non-exponent) digits are surrounded by
+{\em radix-indicator}, the non-exponent digits are surrounded by
 `\TT{\#}'s, and the
 permissible {\em digits} and comma spacings depend upon the radix indicator:
 
@@ -1781,7 +1806,7 @@ Some example {\em radix-numbers} are:
 b\#10110100\#	& o\#7534201\#   & d\#9758\#	& x\#E8A932B\# \\
 b\#1011.0100\#	& o\#75.34201\#  & d\#97.58\#	& x\#E8,A9.32B\# \\
 b\#101101\#E2	& o\#0.7753\#    & d\#97.58\#e5	& X\#0.fe8a\#e-4 \\
-B\#10,1101\#E+2	& O\#2,3456\#E-3 & D\#0.123,5\#	& X\#E8A.7CCD,83\# \\
+B\#10,1101\#E+2	& O\#2,3456\#E-3 & D\#0.1235\#	& X\#E8A.7CCD,83\# \\
 B\#101,101\#e2	& O\#0.2345,6\#  & D\#0.123,5\#	& X\#E8A,932B.7C\# \\
 \end{tabular}
 \end{indpar}
@@ -1808,6 +1833,10 @@ from this day.\footnote{Julian Day Numbers are used for dates in astronomy.}
 Note that in this system days start at noon, and not at midnight.
 
 A variety of different date formats may be used:
+
+Numerically, \TT{01/01/4713BC == 1jan4713BC == 4713BC == 0}, and every increase
+of this date by one day adds \TT{86,400}.  Because dates refer to 12 noon,
+times of day before 12 noon are negative.
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
@@ -1863,7 +1892,7 @@ A variety of different date formats may be used:
 \\[1ex]
 \emkey{year-name} :::=  {\em year} $|$ {\em short-year-name}
 \\[1ex]
-\emkey{short-year-name} :::=  \TT{'} {\em digit}\PLUS{}
+\emkey{short-year-name} :::=  \TT{'} {\em digit} {\em digit}\PLUS{}
 \\[1ex]
 \emkey{era} :::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
                           $|$ \TT{BCG} $|$ \TT{BCJ}
@@ -1876,8 +1905,7 @@ The default {\em era} is \TT{AD}.
 A `\TT{G}' at the end of an {\em era} indicates the date is in the
 Gregorian Calendar, and a `\TT{J}' indicates the date is in the Julian
 Calendar.  If neither is given, the date is Gregorian if it is on
-or after 15 October 1582, and Julian otherwise.  Years always begin
-at the midnight just before January 1.
+or after 15 October 1582, and Julian otherwise.
 There is no year \TT{0}; \TT{1AD} is immediately preceeded
 by \TT{1BC}.
 
@@ -2105,7 +2133,7 @@ is therefore not used as a unit).  Units can be combined in
 a single lexeme by using the operators
 `\TT{/}' for division,
 `\TT{*}' for multiplication,
-and `\TT{\textasciicircum}' for exponentiation:
+and `\TT{\CIRCUM}' for exponentiation:
 \begin{indpar}
 \emkey{unit}
     \begin{tabular}[t]{rl}
@@ -2122,7 +2150,7 @@ and `\TT{\textasciicircum}' for exponentiation:
 \emkey{unit-factor}
     \begin{tabular}[t]{rl}
     :::= & {\em unit-name} \\
-     $|$ & {\em unit-name} \TT{\textasciicircum}
+     $|$ & {\em unit-name} \TT{\CIRCUM}
            {\em unsigned-integral-numeric} \\
     \end{tabular}
 \end{indpar}
@@ -2132,16 +2160,16 @@ Some examples are
 \tt
 \begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
 ft		& inch	& m	& kg \\
-lb*ft		& inch\textasciicircum 3    & kg*m & kg*m\textasciicircum 2 \\
-ft/sec		& ft/sec/sec	& m/sec\textasciicircum 2 & lb*ft/sec \\
-ft\textasciicircum 2/sec
-		& ft/sec*sec	& sec\textasciicircum 2/m\textasciicircum 2
+lb*ft		& inch\CIRCUM 3    & kg*m & kg*m\CIRCUM 2 \\
+ft/sec		& ft/sec/sec	& m/sec\CIRCUM 2 & lb*ft/sec \\
+ft\CIRCUM 2/sec
+		& ft/sec*sec	& sec\CIRCUM 2/m\CIRCUM 2
 				& sec/lb*ft \\
 \end{tabular}
 \end{indpar}
 
 Note that there can be at most one `\TT{/}' in a {\em unit},
-`\TT{*}' takes precedence over `\TT{/}', and `\TT{\textasciicircum}'
+`\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
 
 {\em Units} can be separate {\em word} lexemes, or they can be glued
@@ -2209,7 +2237,7 @@ Here
     \end{tabular}
 \\
 \emkey{unit-factor} ::= {\em unit-name}
-    \{ \TT{\textasciicircum} {\em natural-numeric} \}\QMARK{}
+    \{ \TT{\CIRCUM} {\em natural-numeric} \}\QMARK{}
 \\
 \emkey{unit-number-constant} ::=
       {\em scientific-numeric} without any leading {\em sign}
@@ -2229,7 +2257,7 @@ e.g.,
 \end{center}
 Equations will be automatically derived from `\TT{define unit}' statements
 when such can be done by linear algebra and simple substitution; e.g.
-`{\tt yd = 36 inch}' and `{\tt sqft = 144 inch\textasciicircum 2}'
+`{\tt yd = 36 inch}' and `{\tt sqft = 144 inch\CIRCUM 2}'
 will be derived automatically when needed.
 
 
@@ -2490,6 +2518,8 @@ Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy & Fri Feb 21 13:27:58 EST 2014 \\
 Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy & Fri Feb 21 18:27:58 GMT 2014 \\
 \end{tabular}
 \end{center}
+
+
 
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
