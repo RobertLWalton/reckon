@@ -198,7 +198,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 27, 2016}
+\date{May 30, 2016}
 
 \maketitle
 
@@ -676,18 +676,15 @@ One can also iterate over data.
 \verb|> average weight of X <-- list X of persons:| \\
 \verb|+     first count = 0| \\
 \verb|+     first sum = 0| \\
-\verb|+     if:| \\
-\verb|+         X = ():| \\
-\verb|+             if:| \\
-\verb|+                 count = 0:| \\
-\verb|+                     value = error `Cannot average| \\
-\verb|+                                    0 things.'| \\
-\verb|+             else:| \\
-\verb|+                 value = sum / count| \\
+\verb|+     if X = ():| \\
+\verb|+         if count = 0:| \\
+\verb|+             value = error `Cannot average 0 things.'| \\
 \verb|+         else:| \\
-\verb|+             next count = count + 1| \\
-\verb|+             next sum = sum + the weight of (first X)| \\
-\verb|+             next X = rest X| \\
+\verb|+             value = sum / count| \\
+\verb|+     else:| \\
+\verb|+         next count = count + 1| \\
+\verb|+         next sum = sum + the weight of (first X)| \\
+\verb|+         next X = rest X| \\
 \verb|> average weight of (all persons)| \\
 \verb|116.5 lbs| \\
 \verb|> z = 10 + average weight of (all persons named Bill)| \\
@@ -1049,25 +1046,19 @@ for every board:
 
     on shoot at (R, C) on THIS <-- integer R,  1 <= R <= size,
                                    integer C,  1 <= C <= size:
-        if:
-            state(R,C) != `untouched':
-                value = state(R, C)
-            vessel(R, C) == `none':
-                value = `miss'
+        if state(R,C) != `untouched':
+            value = `no effect'
+        else if vessel(R, C) == `none':
+            value = `miss'
+        else:
+            v = vessel(R, C)
+            if hit(v) == `sunk':
+                next sunk = sunk + 1
+                value = `sunk'
             else:
-                v = vessel(R, C)
-                add 1 to v's hits
-                if:
-                    v's hits == v's length:
-                        add 1 to sunk
-                        value = `sunk'
-                    else:
-                        value = `hit'
-        if:
-            value == state(R, C):
-                value = `no effect;
-            else:
-                state(R, C) = value
+                value = `hit'
+        if value != `no effect':
+            state(R, C) = value
 \end{verbatim}\vspace{-4ex}
 
 \caption{Code for the Battleship Game, Part I}
@@ -1114,8 +1105,16 @@ for every vessel:
         board = B
         hits = 0  // Number hits on ship so far
         add 1 to B's ships
+
+    on hit ( THIS ):
+        next hits = hits + 1
+        if next hits == length:
+            value = `sunk'
+        else:
+            value = `floating'
 \end{verbatim}
 
+\vspace*{-3ex}
 \caption{Code for the Battleship Game, Part II}
 \label{CODE-FOR-BATTLESHIP-2}
 \end{boxedfigure}
@@ -1825,18 +1824,19 @@ which gives the \key{Julian Day Number} of the day times
 the number of seconds in one day ($60*60*24=86,400$).\footnote{
 On days in which there are leap seconds, the last second of the
 day is either double-length or zero-length, following the Network
-Time Protocol (NTP).}
-The Julian Day Number system assigns day \TT{0} to the day starting
-at noon GMT on January 1, 4713 BC, in the Gregorian Calendar extended
-backwards, and counts days forward and backward
-from this day.\footnote{Julian Day Numbers are used for dates in astronomy.}
-Note that in this system days start at noon, and not at midnight.
+Time Protocol (NTP).}  Julian Day \TT{0} is assigned to
+January 1, 4713BC.
+Numerically, \TT{01/01/4713BC == 1jan4713BC == 4713BC == 0}, and every increase
+of this date by one day adds \TT{86,400}.  We interpret the number of
+a given date as corresponding to 12:00am on the date, the time the designated
+day begins.\footnote{Julian Day Numbers are used for dates in astronomy,
+but the astronomers start the day at 12noon instead of 12am.
+Day 2,457,538 begins at 12noon on 29may2016 and ends at 12noon on
+30may2016, so
+12:00am on 29may2016 corresponds to Julian Day 2,457,537.5 in astronomy,
+but to 2,457,538 * 86,400 in our system.}
 
 A variety of different date formats may be used:
-
-Numerically, \TT{01/01/4713BC == 1jan4713BC == 4713BC == 0}, and every increase
-of this date by one day adds \TT{86,400}.  Because dates refer to 12 noon,
-times of day before 12 noon are negative.
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
@@ -1947,7 +1947,8 @@ any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 
 A \key{time} is a {\em numeric} containing digits, possibly a decimal
 point, and one or two colons, optionally followed by a meridiem indication
-and/or a time zone, and optionally preceeded by a colon and a date.
+and/or a time zone, and optionally preceeded by a date.  Dates and sometimes
+time zones are separated from the rest by `\TT{-}'s.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
@@ -1962,9 +1963,9 @@ and/or a time zone, and optionally preceeded by a colon and a date.
 \label{TIME-INTERVAL}
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
-    :::= & {\em time-interval} {\em meridian}\QMARK{}
+    :::= & {\em time-interval} \{ \TT{-}\QMARK{} {\em meridian} \}\QMARK{}
                          \{ \TT{-} {\em time-zone} \}\QMARK{} \\
-     $|$ & {\em time-interval} {\em time-zone} \\
+     $|$ & {\em time-interval} \TT{-}\QMARK{} {\em time-zone} \\
     \end{tabular}
 \\[1ex]
 \emkey{hour} :::= {\em digit}\QMARK{} {\em digit}
@@ -2009,7 +2010,8 @@ If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
 {\em time-interval} values equal to or greater than \TT{12:00}.
 If \TT{pm} or \TT{PM} is given, $12$ hours is added to
 {\em time-interval} values that are strictly less than \TT{12:00}.
-The time \TT{12:00 midnight} is interpreted as \TT{24:00}.
+The time \TT{12:00noon} is interpreted as \TT{12:00} and
+the time \TT{12:00-midnight} is interpreted as \TT{24:00}.
 
 \begin{boxedfigure}[t]
 
@@ -2085,7 +2087,8 @@ time and GMT is subtracted from the {\em time-interval}.
 Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
 and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval}.
 It is possible to get negative numbers, which indicate a time in the previous
-GMT day.
+GMT day, or numbers equal to or larger than \TT{24:00}, which indicate
+a time in the next GMT day.
 
 The standard time zones pre-defined in RECKON are given in
 Figure~\ref{PRE-DEFINED-TIME-ZONES}.
@@ -2499,21 +2502,33 @@ A {\em time-format} is a string of any characters that are
 allowed inside a {\em middle-lexeme} in which the following \emskey{time-code}s
 are replaced as indicated in Figure~\ref{TIME-FORMAT-CODES}.
 
+\clearpage
+
 Some example {\em time-formats} and associated times are:
 \begin{center}
 \tt
 \begin{tabular}{ll}
+\hspace*{3in} & \hspace*{3in} \\[-3ex]
 \{mm/dd/yyyy\} & 02/21/2014 \\
 \{dd/mm/yyyy\} & 21/02/2014 \\
 \{mm/yyyy\} & 02/2014 \\
+\end{tabular} \\
+\begin{tabular}{ll}
+\hspace*{3in} & \hspace*{3in} \\[-3ex]
 www\_dd\_mmm\_'yy & fri 21 feb '14 \\
 Www\_ddmmmyy & Fri 21feb14 \\
+\end{tabular} \\
+\begin{tabular}{ll}
+\hspace*{3in} & \hspace*{3in} \\[-3ex]
 \{hh::mm:ss\} & 13:27:58 \\
 hh::mm:ssXM & 1:27:58PM \\
 hh::mm:ss & 00:27:58 \\
 hh::mm:ssXM & 12:27:58AM \\
 hh::mm:ss & 12:27:58 \\
 hh::mm:ssXM & 12:27:58PM \\
+\end{tabular} \\
+\begin{tabular}{ll}
+\hspace*{3in} & \hspace*{3in} \\[-3ex]
 Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy & Fri Feb 21 13:27:58 EST 2014 \\
 Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy & Fri Feb 21 18:27:58 GMT 2014 \\
 \end{tabular}
