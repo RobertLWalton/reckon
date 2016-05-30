@@ -1025,22 +1025,28 @@ TBD: example of a simple game.
 
 The rest of this document is a reference manual for RECKON.
 
-\begin{boxedfigure}
-
-\small
+%\begin{boxedfigure}
 
 \begin{verbatim}
+ship codes = [`S', `D', `C', `B', `A']
+ship names = [`Submarine', `Destroyer', `Cruzier',
+              `Battleship', `Aircraft Carrier']
+max ship length = 5
+max tries = 100    // max tries to position ship on a board
+
 for every board:
-    on a board of size S <-- integer S, 5 <= S:
+
+    on a board of size S <-- integer S,
+                             max ship length <= S:
         // Make a board of size SxS.
         size = S
         // state(R, C) is `untouched', `miss', `hit',
         // or `sunk' (if final hit on ship).
         state = an array of size (S, S)
                 with initial element `untouched'
-        // vessel(R, C) is ID of vessel at (R, C) or `none'.
-        vessel = an array of size (S, S)
-                 with initial element `none'
+        // ship(R, C) is ID of ship at (R, C) or `none'.
+        ship = an array of size (S, S)
+               with initial element `none'
         ships = 0  // Number of ships
         sunk  = 0  // Number of ships sunk
 
@@ -1048,87 +1054,92 @@ for every board:
                                    integer C,  1 <= C <= size:
         if state(R,C) != `untouched':
             value = `no effect'
-        else if vessel(R, C) == `none':
+        else if ship(R, C) == `none':
             value = `miss'
         else:
-            v = vessel(R, C)
-            if hit(v) == `sunk':
+            s = ship(R, C)
+            if hit(s) == `sunk':
                 next sunk = sunk + 1
                 value = `sunk'
             else:
                 value = `hit'
         if value != `no effect':
-            state(R, C) = value
-\end{verbatim}\vspace{-4ex}
+            next state(R, C) = value
 
-\caption{Code for the Battleship Game, Part I}
-\label{CODE-FOR-BATTLESHIP-1}
-\end{boxedfigure}
+    on test position (DIRECTION, START) on THIS
+            for ship of length L
+        <-- pair of integers DIRECTION,
+            pair of integers START,
+            integer L, 1 <= L <= max ship length:
 
+        (R,C) = START
+        if L == 0:
+            value = `true'
+        else if R < 1 OR R > size:
+            value = `false'
+        else if C < 1 OR C > size:
+            value = `false'
+        else if ship(START) of B != `none':
+            // Position conflicts with previous ship
+            value = `false'
+        else
+            next START = START + DIRECTION
+            next L = L - 1
 
-\begin{boxedfigure}
-
-\small
-
-\begin{verbatim}
-for every vessel:
-    on a vessel of length L on board B <--
-            integer L, 1 <= L <= 5:
-        // Make a vessel of length L on board B.
-        temporary S = size of B
+    on find position on THIS for ship of length L
+            <-- integer L, 1 <= L <= max ship length:
         direction =
             random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
                      (1, 1), (1, 0), (1, -1), (0, -1) ]
         position = ( random ( 0 .. S - 1 ),
                      random ( 0 .. S - 1 ) )
-        check loop:
-            first p = position
-            first len = 1
-            if vessel(p) of B != `none':
-                // Position conflicts with previous ship
-                retry function
-            if len == L:
-                finish check loop
-            next p = p + direction
-            next len = len + 1
+        first tries = 1
+        if tries > max tries:
+            value = `failed'
+        else if test position (direction, position) on THIS
+                for ship length L:
+            value = (direction, position)
+        else:
+            next tries = tries + 1
 
-        install loop:
-            first p = position
-            first len = 1
-            vessel(p) of B = THIS
-            if len == L:
-                finish install loop
-            next p = p + direction
-            next len = len + 1
+    on place ship S of length L at (DIRECTION, START) on THIS
+            <-- is a ship S, pair of integers DIRECTION,
+                pair of integers START,
+                integer L, 1 <= L <= max ship length:
+        if L != 0:
+            next ship(START) = S
+            next START = START + DIRECTION
+            next L = L - 1
+        else:
+            next ships = ships + 1
+        
+for every ship:
+    on a ship of length L on board B <--
+            integer L, 1 <= L <= max ship length:
+        // Make a ship of length L on board B.
+
+        (direction, position) =
+            find position on B for ship of length L
+        place THIS of length L at (direction, position)
+              on B
 
         length = L
         board = B
         hits = 0  // Number hits on ship so far
-        add 1 to B's ships
 
     on hit ( THIS ):
         next hits = hits + 1
         if next hits == length:
             value = `sunk'
         else:
-            value = `floating'
-\end{verbatim}
+            value = `not sunk yet'
 
-\vspace*{-3ex}
-\caption{Code for the Battleship Game, Part II}
-\label{CODE-FOR-BATTLESHIP-2}
-\end{boxedfigure}
-
-\begin{boxedfigure}
-
-\footnotesize
-
-\begin{verbatim}
 for every board:
     on display ( THIS ) for PLAYER
             ~ with square size ( SQSIZE ) ? <--
             PLAYER :=: owner | opponent,
-            SQSIZE SQSIZE :=? 0.25, number SQSIZE, 0.05 <= SQSIZE:
+            SQSIZE SQSIZE :=? 0.25,
+            number SQSIZE, 0.05 <= SQSIZE:
         value = {{ overlay }}
         grid loop:
             first rc = 0; next rc = rc + 1
@@ -1166,11 +1177,11 @@ for every board:
                                   to (next rd, next cd )
                                   labeled huge `[c]' }}
                            to value
-\end{verbatim}\vspace{-4ex}
+\end{verbatim}
 
-\caption{Code for the Battleship Game, Part III}
-\label{CODE-FOR-BATTLESHIP-3}
-\end{boxedfigure}
+%\caption{Code for the Battleship Game, Part III}
+%\label{CODE-FOR-BATTLESHIP-3}
+%\end{boxedfigure}
 
 \newpage
 
@@ -2141,7 +2152,7 @@ and `\TT{\CIRCUM}' for exponentiation:
 \emkey{unit}
     \begin{tabular}[t]{rl}
     :::= & {\em unit-product} \\
-     $|$ & {\em unit-product} \TT{/} {\em unit-product} \\
+     $|$ & {\em unit} \TT{/} {\em unit-product} \\
     \end{tabular}
 \\
 \emkey{unit-product}
@@ -2154,7 +2165,7 @@ and `\TT{\CIRCUM}' for exponentiation:
     \begin{tabular}[t]{rl}
     :::= & {\em unit-name} \\
      $|$ & {\em unit-name} \TT{\CIRCUM}
-           {\em unsigned-integral-numeric} \\
+           {\em natural-numeric} \\
     \end{tabular}
 \end{indpar}
 
@@ -2171,8 +2182,7 @@ ft\CIRCUM 2/sec
 \end{tabular}
 \end{indpar}
 
-Note that there can be at most one `\TT{/}' in a {\em unit},
-`\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
+Note that `\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
 
 {\em Units} can be separate {\em word} lexemes, or they can be glued
@@ -2182,36 +2192,24 @@ from which they will be automatically split.  In addition several
 \begin{indpar}
 \emkey{glued-lexeme}
     \begin{tabular}[t]{rl}
-    :::= & \{ {\em scientific-numeric} {\em unit} \}\PLUS{} \\
+    :::= & {\em scientific-numeric} \TT{\_}\QMARK{} {\em unit}
+           \{ \TT{\_}\QMARK{} {\em scientific-numeric}
+	      \TT{\_}\QMARK{} {\em unit} \}\STAR{} \\
      $|$ & other
     \end{tabular}
 \end{indpar}
 
 
 Thus `\TT{5inch}' is a {\em glued-lexeme} that will be split into
-`\TT{5 inch}', and `\TT{4ft3inch}' will be split into `\TT{4 ft 3 inch}'.
+`\TT{5 inch}', `\TT{4ft3inch}' will be split into `\TT{4 ft 3 inch}',
+and `\TT{4ft\_3inch}' and `\TT{4\_ft\_3\_inch}' will also be split
+into `\TT{4 ft 3 inch}'.
 
 Units may be defined by statements of the form:
 \begin{center}
 \TT{define unit} {\em unit-name}
     \{ \TT{=} {\em unit-expression} \}\QMARK{}
 \end{center}
-
-as for example
-\begin{indpar}\begin{verbatim}
-define unit m
-define unit cm = 0.01m
-define unit inch = 2.54cm
-define unit ft = 12 inch
-define unit yd = 3ft
-define unit inch = yd / 36
-define unit inch = ft / 12
-define unit sqft = ft^2
-define unit cuft = ft^3
-define unit degC
-define unit degF = 1.8degC + 32
-define unit degK = degC + 273.15
-\end{verbatim}\end{indpar}
 
 Here
 \begin{indpar}
@@ -2226,8 +2224,8 @@ Here
     \begin{tabular}[t]{rl}
     ::= & {\em unit-product} \\
     $|$ & {\em unit-quotient} \TT{/} {\em unit-number-constant} \\
+    $|$ & {\em unit-quotient} \TT{/} {\em unit-product} \\
     $|$ & {\em unit-number-constant} \TT{/} {\em unit-product} \\
-    $|$ & {\em unit-product} \TT{/} {\em unit-product} \\
     \end{tabular}
 \\
 \emkey{unit-product}
@@ -2252,12 +2250,45 @@ Also, the second operand of `\TT{+}', and
 `\TT{-}' must always be a {\em unit-number-constant}, and
 it is not possible to write non-integral or negative exponents.
 
+Standard definitions are given in Figure~\itemref{PRE-DEFINED-UNITS}.
+
+\begin{boxedfigure}[t]
+\begin{indpar}\begin{verbatim}
+define unit m                       // meter
+define unit cm = 0.01m              // centimeter
+define unit inch = 2.54cm           // inch
+define unit ft = 12 inch            // foot
+define unit yd = 3ft                // yard
+define unit sqft = ft^2             // square foot
+define unit cuft = ft^3             // cubic foot
+define unit degC                    // degree Centigrade
+define unit degF = 1.8degC + 32     // degree Farenheit
+define unit degK = degC + 273.15    // degree Kelvin
+define unit g                       // gram
+define unit oz = 28.349523g         // ounce
+define unit lb = 16oz               // pound
+define unit sec                     // second
+\end{verbatim}\end{indpar}
+
+\caption{Pre-Defined UNITS}
+\label{PRE-DEFINED-UNITS}
+\end{boxedfigure}
+
 A unit may appear in many `\TT{define unit}' statements in order to describe
-its relation to other units.  The statements must be consistent;
-e.g.,
+its relation to other units.  The statements must be consistent.
+An example of a definition consistent with the pre-defined
+definitions is:
+
+\begin{indpar}\begin{verbatim}
+define unit inch = yd / 36
+\end{verbatim}\end{indpar}
+
+This is automatically checked by computing:
 \begin{center}
-\tt inch = yd / 36 = (3 ft) / 36 = 3 * (12 inch) / 36 = (36 inch) / 36 = 1 inch
+\tt inch = yd / 36 = (3 ft) / 36 = 3 * (12 inch) / 36 \\
+= (36 inch) / 36 = 1 inch
 \end{center}
+
 Equations will be automatically derived from `\TT{define unit}' statements
 when such can be done by linear algebra and simple substitution; e.g.
 `{\tt yd = 36 inch}' and `{\tt sqft = 144 inch\CIRCUM 2}'
