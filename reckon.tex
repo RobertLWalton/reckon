@@ -137,6 +137,7 @@
 \newcommand{\VSP}{\textvisiblespace}
 \newcommand{\TILDE}{\textasciitilde}
 \newcommand{\CIRCUM}{\textasciicircum}
+\newcommand{\BSLASH}{\textbackslash}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -2324,7 +2325,7 @@ Hello	  & /rw7sc/	& \sc \VSP\VSP Hello \\
 5.4321	  & /cw6sl/0.2/	& \sl \VSP 5.43\VSP &
 Hello	  & /w7/sl/	& \sl \VSP Hello\VSP \\
 5.4321	  & /w6i/0.2/	& \it \VSP\VSP 5.43 &
-Hello	  & /rw7i/	& \it \VSP\VSP Hello \\
+Hello	  & /lw7i/	& \it Hello \VSP\VSP \\
 \end{tabular}
 \end{indpar}
 
@@ -2407,6 +2408,9 @@ with each other; see the rules below for resolving conflicts.
     when a number is about to be output with a fractional part,
     prefer a fractional representation with denominator less than
     or equal to the value given, if that is more precise. \\
+\GROUPENTRY[exponent]{f2\CIRCUM}
+    ditto but denomenator must be a power of $2$ equal to or less
+    than $2^{exponent}$. \\
 \GROUPENTRY{!f}
     do not use fractional representations with demonimators
     \GROUPNEWLINE
@@ -2435,6 +2439,8 @@ with each other; see the rules below for resolving conflicts.
 \BEGINGROUP{Width Group}
 \GROUPENTRY[columns]{w}
     adjust width by given number of {\em columns} \\
+\GROUPENTRY[columns]{}
+    ditto \\
 \GROUPENTRY{!w}
     set width to `only as wide as necessary' [default] \\
 \ENDGROUP \\
@@ -2444,7 +2450,7 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{!h}
     set height to `only as high as necessary' [default] \\
 \ENDGROUP \\
-\BEGINGROUP[(\TT{left} does not conflict with \TT{right})]%
+\BEGINGROUP[(\TT{left} and \TT{right} do not conflict)]%
            {Horizontal Margin Group}
 \GROUPENTRY[points]{side}
     adjust space to left and right of entry by {\em points} \\
@@ -2465,9 +2471,11 @@ with each other; see the rules below for resolving conflicts.
 \begin{boxedfigure}[!t]
 \begin{center}
 \begin{tabular}{lp{4.5in}}
-\ttmkey{\{~\}}{{\em time-code}} & surround the format by \TT{\{~\}} if the
-				  format contains slashes; \\
-				& the \TT{\{~\}} are deleted \\
+\ttmkey{`~'}{{\em time-code}} & a {\em time-format} must begin with \TT{`}
+                                and end with \TT{'}; \\
+				& these \TT{`~'} are deleted; \\
+				& any \TT{'} inside the format must be
+				  preceded by a \TT{\BSLASH} \\
 \ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
 \ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
 \ttmkey{ww}{{\em time-code}} & day of weak: \TT{01} \ldots{} \TT{07} \\
@@ -2500,7 +2508,7 @@ with each other; see the rules below for resolving conflicts.
 				and adjust time to be gmt \\
 \ttmkey{GMT}{{\em time-code}} & do not replace,
 				and adjust time to be gmt \\
-\ttmkey{\textbackslash}{{\em time-code}} & delete the `\TT{\textbackslash}'
+\ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
                                 and keep the following character without
 				giving it a special interpretation
 \end{tabular}
@@ -2524,14 +2532,19 @@ or subtracting a parameter to the value do not conflict with any
 In some contexts
 there are multiple formats applied in a given order.  For example,
 in tables the table format, column format, and row format are applied in
-order, so column format items override table format items,
-and row format items override table and column format items.
+order, so column format items override conflicting table format items,
+and row format items override conflicting table and column format items.
+A format item does not override another item with which it does not conflict.
 
 
 
-A {\em time-format} is a string of any characters that are
+A {\em time-format} is a string of any characters surrounded by
+\TT{`~'}s that are
 allowed inside a {\em middle-lexeme} in which the following \emskey{time-code}s
 are replaced as indicated in Figure~\ref{TIME-FORMAT-CODES}.
+Note it is in the nature of formats that the \TT{`~'}s are not at the
+ends of the {\em middle-lexeme} and are therefore not recognized as
+separators.
 
 \clearpage
 
@@ -2540,28 +2553,29 @@ Some example {\em time-formats} and associated times are:
 \tt
 \begin{tabular}{ll}
 \hspace*{3in} & \hspace*{3in} \\[-3ex]
-\{mm/dd/yyyy\} & 02/21/2014 \\
-\{dd/mm/yyyy\} & 21/02/2014 \\
-\{mm/yyyy\} & 02/2014 \\
+T`mm/dd/yyyy' & 02/21/2014 \\
+T`dd/mm/yyyy' & 21/02/2014 \\
+T`mm/yyyy' & 02/2014 \\
 \end{tabular} \\
 \begin{tabular}{ll}
 \hspace*{3in} & \hspace*{3in} \\[-3ex]
-www\_dd\_mmm\_'yy & fri 21 feb '14 \\
-Www\_ddmmmyy & Fri 21feb14 \\
+T`www\_dd\_mmm\_\BSLASH'yy' & fri 21 feb '14 \\
+T`Www\_ddmmmyy' & Fri 21feb14 \\
 \end{tabular} \\
 \begin{tabular}{ll}
 \hspace*{3in} & \hspace*{3in} \\[-3ex]
-\{hh::mm:ss\} & 13:27:58 \\
-hh::mm:ssXM & 1:27:58PM \\
-hh::mm:ss & 00:27:58 \\
-hh::mm:ssXM & 12:27:58AM \\
-hh::mm:ss & 12:27:58 \\
-hh::mm:ssXM & 12:27:58PM \\
+T`hh::mm:ss' & 13:27:58 \\
+T`hh::mm:ssXM' & 1:27:58PM \\
+T`hh::mm:ss' & 00:27:58 \\
+T`hh::mm:ssXM' & 12:27:58AM \\
+T`hh::mm:ss' & 12:27:58 \\
+T`hh::mm:ssXM' & 12:27:58PM \\
 \end{tabular} \\
 \begin{tabular}{ll}
 \hspace*{3in} & \hspace*{3in} \\[-3ex]
-Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy & Fri Feb 21 13:27:58 EST 2014 \\
-Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy & Fri Feb 21 18:27:58 GMT 2014 \\
+T`Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy' & Fri Feb 21 13:27:58 EST 2014 \\
+T`Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy' & Fri Feb 21 18:27:58 GMT 2014 \\
+T`Www-ddMmmyy-hh:mm:ss-ZZZ'	  & Fri-21Feb14-13:27:58-EST \\
 \end{tabular}
 \end{center}
 
