@@ -199,7 +199,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 30, 2016}
+\date{May 31, 2016}
 
 \maketitle
 
@@ -2476,6 +2476,9 @@ with each other; see the rules below for resolving conflicts.
 				& these \TT{`~'} are deleted; \\
 				& any \TT{'} inside the format must be
 				  preceded by a \TT{\BSLASH} \\
+\ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
+                                and keep the following character without
+				giving it a special interpretation \\
 \ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
 \ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
 \ttmkey{ww}{{\em time-code}} & day of weak: \TT{01} \ldots{} \TT{07} \\
@@ -2508,9 +2511,6 @@ with each other; see the rules below for resolving conflicts.
 				and adjust time to be gmt \\
 \ttmkey{GMT}{{\em time-code}} & do not replace,
 				and adjust time to be gmt \\
-\ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
-                                and keep the following character without
-				giving it a special interpretation
 \end{tabular}
 \end{center}
 \caption{Time Format Codes}
@@ -2551,35 +2551,33 @@ separators.
 Some example {\em time-formats} and associated times are:
 \begin{center}
 \tt
-\begin{tabular}{ll}
-\hspace*{3in} & \hspace*{3in} \\[-3ex]
-T`mm/dd/yyyy' & 02/21/2014 \\
-T`dd/mm/yyyy' & 21/02/2014 \\
-T`mm/yyyy' & 02/2014 \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`mm/dd/yyyy'/ & 02/21/2014 \\
+/T`dd/mm/yyyy'/ & 21/02/2014 \\
+/T`mm/yyyy'/ & 02/2014 \\
 \end{tabular} \\
-\begin{tabular}{ll}
-\hspace*{3in} & \hspace*{3in} \\[-3ex]
-T`www\_dd\_mmm\_\BSLASH'yy' & fri 21 feb '14 \\
-T`Www\_ddmmmyy' & Fri 21feb14 \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`www\_dd\_mmm\_\BSLASH'yy'/ & fri 21 feb '14 \\
+/T`Www\_ddmmmyy'/ & Fri 21feb14 \\
 \end{tabular} \\
-\begin{tabular}{ll}
-\hspace*{3in} & \hspace*{3in} \\[-3ex]
-T`hh::mm:ss' & 13:27:58 \\
-T`hh::mm:ssXM' & 1:27:58PM \\
-T`hh::mm:ss' & 00:27:58 \\
-T`hh::mm:ssXM' & 12:27:58AM \\
-T`hh::mm:ss' & 12:27:58 \\
-T`hh::mm:ssXM' & 12:27:58PM \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`hh::mm:ss'/ & 13:27:58 \\
+/T`hh::mm:ssXM'/ & 1:27:58PM \\
+/T`hh::mm:ss'/ & 00:27:58 \\
+/T`hh::mm:ssXM'/ & 12:27:58AM \\
+/T`hh::mm:ss'/ & 12:27:58 \\
+/T`hh::mm:ssXM'/ & 12:27:58PM \\
 \end{tabular} \\
-\begin{tabular}{ll}
-\hspace*{3in} & \hspace*{3in} \\[-3ex]
-T`Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy' & Fri Feb 21 13:27:58 EST 2014 \\
-T`Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy' & Fri Feb 21 18:27:58 GMT 2014 \\
-T`Www-ddMmmyy-hh:mm:ss-ZZZ'	  & Fri-21Feb14-13:27:58-EST \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy'/ & Fri Feb 21 13:27:58 EST 2014 \\
+/T`Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy'/ & Fri Feb 21 18:27:58 GMT 2014 \\
+/T`Www-ddMmmyy-hh:mm:ss-ZZZ'/	  & Fri-21Feb14-13:27:58-EST \\
 \end{tabular}
 \end{center}
-
-
 
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
@@ -2646,7 +2644,8 @@ This is a line . And this is a second line .
 \end{verbatim}\end{indpar}
 
 In a text paragraph, all lines but the first are
-called \skey{continuation line}s.
+called \skey{continuation line}s, and the entire paragraph is
+a single logical line.
 
 A \key{top level paragraph} is a paragraph whose paragraph indent is \TT{0}.
 
@@ -2660,7 +2659,7 @@ sequence of indented subparagraphs is empty.
 
 The sequence of indented subparagraphs ends just before the next
 non-blank, non-comment physical line with less indent than the
-current paragraph indent, or just before the end of file if that
+new current paragraph indent, or just before the end of file if that
 occurs first.
 
 At any point there is a \key{current paragraph type} in addition
@@ -2686,33 +2685,44 @@ characters of the physical line; for example:
 \TT{*@}{\em digit}	& implies	& \TT{\{raw\}} 	  & kind is code \\
 \TT{-{}-{}-{}-{}-}	& implies	& \TT{\{table\}}  & kind is code \\
 \TT{={}={}={}={}=}	& implies	& \TT{\{table\}}  & kind is code \\
-\TT{`}			& implies	& \TT{\{quoted\}} & kind is text \\
 \end{tabular}
 \end{center}
 Such are called \skey{implied paragraph header}s.
+
+Brackets enclose subexpressions but do not
+change the current paragraph indent.
+Some brackets enclose a sequence of text paragraphs.
+For example, \TT{`{}`~~'{}'} enclose text paragraphs
+of `\TT{\{quoted\}}' type, but the current paragraph
+indent of these is the same as that of the logical line
+containing the \TT{`{}`} opening bracket.
 
 If the first
 a non-blank, non-comment physical line at the beginning of a file
 or following a blank line does \underline{not} begin with an explicit
 or implicit paragraph header, the line either continues the previous
 paragraph,
-or begins a new paragraph of the current or a previous paragraph type.
+or begins a new paragraph of the current paragraph type.
 For example, if the current paragraph type is `\TT{code}',
 the previous paragraph is continued, whereas if it is `\TT{quoted}',
-a new paragraph of the type before the type of the last (`\TT{quoted}')
-paragraph is begun.
+a new paragraph of `\TT{quoted}' type is begun.
 
 At the beginning of a file the current paragraph indent is \TT{0}
 and the current paragraph type is \TT{\{code\}}.
 The first indented paragraph in a sequence introduced by a physical
 line ending with `\TT{:}' or `\TT{::}' also has type \TT{\{code\}}, unless the
 `\TT{:}' or `\TT{::}' is preceeded by special indentation marks.
+The first paragraph introduced by the \TT{`{}`} opening bracket has
+the `\TT{\{quoted\}}' type.
 
 As an example, consider a file beginning with:
 
 \begin{indpar}\begin{verbatim}
-`This is a text paragraph.  And
-a second sentence therein.'
+``This is a quoted text paragraph.  And
+a second sentence therein.
+
+And this is a second quoted paragraph
+   with one sentence.''
 
 This is a logical line.
 And another
@@ -2739,20 +2749,31 @@ And a logical line ending with an indented code paragraph:
              line.
              // A comment line that can be ignored.
     The fourth logical line of the indented paragraph.
+    The fifth logical line of the indented
+        paragraph ``And a quoted text paragraph inside the
+    logial line.''
+        but not at the end of the logical line.
 // A comment line that can be ignored.
 The logical line after the indented paragraph.
 \end{verbatim}\end{indpar}
 
-The first paragraph has an implied `\TT{\{quote\}}' prefix, and
-is a text paragraph.  The current paragraph type, `\TT{\{code\}}',
-is saved when this first paragraph starts, and restored when
-the first paragraph ends.  Consequently the rest of the text is
-a single `\TT{\{code\}}' paragraph.
+The first is a `\TT{\{code\}}' paragraph that contains a \TT{`{}`~~'{}'}
+bracketed sequence of `\TT{\{quoted\}}' paragraphs.  The quoted
+paragraphs are text paragraphs and while they are being read the
+requirement for indenting continuation lines of a logical
+line is suspended.  The current paragraph type, `\TT{\{code\}}',
+is saved when \TT{`{}`} is encountered and restored when
+\TT{'{}'} is encountered, and the requirement for indenting
+continuation lines is also restored by the \TT{'{}'}.
 
 The third logical line of this paragraph ends with an indented paragraph,
-which is also by implication a `\TT{\{code\}}' paragraph.
-This indented paragraph has 4 logical lines, the third of which
+which is also a `\TT{\{code\}}' paragraph because it was introduced by
+a physical line ending `\TT{:}.
+This indented paragraph has 5 logical lines.  The third
 contains within it (not at its end) another indented subparagraph.
+The fifth contains within it (and not at its end) a
+\TT{`{}`~~'{}'} bracketed `\TT{\{quoted\}}' paragraph, whose lines
+merely need to start at or after the current paragraph indent.
 
 A warning message is issued for any comment line whose indent is
 less that that of the next non-blank, non-comment physical line.
@@ -2778,12 +2799,13 @@ lexeme with the 4 characters `\TT{<}', `\TT{L}', `\TT{F}', and
 \label{CONTINUATION-GLUING}
 \item
 If a physical line which is immediately followed by a continuation line
-ends with a {\em word-item} that
-contains 4 or more characters ending with a `\TT{-}',
-and the continuation line begins with a {\em word-item},
-the two {\em word-items}
+ends with a {\em middle-lexeme} that
+contains 5 or more characters ending with a `\TT{-}' (which counts as
+one of the 5 characters),
+and the continuation line begins with a {\em middle-lexeme},
+the two {\em middle-lexemes}
 will be glued together with the line ending `\TT{-}' deleted.
-The {\em word-item} on the continuation line may also begin
+The {\em middle-lexeme} on the continuation line may also begin
 with a `\TT{-}', which will not be deleted.
 
 For example,
@@ -2800,30 +2822,19 @@ translates to the lexeme squence
 This is a word-that-is-continued .
 \end{verbatim}\end{indpar}
 
-\item
-If a physical line which is immediately followed by a continuation line
-ends with a {\em word-item} that
-contains 4 or more characters ending with a `\TT{\_}',
-`\TT{/}', `\TT{@}', or `\TT{\&}',
-and the continuation line begins with a {\em word-item},
-the two {\em word-items}
-will be glued together
-(but the line ending `\TT{\_}', `\TT{/}', `\TT{@}', `\TT{\&}'
-will \underline{not} be deleted).
-
-For example,
+and
 
 \begin{indpar}\begin{verbatim}
-The URL is http://www.qed.fmp/
-    whatsits@
-    bits_and_
-    pieces.
+See http://forecast.weather.gov/MapClick.php?-
+           lat=42&lon=-
+           -71#.V036u7
 \end{verbatim}\end{indpar}
 
-translates to the lexeme squence
+translates to the 2 lexeme squence
 
-\begin{indpar}[0.1in]\begin{verbatim}
-The URL is http://www.qed.fmp/whatsits@bits_and_pieces .
+\begin{indpar}[0.1in]\small\begin{verbatim}
+See
+http://forecast.weather.gov/MapClick.php?lat=42&lon=-71#.V036u7
 \end{verbatim}\end{indpar}
 
 \end{enumerate}
