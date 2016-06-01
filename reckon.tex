@@ -199,7 +199,7 @@ to the public.  This document was partly inspired
 by teaching courses at Suffolk University, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 31, 2016}
+\date{June 1, 2016}
 
 \maketitle
 
@@ -2874,7 +2874,8 @@ and a description is a particular kind of block.
 
 An \key{atom} is a symbol, a number, or a label.
 A \key{label} is a sequence of 0 or more atoms.
-A single symbol or number is treated as if were a label whose only element
+A single symbol or number is frequently
+treated as if were a label whose only element
 is the symbol or number itself.
 
 An object is just a place in memory, and is like a dot on a blank page.
@@ -2938,8 +2939,8 @@ Arrows with a dot flagged label are not to be output when their source
 is output.
 Targets of arrows with a maybe flagged label may be garbage collected
 (made to disappear automatically, see \secref{GARBAGE-COLLECTION})
-if they cannot be reached except by traversing arrows whose labels
-have maybe flags.
+if they cannot be reached without traversing an arrow whose label
+has a maybe flag.
 
 We will give examples in the next section along with a basic way of
 representing sets of objects in text.  In the rest of this document
@@ -2978,7 +2979,7 @@ is the \key{object representation}, which we now describe.
 An \key{raw object representation}
 is a special case of an {\em object-representation}.
 This special case makes minimal use of the parser and is used when
-data is written to a file with little attempt to format the data.
+data is written to a file with minimal formatting of the data.
 
 A {\em object-representation} is a logical line beginning
 with a {\em represented-object-identifier}
@@ -2986,7 +2987,7 @@ lexeme, which consists of either `\TT{@}'
 or `\TT{!@}', followed by digits.  Use of `\TT{!@}' turns operator and
 text parsing off and makes the representation `\key{raw}'.  The use
 of just `\TT{@}' instead leaves operator and text parsing on and makes the
-representation `\key{cooked}'.
+representation `\key{cooked}'.  Bracket parsing is on in either case.
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
@@ -3066,14 +3067,15 @@ representation `\key{cooked}'.
 
 \begin{tabular}{l}
 \emkey{attribute-label-flags} ::=
-    \TT{[} {\em flag-lexeme} \TT{]}
+    \TT{[} {\em flag-lexeme}\STAR{} \TT{]}
 \end{tabular}%
 \index{flags!attribute label}%
 \index{attribute label!flags}
 
 \begin{tabular}{l}
 \emkey{flag-lexeme}
-    ::= {\em word} $|$ {\em mark} $|$ {\em quoted-string}
+    ::= {\em word} $|$ {\em mark} $|$ \TT{.} $|$ \TT{?} $|$ \TT{!}
+                   $|$ {\em quoted-string}
 \end{tabular}
 
 \begin{tabular}{l}
