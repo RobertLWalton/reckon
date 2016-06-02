@@ -196,10 +196,11 @@
 \author{Robert L. Walton\thanks{Copyright 2016 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
-by teaching courses at Suffolk University, and by the work of Thomas
+by teaching courses at Suffolk University with the help of
+Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 1, 2016}
+\date{June 2, 2016}
 
 \maketitle
 
@@ -3001,6 +3002,8 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 		          \{ {\em bll} {\em attribute-representation}
 			     {\em ell} \}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
+        := {\em bll} & {\em represented-object-identifier} ~ \TT{=} ~
+		       {\em object-element} ~ {\em ell} \\
         \end{tabular}
 \end{tabular}
 
@@ -3201,7 +3204,7 @@ have been added to some of the attributes:
 \verb/!@1 =::/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
-\verb|    husband[*] = @2 = wife[*]|\\
+\verb|    husband[*] = @2 = wife[@]|\\
 \verb/!@2 =::/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
@@ -3229,7 +3232,7 @@ have been added to some of the attributes:
 \put(1.9,1.13){\vector(-1,0){0.8}}
 \put(1.5,1.15){\oval(0.07,0.12)}
 \put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt *}}$}}
-\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt *}}$}}
+\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt @}}$}}
 \end{picture}
 \end{center}
 
@@ -3251,7 +3254,8 @@ attributes labeled \TT{child}, is:
 \verb|    child = @3 = parent|\\[1ex]
 or\\[1ex]
 \verb/!@1 =::/\\
-\verb|    child = @2,@3 = parent|\\
+\verb|    child = {* @2, @3 *}|\\
+\verb|          = parent|\\
 \end{tabular}
 &
 \begin{picture}(3.1,1.5)
@@ -3345,7 +3349,7 @@ the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
 is an example of such a label.
 
 An {\em attribute-value} that is a sequence of two or more {\em atom-names}
-abbreviates single {\em bracketed-label} atom that can be otherwise
+abbreviates a single {\em bracketed-label} atom that can be otherwise
 represented by placing the {\em atom-names} in \TT{\{*~*\}} brackets.  Thus the
 {\em attribute-representations}
 \begin{center}
@@ -3457,11 +3461,14 @@ to the one just given is:
     end mark = "."
 \end{verbatim}\end{indpar}
 
-The {\em atom-names} and {\em object-identifiers} in an {\em object-list}
-within an {\em object-representation} name atoms or object identifiers that
-are assigned as values of the attributes labeled \TT{1}, \TT{2},
-\TT{3}, \ldots.  Additional attribute values can be given by
-following the {\em object-list} by a line ending `\TT{:}' that begins an
+The {\em object-elements} just after the {\em object-assignment-operator}
+in an {\em object-representation} specify
+values of the attributes labeled \TT{1}, \TT{2},
+\TT{3}, \ldots.  In this case the attributes labeled
+\TT{1}, \TT{2}, \TT{3}, and \TT{4} are given respectively the
+atoms denoted by the {\em atom-names} `\TT{this}', `\TT{is}',
+`\TT{a}', and `\TT{sentence}'.  Additional attribute values can be given by
+following the {\em object-list} by a line ending `\TT{::}' that begins an
 {\em attribute-representation-subparagraph}, which in this case
 gives values to the \TT{.type}, \TT{.initiator}, \TT{.terminator},
 \TT{capitalize}, and \TT{end mark} attributes.
@@ -3476,7 +3483,9 @@ given is:
 \end{verbatim}\end{indpar}
 
 This works because bracket parsing, explained in the next section,
-is turned on within a raw {\em object-representation}.
+is turned on within a raw {\em object-representation}, and parses
+the \TT{`~~'} quotes and `\TT{s}' prefix separator to produce the
+\TT{.initiator}, \TT{.terminator}, and \TT{.type} attributes.
 
 An alternative \underline{cooked} representation to the ones just
 given is:
@@ -3489,14 +3498,26 @@ The absence of an initial `\TT{!}' and the presence of the \TT{`~'}
 quotes turns text parsing on, and this
 computes the `\TT{type}', `\TT{capitalize}', and `\TT{end mark}' attributes.
 
-Notice there is am ambiguity in
+Notice that the second form of object representation
+\begin{center}
+{\em bll} ~ {\em represented-object-identifier} ~ \TT{=} ~
+	    {\em object-element} ~ {\em ell} \\
+\end{center}
+
+is ambiguous with the first form which permits multi-element lists
+and extra attributes.  The second is always preferred when it applies,
+and simply assigns the object identifier to the {\em object-element}.
+The first form, were it applied, would assign the identifier to a list
+whose single element is the {\em object-element}.
+
+Thus
 
 \begin{indpar}\begin{verbatim}
 !@93 = (X Y Z)::
     weight = 55
 \end{verbatim}\end{indpar}
 
-which could either mean
+means
 
 \begin{indpar}\begin{verbatim}
 !@93 =::
@@ -3508,7 +3529,7 @@ which could either mean
     weight = 55
 \end{verbatim}\end{indpar}
 
-or it could mean
+and does \underline{not} mean
 
 \begin{indpar}\begin{verbatim}
 !@93 =::
@@ -3522,8 +3543,7 @@ or it could mean
     .terminator = ")"
 \end{verbatim}\end{indpar}
 
-When possible, the meaning that does not have a single element list
-is used.  Here it is the first meaning.  Similarly
+Similarly
 
 \begin{indpar}\begin{verbatim}
 !@93 = "this is a"
@@ -3540,46 +3560,19 @@ atom, and
 means that \TT{@93} is an alternative designation for whatever
 \TT{@94} designates.
 
-In general,
-\begin{indpar}
-\emkey{object-representation}
-\\\hspace*{0.5in}
-	\begin{tabular}[t]{rl}
-        := {\em bll} & {\em represented-object-identifier} ~
-	               {\em object-assignment-operator} \\
-		     & {\em object-element} {\em ell} \\
-        \end{tabular}
-\end{indpar}
+Also
+\begin{indpar}\begin{verbatim}
+!@93 = X
+\end{verbatim}\end{indpar}
 
-means the {\em represented-object-identifier} identifies what
-the {\em object-element} denotes, which may be a single
-atom, another object identifier, or a bracketed list.
-And
-
-\begin{indpar}
-\emkey{object-representation}
-\\\hspace*{0.5in}
-	\begin{tabular}[t]{rl}
-        := {\em bll} & {\em represented-object-identifier} ~
-	               {\em object-assignment-operator} \\
-		     & {\em bracketed-list} \\
-	             & \{ \TT{::} {\em bip} ~
-		          {\em attribute-representation}\STAR{} ~
-			  {\em eip} \} ~ {\em ell} \\
-        \end{tabular}
-\end{indpar}
-
-means the {\em attribute-representations} add to the object
-represented by the {\em bracketed-list}.
-
-But of course
+assigns the identifier \TT{@93} to the symbol \TT{X}, but
 
 \begin{indpar}\begin{verbatim}
 !@93 = X::
     Y = 5
 \end{verbatim}\end{indpar}
 
-must mean
+means
 
 \begin{indpar}\begin{verbatim}
 !@93 =::
@@ -3587,14 +3580,37 @@ must mean
     Y = 5
 \end{verbatim}\end{indpar}
 
-which has the single element list, as this is the only possible
-interpretation.
+which has a single element list.
+
+Note that single element lists can be represented using \TT{\{|~|\}}
+as described in the next section.  For example,
+
+\begin{indpar}\begin{verbatim}
+!@93 = {| X |}
+\end{verbatim}\end{indpar}
+
+means
+
+\begin{indpar}\begin{verbatim}
+!@93 =::
+    1 = X
+\end{verbatim}\end{indpar}
+
+It is also true that calling
+
+\begin{indpar}\begin{verbatim}
+!@93 = X
+\end{verbatim}\end{indpar}
+
+an \underline{object} representation is a misnomer, as its
+really an atom representation.
 
 \subsection{Bracket Parsing}
 \label{BRACKET-PARSING}
 
 A {\em bracketed-list} represents an object in its own right,
-with the brackets becoming the \TT{.initia\-tor} and \TT{.termina\-tor}
+with the brackets typically
+becoming the \TT{.initia\-tor} and \TT{.termina\-tor}
 attributes of the object, and the elements between the brackets
 becoming the list elements of the object.
 
@@ -3621,10 +3637,12 @@ The syntax of a {\em bracketed-list} is:
     $|$ & \TT{`{}`{}`} {\em prefix-0-list} \TT{'{}'{}'} \\
     $|$ & \TT{\{|} {\em prefix-0-list} \TT{|\}} &
     $|$ & \TT{\{(} {\em prefix-0-list} \TT{)\}} \\
-    $|$ & \TT{\{`} {\em prefix-0-list} \TT{'\}} &
-    $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} \\
-    $|$ & \TT{\{:} {\em prefix-0-list} \TT{:\}} &
+    $|$ & \TT{\{[} {\em prefix-0-list} \TT{]\}} &
     $|$ & \TT{\{\{} {\em prefix-0-list} \TT{\}\}} \\
+    $|$ & \TT{\{`} {\em prefix-0-list} \TT{'\}} &
+    $|$ & \TT{\{:} {\em prefix-0-list} \TT{:\}} \\
+    $|$ & \TT{\{!} {\em prefix-0-list} \TT{!\}} &
+    $|$ & \TT{\{?} {\em prefix-0-list} \TT{?\}} \\
     $|$ & \multicolumn{3}{l}{\TT{\{} {\em mark-type} {\em prefix-0-list}
                                {\em reflected-mark-type} \TT{\}}} \\
     $|$ & \multicolumn{3}{l}{\TT{\{} {\em name-type} {\em attributes}\QMARK{}
@@ -3649,7 +3667,7 @@ In the above: \begin{tabular}[t]{l}
 	        (the empty list: see below)
 	      \end{tabular}
 
-\emkey{mark-type} ::= {\em mark} other than \TT{<} or \TT{>} \\
+\emkey{mark-type} ::= {\em mark} \\
 \emkey{reflected-mark-type} ::= reflection of the matching {\em mark-type}
                              [see text]
 
@@ -3662,7 +3680,8 @@ In the above: \begin{tabular}[t]{l}
     ::= & \TT{(} $|$ \TT{[} $|$ \TT{[[} $|$
           \TT{`} $|$\TT{`{}`} $|$ \TT{`{}`{}`} $|$
 	  \TT{\{|} $|$
-          \TT{\{`} $|$ \TT{\{:} $|$ \TT{\{(} $|$ \TT{\{[} $|$ \TT{\{\{} \\
+          \TT{\{`} $|$ \TT{\{:} $|$ \TT{\{!} $|$ \TT{\{?} $|$
+	  \TT{\{(} $|$ \TT{\{[} $|$ \TT{\{\{} \\
     $|$ & \TT{\{} {\em mark-type} \\
     $|$ & \TT{\{} {\em name-type} {\em attributes}\QMARK{} \TT{|} \\
     \end{tabular}
@@ -3672,8 +3691,9 @@ In the above: \begin{tabular}[t]{l}
     ::= & \TT{)} $|$ \TT{]} $|$ \TT{]]} $|$
           \TT{'} $|$\TT{'{}'} $|$  \TT{'{}'{}'} $|$
 	  \TT{|\}} $|$
-          \TT{'\}} $|$ \TT{:\}} $|$ \TT{)\}} $|$ \TT{]\}} $|$ \TT{\}\}} \\
-    $|$ & {\em reverse-mark-type} \TT{\}} \\
+          \TT{'\}} $|$ \TT{:\}} $|$ \TT{!\}} $|$ \TT{?\}} $|$
+	  \TT{)\}} $|$ \TT{]\}} $|$ \TT{\}\}} \\
+    $|$ & {\em reflected-mark-type} \TT{\}} \\
     $|$ & \TT{|} {\em name-type} {\em attributes}\QMARK{} \TT{\}} \\
     \end{tabular}
 
@@ -3723,16 +3743,18 @@ list.  The matching {\em list-openings} and {\em list-closings} that do
 \TT{`{}`{}`} & \TT{'{}'{}'} \\
 \TT{\{|} & \TT{|\}} &
 \TT{\{(} & \TT{)\}} \\
-\TT{\{`} & \TT{'\}} &
+\TT{\{\{} & \TT{\}\}} &
 \TT{\{[} & \TT{]\}} \\
-\TT{\{:} & \TT{:\}} &
-\TT{\{\{} & \TT{\}\}} \\
+\TT{\{`} & \TT{'\}} &
+\TT{\{:} & \TT{:\}} \\
+\TT{\{!} & \TT{!\}} &
+\TT{\{?} & \TT{?\}} \\
 \end{tabular}
 \end{center}
 
 These {\em list-openings} and {\em list-closings} that do
 \underline{not} involve {\em types} may \underline{not} be split
-across physical lines, even though some consists of two lexemes
+across physical lines, even though some consist of two lexemes
 that may be separated by horizontal whitespace.
 These {\em list-openings} and {\em list-closings} become the
 \TT{.initiator} and \TT{.terminator} of the object represented
@@ -3825,16 +3847,17 @@ A {\em bracketed-list} with a {\em mark-type} is similar to an untyped
 {\em bracketed-list}, but the {\em mark-type} becomes the \TT{.type}
 attribute of the list, and there is no \TT{.initiator} or \TT{.terminator}
 attribute.  Such a {\em bracketed-list} consists of
-a `\TT{\{} {\em mark-type}' list opening and a `{\em reverse-mark-type} \TT{\}}'
+a `\TT{\{} {\em mark-type}' list opening and a
+`{\em reflected-mark-type} \TT{\}}'
 list closing surrounding the list elements.
-The {\em mark-type} is a {\em mark} lexeme.  The {\em reverse-mark-type}
+The {\em mark-type} is a {\em mark} lexeme.  The {\em reflected-mark-type}
 is this same lexeme with the order of characters reveresed and the
 characters \TT{<} and \TT{>} interchanged, if they occur.  If the
-{\em mark-type} and {\em reverse-mark} type are identical, the
+{\em mark-type} and {\em reflected-mark} type are identical, the
 {\em mark-type} becomes the \TT{.type} attribute value for the list.
 But if they are not identical, the label atom
 \begin{center}
-\TT{\{*} {\em mark-type} {\em reverse-mark-type} \TT{*\}}
+\TT{\{*} {\em mark-type} {\em reflected-mark-type} \TT{*\}}
 \end{center}
 becomes the \TT{.type} attribute value.
 
@@ -3854,7 +3877,7 @@ Thus we have the examples:
 \end{tabular}
 &
 \begin{tabular}[t]{l}
-!@53 = {<+ X Y Z +>} \\[1ex]
+!@53 = \{<+ X Y Z +>\} \\[1ex]
 \multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 =:: \\
 ~~~~1 = X \\
@@ -3995,7 +4018,7 @@ equivalent to `\TT{|~|\}}' and denotes an empty list.
 
 The brackets `\TT{\{}' and `\TT{\}}' match, even if the {\em type-names}
 that follow `\TT{\{}' and preceed `\TT{\}}' fail to match.
-In the latter case it is a type match error.
+The latter case is a type match error.
 
 {\em Simple-lists} may be parsed after they have been read.
 Operators, including
@@ -4056,7 +4079,7 @@ beginning of the {\em prefix-0-list},
 the type of the {\em prefix} is pushed into the stack, and a new sublist
 of that type beginning with the {\em prefix} is started.
 This sublist is a {\em prefix-n-list} where {\em n} is the depth of
-the stack before the type is pushed.
+the stack just before the type is pushed.
 
 \item
 When a {\em prefix} of a type that is in the stack is scanned, the
@@ -4067,7 +4090,7 @@ The type of the {\em prefix} (which was just popped)
 is pushed into the stack, and a new sublist
 of that type beginning with the {\em prefix} is started.
 This sublist is a {\em prefix-n-list} where {\em n} is the depth of
-the stack before the type is pushed.
+the stack just before the type is pushed.
 
 \item
 When a {\em prefix} of a type that is not in the stack is scanned,
@@ -4096,9 +4119,9 @@ Text	& Separator &  Syntactic Category
 \tt \{s\} This is a sentence.	& \tt \{s\} & \em prefix-1-list \\
 \tt \{s\} And another.
 \\\hline
-\tt This is a sentence.	& (none) & \em prefix-2-list
+\tt This is a sentence.	& (none) & \em prefix-2-list  \rm ::= \em simple-list
 \\\hline
-\tt And another. & (none) & \em prefix-2-list
+\tt And another. & (none) & \em prefix-2-list \rm ::= \em simple-list
 \\\hline
 \tt \{s\} And a new \{foo\} paragraph. & \tt \{s\} & \em prefix-1-list
 \\\hline
