@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 2, 2016}
+\date{June 16, 2016}
 
 \maketitle
 
@@ -4144,48 +4144,59 @@ The {\em prefix-0-list} in this example is equivalent to:
 Input is read and parsed to form objects from {\em bracketed-lists}.
 These objects are then further parsed to find operators, separators,
 numeric units (e.g., \TT{lb} and \TT{\$}), and some other constructions
-such as possessives (\TT{George's weight}).  The input to this parsing
-is an object element list consisting of atoms and subobjects.
-
-We will refer to the objects being parsed as {\em bracketed-lists}, even
-though they are data objects and not strings of lexemes.
-
-Note that the atoms in these lists have \underline{not} been dequoted;
-in cooked data representations only atoms outside brackets are dequoted.
+such as possessives (\TT{George's weight} become \TT{George 's weigth}).
+The input to this parsing is a list of \skey{token}s, which initially are
+all lexemes.  But as the parsing proceeds, bracketed lists are replaced
+by tokens that are \skey{expression object}s (e.g., objects which may have
+\TT{.initiators} and \TT{.terminators}), and parsing proceeds on 
+a list of tokens some of which are lexemes and some of which are objects.
 
 Parsing at this point is a top down process.  The parser is organized
-into passes which are applied to the object element list in order until
-one of the passes succeeds.  The first pass handles operators, the second
-numeric units, the third possessives, and the forth dequoting.
-If a pass succeeds it may discover subexpressions, which are formed
-into objects and parsed independently as they are discovered.
-In general parsing modifies the object being parsed.
+into \skey{pass}{es} which are applied to the token list in order.
+The first pass always handles bracketed expressions.
+Then the brackets of a subexpression establish a parsing
+\key{context} which determines
+which subsequent passes will be run on the token list of the backeted
+subexpression.  For an \key{operator expression}, the passes
+handle operators, numeric units, and possessives.  For a
+\key{text expression}, a pass handles phrases and sentences.
+If a pass succeeds it may discover subexpressions, which are
+parsed independently as they are discovered.
+
+In general a pass modifies the list of tokens it is given,
+both replacing sublists by expression objects and possibly
+reordering the list.
 
 The standard passes in order from first to last are:
 
 \begin{center}
 \begin{tabular}%
   {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
+\bf Parser & \bf Parsing \\
 \bf Pass & \bf Context & \bf Usage \\[1ex]
-\TT{suffix} & \TT{expression}
+\TT{suffix} & \TT{operator}
 	& split suffixes from words \\
-\TT{operators} & \TT{expression}, \TT{text}
+\TT{operators} & \TT{operator}
 	& parse operators \\
-\TT{units} & \TT{expression}
+\TT{units} & \TT{operator}
 	& parse numeric units \\
-\TT{dequoting} & \TT{expression}, \TT{text}
-	& dequote symbols \\
+\TT{singularize} & \TT{operator}
+	& replace plurals by singulars \\
+\TT{text} & \TT{text}
+	& parse sentences and phrases \\
 \end{tabular}
 \end{center}
 
-Parsing contexts are described in the next section.
+Which brackets select which parsing contexts is described
+in Section~\itemref{PARSING-CONTEXTS}.
 
 Tables such
 as this are constructed from parsing instructions which appear
 in a list called the parsing stack.  Parsing instructions can be
 pushed into the stack and later popped from the stack in order
-to undo their affects.  See \itemref{PARSER-CONTROL} for
-details.
+to undo their affects, and they can be disabled and re-enabled while still
+in the stack.  In this document we only describe a few of the many
+types of parsing instructions.
 
 \subsection{Parsing Examples}
 \label{PARSING-EXAMPLES}
