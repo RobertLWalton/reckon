@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 16, 2016}
+\date{June 19, 2016}
 
 \maketitle
 
@@ -825,6 +825,226 @@ All the assertions that have been made can be queried:
 \verb|> @1000001 = (a person named `Jack') ?| \\
 \verb|false|
 \end{indpar}
+
+You can also put tables into RECKON:
+
+\begin{indpar}\begin{verbatim}
+> --------------------------------------------------------
+> | header 1 | header 2 | header 3 | header 4 | header 5 |
+> --------------------------------------------------------
+> | entry 11 | entry 12 | entry 13 | entry 14 | entry 15 |
+> | entry 21 | entry 22 | entry 23 | entry 24 | entry 25 |
+> | entry 31 | entry 32 | entry 33 | entry 34 | entry 35 |
+> --------------------------------------------------------
+>
+\end{verbatim}\end{indpar}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\bf header 1 & \bf header 2 & \bf header 3 & \bf header 4 & \bf header 5 \\
+\hline
+entry 11 & entry 12 & entry 13 & entry 14 & entry 15 \\
+entry 21 & entry 22 & entry 23 & entry 24 & entry 25 \\
+entry 31 & entry 32 & entry 33 & entry 34 & entry 35 \\
+\hline
+\end{tabular}
+\end{center}
+
+Here the table ends with a blank line.
+
+Usually tables are put in separate files that can be
+input by the `\TT{input}' statement.  If the above table
+were put in a file named \TT{F}, the statement
+\begin{indpar}\begin{verbatim}
+> input F
+\end{verbatim}\end{indpar}
+would have the same effect as typing the table and its following
+blank line in directly had above.  The table following blank line does not
+have to be included in the file.
+
+One can use `\TT{=}' in place of `\TT{-}' and `\TT{||}' in
+place of `\TT{|}' to get double-lines in place of single lines.
+One can abbreviate by omitting all but the first 5 `\TT{-}'s or
+`\TT{=}'s on a line containing just these characters.
+
+Lines can be continued with indented lines, but if the text of
+an entry is too large, the input can become messy.  This can be
+alleviated in some cases by using macros.  For example, if we
+changed the file \TT{F} to contain:
+\begin{indpar}\begin{verbatim}
+------------------------------------
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+------------------------------------
+| E 11 | E 12 | E 13 | E 14 | E 15 |
+| E 21 | E 22 | E 23 | E 24 | E 25 |
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+------------------------------------
+H: header
+E: entry
+\end{verbatim}\end{indpar}
+
+we get the same table as we had before.
+Here \TT{H} is a macro replaced
+by the text `\TT{header}', and \TT{E} is a macro replaced by the
+text `\TT{entry}'.
+
+Entries can be glued together to make larger entries using the
+symbols `\TT{<}', `\TT{>}', and `\verb|^|'.  If an entry consists
+of just `\TT{<}', this means the entry is to be glued to the
+entry on its left.  Similarly `\TT{>}' means to glue the entry to the entry
+on its right, and `\verb|^|' means to glue to the entry above.  For
+example, if the file \TT{F} contained:
+\begin{indpar}\begin{verbatim}
+------------------------------------
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+====================================
+| E 11 | E 12 | ABOT |   <  | E 15 |
+------------------------------------
+| E 21 | E 22 |   >  |   ^  | E 25 |
+------------------------------------
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+------------------------------------
+H: header
+E: entry
+ABOT: a bit of text
+\end{verbatim}\end{indpar}
+
+we would have:
+
+\verb|> input F| {\raggedright \\}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\bf header 1 & \bf header 2 & \bf header 3 & \bf header 4 & \bf header 5 \\
+\hline\hline
+entry 11 & entry 12 & \multicolumn{2}{c|}{a bit} & entry 15 \\
+\cline{1-2}\cline{5-5}
+entry 21 & entry 22 & \multicolumn{2}{c|}{of text} & entry 25 \\
+\hline
+entry 31 & entry 32 & entry 33 & entry 34 & entry 35 \\
+\hline
+\end{tabular}
+\end{center}
+
+Gluing is transitive, so in the above 4 entries are all glued together.
+
+Entries have associated formats.  Explicit formats may be given
+to override a computed default format.  A format consists of a word
+containing format items surrounded by `\TT{/}'s.
+A format that applies to all entries in a row may be placed at the end
+of the row line.  For columns, a line all of whose entries are formats
+for their columns may be given (the surrounding `{\tt/}'s may be
+omitted for some but not all of these formats).
+A format may be given for a particular entry by making it the first
+word of the entry.  And format may be given for the entire table
+on a line preceding the table.
+
+For example, if the file \TT{F} contained:
+\begin{indpar}\begin{verbatim}
+------------------------------------
+| H  1 | H  2 | H  3 | H  4 | H  5 | /ibc/
+------------------------------------
+| /l/  | /r/  | c    | P    | cb   |
+|   11 |   12 |   13 | 5.4% | E 15 |
+| E 21 | E 22 | E23  | 0.8% | E 25 |
+| E 31 | E 32 | E 33 | 0.09 | E 35 | /!b/
+------------------------------------
+H: header
+E: entry
+E23: /b/ entry 23
+P: /.0u%r/
+\end{verbatim}\end{indpar}
+
+we would have:
+
+\verb|> input F| {\raggedright \\}
+\begin{center}
+\begin{tabular}{|l|r|c|r|c|}
+\hline
+\multicolumn{1}{|c|}{\bf \em header 1} &
+\multicolumn{1}{|c|}{\bf \em header 2} &
+\multicolumn{1}{|c|}{\bf \em header 3} &
+\multicolumn{1}{|c|}{\bf \em header 4} &
+\multicolumn{1}{|c|}{\bf \em header 5} \\
+\hline
+      11 &       12 &       13 & 5.4\% & \bf entry 15 \\
+entry 21 & entry 22 & \bf entry 23 & 0.8\% & \bf entry 25 \\
+entry 31 & entry 32 & entry 33 & 9.0\% & entry 35 \\
+\hline
+\end{tabular}
+\end{center}
+
+A short guide to some format items is:
+\begin{indpar}[1in]
+\begin{tabular}{ll}
+\tt r & right adjust \\
+\tt l & left adjust \\
+\tt c & center adjust \\
+\tt b & bold face \\
+\tt i & italicize \\
+\tt .0\PLUS[n]{} & right adjust with $n$ decimal places \\
+\tt u\% & multiply by 100 and append a \% sign \\
+\tt u\$ & add a \$ sign \\
+\tt i, & add commas to integer parts of numbers \\
+\end{tabular}
+\end{indpar}
+
+An entry may have four formats: a table format,
+a column format, a row format, and
+an entry format.  These are combined as by set union, except that
+conflicts are resolved in favor of the entry format first, the
+row format second, the column format third, and the table format
+forth.
+Putting a `\TT{!}' in front of a format item negates
+that item if it was included in the set union by
+a less favored format (`\TT{!b}' for the last row above negates the `\TT{b}'
+for the last column).
+Also, defaults are computed in case no format items are
+given for a particular format aspect: for example, if no adjust
+format is given entries are centered unless they are in a column
+whose entries all end with numbers some containing decimal points, in which
+case a default `\TT{.0\PLUS[n]{}}' format item is inferred.
+
+Table entries can be computed from other table entries and from macros
+that are not actually in the table.  The computational expressions
+are represented by `\TT{[~]}' bracketed lists included within entries.
+Names which are words beginning with `\TT{<}' and ending with `\TT{>}'
+can be assigned to rows, columns, and entries, after the manner of formats.
+For example, if the file \TT{F} contains:
+\begin{indpar}\begin{verbatim}
+----------------------------------
+| Value  | Factor | Contribution |
+----------------------------------
+| <V>    | <F>    |              |
+| /u$/   | /u%/   | /u$.00/      |
+| 100    | 20     | C            | <FIRST>
+| 200    | 5      | C            |
+| 300    | 8      | C            |
+----------------------------------
+| /lb/ Total | <  | T            |
+----------------------------------
+C: [(@,<V>) * (@,<F>)]
+T: [sum([<FIRST>, ..., @-1], @)] 
+\end{verbatim}\end{indpar}
+
+then
+
+\verb|> input F| {\raggedright \\}
+\begin{center}
+\begin{tabular}{|r|r|r|}
+\hline
+\multicolumn{1}{|c|}{\bf Value} &
+\multicolumn{1}{|c|}{\bf Factor} &
+\multicolumn{1}{|c|}{\bf Contribution} \\
+\hline
+\$100 & 20\% & \$20.00 \\
+\$200 & 5\%  & \$10.00 \\
+\$300 & 8\%  & \$24.00 \\
+\hline
+\multicolumn{2}{|l|}{\bf Total} & \$54.00 \\
+\hline
+\end{tabular}
+\end{center}
 
 RECKON supports pictorial data
 that are expressions displayed as pictures:
