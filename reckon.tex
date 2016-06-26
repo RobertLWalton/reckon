@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 21, 2016}
+\date{June 26, 2016}
 
 \maketitle
 
@@ -942,7 +942,7 @@ on a line preceding the table.
 For example, if the file \TT{F} contained:
 \begin{indpar}\begin{verbatim}
 ------------------------------------
-| H  1 | H  2 | H  3 | H  4 | H  5 | /ibc/
+| H  1 | H  2 | H  3 | H  4 | H  5 | /ib/
 ------------------------------------
 | /l/  | /r/  | c    | P    | cb   |
 |   11 |   12 |   13 | 5.4% | E 15 |
@@ -1029,7 +1029,7 @@ T: [sum([<FIRST>, ..., @-1], @)]
 
 then
 
-\verb|> input F| {\raggedright \\}
+\verb|> my table = input F| {\raggedright \\}
 \begin{center}
 \begin{tabular}{|r|r|r|}
 \hline
@@ -1061,6 +1061,85 @@ the cell.  `\TT{@-1}' denotes the row before the one
 containing the cell, and `\TT[I, ..., J]' denotes
 the list of indices from \TT{I} through \TT{J}.
 
+The last example also illustrates that a table is a description
+and its identifier can be made the value of a variable,
+such as `\TT{my table}'.  The expression `\TT{input F}' has
+as its value the last thing in the file \TT{F}, which in this
+example is the table.  So `\TT{my table = input F}' assigns
+the identifer of this table to the variable `\TT{my table}'.
+
+It is also possible to make a table whose rows are all the
+descriptions of a given type.  Suppose file \TT{F} contains:
+\begin{indpar}\begin{verbatim}
+-----------------------------------------------------
+| Name   | Weight   | Height     | Age       | BMI  | /ib/
+-----------------------------------------------------
+| <name> | <weight> | <height>   | <age>     | B
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+| George |    205   | 6ft 3in    | 25        |
+| Mary   |    135   | 5ft 5in    | 26        |
+----------------------------------------------
+BMI: Body Mass Index
+B: <body mass index>
+ROW TYPE: person
+SORT ROWS BY: name
+\end{verbatim}\end{indpar}
+
+then
+
+\verb|> input F| {\raggedright \\}
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\multicolumn{1}{|c|}{\bf Name} &
+\multicolumn{1}{|c|}{\bf Weight} &
+\multicolumn{1}{|c|}{\bf Height} &
+\multicolumn{1}{|c|}{\bf Age} &
+\multicolumn{1}{|c|}{\bf \shortstack{Body\\Mass\\Index}} \\
+\hline
+George	& 205 lb	& 6 ft 3 in	&  25 & 25.62 \\
+Jack	& 123 lb	& 5 ft 9 in	&  23 & 18.16 \\
+Jill	& 110 lb	& 5 ft 7 in	&  22 & 17.23 \\
+Mary	& 135 lb	& 5 ft 5 in	&  26 & 22.46 \\
+\hline
+\end{tabular}
+\end{center}
+
+Here the `\TT{ROW TYPE}' value `\TT{person}' declares that the
+rows of the table are exactly all descriptions of type `\TT{person}',
+while the `\TT{SORT ROWS BY}' value `\TT{name}' declares that
+the rows are to be sorted on the value of their `\TT{name}' variable.
+The column names must match the description variable names: e.g.,
+the column name \TT{<body mass index>} matches the description variable name
+`\TT{body mass index}'.
+Data rows in the table are added to the set of descriptions of
+type `\TT{person}'.  You can see this via:
+
+\begin{indpar}
+\verb|> all persons| \\
+\begin{tabular}{@{}|r|l|l|r|r|r|r|@{}}
+\hline
+\multicolumn{1}{|c}{\bf ID} &
+\multicolumn{1}{|c}{\bf type} &
+\multicolumn{1}{|c}{\bf name} &
+\multicolumn{1}{|c}{\bf weight} &
+\multicolumn{1}{|c}{\bf height} &
+\multicolumn{1}{|c|}{\bf age} &
+\multicolumn{1}{|c|}{\bf \shortstack{body\\mass\\index}} \\
+\hline
+\tt @1000000 & person & Jack
+	     & \tt 123 lb & \tt 5 ft 9 in & \tt 23 yr 2 mo & \tt 18.1637 \\
+\tt @1000001 & person & Jill
+	     & \tt 110 lb & \tt 5 ft 7 in & \tt 21 yr 8 mo & \tt 17.2282 \\
+\tt @1000047 & person & George
+	     & \tt 205 lb & \tt 6 ft 3 in & \tt 25 yr 0 mo & \tt 25.6230 \\
+\tt @1000048 & person & Mary
+	     & \tt 135 lb & \tt 5 ft 5 in & \tt 26 yr 0 mo & \tt 22.4649 \\
+\hline
+\end{tabular}
+\end{indpar}
+
+\bigskip
 
 RECKON also supports pictorial data
 that are expressions displayed as pictures:
@@ -2593,8 +2672,7 @@ with each other; see the rules below for resolving conflicts.
 & \multicolumn{3}{l}{{\bf #2}\ifstrequal{}{#1}{}{ ~~~~~ #1}} \\
 }
 \newcommand{\GROUPENTRY}[2][]{
-&& \ttmkey{#2}{table format}\ifstrequal{}{#1}{}{\TT{<}{\em #1}\TT{>}} &
-}
+&& \ttmkey{#2}{table format}\ifstrequal{}{#1}{}{#1} & }
 \newcommand{\GROUPNEWLINE}{\\&&&}
 \newcommand{\ENDGROUP}{\end{tabular}}
 
@@ -2608,7 +2686,7 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{sc} small caps \\
 \ENDGROUP \\
 \BEGINGROUP{Font Size Group}
-\GROUPENTRY[ratio]{fs} adjust the font size to {\em ratio}\% of normal.
+\GROUPENTRY[\em <ratio>]{fs} adjust the font size to {\em ratio}\% of normal.
 \ENDGROUP \\
 \BEGINGROUP{Background Color Group}
 \GROUPENTRY{gray} light gray background \\
@@ -2620,13 +2698,13 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{c} center adjust [default for symbols] \\
 \ENDGROUP \\
 \BEGINGROUP{Numeric Group}
-\GROUPENTRY[places]{.}
+\GROUPENTRY[\em <places>]{.}
     output with exactly {\em places} decimal places \\
-\GROUPENTRY[places]{0.}
+\GROUPENTRY[\em <places>]{0.}
     ditto but with \TT{0} in the units position if less than \TT{1} \\
 \GROUPENTRY{0}
     ditto but with zero {\em places} and \underline{no} decimal point \\
-\GROUPENTRY[precision]{p}
+\GROUPENTRY[\em <precision>]{p}
     output with exactly {\em precision} significant decimal digits,
     \GROUPNEWLINE
     but avoid using exponent if it is more compact not too,
@@ -2636,16 +2714,16 @@ with each other; see the rules below for resolving conflicts.
     and suppress decimal point if there are no fraction digits
     \GROUPNEWLINE
     [default is `\TT{p6}'] \\
-\GROUPENTRY[time-format]{T}
+\GROUPENTRY[\TT{`}\em time-format>\TT{'}]{T}
     format time (or date) as per below; \GROUPNEWLINE
     conflicts with \TT{\%} \TT{\$} \TT{,} \TT{()} \TT{+} and \TT{-} \\
 \ENDGROUP \\
 \BEGINGROUP{Fraction Group}
-\GROUPENTRY[denominator]{f}
+\GROUPENTRY[\em <denominator>]{f}
     when a number is about to be output with a fractional part,
     prefer a fractional representation with denominator less than
     or equal to the value given, if that is more precise. \\
-\GROUPENTRY[exponent]{f2\CIRCUM}
+\GROUPENTRY[\em <exponent>]{f2\CIRCUM}
     ditto but denomenator must be a power of $2$ equal to or less
     than $2^{exponent}$. \\
 \GROUPENTRY{!f}
@@ -2657,6 +2735,13 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{u\%} multiply numbers by 100 and add a \% sign \\
 \GROUPENTRY{u\$} add \$ sign to numbers; \GROUPNEWLINE
                 make \TT{0.2} the Numeric Group default \\
+\GROUPENTRY[\TT{`}\em <unit>\TT{'}]{u} the numbers are to be expressed in
+		the given {\em <unit>}'s, where {\em <unit>} is as per
+		Section~\itemref{UNITS}, but the {\em <unit>} itself
+		is \underline{not} to be included in the entry\\
+\GROUPENTRY[\TT{`}\em <unit>\TT{'}]{U} ditto but
+		the {\em <unit>} itself
+		\underline{is} to be included in the entry\\
 \GROUPENTRY{!u} no unit [default]
 \ENDGROUP \\
 \BEGINGROUP{Sign Group}
@@ -2674,33 +2759,33 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{!f,} undo ditto [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Width Group}
-\GROUPENTRY[columns]{w}
+\GROUPENTRY[\em <columns>]{w}
     adjust width by given number of {\em columns} \\
-\GROUPENTRY[columns]{}
+\GROUPENTRY[\em <columns>]{}
     ditto \\
 \GROUPENTRY{!w}
     set width to `only as wide as necessary' [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Height Group}
-\GROUPENTRY[lines]{h}
+\GROUPENTRY[\em <lines>]{h}
     adjust height by given number of {\em lines} \\
 \GROUPENTRY{!h}
     set height to `only as high as necessary' [default] \\
 \ENDGROUP \\
 \BEGINGROUP[(\TT{left} and \TT{right} do not conflict)]%
            {Horizontal Margin Group}
-\GROUPENTRY[points]{side}
+\GROUPENTRY[\em <points>]{side}
     adjust space to left and right of entry by {\em points} \\
-\GROUPENTRY[points]{left}
+\GROUPENTRY[\em <points>]{left}
     adjust space to left of entry by {\em points} \\
-\GROUPENTRY[points]{right}
+\GROUPENTRY[\em <points>]{right}
     adjust space to right of entry by {\em points} \GROUPNEWLINE
     [default is `\TT{side3}'] \\
 \ENDGROUP \\
 \BEGINGROUP[(no conflicts)]{Vertical Margin Group}
-\GROUPENTRY[points]{top}
+\GROUPENTRY[\em <points>]{top}
     adjust space at top of entry by {\em points} \\
-\GROUPENTRY[points]{bottom}
+\GROUPENTRY[\em <points>]{bottom}
     adjust space at bottom of entry by {\em points} \GROUPNEWLINE
     [default is `\TT{top3bottom3}'] \\
 \ENDGROUP
@@ -2708,14 +2793,11 @@ with each other; see the rules below for resolving conflicts.
 \begin{boxedfigure}[!t]
 \begin{center}
 \begin{tabular}{lp{4.5in}}
-\ttmkey{`~'}{{\em time-code}} & a {\em time-format} must begin with \TT{`}
-                                and end with \TT{'}; \\
-				& these \TT{`~'} are deleted; \\
-				& any \TT{'} inside the format must be
-				  preceded by a \TT{\BSLASH} \\
 \ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
                                 and keep the following character without
-				giving it a special interpretation \\
+				giving it a special interpretation
+				(\TT{\BSLASH'} can be use to include
+				 \TT{'} in a {\em <time-format>})\\
 \ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
 \ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
 \ttmkey{ww}{{\em time-code}} & day of weak: \TT{01} \ldots{} \TT{07} \\
