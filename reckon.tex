@@ -1313,7 +1313,7 @@ See `Depiction of Angle $\theta=30^\circ$'
     \put(1.0,0.95){
 	\qbezier[250](0.3,0.0)(0.32,0.0745584)(0.2598078,0.15)
 	\put(0.2598078,0.15){\vector(-1,1){0.00}}
-	\put(0.33,0.05){$\theta$}}
+        \put(0.33,0.05){$\theta$}}
     \put(0.0,0.0){\makebox(2.0,0.2){Depiction of Angle $\theta=30^\circ$}}
 }
 \end{picture}
@@ -1351,21 +1351,27 @@ ship names = [`Submarine', `Destroyer', `Cruzier',
 max ship length = 5
 max tries = 100    // max tries to position ship on a board
 
-for every board:
+on a board of size S ~ with square size SQSIZE ?
+            <-- integer S, max ship length <= 
+                SQSIZE :=? 0.25in,
+                number SQSIZE, 0.05in <= SQSIZE:
+    // Make a board of size SxS.
+    size = S
+    square size = SQSIZE
+    owner plane = none
+    opponent plane = none
 
-    on a board of size S <-- integer S,
-                             max ship length <= S:
-        // Make a board of size SxS.
-        size = S
-        // state(R, C) is `untouched', `miss', `hit',
-        // or `sunk' (if final hit on ship).
-        state = an array of size (S, S)
-                with initial element `untouched'
-        // ship(R, C) is ID of ship at (R, C) or `none'.
-        ship = an array of size (S, S)
-               with initial element `none'
-        ships = 0  // Number of ships
-        sunk  = 0  // Number of ships sunk
+    // state(R, C) is `untouched', `miss', `hit',
+    // or `sunk' (if final hit on ship).
+    state = an array of size (S, S)
+            with initial element `untouched'
+    // ship(R, C) is ID of ship at (R, C) or `none'.
+    ship = an array of size (S, S)
+           with initial element `none'
+    ships = 0  // Number of ships
+    sunk  = 0  // Number of ships sunk
+
+for every board:
 
     on shoot at (R, C) on THIS <-- integer R,  1 <= R <= size,
                                    integer C,  1 <= C <= size:
@@ -1383,6 +1389,9 @@ for every board:
         if value != `no effect':
             next state(R, C) = value
 
+    // Return true iff (DIRECTION,START) is an OK (empty)
+    // position for a new ship of length L.
+    //
     on test position (DIRECTION, START) on THIS
             for ship of length L
         <-- pair of integers DIRECTION,
@@ -1400,50 +1409,57 @@ for every board:
             // Position conflicts with previous ship
             value = `false'
         else
-            next START = START + DIRECTION
-            next L = L - 1
+            value = position ( DIRECTION,
+                               START + DIRECTION,
+                               L - 1 )
 
+    // Return a random empty place, (DIRECTION,POSITION),
+    // where a ship of length L may be placed.
+    //
     on find position on THIS for ship of length L
             <-- integer L, 1 <= L <= max ship length:
-        direction =
-            random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
-                     (1, 1), (1, 0), (1, -1), (0, -1) ]
-        position = ( random ( 0 .. S - 1 ),
-                     random ( 0 .. S - 1 ) )
-        first tries = 1
-        if tries > max tries:
-            value = `failed'
-        else if test position (direction, position) on THIS
-                for ship length L:
-            value = (direction, position)
-        else:
-            next tries = tries + 1
+        value = loop:
+            first tries = 1
+            direction =
+                random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
+                         (1, 1), (1, 0), (1, -1), (0, -1) ]
+            position = ( random ( 0 .. S - 1 ),
+                         random ( 0 .. S - 1 ) )
+            if tries > max tries:
+                error `board too full to place ship'
+            else if test position (direction, position) on THIS
+                    for ship length L:
+                value = (direction, position)
+            else:
+                next tries = tries + 1
 
+    // Given an empty place (DIRECTION,START) for a ship S of
+    // length L, install ship S on the board.
+    //
     on place ship S of length L at (DIRECTION, START) on THIS
             <-- is a ship S, pair of integers DIRECTION,
                 pair of integers START,
                 integer L, 1 <= L <= max ship length:
-        if L != 0:
-            next ship(START) = S
+        while L > 0:
+            next(THIS) ship(START) = S
             next START = START + DIRECTION
             next L = L - 1
-        else:
-            next ships = ships + 1
-        
+        next ships = ships + 1
+    
+on a ship of length L on board B <--
+        integer L, 1 <= L <= max ship length:
+    // Make a ship of length L on board B.
+
+    (direction, position) =
+        find position on B for ship of length L
+    place THIS of length L at (direction, position)
+          on B
+
+    length = L
+    board = B
+    hits = 0  // Number hits on ship so far
+
 for every ship:
-    on a ship of length L on board B <--
-            integer L, 1 <= L <= max ship length:
-        // Make a ship of length L on board B.
-
-        (direction, position) =
-            find position on B for ship of length L
-        place THIS of length L at (direction, position)
-              on B
-
-        length = L
-        board = B
-        hits = 0  // Number hits on ship so far
-
     on hit ( THIS ):
         next hits = hits + 1
         if next hits == length:
@@ -1452,48 +1468,49 @@ for every ship:
             value = `not sunk yet'
 
 for every board:
-    on display ( THIS ) for PLAYER
-            ~ with square size ( SQSIZE ) ? <--
-            PLAYER :=: owner | opponent,
-            SQSIZE SQSIZE :=? 0.25,
-            number SQSIZE, 0.05 <= SQSIZE:
-        value = {{ overlay }}
-        grid loop:
-            first rc = 0; next rc = rc + 1
-            first rcd = 0; next rcd = rcd + SQSIZE
-            once limit = size * SQSIZE
-            append {{ line from  (0, rcd) to (limit, rcd) }}
-                   {{ line from  (rcd, 0) to (rcd, limit) }}
-                   to value
-            if rc == size:
-                finish grid loop
-        r loop:
-            first r = 1; first rd = 0
-            if r >= size:
-                finish r loop
-            next r = r + 1; next rd = rd + SQSIZE
-            c loop:
-                first c = 1; first cd = 0
-                if c >= size:
-                    finish c loop
-                next c = c + 1; next cd = cd + SQSIZE
+    line width = 0.02in
+    grid layer = B#001#
+    ship color layer = B#010#
+    ship letter layer = B#100#
+    on make display for (THIS):
+        owner plane = a plane with depth 3
+            with x size (   2 * line width 
+                          + size * SQSIZE )
+            with y size (   2 * line width 
+                          + size * SQSIZE )
+        start = line width / 2
+        stop = size * SQSIZE + line width / 2
+        rcd = start
+        rc = 0
+        while rc < size:
+            draw line in layer (grid layer)
+                      with line width (line width)
+                      from ( start, rcd ) to ( stop, rcd )
+            draw line in layer (grid layer)
+                      with line width (line width)
+                      from ( rcd, start ) to ( rcd, stop )
+            next rcd = rcd + SQSIZE
+            next rc = rc + 1
+        opponent plane = copy owner plane
+
+        r = 1
+        while r <= size:
+            next r = r + 1
+            c = 1
+            while c <= size:
+                next c = c + 1
                 if state(r, c) != `untouched':
-                    // X through square
-                    append {{ line from (rd, cd)
-                                   to (next rd, next cd ) }}
-                           {{ line from (rd, next cd)
-                                   to (rd, next cd ) }}
-                           to value
-                if ship(r, c) != `none'
-                   AND
-                   ( PLAYER == `owner'
-                     OR state(r, c ) == `sunk' ):
-                           c = [`?', `S', `D', `C', `B', `A']
-                               [ship(r, c)'s length]
-                    append {{ box from (rd, cd)
-                                  to (next rd, next cd )
-                                  labeled huge `[c]' }}
-                           to value
+                    display ship(r,c)
+
+    on display ( THIS ) for PLAYER <--
+            PLAYER :=: owner | opponent,
+            PLAYER :=? owner:
+        if owner plane == none:
+            make display for ( THIS )
+        if PLAYER == `owner':
+            value = owner plane
+        else:
+            value = opponent plane
 \end{verbatim}
 
 %\caption{Code for the Battleship Game, Part III}
