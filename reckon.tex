@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{June 26, 2016}
+\date{June 27, 2016}
 
 \maketitle
 
@@ -571,7 +571,7 @@ For example:
 One can use definitions to define expressions that compute values:
 
 \begin{indpar}
-\verb|> sum from X through Y <-- integer X, integer Y:| \\
+\verb|> sum from X through Y <-- is an integer X, is an integer Y:| \\
 \verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     if ( X > Y ):| \\
 \verb|+         value = 0| \\
@@ -633,7 +633,7 @@ one adds 5 to the sum of 6 through 10.  One can also compute sums by
 iteration.
 
 \begin{indpar}
-\verb|> sum from X through Y <-- integer X, integer Y:| \\
+\verb|> sum from X through Y <-- is an integer X, is an integer Y:| \\
 \verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     first sum = 0| \\
 \verb|+     if ( X <= Y ):| \\
@@ -1337,10 +1337,11 @@ is to be printed,
 is printed instead, where `Depiction \ldots' is the \TT{label} part of
 the display.
 
+In extended example is given in the next section.
+The remainder of this document is a reference manual for RECKON.
 
-TBD: example of a simple game.
+\section{Example}
 
-The rest of this document is a reference manual for RECKON.
 
 %\begin{boxedfigure}
 
@@ -1351,15 +1352,11 @@ ship names = [`Submarine', `Destroyer', `Cruzier',
 max ship length = 5
 max tries = 100    // max tries to position ship on a board
 
-on a board of size S ~ with square size SQSIZE ?
-            <-- integer S, max ship length <= 
-                SQSIZE :=? 0.25in,
-                number SQSIZE, 0.05in <= SQSIZE:
+on a board of size S <--
+        is an integer S:
+
     // Make a board of size SxS.
     size = S
-    square size = SQSIZE
-    owner plane = none
-    opponent plane = none
 
     // state(R, C) is `untouched', `miss', `hit',
     // or `sunk' (if final hit on ship).
@@ -1373,8 +1370,9 @@ on a board of size S ~ with square size SQSIZE ?
 
 for every board:
 
-    on shoot at (R, C) on THIS <-- integer R,  1 <= R <= size,
-                                   integer C,  1 <= C <= size:
+    on shoot at (R, C) on THIS <--
+            is an integer R,  0 <= R < size,
+            is an integer C,  0 <= C < size:
         if state(R,C) != `untouched':
             value = `no effect'
         else if ship(R, C) == `none':
@@ -1394,16 +1392,16 @@ for every board:
     //
     on test position (DIRECTION, START) on THIS
             for ship of length L
-        <-- pair of integers DIRECTION,
-            pair of integers START,
-            integer L, 1 <= L <= max ship length:
+        <-- is a pair of integers DIRECTION,
+            is a pair of integers START,
+            is an integer L, 1 <= L <= max ship length:
 
         (R,C) = START
         if L == 0:
             value = `true'
-        else if R < 1 OR R > size:
+        else if R < 0 OR R >= size:
             value = `false'
-        else if C < 1 OR C > size:
+        else if C < 0 OR C >= size:
             value = `false'
         else if ship(START) of B != `none':
             // Position conflicts with previous ship
@@ -1417,7 +1415,7 @@ for every board:
     // where a ship of length L may be placed.
     //
     on find position on THIS for ship of length L
-            <-- integer L, 1 <= L <= max ship length:
+            <-- is an integer L, 1 <= L <= max ship length:
         value = loop:
             first tries = 1
             direction =
@@ -1438,8 +1436,8 @@ for every board:
     //
     on place ship S of length L at (DIRECTION, START) on THIS
             <-- is a ship S, pair of integers DIRECTION,
-                pair of integers START,
-                integer L, 1 <= L <= max ship length:
+                is a pair of integers START,
+                is an integer L, 1 <= L <= max ship length:
         while L > 0:
             next(THIS) ship(START) = S
             next START = START + DIRECTION
@@ -1447,7 +1445,7 @@ for every board:
         next ships = ships + 1
     
 on a ship of length L on board B <--
-        integer L, 1 <= L <= max ship length:
+        is an integer L, 1 <= L <= max ship length:
     // Make a ship of length L on board B.
 
     (direction, position) =
@@ -1467,50 +1465,83 @@ for every ship:
         else:
             value = `not sunk yet'
 
-for every board:
+on a board view for (BOARD) (PLAYER)
+        ~ with square size SQSIZE ? <--
+        board ( BOARD ),
+        PLAYER :=: owner | opponent,
+        SQSIZE :=? 0.25in,
+        is a number SQSIZE, 0.05in <= SQSIZE:
+    board = BOARD
+    player = PLAYER
+    square size = SQSIZE
+
     line width = 0.02in
     grid layer = B#001#
     ship color layer = B#010#
     ship letter layer = B#100#
-    on make display for (THIS):
-        owner plane = a plane with depth 3
+    plane = a plane with depth 3
             with x size (   2 * line width 
                           + size * SQSIZE )
             with y size (   2 * line width 
                           + size * SQSIZE )
-        start = line width / 2
-        stop = size * SQSIZE + line width / 2
-        rcd = start
-        rc = 0
-        while rc < size:
-            draw line in layer (grid layer)
-                      with line width (line width)
-                      from ( start, rcd ) to ( stop, rcd )
-            draw line in layer (grid layer)
-                      with line width (line width)
-                      from ( rcd, start ) to ( rcd, stop )
-            next rcd = rcd + SQSIZE
-            next rc = rc + 1
-        opponent plane = copy owner plane
+    start = line width / 2
+    stop = size * SQSIZE + line width / 2
+    rcd = start
+    rc = 0
+    while rc < size:
+        draw line in layer (grid layer)
+                  on plane (plane)
+                  with line width (line width)
+                  from ( start, rcd ) to ( stop, rcd )
+        draw line in layer (grid layer)
+                  on plane (plane)
+                  with line width (line width)
+                  from ( rcd, start ) to ( rcd, stop )
+        next rcd = rcd + SQSIZE
+        next rc = rc + 1
 
-        r = 1
-        while r <= size:
-            next r = r + 1
-            c = 1
-            while c <= size:
-                next c = c + 1
-                if state(r, c) != `untouched':
-                    display ship(r,c)
+    r = 0
+    while r < size:
+        next r = r + 1
+        c = 0
+        while c < size:
+            next c = c + 1
+            if ship(r, c) != none
+                draw ship (ship(r, c)) on THIS
 
-    on display ( THIS ) for PLAYER <--
-            PLAYER :=: owner | opponent,
-            PLAYER :=? owner:
-        if owner plane == none:
-            make display for ( THIS )
-        if PLAYER == `owner':
-            value = owner plane
-        else:
-            value = opponent plane
+    on display ( THIS ) <--
+        value = plane
+
+for every ship:
+    on display ( THIS ) on ( VIEW ) <--
+            is a board view ( VIEW ):
+        assert ( board == VIEW's board )
+        player = VIEW's player
+        plane = VIEW's plane
+        sqsize = VIEW's square size
+        hlwidth = VIEW's line width / 2
+        L = length
+        P = position
+        T = a 2D transform with expansion by ( sqsize, sqsize )
+                           with translation by (hlwidth, hlwidth )
+	center = ( sqsize / 2, sqsize / 2 )
+        while L > 0:
+            state = board's state(P)
+            if player == `owner' or state == `hit'
+	                         or state == `sunk':
+                (R, C) = position
+                draw filled polygon in (ship color layer)
+                     on plane (plane)
+                     with vertices
+                          [T*P, T*(P+(0,1)), T*(P+(1,1) ),
+                                T*(P+(1,0))]
+            if player == `owner' or state == `sunk':
+                draw text (ship codes(length))
+		     in (ship letter layer)
+                     on plane (plane)
+		     at (T*P + center)
+            next P = P + direction
+            next L = L - 1
 \end{verbatim}
 
 %\caption{Code for the Battleship Game, Part III}
