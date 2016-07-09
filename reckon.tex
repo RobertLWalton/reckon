@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 8, 2016}
+\date{July 9, 2016}
 
 \maketitle
 
@@ -6683,11 +6683,11 @@ that matches the expression.  Expression definitions have patterns that
 are matched to the expression.
 
 An expression definition may have
-constraints.  Some constraints are logical expressions that
+qualifiers.  Some qualifiers are logical expressions that
 must evaluate to true in order for the expression definition match to succeed.
-Other constraints require that subexpressions match patterns or each other
+Other qualifiers require that subexpressions match patterns or each other
 in order for the expression definition match to succeed.
-Still other constraints provide default values for missing
+Still other qualifiers provide default values for missing
 arguments.
 
 An expression definition may have an expression block that executes
@@ -6708,8 +6708,8 @@ contexts in which expressions may be evaluated that effectively implement
 either data bases or alternative programming languages.
 
 When an expression definition is found whose pattern matches an expression,
-a set of constraints are established that must be satisfied to
-complete the match.  There are five kinds of constraints: syntax
+a set of qualifiers are established that must be satisfied to
+complete the match.  There are five kinds of qualifiers: syntax
 equations, pattern equations, default equations, alternative
 equations, and guards.
 Syntax equations equate expressions that involve syntax variables,
@@ -6733,7 +6733,7 @@ cannot be solved, or if a guard or syntax variable value that must be
 evaluated cannot be evaluated, or if a guard evaluates to \TT{false},
 the match fails.  Evaluation of the guards or syntax variable values
 may result in additional matches which generate more
-constraints involving more syntax variables.
+qualifiers involving more syntax variables.
 
 The matching process must consider all possible choices of which definitions
 to match to an expression being evaluated.  If all choices fail, the
@@ -6827,18 +6827,18 @@ would if a guard evaluated to false.
 
 \begin{indpar}
 \emkey{expression-definition} ::=
-	{\em pattern} \TT{<-{}-} {\em constraint-list-option} {\em block-option}
+	{\em pattern} \TT{<-{}-} {\em qualifier-list-option} {\em block-option}
 	\\[1ex]
 {\em pattern} ::= \TT{<-{}-}{\em -subexpression}
 	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 {\em pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
-\emkey{constraint-list-option} ::= {\em empty} $|$ {\em constraint-list} \\[1ex]
-\emkey{constraint-list}
-    ::= {\em constraint} \{ \TT{,} {\em constraint} \}\STAR{} \\[1ex]
-\emkey{constraint} ::= \TT{,}{\em -subexpression}
+\emkey{qualifier-list-option} ::= {\em empty} $|$ {\em qualifier-list} \\[1ex]
+\emkey{qualifier-list}
+    ::= {\em qualifier} \{ \TT{,} {\em qualifier} \}\STAR{} \\[1ex]
+\emkey{qualifier} ::= \TT{,}{\em -subexpression}
 	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
-\emkey{constraint} ::= {\em syntax-equation}
+\emkey{qualifier} ::= {\em syntax-equation}
 		       \begin{tabular}[t]{@{}l@{}}
 		       $|$ {\em pattern-equation} $|$ {\em default-equation} \\
 		       $|$ {\em alternative-equation} $|$ {\em guard}
@@ -6848,10 +6848,10 @@ would if a guard evaluated to false.
 	        ~~~ [see \pagref{SYNTAX-EQUATIONS}]
 	 	\\[1ex]
 \emkey{pattern-equation} ::= {\em syntax-expression}
-		\TT{:=\~~} {\em constraint-pattern}
+		\TT{:=\~~} {\em qualifier-pattern}
 	        ~~~ [see \pagref{PATTERN-EQUATIONS}]
 		\\[1ex]
-{\em constraint-pattern} ::= {\em pattern-object}
+{\em qualifier-pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
 \emkey{default-equation} ::= {\em syntax-variable}
 		\TT{:=?} {\em syntax-expression}
@@ -6879,7 +6879,7 @@ The \mkey{pattern}{in expression definition} of an expression definition
 is the subexpression before the \TT{<-{}-}.  If the expression definition
 with pattern $p$ is being matched to the expression $e$,
 the pattern equation $p$ \TT{:=\~~} $e$ is asserted, the
-constraint syntax and pattern equations in the definition
+qualifier syntax and pattern equations in the definition
 are asserted, and the definition guards are required to evaluate
 to \TT{true}.  Default equations are asserted as necessary.
 
@@ -7930,7 +7930,7 @@ otherwise.
 \ikey{Context sets}{set!context} are always searched exhaustively.
 
 An expression definition is an object (\secref{OBJECTS})
-that consists of a pattern, an optional list of constraints,
+that consists of a pattern, an optional list of qualifiers,
 an optional block, and an optional context.  An
 {\em expression-definition} (\pagref{EXPRESSION-DEFINITION})
 computes an expression definition that has no context.
@@ -7956,7 +7956,7 @@ The new expression definition has a different context, given by
 the second argument, than the first argument does.  The special
 value \ttmkey{UNDEFINED}{argument of an!expression-definition@{\tt
 expression-definition}} can be given as the {\em context} argument
-to create a new expression definition whose pattern, constraints, and block
+to create a new expression definition whose pattern, qualifiers, and block
 are the same as those of {\em expression-definition} argument
 but whose context part is missing and can be set later.
 
