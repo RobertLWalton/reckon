@@ -6691,7 +6691,7 @@ Still other qualifiers provide default values for missing
 arguments.
 
 An expression definition may have an expression block that executes
-in order to produce a value list for the expression if the definition
+in order to produce a value for the expression if the definition
 matches.  If a matching
 expression definition has no expression block, the expression
 evaluates to `\ttkey{true}'.  If no expression definition matches an
@@ -6716,9 +6716,10 @@ Syntax equations equate expressions that involve syntax variables,
 which are names beginning with a \TT{\$} followed by a capital letter.
 Pattern equations are like syntax equations but
 involve a pattern which can represent one of many possible syntax
-expressions.  Default equations assign values to syntax variables that are
-discarded when a pattern is unfolded to become the syntax expression
-it will actually represent.  Alternative equations specify alternatives
+expressions.  Default equations assign values to those
+syntax variables that where
+discarded when a pattern was unfolded to become the syntax expression
+it actually represented.  Alternative equations specify alternatives
 for simple atomic clauses that may be in a pattern.
 Guards are just expressions that must evaluate to
 \TT{true} in order for the match to succeed.
@@ -6761,18 +6762,18 @@ the syntax equation
 \begin{center}
 \verb|2+2 :=: $X|
 \end{center}
-that defines \TT{\$X}.  If there is then a guard `\TT{number(X)}',
+that defines \TT{\$X}.  If there is then a guard `\TT{X is a number}',
 the expression \TT{\$X}, namely `\TT{2+2}',
 will be evaluated in its context, the context in which `\TT{foo(2+2)}'
 appeared, to produce the value \TT{4}, which will become the value of
-\TT{X}, so the guard will become `\TT{number(4)}'.
+\TT{X}, so the guard will become `\TT{4 is a number}'.
 
 An expression cannot be evaluated if it contains any undefined syntax
 variables.  For example, if we began with the syntax equation
 \begin{center}
 \verb|foo(2+$Y) :=: foo($X)|
 \end{center}
-and guard `\TT{number(X)}', \TT{\$X} would be `\TT{2+\$Y}' which
+and guard `\TT{X is a number}', \TT{\$X} would be `\TT{2+\$Y}' which
 could not be evaluated.  If at some later time in the matching process
 the syntax equation
 \begin{center}
@@ -6780,7 +6781,7 @@ the syntax equation
 \end{center}
 is generated, then the value of \TT{\$X} becomes `\TT{2+7}'
 which can now be evaluated to produce the value \TT{9} for \TT{X}
-and allow the guard to become `\TT{number(9)}'.
+and allow the guard to become `\TT{9 is a number}'.
 
 In the above \TT{\$X} is an `unevaluated syntax variable' and
 \TT{X} is its `associated' `evaluated syntax variable'.  It is
@@ -7889,21 +7890,21 @@ used in evaluation.
 \item[\ttkey{all-values}]~\\
 All possible choices are tried and the
 successful results are collected in a set of results.  Each result
-in this set consists of a value list for the expression being evaluated
+in this set consists of a value for the expression being evaluated
 and values for each syntax variable in that expression.
 
 \item[\ttkey{consistent-values}]~\\
 All possible choices are tried and the
 successful results are collected in a set of results.  Then these results
 are tested to see if they are pairwise equal.
-All the value lists of the expression
+All the values of the expression
 being evaluated must be equal, and all the values of each syntax variable
-contained in the expression must be equal.  If all expression value lists or
-values of a syntax variable are equal, one of these expression value lists
-is returned as the value list of the expression, and one syntax variable value
+contained in the expression must be equal.  If all expression values or
+values of a syntax variable are equal, one of these expression values
+is returned as the value of the expression, and one syntax variable value
 is returned as the value of the syntax variable.
-If some of the expression value lists or syntax variable values are unequal, an
-error value giving the context of the evaluation and the unequal value lists
+If some of the expression values or syntax variable values are unequal, an
+error value giving the context of the evaluation and the unequal values
 or values is returned as the value of the expression or syntax variable.
 
 \end{list}
