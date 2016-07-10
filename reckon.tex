@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 9, 2016}
+\date{July 10, 2016}
 
 \maketitle
 
@@ -6828,17 +6828,12 @@ would if a guard evaluated to false.
 
 \begin{indpar}
 \emkey{expression-definition} ::=
-	{\em pattern} \TT{<-{}-} {\em qualifier-list-option} {\em block-option}
-	\\[1ex]
-{\em pattern} ::= \TT{<-{}-}{\em -subexpression}
-	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
-{\em pattern} ::= {\em pattern-object}
+	{\em pattern} \TT{<-{}-} {\em qualifier-list}\QMARK{}
+	                         {\em block}\QMARK{} \\[1ex]
+\emkey{pattern} ::= {\em pattern-object}
 	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
-\emkey{qualifier-list-option} ::= {\em empty} $|$ {\em qualifier-list} \\[1ex]
 \emkey{qualifier-list}
     ::= {\em qualifier} \{ \TT{,} {\em qualifier} \}\STAR{} \\[1ex]
-\emkey{qualifier} ::= \TT{,}{\em -subexpression}
-	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
 \emkey{qualifier} ::= {\em syntax-equation}
 		       \begin{tabular}[t]{@{}l@{}}
 		       $|$ {\em pattern-equation} $|$ {\em default-equation} \\
@@ -6849,11 +6844,9 @@ would if a guard evaluated to false.
 	        ~~~ [see \pagref{SYNTAX-EQUATIONS}]
 	 	\\[1ex]
 \emkey{pattern-equation} ::= {\em syntax-expression}
-		\TT{:=\~~} {\em qualifier-pattern}
+		\TT{:=\TILDE} {\em pattern}
 	        ~~~ [see \pagref{PATTERN-EQUATIONS}]
 		\\[1ex]
-{\em qualifier-pattern} ::= {\em pattern-object}
-	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
 \emkey{default-equation} ::= {\em syntax-variable}
 		\TT{:=?} {\em syntax-expression}
 	        ~~~ [see \pagref{DEFAULT-EQUATIONS}]
@@ -6865,12 +6858,10 @@ would if a guard evaluated to false.
 			  \{ \TT{|} {\em alternative} \}\STAR{}
 	                  ~~~ [see \pagref{ALTERNATIVE-EQUATIONS}]
 		\\[1ex]
-\emkey{alternative} ::= {\em atom}\PLUS{}
+\emkey{alternative} ::= {\em name} ~~~ [see \pagref{NAME}]
 		\\[1ex]
-\emkey{guard} ::= \TT{,}{\em -subexpression}
-	~~~ [see {\em O-subexpression}, \pagref{O-SUBEXPRESSION}] \\[1ex]
-\emkey{block-option} ::= {\em empty} $|$ \TT{\{ \}} $|$ {\em block} \\[1ex]
-\emkey{block} ::= \TT{\{} {\em statement}
+\emkey{guard} ::= {\em subexpression} \\[1ex]
+\emkey{block} ::= \TT{\{~\}} $|$ \TT{\{} {\em statement}
                            \{ \TT{;} {\em statement} \}\STAR{} \TT{\}}
 	    \\[1ex]
 {\em statement} ::= see \pagref{STATEMENT}
@@ -6879,10 +6870,12 @@ would if a guard evaluated to false.
 The \mkey{pattern}{in expression definition} of an expression definition
 is the subexpression before the \TT{<-{}-}.  If the expression definition
 with pattern $p$ is being matched to the expression $e$,
-the pattern equation $p$ \TT{:=\~~} $e$ is asserted, the
-qualifier syntax and pattern equations in the definition
+the pattern equation $e$ \TT{:=\TILDE} $p$ is asserted and
+alternative equations are used to unfold the pattern.  If this
+match succeeds, syntax and pattern equation qualifiers in the definition
 are asserted, and the definition guards are required to evaluate
-to \TT{true}.  Default equations are asserted as necessary.
+to \TT{true}.
+Default equations are asserted as necessary.
 
 Just before an expression definition is matched to an expression, the
 definition is copied, and the act of copying 
@@ -6908,19 +6901,21 @@ The syntax of a syntax equation is:
 			    {\em syntax-expression}
 			    \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
-			   $|$ {\em atom} $|$ {\em object}
+			   $|$ {\em atom-name} $|$ {\em object}
 			   \\[1ex]
 \emkey{syntax-variable}\label{SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
-			::= & \TT{\$} {\em capitalized-word } \\
-			$|$ & \TT{\$} \TT{(} {\em capitalized-word }
-			      {\em name-component}\STAR{} \TT{)} \\
+			::= & \TT{\$} {\em capitalized-word }
+				as a single lexeme \\
+			$|$ & \TT{\$} \TT{(} {\em name} beginning with
+			      {\em capitalized-word } \TT{)} \\
 			$|$ & {\em place-holding-syntax-variable}
 			    ~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\
 			$|$ & {\em evaluated-syntax-variable}
 			    ~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\
 			\end{tabular} \\[1ex]
-{\em name-component} ::= see \pagref{NAME-COMPONENT}
+{\em capitalized-word} ::= {\em word} beginning with capitalized letter
+				in which all letters are capitalized
 \end{indpar}
 
 Syntax equations can be consistent or inconsistent according to the:
@@ -6943,6 +6938,10 @@ Syntax equations that are not consistent are \key{inconsistent}.
 \end{list}
 \end{indpar}
 
+A syntax variable of the form \TT{\$}{\em captitalized-word}
+is treated as being the same as
+\TT{\$(}{\em captitalized-word}\TT{)}.
+
 The following rules amend the above process of consistency checking:
 
 \begin{indpar}
@@ -6951,8 +6950,6 @@ The following rules amend the above process of consistency checking:
 An object whose \TT{.initiator} is \TT{"("} and whose
 \TT{.terminator} is \TT{")"} is treated as if it had no
 \TT{.initiator} or \TT{.terminator} attributes.
-Also, a syntax variable name in \TT{( )} parentheses is treated
-as if there were no parentheses.
 
 \item[\ikey{Atom Rule}{atom rule}:]\label{ATOM-RULE}
 In a syntax equation asserting the identity of an atom and an object,
@@ -6967,18 +6964,23 @@ Thus the following identities are consistent:
 \begin{tabular}{r@\TT{~:=:~}l}
 \verb/5 + 6/ & \verb/( 5 + 6 )/ \\
 \verb/5/ & \verb/( 5 )/ \\
-\verb/($X)/ & \verb/{ 5 + 6 }/ \\
 \end{tabular}
 \end{center}
 
-From a consistent syntax equation asserting the syntax identity
-of two objects new equations may be deduced for every attribute
+The following rule is applied when two objects are consistent: 
+
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Propagation Rule}{propagation rule}:]\label{PROPAGATION-RULE}
+From a consistent syntax equation asserting the identity
+of two objects new equations are deduced for every attribute
 label shared by the two objects.
 Given such an attribute label, the values
 of the attribute for the two objects are asserted to be syntactically
-identical.  This is called \key{propagation}
-of the syntax equation, and the rule that permits it is called
-the \ikey{Propagation Rule}{propagation rule}\label{PROPAGATION-RULE}.
+identical.
+\end{list}
+\end{indpar}
+
 For example, from
 
 \begin{center}
@@ -7102,7 +7104,7 @@ a set of syntax expressions.  Patterns are used in
 a {\em pattern}.  The syntax of a pattern equations and patterns is:
 
 \begin{indpar}
-\emkey{pattern-equation} ::= {\em syntax-expression} \ttkey{:=\~~}
+\emkey{pattern-equation} ::= {\em syntax-expression} \ttkey{:=\TILDE}
 			    {\em pattern}
 			    \\[1ex]
 \emkey{pattern} ::= {\em pattern-object}
@@ -7270,7 +7272,7 @@ equation whose right side pattern has been unfolded.  Thus in the
 example just given one may may deduce:
 
 \begin{center}
-\begin{tabular}{r@{\TT{~:=\~~~}}l}
+\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
 \verb/{b}/ & \verb/($X)/ \\
 \verb/{5 + c}/ & \verb/($Z)/ \\
 \verb/(exp 1)/ & \verb/($Y)/ \\
@@ -7323,8 +7325,8 @@ a syntax expression, and $p$ a pattern:
 \begin{list}{}{}
 \item [\ikey{Pattern Transitivity Rule}{pattern transitivity rule}:]%
 \label{PATTERN-TRANSITIVITY-RULE}
-From $v$ \TT{:=:} $e$ and $v$ \TT{:=\~~} $p$
-we deduce $e$ \TT{:=\~~} $p$.
+From $v$ \TT{:=:} $e$ and $v$ \TT{:=\TILDE} $p$
+we deduce $e$ \TT{:=\TILDE} $p$.
 \end{list}
 \end{indpar}
 
@@ -7365,7 +7367,7 @@ so the pattern is already unfolded, and by the Propagation Rule
 we get
 
 \begin{center}
-\begin{tabular}{r@{\TT{~:=\~~~}}l}
+\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
 \verb/replace/ & \verb/replace/ \\
 \verb/{b}/ & \verb/($X)/ \\
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
@@ -7383,7 +7385,7 @@ affected, and we have the 4 equations
 \verb/:=~/ \\
 \verb/replace ($X) [by ($Z) in ($Y)]/ \\
 \end{tabular} \\[2ex]
-\begin{tabular}{r@{\TT{~:=\~~~}}l}
+\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
 \verb/replace/ & \verb/replace/ \\
 \verb/{b}/ & \verb/($X)/ \\
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[by ($Z) in ($Y)]/ \\
@@ -7393,7 +7395,7 @@ affected, and we have the 4 equations
 In other words, because the pattern in the equation
 
 \begin{center}
-\begin{tabular}{r@{\TT{~:=\~~~}}l}
+\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
 \verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
 \end{tabular}
 \end{center}
@@ -7466,7 +7468,7 @@ For example, given the equations:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \TT{:=\~~} & \verb/sort ($X) . in direction ($Y) ?/ \\
+\verb/sort x/ & \TT{:=\TILDE} & \verb/sort ($X) . in direction ($Y) ?/ \\
 \verb/$Y/ & \tt :=? & \verb|ascending|
 \end{tabular}
 \end{center}
@@ -7475,7 +7477,7 @@ the pattern in the first equation will be unfolded to give the equation:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \TT{:=\~~} & \verb/sort ($X)/ \\
+\verb/sort x/ & \TT{:=\TILDE} & \verb/sort ($X)/ \\
 \end{tabular}
 \end{center}
 
@@ -7597,7 +7599,7 @@ For example, the pattern equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \TT{:=\~~} & \verb/sort ($X) . ascending ASCENDING ??/ \\
+\verb/sort x/ & \TT{:=\TILDE} & \verb/sort ($X) . ascending ASCENDING ??/ \\
 \end{tabular}
 \end{center}
 
@@ -7614,7 +7616,7 @@ and the pattern equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x ascending/ & \TT{:=\~~} &
+\verb/sort x ascending/ & \TT{:=\TILDE} &
 	\verb/sort ($X) . ascending ASCENDING ??/ \\
 \end{tabular}
 \end{center}
@@ -7641,7 +7643,7 @@ is created.  For example, when the pattern in the equation
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x by 5 by 10/ & \TT{:=\~~}
+\verb/increment x by 5 by 10/ & \TT{:=\TILDE}
 			      & \verb/increment ($X) . by ($Y) ...?/ \\
 \end{tabular}
 \end{center}
@@ -7650,7 +7652,7 @@ is unfolded, the following equations result:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x by 5 by 10/ & \TT{:=\~~}
+\verb/increment x by 5 by 10/ & \TT{:=\TILDE}
 			      & \verb/increment ($X) by ($Y$1) by ($Y$2)/ \\
 \verb/$Y/ & \tt :=: & \verb|($Y$1, $Y$2)|
 \end{tabular}
@@ -7667,7 +7669,7 @@ resulting list to be empty.  Thus
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x/ & \TT{:=\~~}
+\verb/increment x/ & \TT{:=\TILDE}
 			      & \verb/increment ($X) . by ($Y) ...?/ \\
 \end{tabular}
 \end{center}
@@ -7676,7 +7678,7 @@ yields
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/increment x/ & \TT{:=\~~}
+\verb/increment x/ & \TT{:=\TILDE}
 			      & \verb/increment ($X)/ \\
 \verb/$Y/ & \tt :=: & \verb|()|
 \end{tabular}
@@ -7787,12 +7789,12 @@ equations, among which are:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sum (1+1) and (5+5)/ & \TT{:=\~~}
+\verb/sum (1+1) and (5+5)/ & \TT{:=\TILDE}
 			      & \verb/sum ($X) and ($Y)/ \\
 \verb/$X/ & \tt :=: & \verb/(1+1)/ \\
-\verb/$Y/ & \TT{:=:\~~} & \verb/(5+5)/ \\
+\verb/$Y/ & \TT{:=:\TILDE} & \verb/(5+5)/ \\
 \verb/X/ & \tt :=: & \verb/2/ \\
-\verb/Y/ & \TT{:=:\~~} & \verb/10/ \\
+\verb/Y/ & \TT{:=:\TILDE} & \verb/10/ \\
 \end{tabular}
 \end{center}
 
@@ -8069,7 +8071,7 @@ The code of a block has the following syntax:
 \emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
 \emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}] \\[1ex]
 \emlkey{pattern}{-assignment-statement} ::=
-	{\em pattern} \TT{\~~=\~~}\index{~=~@{\TT{\~~=\~~}}}
+	{\em pattern} \TT{\TILDE=\TILDE}\index{~=~@{\TT{\TILDE=\TILDE}}}
 	{\em right-side} \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
 \emkey{unguarded-subblock} ::= \TT{\{} {\em statement-group} \TT{\}} \\[1ex]
