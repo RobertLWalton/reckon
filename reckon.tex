@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 10, 2016}
+\date{July 11, 2016}
 
 \maketitle
 
@@ -3392,7 +3392,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \begin{tabular}{l}
 \emkey{object-element}\label{OBJECT-ELEMENT}
     ::= {\em object-identifier} $|$ {\em atom-name} $|$ {\em bracketed-list} \\
-\emkey{atom-name}
+\emkey{atom-name}\label{ATOM-NAME}
     ::= {\em word} $|$ {\em quoted-string}
 		   $|$ {\em number-name} $|$ {\em bracketed-label} \\
 \emkey{number-name} \begin{tabular}[t]{rl}
@@ -6830,8 +6830,7 @@ would if a guard evaluated to false.
 \emkey{expression-definition} ::=
 	{\em pattern} \TT{<-{}-} {\em qualifier-list}\QMARK{}
 	                         {\em block}\QMARK{} \\[1ex]
-\emkey{pattern} ::= {\em pattern-object}
-	~~~ [see \pagref{PATTERN-OBJECT}] \\[1ex]
+\emkey{pattern} ::= see \pagref{PATTERN}] \\[1ex]
 \emkey{qualifier-list}
     ::= {\em qualifier} \{ \TT{,} {\em qualifier} \}\STAR{} \\[1ex]
 \emkey{qualifier} ::= {\em syntax-equation}
@@ -6894,6 +6893,11 @@ equations.
 A \key{syntax equation} asserts syntactic identity between two
 \skey{syntax expression}s.  A syntax expression is a syntax variable,
 an atom, or an object whose attribute values are syntax expressions.
+Atoms are represented by {\em atom-names} (\pagref{ATOM-NAME})
+and objects by {\em bracketed-lists} (\pagref{BRACKETED-LIST})
+where \TT{\{|~|\}} brackets may be omitted if the object representation
+is surrounded by operators or other suitable delimiters (see \pagref{TBD}).
+
 The syntax of a syntax equation is:
 
 \begin{indpar}
@@ -6901,7 +6905,7 @@ The syntax of a syntax equation is:
 			    {\em syntax-expression}
 			    \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
-			   $|$ {\em atom-name} $|$ {\em object}
+			   $|$ {\em atom} $|$ {\em object}
 			   \\[1ex]
 \emkey{syntax-variable}\label{SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
@@ -6909,13 +6913,20 @@ The syntax of a syntax equation is:
 				as a single lexeme \\
 			$|$ & \TT{\$} \TT{(} {\em name} beginning with
 			      {\em capitalized-word } \TT{)} \\
-			$|$ & {\em place-holding-syntax-variable}
-			    ~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\
-			$|$ & {\em evaluated-syntax-variable}
-			    ~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\
+			$|$ & {\em place-holding-syntax-variable} \\
+			$|$ & {\em evaluated-syntax-variable} \\
 			\end{tabular} \\[1ex]
 {\em capitalized-word} ::= {\em word} beginning with capitalized letter
-				in which all letters are capitalized
+				in which all letters are capitalized \\[1ex]
+\emkey{place-holding-syntax-variable} ::= \TT{\$}
+	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
+\emkey{evaluated-syntax-variable} ::= {\em capitalized-word}
+	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
+\emkey{atom}\label{ATOM-REPRESENTATION}
+    ::= {\em atom-name} \\[1ex]
+\emkey{object}\label{OBJECT-REPRESENTATION}
+    ::= {\em bracketed-list} with \TT{\{|~|\}} possibly omitted:
+                                                             see text
 \end{indpar}
 
 Syntax equations can be consistent or inconsistent according to the:
@@ -6984,7 +6995,7 @@ identical.
 For example, from
 
 \begin{center}
-\verb/sort ($X) {| foo = 5 |} :=: sort ( 5 + 6 ) {| foo = 10 |}/
+\verb/{| sort ($X) | foo = 5 } :=: {| sort ( 5 + 6 ) | foo = 10 }/
 \end{center}
 
 we can deduce by propagation that
@@ -7001,19 +7012,29 @@ The deduced equations need not be consistent in order to be deduced.
 In this case the first two equations are consistent and the third is not.
 
 In addition to the Propagation Rule, we apply the following, where
-$v$ is a variable and $e_1$ and $e_2$ are subexpressions of the original
-syntax equations:
+$v$ is a syntax variable and
+$e_1$, $e_2$, and $e_3$ are subexpressions of the original
+syntax equations (and may possibly also be syntax variables):
 
 \begin{indpar}
 \begin{list}{}{}
 \item [\ikey{Restricted Symmetry Rule}{restricted!symmetry rule}:]%
 \label{RESTRICTED-SYMMETRY-RULE}
-From $e_1$ \TT{:=:} $v$ we deduce $v$ \TT{:=:} $e_1$.
+From $e_1$ \TT{:=:} $e_2$ we deduce $e_2$ \TT{:=:} $e_1$.
 
 \item [\ikey{Restricted Transitivity Rule}{restricted!transitivity rule}:]%
-\label{RESTRICTED-TRANSITIVITY-RULE}
+\label{RESTRICTED-TRANSITIVITY-RULE} ~\\
+\vspace*{-2ex}
+\begin{list}{}{}
+\item[(a)]
+From $e_1$ \TT{:=:} $e_2$ and $e_2$ \TT{:=:} $e_3$
+we deduce $e_1$ \TT{:=:} $e_3$.
+
+\item[(b)]
 From $v$ \TT{:=:} $e_1$ and $v$ \TT{:=:} $e_2$
 we deduce $e_1$ \TT{:=:} $e_2$.
+\end{list}
+
 \end{list}
 \end{indpar}
 
@@ -7045,54 +7066,57 @@ we derive by propagation that
 
 where we have put superscripts $^1$ and $^2$ on the two \TT{5}'s to
 indicate that they are different subexpressions of the original
-syntax equation expressions.  But
-but we are \underline{not} permitted to apply transitivity
-to deduce \TT{\$X := \$Y},
-because the two \TT{5}'s are not the \underline{same} subexpression of
-the original syntax equation expressions.
+syntax equations.  But our rules do \underline{not}
+generate the syntax equation \TT{5$^1$ :=: 5$^2$} and as a consequence
+they \underline{cannot} generate \TT{\$X := \$Y}.
 
-However, we do make \TT{:=:} different subexpressions
-that are variables with the same name.
+However, suppose we had instead:
 
-\begin{quote}
+\begin{center}
+\verb/sort ($X, $X) :=: sort ( 5, 5 )/
+\end{center}
 
-As a technical matter we note that if we did use unrestricted rules
-of symmetry, and transitivity, we would not get any essentially new results.
-Specifically, the set of variables $v$ for which there is an equation of the
-form $v$ \TT{:=:} $e$ where $e$ is not a variable would not expand.  Here
-we assume that the original equations and all equations deduced from
-these by Propagation, Restricted Symmetry, and Restricted Transitivity are
-consistent.
+we derive by propagation that
 
-Proof Sketch: Let $S$ be the original set of syntax equations.  Let $S'$ be
-$S$ plus the equations deducible from equations in $S$ by using Propagation,
-Restricted Symmetry, and Restricted Transitivity.
+\begin{center}
+\begin{tabular}{r@\TT{~:=:~}l}
+\verb/sort/ & \verb/sort/ \\
+\verb/,/ & \verb/,/ \\
+\verb/$X/ & \verb/5/$^1$ \\
+\verb/$X/ & \verb/5/$^2$ \\
+\end{tabular}
+\end{center}
 
-Let $S''$ be the set of equations $e_1$ \TT{:=:} $e_n$
-such that there exists a sequence of expressions $e_2$, $e_3$,
-\ldots, $e_{n-1}$ that are \underline{not} variables such that for $i<n$,
-either $e_i$ \TT{:=:} $e_{i+1}$
-or $e_{i+1}$ \TT{:=:} $e_i$ is in $S'$.  $n=2$ is allowed.
+and by restricted transitivity that
 
-Let $S'''$ be $S$ plus
-the equations deducible from $S$ by Propagation, Symmetry,
-and Transitivity, without any restriction.
+\begin{center}
+\begin{tabular}{r@\TT{~:=:~}l}
+\verb/5/$^1$ & \verb/5/$^2$ \\
+\end{tabular}
+\end{center}
 
-Then $S\subseteq S'\subseteq S''\subseteq S'''$.
+since both occurances of \TT{\$X} are identified by
+Restricted Transitivity (b).  Lastly, if
+we started instead with:
 
-If we can prove that
-$S''=S'''$, the result will follow, since for a given $v$ an equation
-of the form $v$ \TT{:=:} $e$ with $e$ a non-variable can exist in $S''$ only
-if an equation of this form exists in $S'$.
+\begin{center}
+\begin{tabular}{r@\TT{~:=:~}l}
+\verb/sort/ & \verb/sort/ \\
+\verb/,/ & \verb/,/ \\
+\verb/$X/ & \verb/5/ \\
+\verb/$X/ & \verb/6/ \\
+\end{tabular}
+\end{center}
 
-So we need to prove $S'''\subseteq S''$.  We do this by mathematical
-induction on the size of the deduction of an equation in $S'''$.
-This amounts to applying the general rules, Symmetry, Transitivity,
-and Propagation to equations in $S''$ and showing that the resulting
-consequent must be an equation in $S''$, under the assumption that the
-equations in $S'$ are consistent.
+we would get:
 
-\end{quote}
+\begin{center}
+\begin{tabular}{r@\TT{~:=:~}l}
+\verb/5/ & \verb/6/ \\
+\end{tabular}
+\end{center}
+
+which is inconsistent.
 
 \subsection{Patterns}
 \label{PATTERNS}
@@ -7106,62 +7130,32 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \begin{indpar}
 \emkey{pattern-equation} ::= {\em syntax-expression} \ttkey{:=\TILDE}
 			    {\em pattern}
-			    \\[1ex]
-\emkey{pattern} ::= {\em pattern-object}
-\label{PATTERN}
-\\[3ex]
-\emkey{pattern-object} ::=
+\\[1ex]
+\emkey{pattern} ::= {\em object} [see \pagref{OBJECT-REPRESENTATION}]
+		    whose list portion and attribute values are
+		    {\em pattern-lists}
+\\[1ex]
+\emkey{pattern-list} ::=
     \begin{tabular}[t]{l}
-    {\em pattern-term-option}
+    {\em pattern-term}\QMARK{}
         \{ {\em pattern-separator} {\em pattern-term} \}\STAR{} \\
-    {\em pattern-attribute-representations}
     \end{tabular}
-\label{PATTERN-OBJECT}
+\label{PATTERN}
     \\[1ex]
-\emkey{pattern-term-option} ::= {\em empty} $|$ {\em pattern-term} \\[1ex]
-\emkey{pattern-separator} ::= \ttmkey{.}{pattern separator} \\[1ex]
-\emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-qualifier-option}
+\emkey{pattern-separator} ::= \ttmkey{\TILDE}{pattern separator} \\[1ex]
+\emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-qualifier}\QMARK{}
 	\\[1ex]
-\emkey{pattern-clause} ::= {\em pattern-factor}\PLUS{}
+\emkey{pattern-clause} ::= {\em pattern-factor}\PLUS{} ~~~ [see text]
 	\\[1ex]
-\emkey{pattern-factor} ::= {\em pattern-object} $|$ {\em atom}
-		       $|$ {\em syntax-variable} \\[1ex]
-\emkey{pattern-qualifier-option} ::=
-	{\em empty} $|$ {\em pattern qualifier} \\[1ex]
+\emkey{pattern-factor} ::= {\em atom-name}
+		       $|$ {\em syntax-variable}
+		       $|$ {\em pattern}
+		       \\[1ex]
 \emkey{pattern-qualifier} ::=
 		           \ttmkey{?}{pattern qualifier}
 		       $|$ \ttmkey{??}{pattern qualifier}
 		       $|$ \ttmkey{...}{pattern qualifier}
 		       $|$ \ttmkey{...?}{pattern qualifier}
-	\\[1ex]
-\emlkey{pattern-attribute-}{representations}
-\\\hspace*{0.5in}
-	\begin{tabular}[t]{rl}
-        ::= & {\em empty} \\
-	$|$ & \TT{\{| |\}} \\
-	$|$ & \TT{\{|}
-	      \begin{tabular}[t]{@{}l@{}}
-	      {\em pattern-attribute-representation} \\
-	      \{ \TT{;}
-	              {\em pattern-attribute-representation} \}\STAR{}
-	      \TT{|\}} \\
-	      \end{tabular}
-	\end{tabular}
-\\[1ex]
-\emlkey{pattern-attribute-}{representation} ::=
-\\\hspace*{0.5in}
-    {\em required-attribute-representation}
-    $|$ {\em optional-attribute-representation}
-\\[1ex]
-\emlkey{required-pattern-attribute-}{representation} ::=
-\\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags-option} \TT{=}
-	      {\em pattern}
-\\[1ex]
-\emlkey{optional-pattern-}{attribute-representation} ::=
-\\\hspace*{0.5in}
-	{\em attribute-label} {\em attribute-label-flags-option} \TT{=?}
-	      {\em pattern}
 \end{indpar}
 
 A pattern represents one of many possible syntax expressions.  The
@@ -7169,7 +7163,7 @@ syntax expression it represents is made by concatenating the
 {\em pattern-clauses} in different ways.  For example,
 
 \begin{center}
-\verb/replace ($X) . in ($Y) . by ($Z)/
+\verb/replace ($X) ~ in ($Y) ~ by ($Z)/
 \end{center}
 
 represents one of the two syntax expressions:
