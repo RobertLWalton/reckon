@@ -7248,7 +7248,7 @@ any unfolding of the {\em pattern}.
 
 \item Every {\em pattern-clause} must contain a {\em pattern-factor}
 that is either an {\em atom} or a {\em pattern} that is a
-{\em bracketed-list} with an \TT{.initiator}.
+{\em bracketed-list} with an \TT{.initiator} other than `\TT{(}'.
 
 \end{enumerate}
 
@@ -7262,8 +7262,9 @@ A pattern equation is \key{consistent} if its {\em pattern}
 has a unique unfolding such that:
 \begin{enumerate}
 \item if the unfolded {\em pattern} is a single atom,
-the syntax expression (left side) is an identical atom, or
-\item if the unfolded pattern is an object, the syntax expression (left side)
+the syntax expression (pattern equation left side) is an identical atom, or
+\item if the unfolded pattern is an object, the syntax expression (pattern
+equation left side)
 is an object such that:
 \begin{enumerate}
 \item there is a \underline{unique}
@@ -7277,12 +7278,12 @@ list with identical \TT{.initiator} and \TT{.terminator}, except
 that a pattern bracketed list with \TT{.initiator} \TT{"("} and
 \TT{.terminator} \TT{")"} and no other non-list-element attributes
 may be matched to a non-empty sequence of object elements after
-this sequence is made into a \TT{(~)} bracketed list
+this sequence has been made into a \TT{(~)} bracketed list
 \end{enumerate}
-\item the object and the pattern have
+\item and the object and the pattern have
 the same non-list-element
 attribute labels, and all these attributes in both object and pattern
-have exactly one value
+each have exactly one value
 \end{enumerate}
 \end{enumerate}
 
@@ -7295,8 +7296,39 @@ the bracketed list in the unfolded {\em pattern}, and the left side
 is the bracketed list in the object this is matched to by the
 consistency rule.
 
+If the right side of any deduced pattern equation is not a {\em pattern},
+the pattern equation is made into a syntax equation.
+
 \end{list}
 \end{indpar}
+
+One way in which pattern equations differ from syntax equations
+is that \TT{(~)} parentheses cannot be omitted in the pattern,
+but they can be omitted in the syntax expression when they
+surround a sequence of several atoms that is bounded by atoms
+named in the pattern.  For example,
+
+\begin{center}
+\verb/sin my variable :=~ sin ($X)/
+\end{center}
+
+becomes
+
+\begin{center}
+\verb/sin (my variable) :=~ sin ($X)/
+\end{center}
+
+and propagation deduces first
+
+\begin{center}
+\verb/(my variable) :=: ($X)/
+\end{center}
+
+and then
+
+\begin{center}
+\verb/{|my variable|} :=: $X/
+\end{center}
 
 Patterns appear in pattern equations, which are just
 like syntax equations except their right sides are patterns and not
