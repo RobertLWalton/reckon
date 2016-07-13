@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 11, 2016}
+\date{July 13, 2016}
 
 \maketitle
 
@@ -7132,8 +7132,11 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 			    {\em pattern}
 \\[1ex]
 \emkey{pattern} ::= {\em object} [see \pagref{OBJECT-REPRESENTATION}]
-		    whose list portion and attribute values are
-		    {\em pattern-lists}
+		    \begin{tabular}[t]{l}
+		    whose list portion is a {\em pattern-list} \\
+		    and whose attribute values are
+		    {\em pattern-factors} \\
+		    \end{tabular}
 \\[1ex]
 \emkey{pattern-list} ::=
     \begin{tabular}[t]{l}
@@ -7150,7 +7153,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-factor} ::= {\em atom-name}
 		       $|$ {\em syntax-variable}
 		       $|$ {\em pattern}
-		       \\[1ex]
+       \\[1ex]
 \emkey{pattern-qualifier} ::=
 		           \ttmkey{?}{pattern qualifier}
 		       $|$ \ttmkey{??}{pattern qualifier}
@@ -7158,15 +7161,16 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 		       $|$ \ttmkey{...?}{pattern qualifier}
 \end{indpar}
 
-A pattern represents one of many possible syntax expressions.  The
-syntax expression it represents is made by concatenating the
+A pattern represents one of many possible syntax expressions, which are
+called `\skey{unfolded pattern}s' or `\skey{unfolding}s' of the pattern,
+and are made by concatenating the
 {\em pattern-clauses} in different ways.  For example,
 
 \begin{center}
 \verb/replace ($X) ~ in ($Y) ~ by ($Z)/
 \end{center}
 
-represents one of the two syntax expressions:
+has two unfoldings:
 
 \begin{center}
 \verb/replace ($X) in ($Y) by ($Z)/ \\
@@ -7174,24 +7178,31 @@ or \\
 \verb/replace ($X) by ($Z) in ($Y)/ 
 \end{center}
 
-The rules for pattern representation are:
+The rules for unfolding are:
 
 \begin{enumerate}
-\item The represented {\em syntax-expression} is a sequence of
+\item An unfolding of a {\em pattern} is a sequence of
 {\em pattern-clauses} from the {\em pattern} taken in any order,
-\underline{except}, if the first {\em pattern-clause} in the
-{\em pattern} is not preceded by {\em pattern-separator} `\TT{.}',
-it must be first in the {\em syntax-expression}.
+\underline{except} the first {\em pattern-clause} in the
+{\em pattern} must be first in the unfolded {\em pattern}.
+All {\em pattern-qualifiers} are removed from the {\em pattern-clauses}
+in the unfolded {\em pattern}.
+
+If a {\em pattern} attribute has an attribute value that is a {\em pattern},
+this attribute value {\em pattern} must be unfolded in its containing
+unfolded {\em pattern}.  If a {\em pattern} attribute that has the
+`\TT{?}' flag appears in the unfolded {\em pattern}, the `\TT{?}' flag
+is removed from the attribute in the unfolded {\em pattern}.
 
 \item A {\em pattern-clause} not followed by a {\em pattern-qualifier}
 (\TT{?}, \TT{??}, \TT{...}, or \TT{...?})
 in the {\em pattern} must appear exactly
-once in the represented {\em syntax-expression}.
+once in the unfolded {\em pattern}.
 
 \item A {\em pattern-clause} followed by `\TT{?}'
 in the {\em pattern} is an \key{optional pattern clause}
 and must appear exactly once or not at all
-in the represented {\em syntax-expression}.
+in the unfolded {\em pattern}.
 See \secref{DEFAULT-EQUATIONS} for examples.
 
 \item\label{OPTIONAL-TRUTH-VALUE-CLAUSE-RULE}
@@ -7199,39 +7210,51 @@ A {\em pattern-clause} followed by `\TT{??}'
 in the {\em pattern} is an
 \ikey{optional truth-value pattern clause}{optional truth-value!pattern clause}.
 Like an optional pattern clause this must appear exactly once or not at all
-in the represented {\em syntax-expression}.
+in the unfolded {\em pattern}.
 In addition, the {\em pattern-clause} must end with a {\em syntax-variable},
-and this may be omitted in the represented {\em syntax-expression}.
+and this may be omitted in the unfolded {\em pattern}.
 See \secref{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\TT{...}'
 in the {\em pattern} is a \key{repeated pattern clause}
 and must appear one or more times
-in the represented {\em syntax-expression}.
+in the unfolded {\em pattern}.
 See \secref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\TT{...?}'
 in the {\em pattern} is an \lkey{optional repeated}{pattern clause}
 and must appear one or more times or not at all
-in the represented {\em syntax-expression}.
+in the unfolded {\em pattern}.
 See \secref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em syntax-variable} in a {\em pattern}
 that appears in an {\em alternative-equation}
 is called an \key{alternative-syntax-variable} and must be replaced
-(along with any parentheses surrounding it)
-in the represented {\em syntax-ex\-pres\-sion}
+in the unfolded {\em pattern}
 by one of the {\em alternatives} from the {\em alternative-equation}.
 See \secref{ALTERNATIVE-EQUATIONS} for examples.
 
-\item A {\em required-pattern-attribute-representation}
-that has an `\TT{=}' sign
-must appear exactly once in the represented {\em syntax-expression}.
+\item An attribute that does \underline{not} have the \TT{?} flag
+must appear exactly once in the unfolded {\em pattern}.
 
-\item An {\em optional-pattern-attribute-representation}
-that has an `\TT{=?}' sign
+\item An attribute that \underline{does} have the \TT{?} flag
 and must appear exactly once or not at all
-in the represented {\em syntax-expression}.
+in the unfolded {\em pattern}.
+
+\end{enumerate}
+
+There are also some extra rules for {\em pattern} syntax:
+
+\begin{enumerate}
+
+\item The first {\em pattern-clause} of a {\em pattern}
+may not have any {\em pattern-qualifier} other than `\TT{...}'.
+Thus the first {\em pattern-clause} may not be omitted in
+any unfolding of the {\em pattern}.
+
+\item Every {\em pattern-clause} must contain a {\em pattern-factor}
+that is either an {\em atom} or a {\em pattern} that is a
+{\em bracketed-list} with an \TT{.initiator}.
 
 \end{enumerate}
 
