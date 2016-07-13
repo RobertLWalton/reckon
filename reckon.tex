@@ -7188,12 +7188,6 @@ The rules for unfolding are:
 All {\em pattern-qualifiers} are removed from the {\em pattern-clauses}
 in the unfolded {\em pattern}.
 
-If a {\em pattern} attribute has an attribute value that is a {\em pattern},
-this attribute value {\em pattern} must be unfolded in its containing
-unfolded {\em pattern}.  If a {\em pattern} attribute that has the
-`\TT{?}' flag appears in the unfolded {\em pattern}, the `\TT{?}' flag
-is removed from the attribute in the unfolded {\em pattern}.
-
 \item A {\em pattern-clause} not followed by a {\em pattern-qualifier}
 (\TT{?}, \TT{??}, \TT{...}, or \TT{...?})
 in the {\em pattern} must appear exactly
@@ -7257,6 +7251,44 @@ that is either an {\em atom} or a {\em pattern} that is a
 {\em bracketed-list} with an \TT{.initiator}.
 
 \end{enumerate}
+
+Pattern equations are similar to but different from syntax equations.
+They obey the following rules:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Pattern Consistency Rule}{pattern consistency rule}:] ~\\
+A pattern equation, after its pattern has been unfolded,
+is \key{consistent} if it:
+\begin{enumerate}
+\item asserts identity between two identical atoms, or
+\item asserts identity between an object and a pattern such that:
+\begin{enumerate}
+\item there is a \underline{unique}
+(left to right) order preserving matching of list elements
+of the pattern to list elements or list element sequences
+of the object such that:
+\begin{enumerate}
+\item each pattern atom is matched to an identical object atom
+\item each pattern bracketed list is matched to a object bracketed
+list with identical \TT{.initiator} and \TT{.terminator}, except
+that a pattern bracketed list with \TT{.initiator} \TT{"("} and
+\TT{.terminator} \TT{")"} and no other non-list-element attributes
+may be matched to a non-empty sequence of object elements after
+that is made into a \TT{(~)} bracketed list
+\end{enumerate}
+\item the object and the pattern have
+the same non-list-element
+attribute labels, and all these attributes in both object and pattern
+have exactly one value
+\end{enumerate}
+\end{enumerate}
+However, this rule is applied after applying the Parentheses
+and Atom Rules below.
+
+Syntax equations that are not consistent are \key{inconsistent}.
+\end{list}
+\end{indpar}
 
 Patterns appear in pattern equations, which are just
 like syntax equations except their right sides are patterns and not
