@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 18, 2016}
+\date{July 24, 2016}
 
 \maketitle
 
@@ -6937,66 +6937,57 @@ Syntax equations can be consistent or inconsistent according to the:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Consistency Rule}{consistency rule}:]
-A syntax equation is \key{consistent} if it
+\item[\ikey{Consistency Rules}{consistency rules}:]~
+
 \begin{enumerate}
-\item Asserts identity between a syntax variable and a syntax expression, or
-\item Asserts identity between two identical atoms, or
-\item Asserts identity between two objects each of which has the same
-attribute labels as the other, and all the attributes in both objects
-have exactly one value.
-\item Asserts identity between two objects which have equal
-\TT{.initiator} and \TT{.ter\-min\-a\-tor} attributes, but no other
-non-list-element attributes,
-and one or both of the objects has a single
-object list element that is a syntax variable.
+\item If either syntax expression has both an \TT{.initiator} equal to \TT{"("}
+and a \TT{.ter\-min\-a\-tor} equal to \TT{")"}, its \TT{.initiator} and
+\TT{.terminator} attributes are removed and these rules are applied to the
+result.
+\item If either syntax expression is an object with only a single attribute
+that is a list element with a single value,
+the object is replace by this list element,
+and these rules are applied to the
+result.
+\item If one syntax expression is a syntax variable, the syntax equation
+is consistent.
+\item If the two syntax expressions are both atoms and these atoms are
+equal, the syntax equation is consistent.
+\item If the two syntax expressions are both objects, and these objects
+have the same attributes (including the same number of list elements),
+and all their attributes have a single value,
+the syntax expression is consistent and the Propagation Rule
+below is applied.
+\item If the two syntax expressions are both objects, and these objects
+have the some non-list element attributes, both objects have the same
+non-list element attributes, and all object attributes have a single value,
+the syntax expression is consistent and the Propagation Rule
+below is applied.
 \end{enumerate}
-However, this rule is applied after applying the Parentheses
-and Atom Rules below.
 
 Syntax equations that are not consistent are \key{inconsistent}.
+Note that if either syntax expression is an object that has an attribute
+with more than one value, the syntax equation is inconsistent.
 \end{list}
 \end{indpar}
 
-Thus the following syntax equations are consistent:
+Thus the following are examples:
 
 \begin{center}
-\begin{tabular}{r@\TT{~:=:~}l@{~~~~by Consistency Rule (}l@{)}}
-\verb/5 + 6/ & \verb/$X/ & 1 \\
-\verb/5/ & \verb/6/      & 2 \\
-\verb/[ 5 6 7 ]/ & \verb/` A B C '/      & 3 \\
-\verb/[ 5 6 7 ]/ & \verb/[ $X ]/         & 4 \\
+\begin{tabular}{r@\TT{~:=:~}ll}
+\verb/5/ & \verb/6/      & inconsistent; Rule (4) fails \\
+\verb/5/ & \verb/5/      & consistent by Rule (4) \\
+\verb/5/ & \verb/{|5|}/  & consistent by Rules (2) and (4) \\
+\verb/5 + 6/ & \verb/$X/ & consistent by Rule (3) \\
+\verb/5 + 6/ & \verb/($X)/ & consistent by Rules (1) and (3) \\
+\verb/5 + 6/ & \verb/A + B/ & consistent by Rule (5) \\
+\verb/[5 + 6]/ & \verb/[$X]/ & consistent by Rule (6) \\
+\verb/[5, 6]/ & \verb/{{A, B, C}}/ & consistent by Rule (6) \\
 \end{tabular}
 \end{center}
 
-The following rules amend the above process of consistency checking:
-
-\begin{indpar}
-\begin{list}{}{}
-\item[\ikey{Parentheses Rule}{parentheses rule}:]\label{PARENTHESES-RULE}~\\
-A syntax expression object in a syntax equation
-whose \TT{.initiator} is \TT{"("} and whose
-\TT{.terminator} is \TT{")"} is treated as if it had no
-\TT{.initiator} or \TT{.terminator} attributes.
-
-\item[\ikey{Atom Rule}{atom rule}:]\label{ATOM-RULE}~\\
-In a syntax equation asserting the identity of an atom and an object,
-the atom is treated as if it were an object that has
-no attributes except one list element equal to the atom.
-\end{list}
-\end{indpar}
-
-Thus the following identities are consistent:
-
-\begin{center}
-\begin{tabular}{r@\TT{~:=:~}l@{~~~same~as~~~}r@\TT{~:=:~}l}
-\verb/5 + 6/ & \verb/( 8 + 9 )/ & \verb/5 + 6/ & \verb/8 + 9/ \\
-\verb/5/ & \verb/{| 5 |}/ & \verb/{| 5 |}/ & \verb/{| 5 |}/ \\
-\verb/5/ & \verb/( 5 )/ & \verb/{| 5 |}/ & \verb/{| 5 |}/ \\
-\end{tabular}
-\end{center}
-
-The following rule is applied when two objects are consistent: 
+The following rule is applied when two objects are consistent according
+to Consistency Rules (5) or (6):
 
 \begin{indpar}
 \begin{list}{}{}
@@ -7005,17 +6996,26 @@ From a consistent syntax equation asserting the identity
 of two objects new equations are deduced as follows:
 \begin{enumerate}
 \item
-If consistency was deduced according to Consistency Rule (3),
+If consistency was deduced according to Consistency Rule (5),
 a new equation is deduced for every attribute label shared by the two objects.
 Given such an attribute label, the values
 of the attribute for the two objects are asserted to be syntactically
 identical.
 \item
-If consistency was deduced according to Consistency Rule (4),
-a new equation is deduced by deleting from the syntax equation
-all \TT{.initiator} and \TT{.terminator} attributes and replacing
-any list of a single syntax variable by the syntax variable itself.
+If consistency was deduced according to Consistency Rule (6),
+a new equation is deduced for every non-list-element
+attribute label shared by the two objects.
+Given such an attribute label, the values
+of the attribute for the two objects are asserted to be syntactically
+identical.
+
+\medskip
+
+An additional syntax equation is asserted between the two objects
+with all their non-list-element attributes removed.
 \end{enumerate}
+
+The deduced equations need not be consistent in order to be deduced.
 \end{list}
 \end{indpar}
 
