@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 24, 2016}
+\date{July 25, 2016}
 
 \maketitle
 
@@ -6936,7 +6936,9 @@ Syntax equations can be consistent or inconsistent according to the:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Consistency Rules}{consistency rules}:]~
+\item[\ikey{Syntax Equation Consistency Rules}%
+           {consistency rules!syntax equation}%
+	   \label{SYNTAX-EQUATION-CONSISTENCY-RULES}:]~
 
 \begin{enumerate}
 \item If either syntax expression has both an \TT{.initiator} equal to \TT{"("}
@@ -6990,7 +6992,9 @@ to Consistency Rules (5) or (6):
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Propagation Rule}{propagation rule}:]\label{PROPAGATION-RULE}
+\item[\ikey{Syntax Equation Propagation Rules}%
+           {propagation rule!syntax equation}:]%
+	   \label{SYNTAX-EQUATION-PROPAGATION-RULE}
 From a consistent syntax equation asserting the identity
 of two objects new equations are deduced as follows:
 \begin{enumerate}
@@ -7187,6 +7191,24 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 		       $|$ \ttmkey{...?}{pattern qualifier}
 \end{indpar}
 
+There are also some extra rules for {\em pattern} syntax:
+
+\begin{enumerate}
+
+\item The first {\em pattern-clause} of a {\em pattern}
+may not have any {\em pattern-qualifier} other than `\TT{...}'
+(so the first {\em pattern-clause} cannot be omitted when the
+pattern is unfolded: see below).
+
+\item Every {\em pattern-clause} must contain a {\em pattern-factor}
+that is either an {\em atom}, an {\em alternative-syntax-variable}
+(which will be replaced by one of a finite set of atom sequences: see
+below), or a {\em pattern} that is a
+{\em bracketed-list} with an \TT{.initiator} other than `\TT{(}'
+(so the \TT{.initiator} can be matched just as atoms are matched).
+
+\end{enumerate}
+
 A pattern represents one of many possible syntax expressions, which are
 called `\skey{unfolded pattern}s' or `\skey{unfolding}s' of the pattern,
 and are made by concatenating the
@@ -7206,7 +7228,20 @@ or \\
 
 The rules for unfolding are:
 
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Pattern Unfolding Rules}%
+           {pattern unfolding rules}%
+	   \index{unfolding rules}%
+	   \label{PATTERN-UNFOLDING-RULES}:]~
+
 \begin{enumerate}
+
+\item If a {\em pattern} is not an object (it is a single atom or
+syntax variable) it is replaced by an object containing as its
+sole attribute a single list element equal to the original pattern
+before it is unfolded.
+
 \item An unfolding of a {\em pattern} is a sequence of
 {\em pattern-clauses} from the {\em pattern} taken in any order,
 \underline{except} the first {\em pattern-clause} in the
@@ -7252,6 +7287,10 @@ that appears in an {\em alternative-equation}
 is called an \key{alternative-syntax-variable} and must be replaced
 in the unfolded {\em pattern}
 by one of the {\em alternatives} from the {\em alternative-equation}.
+If the replacement is a sequence of more than one atom, the replacement
+atoms are inserted in the unfolded pattern increasing the length of
+the unfolded pattern (and not simply replacing
+the {\em alternative-syntax-variable} by a single list object).
 See \secref{ALTERNATIVE-EQUATIONS} for examples.
 
 \item An attribute that does \underline{not} have the \TT{?} flag
@@ -7263,67 +7302,61 @@ in the unfolded {\em pattern}.
 
 \end{enumerate}
 
-There are also some extra rules for {\em pattern} syntax:
+\end{list}
+\end{indpar}
 
-\begin{enumerate}
-
-\item The first {\em pattern-clause} of a {\em pattern}
-may not have any {\em pattern-qualifier} other than `\TT{...}'.
-Thus the first {\em pattern-clause} may not be omitted in
-any unfolding of the {\em pattern}.
-
-\item Every {\em pattern-clause} must contain a {\em pattern-factor}
-that is either an {\em atom} or a {\em pattern} that is a
-{\em bracketed-list} with an \TT{.initiator} other than `\TT{(}'.
-
-\end{enumerate}
-
-Pattern equations are roughly similar to syntax equations but
-obey significantly different rules:
+A consistent pattern equation produces a unique matching between
+the syntax expression on the right and an unfolding of the pattern
+on the left.  The rules governing the formation of the matching are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Pattern Consistency Rule}{pattern consistency rule}:] ~\\
+\item[\ikey{Pattern Matching Rules}%
+           {pattern matching rules}%
+	   \index{matching rules}%
+	   \label{PATTERN-MATCHING-RULES}:]~
+
+\begin{enumerate}
+
+\item If a syntax expression (equation left side) is not a list
+object with no non-element attributes (it is a single atom, a
+syntax variable, or an object with non-element attributes)
+it is replaced by a list object containing as its
+sole attribute a single list element equal to the original syntax expression
+before it is matched.
+
+\item A matching is a 1-1 correspondence between all the the list elements of
+the unfolded pattern (right side)
+and sequences of list elements of the syntax expression (left side).
+
+\item Each atom of the pattern is matched to an identical atom of the
+syntax expression.
+
+\item Each bracked list of the pattern whose \TT{.initiator} is not
+\TT{"("} is matched to a single element of the of the syntax expression
+that is also a bracketed list whose \TT{.initiator} and \TT{.terminator}
+equal the \TT{.initiator} and \TT{.terminator} of the pattern bracketed list.
+
+\item Each bracked list of the pattern whose \TT{.initiator} \underline{is}
+\TT{"("} is either matched as in (4), or is matched to a (possibly empty)
+sequence of elements of the syntax expression which is followed by
+(a) the end of the syntax expression, or (b) an element matched using
+rules (3) or (4).
+
+\end{enumerate}
+
+\end{list}
+\end{indpar}
+
+Then the pattern consistency rule is simply:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Pattern Equation Consistency Rule}%
+           {pattern equation consistency rule}:] ~\\
 A pattern equation is \key{consistent} if its {\em pattern}
-has a unique unfolding such that:
-\begin{enumerate}
-\item if the unfolded {\em pattern} is a single atom,
-the syntax expression (pattern equation left side) is an identical atom, or
-\item if the unfolded pattern is an object, the syntax expression (pattern
-equation left side)
-is an object such that:
-\begin{enumerate}
-\item there is a \underline{unique}
-(left to right) order preserving matching of list elements
-of the pattern to list elements or list element sequences
-of the object such that:
-\begin{enumerate}
-\item each pattern atom is matched to an identical object atom
-\item each pattern bracketed list is matched to a object bracketed
-list with identical \TT{.initiator} and \TT{.terminator}, except
-that a pattern bracketed list with \TT{.initiator} \TT{"("} and
-\TT{.terminator} \TT{")"} and no other non-list-element attributes
-may be matched to a non-empty sequence of object elements after
-this sequence has been made into a \TT{(~)} bracketed list
-\end{enumerate}
-\item and the object and the pattern have
-the same non-list-element
-attribute labels, and all these attributes in both object and pattern
-each have exactly one value
-\end{enumerate}
-\end{enumerate}
-
-\item[\ikey{Pattern Propogation Rule}{pattern propogation rule}:] ~\\
-Given a consistent pattern equation with the unfolded {\em pattern}
-being an object
-and not an atom, a new pattern equation is deduced for every bracketed
-list in the unfolded {\em pattern}.  The right side of this is
-the bracketed list in the unfolded {\em pattern}, and the left side
-is the bracketed list in the object this is matched to by the
-consistency rule.
-
-If the right side of any deduced pattern equation is not a {\em pattern},
-the pattern equation is made into a syntax equation.
+has a unique unfolding such that there is a matching,
+and that matching is unique for the pattern unfolding.
 
 \end{list}
 \end{indpar}
