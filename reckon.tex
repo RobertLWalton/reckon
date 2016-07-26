@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 25, 2016}
+\date{July 26, 2016}
 
 \maketitle
 
@@ -6988,7 +6988,7 @@ Thus the following are examples:
 \end{center}
 
 The following rule is applied when two objects are consistent according
-to Consistency Rules (5) or (6):
+to Syntax Equation Consistency Rules (5) or (6):
 
 \begin{indpar}
 \begin{list}{}{}
@@ -6999,13 +6999,13 @@ From a consistent syntax equation asserting the identity
 of two objects new equations are deduced as follows:
 \begin{enumerate}
 \item
-If consistency was deduced according to Consistency Rule (5),
+If consistency was deduced according to Syntax Equation Consistency Rule (5),
 a new equation is deduced for every attribute label shared by the two objects.
 Given such an attribute label, the values
 of the attribute for the two objects are asserted to be syntactically
 identical.
 \item
-If consistency was deduced according to Consistency Rule (6),
+If consistency was deduced according to Syntax Equation Consistency Rule (6),
 a new equation is deduced for every non-list-element
 attribute label shared by the two objects.
 Given such an attribute label, the values
@@ -7333,22 +7333,30 @@ and sequences of list elements of the syntax expression (left side).
 syntax expression.
 
 \item Each bracked list of the pattern whose \TT{.initiator} is not
-\TT{"("} is matched to a single element of the of the syntax expression
-that is also a bracketed list whose \TT{.initiator} and \TT{.terminator}
-equal the \TT{.initiator} and \TT{.terminator} of the pattern bracketed list.
+\TT{"("}, or whose \TT{.ter\-min\-a\-tor} is not \TT{")"}, or which has
+some other non-list-element attribute,
+is match\-ed to a single element of the of the syntax expression
+that is also a bracketed list, both bracketed lists have the same
+\TT{.initiator} and \TT{.terminator} values, both have the same
+other non-list-element attribute labels (but not necessarily the
+same values for these labels), and all the non-list-element attributes
+of both bracketed lists have single values.
 
 \item Each bracked list of the pattern whose \TT{.initiator} \underline{is}
-\TT{"("} is either matched as in (4), or is matched to a (possibly empty)
-sequence of elements of the syntax expression which is followed by
-(a) the end of the syntax expression, or (b) an element matched using
-rules (3) or (4).
+\TT{"("}, whose \TT{.ter\-min\-a\-tor} \underline{is} \TT{")"},
+and which has \underline{no other} non-list-element attributes,
+is either matched as in (4), or this bracketed list
+is matched to a (possibly empty)
+sequence of elements of the syntax expression and these elements are
+followed by (a) the end of the syntax expression, or (b)
+an syntax expression element matched using rules (3) or (4).
 
 \end{enumerate}
 
 \end{list}
 \end{indpar}
 
-Then the pattern consistency rule is simply:
+Then the pattern equation consistency rule is simply:
 
 \begin{indpar}
 \begin{list}{}{}
@@ -7361,45 +7369,66 @@ and that matching is unique for the pattern unfolding.
 \end{list}
 \end{indpar}
 
-One way in which pattern equations differ from syntax equations
-is that \TT{(~)} parentheses cannot be omitted in the pattern,
-but they can be omitted in the syntax expression when they
-surround a sequence of several atoms that is bounded by atoms
-named in the pattern.  For example,
+The following rule is applied when two list elements match according
+to Pattern Equation Consistency Rules (4) or (5):
+
+\begin{indpar}
+\begin{list}{}{}
+\item[\ikey{Pattern Equation Propagation Rules}%
+           {propagation rule!pattern equation}:]%
+	   \label{PATTERN-EQUATION-PROPAGATION-RULE}
+When two bracketed lists match, new pattern or syntax equations
+are deduced as follows:
+\begin{enumerate}
+\item
+If consistency was deduced according to Pattern Equation Consistency Rule (4),
+a new pattern equation is deduced for every non-list-element
+attribute label shared by the two objects.
+Given such an attribute label, if its value in the syntax expression is
+\TT{S} and its value in the pattern is \TT{P} the pattern equation
+\TT{S :=\TILDE{} P} is asserted.
+
+\medskip
+
+An additional pattern equation is asserted between the two bracketed lists
+with all their non-list-element attributes removed.
+
+
+\item
+If consistency was deduced according to Pattern Equation Consistency Rule (5),
+a new pattern equation is deduced between the sequence of syntax expression
+elements, made into an unbracketed list, and the pattern bracketed list
+with its brackets removed.
+
+\item
+If the pattern in any deduced pattern equation is not in fact syntactically
+a pattern, the equation is converted into a syntax equation
+(\TT{:=\TILDE} is replaced by \TT{:=:}).  Furthermore, if the deduced
+pattern is a list with one element that is a syntax variable, the pattern
+is replace by that element.
+\end{enumerate}
+
+The deduced equations need not be consistent in order to be deduced.
+\end{list}
+\end{indpar}
+
+Besides the unfolding, pattern equations differ from syntax equations
+in that they permit \TT{(~)} parentheses to be omitted from the
+syntax expression if that latter is just a sequence of atoms and
+bracketed sublists.  Provided this sequence is surrounded by atoms
+and non-parenthesis brackets that match pattern elements.
+For example,
 
 \begin{center}
 \verb/sin my variable :=~ sin ($X)/
 \end{center}
 
-becomes
+matches and deduces
 
 \begin{center}
-\verb/sin (my variable) :=~ sin ($X)/
+\verb/my variable :=: $X/
 \end{center}
 
-and propagation deduces first
-
-\begin{center}
-\verb/(my variable) :=: ($X)/
-\end{center}
-
-and then
-
-\begin{center}
-\verb/{|my variable|} :=: $X/
-\end{center}
-
-Patterns appear in pattern equations, which are just
-like syntax equations except their right sides are patterns and not
-a syntax expressions.  If the syntax expression on the left side of
-a pattern equation is an object, then the pattern on the right side
-can be \key{unfolded} to match the syntax expression.  Unfolding
-means removing the
-\skey{pattern separator}s, `\TT{.}',
-and \skey{pattern qualifier}s,
-`\TT{?}', `\TT{??}', `\TT{...}', and `\TT{...?}',
-arranging the pattern clauses in the correct order,
-and removing {\em optional-attribute-representations}.
 For example, given the pattern equation:
 
 \begin{indpar}
