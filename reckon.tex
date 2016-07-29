@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 26, 2016}
+\date{July 29, 2016}
 
 \maketitle
 
@@ -6891,7 +6891,8 @@ equations.
 
 A \key{syntax equation} asserts syntactic identity between two
 \skey{syntax expression}s.  A syntax expression is a syntax variable,
-an atom, or an object whose attribute values are syntax expressions.
+an atom, or an object whose attribute values are single valued with
+these values being syntax expressions.
 Atoms are represented by {\em atom-names} (\pagref{ATOM-NAME})
 and objects by {\em bracketed-lists} (\pagref{BRACKETED-LIST})
 where \TT{\{|~|\}} brackets may be omitted if the object representation
@@ -6917,20 +6918,26 @@ The syntax of a syntax equation is:
 			\end{tabular} \\[1ex]
 {\em capitalized-word} ::= {\em word} beginning with capitalized letter
 				in which all letters are capitalized \\[1ex]
-\emkey{place-holding-syntax-variable} ::= \TT{\$}
-	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
+\emkey{place-holding-syntax-variable} ::= \TT{\$\$}
+	~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\[1ex]
 \emkey{evaluated-syntax-variable} ::= {\em capitalized-word}
 	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
 \emkey{atom}\label{ATOM-REPRESENTATION}
     ::= {\em atom-name} \\[1ex]
 \emkey{object}\label{OBJECT-REPRESENTATION}
-    ::= {\em bracketed-list} with \TT{\{|~|\}} possibly omitted:
-                                                             see text
+    ::= \begin{tabular}[t]{@{}l@{}}
+        {\em bracketed-list} with single valued attributes \\
+	whose attribute values are {\em syntax-expressions}
+	\end{tabular}
 \end{indpar}
 
+All the different forms of {\em syntax-variable} are abbreviations
+for the form:
+\begin{center}
+\TT{\$(}{\em name} beginning with {\em captitalized-word}\TT{)}
+\end{center}
 A syntax variable of the form \TT{\$}{\em captitalized-word}
-is treated as being the same as
-\TT{\$(}{\em captitalized-word}\TT{)}.
+abbreviates \TT{\$(}{\em captitalized-word}\TT{)}.
 
 Syntax equations can be consistent or inconsistent according to the:
 
@@ -6946,29 +6953,26 @@ and a \TT{.ter\-min\-a\-tor} equal to \TT{")"}, its \TT{.initiator} and
 \TT{.terminator} attributes are removed and these rules are applied to the
 result.
 \item If either syntax expression is an object with only a single attribute
-that is a list element with a single value,
+that is a list element,
 the object is replace by this list element,
 and these rules are applied to the
-result.
+result.  This last implies that this rule in particular acts recursively.
 \item If one syntax expression is a syntax variable, the syntax equation
 is consistent.
 \item If the two syntax expressions are both atoms and these atoms are
 equal, the syntax equation is consistent.
 \item If the two syntax expressions are both objects, and these objects
 have the same attributes (including the same number of list elements),
-and all their attributes have a single value,
 the syntax expression is consistent and the Propagation Rule
 below is applied.
-\item If the two syntax expressions are both objects, and these objects
-have the some non-list element attributes, both objects have the same
-non-list element attributes, and all object attributes have a single value,
+\item If the two syntax expressions are both objects, these objects
+have some non-list element attributes, and both objects have the same
+non-list element attributes,
 the syntax expression is consistent and the Propagation Rule
 below is applied.
 \end{enumerate}
 
 Syntax equations that are not consistent are \key{inconsistent}.
-Note that if either syntax expression is an object that has an attribute
-with more than one value, the syntax equation is inconsistent.
 \end{list}
 \end{indpar}
 
@@ -7042,40 +7046,27 @@ The deduced equations need not be consistent in order to be deduced.
 In this case the first two equations are consistent and the third is not.
 
 In addition to the Propagation Rule, we apply the following, where
-$v$ is a syntax variable and
 $e_1$, $e_2$, and $e_3$ are subexpressions of the original
-syntax equations (and may possibly also be syntax variables):
+syntax equations:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Restricted Symmetry Rule}{restricted!symmetry rule}:]%
-\label{RESTRICTED-SYMMETRY-RULE}
+\item [\ikey{Subexpression Symmetry Rule}{subexpression!symmetry rule}:]%
+\label{SUBEXPRESSION-SYMMETRY-RULE}
 From $e_1$ \TT{:=:} $e_2$ we deduce $e_2$ \TT{:=:} $e_1$.
 
-\item [\ikey{Restricted Transitivity Rule}{restricted!transitivity rule}:]%
-\label{RESTRICTED-TRANSITIVITY-RULE} ~\\
-\vspace*{-2ex}
-\begin{list}{}{}
-\item[(a)]
+\item [\ikey{Subexpression Transitivity Rule}%
+            {subexpression!transitivity rule}:]%
+\label{SUBEXPRESSION-TRANSITIVITY-RULE}
 From $e_1$ \TT{:=:} $e_2$ and $e_2$ \TT{:=:} $e_3$
 we deduce $e_1$ \TT{:=:} $e_3$.
-
-\item[(b)]
-From $v$ \TT{:=:} $e_1$ and $v$ \TT{:=:} $e_2$
-we deduce $e_1$ \TT{:=:} $e_2$.
-\end{list}
 
 \end{list}
 \end{indpar}
 
-We have now given all the deduction rules used to solve syntax equations.
-Note that these rules do \underline{not} create new syntax expressions:
-all the syntax expressions in any deduced equation were subexpressions
-in previous equations.  Because of this,
-an algorithm that keeps making deductions until
-no new deductions can be made will stop fairly quickly.
-
-Note, however, that two different subexpressions
+It is very important to notice that so far each subexpression of an
+original syntax equation is distinct in all the deduced equations.
+In particular, two different subexpressions
 are not necessarily \TT{:=:} even if they are syntactically the same.
 For example, given the original syntax equation:
 
@@ -7100,7 +7091,22 @@ syntax equations.  But our rules do \underline{not}
 generate the syntax equation \TT{5$^1$ :=: 5$^2$} and as a consequence
 they \underline{cannot} generate \TT{\$X := \$Y}.
 
-However, suppose we had instead:
+There is one last rule.  Given subexpressions $v_1$, $v_2$,
+$e_1$, and $e_2$ of the original syntax equations:
+
+\begin{indpar}
+\begin{list}{}{}
+\item [\ikey{Syntax Variable Identity Rule}%
+            {syntax variable!identity rule}:]%
+\label{SYNTAX-VARIABLE-IDENTITY-RULE} ~\\
+If $v_1$ and $v_2$ name the same syntax variable, \\
+then from $v_1$ \TT{:=:} $e_1$ and $v_2$ \TT{:=:} $e_2$
+we deduce $e_1$ \TT{:=:} $e_2$.
+
+\end{list}
+\end{indpar}
+
+This if we modified the above example to:
 
 \begin{center}
 \verb/sort ($X, $X) :=: sort ( 5, 5 )/
@@ -7117,7 +7123,7 @@ we derive by propagation that
 \end{tabular}
 \end{center}
 
-and by restricted transitivity that
+and by syntax variable identity that
 
 \begin{center}
 \begin{tabular}{r@\TT{~:=:~}l}
@@ -7125,20 +7131,16 @@ and by restricted transitivity that
 \end{tabular}
 \end{center}
 
-since both occurances of \TT{\$X} are identified by
-Restricted Transitivity (b).  Lastly, if
-we started instead with:
+since both occurances of \TT{\$X} are identified.
+This last is consistent.
+
+But if instead we started we started instead with:
 
 \begin{center}
-\begin{tabular}{r@\TT{~:=:~}l}
-\verb/sort/ & \verb/sort/ \\
-\verb/,/ & \verb/,/ \\
-\verb/$X/ & \verb/5/ \\
-\verb/$X/ & \verb/6/ \\
-\end{tabular}
+\verb/sort ($X, $X) :=: sort ( 5, 6 )/
 \end{center}
 
-we would get:
+we would end with:
 
 \begin{center}
 \begin{tabular}{r@\TT{~:=:~}l}
@@ -7147,6 +7149,13 @@ we would get:
 \end{center}
 
 which is inconsistent.
+
+We have given all the deduction rules used to solve syntax equations.
+Note that these rules do \underline{not} create new syntax expressions:
+all the syntax expressions in any deduced equation were subexpressions
+in previous equations.  Because of this,
+an algorithm that keeps making deductions until
+no new deductions can be made will stop quite quickly.
 
 \subsection{Patterns}
 \label{PATTERNS}
@@ -7864,7 +7873,7 @@ yields
 \subsubsection{Place Holding Syntax Variables}
 \label{PLACE-HOLDING-SYNTAX-VARIABLES}
 
-A `\TT{\$}' by itself can be used as a syntax variable called
+A `\TT{\$\$}' by itself can be used as a syntax variable called
 a \lkey{place holding}{syntax variable} that has the special
 property that each of its original equation occurrences
 is treated as if it were a \underline{different} variable.  The syntax is:
@@ -7873,7 +7882,7 @@ is treated as if it were a \underline{different} variable.  The syntax is:
 \emlkey{place-holding}{-syntax-variable} ::= \ttkey{\$}
 \end{indpar}
 
-More specifically, whenever \TT{\$} appears in an original
+More specifically, whenever \TT{\$\$} appears in an original
 equation, it is replaced by a unique new syntax variable name. 
 For example, the pattern equation:
 
