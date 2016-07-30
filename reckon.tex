@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 29, 2016}
+\date{July 30, 2016}
 
 \maketitle
 
@@ -1670,7 +1670,7 @@ feed, etc.), but is not itself a lexeme.
     \\[1ex]
 \emkey{horizontal-space-character} :::=
     \key{single-space-character} $|$ \key{horizontal-tab-character} \\[1ex]
-\emkey{vertical-space-character}
+\emlkey{vertical-space}{-character}
     \begin{tabular}[t]{rl}
     :::= & \key{line-feed-character} \\
     $|$ & \key{vertical-tab-character} \\
@@ -3373,7 +3373,8 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{represented-object-identifier} :::= {\em raw-object-identifier} $|$ {\em cooked-object-identifier} \\
+\emlkey{represented}{-object-identifier} :::=
+    {\em raw-object-identifier} $|$ {\em cooked-object-identifier} \\
 \emkey{raw-object-identifier} :::= \TT{!} {\em object-identifier} \\
 \emkey{cooked-object-identifier} :::= {\em object-identifier} \\
 \emkey{object-identifier} :::=
@@ -6918,9 +6919,9 @@ The syntax of a syntax equation is:
 			\end{tabular} \\[1ex]
 {\em capitalized-word} ::= {\em word} beginning with capitalized letter
 				in which all letters are capitalized \\[1ex]
-\emkey{place-holding-syntax-variable} ::= \TT{\$\$}
+\emlkey{place-holding}{-syntax-variable} ::= \TT{\$\$}
 	~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\[1ex]
-\emkey{evaluated-syntax-variable} ::= {\em capitalized-word}
+\emlkey{evaluated}{-syntax-variable} ::= {\em capitalized-word}
 	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
 \emkey{atom}\label{ATOM-REPRESENTATION}
     ::= {\em atom-name} \\[1ex]
@@ -7170,16 +7171,26 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \emkey{pattern-equation} ::= {\em syntax-expression} \ttkey{:=\TILDE}
 			    {\em pattern}
 \\[1ex]
-\emkey{pattern} ::= {\em object} [see \pagref{OBJECT-REPRESENTATION}]
-		    \begin{tabular}[t]{l}
-		    whose list portion is a {\em pattern-list} \\
-		    and whose attribute values are
-		    {\em pattern-factors} \\
-		    \end{tabular}
+\emkey{pattern} \begin{tabular}[t]{@{}rl}
+                ::= & {\em pattern-object} \\
+		$|$ & {\em syntax-expression}
+		      that is not a {\em pattern-object}
+		\end{tabular}
+\\[1ex]
+\emkey{pattern-object} ::= {\em object} [see \pagref{OBJECT-REPRESENTATION}]
+		           \begin{tabular}[t]{l}
+			   all of whose attributes have single values, \\
+		           whose list portion is a {\em pattern-list}, \\
+		           and whose non-list-element attribute values \\
+		           are {\em patterns} \\
+		           \end{tabular}
+\\[1ex]
+\emkey{pattern-indicator} ::=
+	{\em pattern-separator} $|$ {\em pattern-qualifier}
 \\[1ex]
 \emkey{pattern-list} ::=
     \begin{tabular}[t]{l}
-    {\em pattern-term}\QMARK{}
+    {\em pattern-term}
         \{ {\em pattern-separator} {\em pattern-term} \}\STAR{} \\
     \end{tabular}
 \label{PATTERN}
@@ -7191,7 +7202,10 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 	\\[1ex]
 \emkey{pattern-factor} ::= {\em atom-name}
 		       $|$ {\em syntax-variable}
-		       $|$ {\em pattern}
+		       $|$ {\em bracketed-pattern}
+       \\[1ex]
+\emkey{bracketed-pattern} ::= {\em pattern} with \TT{.initiator} and
+                              \TT{.terminator} attributes
        \\[1ex]
 \emkey{pattern-qualifier} ::=
 		           \ttmkey{?}{pattern qualifier}
@@ -7200,21 +7214,23 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 		       $|$ \ttmkey{...?}{pattern qualifier}
 \end{indpar}
 
-There are also some extra rules for {\em pattern} syntax:
+A `\mkey{key}{of a pattern clause}' of a {\em pattern-clause}
+is a {\em pattern-factor} that is an {\em atom-name} in the clause, an
+{\em atom-name} that is in one of the replacement values
+for an {\em alternative-syntax-variable} that is in the clause,
+or a {\em bracketed-list} in the clause
+whose \TT{.initiator} is not \TT{"("}.  A `mkey{key}{of a pattern}'
+of a {\em pattern} is any key of one of its {\em pattern-clauses}.
+Given this, we may state some extra rules for {\em pattern} syntax:
 
 \begin{enumerate}
 
-\item The first {\em pattern-clause} of a {\em pattern}
-may not have any {\em pattern-qualifier} other than `\TT{...}'
-(so the first {\em pattern-clause} cannot be omitted when the
-pattern is unfolded: see below).
+\item Every {\em pattern-clause} must contain a key.
 
-\item Every {\em pattern-clause} must contain a {\em pattern-factor}
-that is either an {\em atom}, an {\em alternative-syntax-variable}
-(which will be replaced by one of a finite set of atom sequences: see
-below), or a {\em pattern} that is a
-{\em bracketed-list} with an \TT{.initiator} other than `\TT{(}'
-(so the \TT{.initiator} can be matched just as atoms are matched).
+\item The first {\em pattern-term} of a {\em pattern}
+may not have any {\em pattern-qualifier} other than `\TT{...}'
+(so the first {\em pattern-clause} must be copied at the beginning
+of the unfolded pattern).
 
 \end{enumerate}
 
@@ -7246,26 +7262,21 @@ The rules for unfolding are:
 
 \begin{enumerate}
 
-\item If a {\em pattern} is not an object (it is a single atom or
-syntax variable) it is replaced by an object containing as its
-sole attribute a single list element equal to the original pattern
-before it is unfolded.
-
-\item An unfolding of a {\em pattern} is a sequence of
+\item An unfolding of a {\em pattern} is a sequence of copies of
 {\em pattern-clauses} from the {\em pattern} taken in any order,
-\underline{except} the first {\em pattern-clause} in the
+\underline{except} a copy of the first {\em pattern-clause} in the
 {\em pattern} must be first in the unfolded {\em pattern}.
-All {\em pattern-qualifiers} are removed from the {\em pattern-clauses}
+No {\em pattern-separators} or {\em pattern-qualifiers} are included
 in the unfolded {\em pattern}.
 
 \item A {\em pattern-clause} not followed by a {\em pattern-qualifier}
 (\TT{?}, \TT{??}, \TT{...}, or \TT{...?})
-in the {\em pattern} must appear exactly
+in the {\em pattern} must be copied exactly
 once in the unfolded {\em pattern}.
 
 \item A {\em pattern-clause} followed by `\TT{?}'
 in the {\em pattern} is an \key{optional pattern clause}
-and must appear exactly once or not at all
+and must be copied exactly once or not at all
 in the unfolded {\em pattern}.
 See \secref{DEFAULT-EQUATIONS} for examples.
 
@@ -7273,21 +7284,28 @@ See \secref{DEFAULT-EQUATIONS} for examples.
 A {\em pattern-clause} followed by `\TT{??}'
 in the {\em pattern} is an
 \ikey{optional truth-value pattern clause}{optional truth-value!pattern clause}.
-Like an optional pattern clause this must appear exactly once or not at all
-in the unfolded {\em pattern}.
-In addition, the {\em pattern-clause} must end with a {\em syntax-variable},
-and this may be omitted in the unfolded {\em pattern}.
+It must end with a {\em pattern-factor} of the form
+`\TT{(} {\em syntax-variable} \TT{)}'.
+Like an optional {\em pattern-clause}, this {\em pattern-clause}
+must be copied exactly once or not at all
+in the unfolded {\em pattern}.  The copy may omit the last
+{\em pattern-factor}, in which case the omitted {\em syntax-variable}
+will default to `\TT{TRUE'}.
+Or the copy may both omit the last factor and add the factor
+`\ttmkey{not}{in optional truth-value!pattern clause copy}' to the beginning
+of the copy,in which case the omitted {\em syntax-variable}
+will default to `\TT{FALSE}'.
 See \secref{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\TT{...}'
 in the {\em pattern} is a \key{repeated pattern clause}
-and must appear one or more times
+and must be copied one or more times
 in the unfolded {\em pattern}.
 See \secref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\TT{...?}'
 in the {\em pattern} is an \lkey{optional repeated}{pattern clause}
-and must appear one or more times or not at all
+and must be copied one or more times or not at all
 in the unfolded {\em pattern}.
 See \secref{REPEATED-PATTERN-CLAUSES} for examples.
 
@@ -7302,10 +7320,10 @@ the unfolded pattern (and not simply replacing
 the {\em alternative-syntax-variable} by a single list object).
 See \secref{ALTERNATIVE-EQUATIONS} for examples.
 
-\item An attribute that does \underline{not} have the \TT{?} flag
+\item An attribute that does \underline{not} have the \TT{?} attribute flag
 must appear exactly once in the unfolded {\em pattern}.
 
-\item An attribute that \underline{does} have the \TT{?} flag
+\item An attribute that \underline{does} have the \TT{?} attribute flag
 and must appear exactly once or not at all
 in the unfolded {\em pattern}.
 
@@ -7370,7 +7388,7 @@ Then the pattern equation consistency rule is simply:
 \begin{indpar}
 \begin{list}{}{}
 \item[\ikey{Pattern Equation Consistency Rule}%
-           {pattern equation consistency rule}:] ~\\
+           {pattern equation!consistency rule}:] ~\\
 A pattern equation is \key{consistent} if its {\em pattern}
 has a unique unfolding such that there is a matching,
 and that matching is unique for the pattern unfolding.
