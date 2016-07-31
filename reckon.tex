@@ -6998,8 +6998,8 @@ to Syntax Equation Consistency Rules (5) or (6):
 \begin{indpar}
 \begin{list}{}{}
 \item[\ikey{Syntax Equation Propagation Rules}%
-           {propagation rule!syntax equation}:]%
-	   \label{SYNTAX-EQUATION-PROPAGATION-RULE}
+           {propagation rules!syntax equation}:]%
+	   \label{SYNTAX-EQUATION-PROPAGATION-RULES}
 From a consistent syntax equation asserting the identity
 of two objects new equations are deduced as follows:
 \begin{enumerate}
@@ -7379,7 +7379,8 @@ is either matched as in (4), or this bracketed list
 is matched to a (possibly empty)
 sequence of elements of the syntax expression such that
 the sequence contains no element that could be matched to any
-key of the original folded pattern and the sequence is
+key of the original folded pattern, and no element that is a syntax
+variable, and the sequence is
 followed by (a) the end of the syntax expression, or (b)
 an syntax expression element matched using rules (3) or (4).
 
@@ -7394,28 +7395,45 @@ Then the pattern equation consistency rule is simply:
 \begin{list}{}{}
 \item[\ikey{Pattern Equation Consistency Rule}%
            {pattern equation!consistency rule}:] ~\\
-A pattern equation is \key{consistent} if its {\em pattern}
+A pattern equation is \key{consistent} if either:
+\begin{enumerate}
+\item
+Its right side is not a {\em pattern-object}, but if the
+pattern equation is changed to a syntax equation by
+replacing \TT{:=\TILDE} by \TT{:=:}, the syntax equation is consistent.
+\item
+Its right
+side is a {\em pattern-object} that
 has a unique unfolding such that there is a matching,
-and that matching is unique for the pattern unfolding.
-
+and that matching is unique for the given unfolding.
+\end{enumerate}
 \end{list}
 \end{indpar}
 
 The following rule is applied when two list elements match according
-to Pattern Equation Consistency Rules (4) or (5):
+to Pattern Equation Consistency Rules:
 
 \begin{indpar}
 \begin{list}{}{}
 \item[\ikey{Pattern Equation Propagation Rules}%
-           {propagation rule!pattern equation}:]%
-	   \label{PATTERN-EQUATION-PROPAGATION-RULE}
-When two bracketed lists match, new pattern or syntax equations
-are deduced as follows:
+           {propagation rules!pattern equation}:]%
+	   \label{PATTERN-EQUATION-PROPAGATION-RULES}
+When a pattern equation is consistent, the following are applied
+to deduce new pattern equations or syntax equations.
+
 \begin{enumerate}
+
 \item
-If consistency was deduced according to Pattern Equation Consistency Rule (4),
+If the pattern equation was replaced by a syntax equation according to
+Pattern Equation Consistency Rule (1), new syntax equations are deduced
+as per the Syntax Equation Propagation Rules
+(\pagref{SYNTAX-EQUATION-PROPAGATION-RULES}).
+
+\item
+If consistency was deduced according to Pattern Equation Consistency Rule (2),
+and bracketed list elements were matched according to Pattern Matching Rule (4),
 a new pattern equation is deduced for every non-list-element
-attribute label shared by the two objects.
+attribute label shared by the two matched bracketed lists.
 Given such an attribute label, if its value in the syntax expression is
 \TT{S} and its value in the pattern is \TT{P} the pattern equation
 \TT{S :=\TILDE{} P} is asserted.
@@ -7427,17 +7445,13 @@ with all their non-list-element attributes removed.
 
 
 \item
-If consistency was deduced according to Pattern Equation Consistency Rule (5),
+If consistency was deduced according to Pattern Equation Consistency Rule (2),
+and a pattern bracketed list element was matched to a sequence of
+syntax expression elements according to Pattern Matching Rule (5),
 a new pattern equation is deduced between the sequence of syntax expression
 elements, made into an unbracketed list, and the pattern bracketed list
-with its brackets removed.
+with its bracket attributes removed.
 
-\item
-If the pattern in any deduced pattern equation is not in fact syntactically
-a pattern, the equation is converted into a syntax equation
-(\TT{:=\TILDE} is replaced by \TT{:=:}).  Furthermore, if the deduced
-pattern is a list with one element that is a syntax variable, the pattern
-is replace by that element.
 \end{enumerate}
 
 The deduced equations need not be consistent in order to be deduced.
