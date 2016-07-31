@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 30, 2016}
+\date{July 31, 2016}
 
 \maketitle
 
@@ -7345,36 +7345,41 @@ on the left.  The rules governing the formation of the matching are:
 
 \begin{enumerate}
 
-\item If a syntax expression (equation left side) is not a list
-object with no non-element attributes (it is a single atom, a
-syntax variable, or an object with non-element attributes)
+\item If a syntax expression (equation left side) is not an object
+(it is a single atom or a syntax variable)
 it is replaced by a list object containing as its
 sole attribute a single list element equal to the original syntax expression
 before it is matched.
 
-\item A matching is a 1-1 correspondence between all the the list elements of
+\item A matching is an order-preserving
+1-1 correspondence between all the the list elements of
 the unfolded pattern (right side)
 and sequences of list elements of the syntax expression (left side).
+Each list element of the syntax expression must be included in
+one of the matched sequences.
 
 \item Each atom of the pattern is matched to an identical atom of the
 syntax expression.
 
 \item Each bracked list of the pattern whose \TT{.initiator} is not
 \TT{"("}, or whose \TT{.ter\-min\-a\-tor} is not \TT{")"}, or which has
-some other non-list-element attribute,
+some other non-list-element attribute other than \TT{.separator},
 is match\-ed to a single element of the of the syntax expression
-that is also a bracketed list, both bracketed lists have the same
-\TT{.initiator} and \TT{.terminator} values, both have the same
-other non-list-element attribute labels (but not necessarily the
-same values for these labels), and all the non-list-element attributes
-of both bracketed lists have single values.
+that is also a bracketed list.  Both bracketed lists have the same
+\TT{.initiator} and \TT{.terminator} values.  The pattern has every
+non-list-element attribute that the syntax expression has.
+The syntax expression has every non-list-element attribute that
+the pattern has unless the pattern attribute has the `\TT{?}' attribute
+flag.
 
 \item Each bracked list of the pattern whose \TT{.initiator} \underline{is}
 \TT{"("}, whose \TT{.ter\-min\-a\-tor} \underline{is} \TT{")"},
 and which has \underline{no other} non-list-element attributes,
 is either matched as in (4), or this bracketed list
 is matched to a (possibly empty)
-sequence of elements of the syntax expression and these elements are
+sequence of elements of the syntax expression such that
+the sequence contains no element that could be matched to any
+key of the original folded pattern and the sequence is
 followed by (a) the end of the syntax expression, or (b)
 an syntax expression element matched using rules (3) or (4).
 
