@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{July 31, 2016}
+\date{August 1, 2016}
 
 \maketitle
 
@@ -7219,8 +7219,13 @@ is a {\em pattern-factor} that is an {\em atom-name} in the clause, an
 {\em atom-name} that is in one of the replacement values
 for an {\em alternative-syntax-variable} that is in the clause,
 or a {\em bracketed-list} in the clause
-whose \TT{.initiator} is not \TT{"("}.  A `mkey{key}{of a pattern}'
-of a {\em pattern} is any key of one of its {\em pattern-clauses}.
+whose \TT{.initiator} is not \TT{"("}.
+An `\mkey{initial key}{of a pattern clause}' is a key of the clause that
+can be the first key of the clause (this includes the first atoms of
+{\em alternative-syntax-variable} replacements if the
+{\em alternative-syntax-variable} appears before any other key in the clause).
+An `\mkey{initial key}{of a pattern}'
+of a {\em pattern} is any initial key of one of its {\em pattern-clauses}.
 Given this, we may state some extra rules for {\em pattern} syntax:
 
 \begin{enumerate}
@@ -7379,10 +7384,19 @@ is either matched as in (4), or this bracketed list
 is matched to a (possibly empty)
 sequence of elements of the syntax expression such that
 the sequence contains no element that could be matched to any
-key of the original folded pattern, and no element that is a syntax
+initial key of the original folded pattern, and no element that is a syntax
 variable, and the sequence is
 followed by (a) the end of the syntax expression, or (b)
 an syntax expression element matched using rules (3) or (4).
+
+\medskip
+
+Not allowing a syntax expression element
+sequence around which parentheses have been omitted
+to contain any initial key of the original unfolded pattern means
+that no pattern clause of the original unfolded pattern could
+possibly match some part of the syntax expression that overlapped
+the sequence.
 
 \end{enumerate}
 
