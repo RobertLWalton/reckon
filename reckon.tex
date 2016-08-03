@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 1, 2016}
+\date{August 3, 2016}
 
 \maketitle
 
@@ -7215,18 +7215,14 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 \end{indpar}
 
 A `\mkey{key}{of a pattern clause}' of a {\em pattern-clause}
-is a {\em pattern-factor} that is an {\em atom-name} in the clause, an
-{\em atom-name} that is in one of the replacement values
-for an {\em alternative-syntax-variable} that is in the clause,
-or a {\em bracketed-list} in the clause
-whose \TT{.initiator} is not \TT{"("}.
-An `\mkey{initial key}{of a pattern clause}' is a key of the clause that
-can be the first key of the clause (this includes the first atoms of
-{\em alternative-syntax-variable} replacements if the
-{\em alternative-syntax-variable} appears before any other key in the clause).
-An `\mkey{initial key}{of a pattern}'
-of a {\em pattern} is any initial key of one of its {\em pattern-clauses}.
-Given this, we may state some extra rules for {\em pattern} syntax:
+an {\em atom-name} that is a {\em pattern-factor} in the clause
+or in one of the alternatives of
+an {\em alternative-syntax-variable} that is in the clause
+(an {\em alternative-syntax-variable} is replaced by one of its
+alternatives when the pattern is unfolded: see 
+\itemref{ALTERNATIVE-EQUATIONS}),
+or a key may be a {\em bracketed-list} that is a {\em pattern-factor}
+in the clause whose \TT{.initiator} is not \TT{"("}.
 
 \begin{enumerate}
 
@@ -7239,21 +7235,26 @@ of the unfolded pattern).
 
 \end{enumerate}
 
+For example, the {\em pattern}
+
+\begin{center}
+\verb/replace ($X) ~ in ($Y) ~ by ($Z) ?/
+\end{center}
+
+contains the following keys: \TT{replace}, \TT{in}, and \TT{by}.
+
 A pattern represents one of many possible syntax expressions, which are
 called `\skey{unfolded pattern}s' or `\skey{unfolding}s' of the pattern,
 and are made by concatenating the
 {\em pattern-clauses} in different ways.  For example,
-
-\begin{center}
-\verb/replace ($X) ~ in ($Y) ~ by ($Z)/
-\end{center}
-
-has two unfoldings:
+the {\em pattern} just given has three unfoldings:
 
 \begin{center}
 \verb/replace ($X) in ($Y) by ($Z)/ \\
 or \\
-\verb/replace ($X) by ($Z) in ($Y)/ 
+\verb/replace ($X) by ($Z) in ($Y)/  \\
+or \\
+\verb/replace ($X) in ($Y)/ 
 \end{center}
 
 The rules for unfolding are:
@@ -7319,6 +7320,7 @@ that appears in an {\em alternative-equation}
 is called an \key{alternative-syntax-variable} and must be replaced
 in the unfolded {\em pattern}
 by one of the {\em alternatives} from the {\em alternative-equation}.
+These {\em alternatives} are sequences of {\em atoms}.
 If the replacement is a sequence of more than one atom, the replacement
 atoms are inserted in the unfolded pattern increasing the length of
 the unfolded pattern (and not simply replacing
@@ -7339,7 +7341,30 @@ in the unfolded {\em pattern}.
 
 A consistent pattern equation produces a unique matching between
 the syntax expression on the right and an unfolding of the pattern
-on the left.  The rules governing the formation of the matching are:
+on the left.  Matching makes use of the concept of a
+`\mkey{terminating key}{of a pattern}' of a {\em pattern}.  This is
+just a key of the {\em pattern} that can follow a `\TT{(~)}' bracketed
+element in an unfolding of the {\em pattern}.  For example, given
+the pattern
+
+\begin{center}
+\verb/replace ($X) ~ $WHERE ? ~ in ($Y) ~ by ($Z) ?/
+\end{center}
+
+with \TT{\$WHERE} being an {\em alternative-syntax-variable}
+(see \secref{ALTERNATIVE-EQUATIONS} for details)
+defined by
+
+\begin{center}
+\verb/$WHERE :=: everywhere | at beginning | at end/
+\end{center}
+
+then the following are terminating keys of the pattern: \TT{everywhere},
+\TT{at}, \TT{in}, \TT{by}.
+
+
+
+The rules governing the formation of the matching are:
 
 \begin{indpar}
 \begin{list}{}{}
@@ -7384,8 +7409,8 @@ is either matched as in (4), or this bracketed list
 is matched to a (possibly empty)
 sequence of elements of the syntax expression such that
 the sequence contains no element that could be matched to any
-initial key of the original folded pattern, and no element that is a syntax
-variable, and the sequence is
+terminating key of the original folded pattern, and no element
+that is a syntax variable, and the sequence is
 followed by (a) the end of the syntax expression, or (b)
 an syntax expression element matched using rules (3) or (4).
 
@@ -7474,9 +7499,7 @@ The deduced equations need not be consistent in order to be deduced.
 
 Besides the unfolding, pattern equations differ from syntax equations
 in that they permit \TT{(~)} parentheses to be omitted from the
-syntax expression if that latter is just a sequence of atoms and
-bracketed sublists.  Provided this sequence is surrounded by atoms
-and non-parenthesis brackets that match pattern elements.
+syntax expression if that latter does not contain any terminating keys.
 For example,
 
 \begin{center}
@@ -7489,202 +7512,56 @@ matches and deduces
 \verb/my variable :=: $X/
 \end{center}
 
-For example, given the pattern equation:
+As another example, given the pattern equation:
 
 \begin{indpar}
-\verb/replace {b} by {5 + c} in (exp 1) :=~/ \\
-\verb/    replace ($X) . in ($Y) . by ($Z)/
+\verb/replace {{b}} by {{5 + c}} in (exp 1) :=~/ \\
+\verb/    replace ($X) ~ in ($Y) ~ by ($Z) ?/
 \end{indpar}
 
 The pattern may be unfolded so the equation becomes:
 
 \begin{indpar}
-\verb/replace {b} by {5 + c} in (exp 1) :=~/ \\
+\verb/replace {{b}} by {{5 + c}} in (exp 1) :=~/ \\
 \verb/    replace ($X) by ($Z) in ($Y)/
 \end{indpar}
 
-The \key{Propagation Rule} (\pagref{PROPAGATION-RULE})
-may be applied to a pattern
-equation whose right side pattern has been unfolded.  Thus in the
-example just given one may may deduce:
+from which we deduce using the Pattern Propagation Rule:
 
 \begin{center}
 \begin{tabular}{r@{\TT{~:=\TILDE~}}l}
-\verb/{b}/ & \verb/($X)/ \\
-\verb/{5 + c}/ & \verb/($Z)/ \\
-\verb/(exp 1)/ & \verb/($Y)/ \\
+\verb/{| {{b}} |}/ & \verb/$X/ \\
+\verb/{| {{5 + c}} |}/ & \verb/$Z/ \\
+\verb/exp 1/ & \verb/$Y/ \\
 \end{tabular}
 \end{center}
 
 Note that this results in pattern equations and \underline{not}
-syntax equations.
-
-A pattern that contains pattern separators or qualifiers
-(`\TT{.}', `\TT{?}', `\TT{??}', `\TT{...}', or `\TT{...?}')
-\underline{outside} subexpressions and {\em attribute-representations},
-or that contains {\em optional-attribute-representations}
-(with `\TT{=?}' sign),
-is said to be `\key{folded}'.  Other patterns are said to be
-\key{unfolded}.  Subexpressions of a pattern are also patterns.
-
-A pattern that is unfolded and all of whose subexpressions
-and attribute representation patterns are
-unfolded, that is, a pattern that contains no pattern qualifiers or
-optional attribute representations,
-even in subexpressions or attribute representations,
-is said to be \key{completely unfolded}.
-Such patterns are \key{promoted} to be syntax expressions, and
-any pattern equations containing them are promoted to be
-syntax equations.  Thus in the above example the last four
-pattern equations can be promoted and become the following
-four syntax equations:
+syntax equations.  But when we apply the Pattern Consistency Rules
+to these equations, they first turn into syntax equations, and then
+the Syntax Consistency Rules eliminate the superfluous \TT{\{|~|\}}'s
+giving:
 
 \begin{center}
-\begin{tabular}{c}
-\verb/replace {b} by {5 + c} in (exp 1)/ \\
-\verb/:=:/ \\
-\verb/replace ($X) by ($Z) in ($Y)/ \\
-\end{tabular} \\[2ex]
-\begin{tabular}{r@\TT{~:=:~}l}
-\verb/{b}/ & \verb/($X)/ \\
-\verb/{5 + c}/ & \verb/($Z)/ \\
-\verb/(exp 1)/ & \verb/($Y)/ \\
+\begin{tabular}{r@{\TT{~:=:~}}l}
+\verb/{{b}}/ & \verb/$X/ \\
+\verb/{{5 + c}}/ & \verb/$Z/ \\
+\verb/exp 1/ & \verb/$Y/ \\
 \end{tabular}
 \end{center}
 
-The Restricted Symmetry Rule (\pagref{RESTRICTED-SYMMETRY-RULE})
-and Restricted Transitivity Rule (\pagref{RESTRICTED-TRANSITIVITY-RULE})
-cannot be applied to pattern equations, which are inherently asymmetric.
-However the following can be applied, where $v$ is a syntax variable, $e$
-a syntax expression, and $p$ a pattern:
 
-\begin{indpar}
-\begin{list}{}{}
-\item [\ikey{Pattern Transitivity Rule}{pattern transitivity rule}:]%
-\label{PATTERN-TRANSITIVITY-RULE}
-From $v$ \TT{:=:} $e$ and $v$ \TT{:=\TILDE} $p$
-we deduce $e$ \TT{:=\TILDE} $p$.
-\end{list}
-\end{indpar}
+The matching algorithm in Section \itemref{MATCHING-ALGORITHM}
+starts with a single pattern equation.  It checks this for
+consistency, and if consistent, deduces new equations by
+propagation.  Each deduced equation is then checked for
+consistency, and more equations are deduced.  The process
+stops quickly because no new syntax expressions or pattern
+expressions are created.  If an inconsistent equation is
+discovered, the process fails.  Otherwise when the process
+ends any syntax variables in the original have been assigned
+values or may be given default values.
 
-The Parentheses Rule (\pagref{PARENTHESES-RULE})
-and Atom Rule (\pagref{ATOM-RULE}) do apply to pattern equations.
-For example, a pattern that is an atom may be treated as if it were
-a list whose only element is that atom, and a syntax variable in
-\TT{( )} parentheses is treated as a syntax variable.
-
-Finally, we need to state the following more carefully:
-
-\begin{indpar}
-\begin{list}{}{}
-\item [\ikey{Pattern Unfolding Rule}{pattern unfolding rule}:]%
-\label{PATTERN-UNFOLDING-RULE}
-If a pattern equation asserts the identity of a syntax expression that
-is an object with a pattern, and if the pattern can be unfolded unambiguously
-so that the result would be consistent were the pattern equation
-instead a syntax equation between
-objects, then the pattern is unfolded.  Otherwise nothing is done.
-
-When a pattern is unfolded, \underline{all instances} of the pattern
-are unfolded, and this affects all equations containing the pattern.
-\end{list}
-\end{indpar}
-
-The last sentence of the Pattern Unfolding Rule needs explanation.
-Suppose we start with the pattern equation:
-
-\begin{indpar}
-\verb/replace {b} [by {5 + c} in (exp 1)] :=~/ \\
-\verb/    replace ($X) [. in ($Y) . by ($Z)]/
-\end{indpar}
-
-which is similar to our previous equation except the clauses are
-now in a subexpression.  At the top level there is only one clause,
-so the pattern is already unfolded, and by the Propagation Rule
-we get
-
-\begin{center}
-\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
-\verb/replace/ & \verb/replace/ \\
-\verb/{b}/ & \verb/($X)/ \\
-\verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
-\end{tabular}
-\end{center}
-
-Now we have a total of 4 equations.
-The pattern in the last of these equations can be unfolded and
-when this is done, \underline{all} the equations containing the pattern are
-affected, and we have the 4 equations
-
-\begin{center}
-\begin{tabular}{c}
-\verb/replace {b} [by {5 + c} in (exp 1)]/ \\
-\verb/:=~/ \\
-\verb/replace ($X) [by ($Z) in ($Y)]/ \\
-\end{tabular} \\[2ex]
-\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
-\verb/replace/ & \verb/replace/ \\
-\verb/{b}/ & \verb/($X)/ \\
-\verb/[by {5 + c} in (exp 1)]/ & \verb/[by ($Z) in ($Y)]/ \\
-\end{tabular}
-\end{center}
-
-In other words, because the pattern in the equation
-
-\begin{center}
-\begin{tabular}{r@{\TT{~:=\TILDE~}}l}
-\verb/[by {5 + c} in (exp 1)]/ & \verb/[. in ($Y) . by ($Z)]/ \\
-\end{tabular}
-\end{center}
-
-was a subexpression of the pattern in the equation
-
-\begin{indpar}
-\verb/replace {b} [by {5 + c} in (exp 1)] :=~/ \\
-\verb/  replace ($X) [. in ($Y) . by ($Z)]/
-\end{indpar}
-
-then what appears to be two copies of the same pattern is in fact
-only one copy, and unfolding either of these unfolds the other in
-exactly the same way.
-
-This is another aspect of the remark near the end of
-Section~\secref{SYNTAX-EQUATIONS} that deduction does not create
-new syntax expressions: it merely creates new equations between
-existing syntax expressions.  This means the deduction process must
-quickly terminate, since the supply of syntax expressions is limited to
-those in the the initial equations.  Similarly new patterns are not
-created by deduction, only new equations involving existing patterns.
-And when a pattern unfolds, the folded pattern is replaced by the
-unfolded pattern in all equations involving the pattern.
-
-If after doing all possible deductions on a set of equations
-all patterns are unfolded,
-then all pattern equations will have been promoted to syntax equations.
-If on the other hand, some patterns remain folded, then the pattern
-equations involving them are said to be
-`\mkey{unsolvable}{pattern equations}'.
-
-A pattern equation between a syntax expression that is not a syntax
-variable and a folded pattern is said to be
-`\mkey{inconsistent}{pattern equation}' if there is \underline{no}
-way to unfold the pattern so that the equation can be viewed as a
-consistent syntax equation.  Clearly if a pattern equation is inconsistent
-then the pattern equation will be unsolvable, or the pattern equation
-will become inconsistent when some other equation causes the pattern
-to be unfolded and the pattern equation to be promoted so it becomes
-an inconsistent syntax equation.
-
-However, if there is more than one way to unfold a pattern in a pattern
-equation so that the equation can be viewed as a consistent syntax equation,
-then the equation is said to be `\mkey{ambiguous}{pattern equation}'.
-An ambiguous equation cannot be used to unfold a pattern, and may become
-unsolvable, but, it is possible that another non-ambiguous pattern equation
-may exist or be deduced which will allow the pattern to be unfolded, in
-which case at the end of all deductions there may be no unfolded patterns
-left and no unsolvable pattern equations.  In this case the
-ambiguous pattern equation will have been promoted to be a syntax equation,
-which may or may not be consistent.
 
 \subsubsection{Default Equations}
 \label{DEFAULT-EQUATIONS}
