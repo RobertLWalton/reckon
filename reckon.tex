@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 3, 2016}
+\date{August 4, 2016}
 
 \maketitle
 
@@ -7582,7 +7582,7 @@ For example, given the equations:
 
 \begin{center}
 \begin{tabular}{rcl}
-\verb/sort x/ & \TT{:=\TILDE} & \verb/sort ($X) . in direction ($Y) ?/ \\
+\verb/sort x/ & \TT{:=\TILDE} & \verb/sort ($X) ~ in direction ($Y) ?/ \\
 \verb/$Y/ & \tt :=? & \verb|ascending|
 \end{tabular}
 \end{center}
@@ -7638,28 +7638,24 @@ The {\em syntax-variable} in an alternative equation is called an
 \key{alternative-syntax-variable}.  When such a variable appears
 in a pattern it must be replaced by one of the {\em alternatives}
 from the {\em alternative-equation} when the pattern is unfolded.
-Any parentheses surrounding the variable in the pattern are removed.
 The replacing {\em alternative} is integrated into the unfolded
-pattern as if it had appeared in the pattern instead of the
-{\em alternative-syntax-variable} and any parentheses surrounding it.
+pattern as a sequence of elements (and \underline{not} a single element that
+is a list of atoms) replacing the {\em alternative-syntax-variable}
+in the pattern.
 
 For example, given the above {\em alternative-equation} and the
 {\em pattern-equation}
 \begin{center}
-\verb/sort ascending (3,2,7,8) :=~ sort DIRECTION (X)/
+\verb/sort 3 2 7 8 descending :=~ sort ($X) ~ $DIRECTION ?/
 \end{center}
-the pattern in thus equation can be unfolded to make the {\em syntax-equation}
+the pattern in thus equation can be unfolded to make the {\em pattern-equation}
 \begin{center}
-\verb/sort ascending (3,2,7,8) :=: sort ascending (X)/
+\verb/sort 3 2 7 8 descending :=~ sort ($X) descending/
 \end{center}
 
-However, given instead the pattern equation
-\begin{center}
-\verb/sort (SORT DIRECTION) (3,2,7,8) :=~ sort DIRECTION (X)/
-\end{center}
-the pattern in thus equation \underline{cannot} be unfolded because
-there is ambiguity about which {\em alternative}
-should replace \TT{DIRECTION}.
+that is consistent.  Note that in the {\em pattern} the atoms
+`\TT{ascending}' and `\TT{descending}' are terminating keys, and so
+cannot be part of the list of elements matched to \TT{\$X}.
 
 Whenever a pattern containing a {\em alternative-syntax-variable}
 is unfolded, a particular {\em alternative} replaces the
@@ -7667,13 +7663,27 @@ variable in the pattern, and the syntax equation
 \begin{center}
 {\em alternative-syntax-variable} \TT{:=:} {\em alternative}
 \end{center}
-is asserted.  In this equation the unevaluated form of the
-{\em alternative-syntax-variable} is used.  Thus in the above
+is asserted.  Thus in the above
 example where the pattern was unfolded, the equation
+\begin{center}
+\verb/$DIRECTION :=: descending/
+\end{center}
+is asserted.
+
+A default equation can also be given for an {\em alternative-syntax-variable}.
+Thus if in our example
+\begin{center}
+\verb/$DIRECTION :=? ascending/
+\end{center}
+were also asserted, then from the pattern equation
+\begin{center}
+\verb/sort 3 2 7 8 :=~ sort ($X) ~ $DIRECTION ?/
+\end{center}
+on would deduce among other things:
+
 \begin{center}
 \verb/$DIRECTION :=: ascending/
 \end{center}
-is asserted.
 
 
 
