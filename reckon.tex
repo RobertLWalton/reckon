@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 4, 2016}
+\date{August 6, 2016}
 
 \maketitle
 
@@ -7562,6 +7562,32 @@ discovered, the process fails.  Otherwise when the process
 ends any syntax variables in the original have been assigned
 values or may be given default values.
 
+\subsection{Expression Definition Matching}
+
+When an expression is to be evaluated,
+various candidate expression definitions are examined
+to see if any match the expression.  This matching process
+is as follows.
+
+First a copy of the expression definition is made with
+each syntax variable replaced by a new syntax variable that
+is distinct from every other syntax variable.
+
+Then a pattern equation of the form
+\begin{center}
+{\em expression-to-be-evaluated} \TT{:=\TILDE}
+{\em expression-definition-pattern}
+\end{center}
+is asserted, and along with all the {\em qualifiers} in the
+expression definition.
+
+The consistency of these equations is determined, and new equations
+are deduced using propagation and some other rules described below.
+If no inconsistent equations are deduced, the match succeeds.
+Otherwise the match fails.
+
+The following sections describe different types of {\em qualifiers}
+and some other specialized aspects of this matching process. 
 
 \subsubsection{Default Equations}
 \label{DEFAULT-EQUATIONS}
