@@ -7927,11 +7927,17 @@ More formally:
 \begin{list}{}{}
 \item [\ikey{Evaluatable Definition}{evaluatable definition}:]%
 \label{EVALUATABLE-DEFINITION}
-A syntax variable $v$ is evaluatable if a syntax equation $v$ \TT{:=:} $e$
+An unevaluated
+syntax variable \TT{\$}$v$ is evaluatable if a syntax equation
+\TT{\$}$v$ \TT{:=:} $e$
 has been deduced and every syntax variable in $e$ is evaluatable.
-In this case $e$ is called the \key{unevaluated value} of $v$, and
-the \key{complete unevaluated value} of $v$ is $e$ with all the
-syntax variables it contains replaced by their complete unevaluated values.
+In particular, \TT{\$}$v$ is evaluatable if $e$ does not contain any syntax
+variables.
+
+Here $e$ is called the \key{unevaluated value} of \TT{\$}$v$, and
+the \key{completed unevaluated value} of \TT{\$}$v$ is $e$ with all the
+syntax variables it contains replaced by their completed unevaluated values.
+
 \item [\ikey{Evaluation Rule}{evaluation rule}:]%
 \label{EVALUATION-RULE}
 If an evaluated syntax variable $v$ appears in a syntax equation and
@@ -7941,41 +7947,43 @@ is the value obtained by evaluating the unevaluated value of
 \TT{\$}$v$ in the context
 in which the unevaluated value of \TT{\$}$v$ appears.
 It is an error if this evaluation has side effects (\pagref{SIDE-EFFECTS}).
+
+In this case $v$ may be replaced by $E$ whereever $v$ appears.
 \end{list}
 \end{indpar}
 
 For example, given the code
 
 \begin{indpar}\begin{verbatim}
-sum ($X) and ($Y) <-- number(X), number(Y) { value = X + Y }
+sum ($X) and ($Y) <-- is a number X, is a number Y
+    { value = X + Y }
 . . . . .
 z = sum (1+1) and (5+5)
 \end{verbatim}\end{indpar}
 
 the call to `\TT{sum}' in the last line is matched with the definition
-of `\TT{sum}' in the first line giving rise to a number of deduced
+of `\TT{sum}' in the first two lines giving rise to a number of deduced
 equations, among which are:
 
 \begin{center}
-\begin{tabular}{rcl}
-\verb/sum (1+1) and (5+5)/ & \TT{:=\TILDE}
-			      & \verb/sum ($X) and ($Y)/ \\
-\verb/$X/ & \tt :=: & \verb/(1+1)/ \\
-\verb/$Y/ & \TT{:=:\TILDE} & \verb/(5+5)/ \\
-\verb/X/ & \tt :=: & \verb/2/ \\
-\verb/Y/ & \TT{:=:\TILDE} & \verb/10/ \\
+\begin{tabular}{l}
+\verb/sum (1+1) and (5+5) :=~ sum ($X) and ($Y)/ \\
+\verb/$X :=: (1+1)/ \\
+\verb/$Y :=: (5+5)/ \\
+\verb/X :=: 2/ \\
+\verb/Y :=: 10/ \\
 \end{tabular}
 \end{center}
 
 The last two equations are required to deduce the value of the evaluated
 variables \TT{X} and \TT{Y} that are needed for the guards
-\TT{number(X)} and \TT{number(Y)} and the block code statement
+\TT{is a number X} and \TT{is a number Y} and the block code statement
 `\TT{value = X + Y}'.  These last two equations are obtained by
 the Evaluation Rule.  For example, to obtain the value \TT{2} for the
 evaluated variable \TT{X}, the value `\TT{(1+1)}' of the a associated
 unevaluated variable \TT{\$X} is evaluated.  `\TT{(1+1)}' is
 evaluatable because it contains no syntax variables and for this reason is
-also its own `complete unevaluated value'.
+also its own `completed unevaluated value'.
 
 Semantically, evaluated syntax variables are not permitted in patterns.
 However, syntactically they can be placed in patterns according to the
@@ -7983,15 +7991,25 @@ following:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Evaluated Variable Pattern Rule}%
-{evaluated variable!pattern rule}:]%
+\item [\ikey{Evaluated Variable Promotion Rule}%
+{evaluated variable!promotion rule}:]%
 \label{EVALUATED-VARIABLE-PROMOTION-RULE}
-If an evaluated syntax variable $v$ appears in a pattern, it is 
-replaced in the pattern by its associated unevaluated variable
-\TT{\$}$v$, and in addition
-any occurrences of \TT{\$}$v$ in the containing expression definition
-are treated as errors (i.e., $v$ and not \TT{\$}$v$ must be used
-throughout the expression definition).
+If an evaluated syntax variable $v$ appears in an expression definition
+in places where only an unevaluated syntax variable can appear
+(e.g., in patterns or the left sides of default and alternative
+equations), it is
+replaced in these places by its associated unevaluated variable
+\TT{\$}$v$ when the expression definition is initially copied,
+provided the unevaluated \TT{\$}$v$ does not appear \underline{anywhere}
+in the expression definition.  Note that in places where it is ambiguous
+whether an evaluated or unevaluated variable is intended, the evaluated
+variable will be used.
+
+If an unevaluated syntax variable \TT{\$}$v$ appears anywhere in
+an expression definition, its associated evaluated syntax variable $v$
+is \underline{never} replaced by \TT{\$}$v$, and therefore the evaluated
+variable $v$ must not appear anywhere an evaluated syntax variable
+cannot appear.
 \end{list}
 \end{indpar}
 
@@ -7999,7 +8017,7 @@ For example, the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS ~ by Y ? <-- number(Y), Y :=? 1:
+    on increment THIS ~ by Y ? <-- is a number Y, Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8007,7 +8025,7 @@ is treated as if it were
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment $THIS ~ by $Y ? <-- number(Y), Y :=? 1:
+    on increment $THIS ~ by $Y ? <-- is a number Y, $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8015,12 +8033,59 @@ while the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS ~ by Y ? <-- number(Y), $Y :=? 1:
+    on increment THIS ~ by Y ? <-- is a number Y, $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
 would be in error because \TT{Y} is used in the pattern but
 \TT{\$Y} is used in the default equation.
+
+\subsubsection{Guards}
+\label{GUARDS}
+
+A \key{guard} is an expression definition qualifier that
+can be any of the following:
+\begin{enumerate}
+\item An expression.  The expression must evaluate
+to \TT{true} if its containing expression definition is to
+match.
+
+If the Evaluated Variable Promotion Rule is using used for
+a variable in such a guard, it is assumed that the variable
+is unevaluated.
+
+For example, in
+\begin{indpar}\begin{verbatim}
+for every counter:
+    on increment $THIS ~ by $Y ? <-- is a number Y, $Y :=? 1:
+        next count = count + Y
+\end{verbatim}\end{indpar}
+
+the expression `\TT{is a number Y}' is a guard.
+
+\item
+A syntax or pattern equation.  The equation is asserted.
+
+If the Evaluated Variable Promotion Rule is using used for
+a variable in such a guard, it is assumed that the variable
+is unevaluated.
+
+If the left side of a pattern equation consists of just a single
+syntax variable, the syntax variable is replaced by its
+value before the pattern equation is processed.
+If this cannot be done, the pattern equation is inconsistent.
+
+For example, in
+\begin{indpar}\begin{verbatim}
+    sort ($X) ($D) <-- $D :=~ $DIRECTION,
+        $DIRECTION :=| ascending | descending
+\end{verbatim}\end{indpar}
+
+the pattern equation `\TT{\$D :=\TILDE{} \$DIRECTION}' is a
+pattern equation guard that cannot be processed untion \TT{\$D} is
+given a value.
+
+\end{enumerate}
 
 \subsection{The Matching Algorithm}
 \label{MATCHING-ALGORITHM}
