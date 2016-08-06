@@ -7570,8 +7570,8 @@ values or may be given default values.
 
 When an expression is to be evaluated,
 various candidate expression definitions are examined
-to see if any match the expression.  This matching process
-is as follows.
+to see if any match the expression.  This process of matching
+an expression and an expression definition is as follows.
 
 First a copy of the expression definition is made with
 each syntax variable replaced by a new syntax variable that
@@ -7586,7 +7586,8 @@ is asserted, and along with all the {\em qualifiers} in the
 expression definition.
 
 The consistency of these equations is determined, and new equations
-are deduced using propagation and some other rules described below.
+are deduced using propagation and some other qualifier related
+rules described below.
 If no inconsistent equations are deduced, the match succeeds.
 Otherwise the match fails.
 
@@ -7598,7 +7599,7 @@ and some other specialized aspects of this matching process.
 
 When a pattern is unfolded, syntax variables in optional pattern clauses
 not included in the unfolded pattern are given default values
-provided by default equations.  Default equations have the
+provided by default equation qualifiers.  These qualifiers have the
 syntax:
 
 \begin{indpar}
@@ -7658,11 +7659,11 @@ one of several alternative values.
 
 For example,
 \begin{center}
-\verb/DIRECTION :=| ascending | descending/
+\verb/DIRECTION :=| in ascending order | in descending order/
 \end{center}
 
 Note that the {\em alternatives} are simple {\em atom} sequences,
-and cannot include subexpressions or {\em syntax-variables}.
+and cannot include more complex objects or {\em syntax-var\-i\-ables}.
 
 The {\em syntax-variable} in an alternative equation is called an
 \key{alternative-syntax-variable}.  When such a variable appears
@@ -7676,15 +7677,17 @@ in the pattern.
 For example, given the above {\em alternative-equation} and the
 {\em pattern-equation}
 \begin{center}
-\verb/sort my data descending :=~ sort ($X) ~ $DIRECTION ?/
+\verb/sort my data in descending order :=~ sort ($X) ~ $DIRECTION ?/
 \end{center}
 the pattern in thus equation can be unfolded to make the {\em pattern-equation}
 \begin{center}
-\verb/sort my data descending :=~ sort ($X) descending/
+\verb/sort my data in descending order/ \\
+\verb/:=~ / \\
+\verb/sort ($X) in descending order/
 \end{center}
 
-that is consistent.  Note that in the {\em pattern} the atoms
-`\TT{ascending}' and `\TT{descending}' are terminating keys, and so
+that is consistent.  Note that in the {\em pattern} the atom
+`\TT{in}' is a terminating key, and so
 cannot be part of the list of elements matched to \TT{\$X}.
 
 Whenever a pattern containing a {\em alternative-syntax-variable}
@@ -7696,14 +7699,14 @@ variable in the pattern, and the syntax equation
 is asserted.  Thus in the above
 example where the pattern was unfolded, the equation
 \begin{center}
-\verb/$DIRECTION :=: descending/
+\verb/$DIRECTION :=: in descending order/
 \end{center}
 is asserted.
 
 A default equation can also be given for an {\em alternative-syntax-variable}.
 Thus if in our example
 \begin{center}
-\verb/$DIRECTION :=? ascending/
+\verb/$DIRECTION :=? in ascending order/
 \end{center}
 were also asserted, then from the pattern equation
 \begin{center}
@@ -7712,7 +7715,7 @@ were also asserted, then from the pattern equation
 on would deduce among other things:
 
 \begin{center}
-\verb/$DIRECTION :=: ascending/
+\verb/$DIRECTION :=: in ascending order/
 \end{center}
 
 
@@ -7826,18 +7829,12 @@ is created.  For example, when the pattern in the equation
 is unfolded, the following equations result:
 
 \begin{center}
-\begin{tabular}{rcl}
-\verb/increment x by 5 by 10/ & \TT{:=\TILDE}
-			      & \verb/increment ($X) by ($Y$1) by ($Y$2)/ \\
-\verb/$Y/ & \tt :=: & \verb|($Y$1, $Y$2)|
+\begin{tabular}{l}
+\verb/increment x by 5 by 10 :=~/ \\
+\verb/    increment ($X) by ($(Y 1)) by ($(Y 2))/ \\
+\verb/$Y :=: ($(Y 1), $(Y 2))/
 \end{tabular}
 \end{center}
-
-Note that here `\TT{\$Y\$1}' and `\TT{\$Y\$2\$}' are each a single syntax
-variable name, each with two \TT{\$}'s in it.  Users of RECKON should
-not use \TT{\$} two or more times in
-a syntax variable name in order to avoid conflicting
-with this usage.
 
 With an optional repeated pattern clause it is also possible for the
 resulting list to be empty.  Thus
@@ -7868,7 +7865,7 @@ property that each of its original equation occurrences
 is treated as if it were a \underline{different} variable.  The syntax is:
 
 \begin{indpar}
-\emlkey{place-holding}{-syntax-variable} ::= \ttkey{\$}
+\emlkey{place-holding}{-syntax-variable} ::= \ttkey{\$\$}
 \end{indpar}
 
 More specifically, whenever \TT{\$\$} appears in an original
@@ -7877,17 +7874,17 @@ For example, the pattern equation:
 
 \begin{indpar}
 \verb/replace {b} by {5 + c} in (exp 1) :=:/ \\
-\verb/    replace ($X) ~ by $ ~ in $/
+\verb/    replace ($X) ~ by $$ ~ in $$/
 \end{indpar}
 
 is treated as if it were
 
 \begin{indpar}
 \verb/replace {b} by {5 + c} in (exp 1) :=:/ \\
-\verb/    replace ($X) ~ by ($1$) ~ in ($2$)/
+\verb/    replace ($X) ~ by ($X.1$) ~ in ($X.2$)/
 \end{indpar}
 
-where `\TT{\$1\$}' and `\TT{\$2\$}' are unique new
+where `\TT{\$X.1\$}' and `\TT{\$X.2\$}' are unique new
 syntax variable names created by the RECKON system.
 
 
@@ -7896,29 +7893,26 @@ syntax variable names created by the RECKON system.
 \subsubsection{Evaluated Syntax Variables}
 \label{EVALUATED-SYNTAX-VARIABLES}
 
-Syntax variables whose names begin with \TT{\$}
+Syntax variables
 take values that are syntax expressions
 which are \underline{not} evaluated.  Such syntax variables are called
 \lkey{unevaluated}{syntax variables}.  With every unevaluated syntax
 variable there can be associated an \key{evaluated syntax variable}
 whose name is made by omitting the \TT{\$} from the beginning of the
 unevaluated syntax variable name.  Thus \TT{X} is associated with
-\TT{\$X}.  The syntax is:
+\TT{\$X} and \TT{X 5} is associated with \TT{\$(X 5)}.  The syntax is:
 
 \begin{indpar}
-\emlkey{unevaluated-syntax-}{variable}
+\emkey{unevaluated-syntax-variable}\label{UNEVALUATED-SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
-			::= & \TT{\$} {\em capitalized-word } \\
-			$|$ & \TT{\$} \TT{(} {\em capitalized-word }
-			      {\em name-component}\STAR{} \TT{)} \\
+			::= & \TT{\$} {\em capitalized-word }
+				as a single lexeme \\
+			$|$ & \TT{\$} \TT{(} {\em name} beginning with a
+			      {\em capitalized-word } \TT{)} \\
 			\end{tabular}
 \\[1ex]
 \emkey{evaluated-syntax-variable} 
-			::= {\em capitalized-word }
-			{\em name-component}\STAR{}
-\\[1ex]
-{\em name-component} ::= {\em non-special-symbol} $|$ {\em decimal-natural}
-			 ~~~ [as per \pagref{NAME-COMPONENT}]
+			::= {\em name} beginning with a {\em capitalized-word }
 \end{indpar}
 
 Informally, an evaluated syntax variable is assigned the value obtained by
