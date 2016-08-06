@@ -6906,7 +6906,7 @@ The syntax of a syntax equation is:
 			    {\em syntax-expression}
 			    \\[1ex]
 \emkey{syntax-expression} ::= {\em syntax-variable}
-			   $|$ {\em atom} $|$ {\em object}
+			   $|$ {\em atom} $|$ {\em syntax-object}
 			   \\[1ex]
 \emkey{syntax-variable}\label{SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
@@ -6925,9 +6925,9 @@ The syntax of a syntax equation is:
 	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
 \emkey{atom}\label{ATOM-REPRESENTATION}
     ::= {\em atom-name} \\[1ex]
-\emkey{object}\label{OBJECT-REPRESENTATION}
+\emkey{syntax-object}\label{SYNTAX-OBJECT}
     ::= \begin{tabular}[t]{@{}l@{}}
-        {\em bracketed-list} with single valued attributes \\
+        {\em object} with single valued attributes \\
 	whose attribute values are {\em syntax-expressions}
 	\end{tabular}
 \end{indpar}
@@ -6957,7 +6957,7 @@ result.
 that is a list element,
 the object is replace by this list element,
 and these rules are applied to the
-result.  This last implies that this rule in particular acts recursively.
+result.
 \item If one syntax expression is a syntax variable, the syntax equation
 is consistent.
 \item If the two syntax expressions are both atoms and these atoms are
@@ -6974,6 +6974,9 @@ below is applied.
 \end{enumerate}
 
 Syntax equations that are not consistent are \key{inconsistent}.
+
+Note that rules (1) and (2) may be applied recursively
+before the other rules are applied.
 \end{list}
 \end{indpar}
 
@@ -7177,16 +7180,13 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
 		      that is not a {\em pattern-object}
 		\end{tabular}
 \\[1ex]
-\emkey{pattern-object} ::= {\em object} [see \pagref{OBJECT-REPRESENTATION}]
+\emkey{pattern-object} ::= {\em object}
 		           \begin{tabular}[t]{l}
 			   all of whose attributes have single values, \\
 		           whose list portion is a {\em pattern-list}, \\
 		           and whose non-list-element attribute values \\
 		           are {\em patterns} \\
 		           \end{tabular}
-\\[1ex]
-\emkey{pattern-indicator} ::=
-	{\em pattern-separator} $|$ {\em pattern-qualifier}
 \\[1ex]
 \emkey{pattern-list} ::=
     \begin{tabular}[t]{l}
@@ -7221,8 +7221,10 @@ an {\em alternative-syntax-variable} that is in the clause
 (an {\em alternative-syntax-variable} is replaced by one of its
 alternatives when the pattern is unfolded: see 
 \itemref{ALTERNATIVE-EQUATIONS}),
-or a key may be a {\em bracketed-list} that is a {\em pattern-factor}
-in the clause whose \TT{.initiator} is not \TT{"("}.
+or a key may be an {\em object} with an
+\TT{.initiator} other than \TT{"("}
+that is a {\em pattern-factor}
+in the clause (informally the \TT{.initiator} is the key).
 
 \begin{enumerate}
 
@@ -7299,7 +7301,7 @@ in the unfolded {\em pattern}.  The copy may omit the last
 will default to `\TT{TRUE'}.
 Or the copy may both omit the last factor and add the factor
 `\ttmkey{not}{in optional truth-value!pattern clause copy}' to the beginning
-of the copy,in which case the omitted {\em syntax-variable}
+of the copy, in which case the omitted {\em syntax-variable}
 will default to `\TT{FALSE}'.
 See \secref{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES} for examples.
 
@@ -7391,21 +7393,23 @@ one of the matched sequences.
 \item Each atom of the pattern is matched to an identical atom of the
 syntax expression.
 
-\item Each bracked list of the pattern whose \TT{.initiator} is not
-\TT{"("}, or whose \TT{.ter\-min\-a\-tor} is not \TT{")"}, or which has
+\item Each object of the pattern that does not have
+an \TT{.initiator} equal to \TT{"("},
+or which has a terminator that is not \TT{")"} or
 some other non-list-element attribute other than \TT{.separator},
 is match\-ed to a single element of the of the syntax expression
-that is also a bracketed list.  Both bracketed lists have the same
-\TT{.initiator} and \TT{.terminator} values.  The pattern has every
+that is also an object.  Both objects must have the same
+\TT{.initiator} and \TT{.terminator} values.  The pattern object
+must have every
 non-list-element attribute that the syntax expression has.
-The syntax expression has every non-list-element attribute that
+The syntax expression must have every non-list-element attribute that
 the pattern has unless the pattern attribute has the `\TT{?}' attribute
 flag.
 
-\item Each bracked list of the pattern whose \TT{.initiator} \underline{is}
+\item Each object of the pattern whose \TT{.initiator} \underline{is}
 \TT{"("}, whose \TT{.ter\-min\-a\-tor} \underline{is} \TT{")"},
 and which has \underline{no other} non-list-element attributes,
-is either matched as in (4), or this bracketed list
+is either matched as in (4), or this object
 is matched to a (possibly empty)
 sequence of elements of the syntax expression such that
 the sequence contains no element that could be matched to any
@@ -7457,8 +7461,8 @@ to Pattern Equation Consistency Rules:
 \item[\ikey{Pattern Equation Propagation Rules}%
            {propagation rules!pattern equation}:]%
 	   \label{PATTERN-EQUATION-PROPAGATION-RULES}
-When a pattern equation is consistent, the following are applied
-to deduce new pattern equations or syntax equations.
+When a pattern equation is consistent, the following
+deduce new pattern equations or syntax equations.
 
 \begin{enumerate}
 
@@ -7499,7 +7503,7 @@ The deduced equations need not be consistent in order to be deduced.
 
 Besides the unfolding, pattern equations differ from syntax equations
 in that they permit \TT{(~)} parentheses to be omitted from the
-syntax expression if that latter does not contain any terminating keys.
+syntax expression if the latter does not contain any terminating keys.
 For example,
 
 \begin{center}
@@ -7815,7 +7819,7 @@ is created.  For example, when the pattern in the equation
 \begin{center}
 \begin{tabular}{rcl}
 \verb/increment x by 5 by 10/ & \TT{:=\TILDE}
-			      & \verb/increment ($X) . by ($Y) ...?/ \\
+			      & \verb/increment ($X) ~ by ($Y) ...?/ \\
 \end{tabular}
 \end{center}
 
@@ -7841,7 +7845,7 @@ resulting list to be empty.  Thus
 \begin{center}
 \begin{tabular}{rcl}
 \verb/increment x/ & \TT{:=\TILDE}
-			      & \verb/increment ($X) . by ($Y) ...?/ \\
+			      & \verb/increment ($X) ~ by ($Y) ...?/ \\
 \end{tabular}
 \end{center}
 
@@ -7873,14 +7877,14 @@ For example, the pattern equation:
 
 \begin{indpar}
 \verb/replace {b} by {5 + c} in (exp 1) :=:/ \\
-\verb/    replace ($X) . by $ . in $/
+\verb/    replace ($X) ~ by $ ~ in $/
 \end{indpar}
 
 is treated as if it were
 
 \begin{indpar}
 \verb/replace {b} by {5 + c} in (exp 1) :=:/ \\
-\verb/    replace ($X) . by ($1$) . in ($2$)/
+\verb/    replace ($X) ~ by ($1$) ~ in ($2$)/
 \end{indpar}
 
 where `\TT{\$1\$}' and `\TT{\$2\$}' are unique new
@@ -8001,7 +8005,7 @@ For example, the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS . by Y ? <-- number(Y), Y :=? 1:
+    on increment THIS ~ by Y ? <-- number(Y), Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8009,7 +8013,7 @@ is treated as if it were
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment $THIS . by $Y ? <-- number(Y), Y :=? 1:
+    on increment $THIS ~ by $Y ? <-- number(Y), Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8017,7 +8021,7 @@ while the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS . by Y ? <-- number(Y), $Y :=? 1:
+    on increment THIS ~ by Y ? <-- number(Y), $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
