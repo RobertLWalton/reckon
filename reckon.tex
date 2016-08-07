@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 6, 2016}
+\date{August 7, 2016}
 
 \maketitle
 
@@ -7432,7 +7432,7 @@ the sequence.
 \end{list}
 \end{indpar}
 
-Then the pattern equation consistency rule is simply:
+Then the pattern equation consistency rule is:
 
 \begin{indpar}
 \begin{list}{}{}
@@ -7446,10 +7446,25 @@ pattern equation is changed to a syntax equation by
 replacing \TT{:=\TILDE} by \TT{:=:}, the syntax equation is consistent.
 \item
 Its right
-side is a {\em pattern-object} that
-has a unique unfolding such that there is a matching,
+side is a {\em pattern-object} and
+the syntax expression on the left side is not a syntax
+variable or an object containing a list element that is
+a syntax variable.  Then the pattern equation is consistent if
+the pattern has a unique unfolding such that there is a matching,
 and that matching is unique for the given unfolding.
+
+\medskip
+
+If the syntax expression on the left side contains a syntax
+variable or an object list element that is a syntax variable,
+processing the pattern equation is delayed until these
+syntax variables are given values, which are then substituted
+into the pattern equation.  However, if there is no longer
+any possiblity of one of these syntax variables getting a value,
+the pattern equation is declared to be inconsistent.
+
 \end{enumerate}
+
 \end{list}
 \end{indpar}
 
@@ -7541,7 +7556,7 @@ from which we deduce using the Pattern Propagation Rule:
 \end{center}
 
 Note that this results in pattern equations and \underline{not}
-syntax equations.  But when we apply the Pattern Consistency Rules
+syntax equations.  But when we apply the Pattern Equation Consistency Rules
 to these equations, they first turn into syntax equations, and then
 the Syntax Consistency Rules eliminate the superfluous \TT{\{|~|\}}'s
 giving:
@@ -7935,7 +7950,7 @@ In particular, \TT{\$}$v$ is evaluatable if $e$ does not contain any syntax
 variables.
 
 Here $e$ is called the \key{unevaluated value} of \TT{\$}$v$, and
-the \key{completed unevaluated value} of \TT{\$}$v$ is $e$ with all the
+the \lkey{completed}{unevaluated value} of \TT{\$}$v$ is $e$ with all the
 syntax variables it contains replaced by their completed unevaluated values.
 
 \item [\ikey{Evaluation Rule}{evaluation rule}:]%
@@ -8057,7 +8072,8 @@ is unevaluated.
 For example, in
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment $THIS ~ by $Y ? <-- is a number Y, $Y :=? 1:
+    on increment $THIS ~ by $Y ?
+            <-- is a number Y, $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8071,9 +8087,11 @@ a variable in such a guard, it is assumed that the variable
 is unevaluated.
 
 If the left side of a pattern equation consists of just a single
-syntax variable, the syntax variable is replaced by its
-value before the pattern equation is processed.
-If this cannot be done, the pattern equation is inconsistent.
+syntax variable, or is an object with list element that is a syntax variable,
+these syntax variables must be replaced by their
+values before the pattern equation is processed.
+If processing gets to the point where this is no longer possible,
+the pattern equation is inconsistent.
 
 For example, in
 \begin{indpar}\begin{verbatim}
