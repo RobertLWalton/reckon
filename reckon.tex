@@ -8105,24 +8105,22 @@ given a value.
 
 \end{enumerate}
 
-\subsection{The Matching Algorithm}
-\label{MATCHING-ALGORITHM}
+\subsection{The Expression Matching Algorithm}
+\label{EXPRESSION-MATCHING-ALGORITHM}
 
 The \key{evaluation algorithm} inputs an expression to be evaluated
 and a context.  The context (\secref{CONTEXTS}) provides a list of expression
-definitions that may match the expression.
+definitions that may match the expression.  Evaluating the expression
+requires searching contexts for expression definitions that match the
+expression.
 
 An expression to be evaluated may contain syntax variables that are assigned
 values during matching.  The result of matching is both a list of values for
 the expression and an assignment of values for these variables.
 
-More than one definition may match an expression.
-More than one definition may match a guard,
-and different guard definitions may lead to different
-values of variables in the original expression being evaluated.
-So expression matching is a search process to find a choice
-of expression definitions that
-leads to success, and more than one choice may succeed.
+More than one definition may match an expression.  Different matchings
+may lead to different expression values and values of syntax variables
+in the expression.
 
 Note that evaluations of guards and evaluations
 used to find values of evaluated syntax variables are required to have
@@ -8137,7 +8135,7 @@ Matching may be done in any of the following \skey{matching mode}s:
 \begin{list}{}{}
 
 \item[\ttkey{first-value}]~\\
-The first definitions tried that lead to successful matches are the only ones
+The first definition tried that successfully matches is the only one
 used.  Definitions are tried in the order they are given in the contexts
 used in evaluation.
 
@@ -8153,10 +8151,11 @@ successful results are collected in a set of results.  Then these results
 are tested to see if they are pairwise equal.
 All the values of the expression
 being evaluated must be equal, and all the values of each syntax variable
-contained in the expression must be equal.  If all expression values or
-values of a syntax variable are equal, one of these expression values
+contained in the expression must be equal.  If all expression values are
+equal and all values of any syntax variable are equal,
+one expression value
 is returned as the value of the expression, and one syntax variable value
-is returned as the value of the syntax variable.
+is returned as the value of each syntax variable.
 If some of the expression values or syntax variable values are unequal, an
 error value giving the context of the evaluation and the unequal values
 or values is returned as the value of the expression or syntax variable.
