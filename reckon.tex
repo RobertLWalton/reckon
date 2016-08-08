@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 7, 2016}
+\date{August 8, 2016}
 
 \maketitle
 
@@ -6742,7 +6742,7 @@ expression evaluates to \TT{false}.  If only one choice succeeds, that
 choice is used to evaluate the expression.  If several choices succeed,
 the situation becomes ambiguous, and the evaluation proceeds according
 to the matching mode, as is described below
-(\secref{MATCHING-ALGORITHM}).
+(\secref{EXPRESSION-MATCHING-ALGORITHM}).
 
 A syntax variable name beginning with
 \ttmkey{\$}{in syntax variable name} denotes an unevaluated
@@ -7570,7 +7570,7 @@ giving:
 \end{center}
 
 
-The matching algorithm in Section \itemref{MATCHING-ALGORITHM}
+The matching algorithm in Section \itemref{EXPRESSION-MATCHING-ALGORITHM}
 starts with a single pattern equation.  It checks this for
 consistency, and if consistent, deduces new equations by
 propagation.  Each deduced equation is then checked for
@@ -8178,88 +8178,87 @@ other contexts.  Context elements that are expression definitions are
 matched to the expression being evaluated.  Context elements that are
 themselves contexts are searched recursively.
 
-\ikey{Context lists}{list!context} are searched in order if the
+\ikey{Context lists}{list!context}
+\label{CONTEXT-MODE}
+are searched in order if the
 matching mode is \TT{first-value}, and are searched exhaustively
 otherwise.
 \ikey{Context sets}{set!context} are always searched exhaustively.
 
+There is a \key{current context} which is the value of the
+global variable `\ttkey{CURRENT CONTEXT}'.
+
 An expression definition is an object (\secref{OBJECTS})
 that consists of a pattern, an optional list of qualifiers,
-an optional block, and an optional context.  An
+and an optional block.  An
 {\em expression-definition} (\pagref{EXPRESSION-DEFINITION})
-computes an expression definition that has no context.
-A context can be added to the expression definition later by executing:
+computes an expression definition.  More specifically, the
+top level operator of an {\em expression-definition} is \TT{<-{}-}
+and this returns an expression definition object.
 
+An {\em expression-definition} given by itself adds the
+expression definition it computes to the beginning
+of the current context.
+
+The expression
 \begin{indpar}
-\TT{set} {\em expression-definition} \TT{context} {\em context}
+\ttkey{a context}
+\end{indpar}
+computes a new context.  Contexts are lists of expression
+definitions, other contexts, and context marks.  The expression
+\begin{indpar}
+\ttkey{a context mark}
+\end{indpar}
+computes a new context mark.
+
+The statements
+\begin{indpar}
+\ttmkey{add}{to context} {\em expression-definition} \TT{to}
+    {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{} \\
+\ttmkey{add}{to context} {\em context} \TT{to}
+    {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{} \\
+\ttmkey{add}{to context} {\em context-mark} \TT{to}
+    {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{}
+\end{indpar}
+add elements to the context beginning or end, where the
+default is to add to the \underline{beginning} (which is searched first).
+The statement
+\begin{indpar}
+\ttmkey{pop}{from context} {\em context-mark} \TT{from}
+    {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{}
+\end{indpar}
+removes elements from the context beginning or end until the
+context mark is removed.  The default is to remove from the beginning.
+It is an error if the context mark is not an element of the context.
+
+Contexts are like files, and can be read-write, read-only, or
+write-only.  They can also be treated as lists or sets when
+searched (\pagref{CONTEXT-MODE}).  These context attributes
+can be changed by the statement
+\begin{indpar}
+\ttmkey{make}{context} {\em context} {\em context-mode} \\
+\emkey{context-mode} \begin{tabular}[t]{@{}cl}
+                     ::= & \ttmkey{READ-WRITE}{context mode} \\
+                     $|$ & \ttmkey{READ-ONLY}{context mode} \\
+                     $|$ & \ttmkey{WRITE-ONLY}{context mode} \\
+                     $|$ & \ttmkey{SET-SEARCH}{context mode} \\
+                     $|$ & \ttmkey{LIST-SEARCH}{context mode} \\
+		     \end{tabular}
 \end{indpar}
 
-Once a context has been added to an expression definition, the context
-cannot be changed.
 
-A new expression definition can be made from an old one by
-the expression:
 
-\begin{indpar}
-	\verb|an| \ttkey{expression-definition}
-	      {\em expression-definition}
-	      {\em context}
-\end{indpar}
-
-The new expression definition has a different context, given by
-the second argument, than the first argument does.  The special
-value \ttmkey{UNDEFINED}{argument of an!expression-definition@{\tt
-expression-definition}} can be given as the {\em context} argument
-to create a new expression definition whose pattern, qualifiers, and block
-are the same as those of {\em expression-definition} argument
-but whose context part is missing and can be set later.
-
-There are two kinds of contexts: \mkey{immutable}{context} and
-\mkey{mutable}{context}.
-An immutable context cannot be modified.  A mutable context can have
-its list (or set) modified.
-Each kind can be either a set or a list.
-
-A context can be created by:
+The list of context elements
+can be copied from the context object by
 
 \begin{indpar}
-\verb|a| \ttkey{context}
-    \begin{tabular}[t]{@{}l@{}}
-    \verb|(| {\em context-element} \{ \verb|,| {\em context-element} \}
-	\verb|)| \\
-    \ttmkey{is list}{of context!of \TT{context}} {\em list} \\
-    \ttmkey{is mutable}{of context!of \TT{context}}
-           {\em mutable} \\
-    \ttmkey{with contexts missing}{of context!of \TT{context}}
-           {\em contexts-missing}
-    \end{tabular}
+\TT{the} \ttmkey{list}{of context} \TT{of} {\em context}
 \end{indpar}
 
-in which each {\em context-element} is either an expression definition or
-a context, and {\em list}, {\em mutable}, and {\em contexts-missing}
-are either `\TT{false}' (the default) or `\TT{true}'.
-If {\em contexts-missing} is \TT{false} (the default), any expression
-definition {\em context-elements} that do not have their
-contexts set will have them set equal to the context being created.
-
-Thus given expression definitions that do not have their contexts set,
-the default is to create an immutable context set whose expression definitions
-have the new context and therefore can reference each other.  Blocks
-containing {\em expression-definitions} perform exactly this kind of
-context creation.
-
-The {\em context-item} list of a context object is a list object
-(\pagref{LIST}) which can be extracted from the context object by
-
-\begin{indpar}
-\verb|the| \ttmkey{list}{of context} \verb|of| {\em context}
-\end{indpar}
-
-This list object is a list or set according to whether or not the
-context is a list or set, and the list object is immutable or mutable
-according to whether or not the context object is immutable or mutable.
-If mutable, altering the list object will alter its containing context
-object, and this is in fact the only way to mutate a mutable context.
+The result is a list object whose elements are expression definition,
+context, and context marker objects.  This list object is not
+part of the context object, and changing this list does not change
+the context object.
 
 \section{Blocks}
 \label{BLOCKS}
