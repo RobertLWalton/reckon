@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 8, 2016}
+\date{August 10, 2016}
 
 \maketitle
 
@@ -8273,73 +8273,98 @@ code for computing these values.  Blocks are optional parts of
 The code of a block has the following syntax:
 
 \begin{indpar}
-\emkey{block} ::= \TT{\{} {\em group}
+\emkey{block} ::= {\em bip} {\em group}
                          \{ {\em sequence-break} {\em group} \}\STAR{}
-			 \TT{\}} \\[1ex]
-\emkey{sequence-break} ::= \ttkey{-----}\TT{-}\STAR{}
-	(1 word consisting of 5 or more \TT{-}'s) \\[1ex]
+			 {\em eip}
+\\[1ex]
+\emkey{sequence-break} ::=
+    \begin{tabular}[t]{@{}l@{}}
+    {\em bll} \ttkey{-{}-{}-{}-{}-}\TT{-}\STAR{} {\em ell} \\
+    (a logical line containing 1 word
+     consisting of 5 or more \TT{-}'s)
+    \end{tabular}
+\\[1ex]
 \emkey{group} ::= {\em declaration-group} $|$ {\em statement-group}
 			 \\[1ex]
-\emkey{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}
-    \{ \TT{;} {\em declaration} \}\STAR{} \\[1ex]
-\emkey{statement-group} ::= {\em statement}
-	\{ \TT{;} {\em statement} \}\STAR{} \\[1ex]
-\emkey{declaration} ::= {\em expression-definition} $|$ {\em empty} \\[1ex]
+\emkey{declaration-group}\label{DECLARATION-GROUP} ::= {\em declaration}\PLUS{}
+\\[1ex]
+\emkey{statement-group} ::= {\em statement}\PLUS{}
+\\[1ex]
+\emkey{declaration} ::= {\em bll} {\em expression-definition} {\em ell}
+\\[1ex]
 \emkey{expression-definition} ::= see \pagref{EXPRESSION-DEFINITION} \\[1ex]
-\emkey{statement}
-    \begin{tabular}[t]{rl}
-    ::= & {\em unqualified-statement} \\
-    $|$ & {\em statement-qualifier} {\em unqualified-statement} \\
-    $|$ & {\em empty }
-    \end{tabular}
-\label{STATEMENT}\\[1ex]
+\emkey{statement} ::=
+    {\em bll} {\em statement-qualifier}\QMARK{} {\em unqualified-statement}
+    {\em ell}
+\label{STATEMENT}
+\\[1ex]
 \emkey{statement-qualifier} ::= \ttkey{first}
 			    $|$ \ttkey{always}
 			    $|$ \ttkey{default}
-			    \\[1ex]
+\\[1ex]
 \emkey{unqualified-statement}
     \begin{tabular}[t]{rl}
     ::= & {\em assignment-statement} \\
-    $|$ & {\em unguarded-subblock} \\
+    $|$ & {\em variable-assignment-subblock} \\
     $|$ & {\em guarded-statement}
-    \end{tabular} \\[1ex]
+    \end{tabular}
+\\[1ex]
 \emkey{assignment-statement}
 	\begin{tabular}[t]{rl}
 	::= & {\em variable-assignment-statement} \\
 	$|$ & {\em pattern-assignment-statement}
-	\end{tabular} \\[1ex]
-\emlkey{variable}{-assignment-statement} ::=
-	{\em output-variable} \ttkey{=} {\em right-side} \\[1ex]
-\emkey{right-side} \
-    \begin{tabular}[t]{rl}
-    ::= & {\em operator-expression} \\
-    $|$ & {\em operator-expression} \ttkey{=>} {\em output-variable}
-		\{ \TT{,} {\em output-variable} \}\STAR{}
-    \end{tabular} \\[1ex]
-{\em operator-expression} ::= see \pagref{OPERATOR-EXPRESSION} \\[1ex]
-\emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable} \\[1ex]
-\emkey{next-variable} ::= \ttkey{next} {\em variable-name} \\[1ex]
-\emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}] \\[1ex]
+	\end{tabular}
+\\[1ex]
+\emlkey{variable}{-assignment-statement} \\
+\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+	::= & {\em output-variable} \ttmkey{=}{in assignment}
+	      {\em expression} \\
+	$|$ & \TT{(} {\em output-variable}
+	             \{ \TT{,} {\em output-variable} \}\STAR{} \TT{)}
+	      \ttkey{=} {\em expression} \\
+	\end{tabular}
+\\[1ex]
+\emlkey{variable}{-assignment-subblock} \\
+\hspace*{0.5in}
+	\begin{tabular}[t]{rl}
+	::= & {\em output-variable} \ttmkey{=}{in assignment}
+	      {\em unguarded-subblock} \\
+	$|$ & \TT{(} {\em output-variable}
+	             \{ \TT{,} {\em output-variable} \}\STAR{} \TT{)}
+	      \ttkey{=} {\em unguarded-subblock} \\
+	\end{tabular}
+\\[1ex]
+{\em expression} ::= see \pagref{EXPRESSION}
+\\[1ex]
+\emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable}
+\\[1ex]
+\emkey{next-variable} ::= \ttkey{next} {\em variable-name}
+\\[1ex]
+\emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
+\\[1ex]
 \emlkey{pattern}{-assignment-statement} ::=
-	{\em pattern} \TT{\TILDE=\TILDE}\index{~=~@{\TT{\TILDE=\TILDE}}}
-	{\em right-side} \\[1ex]
+	{\em pattern}~~\TT{\TILDE=:}\index{~=:@{\TT{\TILDE=:}}}~~%
+	{\em syntax-expressoin}
+\\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
-\emkey{unguarded-subblock} ::= \TT{\{} {\em statement-group} \TT{\}} \\[1ex]
+\emkey{unguarded-subblock} ::= \TT{:} {\em bip} {\em statement-group}
+                                      {\em eip}
+\\[1ex]
 \emkey{guarded-statement} ::=
-      {\em if-statement} $|$ {\em when-statement} \\[1ex]
+      {\em if-statement} $|$ {\em when-statement}
+\\[1ex]
 \emkey{if-statement} ::=
       \begin{tabular}[t]{l}
-      \ttkey{if} {\em guard} {\em unguarded-subblock} \\
-      {\em else-if-continuation}\STAR{} \\
-      {\em else-continuation-option}
+      \ttkey{if}~~{\em guard}~~{\em unguarded-subblock} \\
+      \{ {\em ell}~~{\em bll}~~%
+         \ttkey{else if}~~{\em guard}~~{\em unguarded-subblock} \}\STAR{} \\
+      \{ {\em ell}~~{\em bll}~~%
+         \ttkey{else}~~{\em unguarded-subblock} \}\QMARK{} \\
       \end{tabular} \\[1ex]
-\emkey{else-if-continuation} ::=
-      \TT{;} \ttkey{else if} {\em guard} {\em unguarded-subblock} \\[1ex]
-\emkey{else-continuation-option} ::= {\em empty} $|$
-      \TT{;} \ttkey{else} {\em unguarded-subblock} \\[1ex]
 \emkey{when-statement} ::=
-      \ttkey{when} {\em guard} {\em unguarded-subblock} \\[1ex]
-\emkey{guard} ::= {\em right-side}
+      \ttkey{when}~~{\em guard}~~{\em unguarded-subblock} \\[1ex]
+\emkey{guard} ::= {\em expression} $|$ {\em assignment-statement}
 \end{indpar}
 
 \subsection{Block Variable Names}
