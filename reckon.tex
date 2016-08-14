@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 10, 2016}
+\date{August 13, 2016}
 
 \maketitle
 
@@ -8319,10 +8319,10 @@ The code of a block has the following syntax:
 \hspace*{0.5in}
 	\begin{tabular}[t]{rl}
 	::= & {\em output-variable} \ttmkey{=}{in assignment}
-	      {\em expression} \\
+	      {\em value-expression} \\
 	$|$ & \TT{(} {\em output-variable}
 	             \{ \TT{,} {\em output-variable} \}\STAR{} \TT{)}
-	      \ttkey{=} {\em expression} \\
+	      \ttkey{=} {\em value-expression} \\
 	\end{tabular}
 \\[1ex]
 \emlkey{variable}{-assignment-subblock} \\
@@ -8335,7 +8335,7 @@ The code of a block has the following syntax:
 	      \ttkey{=} {\em unguarded-subblock} \\
 	\end{tabular}
 \\[1ex]
-{\em expression} ::= see \pagref{EXPRESSION}
+{\em value-expression} ::= {\em expression} ~~~ see \pagref{EXPRESSION}
 \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable}
 \\[1ex]
@@ -8345,7 +8345,7 @@ The code of a block has the following syntax:
 \\[1ex]
 \emlkey{pattern}{-assignment-statement} ::=
 	{\em pattern}~~\TT{\TILDE=:}\index{~=:@{\TT{\TILDE=:}}}~~%
-	{\em syntax-expressoin}
+	{\em value-expression}
 \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
 \emkey{unguarded-subblock} ::= \TT{:} {\em bip} {\em statement-group}
@@ -8364,7 +8364,7 @@ The code of a block has the following syntax:
       \end{tabular} \\[1ex]
 \emkey{when-statement} ::=
       \ttkey{when}~~{\em guard}~~{\em unguarded-subblock} \\[1ex]
-\emkey{guard} ::= {\em expression} $|$ {\em assignment-statement}
+\emkey{guard} ::= {\em value-expression} $|$ {\em assignment-statement}
 \end{indpar}
 
 \subsection{Block Variable Names}
@@ -8372,65 +8372,59 @@ The code of a block has the following syntax:
 
 In order to evaluate a block, the 
 {\em variable-names} in the block must be identified.
-Some {\em variable-names} may be \mkey{inherited}{variable-name}
+These are:
+\begin{enumerate}
+\item
+{\em Variable-names} \mkey{inherited}{variable-name}
 from a {\em expression-definition} containing the block.
-Some are {\em output-variables} in {\em assignment-statements}
-or {\em right-sides}.
-Some are variables in the {\em patterns} of {\em assign\-ment-patterns}.
-All the {\em variable-names}
-in the block are inherited or can be identified by looking at the left
-sides of {\em variable-assignments}, at the {\em output-variables}
-following \TT{=>} in {\em right-sides}, or {\em patterns} in
-{\em pattern-assignments}.
+\item
+{\em Output-variables} in {\em assignment-statements}.
+\item
+Syntax variables in the {\em patterns} of
+{\em pattern-assign\-ment-statements}.
+\end{enumerate}
+All the {\em variable-names} in the block are one of these kinds
+of variables.
 
 When identifying {\em variable-names} in a {\em block}, {\em statements} in a
 {\em subblock} of the {\em block} are treated as if they
 were in the {\em block} proper.  Thus variables named in the
 {\em subblock} are variables named in the {\em block}.\footnote{
-RECKON does not have the notion of name space nesting, because the
-\TT{\{ \}} brackets that would
-indicate nesting can be implied by the \TT{:} construction.}
+RECKON does not have the notion of name space nesting.}
 
 For example, in
 
 \begin{indpar}[1in]
-\verb|sum from X through Y <-- integer X, integer Y| {\em block}
+\verb|sum from X through Y| \\
+\verb|    <--- is an integer X, is an integer Y|~~~{\em block}
 \end{indpar}
 
 the variable names \TT{X} and \TT{Y} are inherited by the {\em block}.
 
-As another example, if the {\em pattern-assignment}
-
-\begin{indpar}[1in]
-\verb|$X + $Y ~=~ `5 + ( 7 * y )'|
-\end{indpar}
-
-appears in a block,
-the variable names \TT{\$X} and \TT{\$Y} are pattern variable names
-that are {\em variable-names} of the {\em block}.
-
-The {\em output-variable} names in {\em variable-assignments}
-and {\em right-sides} are {\em variable-names}.  For example, in
+As another example, in
 
 \begin{indpar}[1in]\begin{verbatim}
-when sort x to y => y:
+when y = sort x:
     z = first 
 \end{verbatim}\end{indpar}
 
 \TT{y} and \TT{z} are {\em output-variables} and therefore
 {\em variable-names}.
 
-Both evaluated and unevaluated pattern variables may be used in
-the {\em operator-expressions} that appear in {\em right-sides}.
-For example,
-\begin{indpar}[1in]\begin{verbatim}
-x = $X
-\end{verbatim}\end{indpar}
+As a last example, in
 
-sets the variable \TT{x} to the unevaluated expression stored in
-\TT{\$X}.
+\begin{indpar}[1in]
+\verb|$X + $Y ~=~ `5 + ( 7 * y )'|
+\end{indpar}
 
-[TBD: Arrays and array element names]
+the variable names \TT{\$X} and \TT{\$Y} are pattern syntax variable names
+that are {\em variable-names}.
+
+If a {\em name} that is not a {\em variable-name} of the block
+appears in a {\em value-expression}, that {\em name} does not
+name a variable, and it must be
+defined by matching it to an expression definition in the block context.
+
 
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
@@ -8543,6 +8537,18 @@ If a block finishes without producing a value for a variable named
 Block evaluation is additionally modified by {\em statement-qualifiers}
 and {\em next-variables}
 (\secref{DEFAULT-STATEMENTS} and \secref{ITERATION}).
+
+TBD
+
+Both evaluated and unevaluated pattern variables may be used in
+the {\em operator-expressions} that appear in {\em right-sides}.
+For example,
+\begin{indpar}[1in]\begin{verbatim}
+x = $X
+\end{verbatim}\end{indpar}
+
+sets the variable \TT{x} to the unevaluated expression stored in
+\TT{\$X}.
 
 \subsection{Default Statements}
 \label{DEFAULT-STATEMENTS}
@@ -8827,6 +8833,11 @@ this is not required by the language either.
 
 TBD: protection; protection zones.
 
+
+\subsection{Arrays}
+\label{Arrays}
+
+[TBD: Arrays and array element names]
 
 \section{Side Effects}
 \label{SIDE-EFFECTS}
