@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 13, 2016}
+\date{August 14, 2016}
 
 \maketitle
 
@@ -8367,12 +8367,12 @@ The code of a block has the following syntax:
 \emkey{guard} ::= {\em value-expression} $|$ {\em assignment-statement}
 \end{indpar}
 
-\subsection{Block Variable Names}
-\label{BLOCK-VARIABLE-NAMES}
+\subsection{Block Variables}
+\label{BLOCK-VARIABLES}
 
-In order to evaluate a block, the 
-{\em variable-names} in the block must be identified.
-These are:
+In order to evaluate a block, the variables of a block
+must be identified.  These have
+{\em variable-names} that are one of the following:
 \begin{enumerate}
 \item
 {\em Variable-names} \mkey{inherited}{variable-name}
@@ -8382,24 +8382,33 @@ from a {\em expression-definition} containing the block.
 \item
 Syntax variables in the {\em patterns} of
 {\em pattern-assign\-ment-statements}.
+\item
+The evaluated syntax variable names associated with unevaluated syntax
+variable names that name block variables.
 \end{enumerate}
-All the {\em variable-names} in the block are one of these kinds
-of variables.
+All block variables are one of these kinds of variables.
 
-When identifying {\em variable-names} in a {\em block}, {\em statements} in a
+If a {\em name} that is not the {\em variable-name} of a block variable
+appears in a {\em value-expression}, that {\em name} does not
+name a block variable, and it must be
+defined by matching it to an expression definition in the block context.
+
+When identifying block variables, {\em statements} in a
 {\em subblock} of the {\em block} are treated as if they
 were in the {\em block} proper.  Thus variables named in the
-{\em subblock} are variables named in the {\em block}.\footnote{
+{\em subblock} are variables of the {\em block}.\footnote{
 RECKON does not have the notion of name space nesting.}
 
 For example, in
 
 \begin{indpar}[1in]
 \verb|sum from X through Y| \\
-\verb|    <--- is an integer X, is an integer Y|~~~{\em block}
+\verb|        <--- is an integer X, is an integer Y:| \\
+\verb|    |{\em block}
 \end{indpar}
 
-the variable names \TT{X} and \TT{Y} are inherited by the {\em block}.
+the variable names \TT{X} and \TT{Y} are inherited by the {\em block}
+and name block variables.
 
 As another example, in
 
@@ -8408,8 +8417,8 @@ when y = sort x:
     z = first 
 \end{verbatim}\end{indpar}
 
-\TT{y} and \TT{z} are {\em output-variables} and therefore
-{\em variable-names}.
+\TT{y} and \TT{z} are {\em output-variables} and therefore name
+block variables.
 
 As a last example, in
 
@@ -8418,63 +8427,104 @@ As a last example, in
 \end{indpar}
 
 the variable names \TT{\$X} and \TT{\$Y} are pattern syntax variable names
-that are {\em variable-names}.
-
-If a {\em name} that is not a {\em variable-name} of the block
-appears in a {\em value-expression}, that {\em name} does not
-name a variable, and it must be
-defined by matching it to an expression definition in the block context.
+that name block variables.  The associated evaluated syntax variable names
+`\TT{X}' and `\TT{Y}' also name block variables.
 
 
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
 
+Block evaluation proceeds according to the following rules:
+
+\begin{enumerate}
+
+\item
 \ikey{Blocks}{block!evaluation}
 are divided into \ikey{groups}{group!evaluation} by \skey{sequence-break}s.
 The {\em groups} are evaluated in order: each group being completely
-evaluated before the next group is evaluated.  However,
-evaluation within a \mkey{statement-group}{evaluation}
+evaluated before the next group is evaluated.  No part of a {\em group}
+can evaluate until all previous {\em groups} of the block have completely
+finished evaluating.  Once a {\em group} starts to evaluate, no part of
+a previous {\em group} can evaluate.
+
+A {\em block} terminates when its last group terminates.
+
+\item
+The \ikey{declarations}{declaration!evaluation} of a
+\mkey{declaration-group}{evaluation} are evaluated in order.  Evaluation of a
+{\em declaration} just adds its definition to the current context.
+The {\em declaration-group} terminates when its last {\em declaration}
+has evaluated.
+
+\item
+Evaluation within a \mkey{statement-group}{evaluation}
 is driven by availability of variable values,
 and not by the order of the {\em statements} in the group.
 
-Each variable in a block can be assigned at most one value: it is
+\item
+Each \key{block variable} (see \itemref{BLOCK-VARIABLES}) can be assigned at most one value: it is
 an error if the variable is assigned a value more than once during
 a block evaluation, even if all the values assigned are the same.
 
-The variables in an {\em operator-expression}
+\item
+Block variables named in an {\em value-expression}
 are called \skey{input-variable}s.
-Each {\em operator-expres\-sion} in a {\em statement-group}
-is evaluated only when \underline{all} its input variables have values.
-When the {\em operator-expression} of an {\em assignment-statement} or
-{\em right-side}
-is evaluated, the {\em output-variables} and pattern variables in the
-{\em assignment-statement} or {\em right-side} are given values.
+Each {\em value-expres\-sion} in a {\em statement-group}
+is evaluated \underline{only after all} its input variables have be
+given values.
 
-None of the statements in an {\em if-statement}
+\item
+The {\em output-variables} in a {\em variable-assignment-statement}
+are given values as soon as the {\em value-expression} of the
+statement is evaluated.
+
+\item
+The {\em output-variables} in a {\em variable-assignment-subblock}
+are given values by name in the {\em unguarded-subblock}.  For example,
+in:
+
+\begin{indpar}\begin{verbatim}
+  z =:
+      y = 5
+      x = 6
+      z = x + y
+\end{verbatim}\end{indpar}
+
+the two instances of the {\em variable-name} \TT{z} refer to the same
+block variable.
+
+\item
+The {\em pattern-variables} in a {\em pattern-assignment-statement}
+are given values as soon as the {\em value-expression} of the
+statement is evaluated.
+
+\item
+None of the statements in an {\em if-statement}'s first
 {\em unguarded-block} are
 evaluated until the block's {\em guard} has been evaluated to true.
 If the guard evaluates to false, no statement in the
-{\em unguarded-block} is ever evaluated.  An {\em else-if-continuation}
-{\em guard} is not evaluated until all {\em guards}
-in any preceding {\em if-statement}
-or {\em else-if-continuations} in the same {\em guard-statement}
-have been evaluated to false.  The {\em unguarded-block} of an
-{\em else-continuation} is evaluated if and only if
-all {\em guards} in any preceding {\em if-statement}
-or {\em else-if-continuation} in the same {\em if-statement}
+{\em unguarded-block} is ever evaluated.
+
+An `\TT{else if}'
+{\em guard} is not evaluated until all {\em guards} preceeding it
+in the {\em if-statement} have been evaulated to false.
+The {\em unguarded-block} following an `\TT{else if}' {\em guard}
+is not evaluated until the {\em guard} is evaluated to true.
+
+The {\em unguarded-block} following an `\TT{else}'
+is not evaluated until
+all {\em guards} preceeding it in the {\em if-statement}
 have been evaluated to false.
 
 An example application of these rules is:
 
 \begin{indpar}\begin{verbatim}
-{
   z = y1
   z = y2
   if X > 5:
     y1 = 9
   else:
     y2 = 10
-}
 \end{verbatim}\end{indpar}
 
 where \TT{X} is an inherited variable name.  If \TT{X > 5} is true,
@@ -8485,48 +8535,32 @@ the variable \TT{y2}
 is given the value \TT{10} and then \TT{z} is given this
 value, while the variable \TT{y1} is never given a value.
 
+\item
 A {\em when-statement} is just like an {\em if-statement} that has
-no {\em else-if-continuation} or {\em else-continu\-a\-tion}.
-[TBD: what about making a variable true if it has ANY value, for the
-purposes of a {\em when-statement}?]
+no `\TT{else if}' or `\TT{else}' parts.
 
+\item
 A {\em statement-group} terminates when all the
-{\em right-side-expressions} in it have either been evaluated or
+{\em value-expressions} in it have either been evaluated or
 cannot be evaluated because of lack of an input variable value or
 because of {\em guards}.
 Once a {\em statement-group}
 terminates, no part of the group can be evaluated, even if another group
 later in the block defines that part's input variables.
 
-However, group evaluation is additionally modified by {\em statement-qualifiers}
-(\secref{DEFAULT-STATEMENTS}, \secref{ITERATION}).
+However, {\em statement-group}
+evaluation is additionally modified by {\em statement-qualifiers}:
+see Default Statements \secref{DEFAULT-STATEMENTS}
+and Iteration \secref{ITERATION}.
 
-The \ikey{declarations}{declaration!evaluation} of a
-\mkey{declaration-group}{evaluation} are evaluated in order.  Evaluation of a
-{\em declaration} just adds its definition to the current context.
-The {\em declaration-group} terminates when its last {\em declaration}
-has evaluated.  There are no {\em guards} or block variables in a declaration
-group (the variables of a definition are not variables of the block).
-
-\ikey{Empty-statements}{empty-statement!evaluation} and
-\ikey{empty-declarations}{empty-declaration!evaluation} do nothing
-when they evaluate.
-
-The {\em groups} of a {\em block} are evaluated in order.  No part of
-a {\em group}
-can evaluate until all previous {\em groups} of the block have completely
-finished evaluating.  Once a {\em group} starts to evaluate, no part of
-a previous {\em group} can evaluate.
-
-A {\em block} terminates when its last group terminates.
-
+\item
 When a block terminates, the \mkey{value}{of block} of the block is the
 value of its \TT{value} variable\index{value variable@\TT{value} variable},
-if any.  Thus the block
+if any.  Thus a one-statement block
 
-\begin{center}
-\verb|{ value = X + Y }|
-\end{center}
+\begin{indpar}
+\verb|value = X + Y|
+\end{indpar}
 
 which inherits the variables \TT{X} and \TT{Y} will return
 the sum of its inherited variables as the value of the block.
@@ -8534,21 +8568,7 @@ the sum of its inherited variables as the value of the block.
 If a block finishes without producing a value for a variable named
 \TT{value}, the value of the block is \ttmkey{true}{block value}.
 
-Block evaluation is additionally modified by {\em statement-qualifiers}
-and {\em next-variables}
-(\secref{DEFAULT-STATEMENTS} and \secref{ITERATION}).
-
-TBD
-
-Both evaluated and unevaluated pattern variables may be used in
-the {\em operator-expressions} that appear in {\em right-sides}.
-For example,
-\begin{indpar}[1in]\begin{verbatim}
-x = $X
-\end{verbatim}\end{indpar}
-
-sets the variable \TT{x} to the unevaluated expression stored in
-\TT{\$X}.
+\end{enumerate}
 
 \subsection{Default Statements}
 \label{DEFAULT-STATEMENTS}
@@ -8708,7 +8728,7 @@ define additional components.
 
 Recall that the concept of being a variable of a block
 of code is defined syntactically and independently of which variable values
-the block actually computes (\secref{BLOCK-VARIABLE-NAMES}).
+the block actually computes (\secref{BLOCK-VARIABLES}).
 The components of an object are more precisely the variables
 of the code added permanently to the object, whether or not these
 variables have values defined by code added permanently or temporarily
@@ -8957,6 +8977,9 @@ as in \TT{41 1/3}.
 \end{list}
 
 \section{To Do}
+
+What about making a variable true if it has ANY value, for the
+purposes of a {\em when-statement}?
 
 Describe matrix expression scanning that has no separators.
 Maybe it should not recognize operators outside parentheses?
