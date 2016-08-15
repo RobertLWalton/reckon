@@ -8348,8 +8348,7 @@ The code of a block has the following syntax:
 	{\em value-expression}
 \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
-\emkey{unguarded-subblock} ::= \TT{:} {\em bip} {\em statement-group}
-                                      {\em eip}
+\emkey{unguarded-subblock} ::= \TT{:} {\em block}
 \\[1ex]
 \emkey{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement}
@@ -8491,7 +8490,7 @@ in:
 \end{verbatim}\end{indpar}
 
 the two instances of the {\em variable-name} \TT{z} refer to the same
-block variable.
+block variable, which is set by the statement `\TT{z = x + y}'.
 
 \item
 The {\em pattern-variables} in a {\em pattern-assignment-statement}
@@ -8554,7 +8553,8 @@ see Default Statements \secref{DEFAULT-STATEMENTS}
 and Iteration \secref{ITERATION}.
 
 \item
-When a block terminates, the \mkey{value}{of block} of the block is the
+When a block that is not a subblock
+terminates, the \mkey{value}{of block} of the block is the
 value of its \TT{value} variable\index{value variable@\TT{value} variable},
 if any.  Thus a one-statement block
 
@@ -8565,7 +8565,8 @@ if any.  Thus a one-statement block
 which inherits the variables \TT{X} and \TT{Y} will return
 the sum of its inherited variables as the value of the block.
 
-If a block finishes without producing a value for a variable named
+If a block that is not a subblock
+finishes without producing a value for a variable named
 \TT{value}, the value of the block is \ttmkey{true}{block value}.
 
 \end{enumerate}
@@ -8573,17 +8574,20 @@ If a block finishes without producing a value for a variable named
 \subsection{Default Statements}
 \label{DEFAULT-STATEMENTS}
 
-The \ttkey{default} {\em statement-qualifier} modifies group execution.
-A statement qualified by \TT{default}
-is called a \key{default statement}.  Default statements in a {\em group}
+The \ttkey{default} {\em statement-qualifier} modifies {\em statement-group}
+execution.  A statement qualified by \TT{default}
+is called a \key{default statement}.  Default statements in a
+{\em statement-group}
 are initially inactive, meaning that they are treated as if they do not exist,
 
-After the {\em group} without its default statements finishes executing,
-any default statement in the {\em group} that has
+After the {\em statement-group}
+without its default statements finishes executing,
+any default statement in the {\em statement-group} that has
 \underline{no} output or pattern variable with a value
 is made active.  All default statements that can be made active in this
-way are made active at the same time.  Then the {\em group}, which now
-consists of all non-default statements and all active default statements,
+way are made active at the same time.  Then the {\em statement-group},
+which now consists of all non-default statements and
+all active default statements,
 continues executing, until no more non-default or active default statement
 can be executed.
 
@@ -8594,11 +8598,9 @@ statements assign values the same variable.
 An example application of these rules is:
 
 \begin{indpar}\begin{verbatim}
-{
-  if X > 5:
+if X > 5:
     value = `true'
-  default value = `false'
-}
+default value = `false'
 \end{verbatim}\end{indpar}
 
 where \TT{X} is an inherited variable name.  If \TT{X > 5} is true,
@@ -8612,10 +8614,10 @@ the value of the block is `\TT{false}'.
 
 A block can \key{iterate}, meaning that it generates another block
 that is the next block in a sequence of blocks.  A block
-iterates if it does \underline{not} produce a value of a \TT{value}
-variable and if it does produce a value for a {\em next-variable}.
-The sequence of blocks are called the
-\skey{iteration}s of the sequence.  Evaluation of a block can always
+iterates if it produces a value for a {\em next-variable}.
+The blocks in the sequence are called the
+\skey{iteration}s of the original {\em block}.
+Evaluation of a block can always
 be thought of as producing a sequence of iterations, though this
 sequence might include only one block which does not iterate.
 
@@ -8628,8 +8630,7 @@ The value of \TT{next }$V$ at the end of execution of the
 current block iteration becomes the value of $V$ at the beginning
 of execution of the next block iteration.  In order for there to be
 a next iteration, the current iteration must compute the value of
-some {\em next-variable}, and the current iteration must not compute
-the value of the \TT{value} variable.
+some {\em next-variable}.
 
 {\em Next-variables} can be both output and input variables.
 When used as input variables they are just like other input variables.
@@ -8672,7 +8673,7 @@ The expression `\TT{UNDEFINED}' cannot be used to set a
 non-{\em next-variable}.
 
 A \ttkey{first} qualified {\em statement} is only visible in the
-first iteration of a block sequence.
+first iteration of a block iteration sequence.
 
 An \ttkey{always} qualified {\em statement} is equivalent to the {\em statement}
 qualified by \TT{first} plus additional {\em statements} of the form
@@ -8698,7 +8699,7 @@ An \key{object} can be created by an {\em object-expression}:
 
 \begin{indpar}
 \emkey{object-expression} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
-		              {\em block-option} \\[1ex]
+		              \{ \TT{:} {\em block} \}\QMARK{} \\[1ex]
 \emkey{type-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \end{indpar}
 
