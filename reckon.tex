@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 14, 2016}
+\date{August 16, 2016}
 
 \maketitle
 
@@ -8304,16 +8304,11 @@ The code of a block has the following syntax:
 \\[1ex]
 \emkey{unqualified-statement}
     \begin{tabular}[t]{rl}
-    ::= & {\em assignment-statement} \\
+    ::= & {\em variable-assignment-statement} \\
     $|$ & {\em variable-assignment-subblock} \\
+    $|$ & {\em pattern-assignment-statement} \\
     $|$ & {\em guarded-statement}
     \end{tabular}
-\\[1ex]
-\emkey{assignment-statement}
-	\begin{tabular}[t]{rl}
-	::= & {\em variable-assignment-statement} \\
-	$|$ & {\em pattern-assignment-statement}
-	\end{tabular}
 \\[1ex]
 \emlkey{variable}{-assignment-statement} \\
 \hspace*{0.5in}
@@ -8329,13 +8324,13 @@ The code of a block has the following syntax:
 \hspace*{0.5in}
 	\begin{tabular}[t]{rl}
 	::= & {\em output-variable} \ttmkey{=}{in assignment}
-	      {\em unguarded-subblock} \\
+	      {\em temporary-subblock} \\
 	$|$ & \TT{(} {\em output-variable}
 	             \{ \TT{,} {\em output-variable} \}\STAR{} \TT{)}
-	      \ttkey{=} {\em unguarded-subblock} \\
+	      \ttkey{=} {\em temporary-subblock} \\
 	\end{tabular}
 \\[1ex]
-{\em value-expression} ::= {\em expression} ~~~ see \pagref{EXPRESSION}
+{\em value-expression} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable}
 \\[1ex]
@@ -8348,22 +8343,24 @@ The code of a block has the following syntax:
 	{\em value-expression}
 \\[1ex]
 {\em pattern} ::= see \pagref{PATTERN} \\[1ex]
-\emkey{unguarded-subblock} ::= \TT{:} {\em block}
+\emkey{temporary-subblock} ::= \TT{:} {\em block}
 \\[1ex]
 \emkey{guarded-statement} ::=
       {\em if-statement} $|$ {\em when-statement}
 \\[1ex]
 \emkey{if-statement} ::=
       \begin{tabular}[t]{l}
-      \ttkey{if}~~{\em guard}~~{\em unguarded-subblock} \\
+      \ttkey{if}~~{\em guard}~~{\em permanent-subblock} \\
       \{ {\em ell}~~{\em bll}~~%
-         \ttkey{else if}~~{\em guard}~~{\em unguarded-subblock} \}\STAR{} \\
+         \ttkey{else if}~~{\em guard}~~{\em permanent-subblock} \}\STAR{} \\
       \{ {\em ell}~~{\em bll}~~%
-         \ttkey{else}~~{\em unguarded-subblock} \}\QMARK{} \\
+         \ttkey{else}~~{\em permanent-subblock} \}\QMARK{} \\
       \end{tabular} \\[1ex]
 \emkey{when-statement} ::=
-      \ttkey{when}~~{\em guard}~~{\em unguarded-subblock} \\[1ex]
+      \ttkey{when}~~{\em guard}~~{\em permanent-subblock} \\[1ex]
 \emkey{guard} ::= {\em value-expression} $|$ {\em assignment-statement}
+\\[1ex]
+\emkey{permanent-subblock} ::= \TT{:} {\em block}
 \end{indpar}
 
 \subsection{Block Variables}
@@ -8392,12 +8389,6 @@ appears in a {\em value-expression}, that {\em name} does not
 name a block variable, and it must be
 defined by matching it to an expression definition in the block context.
 
-When identifying block variables, {\em statements} in a
-{\em subblock} of the {\em block} are treated as if they
-were in the {\em block} proper.  Thus variables named in the
-{\em subblock} are variables of the {\em block}.\footnote{
-RECKON does not have the notion of name space nesting.}
-
 For example, in
 
 \begin{indpar}[1in]
@@ -8421,14 +8412,43 @@ block variables.
 
 As a last example, in
 
-\begin{indpar}[1in]
-\verb|$X + $Y ~=~ `5 + ( 7 * y )'|
-\end{indpar}
+\begin{indpar}[1in]\begin{verbatim}
+$X + $Y ~=~ `5 + ( 7 * y )'
+\end{verbatim}\end{indpar}
 
 the variable names \TT{\$X} and \TT{\$Y} are pattern syntax variable names
 that name block variables.  The associated evaluated syntax variable names
 `\TT{X}' and `\TT{Y}' also name block variables.
 
+Variables of a {\em permanent-subblock} are also variables of
+that subblock's containing block.  For example, in:
+\begin{indpar}[1in]\begin{verbatim}
+if X < 5:
+    z = X + 10
+\end{verbatim}\end{indpar}
+the variable \TT{z} is a variable of both the permanent subblock and
+a variable of its containing block (that includes the `\TT{if}' statement).
+
+Variables of a {\em temporary-subblock} are \underline{not}
+also variables of that subblock's containing block, unless they
+are {\em output-variables} of the containing block's
+{\em variable-assignment-subblock} statement that conains the
+subblock.  For example, in:
+\begin{indpar}[1in]\begin{verbatim}
+z =:
+    w = X + 10
+    z = w - 5
+    y = w + 5
+\end{verbatim}\end{indpar}
+the variable \TT{z} is a variable of both the temporary subblock
+and its containing block (and is the same variable named as an
+output variable in two places), but the variables \TT{w} and 
+and \TT{y} are variables of the subblock but \underline{not}
+variables of its containing block.
+
+To avoid confusion, variables of a {\em temporary-subblock}
+that are \underline{not} also variables of its containing
+block may not have the same names as variables of the containing block.
 
 \subsection{Block Evaluation}
 \label{BLOCK-EVALUATION}
@@ -8479,7 +8499,7 @@ statement is evaluated.
 
 \item
 The {\em output-variables} in a {\em variable-assignment-subblock}
-are given values by name in the {\em unguarded-subblock}.  For example,
+are given values by name in the {\em temporary-subblock}.  For example,
 in:
 
 \begin{indpar}\begin{verbatim}
@@ -8499,18 +8519,18 @@ statement is evaluated.
 
 \item
 None of the statements in an {\em if-statement}'s first
-{\em unguarded-block} are
+{\em permanent-subblock} are
 evaluated until the block's {\em guard} has been evaluated to true.
 If the guard evaluates to false, no statement in the
-{\em unguarded-block} is ever evaluated.
+{\em permanent-subblock} is ever evaluated.
 
 An `\TT{else if}'
 {\em guard} is not evaluated until all {\em guards} preceeding it
 in the {\em if-statement} have been evaulated to false.
-The {\em unguarded-block} following an `\TT{else if}' {\em guard}
+The {\em permanent-subblock} following an `\TT{else if}' {\em guard}
 is not evaluated until the {\em guard} is evaluated to true.
 
-The {\em unguarded-block} following an `\TT{else}'
+The {\em permanent-subblock} following an `\TT{else}'
 is not evaluated until
 all {\em guards} preceeding it in the {\em if-statement}
 have been evaluated to false.
@@ -8540,7 +8560,8 @@ no `\TT{else if}' or `\TT{else}' parts.
 
 \item
 A {\em statement-group} terminates when all the
-{\em value-expressions} in it have either been evaluated or
+{\em value-expressions} in it (and its subblocks)
+have either been evaluated or
 cannot be evaluated because of lack of an input variable value or
 because of {\em guards}.
 Once a {\em statement-group}
