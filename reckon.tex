@@ -8601,34 +8601,43 @@ is called a \key{default statement}.  Default statements in a
 {\em statement-group}
 are initially inactive, meaning that they are treated as if they do not exist,
 
-After the {\em statement-group}
-without its default statements finishes executing,
-any default statement in the {\em statement-group} that has
-\underline{no} output or pattern variable with a value
-is made active.  All default statements that can be made active in this
-way are made active at the same time.  Then the {\em statement-group},
-which now consists of all non-default statements and
-all active default statements,
-continues executing, until no more non-default or active default statement
-can be executed.
+If execution of a {\em statement-group} gets to the point where there
+is \underline{no possibility} of \underline{any} of the variables
+set by a default statement receiving a value from another statement,
+then the default statement is activated.
 
-Since all default statements that become active in a group become active
-at the same time, it is possible for an error to occur if two such
-statements assign values the same variable.
+The `\TT{default}' qualifier may only be applied to {\em assignment-statements},
+and not to {\em guarded-statements}.
+A block variable may be a settable by at most one default statement in
+the block.
 
 An example application of these rules is:
 
 \begin{indpar}\begin{verbatim}
-if X > 5:
+if x > 5:
     value = `true'
 default value = `false'
 \end{verbatim}\end{indpar}
 
-where \TT{X} is an inherited variable name.  If \TT{X > 5} is true,
-the value of the block is `\TT{true}' and the \TT{default}
-{\em assignment-statement} remains inactive, but if \TT{X > 5} is false,
-the \TT{default} {\em assignment-statement} becomes active and
-the value of the block is `\TT{false}'.
+If \TT{x} gets the value \TT{6}, then `\TT{value}' is set to `\TT{true}'.
+If \TT{x} gets the value \TT{4}, then `\TT{value}' is set to `\TT{false}'.
+If execution gets to the point where \TT{x} cannot ever be given a
+value, then `\TT{value}' is set to `\TT{false}'.
+
+The proof that a variable like \TT{x} can never get a value is
+conservative.  For example, in:
+\begin{indpar}\begin{verbatim}
+if x > 5:
+    y = 10
+if y > 5:
+    x = 10
+default x = 8
+default y = 8
+\end{verbatim}\end{indpar}
+
+one can prove that \TT{x} never gets a value only if one can prove
+that \TT{y} never gets a value, and vice versa.  As a consequence
+one can never prove either, and both default statements never activate.
 
 \subsection{Iteration}
 \label{ITERATION}
