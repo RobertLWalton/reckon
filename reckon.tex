@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 17, 2016}
+\date{August 20, 2016}
 
 \maketitle
 
@@ -8493,6 +8493,14 @@ is evaluated \underline{only after all} its input variables have be
 given values.
 
 \item
+Input variables named in {\em value-expressions} within a
+subblock that are not block variables of the
+subblock are called `\key{inherited-variables}'.
+Each {\em temporary-subblock} in a {\em statement-group}
+is evaluated \underline{only after all} its inherited variables have be
+given values.
+
+\item
 The {\em output-variables} in a {\em variable-assignment-statement}
 are given values as soon as the {\em value-expression} of the
 statement is evaluated.
@@ -8644,12 +8652,23 @@ one can never prove either, and both default statements never activate.
 
 A block can \key{iterate}, meaning that it generates another block
 that is the next block in a sequence of blocks.  A block
-iterates if it produces a value for a block {\em next-variable}.
+iterates if it produces a value for a block {\em next-variable},
+which is a block variable whose name has the form `\TT{next} $V$'
+for some ordinary variable name $V$.
+
 The blocks in the sequence are called the
 \skey{iteration}s of the original {\em block}.
 Evaluation of a block can always
 be thought of as producing a sequence of iterations, though this
 sequence might include only one block which does not iterate.
+
+The value of `\TT{next} $V$' in a block iteration becomes the
+value of $V$ in the block's next iteration.
+
+A block that is going to iterate terminates only after
+\underline{all} the block's {\em next-variables} have been given values.
+The next iteration of the block
+begins only after the previous iteration terminates.
 
 Note that a {\em next-variable} output in a {\em permanent-subblock}
 is actually a block variable of the containing block, whereas
@@ -8658,7 +8677,8 @@ a block variable of the subblock, and not its containing
 block, unless it is named as an
 {\em output-variable} of the {\em variable-assignment-subblock}
 statement containing the subblock.  So {\em permanent-subblocks}
-can never iterate, but {\em temporary-subblocks} can iterate.
+can never iterate, though their containing blocks can,
+while {\em temporary-subblocks} can iterate.
 
 A {\em next-variable} is named by a {\em variable-name} preceded by
 the `\ttkey{next}' keyword.  A {\em next-variable}
@@ -8684,30 +8704,10 @@ cannot become active unless some other {\em next-variable} has already
 been given a value.  Thus the decision to iterate cannot be made inside
 a default statement.
 
-A statement of the form
-
-\begin{center}
-\verb|default next |$V$\verb| = |$V$
-\end{center}
-
-is implied in the last group of a block
-for every inherited {\em variable-name} $V$ provided
-no other default statement in the last group of the block
-outputs \TT{next }$V$.
-Thus inherited variables are normally propagated unchanged from
-one iteration to the next.
-
 If a {\em next-variable} is given the value of
 the expression `\ttkey{UNDEFINED}',\label{UNDEFINED}
 the variable will become undefined
-at the beginning of the next iteration.  Thus the statement
-
-\begin{center}
-\verb|default next |$V$\verb| = UNDEFINED|
-\end{center}
-
-for an inherited {\em variable-name} $V$ will keep the inherited
-variable from being propagated from one iteration to the next.
+at the beginning of the next iteration.
 The expression `\TT{UNDEFINED}' cannot be used to set a
 non-{\em next-variable}.
 
