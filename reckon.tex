@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 20, 2016}
+\date{August 21, 2016}
 
 \maketitle
 
@@ -1521,13 +1521,14 @@ for every ship:
         hlwidth = VIEW's line width / 2
         L = length
         P = position
-        T = a 2D transform with expansion by ( sqsize, sqsize )
-                           with translation by (hlwidth, hlwidth )
-	center = ( sqsize / 2, sqsize / 2 )
+        T = a 2D transform
+            with expansion by ( sqsize, sqsize )
+            with translation by (hlwidth, hlwidth )
+        center = ( sqsize / 2, sqsize / 2 )
         while L > 0:
             state = board's state(P)
             if player == `owner' or state == `hit'
-	                         or state == `sunk':
+                                 or state == `sunk':
                 (R, C) = position
                 draw filled polygon in (ship color layer)
                      on plane (plane)
@@ -1536,9 +1537,9 @@ for every ship:
                                 T*(P+(1,0))]
             if player == `owner' or state == `sunk':
                 draw text (ship codes(length))
-		     in (ship letter layer)
+                     in (ship letter layer)
                      on plane (plane)
-		     at (T*P + center)
+                     at (T*P + center)
             next P = P + direction
             next L = L - 1
 \end{verbatim}
@@ -3244,7 +3245,8 @@ A single symbol or number is frequently
 treated as if were a label whose only element
 is the symbol or number itself.
 
-An object is just a place in memory, and is like a dot on a blank page.
+An \key{object}\label{OBJECT}
+is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
 every other object and from every atom.  But it is nothing more.
 
@@ -7918,7 +7920,7 @@ unevaluated syntax variable name.  Thus \TT{X} is associated with
 \TT{\$X} and \TT{X 5} is associated with \TT{\$(X 5)}.  The syntax is:
 
 \begin{indpar}
-\emkey{unevaluated-syntax-variable}\label{UNEVALUATED-SYNTAX-VARIABLE}
+\emlkey{unevaluated}{-syntax-variable}\label{UNEVALUATED-SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
 			::= & \TT{\$} {\em capitalized-word }
 				as a single lexeme \\
@@ -8188,7 +8190,7 @@ otherwise.
 There is a \key{current context} which is the value of the
 global variable `\ttkey{CURRENT CONTEXT}'.
 
-An expression definition is an object (\secref{OBJECTS})
+An expression definition is an object (\pagref{OBJECT})
 that consists of a pattern, an optional list of qualifiers,
 and an optional block.  An
 {\em expression-definition} (\pagref{EXPRESSION-DEFINITION})
@@ -8727,144 +8729,73 @@ for every {\em variable-name} $V$ that can be assigned by the
 iteration, and these values will then be propagated to subsequent iterations.
 
 
-\section{Objects}
-\label{OBJECTS}
+\section{Descriptions}
+\label{DESCRIPTIONS}
 
-An object is a typed block that can be used as a value.
-A typed block, or object, has a type and inherits code from its type.
+A description is a typed block that can be used as a value.
+A description is an object with a type and inherits code from its type.
 
-An \key{object} can be created by an {\em object-expression}:
-
+An \key{description} can be created by an {\em description-expression}:
 
 \begin{indpar}
-\emkey{object-expression} ::= \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
+\emkey{description-expression} ::=
+       \{ \ttkey{a} $|$ \ttkey{an} \} {\em type-name}
 		              \{ \TT{:} {\em block} \}\QMARK{} \\[1ex]
 \emkey{type-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \end{indpar}
 
-The code in the {\em block} becomes a permanent part of the object.
-The variable values defined by this code become \skey{component}s of the object.
+The {\em block} executes and the block variables it gives values to
+become \skey{component}s of the description.
 These components can be retrieved by expressions of the form:
 
-\begin{center}
-\ttmkey{the}{the of@\TT{the} \ldots \TT{of}}
-{\em variable-name}
-\ttmkey{of}{the of@\TT{the} \ldots \TT{of}}
-{\em object}
-\end{center}
-
-where {\em variable-name} names a variable whose value is stored in the
-{\em object}.
-
-Objects are updated by adding code to them either permanently or temporarily.
-Whenever code is added to an object, the code executes as much as it
-can to define variable values that are then components of the object.
-
-When permanently added code can execute no further (\secref{BLOCK-EVALUATION},
-\secref{DEFAULT-STATEMENTS}, \secref{ITERATION}), any
-variables that do not have values become undefined components.  If some of
-undefined components are given values later, any code that is a permanent
-part of the object may restart and produce additional variable values that
-define additional components.
-
-Recall that the concept of being a variable of a block
-of code is defined syntactically and independently of which variable values
-the block actually computes (\secref{BLOCK-VARIABLES}).
-The components of an object are more precisely the variables
-of the code added permanently to the object, whether or not these
-variables have values defined by code added permanently or temporarily
-to the object.  Variables of code added temporarily that are not
-also variables of code added permanently are
-\underline{not} components of the object,
-and are not visible outside the temporarily added code.
-
-The permanent code of an object all belongs to two groups: a
-{\em declaration-group} and a {\em statement-group} in that
-order (i.e., with declarations first).
-When code is permanently added to the block, the added code can also
-have two groups: a {\em declaration-group} that is appended to the
-permanent {\em declaration-group} and a following {\em statement-group} that
-is appended to the permanent {\em statement-group}.
-Of course either group can be empty.
-
-A statement of the form:
-
 \begin{indpar}
-\ttkey{for every}~~{\em type-name} \TT{:} \\
-\verb|    |{\em block} 
+\emkey{component-expression} ::=
+    \ttmkey{the}{the of@\TT{the} \ldots \TT{of}}
+    {\em variable-name}
+    \ttmkey{of}{the of@\TT{the} \ldots \TT{of}}
+    {\em description}
 \end{indpar}
 
-adds the code in its block permanently to every object of the given type,
-including both existing objects and objects that are
-created in the future.  The code in the block is associated with the
-type and is said to be `\skey{inherit}{ed}' by every object of that type.
+where {\em variable-name} names a component of the {\em description}.
 
-A statement of the form:
+Description components can be updated by
+statements such as:
 
 \begin{indpar}
-\ttkey{update}~~{\em object} \TT{:} \\
-\verb|    |{\em block} 
-\end{indpar}\label{UPDATE}
+\emlkey{description}{-update-statement} ::=
+    \ttmkey{for}{description update}
+    {\em description} \TT{:} {\em block}
+\end{indpar}
 
-adds the code in the
-{\em block} temporarily to the object.  The code is added and all
-code in the object executes until it can do nothing more.  Then
-the temporary code is removed from the object.
+Here the {\em block} inherits existing components of the {\em description}
+and may add new components.  The {\em block} in a
+{\em description-update-statement} may also define `\skey{update variable}s'
+that have names of the form `\TT{update} $v$'.  When the {\em block}
+terminates, if it has given a value to a block variable with such a name,
+the value becomes the new value of description component $v$.
 
-When code is added to an object and executes, the statement qualifier
-\TT{default} acts when execution stops to enable execution of \TT{default}
-statements, as per \secref{DEFAULT-STATEMENTS}.  Similarly
-`\TT{next}' variables can be used to create iterations of a block.
-Each iteration replaces the previous iteration of the block.
+Code can be added to a description type by:
+\begin{indpar}
+\emkey{type-update-statement} ::=
+    \ttmkey{for every}{type update}
+    {\em type-name} \TT{:} {\em block}
+\end{indpar}
+
+The block is added to the description type and any statement group
+in the block is immediately executed for every existing description
+of the type.  Statement groups of a description type are also executed
+for a new description immediately after any {\em description-expression}
+block is executed.
+
 
 TBD
 
-wherever the object is referenced.  Thus if two variables equal
-the object, and one is used to cause the object to iterate, both variable
-values will become the new iterated object.
 
-A statement of the form
-
-\begin{center}
-\verb|default| \verb|next |$C$\verb| = |$C$
-\end{center}
-
-is implied in the permanent code
-for every component name $C$ of an object, provided
-no other default statement in the permanent code
-outputs `\TT{next }$C$'.
-Thus components are normally propagated unchanged from
-one object iteration to the next.  A statement of the form
-
-\begin{center}
-\verb|default| \verb|next |$C$\verb| = UNDEFINED|
-\end{center}
-
-can be used to override this behavior to
-make $C$ have no value at the beginning of the next object
-iteration.
-
-When an iteration of an object is created by temporary code, the
-sequence of actions is:
-
-\begin{center}
-\begin{tabular}{lp{5.5in}}
-(1) & Add the temporary code to the object. \\
-(2) & Execute all object code until it terminates. \\
-(3) & If any \TT{next} component values were defined by the
-      execution in step (2), create
-      the next iteration of the object, giving this
-      iteration only the permanent code of the object. \\
-(4) & In the next iteration of the object execute all
-      code until it terminates.
-\end{tabular}
-\end{center}
-
-Code can be temporarily added to an object by invoking methods.
+Code can be temporarily added to an description by invoking methods.
 A \key{method} is defined by a \key{method definition}
 that is an expression definition which is part of the {\em declaration-group}
-of the object code (it can be either permanent or temporary).
-The method is callable from code inside or outside the object code block.
+of the description code (it can be either permanent or temporary).
+The method is callable from code inside or outside the description code block.
 The syntax for a method definition is:
 
 \begin{center}
@@ -8873,23 +8804,23 @@ The syntax for a method definition is:
 
 When the method definition is called, the method code block
 is added temporarily to the code that contained
-the method definition.  The object whose code this is
+the method definition.  The description whose code this is
 may be referred to within its
 code by the name \ttkey{SELF}, which may or may not also be an argument
 of the method definition.  If it is an argument, the method definition
 has an implicit guard that requires the \TT{SELF} argument value to be
-equal to the object whose code contains the method definition.
+equal to the description whose code contains the method definition.
 
-If there is no \TT{SELF} argument, a new object
+If there is no \TT{SELF} argument, a new description
 is created when the method is called, and the permanent code plus
-method code is executed for that object.  The permanent code must
+method code is executed for that description.  The permanent code must
 contain the method definition in this case.  Such a method is
-called a \TT{constructor}, and the object created is said to be
+called a \TT{constructor}, and the description created is said to be
 constructed by the method execution.  Constructor executions usually return
-the object they construct, but this is not required by the language.
+the description they construct, but this is not required by the language.
 Constructors usually
 have patterns that begin with `\{ \TT{a} $|$ \TT{an} \} {\em type-name}',
-where {\em type-name} names the type of object they construct, but
+where {\em type-name} names the type of description they construct, but
 this is not required by the language either.
 
 TBD: protection; protection zones.
