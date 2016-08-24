@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 21, 2016}
+\date{August 24, 2016}
 
 \maketitle
 
@@ -8733,7 +8733,7 @@ iteration, and these values will then be propagated to subsequent iterations.
 \label{DESCRIPTIONS}
 
 A description is a typed block that can be used as a value.
-A description is an object with a type and inherits code from its type.
+A description is an object with a type that inherits code from its type.
 
 An \key{description} can be created by an {\em description-expression}:
 
@@ -8759,20 +8759,22 @@ These components can be retrieved by expressions of the form:
 where {\em variable-name} names a component of the {\em description}.
 
 Description components can be updated by
-statements such as:
+expressions such as:
 
 \begin{indpar}
-\emlkey{description}{-update-statement} ::=
+\emlkey{description}{-update-expression} ::=
     \ttmkey{for}{description update}
     {\em description} \TT{:} {\em block}
 \end{indpar}
 
 Here the {\em block} inherits existing components of the {\em description}
 and may add new components.  The {\em block} in a
-{\em description-update-statement} may also define `\skey{update variable}s'
+{\em description-update-expression} may also define `\skey{update variable}s'
 that have names of the form `\TT{update} $v$'.  When the {\em block}
 terminates, if it has given a value to a block variable with such a name,
 the value becomes the new value of description component $v$.
+The one exception is the block variable `\TT{value}', which if
+given a value becomes the value of the {\em description-update-expression}.
 
 Code can be added to a description type by:
 \begin{indpar}
@@ -8788,48 +8790,58 @@ for a new description immediately after any {\em description-expression}
 block is executed.
 
 
-TBD
+Alternative syntax is usually used for creating and updating descriptions.
 
-
-Code can be temporarily added to an description by invoking methods.
-A \key{method} is defined by a \key{method definition}
-that is an expression definition which is part of the {\em declaration-group}
-of the description code (it can be either permanent or temporary).
-The method is callable from code inside or outside the description code block.
-The syntax for a method definition is:
-
+For creating descriptions, a `\key{constructor}' can be defined that
+is a function whose {\em expression-definition} begins with a
+{\em pattern-term} of the form:
 \begin{center}
-\emkey{method-definition} ::= \ttkey{on} {\em expression-definition}
+\{ \TT{a} $|$ \TT{an} \} ~ {\em type-name} ~ {\em bracketed-pattern}\STAR{}
 \end{center}
 
-When the method definition is called, the method code block
-is added temporarily to the code that contained
-the method definition.  The description whose code this is
-may be referred to within its
-code by the name \ttkey{SELF}, which may or may not also be an argument
-of the method definition.  If it is an argument, the method definition
-has an implicit guard that requires the \TT{SELF} argument value to be
-equal to the description whose code contains the method definition.
+When a constructor's {\em block} executes, it must not set the
+`\TT{value}' variable.  At the end of the block excution, a description
+of the given type will be created and returned as the value of the
+block.  The variables of the block will be the components of the
+description.  A big advantage of constructors over {\em description-expressions}
+is that constructors can have arguments that are inherited by the block
+that defines the description.
 
-If there is no \TT{SELF} argument, a new description
-is created when the method is called, and the permanent code plus
-method code is executed for that description.  The permanent code must
-contain the method definition in this case.  Such a method is
-called a \TT{constructor}, and the description created is said to be
-constructed by the method execution.  Constructor executions usually return
-the description they construct, but this is not required by the language.
-Constructors usually
-have patterns that begin with `\{ \TT{a} $|$ \TT{an} \} {\em type-name}',
-where {\em type-name} names the type of description they construct, but
-this is not required by the language either.
+For updating descriptions, `\skey{method}s' can be defined by syntax
+of the form:
+\begin{center}
+\begin{tabular}{l}
+\TT{for every} ~ {\em type-name} ~ \TT{:} \\
+\verb|    |\TT{on} ~ {\em expression-definition}
+\end{tabular}
+\end{center}
 
-TBD: protection; protection zones.
+The {\em expression-definition} must have the evaluated syntax argument
+\TT{THIS} in its {\em expression-\EOL de\-fi\-ni\-tion} {\em pattern}.  
 
+The {\em expression-definition} defines a function, but differs from
+the usual function definition as follows.  First, the definition
+implicitly has the qualifier
+\begin{center}
+\TT{THIS is a} ~ {\em type-name}
+\end{center}
+Second, when the function {\em block} executes, it behaves as if it
+were the block in a
+\begin{center}
+\TT{for} ~ {\em type-name}\TT{:} {\em block}
+\end{center}
+{\em description-update-expression}.  It inherits the components of
+the \TT{THIS} argument description, and can compute `\TT{update} $v$'
+variables that update these components.  A big advantage of
+methods over {\em description-update-expressions} is that methods
+can have arguments that are inherited by the block that updates
+the description.
 
 \subsection{Arrays}
 \label{Arrays}
 
-[TBD: Arrays and array element names]
+[TBD: Arrays are descriptions plus a vector;
+array element names are syntactic sugar.]
 
 \section{Side Effects}
 \label{SIDE-EFFECTS}
