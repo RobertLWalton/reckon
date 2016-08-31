@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 24, 2016}
+\date{August 31, 2016}
 
 \maketitle
 
@@ -1351,8 +1351,7 @@ ship names = [`Submarine', `Destroyer', `Cruzier',
 max ship length = 5
 max tries = 100    // max tries to position ship on a board
 
-on a board of size S <--
-        is an integer S:
+on a board of size S <-- is an integer S:
 
     // Make a board of size SxS.
     size = S
@@ -1377,14 +1376,14 @@ for every board:
         else if ship(R, C) == `none':
             value = `miss'
         else:
-            s = ship(R, C)
+            s <== ship(R, C)
             if hit(s) == `sunk':
-                next sunk = sunk + 1
+                update sunk = sunk + 1
                 value = `sunk'
             else:
                 value = `hit'
         if value != `no effect':
-            next state(R, C) = value
+            state(R, C) <== value
 
     // Return true iff (DIRECTION,START) is an OK (empty)
     // position for a new ship of length L.
@@ -1396,15 +1395,15 @@ for every board:
             is an integer L, 1 <= L <= max ship length:
 
         (R,C) = START
-        if L == 0:
-            value = `true'
-        else if R < 0 OR R >= size:
+        if R < 0 OR R >= size:
             value = `false'
         else if C < 0 OR C >= size:
             value = `false'
         else if ship(START) of B != `none':
             // Position conflicts with previous ship
             value = `false'
+        else if L == 1:
+            value = `true'
         else
             value = position ( DIRECTION,
                                START + DIRECTION,
@@ -1428,20 +1427,21 @@ for every board:
                     for ship length L:
                 value = (direction, position)
             else:
-                next tries = tries + 1
+                update tries = tries + 1
 
     // Given an empty place (DIRECTION,START) for a ship S of
     // length L, install ship S on the board.
     //
     on place ship S of length L at (DIRECTION, START) on THIS
-            <-- is a ship S, pair of integers DIRECTION,
+            <-- is a ship S,
+                is a pair of integers DIRECTION,
                 is a pair of integers START,
                 is an integer L, 1 <= L <= max ship length:
         while L > 0:
-            next(THIS) ship(START) = S
+            ship(START) <== S
             next START = START + DIRECTION
             next L = L - 1
-        next ships = ships + 1
+        update ships = ships + 1
     
 on a ship of length L on board B <--
         is an integer L, 1 <= L <= max ship length:
@@ -1458,13 +1458,13 @@ on a ship of length L on board B <--
 
 for every ship:
     on hit ( THIS ):
-        next hits = hits + 1
-        if next hits == length:
+        update hits = hits + 1
+        if update hits == length:
             value = `sunk'
         else:
             value = `not sunk yet'
 
-on a board view for (BOARD) (PLAYER)
+on a board view for (BOARD) PLAYER
         ~ with square size SQSIZE ? <--
         board ( BOARD ),
         PLAYER :=: owner | opponent,
@@ -1483,8 +1483,10 @@ on a board view for (BOARD) (PLAYER)
                           + size * SQSIZE )
             with y size (   2 * line width 
                           + size * SQSIZE )
+
     start = line width / 2
     stop = size * SQSIZE + line width / 2
+
     rcd = start
     rc = 0
     while rc < size:
@@ -1508,7 +1510,7 @@ on a board view for (BOARD) (PLAYER)
             if ship(r, c) != none
                 draw ship (ship(r, c)) on THIS
 
-    on display ( THIS ) <--
+    on display ( THIS ) <--:
         value = plane
 
 for every ship:
