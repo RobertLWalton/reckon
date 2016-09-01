@@ -1475,10 +1475,12 @@ on a board view for (BOARD) PLAYER
     square size = SQSIZE
 
     line width = 0.02in
-    grid layer = B#001#
-    ship color layer = B#010#
-    ship letter layer = B#100#
-    plane = a plane with depth 3
+    grid layer = B#00001#
+    ship layer = B#00010#
+    hit layer = B#00100#
+    sunk layer = B#01000#
+    letter layer = B#10000#
+    plane = a plane with depth 5
             with x size (   2 * line width 
                           + size * SQSIZE )
             with y size (   2 * line width 
@@ -1514,34 +1516,49 @@ on a board view for (BOARD) PLAYER
         value = plane
 
 for every ship:
-    on display ( THIS ) on ( VIEW ) <--
+
+    // Update ships positions in board view.
+    //
+    on show ( THIS ) on ( VIEW ) <--
             is a board view ( VIEW ):
         assert board == VIEW's board
         player = VIEW's player
         plane = VIEW's plane
         sqsize = VIEW's square size
         hlwidth = VIEW's line width / 2
+	ship layer = VIEW's ship layer
+	hit layer = VIEW's hit layer
+	sunk layer = VIEW's sunk layer
+	letter layer = VIEW's letter layer
         L = length
         P = position
+
         T = a 2D transform
             with expansion by ( sqsize, sqsize )
             with translation by (hlwidth, hlwidth )
         center = ( sqsize / 2, sqsize / 2 )
         while L > 0:
             state = board's state(P)
-            if player == `owner' or state == `hit'
-                                 or state == `sunk':
-                (R, C) = position
-                draw filled polygon in (ship color layer)
-                     on plane (plane)
-                     with vertices
-                          [T*P, T*(P+(0,1)), T*(P+(1,1) ),
-                                T*(P+(1,0))]
+            layers = 0
+	    if player == `owner':
+	        layers = ship layer
+	    if state == `sunk' or hits == L:
+	        layers = hit layer + sunk layer
+	    else if state == `hit'
+	        layers = hit layer
+	        
+	    draw filled polygon in (layers)
+		 on plane (plane)
+		 with vertices
+		      [T*P, T*(P+(0,1)), T*(P+(1,1) ),
+			    T*(P+(1,0))]
+
             if player == `owner' or state == `sunk':
                 draw text (ship codes(length))
                      in (ship letter layer)
                      on plane (plane)
                      at (T*P + center)
+
             next P = P + direction
             next L = L - 1
 \end{verbatim}
