@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Nov  6 01:56:11 EST 2017
+# Date:		Mon Nov  6 07:12:27 EST 2017
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -119,9 +119,6 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
-	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
-	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
             < $*.out > $*.test
 
 %.diff:	%.out
@@ -149,28 +146,25 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
-	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
-	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
             < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
 
 %.out:	%
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
-%.lex:	../src/%.lexcc Makefile
+%.lex:	${LAYERED}/src/%.lexcc Makefile
 	sed -n \
 		-e '/^lex	/s///p' \
 		-e '/^lex$$/s///p' \
-		< ../src/$*.lexcc \
+		< ${LAYERED}/src/$*.lexcc \
 		> $*.lex
 
-%.cc:	../src/%.lexcc Makefile
+%.cc:	${LAYERED}/src/%.lexcc Makefile
 	sed -n \
 		-e '/^cc/!s/.*/\/\//p' \
 		-e '/^cc	/s///p' \
 		-e '/^cc$$/s///p' \
-		< ../src/$*.lexcc \
+		< ${LAYERED}/src/$*.lexcc \
 		> $*.cc
 
 min.o:	${MIN_H} \
@@ -213,29 +207,34 @@ min_unicode.o:	${MIN_H} \
 	    -c ${MIN}/src/min_unicode.cc
 
 ll_lexeme.o:	\
-	${PARSER_H} \
+	${LEXEME_H} \
 	${LAYERED}/src/ll_lexeme.cc \
 	Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
-	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_lexeme.cc
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -c ${LAYERED}/src/ll_lexeme.cc
 
 ll_lexeme_ndl.o:	\
-		${MIN_H} \
+		${LEXEME_H} \
 		${LAYERED}/src/ll_lexeme_ndl.cc \
-		../include/ll_lexeme.h \
-		../include/ll_lexeme_ndl.h \
-		../include/ll_lexeme_ndl_data.h \
 		Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
-	    -I ../include -I ${MIN}/include \
-	    -c ../src/ll_lexeme_ndl.cc
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -c ${LAYERED}/src/ll_lexeme_ndl.cc
 
 ll_lexeme_standard.lex:	\
 		${LAYERED}/src/ll_lexeme_standard.lexcc
 
 ll_lexeme_standard.cc:	\
 		${LAYERED}/src/ll_lexeme_standard.lexcc
+
+ll_lexeme_standard.o:	\
+		ll_lexeme_standard.cc \
+		${LEXEME_H} \
+		Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -c ll_lexeme_standard.cc
 
 ll_parser.o:	\
 	${PARSER_H} \
@@ -249,9 +248,10 @@ ll_parser_standard_input.o:	\
 	${PARSER_H} \
 	${LAYERED}/src/ll_parser_standard_input.cc \
 	Makefile
-	g++ -g ${GFLAGS} ${WFLAGS} \
-	    -I ${LAYERED}/include -I ${MIN}/include \
-	    -c ${LAYERED}/src/ll_parser_standard_input.cc
+	g++ \
+	  -g ${GFLAGS} ${WFLAGS} \
+	  -I ${LAYERED}/include -I ${MIN}/include \
+	  -c ${LAYERED}/src/ll_parser_standard_input.cc
 
 ll_parser_table.o:	\
 	${PARSER_H} \
@@ -318,6 +318,22 @@ ll_parser_command.o:	\
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ${LAYERED}/include -I ${MIN}/include \
 	    -c ${LAYERED}/src/ll_parser_command.cc
+
+reckon:		\
+	    ../src/reckon.cc \
+	    ${PARSER_O} \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -o $@ \
+	    ${PARSER_O} \
+	    ../src/reckon.cc
+
+reckon_context_test.out:	\
+	    reckon reckon_context_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
 
 clean:
 	rm -f ${TESTS} ${TESTS:=.out} *.o \
