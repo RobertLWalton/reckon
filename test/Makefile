@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Nov  6 07:12:27 EST 2017
+# Date:		Fri Feb  1 05:48:00 EST 2019
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -42,12 +42,14 @@ MIN_O =	min_assert.o min.o min_os.o min_acc.o \
 
 LEXEME_H = ${MIN_H} \
 	   ${LAYERED}/include/ll_lexeme_standard.h \
-	   ${LAYERED}/include/ll_lexeme.h
+	   ${LAYERED}/include/ll_lexeme.h \
+	   ${LAYERED}/include/ll_lexeme_program_data.h
 
 LEXEME_O = ${MIN_O} \
 	   ll_lexeme.o \
 	   ll_lexeme_ndl.o \
-	   ll_lexeme_standard.o
+	   ll_lexeme_standard.o \
+	   ll_lexeme_test.o
 
 LLI = ${LAYERED}/include
 PARSER_H = ${LEXEME_H} \
@@ -235,6 +237,14 @@ ll_lexeme_standard.o:	\
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ${LAYERED}/include -I ${MIN}/include \
 	    -c ll_lexeme_standard.cc
+
+ll_lexeme_test.o:	\
+	${LEXEME_H} \
+	${LAYERED}/src/ll_lexeme_test.cc \
+	Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -c ${LAYERED}/src/ll_lexeme_test.cc
 
 ll_parser.o:	\
 	${PARSER_H} \
