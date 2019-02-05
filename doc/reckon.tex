@@ -1580,7 +1580,7 @@ For example, the input
 \begin{center}
 \begin{tabular}{l}
 \verb|x = 7ft 1_3/4 in;| \\
-\verb|y = `This is (we think) a sentence.'|
+\verb|y = ``This is (we think) a sentence.''|
 \end{tabular}
 \end{center}
 contains in order the following lexemes:
@@ -1588,7 +1588,7 @@ contains in order the following lexemes:
 \begin{tabular}{ll@{\hspace{1in}}ll}
 \tt x		& word 		& \tt y & word \\
 \tt =		& mark		& \tt =	& mark	\\
-\tt 7ft		& number with embedded unit & \tt ` & (leading) separator \\
+\tt 7ft		& number with embedded unit & \tt `{}` & (leading) separator \\
 \tt 1\_3/4	& number	& \tt This & word \\
 \tt in		& unit		& \tt is & word \\
 \tt ;		& (trailing) separator	& \tt ( & (strict) separator \\
@@ -1598,7 +1598,7 @@ contains in order the following lexemes:
 		& 		& \tt a & word \\
 		& 		& \tt sentence & word \\
 		& 		& \tt . & (trailing) separator \\
-		& 		& \tt ' & (trailing) separator \\
+		& 		& \tt '{}' & (trailing) separator \\
 \end{tabular}
 \end{center}
 
@@ -1636,15 +1636,15 @@ contains in order the following lexemes:
     $|$  & {\em special-character-representative} \\
     \end{tabular}
 \\[0.5ex]
-\emlkey{special-character}{-representative}
-    :::= \TT{<} \{ {\em upper-case-ASCII-letter} $|$ {\em ASCII-digit}
-         \}\PLUS{} \TT{>}
-\\[0.5ex]
 \emkey{graphic-character} :::=
     \begin{tabular}[t]{@{}l}
     character in UNICODE category \TT{L}, \TT{M}, \TT{N}, \TT{P}, or \TT{S} \\
     (i.e., character that prints some mark)
     \end{tabular}
+\\[0.5ex]
+\emlkey{special-character}{-representative}
+    :::= \TT{<} \{ {\em upper-case-ASCII-letter} $|$ {\em ASCII-digit}
+         \}\PLUS{} \TT{>}
 \\[1ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
                        not beginning with \TT{//}
@@ -1776,7 +1776,8 @@ The symbol `\ttmkey{::=}{in syntax equation}'
 is used in syntax equations that define sequences of lexemes that may
 and sometimes must be separated by \emkey{white-space}.
 {\em Comments} are treated as lexemes, but are discarded before the
-lexeme stream is transmitted to the parser.
+lexeme stream is transmitted to the parser.  Comments are necessarily at
+the ends of physical lines.
 
 Non-{\em white-space} control characters are ignored, as if they
 did not exist, except that a warning message is issued.  However
@@ -1808,12 +1809,11 @@ Thus the {\em lexical-item} `\TT{`4,987,{},::'}' yields the
 and the four {\em trailing-separators} `\TT{,}' `\TT{,}', `\TT{::}', and
 `\TT{'}'.
 
-{\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} can represent 
+{\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} represent 
 \skey{symbol}s\label{SYMBOL} that store character strings.
 The character strings represented by
 {\em middle-lexemes} and {\em separators}
 are exactly the character strings of these lexemes.
-Some {\em middle-lexemes} can alternatively represent numbers.
 
 The string of characters represented by a
 \emkey{quoted-string}\label{QUOTED-STRING}
