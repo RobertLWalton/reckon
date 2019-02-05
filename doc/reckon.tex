@@ -112,6 +112,7 @@
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emslkey}[3]{{\bf \em #1#2#3}\index{#1@{\em #1}!#2@{\em #2}}}
 \newcommand{\emikey}[2]{{\bf \em #1}\index{\em #2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
@@ -1573,7 +1574,7 @@ for every ship:
 
 Input text is a sequence of characters.  This is scanned from
 left to right and top to bottom to produce a sequence of lexemes,
-which include words, marks, separators, numerics, and quoted strings.
+which include words, marks, separators, numbers, and quoted strings.
 
 For example, the input
 \begin{center}
@@ -1587,8 +1588,8 @@ contains in order the following lexemes:
 \begin{tabular}{ll@{\hspace{1in}}ll}
 \tt x		& word 		& \tt y & word \\
 \tt =		& mark		& \tt =	& mark	\\
-\tt 7ft		& numeric with embedded unit & \tt ` & (leading) separator \\
-\tt 1\_3/4	& numeric	& \tt This & word \\
+\tt 7ft		& number with embedded unit & \tt ` & (leading) separator \\
+\tt 1\_3/4	& number	& \tt This & word \\
 \tt in		& unit		& \tt is & word \\
 \tt ;		& (trailing) separator	& \tt ( & (strict) separator \\
 		&		& \tt we & word \\
@@ -1619,7 +1620,7 @@ contains in order the following lexemes:
 				           $|$
 				           \TT{|}
 \\[0.5ex]
-\emkey{singleton-separator-character} :::=
+\emlkey{singleton-separator}{-character} :::=
     \begin{tabular}[t]{@{}l}
     character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, or \TT{Pf} \\
     (includes \TT{\{ ( [ << >> ] ) \}})
@@ -1634,6 +1635,10 @@ contains in order the following lexemes:
     $|$  & {\em ASCII-single-space-character} \\
     $|$  & {\em special-character-representative} \\
     \end{tabular}
+\\[0.5ex]
+\emlkey{special-character}{-representative}
+    :::= \TT{<} \{ {\em upper-case-ASCII-letter} $|$ {\em ASCII-digit}
+         \}\PLUS{} \TT{>}
 \\[0.5ex]
 \emkey{graphic-character} :::=
     \begin{tabular}[t]{@{}l}
@@ -1658,9 +1663,11 @@ contains in order the following lexemes:
     or ending with a {\em trailing-separator} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{leading-separator} :::= \TT{`}
+\emkey{leading-separator} :::=
+    \TT{`}\PLUS{} $|$
+    \TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
 \\[0.5ex]
-\emkey{trailing-separator} :::= \TT{'} $|$
+\emkey{trailing-separator} :::= \TT{'}\PLUS{} $|$
 				   \TT{!}\PLUS{} $|$
 				   \TT{?}\PLUS{} $|$
 				   \TT{.}\PLUS{} $|$
@@ -1691,18 +1698,20 @@ feed, etc.), but is not itself a lexeme.
 \begin{indpar}
 \emkey{white-space} :::= {\em white-space-character}\PLUS{} \\[1ex]
 \emkey{white-space-character}
-    \begin{tabular}[t]{rl}
-    :::= & {\em horizontal-space-character} \\
-    $|$ & {\em vertical-space-character}
-    \end{tabular}
+    :::= {\em horizontal-space-character} $|$ {\em vertical-space-character}
     \\[1ex]
-\emkey{horizontal-space-character} :::=
-    \key{single-space-character} $|$ \key{horizontal-tab-character} \\[1ex]
+\emkey{horizontal-space-character}
+    \begin{tabular}[t]{@{}rl}
+    :::= & character in UNICODE category \TT{Zs} \\
+         & (includes \emkey{ASCII-single-space}) \\
+     $|$ & \key{horizontal-tab-character}
+    \end{tabular} \\[1ex]
 \emlkey{vertical-space}{-character}
     \begin{tabular}[t]{rl}
-    :::= & \key{line-feed-character} \\
-    $|$ & \key{vertical-tab-character} \\
-    $|$ & \key{form-feed-character} \\
+    :::= & \emkey{line-feed-character} \\
+    $|$ & \emkey{vertical-tab-character} \\
+    $|$ & \emkey{form-feed-character} \\
+    $|$ & \emlkey{carriage-return}{-character} \\
     \end{tabular}
 \end{indpar}
 
@@ -1751,16 +1760,10 @@ feed, etc.), but is not itself a lexeme.
 \\[1ex]
 \tttkey{Q}  & double quote (\TT{"}) \\
 \end{tabular}
-\\[1ex]
-{\em special-character-representative}
-    \begin{tabular}[t]{@{}rl}
-    :::= & one of the above \\
-     $|$ & \TT{<} {\em decimal-digit} {\em hexadecimal-digit}\STAR{} \TT{>}
-    \end{tabular}
 \end{center}
 
-\caption{Special Character Representatives}
-\label{SPECIAL-CHARACTER-REPRESENTATIVES}
+\caption{Standard Special Character Representatives}
+\label{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
 
 
@@ -1777,7 +1780,7 @@ lexeme stream is transmitted to the parser.
 
 Non-{\em white-space} control characters are ignored, as if they
 did not exist, except that a warning message is issued.  However
-no warning is issued for \emskey{carriage-return-character}s that are next to
+no warning is issued for \emslkey{carriage-return}{-character}s that are next to
 a {\em vertical-space-character}.
 
 The tabs stops used by the \emkey{horizontal-tab-character} are set every
@@ -1823,9 +1826,10 @@ are sequences of characters that represent just one UNICODE character.
 The beginning and ending quotes (\TT{"}) are \underline{not}
 included in the represented character string.
 
-Figure \itemref{SPECIAL-CHARACTER-REPRESENTATIVES} defines
-{\em special-character-representatives}.  Mnemonics are given
-for ASCII control characters and the \TT{"} character.
+Figure \itemref{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES} defines the
+standard
+{\em special-character-representatives}.  These can represent
+ASCII control characters and the \TT{"} character.
 For other characters, any hexadecimal number in
 \TT{<~>} brackets that begins with a decimal digit is interpreted as
 representing the UNICODE character whose character code is the given
@@ -1837,50 +1841,47 @@ code FF in hexadecimal.
 follows:
 
 \begin{indpar}
-\emkey{middle-lexeme} ::= {\em word} $|$ {\em numeric} $|$ {\em mark}
+\emkey{middle-lexeme} ::= {\em word} $|$ {\em number} $|$ {\em mark}
 \\[1ex]
-\emkey{word} ::=
-    \begin{tabular}[t]{l}
-    {\em middle-lexeme} that \\
-    \begin{tabular}[t]{rll}
-        & (1) & contains a letter \\
-    and & (2) & does not contain any \TT{\#} \\
-    and & (3) & does not have any digit before its first letter \\
-    and & (4) & does not have any digit adjacent to a character \\
-        &     & that is neither a letter nor a digit \\
-    \end{tabular}
+\emkey{number}\label{NUMBER}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em middle-lexeme} with a {\em digit} before any {\em letter} \\
+    $|$ & {\em middle-lexeme} with a {\em digit} immediately after a
+          `\TT{+}' or `\TT{-}' \\
     \end{tabular}
 \\[1ex]
-\emkey{numeric}\label{NUMERIC} ::=
-    \begin{tabular}[t]{l}
-    {\em middle-lexeme} that \\
-    \begin{tabular}[t]{rll}
-        & (1) & contains a digit or both a \TT{\#} and a letter \\
-    and & (2) & is not a {\em word} \\
-    \end{tabular}
-    \end{tabular}
+\emkey{word}\label{WORD} ::=
+    {\em middle-lexeme} containing a {\em letter} that is not a {\em number}
 \\[1ex]
-\emkey{mark} ::= {\em middle-lexeme} that is not a {\em word} or {\em numeric}
+\emkey{mark}\label{MARK} ::=
+    {\em middle-lexeme} that is not a {\em word} or {\em number}
+\\[1ex]
+\emkey{digit}\label{DIGIT} ::=
+    UNICODE character in category \TT{Nd}
+    (includes \emskey{ASCII-digit}s)
+\\[1ex]
+\emkey{letter}\label{LETTER} ::=
+    UNICODE character in category \TT{L}
 \end{indpar}
 
-There are many special kinds of {\em numerics}:
+There are many special kinds of {\em numbers}:
 \begin{indpar}
     \begin{tabular}[t]{l@{~~~~~}lll}
           & Section & Examples \\[1ex]
-      {\em natural-numeric}
-    & \itemref{NATURAL-NUMERIC}
+      {\em natural-number}
+    & \itemref{NATURAL-NUMBER}
     & \TT{43} 
     & \TT{9,587} \\
-      {\em integral-numeric}
-    & \itemref{INTEGRAL-NUMERIC}
+      {\em integral-number}
+    & \itemref{INTEGRAL-NUMBER}
     & \TT{+43} 
     & \TT{-9,587} \\
-      {\em fractional-numeric}
-    & \itemref{FRACTIONAL-NUMERIC}
+      {\em fractional-number}
+    & \itemref{FRACTIONAL-NUMBER}
     & \TT{4/3}
     & \TT{-1\_1/3} \\
-      {\em scientific-numeric}
-    & \itemref{SCIENTIFIC-NUMERIC}
+      {\em scientific-number}
+    & \itemref{SCIENTIFIC-NUMBER}
     & \TT{4.3}
     & \TT{-0.0098} \\
       {\em date}
@@ -1895,8 +1896,8 @@ There are many special kinds of {\em numerics}:
     & \itemref{TIME}
     & \TT{4:30pm}
     & \TT{20may05:12:30pm-EDT} \\
-      {\em radix-numeric}
-    & \itemref{RADIX-NUMERIC}
+      {\em radix-number}
+    & \itemref{RADIX-NUMBER}
     & \TT{x\#4b3e\#}
     & \TT{b\#1.00110101001\#e+3}
     \end{tabular}
@@ -1917,7 +1918,7 @@ Some other kinds of special {\em middle-lexemes} are:
     \end{tabular}
 \end{indpar}
 
-Non-{\em numerics} can be used to form names of variables,
+Non-{\em numbers} can be used to form names of variables,
 constants, and functions:
 
 \begin{indpar}
@@ -1926,21 +1927,23 @@ constants, and functions:
     					$|$ {\em quoted-word} \} \\
     \{ {\em word} $|$ {\em quoted-mark} $|$ {\em quoted-separator}
     					$|$ {\em quoted-word}
-    					$|$ {\em natural-index} \} \\
+    					$|$ {\em natural-index} \}\STAR{} \\
     \end{tabular}
 \\[1ex]
 \emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
 \emkey{quoted-word} :::= \TT{"} {\em word} \TT{"} \\
 \emkey{natural-index}\label{NATURAL-INDEX}
-    :::= \TT{0} $|$ {\em non-zero-digit} {\em digit}\STAR{}
-			   ~~~ [there can be at most 15 {\em digits}]
+    :::= \TT{0} $|$ \begin{tabular}[t]{@{}l}
+                    {\em non-zero-ASCII-digit} {\em ASCII-digit}\STAR{} \\
+		    (there can be at most 15 {\em ASCII-digits})
+		    \end{tabular}
 \end{indpar}
 
-Note that digits can appear adjacent to leters in a name, or in
-{\em natural-indices} that cannot begin a name, but not
-elsewhere.  {\em Natural-indices} cannot have high order
-zeros.  `\TT{\#}'s can appear only in {\em quoted-marks}.
+Note that in a name digits can appear after letters, in
+{\em natural-indices} do not begin the name, or inside quotes,
+but not elsewhere.  {\em Natural-indices} cannot have high order
+zeros.
 
 There is no difference between a {\em word} and a {\em quoted-word}
 in the name being represented,
@@ -2020,39 +2023,39 @@ they behave the same.  On output both are represented by \TT{+0}.
 
 
 
-\subsection{Integral Numerics}
-\label{INTEGRAL-NUMERIC}
+\subsection{Integral Numbers}
+\label{INTEGRAL-NUMBER}
 
-A \emkey{natural-numeric} is a {\em numeric} with contains only digits
-and commas.  An \emkey{integral-numeric} is a {\em natural-numeric}
+A \emkey{natural-number} is a {\em number} with contains only digits
+and commas.  An \emkey{integral-number} is a {\em natural-number}
 optionally preceeded by a {\em sign}:
 
 \begin{indpar}
-\emkey{natural-numeric} :::= {\em digit}\PLUS{}
+\emkey{natural-number} :::= {\em digit}\PLUS{}
 	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
 	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{}
-\label{NATURAL-NUMERIC}
+\label{NATURAL-NUMBER}
 \\[1ex]
-\emkey{integral-numeric} :::= {\em sign}\QMARK{} {\em natural-numeric}
+\emkey{integral-number} :::= {\em sign}\QMARK{} {\em natural-number}
 \\[1ex]
 \emkey{sign} ::= \TT{+} $|$ \TT{-}
 \end{indpar}
 
 Note that commas, if present, must appear every 3 digits.
 
-\subsection{Fractional Numerics}
-\label{FRACTIONAL-NUMERIC}
+\subsection{Fractional Numbers}
+\label{FRACTIONAL-NUMBER}
 
-A \emkey{fractional-numeric} is an {\em integral-numeric}
+A \emkey{fractional-number} is an {\em integral-number}
 followed by either a single \TT{/} and one or more {\em digits},
 or by a \TT{\_}, one or more {\em digits}, a \TT{/}, and one or
 more {\em digits}:
 
 \begin{indpar}
-\emkey{fractional-numeric}
+\emkey{fractional-number}
     \begin{tabular}[t]{rl}
-    :::= & {\em integral-numeric} \TT{/} {\em digit}\PLUS{} \\
-     $|$ & {\em integral-numeric}
+    :::= & {\em integral-number} \TT{/} {\em digit}\PLUS{} \\
+     $|$ & {\em integral-number}
            \TT{\_} {\em digit}\PLUS{} \TT{/} {\em digit}\PLUS{}
     \end{tabular}
 \end{indpar}
@@ -2077,15 +2080,15 @@ stands of `Not a Number'.  The fraction \TT{$N$/0} for $N>0$
 denotes \TT{+Inf}, or plus infinity, while \TT{-$N$/0} denotes
 \TT{-Inf}, or minus infinity.
 
-\subsection{Scientific Numeric}
-\label{SCIENTIFIC-NUMERIC}
+\subsection{Scientific Number}
+\label{SCIENTIFIC-NUMBER}
 
-A \emkey{scientific-numeric} is a {\em numeric} consisting
-of an {\em integral-numeric} optionally followed by a {\em fractional-part}
+A \emkey{scientific-number} is a {\em number} consisting
+of an {\em integral-number} optionally followed by a {\em frac\-tional-part}
 which is optionally followed by an {\em exponent-part}:
 
 \begin{indpar}
-\emkey{scientific-numeric} ::= {\em integer-numeric}
+\emkey{scientific-number} ::= {\em integer-number}
 			       {\em fractional-part}\QMARK{}
 			       {\em exponent-part}\QMARK{}
 \\[1ex]
@@ -2100,11 +2103,11 @@ which is optionally followed by an {\em exponent-part}:
 \end{indpar}
 
 {\em Commas} must be every three {\em digits} from the end of
-a {\em integral-numeric} or the beginning of a {\em fractional-part}.
-If the {\em scientific-numeric} contains a decimal point, it must
+a {\em integral-number} or the beginning of a {\em fractional-part}.
+If the {\em scientific-number} contains a decimal point, it must
 be preceeded by a digit (write \TT{0.5} and not \TT{.5}).
 An {\em exponent} shifts the decimal point (including the implied
-decimal point at the end of the {\em scientific-numeric} that has
+decimal point at the end of the {\em scientific-number} that has
 no decimal point); a positive exponent shifts right and a negative
 exponent shifts left.
 There may be at most one point.
@@ -2124,17 +2127,17 @@ Some examples are:
 \end{tabular}
 \end{indpar}
 
-\subsection{Radix Numerics}
-\label{RADIX-NUMERIC}
+\subsection{Radix Numbers}
+\label{RADIX-NUMBER}
 
-A \emkey{radix-numeric} is the same as a {\em scientific-numeric},
+A \emkey{radix-number} is the same as a {\em scientific-number},
 except that it is prefaced (after any {\em sign}) by a
 {\em radix-indicator}, the non-exponent digits are surrounded by
 `\TT{\#}'s, and the
 permissible {\em digits} and comma spacings depend upon the radix indicator:
 
 \begin{indpar}
-\emkey{radix-numeric} ::= \\
+\emkey{radix-number} ::= \\
 \hspace*{0.2in}
     {\em sign}\QMARK{} {\em radix-indicator} \TT{\#}
     {\em radix-natural-part}
@@ -2213,7 +2216,7 @@ B\#101,101\#e2	& O\#0.2345,6\#  & D\#0.123,5\#	& X\#E8A,932B.7C\# \\
 \end{tabular}
 \end{indpar}
 
-Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMERIC}
+Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMBER}
 the {\em exponent-part} shifts the decimal point right (if +) or left (if -)
 by some number of digits (in the given radix).  The {\em digits}
 in the {\em exponent-part} are always decimal.
@@ -2244,7 +2247,7 @@ A variety of different date formats may be used:
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
 	     :::= & {\em weekday-modifier}\QMARK{}
-	           {\em date-numeric} {\em era}\QMARK{} \\
+	           {\em date-number} {\em era}\QMARK{} \\
 	     $|$ & {\em weekday-modifier}\QMARK{} {\em day} {\em month-name}
 	           {\em year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name}
@@ -2269,7 +2272,7 @@ A variety of different date formats may be used:
     $|$ & \TT{Sun} $|$ \TT{Sunday} \\
     \end{tabular}
 \\[1ex]
-\emkey{date-numeric} :::= {\em month}\TT{/}{\em day}\TT{/}{\em year}
+\emkey{date-number} :::= {\em month}\TT{/}{\em day}\TT{/}{\em year}
 \\[1ex]
 \emkey{month} :::=  {\em digit}\PLUS{}
 \\[1ex]
@@ -2332,7 +2335,7 @@ next year, etc.  A warning message is issued if {\em day} is
 the date is still computed with \TT{0} denoting the last day of
 the previous month, etc.
 
-All {\em dates} are {\em numerics}, as either a digit comes before
+All {\em dates} are {\em numbers}, as either a digit comes before
 any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 
 \begin{indpar}[0.1in]
@@ -2348,7 +2351,7 @@ any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 \subsection{Times}
 \label{TIMES}
 
-A \key{time} is a {\em numeric} containing digits, possibly a decimal
+A \key{time} is a {\em number} containing digits, possibly a decimal
 point, and one or two colons, optionally followed by a meridiem indication
 and/or a time zone, and optionally preceeded by a date.  Dates and sometimes
 time zones are separated from the rest by `\TT{-}'s.
@@ -2515,7 +2518,7 @@ define time zone VLAT `Vladivostok Time' UTC+10:00
 Short names may be capitalized or not in defining statements, and
 similarly in usage.
 
-All {\em times} are {\em numerics}, as either a digit comes before
+All {\em times} are {\em numbers}, as either a digit comes before
 any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 
 \begin{indpar}[0.1in]
@@ -2557,7 +2560,7 @@ and `\TT{\CIRCUM}' for exponentiation:
     \begin{tabular}[t]{rl}
     :::= & {\em unit-name} \\
      $|$ & {\em unit-name} \TT{\CIRCUM}
-           {\em natural-numeric} \\
+           {\em natural-number} \\
     \end{tabular}
 \end{indpar}
 
@@ -2578,14 +2581,14 @@ Note that `\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
 
 {\em Units} can be separate {\em word} lexemes, or they can be glued
-to a preceding {\em scientific-numeric} lexeme,
+to a preceding {\em scientific-number} lexeme,
 from which they will be automatically split.  In addition several
 {\em glued-lexemes} of this kind can themselves be glued together:
 \begin{indpar}
 \emkey{glued-lexeme}
     \begin{tabular}[t]{rl}
-    :::= & {\em scientific-numeric} \TT{\_}\QMARK{} {\em unit}
-           \{ \TT{\_}\QMARK{} {\em scientific-numeric}
+    :::= & {\em scientific-number} \TT{\_}\QMARK{} {\em unit}
+           \{ \TT{\_}\QMARK{} {\em scientific-number}
 	      \TT{\_}\QMARK{} {\em unit} \}\STAR{} \\
      $|$ & other
     \end{tabular}
@@ -2630,10 +2633,10 @@ Here
     \end{tabular}
 \\
 \emkey{unit-factor} ::= {\em unit-name}
-    \{ \TT{\CIRCUM} {\em natural-numeric} \}\QMARK{}
+    \{ \TT{\CIRCUM} {\em natural-number} \}\QMARK{}
 \\
 \emkey{unit-number-constant} ::=
-      {\em scientific-numeric} without any leading {\em sign}
+      {\em scientific-number} without any leading {\em sign}
 \end{indpar}
 
 Note that operators in {\em unit-expressions} are separate
@@ -2720,7 +2723,7 @@ Hello	  & /lw7i/	& \it Hello \VSP\VSP \\
 \end{tabular}
 \end{indpar}
 
-A {\em format} is a {\em word} or {\em numeric} consisting of a sequence of
+A {\em format} is a {\em word} or {\em number} consisting of a sequence of
 {\em format-items} surrounded by and optionally separated by
 slashes `\TT{/}':
 \begin{indpar}
@@ -2734,7 +2737,7 @@ slashes `\TT{/}':
 
 The following is a complete list of {\em format-items}.
 All {\em format-items} contain either a letter or a digit, so all
-formats are either {\em words} or {\em numerics}.
+formats are either {\em words} or {\em numbers}.
 The slashes (\TT{/}) between {\em format-items} in a {\em format}
 may be omitted if no ambiguity arises.
 
@@ -2772,7 +2775,7 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{l} left adjust \\
 \GROUPENTRY{c} center adjust [default for symbols] \\
 \ENDGROUP \\
-\BEGINGROUP{Numeric Group}
+\BEGINGROUP{Number Group}
 \GROUPENTRY[\em <places>]{.}
     output with exactly {\em places} decimal places \\
 \GROUPENTRY[\em <places>]{0.}
@@ -2809,7 +2812,7 @@ with each other; see the rules below for resolving conflicts.
 \BEGINGROUP{Unit Group}
 \GROUPENTRY{u\%} multiply numbers by 100 and add a \% sign \\
 \GROUPENTRY{u\$} add \$ sign to numbers; \GROUPNEWLINE
-                make \TT{0.2} the Numeric Group default \\
+                make \TT{0.2} the Number Group default \\
 \GROUPENTRY[\TT{`}\em <unit>\TT{'}]{u} the numbers are to be expressed in
 		the given {\em <unit>}'s, where {\em <unit>} is as per
 		Section~\itemref{UNITS}, but the {\em <unit>} itself
@@ -3425,9 +3428,9 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
     ::= {\em word} $|$ {\em quoted-string}
 		   $|$ {\em number-name} $|$ {\em bracketed-label} \\
 \emkey{number-name} \begin{tabular}[t]{rl}
-    ::= & {\em integral-numeric} $|$ {\em fractional-numeric} $|$
-          {\em scientific-numeric} \\
-    $|$ & {\em radix-numeric} $|$ {\em date} $|$ {\em time}
+    ::= & {\em integral-number} $|$ {\em fractional-number} $|$
+          {\em scientific-number} \\
+    $|$ & {\em radix-number} $|$ {\em date} $|$ {\em time}
     \end{tabular} \\
 \emkey{bracketed-label}
     ::= \TT{\{*}~~{\em atom-name}\STAR{}~~\TT{*\}} \\
@@ -3443,7 +3446,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{single-attribute-}{representation}%
+\emlkey{single-attribute}{-representation}%
 \label{SINGLE-ATTRIBUTE-REPRESENTATION}
 \\\hspace*{0.5in}
     \begin{tabular}[t]{rl}
@@ -3530,7 +3533,7 @@ all brackets and separators contain a
 {\em mark} or {\em separator} lexeme, it is never necessary
 to quote a {\em word} in a raw {\em object-representation}.
 This can be exploited by quoting just {\em marks},
-{\em separators}, and {\em numeric} symbols when outputting
+{\em separators}, and {\em number} symbols when outputting
 raw {\em object-representations}.
 
 For example:
@@ -3805,7 +3808,7 @@ can be abbreviated as just `\TT{X}', while one of the form
 The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
 However, within {\em object-representa\-tions} that begin with
 \TT{@} the parser only recognizes brackets and separators, and does
-not recognize operators, numeric units, formats, sentence and phrase
+not recognize operators, number units, formats, sentence and phrase
 terminators, etc.\label{RAW-PARSING}  The parser does recognize
 lists as described in the next sections.  In order to ensure that
 the parser does not mistakenly recognize {\em separators} and {\em marks}
@@ -4538,7 +4541,7 @@ The {\em prefix-0-list} in this example is equivalent to:
 
 Input is read and parsed to form objects from {\em bracketed-lists}.
 These objects are then further parsed to find operators, separators,
-numeric units (e.g., \TT{lb} and \TT{\$}), and some other constructions
+number units (e.g., \TT{lb} and \TT{\$}), and some other constructions
 such as possessives (\TT{George's weight} become \TT{George 's weigth}).
 The input to this parsing is a list of \skey{token}s, which initially are
 all lexemes.  But as the parsing proceeds, bracketed lists are replaced
@@ -4553,7 +4556,7 @@ Then the brackets of a subexpression establish a parsing
 \key{context} which determines
 which subsequent passes will be run on the token list of the backeted
 subexpression.  For an \key{operator expression}, the passes
-handle operators, numeric units, and possessives.  For a
+handle operators, number units, and possessives.  For a
 \key{text expression}, a pass handles phrases and sentences.
 If a pass succeeds it may discover subexpressions, which are
 parsed independently as they are discovered.
@@ -4574,7 +4577,7 @@ The standard passes in order from first to last are:
 \TT{operators} & \TT{operator}
 	& parse operators \\
 \TT{units} & \TT{operator}
-	& parse numeric units \\
+	& parse number units \\
 \TT{singularize} & \TT{operator}
 	& replace plurals by singulars \\
 \TT{text} & \TT{text}
@@ -5553,7 +5556,7 @@ are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
 \emkey{temporary-definition} ::= {\em temporary} {\em subexpression} \\[1ex]
-\emkey{temporary} ::= \TT{\#\#} {\em integral-numeric}\pagnote{INTEGRAL-NUMERIC}
+\emkey{temporary} ::= \TT{\#\#} {\em integral-number}\pagnote{INTEGRAL-NUMBER}
 \end{indpar}
 
 During reformatting, a subexpression may be replaced by
@@ -5582,7 +5585,7 @@ two {\em temporary-definitions} ever have the same {\em temporary}.
 \subsection{Parser Units Pass}
 \label{PARSER-UNITS-PASS}
 
-The function of the \key{parser units pass} is to identify numeric
+The function of the \key{parser units pass} is to identify number
 units, such as \TT{ft} and \TT{lb}, and turn them into multipliers
 and divisors.  For example, `\TT{35~ft~lb}' is reformatted as
 `\TT{* 35 ft lb}' and `\TT{\$100~per~yr}' is reformatted as
@@ -5748,7 +5751,7 @@ which have the form:
 
 \begin{tabular}{rcl}
 \hspace*{1.7in} \\[-2ex]
-\emlkey{operator-parsing-}{instruction}
+\emlkey{operator-parsing}{-instruction}
     & ::= & \TT{\{ operator parsing instruction:} \\
     &     & ~~~ \TT{name =} {\em operator-name}\TT{,} \\
     &     & ~~~ \TT{kind =} {\em operator-kind}\PLUS{} \\
@@ -5784,15 +5787,15 @@ which have the form:
 \subsubsection{Number Pair Recognition}
 \label{NUMBER-PAIR-RECOGNITION}
 
-A \key{number pair} is a pair of {\em numerics}, the first
+A \key{number pair} is a pair of {\em numbers}, the first
 of which is in integer and the second of which is a fraction
 containing a slash.
 
 \begin{indpar}
-\emkey{number-pair} ::= {\em integral-numeric} {\em fractional-numeric}
+\emkey{number-pair} ::= {\em integral-number} {\em fractional-number}
     \\[1ex]
-{\em integral-numeric} ::= see \pagref{INTEGRAL-NUMERIC} \\[1ex]
-{\em fractional-numeric} ::= see \pagref{FRACTIONAL-NUMERIC}
+{\em integral-number} ::= see \pagref{INTEGRAL-NUMBER} \\[1ex]
+{\em fractional-number} ::= see \pagref{FRACTIONAL-NUMBER}
 \end{indpar}
 
 Some examples of number pairs are:
@@ -5938,7 +5941,7 @@ have the syntax:
 {\em argument-list} ::= {\em empty}
                     $|$ {\em argument} \{ \TT{,} {\em argument} \}\STAR{}
     \\[1ex]
-{\em argument} ::= {\em name} $|$ {\em numeric} $|$ {\em quoted-string}
+{\em argument} ::= {\em name} $|$ {\em number} $|$ {\em quoted-string}
     \\[1ex]
 {\em labels-option} ::= {\em empty} $|$ \TT{:} {\em label}
 				\{ \TT{,} {\em label} \}\STAR{}
@@ -5947,7 +5950,7 @@ have the syntax:
     \\[1ex]
 {\em name} ::= see \pagref{NAME}
     \\[1ex]
-{\em numeric} ::= see \pagref{NUMERIC}
+{\em number} ::= see \pagref{NUMBER}
     \\[1ex]
 {\em quoted-string} ::= see \pagref{QUOTED-STRING}
 \end{indpar}
