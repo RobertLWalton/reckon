@@ -1611,15 +1611,19 @@ contains in order the following lexemes:
 	$|$ {\em comment}
 \label{LEXEME}
 \\[2ex]
-\emkey{strict-separator} :::= \TT{(} $|$ \TT{)} $|$
-				 \TT{[} $|$ \TT{]} $|$
-				 \{ $|$ \} $|$
+\emkey{strict-separator} :::= {\em singleton-separator-character}
+				 $|$
 				 \TT{|}\PLUS{}
 \\[0.5ex]
-\emkey{strict-separator-character} :::= \TT{(} $|$ \TT{)} $|$
-                                           \TT{[} $|$ \TT{]} $|$
-				           \{ $|$ \} $|$
+\emkey{strict-separator-character} :::= {\em singleton-separator-character}
+				           $|$
 				           \TT{|}
+\\[0.5ex]
+\emkey{singleton-separator-character} :::=
+    \begin{tabular}[t]{@{}l}
+    character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, or \TT{Pf} \\
+    (includes \TT{\{ ( [ << >> ] ) \}})
+    \end{tabular}
 \\[1ex]
 \emkey{quoted-string}
     :::= \TT{"} {\em character-representative}\STAR{} \TT{"}
@@ -1627,11 +1631,15 @@ contains in order the following lexemes:
 \emkey{character-representative}
     \begin{tabular}[t]{rl}
     :::= & {\em graphic-character} other than \TT{"} \\
-    $|$  & {\em single-space-character} \\
+    $|$  & {\em ASCII-single-space-character} \\
     $|$  & {\em special-character-representative} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{graphic-character} :::= character that prints some mark
+\emkey{graphic-character} :::=
+    \begin{tabular}[t]{@{}l}
+    character in UNICODE category \TT{L}, \TT{M}, \TT{N}, \TT{P}, or \TT{S} \\
+    (i.e., character that prints some mark)
+    \end{tabular}
 \\[1ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
                        not beginning with \TT{//}
