@@ -199,7 +199,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{August 31, 2016}
+\date{February 5, 2019}
 
 \maketitle
 
@@ -1843,7 +1843,7 @@ follows:
     \end{tabular}
     \end{tabular}
 \\[1ex]
-\emkey{numeric} ::=
+\emkey{numeric}\label{NUMERIC} ::=
     \begin{tabular}[t]{l}
     {\em middle-lexeme} that \\
     \begin{tabular}[t]{rll}
@@ -5016,7 +5016,8 @@ objects.
 
 During parsing both the parsing passes and definitions of parsing units such as
 operators are turned on or off by manipulating a \key{parsing context},
-which is just a set of \skey{parsing selector}s.  Thus the passes and
+which is just a set of \skey{parsing selector}s.\label{PARSING-SELECTORS}
+Thus the passes and
 definitions appropriate to text processing are turned on by the
 `\TT{text}' selector, and those appropriate to code parsing are
 turned on by the `\TT{code}' selector.
@@ -5230,7 +5231,8 @@ Precedence & Reformatter	& Kind	& Name		& Meaning
 
 \end{tabular}
 
-Each entry in these tables describes an `\key{operator parsing instruction}'.
+Each entry in these tables describes an
+`\ikey{operator parsing instruction}{operator parsing!instruction}'.
 Parsing instructions appear in an ordered list, called the
 parsing instruction stack.
 
@@ -5254,7 +5256,7 @@ instruction stack is used, unless that instruction has the
 process is repeated with only shorter names allowed.
 
 With this in mind the possible operator parsing instruction
-\ikey{kinds}{kind!of operator parsing instruction}
+\ikey{kinds}{kind!of operator parsing!instruction}
 are recognized according to the following rules:
 
 \begin{indpar}[0.5in]
@@ -5733,11 +5735,12 @@ After input text is scanned into symbols and these are parsed into
 typed lists, each typed list may optionally be parsed further using
 instructions in a parsing table associated with the type of the list.
 A \key{parsing table} is a list
-of \skey{operator parsing instruction}s which have the form:
+of \ikey{operator parsing instructions}{operator parsing!instruction}
+which have the form:
 
 \begin{tabular}{rcl}
 \hspace*{1.7in} \\[-2ex]
-\emkey{operator-parsing-instruction}
+\emlkey{operator-parsing-}{instruction}
     & ::= & \TT{\{ operator parsing instruction:} \\
     &     & ~~~ \TT{name =} {\em operator-name}\TT{,} \\
     &     & ~~~ \TT{kind =} {\em operator-kind}\PLUS{} \\
@@ -5773,17 +5776,15 @@ of \skey{operator parsing instruction}s which have the form:
 \subsubsection{Number Pair Recognition}
 \label{NUMBER-PAIR-RECOGNITION}
 
-A \key{number pair} is a pair of {\em decimal-numbers}, the first
+A \key{number pair} is a pair of {\em numerics}, the first
 of which is in integer and the second of which is a fraction
 containing a slash.
 
 \begin{indpar}
-\emkey{number-pair} ::= {\em decimal-integer}
-		   {\em decimal-numerator}\TT{/}{\em decimal-denominator}
-		   \\[1ex]
-{\em decimal-integer} ::= see \pagref{DECIMAL-INTEGER} \\[1ex]
-{\em decimal-numerator} ::= see \pagref{DECIMAL-NUMERATOR} \\[1ex]
-{\em decimal-denominator} ::= see \pagref{DECIMAL-DENOMINATOR}
+\emkey{number-pair} ::= {\em integral-numeric} {\em fractional-numeric}
+    \\[1ex]
+{\em integral-numeric} ::= see \pagref{INTEGRAL-NUMERIC} \\[1ex]
+{\em fractional-numeric} ::= see \pagref{FRACTIONAL-NUMERIC}
 \end{indpar}
 
 Some examples of number pairs are:
@@ -5929,7 +5930,7 @@ have the syntax:
 {\em argument-list} ::= {\em empty}
                     $|$ {\em argument} \{ \TT{,} {\em argument} \}\STAR{}
     \\[1ex]
-{\em argument} ::= {\em name} $|$ {\em number} $|$ {\em quoted-string}
+{\em argument} ::= {\em name} $|$ {\em numeric} $|$ {\em quoted-string}
     \\[1ex]
 {\em labels-option} ::= {\em empty} $|$ \TT{:} {\em label}
 				\{ \TT{,} {\em label} \}\STAR{}
@@ -5938,7 +5939,7 @@ have the syntax:
     \\[1ex]
 {\em name} ::= see \pagref{NAME}
     \\[1ex]
-{\em number} ::= see \pagref{NUMBER}
+{\em numeric} ::= see \pagref{NUMERIC}
     \\[1ex]
 {\em quoted-string} ::= see \pagref{QUOTED-STRING}
 \end{indpar}
@@ -6533,7 +6534,7 @@ lexeme, and that is followed by a {\em white-space} lexeme, a
 end of the lexeme sequence.  All other lexemes and all subexpressions are
 \skey{sentence-non-terminator}s.
 
-{\bf Initial Capitalization Rule.}\index{Initial Capitalization Rule}
+{\bf Initial Capitalization Rule.}\index{Initial Capitalization!Rule}
 A {\em word} consisting of an initial capital letter followed
 by zero or more lower case letters is converted
 to an all lower case word if it begins a sentence.
