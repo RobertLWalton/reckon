@@ -2132,27 +2132,29 @@ Some examples are:
 \subsection{Radix Numbers}
 \label{RADIX-NUMBER}
 
-A \emkey{radix-number} is the same as a {\em scientific-number},
-except that it is prefaced (after any {\em sign}) by a
-{\em radix-indicator}, the non-exponent digits are surrounded by
-`\TT{\#}'s, and the
+A \emkey{radix-number} is similar to a {\em scientific-number},
+except that it consists of 2 or 3 consecutive lexemes and the
+digits are placed inside a quoted string.  The first lexeme is
+a {\em radix-indicator}, and the
 permissible {\em digits} and comma spacings depend upon the radix indicator:
 
 \begin{indpar}
 \emkey{radix-number} ::= \\
 \hspace*{0.2in}
-    {\em sign}\QMARK{} {\em radix-indicator} \TT{\#}
-    {\em radix-natural-part}
-    {\em radix-fractional-part}\QMARK{}
-    \TT{\#}
+    {\em signed-radix-indicator} {\em quoted-radix-digits}
     {\em exponent-part}\QMARK{}
 \\[1ex]
-\emkey{sign} ::= \TT{+} $|$ \TT{-}
+\emkey{radix-indicator} :::= \TT{B\#} $|$ \TT{b\#} $|$
+                            \TT{O\#} $|$ \TT{o\#} $|$
+			    \TT{D\#} $|$ \TT{d\#} $|$
+			    \TT{X\#} $|$ \TT{x\#}
 \\[1ex]
-\emkey{radix-indicator} ::= \TT{B} $|$ \TT{b} $|$
-                            \TT{O} $|$ \TT{o} $|$
-			    \TT{D} $|$ \TT{d} $|$
-			    \TT{X} $|$ \TT{x}
+\emkey{signed-radix-indicator} :::= {\em sign}\QMARK{} {\em radix-indicator}
+\\[1ex]
+\emkey{sign} :::= \TT{+} $|$ \TT{-}
+\\[1ex]
+\emkey{quoted-radix-digits} :::= \TT{"} {\em radix-natural-part}
+				{\em radix-fractional-part}\QMARK{} \TT{"}
 \\[1ex]
 \emkey{radix-natural-part} :::= {\em radix-digit}\PLUS{}
 	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
@@ -2160,7 +2162,7 @@ permissible {\em digits} and comma spacings depend upon the radix indicator:
 \emkey{radix-fractional-part} :::= \TT{.} {\em radix-digit}\PLUS{}
 	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
 \\[1ex]
-\emkey{exponent-part} ::= {\em exponent-indicator} {\em sign}\QMARK{}
+\emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
                           {\em digit}\PLUS{} \\[1ex] 
 \emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
 \end{indpar}
@@ -2172,17 +2174,17 @@ The {\em radix-indicators} have the following denotations:
 \bf Radix Indicator
 	& \bf Meaning	& \bf Digits 		& \bf Comma Positions
 \\[1ex]
-\TT{B} or \TT{b}
+\ttkey{B\#} or \ttkey{b\#}
         & binary	& \TT{0}, \TT{1}	& every 2, 3, 4, or 5 digits \\
-\TT{O} or \TT{o}
+\ttkey{O\#} or \ttkey{o\#}
         & octal		& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
 			  			& every 2, 3, or 4 digits \\
-\TT{D} or \TT{d}
+\ttkey{D\#} or \ttkey{d\#}
         & decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
 			  \TT{8}, \TT{9}	& every 3 digits \\
-\TT{X} or \TT{x}
+\ttkey{X\#} or \ttkey{x\#}
         & hexa-decimal	& \TT{0}, \TT{1}, \TT{2}, \TT{3},
 			  \TT{4}, \TT{5}, \TT{6}, \TT{7}
 			  \TT{8}, \TT{9},	& every 2 or 4 digits \\
@@ -2194,11 +2196,11 @@ The {\em radix-indicators} have the following denotations:
 \end{center}
 
 Only certain {\em radix-digits} are permitted: e.g., the digit \TT{2}
-is not allowed in \TT{B\#\ldots\#} and the digit \TT{E} is not allowed
-with \TT{D\#\ldots\#}.  Only certain comma spacings are permitted, and comma
-spacing must be consistent.  Thus \TT{x\#A,C9,BD,8F\#} is permitted but
-\TT{x\#A,C9B,D8F\#} is not (3-spacing not allowed for hexa-decimal),
-and \TT{x\#A,C9,BD8F\#} is not permitted (2-spacing combined with
+is not allowed in \TT{B"\ldots"} and the digit \TT{E} is not allowed
+with \TT{D"\ldots"}.  Only certain comma spacings are permitted, and comma
+spacing must be consistent.  Thus \TT{x"A,C9,BD,8F"} is permitted but
+\TT{x"A,C9B,D8F"} is not (3-spacing not allowed for hexa-decimal),
+and \TT{x"A,C9,BD8F"} is not permitted (2-spacing combined with
 4-spacing is not consistent).
 There may be at most one decimal point.
 Commas may be used before the point without being used after the
@@ -2210,11 +2212,11 @@ Some example {\em radix-numbers} are:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
-b\#10110100\#	& o\#7534201\#   & d\#9758\#	& x\#E8A932B\# \\
-b\#1011.0100\#	& o\#75.34201\#  & d\#97.58\#	& x\#E8,A9.32B\# \\
-b\#101101\#E2	& o\#0.7753\#    & d\#97.58\#e5	& X\#0.fe8a\#e-4 \\
-B\#10,1101\#E+2	& O\#2,3456\#E-3 & D\#0.1235\#	& X\#E8A.7CCD,83\# \\
-B\#101,101\#e2	& O\#0.2345,6\#  & D\#0.123,5\#	& X\#E8A,932B.7C\# \\
+b"10110100"	& o"7534201"   & d"9758"	& x"E8A932B" \\
+b"1011.0100"	& o"75.34201"  & d"97.58"	& x"E8,A9.32B" \\
+b"101101"E2	& o"0.7753"    & d"97.58"e5	& X"0.fe8a"e-4 \\
+B"10,1101"E+2	& O"2,3456"E-3 & D"0.1235"	& X"E8A.7CCD,83" \\
+B"101,101"e2	& O"0.2345,6"  & D"0.123,5"	& X"E8A,932B.7C" \\
 \end{tabular}
 \end{indpar}
 
@@ -2222,6 +2224,19 @@ Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMBER}
 the {\em exponent-part} shifts the decimal point right (if +) or left (if -)
 by some number of digits (in the given radix).  The {\em digits}
 in the {\em exponent-part} are always decimal.
+
+It is possible to continue the {\em quoted-radix-digits} of a radix number
+across physical line
+boundaries using \TT{\#} string concatenation
+(\pagref{STRING-CONCATENATION}).  For example, this can be used
+to represent very long decimal numbers:
+\begin{center}
+\tt
+\begin{tabular}{l}
+X = D\#"154325615514543561613643161361436754375738383658356"\# \\
+~~~~~~"832842806353457831613867849834174813760467184673489"
+\end{tabular}
+\end{center}
 
 
 \subsection{Dates}
@@ -3186,7 +3201,8 @@ in a code paragraph, lines with greater indent than the current paragraph
 indent are continuation lines.
 
 \begin{enumerate}
-\item Two consecutive \emskey{quoted-string}s in a logical line
+\item\label{STRING-CONCATENATION}
+Two consecutive \emskey{quoted-string}s in a logical line
 are concatenated \underline{after} {\em character-represen\-ta\-tives}
 have been replaced by the characters they represent.
 
