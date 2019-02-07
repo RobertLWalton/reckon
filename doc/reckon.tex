@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 5, 2019}
+\date{February 7, 2019}
 
 \maketitle
 
@@ -1940,8 +1940,8 @@ constants, and functions:
 		    \end{tabular}
 \end{indpar}
 
-Note that in a name digits can appear after letters, in
-{\em natural-indices} do not begin the name, or inside quotes,
+Note that in a name digits can appear after letters or in
+{\em natural-indices} that do not begin the name,
 but not elsewhere.  {\em Natural-indices} cannot have high order
 zeros.
 
@@ -1979,7 +1979,7 @@ Some {\em names} have builtin definitions, such as the
 words `\TT{ft}' and `\TT{inch}' which in some contexts denote the
 units `foot' and `inch' (see Section~\itemref{UNITS}),
 and `\TT{PI}' which in some contexts denotes the mathematical
-constant $\pi$ (see Figure~\itemref{BUILTIN-CONSTANTS}).
+constant $\pi$ (see Figure~\itemref{BUILTIN-NUMBER-CONSTANTS}).
 
 Special lexemes are described in the following sections.  Some of these
 represent numbers.  When translated into internal computer form,
@@ -1999,12 +1999,13 @@ or $15.95$ decimal digits precision.  Numbers with absolute value less than
 $2.2250738585072014\times 10^{-308}$ are represented as zero.
 
 Numbers with absolute value equal to or greater than
-$1.7976931348623158\times 10^{+308}$ are represented a $+$ or $-$
+$1.7976931348623158\times 10^{+308}$ are represented as $+$ or $-$
 infinity, which can also be represented by the builtin constants
-\TT{+INF} and \TT{-INF}: see Figure~\itemref{BUILTIN-CONSTANTS}.
+\TT{+INF} and \TT{-INF}: see Figure~\itemref{BUILTIN-NUMBER-CONSTANTS}.
 
 Internally $+0$ and $-0$ are distinct, though in most computations
-they behave the same.  On output both are represented by \TT{+0}.
+they behave the same.  On output they are usually
+both are represented by \TT{0}, which on input represents $+0$.
 
 \begin{boxedfigure}[t]
 
@@ -2014,11 +2015,12 @@ they behave the same.  On output both are represented by \TT{+0}.
 \ttkey{MATH E}	& 2.718281828459045 & mathematical $e$, Euler's constant \\
 \ttkey{+INF}	& + infinity & number too positive to represent \\
 \ttkey{-INF}	& - infinity & number too negative to represent \\
+\ttkey{NAN}	& not a number & e.g., value of \TT{0/0} (\pagref{0/0}) \\
 \end{tabular}
 \end{center}
 \vspace*{-3ex}
-\caption{Builtin Constants}
-\label{BUILTIN-CONSTANTS}
+\caption{Builtin Number Constants}
+\label{BUILTIN-NUMBER-CONSTANTS}
 \end{boxedfigure}
 
 
@@ -2075,10 +2077,10 @@ some given number of decimal places, it may in some contexts be
 printed as a fraction.  Thus in these contexts a number input as
 \TT{1/3} will print as \TT{1/3} and not as \TT{0.333333}.
 
-The fraction \TT{0/0} denotes the IEEE \key{NaN} value, which
+The fraction \TT{0/0}\label{0/0} denotes the IEEE \ttkey{NAN} value, which
 stands of `Not a Number'.  The fraction \TT{$N$/0} for $N>0$
-denotes \TT{+Inf}, or plus infinity, while \TT{-$N$/0} denotes
-\TT{-Inf}, or minus infinity.
+denotes \TT{+INF}, or plus infinity, while \TT{-$N$/0} denotes
+\TT{-INF}, or minus infinity.
 
 \subsection{Scientific Number}
 \label{SCIENTIFIC-NUMBER}
