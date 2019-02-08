@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 7, 2019}
+\date{February 8, 2019}
 
 \maketitle
 
@@ -2023,6 +2023,22 @@ both are represented by \TT{0}, which on input represents $+0$.
 \label{BUILTIN-NUMBER-CONSTANTS}
 \end{boxedfigure}
 
+It is possible to glue several lexemes together using the pseudo-operator
+\ttkey{\#}.  For example,
+\begin{center}
+\tt "Hi" \# " " \# "There" Jack- \# and- \# Ji \# ll
+\end{center}
+is equivalent to
+\begin{center}
+\tt "Hi There" Jack-and-Jill
+\end{center}
+The lexemes being glued must all be {\em quoted-strings} or must
+all be {\em middle-lexemes}, and they must all be in the same
+logical line.  A logical line 
+may consist of several physical lines, all but the first being
+continuation lines of the first (\itemref{LOGICAL-LINES-AND-PARAGRAPHS}),
+so \TT{\#} can be used to split lexemes across physical lines.
+
 
 
 \subsection{Integral Numbers}
@@ -3197,32 +3213,26 @@ indent are continuation lines.
 
 \begin{enumerate}
 \item\label{STRING-CONCATENATION}
-Two consecutive \emskey{quoted-string}s in a logical line
+If two or more \emskey{quoted-string}s in a logical line are separated by
+\TT{\#} mark lexemes, the strings
 are concatenated \underline{after} {\em character-represen\-ta\-tives}
 have been replaced by the characters they represent.
 
-Thus \TT{"<" "LF" ">"} is equivalent to a single {\em quoted-string}
+Thus \TT{"<" \# "LF" \# ">"} is equivalent to a single {\em quoted-string}
 lexeme with the 4 characters `\TT{<}', `\TT{L}', `\TT{F}', and
 `\TT{>}', whereas \TT{"<LF>"} is a {\em quoted-string} with only
 1 character, a line feed.
 
-\label{CONTINUATION-GLUING}
-\item
-If a physical line which is immediately followed by a continuation line
-ends with a {\em middle-lexeme} that
-contains 5 or more characters ending with a `\TT{-}' (which counts as
-one of the 5 characters),
-and the continuation line begins with a {\em middle-lexeme},
-the two {\em middle-lexemes}
-will be glued together with the line ending `\TT{-}' deleted.
-The {\em middle-lexeme} on the continuation line may also begin
-with a `\TT{-}', which will not be deleted.
+\item\label{MIDDLE-LEXEME-CONCATENATION}
+If two or more \emskey{middle-lexeme}s in a logical line are separated by
+\TT{\#} mark lexemes, the middle lexemes
+are concatenated.
 
 For example,
 
 \begin{indpar}\begin{verbatim}
-This is a word-
-     -that-is-con-
+This is a word- #
+     that-is-con #
      tinued.
 \end{verbatim}\end{indpar}
 
@@ -3235,9 +3245,9 @@ This is a word-that-is-continued .
 and
 
 \begin{indpar}\begin{verbatim}
-See http://forecast.weather.gov/MapClick.php?-
-           lat=42&lon=-
-           -71#.V036u7
+See http://forecast.weather.gov/MapClick.php?
+           # lat=42&lon=
+           # -71#.V036u7
 \end{verbatim}\end{indpar}
 
 translates to the 2 lexeme squence
