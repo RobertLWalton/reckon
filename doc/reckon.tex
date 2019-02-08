@@ -2228,11 +2228,11 @@ Some example {\em radix-numbers} are:
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
-b"10110100"	& o"7534201"   & d"9758"	& x"E8A932B" \\
-b"1011.0100"	& o"75.34201"  & d"97.58"	& x"E8,A9.32B" \\
-b"101101"E2	& o"0.7753"    & d"97.58"e5	& X"0.fe8a"e-4 \\
-B"10,1101"E+2	& O"2,3456"E-3 & D"0.1235"	& X"E8A.7CCD,83" \\
-B"101,101"e2	& O"0.2345,6"  & D"0.123,5"	& X"E8A,932B.7C" \\
+b\#"10110100"	& o\#"7534201"   & d\#"9758"	& x\#"E8A932B" \\
+b\#"1011.0100"	& o\#"75.34201"  & d\#"97.58"	& x\#"E8,A9.32B" \\
+b\#"101101"E2	& o\#"0.7753"    & d\#"97.58"e5	& X\#"0.fe8a"e-4 \\
+B\#"10,1101"E+2	& O\#"2,3456"E-3 & D\#"0.1235"	& X\#"E8A.7CCD,83" \\
+B\#"101,101"e2	& O\#"0.2345,6"  & D\#"0.123,5"	& X\#"E8A,932B.7C" \\
 \end{tabular}
 \end{indpar}
 
@@ -2280,8 +2280,6 @@ A variety of different date formats may be used:
 	           {\em year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name}
 	           \TT{-} {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name}
-	           \TT{-} {\em short-year-name} {\em era}\QMARK{} \\
 	     $|$ & {\em year-name} {\em era} \\
 	     $|$ & {\em short-year-name} \\
 	     \end{tabular}
@@ -2296,7 +2294,7 @@ A variety of different date formats may be used:
     $|$ & \TT{Wed} $|$ \TT{Wednesday} \\
     $|$ & \TT{Thu} $|$ \TT{Thur} $|$ \TT{Thursday} \\
     $|$ & \TT{Fri} $|$ \TT{Friday} \\
-    $|$ & \TT{Sat} $|$ \TT{Satday} \\
+    $|$ & \TT{Sat} $|$ \TT{Saturday} \\
     $|$ & \TT{Sun} $|$ \TT{Sunday} \\
     \end{tabular}
 \\[1ex]
@@ -2418,11 +2416,14 @@ time zones are separated from the rest by `\TT{-}'s.
 \\[1ex]
 \emkey{time-zone}
     \begin{tabular}[t]{rl}
-    :::= & \TT{UTC} \\
-    $|$ & \TT{UTC} {\em sign} {\em digit}\QMARK{} {\em digit}
+    :::= & {\em universal-time-indicator} \\
+    $|$ & {\em universal-time-indicator}
+          {\em sign} {\em digit}\QMARK{} {\em digit}
 	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
     $|$ & {\em defined-time-zoned}
     \end{tabular}
+\\[1ex]
+\emkey{universal-time-indicator} :::= \ttkey{UTC} $|$ \ttkey{GMT}
 \end{indpar}
 
 
@@ -2446,6 +2447,8 @@ If \TT{pm} or \TT{PM} is given, $12$ hours is added to
 {\em time-interval} values that are strictly less than \TT{12:00}.
 The time \TT{12:00noon} is interpreted as \TT{12:00} and
 the time \TT{12:00-midnight} is interpreted as \TT{24:00}.
+Note that \TT{12:00am == 0:00}, \TT{12:00pm == 24:00}, and neither
+equal \TT{12:00noon}.
 
 \begin{boxedfigure}[t]
 
@@ -2506,8 +2509,9 @@ NZST  & New Zealand Daylight Time     & +13:00 \\
 \label{PRE-DEFINED-TIME-ZONES}
 \end{boxedfigure}
 
-A {\em time-zone} such as \TT{UTC-05:00} refers to Greenwich Mean Time
-(\TT{UTC}, Temps Universel Coordonn\'e in French)
+\ttkey{UTC} (Temps Universel Coordonn\'e in French) and \ttkey{GMT}
+(Greenwich Mean Time) can be used interchangeably.
+\TT{UTC-05:00} refers to Greenwich Mean Time
 minus 5 hours (\TT{-05:00}) and is the same as
 Eastern Standard Time, or \TT{EST}.   When localities that use \TT{EST}
 go on Daylight Savings Time, they convert to Eastern Daylight Time, or
@@ -2519,7 +2523,10 @@ as \TT{UTC+12:00}.
 If a {\em time-zone} is given, the difference between the {\em time-zone}
 time and GMT is subtracted from the {\em time-interval}.
 Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
-and for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval}.
+so \TT{10:00EST == 15:00GMT}.
+Similarly
+for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval},
+so \TT{17:00NZST == 5:00GMT}.
 It is possible to get negative numbers, which indicate a time in the previous
 GMT day, or numbers equal to or larger than \TT{24:00}, which indicate
 a time in the next GMT day.
@@ -2556,8 +2563,8 @@ any letter, or a digit is next to a `\TT{-}'.  Some examples are:
 1:15am	& 12:00noon   & 05:37:23PM \\
 1:15edt	& 12:00est   & 05:37:23WDT \\
 1:15am-edt	& 12:00midnight-EET   & 05:37:23pm-WDT \\
-May1975-1:15am-edt	& 05/04/1999-00:00EET   & 05/07/99-17:37:23WDT \\
-may1975-1:15am-edt	& 04may'99-00:00EET   & 07May99-17:37:23WDT \\
+May-1975-1:15am-edt	& 05/04/1999-00:00EET   & 05/07/99-17:37:23WDT \\
+may-1975-1:15am-edt	& 04may'99-00:00EET   & 07May99-17:37:23WDT \\
 \end{tabular}
 \end{indpar}
 
