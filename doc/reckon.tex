@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 10, 2019}
+\date{February 11, 2019}
 
 \maketitle
 
@@ -2582,6 +2582,7 @@ and `\TT{\CIRCUM}' for exponentiation:
 \emkey{unit}
     \begin{tabular}[t]{rl}
     :::= & {\em unit-product} \\
+     $|$ & \TT{/} {\em unit-product} \\
      $|$ & {\em unit} \TT{/} {\em unit-product} \\
     \end{tabular}
 \\
@@ -2597,23 +2598,37 @@ and `\TT{\CIRCUM}' for exponentiation:
      $|$ & {\em unit-name} \TT{\CIRCUM}
            {\em natural-number} \\
     \end{tabular}
+\\
+\emkey{unit-name} \begin{tabular}[t]{@{}rl}
+                  :::= & {\em word} containing only letters \\
+		   $|$ & {\em mark} not containing
+		         any ASCII character other than
+			 \TT{\$} or \TT{\%}
+		  \end{tabular}
+		         
 \end{indpar}
 
 Some examples are
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
-ft		& inch	& m	& kg \\
-lb*ft		& inch\CIRCUM 3    & kg*m & kg*m\CIRCUM 2 \\
+ft		& inch	& \$	& kg \\
+lb*ft		& inch\CIRCUM 3    & \$/kg & kg/\$ \\
 ft/sec		& ft/sec/sec	& m/sec\CIRCUM 2 & lb*ft/sec \\
 ft\CIRCUM 2/sec
 		& ft/sec*sec	& sec\CIRCUM 2/m\CIRCUM 2
 				& sec/lb*ft \\
+/sec		& /sec\CIRCUM 2	& /ft*lb  & /ft/sec/sec \\
 \end{tabular}
 \end{indpar}
 
-Note that `\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
+`\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
+A unit beginning with a `\TT{/}' has an implied digit `\TT{1}'
+at its beginning: e.g., `\TT{/sec}' means $sec^{-1}$.
+Consecutive `\TT{/}'s left associate: \TT{/sec/sec} is the same
+as \TT{/sec*sec} or \TT{/sec\CIRCUM 2} (`\TT{/}' can be read
+as `per').
 
 {\em Units} can be separate {\em word} lexemes, or they can be glued
 to a preceding {\em scientific-number} lexeme,
