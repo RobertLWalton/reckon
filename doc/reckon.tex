@@ -2601,9 +2601,9 @@ and `\TT{\CIRCUM}' for exponentiation:
 \\
 \emkey{unit-name} \begin{tabular}[t]{@{}rl}
                   :::= & {\em word} containing only letters \\
-		   $|$ & {\em mark} not containing
-		         any ASCII character other than
-			 \TT{\$} or \TT{\%}
+		   $|$ & {\em mark} containing only characters
+		         with UNICODE class \ttkey{Sc} \\
+		       & (i.e., `Currency Symbol', includes \TT{\$})
 		  \end{tabular}
 		         
 \end{indpar}
@@ -2624,31 +2624,34 @@ ft\CIRCUM 2/sec
 
 `\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
-A unit beginning with a `\TT{/}' has an implied digit `\TT{1}'
-at its beginning: e.g., `\TT{/sec}' means $sec^{-1}$.
+A unit beginning with a `\TT{/}' has an implied `\TT{1}'
+at its beginning: e.g., `\TT{/sec}' means $1/sec$.
 Consecutive `\TT{/}'s left associate: \TT{/sec/sec} is the same
-as \TT{/sec*sec} or \TT{/sec\CIRCUM 2} (`\TT{/}' can be read
-as `per').
+as \TT{/sec*sec} or \TT{/sec\CIRCUM 2}: `\TT{/}' can be read
+as `per'.
 
-{\em Units} can be separate {\em word} lexemes, or they can be glued
+{\em Units} can be separate lexemes, or they can be glued
 to a preceding {\em scientific-number} lexeme,
 from which they will be automatically split.  In addition several
-{\em glued-lexemes} of this kind can themselves be glued together:
+{\em glued-number} lexemes of this kind can themselves be glued together:
 \begin{indpar}
-\emkey{glued-lexeme}
-    \begin{tabular}[t]{rl}
+\emkey{glued-number}
+    \begin{tabular}[t]{@{}rl}
     :::= & {\em scientific-number} \TT{\_}\QMARK{} {\em unit}
-           \{ \TT{\_}\QMARK{} {\em scientific-number}
+           \{ \TT{\_}\QMARK{} {\em unsigned-scientific-number}
 	      \TT{\_}\QMARK{} {\em unit} \}\STAR{} \\
-     $|$ & other
     \end{tabular}
 \end{indpar}
 
 
-Thus `\TT{5inch}' is a {\em glued-lexeme} that will be split into
+Thus `\TT{5inch}' is a {\em glued-number} that will be split into
 `\TT{5 inch}', `\TT{4ft3inch}' will be split into `\TT{4 ft 3 inch}',
 and `\TT{4ft\_3inch}' and `\TT{4\_ft\_3\_inch}' will also be split
-into `\TT{4 ft 3 inch}'.
+into `\TT{4 ft 3 inch}'.  Any `\TT{\_}'s are strictly optional,
+as {\em unsigned-scientific-numbers} begin and end with a {\em digit}
+which cannot be part of a {\em unit-name}.  Also all {\em glued-numbers}
+have a {\em digit} before any {\em letter}, and thus are {\em number}
+lexemes.
 
 Units may be defined by statements of the form:
 \begin{center}
