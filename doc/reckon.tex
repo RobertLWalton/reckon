@@ -2599,12 +2599,15 @@ and `\TT{\CIRCUM}' for exponentiation:
            {\em natural-number} \\
     \end{tabular}
 \\
-\emkey{unit-name} \begin{tabular}[t]{@{}rl}
-                  :::= & {\em word} containing only letters \\
-		   $|$ & {\em mark} containing only characters
-		         with UNICODE class \ttkey{Sc} \\
-		       & (i.e., `Currency Symbol', includes \TT{\$})
-		  \end{tabular}
+\emkey{unit-name} :::= {\em unit-name-word} $|$ {\em unit-name-mark }
+\\
+\emkey{unit-name-word} :::= {\em word} containing only letters
+\\
+\emkey{unit-name-mark} :::=
+    \begin{tabular}[t]{@{}l}
+    {\em mark} containing only characters with UNICODE class \ttkey{Sc} \\
+    (i.e., `Currency Symbol', includes \TT{\$})
+    \end{tabular}
 		         
 \end{indpar}
 
@@ -2817,7 +2820,7 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{sc} small caps \\
 \ENDGROUP \\
 \BEGINGROUP{Font Size Group}
-\GROUPENTRY[\em <ratio>]{fs} adjust the font size to {\em ratio}\% of normal.
+\GROUPENTRY[\em r]{fs} adjust the font size to {\em r}\% of normal.
 \ENDGROUP \\
 \BEGINGROUP{Background Color Group}
 \GROUPENTRY{gray} light gray background \\
@@ -2829,14 +2832,14 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{c} center adjust [default for symbols] \\
 \ENDGROUP \\
 \BEGINGROUP{Number Group}
-\GROUPENTRY[\em <places>]{.}
-    output with exactly {\em places} decimal places \\
-\GROUPENTRY[\em <places>]{0.}
+\GROUPENTRY[\em p]{.}
+    output with exactly {\em p} decimal places \\
+\GROUPENTRY[\em p]{0.}
     ditto but with \TT{0} in the units position if less than \TT{1} \\
 \GROUPENTRY{0}
-    ditto but with zero {\em places} and \underline{no} decimal point \\
-\GROUPENTRY[\em <precision>]{p}
-    output with exactly {\em precision} significant decimal digits,
+    ditto but with zero decimal places and \underline{no} decimal point \\
+\GROUPENTRY[\em s]{p}
+    output with exactly {\em s} significant decimal digits,
     \GROUPNEWLINE
     but avoid using exponent if it is more compact not too,
     \GROUPNEWLINE
@@ -2845,18 +2848,18 @@ with each other; see the rules below for resolving conflicts.
     and suppress decimal point if there are no fraction digits
     \GROUPNEWLINE
     [default is `\TT{p6}'] \\
-\GROUPENTRY[\TT{`}\em time-format>\TT{'}]{T}
+\GROUPENTRY[\TT{`}\em time-format\TT{'}]{T}
     format time (or date) as per below; \GROUPNEWLINE
-    conflicts with \TT{\%} \TT{\$} \TT{,} \TT{()} \TT{+} and \TT{-} \\
+    conflicts with \TT{f}\ldots, \TT{u}\ldots, \TT{s}\ldots, \TT{i}\ldots
 \ENDGROUP \\
 \BEGINGROUP{Fraction Group}
-\GROUPENTRY[\em <denominator>]{f}
+\GROUPENTRY[\em d]{f}
     when a number is about to be output with a fractional part,
     prefer a fractional representation with denominator less than
-    or equal to the value given, if that is more precise. \\
-\GROUPENTRY[\em <exponent>]{f2\CIRCUM}
+    or equal to {\em d}, if that is more precise. \\
+\GROUPENTRY[\em e]{f2\CIRCUM}
     ditto but denomenator must be a power of $2$ equal to or less
-    than $2^{exponent}$. \\
+    than $2^e$. \\
 \GROUPENTRY{!f}
     do not use fractional representations with demonimators
     \GROUPNEWLINE
@@ -2866,12 +2869,12 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{u\%} multiply numbers by 100 and add a \% sign \\
 \GROUPENTRY{u\$} add \$ sign to numbers; \GROUPNEWLINE
                 make \TT{0.2} the Number Group default \\
-\GROUPENTRY[\TT{`}\em <unit>\TT{'}]{u} the numbers are to be expressed in
-		the given {\em <unit>}'s, where {\em <unit>} is as per
-		Section~\itemref{UNITS}, but the {\em <unit>} itself
+\GROUPENTRY[\TT{`}\em unit\TT{'}]{u} the numbers are to be expressed in
+		the given {\em unit}'s, where {\em unit} is as per
+		Section~\itemref{UNITS}, but the {\em unit} itself
 		is \underline{not} to be included in the entry\\
-\GROUPENTRY[\TT{`}\em <unit>\TT{'}]{U} ditto but
-		the {\em <unit>} itself
+\GROUPENTRY[\TT{`}\em unit\TT{'}]{U} ditto but
+		the {\em unit} itself
 		\underline{is} to be included in the entry\\
 \GROUPENTRY{!u} no unit [default]
 \ENDGROUP \\
@@ -2890,45 +2893,109 @@ with each other; see the rules below for resolving conflicts.
 \GROUPENTRY{!f,} undo ditto [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Width Group}
-\GROUPENTRY[\em <columns>]{w}
-    adjust width by given number of {\em columns} \\
-\GROUPENTRY[\em <columns>]{}
-    ditto \\
+\GROUPENTRY[\em c]{w}
+    adjust width by {\em c} columns \\
+\GROUPENTRY[\em c]{}
+    ditto, where {\em c} is unsigned {\em natural-number} \\
 \GROUPENTRY{!w}
     set width to `only as wide as necessary' [default] \\
 \ENDGROUP \\
 \BEGINGROUP{Height Group}
-\GROUPENTRY[\em <lines>]{h}
-    adjust height by given number of {\em lines} \\
+\GROUPENTRY[\em h]{h}
+    adjust height by {\em h} lines \\
 \GROUPENTRY{!h}
     set height to `only as high as necessary' [default] \\
 \ENDGROUP \\
-\BEGINGROUP[(\TT{left} and \TT{right} do not conflict)]%
+\BEGINGROUP[(\TT{ml} and \TT{mr} do not conflict)]%
            {Horizontal Margin Group}
-\GROUPENTRY[\em <points>]{side}
-    adjust space to left and right of entry by {\em points} \\
-\GROUPENTRY[\em <points>]{left}
-    adjust space to left of entry by {\em points} \\
-\GROUPENTRY[\em <points>]{right}
-    adjust space to right of entry by {\em points} \GROUPNEWLINE
-    [default is `\TT{side3}'] \\
+\GROUPENTRY[\em p]{ml}
+    adjust space of left margin of entry by {\em p} points \\
+\GROUPENTRY[\em p]{mr}
+    adjust space of right margin of entry by {\em p} points \\
+\GROUPENTRY[\em p]{mlr}
+    adjust space of both left and right margins of entry by {\em p} points
+    [default is `\TT{mlr3}'] \\
 \ENDGROUP \\
-\BEGINGROUP[(no conflicts)]{Vertical Margin Group}
-\GROUPENTRY[\em <points>]{top}
-    adjust space at top of entry by {\em points} \\
-\GROUPENTRY[\em <points>]{bottom}
-    adjust space at bottom of entry by {\em points} \GROUPNEWLINE
-    [default is `\TT{top3bottom3}'] \\
+\BEGINGROUP[(\TT{mt} and \TT{mb} do not conflict)]%
+           {Vertical Margin Group}
+\GROUPENTRY[\em p]{mt}
+    adjust space of top margin of entry by {\em p} points \\
+\GROUPENTRY[\em p]{mb}
+    adjust space of bottom margin of entry by {\em p} points \\
+\GROUPENTRY[\em p]{mtb}
+    adjust space of both top and bottom margin of
+    entry by {\em p} points [default is `\TT{mtb3}'] \\
 \ENDGROUP
 
-\begin{boxedfigure}[!t]
+To `adjust' a value V by a parameter $P$ in the above is to
+set V to $P$ if $P$ has no sign, or to add $P$ to the current V if
+$P$ has a sign.  Thus `\TT{w7}' sets the width to 7 columns while
+`\TT{w-2}' subtracts two columns from the natural (wide as
+nessary) width and
+`\TT{w+2}' adds two columns to the natural width.
+
+The {\em format-items} are applied left to right, with a {\em format-item}
+cancelling conflicting {\em format-items} to its left.  In applying this
+rule, however, {\em format-items} that adjust a value by adding
+or subtracting a parameter to the value do not conflict with any
+{\em format-item}, but instead adjust the previously computed parameter value.
+
+In some contexts
+there are multiple formats applied in a given order.  For example,
+in tables the table format, column format, and row format are applied in
+order, so column format items override conflicting table format items,
+and row format items override conflicting table and column format items.
+A format item does not override another item with which it does not conflict.
+
+
+
+A {\em time-format} is a string of any characters surrounded by
+\TT{`~'}s that are
+allowed inside a {\em middle-lexeme} in which the following \emskey{time-code}s
+are replaced as indicated in Figure~\ref{TIME-FORMAT-CODES}.
+Note it is in the nature of formats that the \TT{`~'}s are not at the
+ends of the {\em middle-lexeme} and are therefore not recognized as
+separators.
+
+Some example {\em time-formats} and associated times are:
+\begin{center}
+\tt
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`mm/dd/yyyy'/ & 02/21/2014 \\
+/T`dd/mm/yyyy'/ & 21/02/2014 \\
+/T`mm/yyyy'/ & 02/2014 \\
+\end{tabular} \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`www\_dd\_mmm\_\BSLASH'yy'/ & fri 21 feb '14 \\
+/T`Www\_ddmmmyy'/ & Fri 21feb14 \\
+\end{tabular} \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`hh::mm:ss'/ & 13:27:58 \\
+/T`hh::mm:ssXM'/ & 1:27:58PM \\
+/T`hh::mm:ss'/ & 00:27:58 \\
+/T`hh::mm:ssXM'/ & 12:27:58AM \\
+/T`hh::mm:ss'/ & 12:27:58 \\
+/T`hh::mm:ssXM'/ & 12:27:58PM \\
+\end{tabular} \\
+\begin{tabular}{@{}l@{}l@{}}
+\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
+/T`Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy'/ & Fri Feb 21 13:27:58 EST 2014 \\
+/T`Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy'/ & Fri Feb 21 18:27:58 GMT 2014 \\
+/T`Www-ddMmmyy-hh:mm:ss-ZZZ'/	  & Fri-21Feb14-13:27:58-EST \\
+\end{tabular}
+\end{center}
+
+\begin{boxedfigure}[!b]
 \begin{center}
 \begin{tabular}{lp{4.5in}}
 \ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
                                 and keep the following character without
 				giving it a special interpretation
 				(\TT{\BSLASH'} can be use to include
-				 \TT{'} in a {\em <time-format>})\\
+				 \TT{'} in a {\em time-format})\\
 \ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
 \ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
 \ttmkey{ww}{{\em time-code}} & day of weak: \TT{01} \ldots{} \TT{07} \\
@@ -2966,68 +3033,6 @@ with each other; see the rules below for resolving conflicts.
 \caption{Time Format Codes}
 \label{TIME-FORMAT-CODES}
 \end{boxedfigure}
-
-To `adjust' a value V by a parameter P in the above is to
-set V to P if P has no sign, or to add P to the current V if
-P has a sign.  Thus `\TT{w7}' sets the width to 7 columns while
-`\TT{w-2}' subtracts two columns from the current width and
-`\TT{w+2}' adds two columns to the current width.
-
-The {\em format-items} are applied left to right, with a {\em format-item}
-cancelling conflicting {\em format-items} to its left.  In applying this
-rule, however, {\em format-items} that adjust a value by adding
-or subtracting a parameter to the value do not conflict with any
-{\em format-item}.
-
-In some contexts
-there are multiple formats applied in a given order.  For example,
-in tables the table format, column format, and row format are applied in
-order, so column format items override conflicting table format items,
-and row format items override conflicting table and column format items.
-A format item does not override another item with which it does not conflict.
-
-
-
-A {\em time-format} is a string of any characters surrounded by
-\TT{`~'}s that are
-allowed inside a {\em middle-lexeme} in which the following \emskey{time-code}s
-are replaced as indicated in Figure~\ref{TIME-FORMAT-CODES}.
-Note it is in the nature of formats that the \TT{`~'}s are not at the
-ends of the {\em middle-lexeme} and are therefore not recognized as
-separators.
-
-\clearpage
-
-Some example {\em time-formats} and associated times are:
-\begin{center}
-\tt
-\begin{tabular}{@{}l@{}l@{}}
-\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
-/T`mm/dd/yyyy'/ & 02/21/2014 \\
-/T`dd/mm/yyyy'/ & 21/02/2014 \\
-/T`mm/yyyy'/ & 02/2014 \\
-\end{tabular} \\
-\begin{tabular}{@{}l@{}l@{}}
-\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
-/T`www\_dd\_mmm\_\BSLASH'yy'/ & fri 21 feb '14 \\
-/T`Www\_ddmmmyy'/ & Fri 21feb14 \\
-\end{tabular} \\
-\begin{tabular}{@{}l@{}l@{}}
-\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
-/T`hh::mm:ss'/ & 13:27:58 \\
-/T`hh::mm:ssXM'/ & 1:27:58PM \\
-/T`hh::mm:ss'/ & 00:27:58 \\
-/T`hh::mm:ssXM'/ & 12:27:58AM \\
-/T`hh::mm:ss'/ & 12:27:58 \\
-/T`hh::mm:ssXM'/ & 12:27:58PM \\
-\end{tabular} \\
-\begin{tabular}{@{}l@{}l@{}}
-\hspace*{3.4in} & \hspace*{3in} \\[-3ex]
-/T`Www\_Mmm\_dd\_hh:mm:ss\_ZZZ\_yyyy'/ & Fri Feb 21 13:27:58 EST 2014 \\
-/T`Www\_Mmm\_dd\_hh:mm:ss\_GMT\_yyyy'/ & Fri Feb 21 18:27:58 GMT 2014 \\
-/T`Www-ddMmmyy-hh:mm:ss-ZZZ'/	  & Fri-21Feb14-13:27:58-EST \\
-\end{tabular}
-\end{center}
 
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
