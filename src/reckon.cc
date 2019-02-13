@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  1 05:48:10 EST 2019
+// Date:	Tue Feb 12 22:23:32 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,8 +30,7 @@ int main ( int argc, const char * argv[] )
 {
     min::initialize();
     LEX::init_ostream
-	    ( LEX::default_scanner, std::cout )
-        << min::ascii;
+	    ( LEX::default_scanner, std::cout );
     LEXSTD::init_standard_program();
     LEX::init_program ( LEX::default_scanner,
                         LEXSTD::default_program );
@@ -41,6 +40,10 @@ int main ( int argc, const char * argv[] )
 	    min::DISPLAY_PICTURE
 	  + min::DISPLAY_NON_GRAPHIC
 	  + min::DISPLAY_EOL );
-    LEX::test_input ( LEXSTD::end_of_file_t );
+
+    if (    argc > 1 
+         && strcmp ( argv[1], "--lexeme-test" ) == 0 )
+	LEX::test_input ( LEXSTD::end_of_file_t );
+
     return 0;
 }
