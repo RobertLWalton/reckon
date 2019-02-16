@@ -2265,27 +2265,31 @@ On days in which there are leap seconds, the last second of the
 day is either double-length or zero-length, following the Network
 Time Protocol (NTP).}  The value \TT{0} is assigned to
 12noon, Monday, January 1, 4713BC.
-Numerically, \TT{01/01/4713BC == 1jan4713BC == 4713BC == 0}, and every increase
+Numerically, \TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}, and every increase
 of this date by one day adds \TT{86,400}.  For example,
-in our system \TT{2,458,522*86,400} represents
+\TT{2,458,522*86,400} represents
 12noon on Thursday, February 7, 2019.
 
-A variety of different date formats may be used:
+Several different date formats may be used, but all begin with the
+year:
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
-	     :::= & {\em weekday-modifier}\QMARK{}
-	           {\em date-number} {\em era}\QMARK{} \\
-	     $|$ & {\em weekday-modifier}\QMARK{} {\em day} {\em month-name}
-	           {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & {\em weekday-modifier}\QMARK{} {\em month-name}
-	           \TT{-} {\em year-name} {\em era}\QMARK{} \\
-	     $|$ & {\em year-name} {\em era} \\
-	     $|$ & {\em short-year-name} \\
+	     :::= & {\em year} \TT{-} {\em month} \TT{-} {\em day}
+	            {\em era}\QMARK{} \{ \TT{-} {\em weekday} \}\QMARK{} \\
+	      $|$ & {\em year} {\em month-name} {\em day}
+	            {\em era}\QMARK{} \{ \TT{-} {\em weekday} \}\QMARK{} \\
+	      $|$ & {\em year} {\em month-name} \\
+	      $|$ & {\em year} \TT{-} {\em month} {\em era} \\
+	     $|$ & {\em year} {\em era} \\
 	     \end{tabular}
 \label{DATE}
 \\[1ex]
-\emkey{weekday-modifier} :::=  {\em weekday} \TT{-}
+\emkey{year} :::= {\em digit}\PLUS{}
+\\[1ex]
+\emkey{month} :::=  {\em digit}\PLUS{}
+\\[1ex]
+\emkey{day} :::=  {\em digit}\PLUS{}
 \\[1ex]
 \emkey{weekday}
     \begin{tabular}[t]{rl}
@@ -2297,14 +2301,6 @@ A variety of different date formats may be used:
     $|$ & \TT{Sat} $|$ \TT{Saturday} \\
     $|$ & \TT{Sun} $|$ \TT{Sunday} \\
     \end{tabular}
-\\[1ex]
-\emkey{date-number} :::= {\em month}\TT{/}{\em day}\TT{/}{\em year}
-\\[1ex]
-\emkey{month} :::=  {\em digit}\PLUS{}
-\\[1ex]
-\emkey{day} :::=  {\em digit}\PLUS{}
-\\[1ex]
-\emkey{year} :::= {\em digit} {\em digit}\PLUS{}
 \\[1ex]
 \emkey{month-name}
     \begin{tabular}[t]{rl}
@@ -2322,10 +2318,6 @@ A variety of different date formats may be used:
     $|$ & \TT{dec} $|$ \TT{Dec} $|$ \TT{December} \\
     \end{tabular}
 \\[1ex]
-\emkey{year-name} :::=  {\em year} $|$ {\em short-year-name}
-\\[1ex]
-\emkey{short-year-name} :::=  \TT{'} {\em digit} {\em digit}\PLUS{}
-\\[1ex]
 \emkey{era} :::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
                           $|$ \TT{BCG} $|$ \TT{BCJ}
 \end{indpar}
@@ -2341,17 +2333,12 @@ or after 15 October 1582, and Julian otherwise.
 There is no year \TT{0}; \TT{1AD} is immediately preceeded
 by \TT{1BC}.
 
-A date consisting of just a {\em year-name} refers to January 1 of that
-year; e.g., \TT{'05} and \TT{01/01/2005} are the same date.
-A date consisting of just a {\em month-name} and a {\em year-name}
+A date containing just a {\em year} refers to January 1 of that
+year; e.g., \TT{1905AD} and \TT{1905-01-01} are the same date.
+A date consisting of just a {\em year} and a {\em month}
 refers to the first day of the month;
-e.g., \TT{May'05}, \TT{May-05}, and
-\TT{05/01/2005} are the same date.
-
-If no {\em era} is given and the {\em year} is \TT{999} or less,
-the {\em year} is taken to denote the year nearest the current
-year which ends in the same digits as given in {\em year}.
-Thus in 2014 \TT{97} denotes 1997 and \TT{114} denotes 2114.
+e.g., \TT{2005May}, \TT{2005-05AD}, and
+\TT{2005-05-01} are the same date.
 
 A warning message is issued if {\em month} is out of the range
 \TT{1..12}, but the date is still computed letting \TT{0} denote
@@ -2361,16 +2348,16 @@ next year, etc.  A warning message is issued if {\em day} is
 the date is still computed with \TT{0} denoting the last day of
 the previous month, etc.
 
-All {\em dates} are {\em numbers}, as either a digit comes before
-any letter, or a digit is next to a `\TT{-}'.  Some examples are:
+All {\em dates} begin with a {\em digit} and are {\em numbers}.
+Some examples are:
 
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{~~}l@{}}
-01/01/2000	& Jan-2000	 & jan-00	& 15mar44BC
-						& Thursday-03sep1752 \\
-'09		& 101BC		 & 101BCJ	& 101BCG
-						& Mon-08/23/99AD \\
+2000-01-01	& 2000jan	 & 2000-01AD	& 44March15BC
+						& 1752sep03-Thursday \\
+101AD		& 101BC		 & 101BCJ	& 101BCG
+						& 99-08-23AD \\
 \end{tabular}
 \end{indpar}
 
