@@ -2270,26 +2270,39 @@ of this date by one day adds \TT{86,400}.  For example,
 \TT{2,458,522*86,400} represents
 12noon on Thursday, February 7, 2019.
 
-Several different date formats may be used, but all begin with the
+There are a large number of date formats in use around the world,
+and disambiguating them generally required context and intelligence.
+The formats given here are intended to be unambiguously interpreted
+by people and simple computer programs.
+
+The following are the permitted date formats.  All begin with the
 year:
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
-	     :::= & {\em year} \TT{-} {\em month} \TT{-} {\em day}
-	            {\em era}\QMARK{} \{ \TT{-} {\em weekday} \}\QMARK{} \\
-	      $|$ & {\em year} {\em month-name} {\em day}
-	            {\em era}\QMARK{} \{ \TT{-} {\em weekday} \}\QMARK{} \\
-	      $|$ & {\em year} {\em month-name} \\
+	     :::= & {\em long-year} \TT{-} {\em month} \TT{-} {\em day}
+	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
+	      $|$= & {\em year} \TT{-} {\em month} \TT{-} {\em day} {\em era}
+	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
+	      $|$ & {\em long-year} \TT{-}\QMARK{} {\em month-name}
+	            \TT{-}\QMARK{} {\em day}
+	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
+	      $|$ & {\em year} \TT{-}\QMARK{} {\em month-name}
+	            \TT{-}\QMARK{} {\em day} {\em era}
+	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
+	      $|$ & {\em long-year} \TT{-}\QMARK{} {\em month-name} \\
 	      $|$ & {\em year} \TT{-} {\em month} {\em era} \\
 	     $|$ & {\em year} {\em era} \\
 	     \end{tabular}
 \label{DATE}
 \\[1ex]
+\emkey{long-year} :::=  {\em digit} {\em digit} {\em digit} {\em digit}
+\\[1ex]
 \emkey{year} :::= {\em digit}\PLUS{}
 \\[1ex]
-\emkey{month} :::=  {\em digit}\PLUS{}
+\emkey{month} :::=  {\em digit} {\em digit}
 \\[1ex]
-\emkey{day} :::=  {\em digit}\PLUS{}
+\emkey{day} :::=  {\em digit} {\em digit}
 \\[1ex]
 \emkey{weekday}
     \begin{tabular}[t]{rl}
@@ -2322,6 +2335,8 @@ year:
                           $|$ \TT{BCG} $|$ \TT{BCJ}
 \end{indpar}
 
+{\em Years} must be 4 digits unless and {\em era} is given.
+{\em Months} and {\em days} must be 2 digits.
 {\em Weekdays} are superfluous; if they are input and are wrong,
 a warning message is issued.
 
@@ -2353,11 +2368,10 @@ Some examples are:
 
 \begin{indpar}[0.1in]
 \tt
-\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{~~}l@{}}
-2000-01-01	& 2000jan	 & 2000-01AD	& 44March15BC
-						& 1752sep03-Thursday \\
-101AD		& 101BC		 & 101BCJ	& 101BCG
-						& 99-08-23AD \\
+\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
+2000-01-01	& 2000jan	 & 44March15BC & 1752sep03-Thursday \\
+2000-jan01	& 2000-jan-01	 & 44-March-15BC & 1752-sep-03-Thursday \\
+101BC		& 101BCJ	 & 101BCG	& 99-08-23AD \\
 \end{tabular}
 \end{indpar}
 
