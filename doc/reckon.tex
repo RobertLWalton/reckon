@@ -2401,7 +2401,7 @@ time zones are separated from the rest by `\TT{-}'s.
 \label{TIME}
 \\[1ex]
 \emkey{time-interval} :::= {\em hour} \TT{:} {\em minute}
-                          \{ \TT{:} {\em seconds} \}\QMARK{}
+                          \{ \TT{:} {\em second} \}\QMARK{}
 \label{TIME-INTERVAL}
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
@@ -2414,10 +2414,10 @@ time zones are separated from the rest by `\TT{-}'s.
 \\[1ex]
 \emkey{minute} :::= {\em digit} {\em digit}
 \\[1ex]
-\emkey{seconds} :::=
-	{\em digit} {\em digit} {\em fractional-seconds}\QMARK{}
+\emkey{second} :::=
+	{\em digit} {\em digit} {\em fractional-second}\QMARK{}
 \\[1ex]
-\emkey{fractional-seconds} :::= \TT{.} {\em digit}\PLUS{}
+\emkey{fractional-second} :::= \TT{.} {\em digit}\PLUS{}
 	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
 \\[1ex]
@@ -2428,9 +2428,9 @@ time zones are separated from the rest by `\TT{-}'s.
     \begin{tabular}[t]{rl}
     :::= & {\em universal-time-indicator} \\
     $|$ & {\em universal-time-indicator}
-          {\em sign} {\em digit}\QMARK{} {\em digit}
+          {\em sign} {\em digit} {\em digit}
 	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
-    $|$ & {\em defined-time-zoned}
+    $|$ & {\em defined-time-zone-name}
     \end{tabular}
 \\[1ex]
 \emkey{universal-time-indicator} :::= \ttkey{UTC} $|$ \ttkey{GMT}
@@ -2439,26 +2439,27 @@ time zones are separated from the rest by `\TT{-}'s.
 
 
 A {\em time-interval} represents the number
-$60*(60*hour+minute)+seconds$.  A {\em minutes} or
-{\em seconds} value equal to or greater than $60$ merely causes a warning
-message to be issued.
+$60*(60*hour+minute)+second$.  A {\em minute} or
+{\em second} value equal to or greater than $60$ merely causes a warning
+message to be issued.  The {\em hour} and its following `\TT{:}'
+must be given, even if the {\em hour} is \TT{0}.  Any {\em Minute}
+must have 2 digits, which may require a high order \TT{0}.  
+Any {\em second} must have 2 digits before an optional {\em fractional-second}.
 
 A {\em meridiem} limits the {\em time-interval}
 to be equal to or greater than \TT{1:00} and strictly less than
 \TT{13:00}; else a warning message is issued.  A \TT{noon}
 or \TT{midnight} {\em meridiem} limits the {\em time-interval}
 to be equal to \TT{12:00}; else a warning message is issued.
-The absence of a {\em meridiem} limits the {\em time-interval}
-to be equal to or less than \TT{24:00}.
 
 If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
 {\em time-interval} values equal to or greater than \TT{12:00}.
 If \TT{pm} or \TT{PM} is given, $12$ hours is added to
 {\em time-interval} values that are strictly less than \TT{12:00}.
 The time \TT{12:00noon} is interpreted as \TT{12:00} and
-the time \TT{12:00-midnight} is interpreted as \TT{24:00}.
-Note that \TT{12:00am == 0:00}, \TT{12:00pm == 24:00}, and neither
-equal \TT{12:00noon}.
+the time \TT{12:00midnight} is interpreted as \TT{24:00}.
+Note that \TT{12:00am == 0:00}, \TT{12:00pm == 12:00}, and neither
+equal \TT{24:00}.
 
 \begin{boxedfigure}[t]
 
@@ -2547,7 +2548,7 @@ Figure~\ref{PRE-DEFINED-TIME-ZONES}.
 Additional time zones can be defined, or existing time zone
 definitions can be replaced, by the statement:
 \begin{center}
-\TT{define time zone} {\em short-name}
+\TT{define time zone} {\em defined-time-zone-name}
     \TT{`}{\em long-name}\TT{' UTC}$\pm${\em offset}
 \end{center}
 
@@ -2560,21 +2561,22 @@ define time zone BST `Bangladesh Standard Time' UTC+06:00
 define time zone VLAT `Vladivostok Time' UTC+10:00
 \end{verbatim}\end{indpar}
 
-Short names may be capitalized or not in defining statements, and
-similarly in usage.
+{\em Defined-time-zone-names} are {\em words} in which
+capitalization is ignored, both in definition and in usage.
+{\em Long-names} are in effect comments.
 
-All {\em times} are {\em numbers}, as either a digit comes before
-any letter, or a digit is immediately after a `\TT{-}'.  Some examples are:
+All {\em times} are {\em numbers}, as all have a digit before
+any letter.  Some examples are:
 
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{@{}l@{~~}l@{~~}l@{}}
-1:15	& 12:00   & 05:37:23 \\
-1:15am	& 12:00noon   & 05:37:23PM \\
+0:15	& 12:00   & 5:37:23 \\
+12:15am	& 12:00noon   & 05:37:23PM \\
 1:15edt	& 12:00est   & 05:37:23WDT \\
 1:15am-edt	& 12:00midnight-EET   & 05:37:23pm-WDT \\
-May-1975-1:15am-edt	& 05/04/1999-00:00EET   & 05/07/99-17:37:23WDT \\
-may-1975-1:15am-edt	& 04may'99-00:00EET   & 07May99-17:37:23WDT \\
+1975May08-1:15am-edt	& 1999-05-04-00:00EET   & 99-05-07AD-17:37:23WDT \\
+1975may08-1:15am-edt	& 01jan01AD-00:00EET   & 1999May23-17:37:23WDT \\
 \end{tabular}
 \end{indpar}
 
