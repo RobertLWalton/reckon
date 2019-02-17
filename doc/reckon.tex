@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 14, 2019}
+\date{February 17, 2019}
 
 \maketitle
 
@@ -2271,7 +2271,7 @@ of this date by one day adds \TT{86,400}.  For example,
 12noon on Thursday, February 7, 2019.
 
 There are a large number of date formats in use around the world,
-and disambiguating them generally required context and intelligence.
+and disambiguating them generally requires context and intelligence.
 The formats given here are intended to be unambiguously interpreted
 by people and simple computer programs.
 
@@ -2291,7 +2291,7 @@ year:
 	            \TT{-}\QMARK{} {\em day} {\em era}
 	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
 	      $|$ & {\em long-year} \TT{-}\QMARK{} {\em month-name} \\
-	      $|$ & {\em year} \TT{-} {\em month} {\em era} \\
+	      $|$ & {\em year} \TT{-} {\em day-of-year} {\em era} \\
 	     $|$ & {\em year} {\em era} \\
 	     \end{tabular}
 \label{DATE}
@@ -2303,6 +2303,8 @@ year:
 \emkey{month} :::=  {\em digit} {\em digit}
 \\[1ex]
 \emkey{day} :::=  {\em digit} {\em digit}
+\\[1ex]
+\emkey{day-of-year} :::=  {\em digit} {\em digit} {\em digit}
 \\[1ex]
 \emkey{weekday}
     \begin{tabular}[t]{rl}
@@ -2335,8 +2337,11 @@ year:
                           $|$ \TT{BCG} $|$ \TT{BCJ}
 \end{indpar}
 
-{\em Years} must be 4 digits unless and {\em era} is given.
+{\em Years} must be 4 digits unless an {\em era} is given.
 {\em Months} and {\em days} must be 2 digits.
+If {\em day-of-year} is given it must be 3 digits and {\em era}
+must be given.  Where a specific number of digits is required,
+high order zeros may be needed.
 {\em Weekdays} are superfluous; if they are input and are wrong,
 a warning message is issued.
 
@@ -2348,12 +2353,12 @@ or after 15 October 1582, and Julian otherwise.
 There is no year \TT{0}; \TT{1AD} is immediately preceeded
 by \TT{1BC}.
 
-A date containing just a {\em year} refers to January 1 of that
-year; e.g., \TT{1905AD} and \TT{1905-01-01} are the same date.
+A date containing just a ({\em long-}){\em year} refers to January 1 of that
+year; e.g., \TT{1905AD} has the same value as \TT{1905-01-01}.
 A date consisting of just a {\em year} and a {\em month}
 refers to the first day of the month;
-e.g., \TT{2005May}, \TT{2005-05AD}, and
-\TT{2005-05-01} are the same date.
+e.g., \TT{2005May} and
+\TT{2005-05-01} have the same value.
 
 A warning message is issued if {\em month} is out of the range
 \TT{1..12}, but the date is still computed letting \TT{0} denote
@@ -2362,6 +2367,10 @@ next year, etc.  A warning message is issued if {\em day} is
 \TT{0} or too large for the given month and year, but again
 the date is still computed with \TT{0} denoting the last day of
 the previous month, etc.
+A warning message is issued if {\em day-of-year} is
+\TT{0} or too large for the given year, but again
+the date is still computed with \TT{0} denoting the last day of
+the previous year, etc.
 
 All {\em dates} begin with a {\em digit} and are {\em numbers}.
 Some examples are:
