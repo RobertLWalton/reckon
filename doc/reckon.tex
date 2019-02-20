@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 18, 2019}
+\date{February 20, 2019}
 
 \maketitle
 
@@ -3256,27 +3256,34 @@ indent are continuation lines.
 
 \begin{enumerate}
 \item\label{STRING-CONCATENATION}
-If two or more \emskey{quoted-string}s in a logical line are separated by
-\TT{\#} mark lexemes, the strings
+If two \emskey{quoted-string}s in a logical line are separated by
+one or two \TT{\#} \TT{\#} mark lexemes, the strings
 are concatenated \underline{after} {\em character-represen\-ta\-tives}
-have been replaced by the characters they represent.
+have been replaced by the characters they represent.  The separating \TT{\#}
+lexemes are deleted.  More than two {\em quoted-strings} may be concatenated
+together using \TT{\#} lexemes in this way.
 
 Thus \TT{"<" \# "LF" \# ">"} is equivalent to a single {\em quoted-string}
 lexeme with the 4 characters `\TT{<}', `\TT{L}', `\TT{F}', and
 `\TT{>}', whereas \TT{"<LF>"} is a {\em quoted-string} with only
-1 character, a line feed.
+1 character, a line feed.  A multi-line example is:
+\begin{indpar}\begin{verbatim}
+x = "This is a long "#
+   #"sentence."
+\end{verbatim}\end{indpar}
 
 \item\label{MIDDLE-LEXEME-CONCATENATION}
-If two or more \emskey{middle-lexeme}s in a logical line are separated by
-\TT{\#} mark lexemes, the middle lexemes
-are concatenated.
+Two consecutive \emskey{middle-lexeme}s in a logical line are concatenated
+if the first ends with \TT{\#} and the second begins with \TT{\#}.
+More than two {\em middle-lexemes} may be concatenated
+together in this way.
 
 For example,
 
 \begin{indpar}\begin{verbatim}
-This is a word- #
-     that-is-con #
-     tinued.
+This is a word-#
+     #that-is-con#
+     #tinued.
 \end{verbatim}\end{indpar}
 
 translates to the lexeme squence
@@ -3288,9 +3295,9 @@ This is a word-that-is-continued .
 and
 
 \begin{indpar}\begin{verbatim}
-See http://forecast.weather.gov/MapClick.php?
-           # lat=42&lon=
-           # -71#.V036u7
+See http://forecast.weather.gov/MapClick.php?#
+           #lat=42&lon=#
+           #-71#.V036u7
 \end{verbatim}\end{indpar}
 
 translates to the 2 lexeme squence
