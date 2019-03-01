@@ -3260,7 +3260,8 @@ indent are continuation lines.
 \begin{enumerate}
 \item\label{MIDDLE-LEXEME-CONCATENATION}
 Two consecutive \emskey{middle-lexeme}s in a logical line are concatenated
-if the first ends with \TT{\#} and the second begins with \TT{\#}.
+if the first ends with \TT{\#}, the second begins with \TT{\#}, and both
+contain more than just a \TT{\#}.
 More than two {\em middle-lexemes} may be concatenated
 together in this way.
 
@@ -3295,11 +3296,10 @@ http://forecast.weather.gov/MapClick.php?lat=42&lon=-71#.V036u7
 
 \item\label{STRING-CONCATENATION}
 If two \emskey{quoted-string}s in a logical line are separated by
-a \TT{\#} or \TT{\#\#} mark lexeme, the strings
+one or two \TT{\#} mark lexemes, the strings
 are concatenated \underline{after} {\em character-represen\-ta\-tives}
-have been replaced by the characters they represent.  The separating \TT{\#}
-or \TT{\#\#}
-lexeme is deleted.  More than two {\em quoted-strings} may be concatenated
+have been replaced by the characters they represent.  The separating mark
+lexemes are deleted.  More than two {\em quoted-strings} may be concatenated
 together in this way.
 
 Thus \TT{"<" \# "LF" \# ">"} is equivalent to a single {\em quoted-string}
@@ -3307,10 +3307,8 @@ lexeme with the 4 characters `\TT{<}', `\TT{L}', `\TT{F}', and
 `\TT{>}', whereas \TT{"<LF>"} is a {\em quoted-string} with only
 1 character, a line feed.
 
-By rule \ref{MIDDLE-LEXEME-CONCATENATION} above,
-two consecutive \TT{\#} lexemes will be concatenated into a single
-\TT{\#\#} lexeme before this current rule is applied.
-Thus the following multi-line string concatenation example:
+Thus the following multi-line string concatenation example using
+two \TT{\#} mark lexemes:
 \begin{indpar}\begin{verbatim}
 x = "This is a long "#
    #"sentence."
