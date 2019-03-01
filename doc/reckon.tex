@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 20, 2019}
+\date{February 28, 2019}
 
 \maketitle
 
@@ -1843,18 +1843,14 @@ follows:
 \begin{indpar}
 \emkey{middle-lexeme} ::= {\em word} $|$ {\em number} $|$ {\em mark}
 \\[1ex]
-\emkey{number}\label{NUMBER}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em middle-lexeme} with a {\em digit} before any {\em letter} \\
-    $|$ & {\em middle-lexeme} with a {\em digit} immediately after a
-          `\TT{+}' or `\TT{-}' \\
-    \end{tabular}
+\emkey{number}\label{NUMBER} ::=
+    {\em middle-lexeme} with a {\em digit} before any {\em letter}
 \\[1ex]
 \emkey{word}\label{WORD} ::=
-    {\em middle-lexeme} containing a {\em letter} that is not a {\em number}
+    {\em middle-lexeme} with a {\em letter} before any {\em digit}
 \\[1ex]
 \emkey{mark}\label{MARK} ::=
-    {\em middle-lexeme} that is not a {\em word} or {\em number}
+    {\em middle-lexeme} not containing a {\em letter} or {\em digit}
 \\[1ex]
 \emkey{digit}\label{DIGIT} ::=
     UNICODE character in category \TT{Nd}
@@ -1864,7 +1860,7 @@ follows:
     UNICODE character in category \TT{L}
 \end{indpar}
 
-There are many special kinds of {\em numbers}:
+There are many special kinds of {\em number} lexemes:
 \begin{indpar}
     \begin{tabular}[t]{l@{~~~~~}lll}
           & Section & Examples \\[1ex]
@@ -1886,8 +1882,8 @@ There are many special kinds of {\em numbers}:
     & \TT{-0.0098} \\
       {\em date}
     & \itemref{DATE}
-    & \TT{4may2003}
-    & \TT{Fri-May-03} \\
+    & \TT{04may2003}
+    & \TT{03-May-2019-Fri} \\
       {\em time-interval}
     & \itemref{TIME-INTERVAL}
     & \TT{4:30}
@@ -1896,10 +1892,6 @@ There are many special kinds of {\em numbers}:
     & \itemref{TIME}
     & \TT{4:30pm}
     & \TT{20may05:12:30pm-EDT} \\
-      {\em radix-number}
-    & \itemref{RADIX-NUMBER}
-    & \TT{x\#"4b3e"}
-    & \TT{b\#"1.00110101001"e+3}
     \end{tabular}
 \end{indpar}
 
@@ -2023,10 +2015,10 @@ both are represented by \TT{0}, which on input represents $+0$.
 \label{BUILTIN-NUMBER-CONSTANTS}
 \end{boxedfigure}
 
-It is possible to glue several lexemes together using the pseudo-operator
-\ttkey{\#}.  For example,
+It is possible to glue several lexemes together by
+using the lexeme break indicator \ttkey{\#}.  For example,
 \begin{center}
-\tt "Hi" \# " " \# "There" Jack- \# and- \# Ji \# ll
+\tt "Hi"\# \#" "\# \#"There" Jack-\# \#and-\# \#Ji\# \#ll
 \end{center}
 is equivalent to
 \begin{center}
@@ -2038,6 +2030,13 @@ logical line.  A logical line
 may consist of several physical lines, all but the first being
 continuation lines of the first (\itemref{LOGICAL-LINES-AND-PARAGRAPHS}),
 so \TT{\#} can be used to split lexemes across physical lines.
+
+Quoted strings can also be split using \TT{\#} as if it were an operator.
+For example,
+
+\begin{center}
+{\tt "Hi: \# " " \# "There"} ~~~~~ is equivalent to ~~~~~ {\tt "Hi There"}
+\end{center}
 
 
 
@@ -2244,16 +2243,20 @@ in the {\em exponent-part} are always decimal.
 It is possible to continue the {\em quoted-radix-digits} of a radix number
 across physical line
 boundaries using \TT{\#} string concatenation
-(\pagref{STRING-CONCATENATION}).  For example, this can be used
-to represent very long decimal numbers:
+(\pagref{STRING-CONCATENATION}).  For example:
 \begin{center}
 \tt
 \begin{tabular}{l}
-X = D\#"154325615514543561613643161361436754375738383658356"\# \\
-~~~~~~"832842806353457831613867849834174813760467184673489"
+X = D\#"154325615514543561613643161361436754375738383658356" \\
+~~~~~\#"832842806353457831613867849834174813760467184673489"
 \end{tabular}
 \end{center}
 
+Note that a {\em radix-number} consists of two or three separate
+lexemes.  The {\em signed-radix-indicator} is always the first
+lexeme and is a {\em word}.  The {\em quoted-radix-digits}
+is the second lexeme and is a {\em quoted-string}.  The
+{\em exponent-part} is an optional third lexeme and is a {\em word}.
 
 \subsection{Dates}
 \label{DATES}
