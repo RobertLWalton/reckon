@@ -3059,24 +3059,46 @@ Lexemes are contained in \skey{physical line}s,
 and are tagged with the line and column numbers
 of their first character and of the first character following the lexeme
 (or of an imaginary end-of-file character).
-Physical lines that begin with a comment can contain only that comment,
-and are called \skey{comment line}s.
 The beginning column number of the
-first lexeme in a non-blank, non-comment physical line is called
+first lexeme in a non-blank physical line is called
 the \mkey{indent}{of physical line} of the physical line.
-This indent can be used to group lines into \skey{indented subparagraph}s,
+Indents can be used to group lines into \skey{indented subparagraph}s,
 and to indicate that one physical line is a continuation of a
 current \key{logical line}.
-Lines containing only whitespace are called \skey{blank line}s,
-and can be used to separate paragraphs.
+
+Each indented paragraph is a \key{paragraph indent}.
+The \key{top level} behaves like the inside of an indented paragraph
+whose paragraph indent is \TT{0}.
 
 A `\TT{:}' or `\TT{::}'
-lexeme at the end of a physical line begins an
-\key{indented paragraph}.  If the indent of the next non-blank, non-comment
+lexeme at the \underline{end of a physical line} begins an
+\key{indented paragraph}.  If the indent of the next non-blank
 physical line exceeds the current paragraph indent, the indent of this
-line becomes the new current paragraph indent, and this line
+line becomes the new current \key{paragraph indent}, and this line
 begins the first physical line of a new indented paragraph.  Otherwise the
 indented paragraph is empty.
+
+The indented paragraph ends just before the next
+non-blank physical line with less indent than the
+new current paragraph indent, or just before the end of file if that
+occurs first.
+
+A physical line whose indent equals the current paragraph indent
+begins a new \key{logical line}.  The current logical line ends with
+a semi-colon (`\TT{;}'), or just before the next non-blank physical line
+with indent not greater than the current paragraph indent, or
+with an end of file.  Immediately after a logical line ending semi-colon,
+a new logical line is begun.  However, empty logical lines are ignored
+as if they did not exist.
+
+A logical line beginning with a comment lexeme is only allowed to contain
+comment lexemes.  Such a line is called a \key{comment line}.  If a
+logical line that is not a comment line begins with a comment, a
+warning message is issued.
+
+Blank lines and comments that are within a logical line are ignored
+as if they did not exist.  Aside from rules regarding indentation,
+comment lines are ignored as if they did not exist.
 
 As an example, consider the file:
 
@@ -3095,32 +3117,32 @@ And a logical line ending with an indented paragraph:
     The third logical line of the indented
         paragraph containing an indented
         subparagraph:
-        // A warning message will be issued for these
-        // comment lines as they have less indent than
-        // what follows them.
+        // A comment that sets the indented subparagraph
+        // paragraph indent.  A warning will be issued
+        // because this comment begins a non-comment
+        // logical line, but the comment is otherwise
+        // ignored.
 
             Line 1 of subparagraph.
 
-            Line 2 of subparagraph.
+        Line 2 of subparagraph.
 
     The fourth logical line of the indented paragraph.
-// A comment line that is ignored.
-The logical line after the indented paragraph.
+// Two comment lines that end the indented paragraph but
+// are otherwise ignored.
+The logical line after the indented paragraph.  This would
+    end the indented paragraph if the two comment lines
+    above it did not exist.
 \end{verbatim}\end{indpar}
 
-The indented paragraph ends just before the next
-non-blank, non-comment physical line with less indent than the
-new current paragraph indent, or just before the end of file if that
-occurs first.
-An indented paragraph is always the last thing in the logical line that
-contains its beginning `\TT{:}' or `\TT{::}'.
 
-The top level is similar to an indented paragraph with paragraph indent \TT{0}.
+Indented paragraphs are contained with a logical line.  It is a semantic
+(not parsing) error if they are not the last thing in their logical line.
+
+TBD
 
 Both the top level and indented paragraphs can contain \skey{typed paragraph}s.
 There are two kinds of typed paragraphs, code and text.
-
-TBD
 
 A \key{code paragraph}
 consists of a sequence of logical lines,
