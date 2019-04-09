@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 28, 2019}
+\date{April 9, 2019}
 
 \maketitle
 
@@ -3004,7 +3004,7 @@ Some example {\em time-formats} and associated times are:
 \end{tabular}
 \end{center}
 
-\begin{boxedfigure}[!b]
+\begin{boxedfigure}
 \begin{center}
 \begin{tabular}{lp{4.5in}}
 \ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
@@ -3050,6 +3050,8 @@ Some example {\em time-formats} and associated times are:
 \label{TIME-FORMAT-CODES}
 \end{boxedfigure}
 
+\clearpage
+
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
 
@@ -3068,7 +3070,57 @@ current \key{logical line}.
 Lines containing only whitespace are called \skey{blank line}s,
 and can be used to separate paragraphs.
 
-There are two kinds of paragraphs, code and text.
+A `\TT{:}' or `\TT{::}'
+lexeme at the end of a physical line begins an
+\key{indented paragraph}.  If the indent of the next non-blank, non-comment
+physical line exceeds the current paragraph indent, the indent of this
+line becomes the new current paragraph indent, and this line
+begins the first physical line of a new indented paragraph.  Otherwise the
+indented paragraph is empty.
+
+As an example, consider the file:
+
+\begin{indpar}\begin{verbatim}
+This is a logical line.
+And another
+    logical line.
+And a logical line ending with an indented paragraph:
+
+    // A comment line that is ignored.
+    The first logical line of the
+        indented paragraph.
+
+    The second logical line
+        of the indented paragraph.
+    The third logical line of the indented
+        paragraph containing an indented
+        subparagraph:
+        // A warning message will be issued for these
+        // comment lines as they have less indent than
+        // what follows them.
+
+            Line 1 of subparagraph.
+
+            Line 2 of subparagraph.
+
+    The fourth logical line of the indented paragraph.
+// A comment line that is ignored.
+The logical line after the indented paragraph.
+\end{verbatim}\end{indpar}
+
+The indented paragraph ends just before the next
+non-blank, non-comment physical line with less indent than the
+new current paragraph indent, or just before the end of file if that
+occurs first.
+An indented paragraph is always the last thing in the logical line that
+contains its beginning `\TT{:}' or `\TT{::}'.
+
+The top level is similar to an indented paragraph with paragraph indent \TT{0}.
+
+Both the top level and indented paragraphs can contain \skey{typed paragraph}s.
+There are two kinds of typed paragraphs, code and text.
+
+TBD
 
 A \key{code paragraph}
 consists of a sequence of logical lines,
@@ -3119,19 +3171,6 @@ called \skey{continuation line}s, and the entire paragraph is
 a single logical line.
 
 A \key{top level paragraph} is a paragraph whose paragraph indent is \TT{0}.
-
-A `\TT{:}' or `\TT{::}'
-lexeme at the end of a physical line begins a sequence of
-\key{indented subparagraphs}.  If the indent of the next non-blank, non-comment
-physical line exceeds the current paragraph indent, the indent of this
-line becomes the new current paragraph indent, and this line
-begins the first physical line of a new paragraph.  Otherwise the
-sequence of indented subparagraphs is empty.
-
-The sequence of indented subparagraphs ends just before the next
-non-blank, non-comment physical line with less indent than the
-new current paragraph indent, or just before the end of file if that
-occurs first.
 
 At any point there is a \key{current paragraph type} in addition
 to the current paragraph indent.  This type specifies the current
@@ -8444,7 +8483,7 @@ The code of a block has the following syntax:
 	      \ttkey{=} {\em temporary-subblock} \\
 	\end{tabular}
 \\[1ex]
-{\em value-expression} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
+\emkey{value-expression} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
 \\[1ex]
 \emkey{output-variable} ::= {\em variable-name} $|$ {\em next-variable}
 \\[1ex]
