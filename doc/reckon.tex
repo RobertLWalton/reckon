@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 9, 2019}
+\date{April 10, 2019}
 
 \maketitle
 
@@ -3091,13 +3091,16 @@ with an end of file.  Immediately after a logical line ending semi-colon,
 a new logical line is begun.  However, empty logical lines are ignored
 as if they did not exist.
 
+A logical line can consist of several physical lines, the first and last
+of which are non-blank.  All but the first have indents greater than
+the first, and are called \skey{continuation line}s.  Blank lines and
+comment lexemes within a logical line are ignored, as if they did not
+exist.
+
 A logical line beginning with a comment lexeme is only allowed to contain
 comment lexemes.  Such a line is called a \key{comment line}.  If a
 logical line that is not a comment line begins with a comment, a
-warning message is issued.
-
-Blank lines and comments that are within a logical line are ignored
-as if they did not exist.  Aside from rules regarding indentation,
+warning message is issued.  Aside from rules regarding indentation,
 comment lines are ignored as if they did not exist.
 
 As an example, consider the file:
@@ -3136,13 +3139,52 @@ The logical line after the indented paragraph.  This would
 \end{verbatim}\end{indpar}
 
 
-Indented paragraphs are contained with a logical line.  It is a semantic
+Indented paragraphs are contained within a logical line.  It is a semantic
 (not parsing) error if they are not the last thing in their logical line.
+
+As explained so far, the top level, and each indented paragraph,
+consists of a sequence of logical lines that contain code.
+However, in addition to logical lines, these can contain headed paragraphs
+and headed lines which contain text or data.
+
+A paragraph or line header has the syntax:
+\begin{indpar}
+\begin{tabular}{l}
+\emkey{header} ::= {\em prefix} \\
+\emkey{prefix} \begin{tabular}[t]{rl}
+               ::= & \TT{\{}{\em type}\TT{\}} \\
+               $|$ & \TT{\{}{\em type}\TT{:}
+	             {\em attribute-representation}\TT{,} \ldots\TT{\}}
+	       \end{tabular} \\
+{\em attribute-representation} ::= see \pagref{ATTRIBUTE-REPRESENTATION}
+\end{tabular}
+\end{indpar}
+
+A \key{paragraph header} must appear at the beginning of a logical line
+that is just after a blank line, the beginning of the file, or the
+beginning of the containing indented paragraph.
+A \key{headed paragraph} is a paragraph header followed by a single
+logical line that consists of all physical
+lines up to the next non-blank line, the end of the file, or the end
+of the containing indented paragraph.  In this case continuation
+lines need not be indented with respect to the beginning of the
+logical line (i.e., the paragraph header).
+
+A \key{text paragraph} is a headed paragraph with one of the following
+types:
+\begin{center}
+\begin{tabular}{lp{4in}}
+\ttkey{p} & Regular text paragraph. \\
+\ttkey{quote} & Quoted text paragraph (typically indented and italicized). \\
+\ttkey{section} & A section header (generally contains just one short line) \\
+\end{tabular}
+\end{center}
+
+Text paragraph
+
 
 TBD
 
-Both the top level and indented paragraphs can contain \skey{typed paragraph}s.
-There are two kinds of typed paragraphs, code and text.
 
 A \key{code paragraph}
 consists of a sequence of logical lines,
