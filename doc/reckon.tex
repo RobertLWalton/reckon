@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 10, 2019}
+\date{April 11, 2019}
 
 \maketitle
 
@@ -3144,10 +3144,13 @@ Indented paragraphs are contained within a logical line.  It is a semantic
 
 As explained so far, the top level, and each indented paragraph,
 consists of a sequence of logical lines that contain code.
-However, in addition to logical lines, these can contain headed paragraphs
+However, in addition to logical lines, the top level and indented
+paragraphs can contain headed paragraphs
 and headed lines which contain text or data.
 
-A paragraph or line header has the syntax:
+A \key{headed paragraph} begins with a \key{paragraph header}, and
+a \key{headed line} begins with a \key{paragraph line}.  These headers
+have the syntax:
 \begin{indpar}
 \begin{tabular}{l}
 \emkey{header} ::= {\em prefix} \\
@@ -3161,11 +3164,11 @@ A paragraph or line header has the syntax:
 \end{indpar}
 
 A \key{paragraph header} must appear at the beginning of a logical line
-that is just after a blank line, the beginning of the file, or the
+that is just after a blank line, or the beginning of the file, or the
 beginning of the containing indented paragraph.
 A \key{headed paragraph} is a paragraph header followed by a single
 logical line that consists of all physical
-lines up to the next non-blank line, the end of the file, or the end
+lines up to the next non-blank line, or the end of the file, or the end
 of the containing indented paragraph.  In this case continuation
 lines need not be indented with respect to the beginning of the
 logical line (i.e., the paragraph header).
@@ -3180,7 +3183,77 @@ types:
 \end{tabular}
 \end{center}
 
-Text paragraph
+Some examples are:
+\begin{indpar}\begin{verbatim}
+{section}First Example
+
+{p}This is the first paragraph of the first
+        example.  And
+its second sentence.  Line indentation does not
+matter in this paragraph, which is ended by the
+                                next blank line.
+
+{p}This paragraph contains a quote:
+
+{quote} // In text, `:'s do not introduce indented
+        // paragraphs, but you can still use comments.
+Remember to begin at
+the beginning and go to the end.  This quote is a
+                                  paragraph by itself.
+
+{code} // This is needed to end text and return to code.
+       // Otherwise the next line would begin with an
+       // implied `{quote}'.
+
+This is a line of code:
+   And this is a logical line of an indented paragraph.
+   And a second logical line.
+   // In code, `:' can start an indented paragraph.
+
+   {p}But we can have a text paragraph in an indented
+      paragraph.
+
+   {code}This is the third logical line of code.
+
+   {p}Another piece of text.
+And a logical line of code that ends the indented
+    paragraph.
+
+{section}Second Example
+
+This it the first paragraph of
+    the second example.  It begins with an
+implied `{p}' because it was preceeded by a `{section}'.
+
+This is the next paragraph (which also begins
+with an implied `{p}') which
+   contains a quote:
+
+{quote}Simplify, simplify.
+
+{p}
+This is the third paragraph of the section.  If it
+did not begin with `{p}', it would begin with an
+implied `{quote}'.
+
+{code}
+This is a line of code.  If is was not preceeded by
+or begin with `{code}', it would begin with an implied
+`{p}'.
+\end{verbatim}\end{indpar}
+
+Generally a text paragraph installs an \key{implied paragraph header}
+which will be inserted automatically at the beginning of the first
+line after the next blank line, unless that line begins with an
+explicit paragraph header.  For \TT{\{section\}} the implied
+paragraph header is \TT{\{p\}}.  For the others, the implied
+paragraph header is a copy of the explicit paragraph header:
+e.g., for `\TT{\{quote: indent = 5\}}' the implied header will
+be `\TT{\{quote: indent = 5\}}'.  To end text, it is necessary
+to use `\TT{\{code\}}' as if it were a paragraph header, but
+this just deactivates implied headers
+and is otherwise ignored.
+
 
 
 TBD
