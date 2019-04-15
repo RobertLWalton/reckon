@@ -2,9 +2,71 @@
 //
 // File:	reckon_context_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  6 07:04:41 EST 2017
+// Date:	Mon Apr 15 04:51:51 EDT 2019
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+
+{section}First Example
+
+{p}This is the first paragraph of the first
+        example.  And
+its second sentence.  Line indentation does not
+matter in this paragraph, which is ended by the
+                                next blank line.
+
+{p}This paragraph contains a quote:
+
+    {quote} // In text, `:'s do not introduce indented
+            // paragraphs, but you can still use comments,
+            // and you can indent the input paragraph 
+            // as you like.
+            Remember to begin at
+            the beginning and go to the end.  This quote
+                          is a paragraph by itself.
+
+{code} // This is needed to end text and return to code.
+       // Otherwise the next line would begin with an
+       // implied `{quote}'.
+
+This is a line of code:
+   And this is a logical line of an indented paragraph.
+   And a second logical line.
+   // In code, `:' can start an indented paragraph.
+
+   {p}But we can have a text paragraph in an indented
+      paragraph.
+
+   {code}This is the third logical line of code.
+
+   {p}Another piece of text.
+And a logical line of code that ends the indented
+    paragraph.
+
+{section}Second Example
+
+{p}
+This it the first paragraph of
+    the second example.
+
+This is the next paragraph, which begins
+with an implied `{p}', and which
+   contains a quote:
+
+{quote}Simplify, simplify.
+
+{p}
+This is the third paragraph of the section.  If it
+did not begin with `{p}', it would begin with an
+implied `{quote}'.
+
+{code}
+This is a line of code.  If is was not preceeded by
+or begin with `{code}', it would begin with an implied
+`{p}'.

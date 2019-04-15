@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Feb 12 22:23:57 EST 2019
+# Date:		Mon Apr 15 04:37:35 EDT 2019
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,7 +25,7 @@ WFLAGS = -Wall -Wno-char-subscripts
 #
 OPTIMIZE = -O3
 
-RECKON_TESTS = reckon_lexeme_test
+RECKON_TESTS = reckon_lexeme_test reckon_context_test
 
 TESTS = ${RECKON_TESTS}
 
@@ -344,6 +344,11 @@ reckon_lexeme_test.out:	\
 	    reckon reckon_lexeme_test.in
 	rm -f $*.out
 	${RUNENV} reckon --lexeme-test < $*.in > $*.out
+
+reckon_context_test.out:	\
+	    reckon reckon_context_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
 
 clean:
 	rm -f ${TESTS} ${TESTS:=.out} *.o \

@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 15 02:54:52 EST 2019
+// Date:	Mon Apr 15 04:51:07 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,9 +53,7 @@ int main ( int argc, const char * argv[] )
 	return 0;
     }
 
-    PAR::init ( PAR::default_parser, false );
-    PARSTD::init_input ( PAR::default_parser );
-    PARSTD::init_block ( PAR::default_parser );
+    PAR::init ( PAR::default_parser, true );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin,
 	    min::DISPLAY_PICTURE
