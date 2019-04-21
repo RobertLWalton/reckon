@@ -3138,9 +3138,15 @@ The logical line after the indented paragraph.  This would
     above it did not exist.
 \end{verbatim}\end{indpar}
 
+TBD
 
-Indented paragraphs are contained within a logical line.  It is a semantic
-(not parsing) error if they are not the last thing in their logical line.
+Indented paragraphs are contained within a logical line.  They do
+\underline{not} need to be the last thing in their containing logical line.
+The first non-blank physical line of an indented paragraph, the line
+which determines the paragraph indent of the indented paragraph, may
+be a comment line.  Any non-blank physical line with less indent than
+the current paragraph indent ends the indented paragraph, and this line
+too may be a comment line.
 
 As explained so far, the top level, and each indented paragraph,
 consists of a sequence of logical lines that contain code.
@@ -3171,7 +3177,8 @@ logical line that consists of all physical
 lines up to the next non-blank line, or the end of the file, or the end
 of the containing indented paragraph.  In this case continuation
 lines need not be indented with respect to the beginning of the
-logical line (i.e., the paragraph header).
+logical line (i.e., the paragraph header), but if they are in an
+indented paragraph, they should have at least the paragraph indent.
 
 A \key{text paragraph} is a headed paragraph with one of the following
 types:
@@ -3187,7 +3194,7 @@ Some examples are:
 \begin{indpar}\begin{verbatim}
 {section}First Example
 
-{p}This is the first paragraph of the first
+   {p}This is the first paragraph of the first
         example.  And
 its second sentence.  Line indentation does not
 matter in this paragraph, which is ended by the
@@ -3198,9 +3205,9 @@ matter in this paragraph, which is ended by the
 
     {quote} // This quote appears at the end of the
             // logical line containing it.
-            Remember to begin at
-            the beginning and go to the end.  This quote
-                          is a paragraph by itself.
+    Remember to begin at
+    the beginning and go to the end.  This quote
+                  is a paragraph by itself.
 
 {code} // This is needed to end text and return to code.
        // Otherwise the next line would begin with an
@@ -3213,7 +3220,7 @@ This is a line of code:
    And a second logical code line.
 
    {p}But we can have a text paragraph in an indented
-      code paragraph.
+   code paragraph.
 
    {code}This is the third logical line of code.
 
@@ -3227,11 +3234,11 @@ And a logical line of code that ends the indented
 This is the first paragraph of
     the second example.
 
-This is the next paragraph, which begins
+   This is the next paragraph, which begins
 with an implied `{p}', and which
-   introduces a quote:
+   contains a quote:
 
-    {quote}Simplify, simplify.
+    {quote}Simplify, simplify, SMPLFY!
 
 This is the third paragraph of the section.  It begins
 with an implied `{p}'.
@@ -3241,6 +3248,21 @@ This is a line of code.  If is was not preceeded by
      or begin with `{code}', it would begin with
      an implied `{p}'.
 \end{verbatim}\end{indpar}
+
+The part of a file outside headed paragraphs contains code in
+logical lines.
+
+With one exception, headed text paragraphs do not have to
+obey any indentation rules.  The exception is that if the
+the headed paragraph is inside an indented paragraph, all
+lines of the headed paragraph
+must have an indent at least as
+great as the indented paragraph's paragraph indent.
+
+The indent of an indented paragraph is the indent of the
+first non-blank line after the physical line ending `\TT{:}'
+or `\TT{::}' that introduces the indented paragraph.  This
+first non-blank line can be a comment line.
 
 Generally a text paragraph installs an \key{implied paragraph header}
 which will be inserted automatically at the beginning of the first
