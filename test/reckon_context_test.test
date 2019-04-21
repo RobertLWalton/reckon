@@ -3,16 +3,15 @@
     trace [+ subexpression lines]
     trace [+ subexpression elements]
 BRACKETED EXPRESSION:
-    {section|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                  First Example|}|section}
+    {section|{s|First Example|s}|section}
     line ##:
 {section}First Example
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the first paragraph of the first example "." And its
-            second sentence "." Line indentation does not matter in this
-            paragraph "," which is ended by the next blank line "."|}|p}
+    {p|{s: .terminator = "."|This is the first paragraph of the first
+           example|s} {s: .terminator = "."|And its second sentence|s}
+       {s: .terminator = "."|Line indentation does not matter in this
+           paragraph "," which is ended by the next blank line|s}|p}
     lines ##-##:
 {p}This is the first paragraph of the first
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25,24 +24,23 @@ matter in this paragraph, which is ended by the
                                 next blank line.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            paragraph introduces a quote ":"|}|p}
-    line ##:
-{p}This paragraph introduces a quote:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {quote|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                Remember to begin at the beginning and go to the end "."
-                This quote is a paragraph by itself "."|}|quote}
+    {p|{s|This paragraph contains a quote
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {quote|{s: .terminator = "."|Remember to begin at the
+                          beginning and go to the end|s}
+                      {s: .terminator = "."|This quote is a paragraph by
+                          itself|s}|quote}|}|s}|p}
     lines ##-##:
-    {quote} // In text, `:'s do not introduce indented
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // paragraphs, but you can still use comments,
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // and you can indent the input paragraph
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // as you like.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{p}This paragraph contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {quote} // This quote appears at the end of the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            // logical line containing it.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             Remember to begin at
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             the beginning and go to the end.  This quote
@@ -51,29 +49,29 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This is a line of code:
-        And this is a logical line of an indented paragraph "."
-        And a second logical line "."
-        {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                But we can have a text paragraph in an indented
-                paragraph "."|}|p}
+        This is a logical code line of the indented paragraph "."
+        And a second logical code line "."
+        {p|{s: .terminator = "."|But we can have a text paragraph in an
+               indented code paragraph|s}|p}
         This is the third logical line of code "."
-        {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                Another piece of text "."|}|p}
+        {p|{s: .terminator = "."|Another piece of text|s}|p}
     lines ##-##:
 This is a line of code:
 ^^^^^^^^^^^^^^^^^^^^^^^
-   And this is a logical line of an indented paragraph.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   And a second logical line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    // In code, `:' can start an indented paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   This is a logical code
+^^^^^^^^^^^^^^^^^^^^^^^^^
+       line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   And a second logical code line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
    {p}But we can have a text paragraph in an indented
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      paragraph.
-^^^^^^^^^^^^^^^^
+      code paragraph.
+^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
    {code}This is the third logical line of code.
@@ -90,14 +88,13 @@ And a logical line of code that ends the indented
     paragraph.
 ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {section|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                  Second Example|}|section}
+    {section|{s|Second Example|s}|section}
     line ##:
 {section}Second Example
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the first paragraph of the second example "."|}|p}
+    {p|{s: .terminator = "."|This is the first paragraph of the second
+           example|s}|p}
     lines ##-##:
 {p}
 ^^^
@@ -106,9 +103,10 @@ This is the first paragraph of
     the second example.
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the next paragraph "," which begins with an implied
-            `"{" p "}"' "," and which introduces a quote ":"|}|p}
+    {p|{s|This is the next paragraph "," which begins with an implied
+          `"{" p "}"' "," and which introduces a quote
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {quote|{s: .terminator = "."|Simplify "," simplify|s}|quote}|}|s}|p}
     lines ##-##:
 This is the next paragraph, which begins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,26 +114,19 @@ with an implied `{p}', and which
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    introduces a quote:
 ^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {quote}Simplify, simplify.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {quote|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-                Simplify "," simplify "."|}|quote}
-    line ##:
-{quote}Simplify, simplify.
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
-            is the third paragraph of the section "." If it did not
-            begin with `"{" p "}"' "," it would begin with an implied
-            `"{" quote "}"' "."|}|p}
+    {p|{s: .terminator = "."|This is the third paragraph of the
+           section|s}
+       {s: .terminator = "."|It begins with an implied `"{" p "}"'|s}|p}
     lines ##-##:
-{p}
-^^^
-This is the third paragraph of the section.  If it
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-did not begin with `{p}', it would begin with an
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-implied `{quote}'.
-^^^^^^^^^^^^^^^^^^
+This is the third paragraph of the section.  It begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+with an implied `{p}'.
+^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     [$ LOGICAL_LINE $] {|This is a line of code "." If is was not
                          preceeded by or begin with `"{" code "}"'|},
