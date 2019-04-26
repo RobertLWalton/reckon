@@ -3169,8 +3169,6 @@ be a comment line.  Any non-blank physical line with less indent than
 the current paragraph indent ends the indented paragraph, and this
 too may be a comment line.
 
-TBD
-
 As explained so far, the top level, and each indented paragraph,
 consists of a sequence of logical lines that contain code.
 However, in addition to logical lines, the top level and indented
@@ -3230,11 +3228,16 @@ matter in this paragraph, which is ended by the
 {p}This paragraph contains a quote:
     // In text, `:' can start an indented paragraph.
 
-    {quote} // This quote appears at the end of the
-            // logical line containing it.
+    {quote}
     Remember to begin at
     the beginning and go to the end.  This quote
                   is a paragraph by itself.
+        Within the paragraph, indentation does not
+    matter as long as it is at least the paragraph
+           indent.
+    // Comments do not end the paragraph, as they
+    // are not blank lines.
+    So this is the last sentence in the paragraph.
 
 {code} // This is needed to end text and return to code.
        // Otherwise the next line would begin with an
@@ -3271,13 +3274,13 @@ This is the third paragraph of the section.  It begins
 with an implied `{p}'.
 
 {code}
-This is a line of code.  If is was not preceeded by
-     or begin with `{code}', it would begin with
+This is a line of code.  If it was not preceeded by
+     or begun with `{code}', it would begin with
      an implied `{p}'.
 \end{verbatim}\end{indpar}
 
-The part of a file outside headed paragraphs contains code in
-logical lines.
+The part of a file that is outside headed paragraphs contains code in
+logical lines or data in headed logical lines.
 
 Headed text paragraphs must begin at the current paragraph indent
 and not contain any lines with less than the current paragraph indent.
@@ -3292,12 +3295,13 @@ explicit paragraph header or is after the indented paragraph containing
 the text paragraph.  The implied
 paragraph header is a copy of the explicit paragraph header:
 e.g., for `\TT{\{quote: indent = 5\}}' the implied header will
-be `\TT{\{quote: indent = 5\}}'.  The `\TT{\{section\}}' paragraph
-header does \underline{not} install an implied paragraph header.
+be `\TT{\{quote: indent = 5\}}'.
 
-To end text, it is necessary
+The `\TT{\{section\}}' paragraph
+header does \underline{not} install an implied paragraph header.
+To deactivate an implied header, it is necessary
 to use `\TT{\{code\}}' as if it were a paragraph header, but
-this just deactivates implied headers
+this just deactivates any current implied header
 and is otherwise ignored.
 
 
@@ -3305,71 +3309,6 @@ and is otherwise ignored.
 TBD
 
 
-A \key{code paragraph}
-consists of a sequence of logical lines,
-each beginning at the same indent, the \key{paragraph indent}.
-Each logical line can be continued by a physical line with greater
-indent than the paragraph indent that is called a
-\key{continuation line}.  Thus in a code paragraph
-the physical lines:
-
-\begin{indpar}\begin{verbatim}
-This is a line
-     which is continued
-       // A comment.
-   and continued.
-And this is a second line.
-\end{verbatim}\end{indpar}
-
-represent two logical lines containing the lexeme sequences:
-
-\begin{indpar}\begin{verbatim}
-This is a line which is continued and continued .
-\end{verbatim}\end{indpar}
-
-and
-
-\begin{indpar}\begin{verbatim}
-And this is a second line .
-\end{verbatim}\end{indpar}
-
-A \key{text paragraph} consists of a sequence of lexemes taken
-from a sequence of physical lines
-each with an indent at least as great at the paragraph indent.
-Thus in a text paragraph the physical lines:
-
-\begin{indpar}\begin{verbatim}
-This is a line. // With a comment
-And this is a second line.
-\end{verbatim}\end{indpar}
-
-represent the single lexeme sequence:
-
-\begin{indpar}\begin{verbatim}
-This is a line . And this is a second line .
-\end{verbatim}\end{indpar}
-
-In a text paragraph, all lines but the first are
-called \skey{continuation line}s, and the entire paragraph is
-a single logical line.
-
-A \key{top level paragraph} is a paragraph whose paragraph indent is \TT{0}.
-
-At any point there is a \key{current paragraph type} in addition
-to the current paragraph indent.  This type specifies the current
-paragraph kind: code or text.
-
-The paragraph type can be changed by a
-paragraph header that begins the first
-a non-blank, non-comment physical line at the beginning of a file
-or following a blank line.
-A paragraph header can be a prefix
-(\pagref{PREFIX}) of the form
-\begin{center}
-\TT{\{} {\em paragraph-type-name}
-        \{ \TT{:} {\em paragraph-attributes} \}\QMARK{} \TT{\}}
-\end{center}
-Such are called \skey{explicit paragraph header}s.
 
 Or the paragraph header may be implied by the first non-whitespace
 characters of the physical line; for example:
