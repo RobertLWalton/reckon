@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 21, 2019}
+\date{April 26, 2019}
 
 \maketitle
 
@@ -3098,10 +3098,17 @@ comment lexemes within a logical line are ignored, as if they did not
 exist.
 
 A logical line beginning with a comment lexeme is only allowed to contain
-comment lexemes.  Such a line is called a \key{comment line}.  If a
-logical line that is not a comment line begins with a comment, a
-warning message is issued.  Aside from rules regarding indentation,
-comment lines are ignored as if they did not exist.
+comment lexemes.  Such a line is called a \key{comment line}.  A comment
+line may be used as the first line of an indented paragraph which sets
+the paragraph indent, or as the line after an indented paragraph that
+ends the indented paragraph.
+Aside from rules regarding indentation,
+comment lexemes are ignored as if they did not exist.
+However a warning message is issued if a comment lexeme that is not
+inside a comment line (and therefore is in a non-comment logical line)
+is not indented more than the current paragraph
+indent.
+
 
 As an example, consider the file:
 
@@ -3192,13 +3199,11 @@ The following are standard text paragraph header types:
 \end{tabular}
 \end{center}
 
-TBD
-
 Some examples are:
 \begin{indpar}\begin{verbatim}
 {section}First Example
 
-   {p}This is the first paragraph of the first
+{p}This is the first paragraph of the first
         example.  And
 its second sentence.  Line indentation does not
 matter in this paragraph, which is ended by the
@@ -3215,7 +3220,7 @@ matter in this paragraph, which is ended by the
 
 {code} // This is needed to end text and return to code.
        // Otherwise the next line would begin with an
-       // implied `{quote}'.
+       // implied `{p}'.
 
 This is a line of code:
    // In code, `:' can start an indented paragraph.
@@ -3238,7 +3243,7 @@ And a logical line of code that ends the indented
 This is the first paragraph of
     the second example.
 
-   This is the next paragraph, which begins
+This is the next paragraph, which begins
 with an implied `{p}', and which
    contains a quote:
 
@@ -3256,26 +3261,23 @@ This is a line of code.  If is was not preceeded by
 The part of a file outside headed paragraphs contains code in
 logical lines.
 
-With one exception, headed text paragraphs do not have to
-obey any indentation rules.  The exception is that if the
-the headed paragraph is inside an indented paragraph, all
-lines of the headed paragraph
-must have an indent at least as
-great as the indented paragraph's paragraph indent.
-
-The indent of an indented paragraph is the indent of the
-first non-blank line after the physical line ending `\TT{:}'
-or `\TT{::}' that introduces the indented paragraph.  This
-first non-blank line can be a comment line.
+Headed text paragraphs must begin at the current paragraph indent
+and not contain any lines with less than the current paragraph indent.
+Lines of a headed text paragraph other than the first may be indented
+by the current paragraph indent, or by more than the current paragraph
+indent.
 
 Generally a text paragraph installs an \lkey{implied paragraph}{header}
 which will be inserted automatically at the beginning of the first
 line after the next blank line, unless that line begins with an
-explicit paragraph header.  For \TT{\{section\}} the implied
-paragraph header is \TT{\{p\}}.  For the others, the implied
+explicit paragraph header or is after the indented paragraph containing
+the text paragraph.  The implied
 paragraph header is a copy of the explicit paragraph header:
 e.g., for `\TT{\{quote: indent = 5\}}' the implied header will
-be `\TT{\{quote: indent = 5\}}'.  To end text, it is necessary
+be `\TT{\{quote: indent = 5\}}'.  The `\TT{\{section\}}' paragraph
+header does \underline{not} install an implied paragraph header.
+
+To end text, it is necessary
 to use `\TT{\{code\}}' as if it were a paragraph header, but
 this just deactivates implied headers
 and is otherwise ignored.
