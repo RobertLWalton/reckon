@@ -3066,7 +3066,7 @@ Indents can be used to group lines into \skey{indented subparagraph}s,
 and to indicate that one physical line is a continuation of a
 current \key{logical line}.
 
-Each indented paragraph is a \key{paragraph indent}.
+Each indented paragraph has a \key{paragraph indent}.
 The \key{top level} behaves like the inside of an indented paragraph
 whose paragraph indent is \TT{0}.
 
@@ -3080,34 +3080,50 @@ indented paragraph is empty.
 
 The indented paragraph ends just before the next
 non-blank physical line with less indent than the
-new current paragraph indent, or just before the end of file if that
+current paragraph indent, or just before the end of file if that
 occurs first.
 
 A physical line whose indent equals the current paragraph indent
-begins a new \key{logical line}.  The current logical line ends with
+begins a new \key{logical line}.
+A physical line whose indent is greater than the current paragraph indent
+is a \skey{continuation line} that
+continues the current \key{logical line}.
+Blank lines preceeding a continuation line are ignored.
+The current logical line ends with
 a semi-colon (`\TT{;}'), or just before the next non-blank physical line
 with indent not greater than the current paragraph indent, or
 with an end of file.  Immediately after a logical line ending semi-colon,
-a new logical line is begun.  However, empty logical lines are ignored
-as if they did not exist.
+a new logical line is begun.
 
-A logical line can consist of several physical lines, the first and last
-of which are non-blank.  All but the first have indents greater than
-the first, and are called \skey{continuation line}s.  Blank lines and
-comment lexemes within a logical line are ignored, as if they did not
-exist.
+Empty logical lines are ignored
+as if they did not exist, so in the file:
+\begin{indpar}\begin{verbatim}
+This is a first logical line; and a second logical line;
+And a third logical line.
+\end{verbatim}\end{indpar}
+there are only 3 logical lines: the apparent logical line following the second
+`\TT{;}' is empty and is ignored.
+However, a logical line ending with a `\TT{;}' is not ignored, even
+if it is otherwise empty.  Thus in
+\begin{indpar}\begin{verbatim}
+This is a first logical line;;
+a third logical line; and a forth logical line
+\end{verbatim}\end{indpar}
+there are three 4 lines, the second containing just its ending `\TT{;}'.
 
-A logical line beginning with a comment lexeme is only allowed to contain
-comment lexemes.  Such a line is called a \key{comment line}.  A comment
+A comment lexeme which has an indent equal to the current paragraph
+indent can begin a logical line that contains only comment lexemes and
+is called a \key{comment line}.
+A comment
 line may be used as the first line of an indented paragraph which sets
 the paragraph indent, or as the line after an indented paragraph that
 ends the indented paragraph.
+A warning message is issued if a comment lexeme that is not
+inside a comment line
+is not indented more than the current paragraph indent
+(such a comment lexeme begins a logical line that is not a comment line).
 Aside from rules regarding indentation,
 comment lexemes are ignored as if they did not exist.
-However a warning message is issued if a comment lexeme that is not
-inside a comment line (and therefore is in a non-comment logical line)
-is not indented more than the current paragraph
-indent.
 
 
 As an example, consider the file:
@@ -3118,10 +3134,10 @@ And another
     logical line.
 And a logical line ending with an indented paragraph:
 
-    // A comment line that is ignored.
     The first logical line of the
         indented paragraph.
 
+    // A comment line that is ignored.
     The second logical line
         of the indented paragraph.
     The third logical line of the indented
@@ -3150,8 +3166,10 @@ Indented paragraphs are contained within a logical line.  They do
 The first non-blank physical line of an indented paragraph, the line
 which determines the paragraph indent of the indented paragraph, may
 be a comment line.  Any non-blank physical line with less indent than
-the current paragraph indent ends the indented paragraph, and this line
+the current paragraph indent ends the indented paragraph, and this
 too may be a comment line.
+
+TBD
 
 As explained so far, the top level, and each indented paragraph,
 consists of a sequence of logical lines that contain code.
