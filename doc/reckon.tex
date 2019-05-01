@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 30, 2019}
+\date{May 1, 2019}
 
 \maketitle
 
@@ -3304,22 +3304,70 @@ to use `\TT{\{code\}}' as if it were a paragraph header, but
 this just deactivates any current implied header
 and is otherwise ignored.
 
+Besides text paragraphs, there are headed paragraphs that consist
+of a sequence logical lines.  An example is:
+\begin{indpar}\begin{verbatim}
+{table}
+{row}-----------------------------------------------------
+{row}| Name   | Weight   | Height     | Age       | BMI  |
+                                                      /ib/
+{row}-----------------------------------------------------
+{row}| <name> | <weight> | <height>   | <age>     | B
+{row}| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+{row}| George |    205   | 6ft 3in    | 25        |
+{row}| Mary   |    135   | 5ft 5in    | 26        |
+{row}----------------------------------------------
+BMI: Body Mass Index
+B: <body mass index>
+ROW TYPE: person
+SORT ROWS BY: name
+\end{verbatim}\end{indpar}
 
+Here `\TT{\{table\}}' is a paragraph header that introduces
+a headed paragraph consisting of logical lines.  The logical
+lines can each be continued by indented continuation lines
+if neccessary, as is done for the logical line ending with
+`\TT{/ib/}' in the example.  The paragraph ends at the next blank line
+or the end of a containing indented paragraph.
+
+In this example each logical line is itself a headed line,
+with `\TT{\{row\}}' being its line header.
+
+In this particular case the headers may be omitted because
+the first characters of each logical line imply the headers.
+In paragraph position (after a blank line or at the beginning
+of an intented paragraph or at the beginning of the file)
+any line that begins with `\TT{=====}' or `\TT{-{}-{}-{}-{}-}'
+has `\TT{\{table\}\{row\}}' inserted at its beginning.  This
+starts the headed paragraph and supplies its first logical
+line.  Then within the headed paragraph any logical line
+beginning with `\TT{=}', `\TT{-}', or `\TT{|}' has
+`\TT{\{row\}}' inserted at its beginning.  So the following
+is equivalent to the last example:
+\begin{indpar}\begin{verbatim}
+-----------------------------------------------------
+| Name   | Weight   | Height     | Age       | BMI  | /ib/
+-----------------------------------------------------
+| <name> | <weight> | <height>   | <age>     | B
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+| George |    205   | 6ft 3in    | 25        |
+| Mary   |    135   | 5ft 5in    | 26        |
+----------------------------------------------
+BMI: Body Mass Index
+B: <body mass index>
+ROW TYPE: person
+SORT ROWS BY: name
+\end{verbatim}\end{indpar}
 
 TBD
 
 
 
-Or the paragraph header may be implied by the first non-whitespace
-characters of the physical line; for example:
 \begin{center}
 \begin{tabular}{llll}
 \TT{*@}{\em digit}	& implies	& \TT{\{raw\}} 	  & kind is code \\
-\TT{-{}-{}-{}-{}-}	& implies	& \TT{\{table\}}  & kind is code \\
-\TT{={}={}={}={}=}	& implies	& \TT{\{table\}}  & kind is code \\
 \end{tabular}
 \end{center}
-Such are called \slkey{implied paragraph}{header}s.
 
 Brackets enclose subexpressions but do not
 change the current paragraph indent.
@@ -3329,23 +3377,6 @@ of `\TT{\{quoted\}}' type, but the current paragraph
 indent of these is the same as that of the logical line
 containing the \TT{`{}`} opening bracket.
 
-If the first
-a non-blank, non-comment physical line at the beginning of a file
-or following a blank line does \underline{not} begin with an explicit
-or implicit paragraph header, the line either continues the previous
-paragraph,
-or begins a new paragraph of the current paragraph type.
-For example, if the current paragraph type is `\TT{code}',
-the previous paragraph is continued, whereas if it is `\TT{quoted}',
-a new paragraph of `\TT{quoted}' type is begun.
-
-At the beginning of a file the current paragraph indent is \TT{0}
-and the current paragraph type is \TT{\{code\}}.
-The first indented paragraph in a sequence introduced by a physical
-line ending with `\TT{:}' or `\TT{::}' also has type \TT{\{code\}}, unless the
-`\TT{:}' or `\TT{::}' is preceeded by special indentation marks.
-The first paragraph introduced by the \TT{`{}`} opening bracket has
-the `\TT{\{quoted\}}' type.
 
 As an example, consider a file beginning with:
 
