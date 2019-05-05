@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 1, 2019}
+\date{May 5, 2019}
 
 \maketitle
 
@@ -3330,10 +3330,12 @@ if neccessary, as is done for the logical line ending with
 `\TT{/ib/}' in the example.  The paragraph ends at the next blank line
 or the end of a containing indented paragraph.
 
-In this example each logical line is itself a headed line,
-with `\TT{\{row\}}' being its line header.
+In this example some of the logical lines are headed lines,
+with `\TT{\{row\}}' being their line header.
+Other logical lines are not headed: e.g., the line beginning
+with `\TT{BMI:}'.
 
-In this particular case the headers may be omitted because
+In this example the headers may be omitted because
 the first characters of each logical line imply the headers.
 In paragraph position (after a blank line or at the beginning
 of an intented paragraph or at the beginning of the file)
@@ -3359,89 +3361,22 @@ ROW TYPE: person
 SORT ROWS BY: name
 \end{verbatim}\end{indpar}
 
-TBD
+A paragraph headed by an explicit or implied 
+`\TT{\{table\}}' paragraph header is called a \key{table paragraph}.
+A table paragraph can appear anywhere a headed paragraph can appear.
+Table paragraphs do not install implied headers.
 
+A bracketed expression, e.g., \TT{(~\ldots~)}, or a quoted expression,
+e.g., \TT{`~\ldots~'} or \TT{`{}`~\ldots~'{}'},
+must be completely inside a logical line.
+In the case of text paragraphs, the entire paragraph is a single
+logical line, so it suffices to be inside the paragraph.
 
-
-\begin{center}
-\begin{tabular}{llll}
-\TT{*@}{\em digit}	& implies	& \TT{\{raw\}} 	  & kind is code \\
-\end{tabular}
-\end{center}
-
-Brackets enclose subexpressions but do not
-change the current paragraph indent.
-Some brackets enclose a sequence of text paragraphs.
-For example, \TT{`{}`~~'{}'} enclose text paragraphs
-of `\TT{\{quoted\}}' type, but the current paragraph
-indent of these is the same as that of the logical line
-containing the \TT{`{}`} opening bracket.
-
-
-As an example, consider a file beginning with:
-
-\begin{indpar}\begin{verbatim}
-``This is a quoted text paragraph.  And
-a second sentence therein.
-
-And this is a second quoted paragraph
-   with one sentence.''
-
-This is a logical line.
-And another
-    logical line.
-And a logical line ending with an indented code paragraph:
-
-    // A comment line that can be ignored.
-    The first logical line of the
-        indented paragraph.
-
-    The second logical line
-        of the indented paragraph.
-    The third logical line of the indented
-        paragraph containing an indented
-        code subparagraph:
-        // A warning message will be issued
-        // for these comment lines.
-
-            Line 1 of subparagraph.
-
-            Line 2 of subparagraph.
-
-        that is not at the end of this third logical
-             line.
-             // A comment line that can be ignored.
-    The fourth logical line of the indented paragraph.
-    The fifth logical line of the indented
-        paragraph ``And a quoted text paragraph inside the
-    logial line.''
-        but not at the end of the logical line.
-// A comment line that can be ignored.
-The logical line after the indented paragraph.
-\end{verbatim}\end{indpar}
-
-The first is a `\TT{\{code\}}' paragraph that contains a \TT{`{}`~~'{}'}
-bracketed sequence of `\TT{\{quoted\}}' paragraphs.  The quoted
-paragraphs are text paragraphs and while they are being read the
-requirement for indenting continuation lines of a logical
-line is suspended.  The current paragraph type, `\TT{\{code\}}',
-is saved when \TT{`{}`} is encountered and restored when
-\TT{'{}'} is encountered, and the requirement for indenting
-continuation lines is also restored by the \TT{'{}'}.
-
-The third logical line of this paragraph ends with an indented paragraph,
-which is also a `\TT{\{code\}}' paragraph because it was introduced by
-a physical line ending `\TT{:}.
-This indented paragraph has 5 logical lines.  The third
-contains within it (not at its end) another indented subparagraph.
-The fifth contains within it (and not at its end) a
-\TT{`{}`~~'{}'} bracketed `\TT{\{quoted\}}' paragraph, whose lines
-merely need to start at or after the current paragraph indent.
-
-A warning message is issued for any comment line whose indent is
-less that that of the next non-blank, non-comment physical line.
-This applies in the example to the comment lines just before the
-first logical line of the subparagraph.
+A logical line beginning with \TT{@} has the implied line header
+\TT{\{data\}} and is used to enter data.
+A logical line beginning with \TT{!@} has the implied line header
+\TT{\{raw data\}} and is used similarly.
+See the Low Level Data section, \itemref{LOW-LEVEL-DATA}.
 
 There are some special rules for gluing together lexemes within
 a logical line.  When reading these rules, recall that in a text
@@ -3513,8 +3448,8 @@ The following virtual lexemes are used in the rest of this document:
 
 \begin{center}
 \begin{tabular}{ll@{\hspace*{1in}}ll}
-\emkey{bip}	&	begin indented paragraphs &
-\emkey{eip}	&	end indented paragraphs \\[0.5ex]
+\emkey{bip}	&	begin indented paragraph &
+\emkey{eip}	&	end indented paragraph \\[0.5ex]
 \emkey{bll}	&	begin logical line &
 \emkey{ell}	&	end logical line
 \end{tabular}
@@ -3526,14 +3461,16 @@ The sequence
 \end{center}
 denotes use of a physical line ending lexeme (or sequence of several),
 the \emkey{indentation-mark},
-followed by one or more indented paragraphs (the \ldots{}),
-followed by an end to the indented paragraphs.
+followed by an indented paragraph (the {\em bip} \ldots{} {\em eip}).
 Example {\em indentation-marks} are `\TT{:} and `\TT{::}'.
-The {\em indentation-mark}
-determines whether the indented paragraphs are code or text.
-If code, the \ldots{} may be a sequence of logical lines.
+If the line containing the {\em indentation-mark} is a code line,
+the indented paragraph consists of code lines, and if instead the
+containing line is a text line, the indented paragraph has in
+implied \TT{\{p\}} paragraph header, and consists of text subparagraphs
+(unless overridden by \TT{\{code\}}).
 
 \section{Low Level Data}
+\label{LOW-LEVEL-DATA}
 
 A low level \key{datum} in RECKON is either an atom, an object, or an arrow.
 
