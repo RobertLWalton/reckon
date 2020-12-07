@@ -62,6 +62,9 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     So this is the last sentence in the paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ##: non-comments after isolated header; ignored:
+   {***}This is ignored
+        ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     This is a line of code:
         This is a logical code line of the indented paragraph "."
@@ -89,8 +92,12 @@ This is a line of code:
 ^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-   {code}This is the third logical line of code.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   {***}This is ignored
+^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+   This is the third logical line of code.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
    {p}Another piece of text.
@@ -150,14 +157,14 @@ with an implied `{p: indent = 5}'.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     [$ LOGICAL_LINE $] {|This is a line of code "." If it was not
-                         preceeded by or begun with `"{" code "}"'|},
+                         preceeded by or begun with `"{" *** "}"'|},
                        {|it would begin with an implied
                          `"{" p ":" indent = 5 "}"' "."|} "<LF>"
     lines ##-##:
 This is a line of code.  If it was not preceeded by
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     or begun with `{code}', it would begin with
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     or begun with `{***}', it would begin with
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      an implied `{p: indent = 5}'.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -254,3 +261,20 @@ ROW TYPE: person
 ^^^^^^^^^^^^^^^^
 SORT ROWS BY: name
 ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|This is a text paragraph
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {table|{row|=============|row}
+                      {row|"|" A "|" B "|" C "|"|row}
+                      {row|=============|row}|table}|}|s}|p}
+    lines ###-###:
+{p}This is a text paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+        | A | B | C |
+^^^^^^^^^^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
