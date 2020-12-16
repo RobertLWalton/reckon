@@ -1,0 +1,167 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+    trace [+ bracketed subexpressions]
+    trace [+ operator subexpressions]
+BRACKETED EXPRESSION:
+    9
+    line ##:
+9
+^
+NATURAL LEXEME:
+    9
+    line ##:
+9 + 8
+^
+NATURAL LEXEME:
+    8
+    line ##:
+9 + 8
+    ^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|+ 9 8|}
+    line ##:
+9 + 8
+^^^^^
+WORD LEXEME:
+    x
+    line ##:
+x = 9
+^
+NATURAL LEXEME:
+    9
+    line ##:
+x = 9
+    ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= x 9|}
+    line ##:
+x = 9
+^^^^^
+WORD LEXEME:
+    y
+    line ##:
+y = 9 + 8
+^
+NATURAL LEXEME:
+    9
+    line ##:
+y = 9 + 8
+    ^
+NATURAL LEXEME:
+    8
+    line ##:
+y = 9 + 8
+        ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ 9 8|}
+    line ##:
+y = 9 + 8
+    ^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= y {"": .operator = "+"|+ 9 8|}|}
+    line ##:
+y = 9 + 8
+^^^^^^^^^
+WORD LEXEME:
+    x
+    line ##:
+x + y
+^
+WORD LEXEME:
+    y
+    line ##:
+x + y
+    ^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|+ x y|}
+    line ##:
+x + y
+^^^^^
+WORD LEXEME:
+    b
+    line ##:
+f (b, c, x) = b * x + c
+   ^
+WORD LEXEME:
+    c
+    line ##:
+f (b, c, x) = b * x + c
+      ^
+WORD LEXEME:
+    x
+    line ##:
+f (b, c, x) = b * x + c
+         ^
+BRACKETED EXPRESSION:
+    (b, c, x)
+    line ##:
+f (b, c, x) = b * x + c
+  ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|f (b, c, x)|}
+    line ##:
+f (b, c, x) = b * x + c
+^^^^^^^^^^^
+WORD LEXEME:
+    b
+    line ##:
+f (b, c, x) = b * x + c
+              ^
+WORD LEXEME:
+    x
+    line ##:
+f (b, c, x) = b * x + c
+                  ^
+WORD LEXEME:
+    c
+    line ##:
+f (b, c, x) = b * x + c
+                      ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* b x|}
+    line ##:
+f (b, c, x) = b * x + c
+              ^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ {"": .operator = "*"|* b x|} c|}
+    line ##:
+f (b, c, x) = b * x + c
+              ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|f (b, c, x)|}
+         {"": .operator = "+"|+ {"": .operator = "*"|* b x|} c|}|}
+    line ##:
+f (b, c, x) = b * x + c
+^^^^^^^^^^^^^^^^^^^^^^^
+NATURAL LEXEME:
+    10
+    line ##:
+f (10, x, y)
+   ^^
+WORD LEXEME:
+    x
+    line ##:
+f (10, x, y)
+       ^
+WORD LEXEME:
+    y
+    line ##:
+f (10, x, y)
+          ^
+BRACKETED EXPRESSION:
+    (10, x, y)
+    line ##:
+f (10, x, y)
+  ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    f (10, x, y)
+    line ##:
+f (10, x, y)
+^^^^^^^^^^^^
