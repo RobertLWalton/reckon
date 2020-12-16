@@ -25,7 +25,8 @@ WFLAGS = -Wall -Wno-char-subscripts
 #
 OPTIMIZE = -O3
 
-RECKON_TESTS = reckon_lexeme_test reckon_bracketed_test
+RECKON_TESTS = reckon_lexeme_test reckon_bracketed_test \
+               reckon_snippet_test
 
 TESTS = ${RECKON_TESTS}
 
@@ -119,6 +120,11 @@ reckon_lexeme_test.out:	\
 
 reckon_bracketed_test.out:	\
 	    reckon reckon_bracketed_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
+
+reckon_snippet_test.out:	\
+	    reckon reckon_snippet_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
