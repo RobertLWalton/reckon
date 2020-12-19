@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Dec  3 02:30:12 EST 2020
+# Date:		Sat Dec 19 06:36:31 EST 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -26,7 +26,7 @@ WFLAGS = -Wall -Wno-char-subscripts
 OPTIMIZE = -O3
 
 RECKON_TESTS = reckon_lexeme_test reckon_bracketed_test \
-               reckon_snippet_test
+	       reckon_snippet_test
 
 TESTS = ${RECKON_TESTS}
 
@@ -67,7 +67,7 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-            < $*.out > $*.test
+	    < $*.out > $*.test
 
 %.diff:	%.out
 	@echo DIFFING $*.test $*.out
@@ -94,14 +94,27 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-            < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
+	    < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
 
 %.out:	%
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
+reckon_parser.o:            \
+	    ../src/reckon_parser.cc \
+	    ../include/reckon.h \
+	    ${LAYERED}/lib/liblayered.a \
+	    ${MIN}/lib/libmin.a \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -c ../src/reckon_parser.cc
+
 reckon:		\
 	    ../src/reckon.cc \
+	    reckon_parser.o \
+	    ../include/reckon.h \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a \
 	    Makefile
@@ -110,6 +123,7 @@ reckon:		\
 	    -I ${LAYERED}/include -I ${MIN}/include \
 	    -o $@ \
 	    ../src/reckon.cc \
+	    reckon_parser.o \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a
 

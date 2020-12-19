@@ -2,30 +2,19 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 15 04:51:07 EDT 2019
+// Date:	Sat Dec 19 06:24:01 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// Table of Contents
-//
-
-// Usage and Setup
-// ----- --- -----
-
-# include <ll_parser_standard.h>
-# define MUP min::unprotected
+# include <reckon.h>
+# include <ll_lexeme_test.h>
+# define REC reckon
 # define PAR ll::parser
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
-# define PARSTD ll::parser::standard
 
-// # include <ll_lexeme.h>
-# include <ll_lexeme_test.h>
-// # include <ll_lexeme_standard.h>
-// # include <iostream>
-// # include <cassert>
 
 int main ( int argc, const char * argv[] )
 {
@@ -54,13 +43,14 @@ int main ( int argc, const char * argv[] )
     }
 
     PAR::init ( PAR::default_parser, true );
+    PAR::init_ostream
+        ( PAR::default_parser, std::cout );
+    REC::init_parser ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin,
 	    min::DISPLAY_PICTURE
 	  + min::DISPLAY_NON_GRAPHIC
 	  + min::DISPLAY_EOL );
-    PAR::init_ostream
-        ( PAR::default_parser, std::cout );
     PAR::init_line_display
 	( PAR::default_parser,
 	  min::DISPLAY_PICTURE );
