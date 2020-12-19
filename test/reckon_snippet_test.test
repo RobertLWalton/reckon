@@ -33,6 +33,7 @@
                       with parsing selectors [- atom, + code]
         block standard: bracket "[" ... "]" [data, code, math, text]
         block TOP LEVEL: bracket "[" ... "]" [data]
+        block reckon: bracket "`" ... "'" [atom]
         block standard: bracket "`" ... "'" [data, code, math, text]
                         with parsing selectors [- data, + atom, - code,
                                                 - math, - text]
@@ -246,3 +247,34 @@ BRACKETED EXPRESSION:
     line ##:
 `[g] there'
 ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [g]
+    line ##:
+z = `I thought he said `[g]'.'
+                        ^^^
+BRACKETED EXPRESSION:
+    `[g]'
+    line ##:
+z = `I thought he said `[g]'.'
+                       ^^^^^
+BRACKETED EXPRESSION:
+    `I thought he said `[g]' "."'
+    line ##:
+z = `I thought he said `[g]'.'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    z
+    line ##:
+z = `I thought he said `[g]'.'
+^
+BRACKETED EXPRESSION:
+    `I thought he said `[g]' "."'
+    line ##:
+z = `I thought he said `[g]'.'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= z `I thought he said `[g]' "."'|}
+    line ##:
+z = `I thought he said `[g]'.'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
