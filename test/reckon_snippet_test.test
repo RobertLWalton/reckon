@@ -278,3 +278,336 @@ BRACKETED EXPRESSION:
     line ##:
 z = `I thought he said `[g]'.'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NATURAL LEXEME:
+    10
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+       ^^
+WORD LEXEME:
+    x
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+            ^
+NATURAL LEXEME:
+    2
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                ^
+BRACKETED EXPRESSION:
+    {# 3.67 #}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                    ^^^^
+WORD LEXEME:
+    x
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                           ^
+BRACKETED EXPRESSION:
+    {# 0.04 #}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                               ^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "^"|^ x 2|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+            ^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+       ^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 3.67 #} x|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                    ^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                  ^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "-"|- {# 0.04 #}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                             ^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+
+         {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
+         {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
+         {"": .operator = "-"|- {# 0.04 #}|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = [< "}" "}" >], .initiator =
+         [< "{" "{" >]|+
+         {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
+         {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
+         {"": .operator = "-"|- {# 0.04 #}|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    f
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = [< "}" "}" >], .initiator =
+         [< "{" "{" >]|+
+         {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
+         {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
+         {"": .operator = "-"|- {# 0.04 #}|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= f
+         {"": .operator = "+", .terminator = [< "}" "}" >], .initiator =
+              [< "{" "{" >]|+
+              {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
+              {"": .operator = "-"|-
+                   {"": .operator = "*"|* {# 3.67 #} x|}|}
+              {"": .operator = "-"|- {# 0.04 #}|}|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.96 #}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+       ^^^^
+BRACKETED EXPRESSION:
+    {# 0.67 #}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+              ^^^^
+WORD LEXEME:
+    x
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+                     ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "-"|- {# 0.96 #}|}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+     ^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 0.67 #} x|}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+              ^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ {"": .operator = "-"|- {# 0.96 #}|}
+         {"": .operator = "*"|* {# 0.67 #} x|}|}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+     ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = ")", .initiator = "("|+
+         {"": .operator = "-"|- {# 0.96 #}|}
+         {"": .operator = "*"|* {# 0.67 #} x|}|}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+    ^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    h
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+^
+PURELIST EXPRESSION:
+    {|{"": .operator = "+", .terminator = ")", .initiator = "("|+
+           {"": .operator = "-"|- {# 0.96 #}|}
+           {"": .operator = "*"|* {# 0.67 #} x|}|} in x|}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= h
+         {|{"": .operator = "+", .terminator = ")", .initiator = "("|+
+                {"": .operator = "-"|- {# 0.96 #}|}
+                {"": .operator = "*"|* {# 0.67 #} x|}|} in x|}|}
+    line ##:
+h = (- 0.96 + 0.67 * x) in x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    f
+    line ##:
+(f + h) in x
+ ^
+WORD LEXEME:
+    h
+    line ##:
+(f + h) in x
+     ^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|}
+    line ##:
+(f + h) in x
+^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|} in
+        x
+    line ##:
+(f + h) in x
+^^^^^^^^^^^^
+WORD LEXEME:
+    f
+    line ##:
+solve (f + h = 0) for x
+       ^
+WORD LEXEME:
+    h
+    line ##:
+solve (f + h = 0) for x
+           ^
+NATURAL LEXEME:
+    0
+    line ##:
+solve (f + h = 0) for x
+               ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ f h|}
+    line ##:
+solve (f + h = 0) for x
+       ^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "="|= {"": .operator = "+"|+ f h|} 0|}
+    line ##:
+solve (f + h = 0) for x
+       ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = ")", .initiator = "("|=
+         {"": .operator = "+"|+ f h|} 0|}
+    line ##:
+solve (f + h = 0) for x
+      ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    solve
+        {"": .operator = "=", .terminator = ")", .initiator = "("|=
+             {"": .operator = "+"|+ f h|} 0|} for x
+    line ##:
+solve (f + h = 0) for x
+^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    f
+    line ##:
+(f + h) at (x = (3, 4, 5))
+ ^
+WORD LEXEME:
+    h
+    line ##:
+(f + h) at (x = (3, 4, 5))
+     ^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|}
+    line ##:
+(f + h) at (x = (3, 4, 5))
+^^^^^^^
+NATURAL LEXEME:
+    3
+    line ##:
+(f + h) at (x = (3, 4, 5))
+                 ^
+NATURAL LEXEME:
+    4
+    line ##:
+(f + h) at (x = (3, 4, 5))
+                    ^
+NATURAL LEXEME:
+    5
+    line ##:
+(f + h) at (x = (3, 4, 5))
+                       ^
+BRACKETED EXPRESSION:
+    (3, 4, 5)
+    line ##:
+(f + h) at (x = (3, 4, 5))
+                ^^^^^^^^^
+WORD LEXEME:
+    x
+    line ##:
+(f + h) at (x = (3, 4, 5))
+            ^
+BRACKETED EXPRESSION:
+    (3, 4, 5)
+    line ##:
+(f + h) at (x = (3, 4, 5))
+                ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = ")", .initiator = "("|= x
+         (3, 4, 5)|}
+    line ##:
+(f + h) at (x = (3, 4, 5))
+           ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|} at
+        {"": .operator = "=", .terminator = ")", .initiator = "("|= x
+             (3, 4, 5)|}
+    line ##:
+(f + h) at (x = (3, 4, 5))
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    x
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                 ^
+NATURAL LEXEME:
+    2
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                     ^
+WORD LEXEME:
+    dx
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                         ^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "^"|^ x 2|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                 ^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {"": .operator = "^"|^ x 2|} dx|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                 ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "*", .terminator = ")", .initiator = "("|*
+         {"": .operator = "^"|^ x 2|} dx|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{integral
+      {"": .operator = "*", .terminator = ")", .initiator = "("|*
+           {"": .operator = "^"|^ x 2|} dx|}}}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    g
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+^
+BRACKETED EXPRESSION:
+    {{integral
+      {"": .operator = "*", .terminator = ")", .initiator = "("|*
+           {"": .operator = "^"|^ x 2|} dx|}}}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= g
+         {{integral
+           {"": .operator = "*", .terminator = ")", .initiator = "("|*
+                {"": .operator = "^"|^ x 2|} dx|}}}|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
