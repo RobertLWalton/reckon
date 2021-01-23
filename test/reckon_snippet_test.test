@@ -29,11 +29,13 @@
                          with multivalue reformatter ( "," )
         block standard: bracket "(" ... ")" [data, code, math, text]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block reckon: bracket "[" ... "]" [atom]
-                      with parsing selectors [- atom, + code]
+        block reckon: bracket "[" ... "]" [code, text]
+                      with parsing selectors [- code, + math, - text]
         block standard: bracket "[" ... "]" [data, code, math, text]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block reckon: bracket "`" ... "'" [atom]
+        block reckon: bracket "`" ... "'" [code, math, text]
+                      with parsing selectors [- data, - code, - math,
+                                              + text]
         block standard: bracket "`" ... "'" [data, code, math, text]
                         with parsing selectors [- data, + atom, - code,
                                                 - math, - text]
@@ -611,3 +613,115 @@ BRACKETED EXPRESSION:
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    simplify g
+    line ##:
+simplify g
+^^^^^^^^^^
+WORD LEXEME:
+    x
+    line ##:
+v = g from (x = 1) to (x = 5)
+            ^
+NATURAL LEXEME:
+    1
+    line ##:
+v = g from (x = 1) to (x = 5)
+                ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+    line ##:
+v = g from (x = 1) to (x = 5)
+           ^^^^^^^
+WORD LEXEME:
+    x
+    line ##:
+v = g from (x = 1) to (x = 5)
+                       ^
+NATURAL LEXEME:
+    5
+    line ##:
+v = g from (x = 1) to (x = 5)
+                           ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}
+    line ##:
+v = g from (x = 1) to (x = 5)
+                      ^^^^^^^
+WORD LEXEME:
+    v
+    line ##:
+v = g from (x = 1) to (x = 5)
+^
+PURELIST EXPRESSION:
+    {|g from
+      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+      to
+      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}|}
+    line ##:
+v = g from (x = 1) to (x = 5)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= v
+         {|g from
+           {"": .operator = "=", .terminator = ")", .initiator = "("|= x
+                1|} to
+           {"": .operator = "=", .terminator = ")", .initiator = "("|= x
+                5|}|}|}
+    line ##:
+v = g from (x = 1) to (x = 5)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [g]
+    line ##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+                      ^^^
+BRACKETED EXPRESSION:
+    (x=1)
+    line ##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+                               ^^^^^
+BRACKETED EXPRESSION:
+    (x=5)
+    line ##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+                                        ^^^^^
+BRACKETED EXPRESSION:
+    {{[g] from (x=1) to (x=5)}}
+    line ##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [v]
+    line ##:
+       is [v].'
+          ^^^
+BRACKETED EXPRESSION:
+    `The value of {{[g] from (x=1) to (x=5)}} is [v] "."'
+    lines ##-##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       is [v].'
+^^^^^^^^^^^^^^^
+WORD LEXEME:
+    out
+    line ##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+^^^
+BRACKETED EXPRESSION:
+    `The value of {{[g] from (x=1) to (x=5)}} is [v] "."'
+    lines ##-##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       is [v].'
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= out
+         `The value of {{[g] from (x=1) to (x=5)}} is [v] "."'|}
+    lines ##-##:
+out = `The value of {{[g] from (x=1) to (x=5)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       is [v].'
+^^^^^^^^^^^^^^^
