@@ -675,53 +675,806 @@ v = g from (x = 1) to (x = 5)
 BRACKETED EXPRESSION:
     [g]
     line ##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
                       ^^^
-BRACKETED EXPRESSION:
-    (x=1)
+WORD LEXEME:
+    x
     line ##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
-                               ^^^^^
-BRACKETED EXPRESSION:
-    (x=5)
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                                ^
+NATURAL LEXEME:
+    1
     line ##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
-                                        ^^^^^
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                                    ^
 BRACKETED EXPRESSION:
-    {{[g] from (x=1) to (x=5)}}
+    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
     line ##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                               ^^^^^^^
+WORD LEXEME:
+    x
+    line ##:
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                                           ^
+NATURAL LEXEME:
+    5
+    line ##:
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                                               ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}
+    line ##:
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                                          ^^^^^^^
+BRACKETED EXPRESSION:
+    {{[g] from
+      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+      to
+      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}}}
+    line ##:
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     [v]
     line ##:
        is [v].'
           ^^^
 BRACKETED EXPRESSION:
-    `The value of {{[g] from (x=1) to (x=5)}} is [v] "."'
+    `The value of
+     {{[g] from
+       {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+       to
+       {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}}}
+     is [v] "."'
     lines ##-##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        is [v].'
 ^^^^^^^^^^^^^^^
 WORD LEXEME:
     out
     line ##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
 ^^^
 BRACKETED EXPRESSION:
-    `The value of {{[g] from (x=1) to (x=5)}} is [v] "."'
+    `The value of
+     {{[g] from
+       {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+       to
+       {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}}}
+     is [v] "."'
     lines ##-##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        is [v].'
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .operator = "=", .terminator = "<LF>", .initiator =
          [$ LOGICAL_LINE $]|= out
-         `The value of {{[g] from (x=1) to (x=5)}} is [v] "."'|}
+         `The value of
+          {{[g] from
+            {"": .operator = "=", .terminator = ")", .initiator = "("|=
+                 x 1|} to
+            {"": .operator = "=", .terminator = ")", .initiator = "("|=
+                 x 5|}}} is [v] "."'|}
     lines ##-##:
-out = `The value of {{[g] from (x=1) to (x=5)}}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+out = `The value of {{[g] from (x = 1) to (x = 5)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        is [v].'
 ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|1 2 3|}
+    line ##:
+V =# {| 1 2 3 |}
+     ^^^^^^^^^^^
+WORD LEXEME:
+    V
+    line ##:
+V =# {| 1 2 3 |}
+^
+PURELIST EXPRESSION:
+    {|1 2 3|}
+    line ##:
+V =# {| 1 2 3 |}
+     ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=#", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|=# V {|1 2 3|}|}
+    line ##:
+V =# {| 1 2 3 |}
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    0 1 1
+    line ##:
+   0   1   1
+   ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# -1 #} 1 0
+    line ##:
+   -1  1   0
+   ^^^^^^^^^
+BRACKETED EXPRESSION:
+    1 0 {# -1 #}
+    line ##:
+   1   0  -1
+   ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|0 1
+              1|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {# -1 #} 1 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|1 0
+              {# -1 #}|}|}
+    lines ##-##:
+M =#:
+    ^
+   0   1   1
+^^^^^^^^^^^^
+   -1  1   0
+^^^^^^^^^^^^
+   1   0  -1
+^^^^^^^^^^^^
+WORD LEXEME:
+    M
+    line ##:
+M =#:
+^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|0 1
+              1|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {# -1 #} 1 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|1 0
+              {# -1 #}|}|}
+    lines ##-##:
+M =#:
+    ^
+   0   1   1
+^^^^^^^^^^^^
+   -1  1   0
+^^^^^^^^^^^^
+   1   0  -1
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=#", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|=# M
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|0 1 1|}
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|{# -1 #} 1 0|}
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|1 0 {# -1 #}|}|}|}
+    lines ##-##:
+M =#:
+^^^^^
+   0   1   1
+^^^^^^^^^^^^
+   -1  1   0
+^^^^^^^^^^^^
+   1   0  -1
+^^^^^^^^^^^^
+WORD LEXEME:
+    V
+    line ##:
+V ^ T
+^
+WORD LEXEME:
+    T
+    line ##:
+V ^ T
+    ^
+BRACKETED EXPRESSION:
+    {"": .operator = "^", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|^ V T|}
+    line ##:
+V ^ T
+^^^^^
+WORD LEXEME:
+    M
+    line ##:
+M * V ^ T
+^
+WORD LEXEME:
+    V
+    line ##:
+M * V ^ T
+    ^
+WORD LEXEME:
+    T
+    line ##:
+M * V ^ T
+        ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "^"|^ V T|}
+    line ##:
+M * V ^ T
+    ^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "*", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|* M {"": .operator = "^"|^ V T|}|}
+    line ##:
+M * V ^ T
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line ##:
+    name = `Jack'
+           ^^^^^^
+WORD LEXEME:
+    name
+    line ##:
+    name = `Jack'
+    ^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line ##:
+    name = `Jack'
+           ^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= name `Jack'|}
+    line ##:
+    name = `Jack'
+    ^^^^^^^^^^^^^
+WORD LEXEME:
+    weight
+    line ##:
+    weight = 123 lb
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|123 lb|}
+    line ##:
+    weight = 123 lb
+             ^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= weight {|123 lb|}|}
+    line ##:
+    weight = 123 lb
+    ^^^^^^^^^^^^^^^
+WORD LEXEME:
+    height
+    line ##:
+    height = 5 ft 9 in
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|5 ft 9 in|}
+    line ##:
+    height = 5 ft 9 in
+             ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= height {|5 ft 9 in|}|}
+    line ##:
+    height = 5 ft 9 in
+    ^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    age
+    line ##:
+    age = 23 yr 2 mo
+    ^^^
+PURELIST EXPRESSION:
+    {|23 yr 2 mo|}
+    line ##:
+    age = 23 yr 2 mo
+          ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= age {|23 yr 2 mo|}|}
+    line ##:
+    age = 23 yr 2 mo
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= name `Jack'|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= weight {|123 lb|}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= height {|5 ft 9 in|}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= age {|23 yr 2 mo|}|}|}
+    lines ##-##:
+a person:
+        ^
+    name = `Jack'
+^^^^^^^^^^^^^^^^^
+    weight = 123 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 9 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 23 yr 2 mo
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    a person:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= name `Jack'|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= weight {|123 lb|}|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= height {|5 ft 9 in|}|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= age {|23 yr 2 mo|}|}
+    lines ##-##:
+a person:
+^^^^^^^^^
+    name = `Jack'
+^^^^^^^^^^^^^^^^^
+    weight = 123 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 9 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 23 yr 2 mo
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line ##:
+    name = `Jill'
+           ^^^^^^
+WORD LEXEME:
+    name
+    line ##:
+    name = `Jill'
+    ^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line ##:
+    name = `Jill'
+           ^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= name `Jill'|}
+    line ##:
+    name = `Jill'
+    ^^^^^^^^^^^^^
+WORD LEXEME:
+    weight
+    line ##:
+    weight = 110 lb
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|110 lb|}
+    line ##:
+    weight = 110 lb
+             ^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= weight {|110 lb|}|}
+    line ##:
+    weight = 110 lb
+    ^^^^^^^^^^^^^^^
+WORD LEXEME:
+    height
+    line ##:
+    height = 5 ft 7 in
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|5 ft 7 in|}
+    line ##:
+    height = 5 ft 7 in
+             ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= height {|5 ft 7 in|}|}
+    line ##:
+    height = 5 ft 7 in
+    ^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    age
+    line ##:
+    age = 21 yr 8 mo
+    ^^^
+PURELIST EXPRESSION:
+    {|21 yr 8 mo|}
+    line ##:
+    age = 21 yr 8 mo
+          ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= age {|21 yr 8 mo|}|}
+    line ##:
+    age = 21 yr 8 mo
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= name `Jill'|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= weight {|110 lb|}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= height {|5 ft 7 in|}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= age {|21 yr 8 mo|}|}|}
+    lines ##-##:
+a person:
+        ^
+    name = `Jill'
+^^^^^^^^^^^^^^^^^
+    weight = 110 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 7 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 21 yr 8 mo
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    a person:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= name `Jill'|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= weight {|110 lb|}|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= height {|5 ft 7 in|}|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= age {|21 yr 8 mo|}|}
+    lines ##-##:
+a person:
+^^^^^^^^^
+    name = `Jill'
+^^^^^^^^^^^^^^^^^
+    weight = 110 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 7 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 21 yr 8 mo
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the person named Jack's height
+    line ##:
+the person named Jack's height
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the weight of the person named Jack
+    line ##:
+the weight of the person named Jack
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|body mass index|}
+    line ##:
+    body mass index = 703.06958 * weight in lbs
+    ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 703.06958 #}
+    line ##:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|weight in lbs|}
+    line ##:
+    body mass index = 703.06958 * weight in lbs
+                                  ^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|height in inches|}
+    line ##:
+                    / height in inches ^ 2
+                      ^^^^^^^^^^^^^^^^
+NATURAL LEXEME:
+    2
+    line ##:
+                    / height in inches ^ 2
+                                         ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 703.06958 #} {|weight in lbs|}|}
+    line ##:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "^"|^ {|height in inches|} 2|}
+    line ##:
+                    / height in inches ^ 2
+                      ^^^^^^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "/"|/
+         {"": .operator = "*"|* {# 703.06958 #} {|weight in lbs|}|}
+         {"": .operator = "^"|^ {|height in inches|} 2|}|}
+    lines ##-##:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|body mass index|}
+         {"": .operator = "/"|/
+              {"": .operator = "*"|* {# 703.06958 #} {|weight in lbs|}|}
+              {"": .operator = "^"|^ {|height in inches|} 2|}|}|}
+    lines ##-##:
+    body mass index = 703.06958 * weight in lbs
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|body mass index|}
+              {"": .operator = "/"|/
+                   {"": .operator = "*"|* {# 703.06958 #}
+                        {|weight in lbs|}|}
+                   {"": .operator = "^"|^ {|height in inches|} 2|}|}|}|}
+    lines ##-##:
+for every person:
+                ^
+    body mass index = 703.06958 * weight in lbs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    for every person:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= {|body mass index|}
+             {"": .operator = "/"|/
+                  {"": .operator = "*"|* {# 703.06958 #}
+                       {|weight in lbs|}|}
+                  {"": .operator = "^"|^ {|height in inches|} 2|}|}|}
+    lines ##-##:
+for every person:
+^^^^^^^^^^^^^^^^^
+    body mass index = 703.06958 * weight in lbs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Sum of integers from X through Y "."'
+    line ##:
+    `Sum of integers from X through Y.'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Sum of integers from X through Y "."'
+    line ##:
+    `Sum of integers from X through Y.'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    X
+    line ##:
+    if (X > Y):
+        ^
+WORD LEXEME:
+    Y
+    line ##:
+    if (X > Y):
+            ^
+BRACKETED EXPRESSION:
+    {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
+    line ##:
+    if (X > Y):
+       ^^^^^^^
+WORD LEXEME:
+    value
+    line ##:
+        value = 0
+        ^^^^^
+NATURAL LEXEME:
+    0
+    line ##:
+        value = 0
+                ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= value 0|}
+    line ##:
+        value = 0
+        ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= value 0|}|}
+    lines ##-##:
+    if (X > Y):
+              ^
+        value = 0
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    if {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= value 0|}
+    lines ##-##:
+    if (X > Y):
+    ^^^^^^^^^^^
+        value = 0
+^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    X
+    line ##:
+        value = X + sum (X + 1) through Y
+                         ^
+NATURAL LEXEME:
+    1
+    line ##:
+        value = X + sum (X + 1) through Y
+                             ^
+BRACKETED EXPRESSION:
+    {"": .operator = "+", .terminator = ")", .initiator = "("|+ X 1|}
+    line ##:
+        value = X + sum (X + 1) through Y
+                        ^^^^^^^
+WORD LEXEME:
+    value
+    line ##:
+        value = X + sum (X + 1) through Y
+        ^^^^^
+WORD LEXEME:
+    X
+    line ##:
+        value = X + sum (X + 1) through Y
+                ^
+PURELIST EXPRESSION:
+    {|sum
+      {"": .operator = "+", .terminator = ")", .initiator = "("|+ X 1|}
+      through Y|}
+    line ##:
+        value = X + sum (X + 1) through Y
+                    ^^^^^^^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ X
+         {|sum
+           {"": .operator = "+", .terminator = ")", .initiator = "("|+ X
+                1|} through Y|}|}
+    line ##:
+        value = X + sum (X + 1) through Y
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= value
+         {"": .operator = "+"|+ X
+              {|sum
+                {"": .operator = "+", .terminator = ")", .initiator =
+                     "("|+ X 1|} through Y|}|}|}
+    line ##:
+        value = X + sum (X + 1) through Y
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= value
+              {"": .operator = "+"|+ X
+                   {|sum
+                     {"": .operator = "+", .terminator = ")",
+                          .initiator = "("|+ X 1|} through Y|}|}|}|}
+    lines ##-##:
+    else:
+        ^
+        value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    else:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= value
+             {"": .operator = "+"|+ X
+                  {|sum
+                    {"": .operator = "+", .terminator = ")",
+                         .initiator = "("|+ X 1|} through Y|}|}|}
+    lines ##-##:
+    else:
+    ^^^^^
+        value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              `Sum of integers from X through Y "."'|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
+              {"": .operator = ">", .terminator = ")", .initiator = "("|
+                   > X Y|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= value 0|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= value
+                        {"": .operator = "+"|+ X
+                             {|sum
+                               {"": .operator = "+", .terminator = ")",
+                                    .initiator = "("|+ X 1|} through Y|}|}|}|}|}|}
+    lines ##-##:
+                          is an integer Y:
+                                         ^
+    `Sum of integers from X through Y.'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if (X > Y):
+^^^^^^^^^^^^^^^
+        value = 0
+^^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|sum from X through Y|}
+    line ##:
+sum from X through Y <-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer X|}
+    line ##:
+sum from X through Y <-- is an integer X,
+                         ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer Y|}
+    line ##:
+                          is an integer Y:
+                          ^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|is an integer X|}, {|is an integer Y|}|}
+    lines ##-##:
+sum from X through Y <-- is an integer X,
+                         ^^^^^^^^^^^^^^^^
+                          is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "<--", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|<-- {|sum from X through Y|}
+         {|{|is an integer X|}, {|is an integer Y|}|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|
+                   `Sum of integers from X through Y "."'|}
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|if
+                   {"": .operator = ">", .terminator = ")", .initiator =
+                        "("|> X Y|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|= value 0|}|}|}
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|else
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|= value
+                             {"": .operator = "+"|+ X
+                                  {|sum
+                                    {"": .operator = "+", .terminator =
+                                         ")", .initiator = "("|+ X 1|}
+                                    through Y|}|}|}|}|}|}|}
+    lines ##-##:
+sum from X through Y <-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    `Sum of integers from X through Y.'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if (X > Y):
+^^^^^^^^^^^^^^^
+        value = 0
+^^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    sum from 5 through 10
+    line ##:
+sum from 5 through 10
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (sums from X through Y)
+    line ##:
+all (sums from X through Y)
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    all (sums from X through Y)
+    line ##:
+all (sums from X through Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    sum from 1 through 2
+    line ##:
+sum from 1 through 2
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (sums from X through Y)
+    line ##:
+all (sums from X through Y)
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    all (sums from X through Y)
+    line ##:
+all (sums from X through Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 05:49:36 EST 2021
+// Date:	Sat Jan 23 12:24:28 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,11 +19,13 @@
 
 # include <reckon.h>
 # include <ll_parser_bracketed.h>
+# include <ll_parser_oper.h>
 # define REC reckon
 # define RLEX reckon::lexeme
 # define PAR ll::parser
 # define BRA ll::parser::bracketed
 # define TAB ll::parser::table
+# define OP ll::parser::oper
 
 
 // Reckon Parser
@@ -52,6 +54,16 @@ void REC::init_parser ( PAR::parser parser )
 
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
+
+    OP::oper_pass oper_pass = min::NULL_STUB;
+    PAR::pass pass = parser->pass_stack;
+    while (    oper_pass == min::NULL_STUB
+            && pass != min::NULL_STUB )
+    {
+        oper_pass = (OP::oper_pass) pass;
+	pass = pass->next;
+    }
+    MIN_REQUIRE ( oper_pass != min::NULL_STUB );
 
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
@@ -83,6 +95,10 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "[" ) );
     min::locatable_gen closing_square
         ( min::new_str_gen ( "]" ) );
+    min::locatable_gen equal_number_sign
+        ( min::new_str_gen ( "=#" ) );
+    min::locatable_gen right_associative
+        ( min::new_lab_gen ( "right", "associative" ) );
 
     BRA::push_brackets
         ( opening_quote,
@@ -101,6 +117,19 @@ void REC::init_parser ( PAR::parser parser )
 	  TAB::new_flags ( math, text + code, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
+
+    OP::push_oper
+        ( equal_number_sign,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  1000,
+	  PAR::find_reformatter
+	      ( right_associative,
+	        OP::reformatter_stack ),
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
 
 }
 
