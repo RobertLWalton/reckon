@@ -1478,3 +1478,287 @@ BRACKETED EXPRESSION:
     line ##:
 all (sums from X through Y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Sum of integers from X through Y "."'
+    line ##:
+    `Sum of integers from X through Y.'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Sum of integers from X through Y "."'
+    line ##:
+    `Sum of integers from X through Y.'
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|first sum|}
+    line ##:
+    first sum = 0
+    ^^^^^^^^^
+NATURAL LEXEME:
+    0
+    line ##:
+    first sum = 0
+                ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|first sum|} 0|}
+    line ##:
+    first sum = 0
+    ^^^^^^^^^^^^^
+WORD LEXEME:
+    X
+    line ##:
+    if ( X <= Y ):
+         ^
+WORD LEXEME:
+    Y
+    line ##:
+    if ( X <= Y ):
+              ^
+BRACKETED EXPRESSION:
+    {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X Y|}
+    line ##:
+    if ( X <= Y ):
+       ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next sum|}
+    line ##:
+        next sum = sum + X
+        ^^^^^^^^
+WORD LEXEME:
+    sum
+    line ##:
+        next sum = sum + X
+                   ^^^
+WORD LEXEME:
+    X
+    line ##:
+        next sum = sum + X
+                         ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ sum X|}
+    line ##:
+        next sum = sum + X
+                   ^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|next sum|}
+         {"": .operator = "+"|+ sum X|}|}
+    line ##:
+        next sum = sum + X
+        ^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next X|}
+    line ##:
+        next X = X + 1
+        ^^^^^^
+WORD LEXEME:
+    X
+    line ##:
+        next X = X + 1
+                 ^
+NATURAL LEXEME:
+    1
+    line ##:
+        next X = X + 1
+                     ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ X 1|}
+    line ##:
+        next X = X + 1
+                 ^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|next X|} {"": .operator = "+"|+ X 1|}|}
+    line ##:
+        next X = X + 1
+        ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|next sum|}
+              {"": .operator = "+"|+ sum X|}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|next X|}
+              {"": .operator = "+"|+ X 1|}|}|}
+    lines ##-##:
+    if ( X <= Y ):
+                 ^
+        next sum = sum + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    if {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X
+            Y|}:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= {|next sum|}
+             {"": .operator = "+"|+ sum X|}|}
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= {|next X|}
+             {"": .operator = "+"|+ X 1|}|}
+    lines ##-##:
+    if ( X <= Y ):
+    ^^^^^^^^^^^^^^
+        next sum = sum + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    value
+    line ##:
+        value = sum
+        ^^^^^
+WORD LEXEME:
+    sum
+    line ##:
+        value = sum
+                ^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= value sum|}
+    line ##:
+        value = sum
+        ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= value sum|}|}
+    lines ##-##:
+    else:
+        ^
+        value = sum
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    else:
+        {"": .operator = "=", .terminator = "<LF>", .initiator =
+             [$ LOGICAL_LINE $]|= value sum|}
+    lines ##-##:
+    else:
+    ^^^^^
+        value = sum
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              `Sum of integers from X through Y "."'|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|first sum|} 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
+              {"": .operator = "<=", .terminator = ")", .initiator =
+                   "("|<= X Y|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next sum|}
+                        {"": .operator = "+"|+ sum X|}|}
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next X|}
+                        {"": .operator = "+"|+ X 1|}|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= value sum|}|}|}|}
+    lines ##-##:
+                         is an integer Y:
+                                        ^
+    `Sum of integers from X through Y.'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    first sum = 0
+^^^^^^^^^^^^^^^^^
+    if ( X <= Y ):
+^^^^^^^^^^^^^^^^^^
+        next sum = sum + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        value = sum
+^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|sum from X through Y|}
+    line ##:
+sum from X through Y <-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer X|}
+    line ##:
+sum from X through Y <-- is an integer X,
+                         ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer Y|}
+    line ##:
+                         is an integer Y:
+                         ^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|is an integer X|}, {|is an integer Y|}|}
+    lines ##-##:
+sum from X through Y <-- is an integer X,
+                         ^^^^^^^^^^^^^^^^
+                         is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "<--", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|<-- {|sum from X through Y|}
+         {|{|is an integer X|}, {|is an integer Y|}|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|
+                   `Sum of integers from X through Y "."'|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|first sum|} 0|}
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|if
+                   {"": .operator = "<=", .terminator = ")",
+                        .initiator = "("|<= X Y|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next sum|}
+                             {"": .operator = "+"|+ sum X|}|}
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next X|} {"": .operator = "+"|+ X 1|}|}|}|}
+              {"": .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|else
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|= value
+                             sum|}|}|}|}|}
+    lines ##-##:
+sum from X through Y <-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    `Sum of integers from X through Y.'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    first sum = 0
+^^^^^^^^^^^^^^^^^
+    if ( X <= Y ):
+^^^^^^^^^^^^^^^^^^
+        next sum = sum + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        value = sum
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    sum from 5 through 10
+    line ##:
+sum from 5 through 10
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (sums from X through Y)
+    line ##:
+all ( sums from X through Y)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    all (sums from X through Y)
+    line ##:
+all ( sums from X through Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
