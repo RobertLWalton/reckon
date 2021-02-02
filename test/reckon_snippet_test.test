@@ -1229,137 +1229,106 @@ BRACKETED EXPRESSION:
 WORD LEXEME:
     X
     line ##:
-    if (X > Y):
+    if (X > Y):   value = 0
         ^
 WORD LEXEME:
     Y
     line ##:
-    if (X > Y):
+    if (X > Y):   value = 0
             ^
 BRACKETED EXPRESSION:
     {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
     line ##:
-    if (X > Y):
+    if (X > Y):   value = 0
+       ^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
+    line ##:
+    if (X > Y):   value = 0
        ^^^^^^^
 WORD LEXEME:
     value
     line ##:
-        value = 0
-        ^^^^^
+    if (X > Y):   value = 0
+                  ^^^^^
 NATURAL LEXEME:
     0
     line ##:
-        value = 0
-                ^
-BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value 0|}
+    if (X > Y):   value = 0
+                          ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "="|= value 0|}
     line ##:
-        value = 0
-        ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value 0|}|}
-    lines ##-##:
-    if (X > Y):
-              ^
-        value = 0
-^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
-    line ##:
-    if (X > Y):
-       ^^^^^^^
+    if (X > Y):   value = 0
+                  ^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .operator = "if", .terminator = "<LF>", .initiator =
          [$ LOGICAL_LINE $]|if
          {"": .operator = ">", .terminator = ")", .initiator = "("|> X
-              Y|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= value 0|}|}|}
-    lines ##-##:
-    if (X > Y):
-    ^^^^^^^^^^^
-        value = 0
-^^^^^^^^^^^^^^^^^
+              Y|} ":" {"": .operator = "="|= value 0|}|}
+    line ##:
+    if (X > Y):   value = 0
+    ^^^^^^^^^^^^^^^^^^^^^^^
 WORD LEXEME:
     X
     line ##:
-        value = X + sum (X + 1) through Y
-                         ^
+    else:         value = X + sum (X + 1) through Y
+                                   ^
 NATURAL LEXEME:
     1
     line ##:
-        value = X + sum (X + 1) through Y
-                             ^
+    else:         value = X + sum (X + 1) through Y
+                                       ^
 BRACKETED EXPRESSION:
     {"": .operator = "+", .terminator = ")", .initiator = "("|+ X 1|}
     line ##:
-        value = X + sum (X + 1) through Y
-                        ^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+                                  ^^^^^^^
 WORD LEXEME:
     value
     line ##:
-        value = X + sum (X + 1) through Y
-        ^^^^^
+    else:         value = X + sum (X + 1) through Y
+                  ^^^^^
 WORD LEXEME:
     X
     line ##:
-        value = X + sum (X + 1) through Y
-                ^
+    else:         value = X + sum (X + 1) through Y
+                          ^
 PURELIST EXPRESSION:
     {|sum
       {"": .operator = "+", .terminator = ")", .initiator = "("|+ X 1|}
       through Y|}
     line ##:
-        value = X + sum (X + 1) through Y
-                    ^^^^^^^^^^^^^^^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+                              ^^^^^^^^^^^^^^^^^^^^^
 BRACKETABLE EXPRESSION:
     {"": .operator = "+"|+ X
          {|sum
            {"": .operator = "+", .terminator = ")", .initiator = "("|+ X
                 1|} through Y|}|}
     line ##:
-        value = X + sum (X + 1) through Y
-                ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value
+    else:         value = X + sum (X + 1) through Y
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "="|= value
          {"": .operator = "+"|+ X
               {|sum
                 {"": .operator = "+", .terminator = ")", .initiator =
                      "("|+ X 1|} through Y|}|}|}
     line ##:
-        value = X + sum (X + 1) through Y
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value
+    {"": .operator = "else", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|else ":"
+         {"": .operator = "="|= value
               {"": .operator = "+"|+ X
                    {|sum
                      {"": .operator = "+", .terminator = ")",
                           .initiator = "("|+ X 1|} through Y|}|}|}|}
-    lines ##-##:
-    else:
-        ^
-        value = X + sum (X + 1) through Y
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    else:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= value
-             {"": .operator = "+"|+ X
-                  {|sum
-                    {"": .operator = "+", .terminator = ")",
-                         .initiator = "("|+ X 1|} through Y|}|}|}
-    lines ##-##:
-    else:
-    ^^^^^
-        value = X + sum (X + 1) through Y
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line ##:
+    else:         value = X + sum (X + 1) through Y
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
@@ -1367,33 +1336,23 @@ BRACKETED EXPRESSION:
          {"": .operator = "if", .terminator = "<LF>", .initiator =
               [$ LOGICAL_LINE $]|if
               {"": .operator = ">", .terminator = ")", .initiator = "("|
-                   > X Y|}
-              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-                   ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= value 0|}|}|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
-              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-                   ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= value
-                        {"": .operator = "+"|+ X
-                             {|sum
-                               {"": .operator = "+", .terminator = ")",
-                                    .initiator = "("|+ X 1|} through Y|}|}|}|}|}|}
+                   > X Y|} ":" {"": .operator = "="|= value 0|}|}
+         {"": .operator = "else", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|else ":"
+              {"": .operator = "="|= value
+                   {"": .operator = "+"|+ X
+                        {|sum
+                          {"": .operator = "+", .terminator = ")",
+                               .initiator = "("|+ X 1|} through Y|}|}|}|}|}
     lines ##-##:
                           is an integer Y:
                                          ^
     `Sum of integers from X through Y.'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    if (X > Y):
-^^^^^^^^^^^^^^^
-        value = 0
-^^^^^^^^^^^^^^^^^
-    else:
-^^^^^^^^^
-        value = X + sum (X + 1) through Y
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if (X > Y):   value = 0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|sum from X through Y|}
     line ##:
@@ -1427,22 +1386,15 @@ BRACKETED EXPRESSION:
               {"": .operator = "if", .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|if
                    {"": .operator = ">", .terminator = ")", .initiator =
-                        "("|> X Y|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|= value 0|}|}|}
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|else
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|= value
-                             {"": .operator = "+"|+ X
-                                  {|sum
-                                    {"": .operator = "+", .terminator =
-                                         ")", .initiator = "("|+ X 1|}
-                                    through Y|}|}|}|}|}|}|}
+                        "("|> X Y|} ":"
+                   {"": .operator = "="|= value 0|}|}
+              {"": .operator = "else", .terminator = "<LF>",
+                   .initiator = [$ LOGICAL_LINE $]|else ":"
+                   {"": .operator = "="|= value
+                        {"": .operator = "+"|+ X
+                             {|sum
+                               {"": .operator = "+", .terminator = ")",
+                                    .initiator = "("|+ X 1|} through Y|}|}|}|}|}|}
     lines ##-##:
 sum from X through Y <-- is an integer X,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1450,14 +1402,10 @@ sum from X through Y <-- is an integer X,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     `Sum of integers from X through Y.'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    if (X > Y):
-^^^^^^^^^^^^^^^
-        value = 0
-^^^^^^^^^^^^^^^^^
-    else:
-^^^^^^^^^
-        value = X + sum (X + 1) through Y
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if (X > Y):   value = 0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     sum from 5 through 10
     line ##:
@@ -1956,28 +1904,28 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 WORD LEXEME:
     value
-    line ###:
+    line ##:
         value = sum / count
         ^^^^^
 WORD LEXEME:
     sum
-    line ###:
+    line ##:
         value = sum / count
                 ^^^
 WORD LEXEME:
     count
-    line ###:
+    line ##:
         value = sum / count
                       ^^^^^
 BRACKETABLE EXPRESSION:
     {"": .operator = "/"|/ sum count|}
-    line ###:
+    line ##:
         value = sum / count
                 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .operator = "=", .terminator = "<LF>", .initiator =
          [$ LOGICAL_LINE $]|= value {"": .operator = "/"|/ sum count|}|}
-    line ###:
+    line ##:
         value = sum / count
         ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1985,17 +1933,19 @@ BRACKETED EXPRESSION:
          {"": .operator = "=", .terminator = "<LF>", .initiator =
               [$ LOGICAL_LINE $]|= value
               {"": .operator = "/"|/ sum count|}|}|}
-    lines ##-###:
+    lines ##-##:
     else:
         ^
         value = sum / count
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    else:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= value
-             {"": .operator = "/"|/ sum count|}|}
-    lines ##-###:
+    {"": .operator = "else", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|else
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= value
+                   {"": .operator = "/"|/ sum count|}|}|}|}
+    lines ##-##:
     else:
     ^^^^^
         value = sum / count
@@ -2027,13 +1977,14 @@ BRACKETED EXPRESSION:
                    {"": .operator = "=", .terminator = "<LF>",
                         .initiator = [$ LOGICAL_LINE $]|= value
                         {|error ``Cannot average 0 things "."''|}|}|}|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
+         {"": .operator = "else", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|else
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
                    {"": .operator = "=", .terminator = "<LF>",
                         .initiator = [$ LOGICAL_LINE $]|= value
                         {"": .operator = "/"|/ sum count|}|}|}|}|}
-    lines ##-###:
+    lines ##-##:
 average weight of X <-- list X of persons:
                                          ^
     count = 0
@@ -2100,14 +2051,14 @@ BRACKETED EXPRESSION:
                         {"": .operator = "=", .terminator = "<LF>",
                              .initiator = [$ LOGICAL_LINE $]|= value
                              {|error ``Cannot average 0 things "."''|}|}|}|}
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|else
+              {"": .operator = "else", .terminator = "<LF>",
+                   .initiator = [$ LOGICAL_LINE $]|else
                    {"": .terminator = [$ INDENTED_PARAGRAPH $],
                         .initiator = ":"|
                         {"": .operator = "=", .terminator = "<LF>",
                              .initiator = [$ LOGICAL_LINE $]|= value
                              {"": .operator = "/"|/ sum count|}|}|}|}|}|}
-    lines ##-###:
+    lines ##-##:
 average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     count = 0
@@ -2132,12 +2083,12 @@ average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (all persons)
-    line ###:
+    line ##:
 average weight of (all persons)
                   ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     average weight of (all persons)
-    line ###:
+    line ##:
 average weight of (all persons)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:

@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  2 01:26:45 EST 2021
+// Date:	Tue Feb  2 08:02:23 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,8 +99,12 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "=#" ) );
     min::locatable_gen if_name
         ( min::new_str_gen ( "if" ) );
+    min::locatable_gen else_name
+        ( min::new_str_gen ( "else" ) );
     min::locatable_gen while_name
         ( min::new_str_gen ( "while" ) );
+    min::locatable_gen colon
+        ( min::new_str_gen ( ":" ) );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
@@ -148,6 +152,16 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
+        ( else_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  0, min::NULL_STUB,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
         ( while_name,
 	  min::MISSING(),
 	  code,
@@ -155,6 +169,16 @@ void REC::init_parser ( PAR::parser parser )
 	  OP::NOFIX,
 	  0, min::NULL_STUB,
 	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( colon,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX + OP::AFIX,
+	  0,
+	  min::NULL_STUB, min::NULL_STUB,
 	  oper_pass->oper_table );
 
 }
