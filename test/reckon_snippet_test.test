@@ -1267,9 +1267,18 @@ BRACKETED EXPRESSION:
         value = 0
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    if {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= value 0|}
+    {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
+    line ##:
+    if (X > Y):
+       ^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "if", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|if
+         {"": .operator = ">", .terminator = ")", .initiator = "("|> X
+              Y|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= value 0|}|}|}
     lines ##-##:
     if (X > Y):
     ^^^^^^^^^^^
@@ -1355,7 +1364,8 @@ BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               `Sum of integers from X through Y "."'|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
+         {"": .operator = "if", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|if
               {"": .operator = ">", .terminator = ")", .initiator = "("|
                    > X Y|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
@@ -1414,7 +1424,7 @@ BRACKETED EXPRESSION:
               {"": .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|
                    `Sum of integers from X through Y "."'|}
-              {"": .terminator = "<LF>", .initiator =
+              {"": .operator = "if", .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|if
                    {"": .operator = ">", .terminator = ")", .initiator =
                         "("|> X Y|}
@@ -1588,15 +1598,22 @@ BRACKETED EXPRESSION:
         next X = X + 1
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    while
-        {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X
-             Y|}:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= {|next value|}
-             {"": .operator = "+"|+ value X|}|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= {|next X|}
-             {"": .operator = "+"|+ X 1|}|}
+    {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X Y|}
+    line ##:
+    while ( X <= Y ):
+          ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "while", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|while
+         {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X
+              Y|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next value|}
+                   {"": .operator = "+"|+ value X|}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next X|}
+                   {"": .operator = "+"|+ X 1|}|}|}|}
     lines ##-##:
     while ( X <= Y ):
     ^^^^^^^^^^^^^^^^^
@@ -1610,8 +1627,8 @@ BRACKETED EXPRESSION:
               `Sum of integers from X through Y "."'|}
          {"": .operator = "=", .terminator = "<LF>", .initiator =
               [$ LOGICAL_LINE $]|= value 0|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-              while
+         {"": .operator = "while", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|while
               {"": .operator = "<=", .terminator = ")", .initiator =
                    "("|<= X Y|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
@@ -1667,8 +1684,8 @@ BRACKETED EXPRESSION:
                    `Sum of integers from X through Y "."'|}
               {"": .operator = "=", .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|= value 0|}
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|while
+              {"": .operator = "while", .terminator = "<LF>",
+                   .initiator = [$ LOGICAL_LINE $]|while
                    {"": .operator = "<=", .terminator = ")",
                         .initiator = "("|<= X Y|}
                    {"": .terminator = [$ INDENTED_PARAGRAPH $],
@@ -1841,46 +1858,34 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next X = rest X
 ^^^^^^^^^^^^^^^^^^^^^^^
-PURELIST EXPRESSION:
-    {|while X|}
+WORD LEXEME:
+    X
     line ##:
     while X != ():
-    ^^^^^^^
-PURELIST EXPRESSION:
-    {|()
-      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-           {"": .operator = "=", .terminator = "<LF>", .initiator =
-                [$ LOGICAL_LINE $]|= {|next count|}
-                {"": .operator = "+"|+ count 1|}|}
-           {"": .operator = "=", .terminator = "<LF>", .initiator =
-                [$ LOGICAL_LINE $]|= {|next sum|}
-                {"": .operator = "+"|+ sum {|the weight of (first X)|}|}|}
-           {"": .operator = "=", .terminator = "<LF>", .initiator =
-                [$ LOGICAL_LINE $]|= {|next X|} {|rest X|}|}|}|}
-    lines ##-##:
-    while X != ():
-               ^^^
-        next count = count + 1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        next sum = sum + the weight of (first X)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        next X = rest X
-^^^^^^^^^^^^^^^^^^^^^^^
+          ^
 BRACKETED EXPRESSION:
-    {"": .operator = "!=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|!= {|while X|}
-         {|()
-           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-                ":"|
-                {"": .operator = "=", .terminator = "<LF>", .initiator =
-                     [$ LOGICAL_LINE $]|= {|next count|}
-                     {"": .operator = "+"|+ count 1|}|}
-                {"": .operator = "=", .terminator = "<LF>", .initiator =
-                     [$ LOGICAL_LINE $]|= {|next sum|}
-                     {"": .operator = "+"|+ sum
-                          {|the weight of (first X)|}|}|}
-                {"": .operator = "=", .terminator = "<LF>", .initiator =
-                     [$ LOGICAL_LINE $]|= {|next X|} {|rest X|}|}|}|}|}
+    ()
+    line ##:
+    while X != ():
+               ^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "!="|!= X ()|}
+    line ##:
+    while X != ():
+          ^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "while", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|while {"": .operator = "!="|!= X ()|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next count|}
+                   {"": .operator = "+"|+ count 1|}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next sum|}
+                   {"": .operator = "+"|+ sum
+                        {|the weight of (first X)|}|}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next X|} {|rest X|}|}|}|}
     lines ##-##:
     while X != ():
     ^^^^^^^^^^^^^^
@@ -1922,31 +1927,28 @@ BRACKETED EXPRESSION:
                  ^
         value = error ``Cannot average 0 things.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-PURELIST EXPRESSION:
-    {|if count|}
+WORD LEXEME:
+    count
     line ##:
     if count == 0:
-    ^^^^^^^^
-PURELIST EXPRESSION:
-    {|0
-      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-           {"": .operator = "=", .terminator = "<LF>", .initiator =
-                [$ LOGICAL_LINE $]|= value
-                {|error ``Cannot average 0 things "."''|}|}|}|}
-    lines ##-##:
+       ^^^^^
+NATURAL LEXEME:
+    0
+    line ##:
     if count == 0:
-                ^^
-        value = error ``Cannot average 0 things.''
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "=="|== count 0|}
+    line ##:
+    if count == 0:
+       ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "==", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|== {|if count|}
-         {|0
-           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
-                ":"|
-                {"": .operator = "=", .terminator = "<LF>", .initiator =
-                     [$ LOGICAL_LINE $]|= value
-                     {|error ``Cannot average 0 things "."''|}|}|}|}|}
+    {"": .operator = "if", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|if {"": .operator = "=="|== count 0|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= value
+                   {|error ``Cannot average 0 things "."''|}|}|}|}
     lines ##-##:
     if count == 0:
     ^^^^^^^^^^^^^^
@@ -2004,30 +2006,27 @@ BRACKETED EXPRESSION:
               [$ LOGICAL_LINE $]|= count 0|}
          {"": .operator = "=", .terminator = "<LF>", .initiator =
               [$ LOGICAL_LINE $]|= sum 0|}
-         {"": .operator = "!=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|!= {|while X|}
-              {|()
-                {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                     .initiator = ":"|
-                     {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|=
-                          {|next count|}
-                          {"": .operator = "+"|+ count 1|}|}
-                     {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= {|next sum|}
-                          {"": .operator = "+"|+ sum
-                               {|the weight of (first X)|}|}|}
-                     {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= {|next X|}
-                          {|rest X|}|}|}|}|}
-         {"": .operator = "==", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|== {|if count|}
-              {|0
-                {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                     .initiator = ":"|
-                     {"": .operator = "=", .terminator = "<LF>",
-                          .initiator = [$ LOGICAL_LINE $]|= value
-                          {|error ``Cannot average 0 things "."''|}|}|}|}|}
+         {"": .operator = "while", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|while {"": .operator = "!="|!= X ()|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next count|}
+                        {"": .operator = "+"|+ count 1|}|}
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next sum|}
+                        {"": .operator = "+"|+ sum
+                             {|the weight of (first X)|}|}|}
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next X|}
+                        {|rest X|}|}|}|}
+         {"": .operator = "if", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|if {"": .operator = "=="|== count 0|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= value
+                        {|error ``Cannot average 0 things "."''|}|}|}|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
@@ -2076,31 +2075,31 @@ BRACKETED EXPRESSION:
                    [$ LOGICAL_LINE $]|= count 0|}
               {"": .operator = "=", .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|= sum 0|}
-              {"": .operator = "!=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|!= {|while X|}
-                   {|()
-                     {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                          .initiator = ":"|
-                          {"": .operator = "=", .terminator = "<LF>",
-                               .initiator = [$ LOGICAL_LINE $]|=
-                               {|next count|}
-                               {"": .operator = "+"|+ count 1|}|}
-                          {"": .operator = "=", .terminator = "<LF>",
-                               .initiator = [$ LOGICAL_LINE $]|=
-                               {|next sum|}
-                               {"": .operator = "+"|+ sum
-                                    {|the weight of (first X)|}|}|}
-                          {"": .operator = "=", .terminator = "<LF>",
-                               .initiator = [$ LOGICAL_LINE $]|=
-                               {|next X|} {|rest X|}|}|}|}|}
-              {"": .operator = "==", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|== {|if count|}
-                   {|0
-                     {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                          .initiator = ":"|
-                          {"": .operator = "=", .terminator = "<LF>",
-                               .initiator = [$ LOGICAL_LINE $]|= value
-                               {|error ``Cannot average 0 things "."''|}|}|}|}|}
+              {"": .operator = "while", .terminator = "<LF>",
+                   .initiator = [$ LOGICAL_LINE $]|while
+                   {"": .operator = "!="|!= X ()|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next count|}
+                             {"": .operator = "+"|+ count 1|}|}
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next sum|}
+                             {"": .operator = "+"|+ sum
+                                  {|the weight of (first X)|}|}|}
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next X|} {|rest X|}|}|}|}
+              {"": .operator = "if", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|if
+                   {"": .operator = "=="|== count 0|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|= value
+                             {|error ``Cannot average 0 things "."''|}|}|}|}
               {"": .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|else
                    {"": .terminator = [$ INDENTED_PARAGRAPH $],
