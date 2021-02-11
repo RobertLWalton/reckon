@@ -2,7 +2,7 @@
 //
 // File:	reckon_snippet_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  2 08:11:34 EST 2021
+// Date:	Thu Feb 11 13:27:00 EST 2021
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -27,8 +27,7 @@ f (10, x, y)
 
 g = `hello'
 `[g] there'
-z = `I thought he said `[g]'.'
-// ` should be text; `` needs work
+z = ``I thought he said `[g]'.''
 
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 h = (- 0.96 + 0.67 * x) in x
@@ -38,8 +37,8 @@ solve (f + h = 0) for x
 g = {{ integral (x ^ 2 * dx) }}
 simplify g
 v = g from (x = 1) to (x = 5)
-out = `The value of {{[g] from (x = 1) to (x = 5)}}
-       is [v].'
+out = ``The value of {{[g] from (x = 1) to (x = 5)}}
+        is [v].''
 V =# {| 1 2 3 |}
 M =#:
    0   1   1
@@ -67,7 +66,7 @@ for every person:
 
 sum from X through Y <-- is an integer X,
                           is an integer Y:
-    `Sum of integers from X through Y.'
+    ``Sum of integers from X through Y.''
     if (X > Y):	  value = 0
     else:	  value = X + sum (X + 1) through Y
 sum from 5 through 10
@@ -77,7 +76,7 @@ all (sums from X through Y)
 
 sum from X through Y <-- is an integer X,
                          is an integer Y:
-    `Sum of integers from X through Y.'
+    ``Sum of integers from X through Y.''
     value = 0
     while ( X <= Y ):
         next value = value + X
@@ -93,13 +92,8 @@ average weight of X <-- list X of persons:
 	next sum = sum + the weight of (first X)
 	next X = rest X
     if count == 0:
-        value = error `Cannot average 0 things.'
+        value = error ``Cannot average 0 things.''
     else:
         value = sum / count
 average weight of (all persons)
 z = 10 + average weight of (all persons named `Bill')
-
-*PARSER*:
-    trace [+ subexpression details]
-
-``This is a sentence.''
