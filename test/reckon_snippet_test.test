@@ -61,6 +61,69 @@
                          [data, atom]
                          with parsing selectors [atom]
                          with special reformatter
+    print bracket type ""
+        block standard: bracket type "p" [TOP LEVEL, code, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix,
+                                              + sticky]
+                        with group paragraph
+                        with implied subprefix {s||s}
+        block standard: bracket type "s" [text]
+                        with sentence reformatter ( ".", "?", "!", ":",
+                        ";" )
+        block standard: bracket type "quote" [TOP LEVEL, code, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + sticky]
+                        with group paragraph
+                        with implied subprefix {s||s}
+        block standard: bracket type "section" [TOP LEVEL, code, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix]
+                        with group paragraph
+                        with implied subprefix {s||s}
+        block standard: bracket type "***" [TOP LEVEL, code, text]
+                        with group reset
+        block standard: bracket type [< "raw" "data" >]
+                        [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [data, data paragraph]
+                        with group line
+                        with data reformatter ( "=", "no", "[",
+                        [< "{" "*" >] )
+        block standard: bracket type "table"
+                        [TOP LEVEL, data, code, math, text]
+                        with group paragraph
+                        with line lexical master "ROW-CHECK"
+        block standard: bracket type "row"
+                        [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [- code, - math, - text]
+                        with group line
+        block standard: bracket type "data"
+                        [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [+ data paragraph]
+                        with group line
+                        with data reformatter ( "=", "no", "[",
+                        [< "{" "*" >] )
 BRACKETED EXPRESSION:
     9
     line ##:
@@ -2145,33 +2208,33 @@ average weight of (all persons)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     `Bill'
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
                                               ^^^^^^
 BRACKETED EXPRESSION:
     (all persons named `Bill')
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
 WORD LEXEME:
     z
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
 ^
 NATURAL LEXEME:
     10
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
     ^^
 PURELIST EXPRESSION:
     {|average weight of (all persons named `Bill')|}
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETABLE EXPRESSION:
     {"": .operator = "+"|+ 10
          {|average weight of (all persons named `Bill')|}|}
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -2179,7 +2242,7 @@ BRACKETED EXPRESSION:
          [$ LOGICAL_LINE $]|= z
          {"": .operator = "+"|+ 10
               {|average weight of (all persons named `Bill')|}|}|}
-    line ##:
+    line ###:
 z = 10 + average weight of (all persons named `Bill')
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
