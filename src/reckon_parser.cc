@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  8 05:07:25 EST 2021
+// Date:	Thu Feb 18 01:08:49 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,6 +66,8 @@ void REC::init_parser ( PAR::parser parser )
     }
     MIN_REQUIRE ( oper_pass != min::NULL_STUB );
 
+    min::locatable_gen atom_name
+        ( min::new_str_gen ( "atom" ) );
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
     min::locatable_gen math_name
@@ -75,6 +77,9 @@ void REC::init_parser ( PAR::parser parser )
     min::locatable_gen data_name
         ( min::new_str_gen ( "data" ) );
 
+    TAB::flags atom =
+        1ull << TAB::find_name
+            ( parser->selector_name_table, atom_name );
     TAB::flags code =
         1ull << TAB::find_name
             ( parser->selector_name_table, code_name );
@@ -88,10 +93,6 @@ void REC::init_parser ( PAR::parser parser )
         1ull << TAB::find_name
             ( parser->selector_name_table, data_name );
 
-    min::locatable_gen opening_quote
-        ( min::new_str_gen ( "`" ) );
-    min::locatable_gen closing_quote
-        ( min::new_str_gen ( "'" ) );
     min::locatable_gen opening_square
         ( min::new_str_gen ( "[" ) );
     min::locatable_gen closing_square
@@ -113,20 +114,12 @@ void REC::init_parser ( PAR::parser parser )
 	    ( right_associative, OP::reformatter_stack );
 
     BRA::push_brackets
-        ( opening_quote,
-	  closing_quote,
-	  code + math + text,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( text, code + math + data, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
-	  bracketed_pass->bracket_table );
-
-    BRA::push_brackets
         ( opening_square,
 	  closing_square,
-	  text + code,
+	  text + code + atom,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( math, text + code, 0 ),
+	  TAB::new_flags
+	      ( math, text + code + atom, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
 
@@ -180,6 +173,24 @@ void REC::init_parser ( PAR::parser parser )
 	  min::NULL_STUB, min::NULL_STUB,
 	  oper_pass->oper_table );
 
+}
+
+# ifdef TBD
+
+    min::locatable_gen opening_quote
+        ( min::new_str_gen ( "`" ) );
+    min::locatable_gen closing_quote
+        ( min::new_str_gen ( "'" ) );
+
+    BRA::push_brackets
+        ( opening_quote,
+	  closing_quote,
+	  code + math + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( text, code + math + data, 0 ),
+	  min::NULL_STUB, min::NULL_STUB,
+	  bracketed_pass->bracket_table );
+
     min::locatable_gen period
         ( min::new_str_gen ( "." ) );
     min::locatable_gen question
@@ -218,10 +229,6 @@ void REC::init_parser ( PAR::parser parser )
 	      ( text, code + math + data, 0 ),
 	  text_reformatter, double_quote_arguments,
 	  bracketed_pass->bracket_table );
-
-}
-
-# ifdef TBD
 
 
     BRA::push_brackets
