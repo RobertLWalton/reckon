@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 18 01:08:49 EST 2021
+// Date:	Thu Feb 18 01:43:55 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,8 +74,6 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "math" ) );
     min::locatable_gen text_name
         ( min::new_str_gen ( "text" ) );
-    min::locatable_gen data_name
-        ( min::new_str_gen ( "data" ) );
 
     TAB::flags atom =
         1ull << TAB::find_name
@@ -89,9 +87,6 @@ void REC::init_parser ( PAR::parser parser )
     TAB::flags text =
         1ull << TAB::find_name
             ( parser->selector_name_table, text_name );
-    TAB::flags data =
-        1ull << TAB::find_name
-            ( parser->selector_name_table, data_name );
 
     min::locatable_gen opening_square
         ( min::new_str_gen ( "[" ) );
