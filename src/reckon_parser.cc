@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 20 06:32:33 EST 2021
+// Date:	Sat Feb 20 20:45:37 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -98,6 +98,8 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_lab_gen ( "{", "$" ) );
     min::locatable_gen dollar_closing_brace
         ( min::new_lab_gen ( "$", "}" ) );
+    min::locatable_gen arrow
+        ( min::new_str_gen ( "<--" ) );
 
     min::locatable_gen if_name
         ( min::new_str_gen ( "if" ) );
@@ -105,6 +107,13 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "else" ) );
     min::locatable_gen while_name
         ( min::new_str_gen ( "while" ) );
+
+    min::locatable_gen declare
+        ( min::new_str_gen ( "declare" ) );
+
+    PAR::reformatter declare_reformatter =
+        PAR::find_reformatter
+	    ( declare, OP::reformatter_stack );
 
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
@@ -123,6 +132,15 @@ void REC::init_parser ( PAR::parser parser )
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
 
+    BRA::push_brackets
+	( opening_brace_dollar,
+          dollar_closing_brace,
+          code,
+          block_level, PAR::top_level_position,
+          TAB::new_flags ( 0, 0, 0 ),
+          min::NULL_STUB, min::NULL_STUB,
+          bracketed_pass->bracket_table );
+
     OP::push_oper
         ( equal_number_sign,
 	  min::MISSING(),
@@ -132,15 +150,6 @@ void REC::init_parser ( PAR::parser parser )
 	  1000, right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
-
-    BRA::push_brackets
-	( opening_brace_dollar,
-          dollar_closing_brace,
-          code,
-          block_level, PAR::top_level_position,
-          TAB::new_flags ( 0, 0, 0 ),
-          min::NULL_STUB, min::NULL_STUB,
-          bracketed_pass->bracket_table );
 
     OP::push_oper
         ( if_name,
@@ -180,6 +189,36 @@ void REC::init_parser ( PAR::parser parser )
 	  OP::NOFIX + OP::AFIX,
 	  0,
 	  min::NULL_STUB, min::NULL_STUB,
+	  oper_pass->oper_bracket_table );
+
+    OP::push_oper
+        ( PARLEX::colon,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX + OP::AFIX,
+	  0,
+	  min::NULL_STUB, min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( opening_brace_dollar,
+	  dollar_closing_brace,
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX + OP::AFIX,
+	  0,
+	  min::NULL_STUB, min::NULL_STUB,
+	  oper_pass->oper_bracket_table );
+
+    OP::push_oper
+        ( arrow,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::NOFIX,
+	  0, declare_reformatter,
+	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
 }
