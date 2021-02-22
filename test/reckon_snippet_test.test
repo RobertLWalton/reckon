@@ -116,6 +116,117 @@
                         with group line
                         with data reformatter ( "=", "no", "[",
                         [< "{" "*" >] )
+    print operator ""
+        block standard: operator "*" [code, math]
+                        infix
+                        with precedence 5200
+                        with infix reformatter
+        block standard: operator "+" [code, math]
+                        prefix infix
+                        with precedence 5000
+                        with sum reformatter ( "+", "-" )
+        block standard: operator "," [code, math]
+                        nofix
+                        with precedence 2000
+                        with separator reformatter
+        block standard: operator "-" [code, math]
+                        prefix infix
+                        with precedence 5000
+                        with sum reformatter ( "+", "-" )
+        block standard: operator "/" [code, math]
+                        infix
+                        with precedence 5100
+                        with binary reformatter
+        block reckon: operator ":" [code]
+                      nofix afix
+                      with precedence 0
+        block standard: operator "<" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "=" [code, math]
+                        infix
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator ">" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "!=" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "^" [code, math]
+                        infix
+                        with precedence 5300
+                        with binary reformatter
+        block standard: operator "NOT" [code, math]
+                        nofix
+                        with precedence 3100
+                        with unary reformatter
+        block reckon: operator "<--" [code]
+                      nofix
+                      with precedence 0
+                      with declare reformatter
+        block reckon: operator "while" [code]
+                      nofix
+                      with precedence 0
+        block standard: operator [< "BUT" "NOT" >] [code, math]
+                        nofix
+                        with precedence 3000
+                        with binary reformatter
+        block reckon: operator "if" [code]
+                      nofix
+                      with precedence 0
+        block reckon: operator "else" [code]
+                      nofix
+                      with precedence 0
+        block standard: operator "*=" [code, math]
+                        infix
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator "+=" [code, math]
+                        infix
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator "<=" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block reckon: operator "=#" [code, math]
+                      infix
+                      with precedence 1000
+                      with right associative reformatter
+        block standard: operator "AND" [code, math]
+                        nofix
+                        with precedence 3100
+                        with infix reformatter
+        block standard: operator "==" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "-=" [code, math]
+                        infix
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator ">=" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "OR" [code, math]
+                        nofix
+                        with precedence 3100
+                        with infix reformatter
+        block standard: operator "/=" [code, math]
+                        infix
+                        with precedence 1000
+                        with right associative reformatter
+        block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
+                      nofix afix
+                      with precedence 0
+        block reckon: bracket ":" [code]
+                      nofix afix
+                      with precedence 0
 BRACKETED EXPRESSION:
     9
     line ##:
@@ -2190,12 +2301,12 @@ average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (all persons)
-    line ##:
+    line ###:
 average weight of (all persons)
                   ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     average weight of (all persons)
-    line ##:
+    line ###:
 average weight of (all persons)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
