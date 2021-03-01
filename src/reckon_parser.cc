@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 24 02:39:42 EST 2021
+// Date:	Mon Mar  1 06:11:05 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -88,6 +88,8 @@ void REC::init_parser ( PAR::parser parser )
         1ull << TAB::find_name
             ( parser->selector_name_table, text_name );
 
+    min::locatable_gen equal
+        ( min::new_str_gen ( "=" ) );
     min::locatable_gen opening_square
         ( min::new_str_gen ( "[" ) );
     min::locatable_gen closing_square
@@ -146,7 +148,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code + math,
 	  block_level, PAR::top_level_position,
-	  OP::INFIX,
+	  OP::INFIX + OP::LINE,
 	  1000, right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
@@ -156,7 +158,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::PREFIX,
+	  OP::PREFIX + OP::LINE,
 	  0, min::NULL_STUB,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
@@ -166,7 +168,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::NOFIX,
+	  OP::NOFIX + OP::LINE,
 	  0, min::NULL_STUB,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
@@ -176,7 +178,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::PREFIX,
+	  OP::PREFIX + OP::LINE,
 	  0, min::NULL_STUB,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
@@ -186,7 +188,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::AFIX,
+	  OP::NOFIX + OP::AFIX + OP::LINE,
 	      // No left if `else:'
 	  0,
 	  min::NULL_STUB, min::NULL_STUB,
@@ -197,7 +199,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::RIGHT + OP::AFIX,
+	  OP::RIGHT + OP::AFIX + OP::LINE,
 	      // No left if `else:'
 	  0,
 	  min::NULL_STUB, min::NULL_STUB,
@@ -208,7 +210,7 @@ void REC::init_parser ( PAR::parser parser )
 	  dollar_closing_brace,
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::AFIX,
+	  OP::NOFIX + OP::AFIX + OP::LINE,
 	  0,
 	  min::NULL_STUB, min::NULL_STUB,
 	  oper_pass->oper_bracket_table );
@@ -218,8 +220,21 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::NOFIX,
+	  OP::NOFIX + OP::LINE,
 	  0, declare_reformatter,
+	  min::NULL_STUB,
+	  oper_pass->oper_table );
+
+    // = without LINE qualifier
+    //
+    OP::push_oper
+        ( equal,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  1000,
+	  right_associative_reformatter,
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
