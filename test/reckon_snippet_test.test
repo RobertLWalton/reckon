@@ -179,6 +179,9 @@
                         prefix
                         with precedence 3200
                         with unary reformatter
+        block reckon: operator [< "else" "if" >] [code]
+                      prefix line
+                      with precedence 0
         block reckon: operator "<--" [code]
                       nofix line
                       with precedence 0
@@ -224,10 +227,16 @@
                         infix line
                         with precedence 1000
                         with right associative reformatter
+        block reckon: operator [< "for" "every" >] [code]
+                      prefix line
+                      with precedence 0
         block standard: operator ">=" [code, math]
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
+        block reckon: operator "on" [code]
+                      prefix line
+                      with precedence 0
         block standard: operator "OR" [code, math]
                         infix
                         with precedence 3100
@@ -1409,14 +1418,21 @@ for every person:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                     / height in inches ^ 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    person
+    line ##:
+for every person:
+          ^^^^^^
 BRACKETED EXPRESSION:
-    for every person:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= {|body mass index|}
-             {"": .operator = "/"|/
-                  {"": .operator = "*"|* {# 703.06958 #}
-                       {|weight in lbs|}|}
-                  {"": .operator = "^"|^ {|height in inches|} 2|}|}|}
+    {"": .operator = [< "for" "every" >], .terminator = "<LF>",
+         .initiator = [$ LOGICAL_LINE $]|[< for every >] person
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|body mass index|}
+                   {"": .operator = "/"|/
+                        {"": .operator = "*"|* {# 703.06958 #}
+                             {|weight in lbs|}|}
+                        {"": .operator = "^"|^ {|height in inches|} 2|}|}|}|}|}
     lines ##-##:
 for every person:
 ^^^^^^^^^^^^^^^^^
@@ -3613,3 +3629,97 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   [a person named `Jack']''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    angle
+    line ###:
+        angle = X
+        ^^^^^
+WORD LEXEME:
+    X
+    line ###:
+        angle = X
+                ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= angle X|}
+    line ###:
+        angle = X
+        ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= angle X|}|}
+    lines ###-###:
+    on a demo with angle X:
+                          ^
+        angle = X
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|a demo with angle X|}
+    line ###:
+    on a demo with angle X:
+       ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "on", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|on {|a demo with angle X|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= angle X|}|}|}
+    lines ###-###:
+    on a demo with angle X:
+    ^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "on", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|on {|a demo with angle X|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= angle X|}|}|}|}
+    lines ###-###:
+for every demo:
+              ^
+    on a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    demo
+    line ###:
+for every demo:
+          ^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = [< "for" "every" >], .terminator = "<LF>",
+         .initiator = [$ LOGICAL_LINE $]|[< for every >] demo
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "on", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|on {|a demo with angle X|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|= angle X|}|}|}|}|}
+    lines ###-###:
+for every demo:
+^^^^^^^^^^^^^^^
+    on a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    x
+    line ###:
+x = a demo with angle 30 degrees
+^
+PURELIST EXPRESSION:
+    {|a demo with angle 30 degrees|}
+    line ###:
+x = a demo with angle 30 degrees
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= x {|a demo with angle 30 degrees|}|}
+    line ###:
+x = a demo with angle 30 degrees
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
