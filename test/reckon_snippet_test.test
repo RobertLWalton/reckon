@@ -31,9 +31,12 @@
         block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
+        block reckon: bracket "(" ... ")" [atom, code, math, text]
+                      with parsing selectors [- atom, - code, + math,
+                                              - text]
         block standard: bracket "(" ... ")" [code, math, text]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block reckon: bracket "[" ... "]" [atom, code, text]
+        block reckon: bracket "[" ... "]" [atom, code, math, text]
                       with parsing selectors [- atom, - code, + math,
                                               - text]
         block standard: bracket "[" ... "]" [code, math, text]
@@ -153,14 +156,14 @@
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
-        block reckon: operator "=" [code, math]
-                      infix
-                      with precedence 1000
-                      with right associative reformatter
-        block standard: operator "=" [code, math]
+        block standard: operator "=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
+        block standard: operator "=" [math]
+                        infix
+                        with precedence 1000
+                        with binary reformatter
         block standard: operator ">" [code, math]
                         infix
                         with precedence 4000
@@ -194,11 +197,11 @@
         block reckon: operator "else" [code]
                       nofix line
                       with precedence 0
-        block standard: operator "*=" [code, math]
+        block standard: operator "*=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
-        block standard: operator "+=" [code, math]
+        block standard: operator "+=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
@@ -218,7 +221,7 @@
                         infix
                         with precedence 4000
                         with infix and reformatter ( "AND" )
-        block standard: operator "-=" [code, math]
+        block standard: operator "-=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter
@@ -230,7 +233,7 @@
                         infix
                         with precedence 3100
                         with infix reformatter
-        block standard: operator "/=" [code, math]
+        block standard: operator "/=" [code]
                         infix line
                         with precedence 1000
                         with right associative reformatter

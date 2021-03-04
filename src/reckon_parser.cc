@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  1 06:11:05 EST 2021
+// Date:	Thu Mar  4 01:33:40 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -90,15 +90,11 @@ void REC::init_parser ( PAR::parser parser )
 
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
-    min::locatable_gen opening_square
-        ( min::new_str_gen ( "[" ) );
-    min::locatable_gen closing_square
-        ( min::new_str_gen ( "]" ) );
     min::locatable_gen equal_number_sign
         ( min::new_str_gen ( "=#" ) );
-    min::locatable_gen opening_brace_dollar
+    min::locatable_gen left_brace_dollar
         ( min::new_lab_gen ( "{", "$" ) );
-    min::locatable_gen dollar_closing_brace
+    min::locatable_gen dollar_right_brace
         ( min::new_lab_gen ( "$", "}" ) );
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
@@ -125,9 +121,9 @@ void REC::init_parser ( PAR::parser parser )
 	    ( right_associative, OP::reformatter_stack );
 
     BRA::push_brackets
-        ( opening_square,
-	  closing_square,
-	  text + code + atom,
+        ( PARLEX::left_parenthesis,
+	  PARLEX::right_parenthesis,
+	  text + code + math + atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( math, text + code + atom, 0 ),
@@ -135,8 +131,18 @@ void REC::init_parser ( PAR::parser parser )
 	  bracketed_pass->bracket_table );
 
     BRA::push_brackets
-	( opening_brace_dollar,
-          dollar_closing_brace,
+        ( PARLEX::left_square,
+	  PARLEX::right_square,
+	  text + code + math + atom,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( math, text + code + atom, 0 ),
+	  min::NULL_STUB, min::NULL_STUB,
+	  bracketed_pass->bracket_table );
+
+    BRA::push_brackets
+	( left_brace_dollar,
+          dollar_right_brace,
           code,
           block_level, PAR::top_level_position,
           TAB::new_flags ( 0, 0, 0 ),
@@ -206,8 +212,8 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( opening_brace_dollar,
-	  dollar_closing_brace,
+        ( left_brace_dollar,
+	  dollar_right_brace,
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX + OP::AFIX + OP::LINE,
@@ -225,31 +231,18 @@ void REC::init_parser ( PAR::parser parser )
 	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
-    // = without LINE qualifier
-    //
-    OP::push_oper
-        ( equal,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  1000,
-	  right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
 }
 
 # ifdef TBD
 
-    min::locatable_gen opening_quote
+    min::locatable_gen left_quote
         ( min::new_str_gen ( "`" ) );
-    min::locatable_gen closing_quote
+    min::locatable_gen right_quote
         ( min::new_str_gen ( "'" ) );
 
     BRA::push_brackets
-        ( opening_quote,
-	  closing_quote,
+        ( left_quote,
+	  right_quote,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( text, code + math + data, 0 ),
@@ -264,9 +257,9 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "!" ) );
     min::locatable_gen s
         ( min::new_str_gen ( "s" ) );
-    min::locatable_gen opening_double_quote
+    min::locatable_gen left_double_quote
         ( min::new_str_gen ( "``" ) );
-    min::locatable_gen closing_double_quote
+    min::locatable_gen right_double_quote
         ( min::new_str_gen ( "''" ) );
 
 
@@ -286,8 +279,8 @@ void REC::init_parser ( PAR::parser parser )
 	    ( text_name, BRA::untyped_reformatter_stack );
 
     BRA::push_brackets
-        ( opening_double_quote,
-          closing_double_quote,
+        ( left_double_quote,
+          right_double_quote,
 	  code + text,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
@@ -297,8 +290,8 @@ void REC::init_parser ( PAR::parser parser )
 
 
     BRA::push_brackets
-        ( opening_quote,
-	  closing_quote,
+        ( left_quote,
+	  right_quote,
 	  atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
