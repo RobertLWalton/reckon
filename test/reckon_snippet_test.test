@@ -182,6 +182,9 @@
         block reckon: operator [< "else" "if" >] [code]
                       prefix line
                       with precedence 0
+        block reckon: operator "for" [code]
+                      prefix line
+                      with precedence 0
         block reckon: operator "<--" [code]
                       nofix line
                       with precedence 0
@@ -227,9 +230,6 @@
                         infix line
                         with precedence 1000
                         with right associative reformatter
-        block reckon: operator [< "for" "every" >] [code]
-                      prefix line
-                      with precedence 0
         block standard: operator ">=" [code, math]
                         infix
                         with precedence 4000
@@ -1418,14 +1418,14 @@ for every person:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                     / height in inches ^ 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-WORD LEXEME:
-    person
+PURELIST EXPRESSION:
+    {|every person|}
     line ##:
 for every person:
-          ^^^^^^
+    ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = [< "for" "every" >], .terminator = "<LF>",
-         .initiator = [$ LOGICAL_LINE $]|[< for every >] person
+    {"": .operator = "for", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|for {|every person|}
          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
               {"": .operator = "=", .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|= {|body mass index|}
@@ -3685,14 +3685,14 @@ for every demo:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         angle = X
 ^^^^^^^^^^^^^^^^^
-WORD LEXEME:
-    demo
+PURELIST EXPRESSION:
+    {|every demo|}
     line ###:
 for every demo:
-          ^^^^
+    ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = [< "for" "every" >], .terminator = "<LF>",
-         .initiator = [$ LOGICAL_LINE $]|[< for every >] demo
+    {"": .operator = "for", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|for {|every demo|}
          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
               {"": .operator = "on", .terminator = "<LF>", .initiator =
                    [$ LOGICAL_LINE $]|on {|a demo with angle X|}
@@ -3723,3 +3723,911 @@ BRACKETED EXPRESSION:
     line ###:
 x = a demo with angle 30 degrees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next angle|}
+    line ###:
+        next angle = X
+        ^^^^^^^^^^
+WORD LEXEME:
+    X
+    line ###:
+        next angle = X
+                     ^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|next angle|} X|}
+    line ###:
+        next angle = X
+        ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|next angle|} X|}|}
+    lines ###-###:
+    on update THIS to X:
+                       ^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|update THIS to X|}
+    line ###:
+    on update THIS to X:
+       ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "on", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|on {|update THIS to X|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next angle|} X|}|}|}
+    lines ###-###:
+    on update THIS to X:
+    ^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next angle|}
+    line ###:
+        next angle = angle + X
+        ^^^^^^^^^^
+WORD LEXEME:
+    angle
+    line ###:
+        next angle = angle + X
+                     ^^^^^
+WORD LEXEME:
+    X
+    line ###:
+        next angle = angle + X
+                             ^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "+"|+ angle X|}
+    line ###:
+        next angle = angle + X
+                     ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|next angle|}
+         {"": .operator = "+"|+ angle X|}|}
+    line ###:
+        next angle = angle + X
+        ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|next angle|}
+              {"": .operator = "+"|+ angle X|}|}|}
+    lines ###-###:
+    on increment THIS by X:
+                          ^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|increment THIS by X|}
+    line ###:
+    on increment THIS by X:
+       ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "on", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|on {|increment THIS by X|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|next angle|}
+                   {"": .operator = "+"|+ angle X|}|}|}|}
+    lines ###-###:
+    on increment THIS by X:
+    ^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "on", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|on {|update THIS to X|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next angle|}
+                        X|}|}|}
+         {"": .operator = "on", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|on {|increment THIS by X|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .operator = "=", .terminator = "<LF>",
+                        .initiator = [$ LOGICAL_LINE $]|= {|next angle|}
+                        {"": .operator = "+"|+ angle X|}|}|}|}|}
+    lines ###-###:
+for every demo:
+              ^
+    on update THIS to X:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+    on increment THIS by X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|every demo|}
+    line ###:
+for every demo:
+    ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "for", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|for {|every demo|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "on", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|on {|update THIS to X|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next angle|} X|}|}|}
+              {"": .operator = "on", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|on {|increment THIS by X|}
+                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                        .initiator = ":"|
+                        {"": .operator = "=", .terminator = "<LF>",
+                             .initiator = [$ LOGICAL_LINE $]|=
+                             {|next angle|}
+                             {"": .operator = "+"|+ angle X|}|}|}|}|}|}
+    lines ###-###:
+for every demo:
+^^^^^^^^^^^^^^^
+    on update THIS to X:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+    on increment THIS by X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    update x to 40 degrees
+    line ###:
+update x to 40 degrees
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+                                             ^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+                                                  ^^^
+BRACKETED EXPRESSION:
+    ({# 0.0 #}, {# 0.0 #})
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+                                            ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{circle dotted diameter {# 1.0 #} center ({# 0.0 #}, {# 0.0 #})}}
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    c
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+    ^
+BRACKETED EXPRESSION:
+    {{circle dotted diameter {# 1.0 #} center ({# 0.0 #}, {# 0.0 #})}}
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= c
+         {{circle dotted diameter {# 1.0 #} center
+           ({# 0.0 #}, {# 0.0 #})}}|}
+    line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# -0.75 #}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                           ^^^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                  ^^^
+BRACKETED EXPRESSION:
+    ({# -0.75 #}, {# 0.0 #})
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                          ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.75 #}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                           ^^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                                 ^^^
+BRACKETED EXPRESSION:
+    ({# 0.75 #}, {# 0.0 #})
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                          ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{arrow from ({# -0.75 #}, {# 0.0 #}) to ({# 0.75 #}, {# 0.0 #})}}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x axis|}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+    ^^^^^^
+BRACKETED EXPRESSION:
+    {{arrow from ({# -0.75 #}, {# 0.0 #}) to ({# 0.75 #}, {# 0.0 #})}}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|x axis|}
+         {{arrow from ({# -0.75 #}, {# 0.0 #}) to
+           ({# 0.75 #}, {# 0.0 #})}}|}
+    line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                           ^^^
+BRACKETED EXPRESSION:
+    {# -0.75 #}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                ^^^^^
+BRACKETED EXPRESSION:
+    ({# 0.0 #}, {# -0.75 #})
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                          ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                           ^^^
+BRACKETED EXPRESSION:
+    {# 0.75 #}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                                ^^^^
+BRACKETED EXPRESSION:
+    ({# 0.0 #}, {# 0.75 #})
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                          ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{arrow from ({# 0.0 #}, {# -0.75 #}) to ({# 0.0 #}, {# 0.75 #})}}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|y axis|}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+    ^^^^^^
+BRACKETED EXPRESSION:
+    {{arrow from ({# 0.0 #}, {# -0.75 #}) to ({# 0.0 #}, {# 0.75 #})}}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= {|y axis|}
+         {{arrow from ({# 0.0 #}, {# -0.75 #}) to
+           ({# 0.0 #}, {# 0.75 #})}}|}
+    line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    line = {{line from (0.0, 0.0)
+                        ^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    line = {{line from (0.0, 0.0)
+                             ^^^
+BRACKETED EXPRESSION:
+    ({# 0.0 #}, {# 0.0 #})
+    line ###:
+    line = {{line from (0.0, 0.0)
+                       ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.5 #}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                       ^^^
+PURELIST EXPRESSION:
+    {|cos X|}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                             ^^^^^
+BRACKETED EXPRESSION:
+    {# 0.5 #}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                                    ^^^
+PURELIST EXPRESSION:
+    {|sin X|}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                                          ^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 0.5 #} {|cos X|}|}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                       ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 0.5 #} {|sin X|}|}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                                    ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+      {"": .operator = "*"|* {# 0.5 #} {|sin X|}|}|}
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+     {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+      {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]
+    line ###:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{line from ({# 0.0 #}, {# 0.0 #}) to
+      [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+        {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}
+    lines ###-###:
+    line = {{line from (0.0, 0.0)
+           ^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    line
+    line ###:
+    line = {{line from (0.0, 0.0)
+    ^^^^
+BRACKETED EXPRESSION:
+    {{line from ({# 0.0 #}, {# 0.0 #}) to
+      [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+        {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}
+    lines ###-###:
+    line = {{line from (0.0, 0.0)
+           ^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= line
+         {{line from ({# 0.0 #}, {# 0.0 #}) to
+           [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+             {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}|}
+    lines ###-###:
+    line = {{line from (0.0, 0.0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.3 #}
+    line ###:
+    arc = {{arc arrow from (0.3, 0.0)
+                            ^^^
+BRACKETED EXPRESSION:
+    {# 0.0 #}
+    line ###:
+    arc = {{arc arrow from (0.3, 0.0)
+                                 ^^^
+BRACKETED EXPRESSION:
+    ({# 0.3 #}, {# 0.0 #})
+    line ###:
+    arc = {{arc arrow from (0.3, 0.0)
+                           ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {# 0.3 #}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                       ^^^
+PURELIST EXPRESSION:
+    {|cos X|}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                             ^^^^^
+BRACKETED EXPRESSION:
+    {# 0.3 #}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                                    ^^^
+PURELIST EXPRESSION:
+    {|sin X|}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                                          ^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 0.3 #} {|cos X|}|}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                       ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {"": .operator = "*"|* {# 0.3 #} {|sin X|}|}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                                    ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+      {"": .operator = "*"|* {# 0.3 #} {|sin X|}|}|}
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+     {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+      {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]
+    line ###:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
+      [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+        {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}
+    lines ###-###:
+    arc = {{arc arrow from (0.3, 0.0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    arc
+    line ###:
+    arc = {{arc arrow from (0.3, 0.0)
+    ^^^
+BRACKETED EXPRESSION:
+    {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
+      [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+        {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}
+    lines ###-###:
+    arc = {{arc arrow from (0.3, 0.0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= arc
+         {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
+           [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+             {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}|}
+    lines ###-###:
+    arc = {{arc arrow from (0.3, 0.0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{Greek th}}
+    line ###:
+    theta = {{Greek th}}
+            ^^^^^^^^^^^^
+WORD LEXEME:
+    theta
+    line ###:
+    theta = {{Greek th}}
+    ^^^^^
+BRACKETED EXPRESSION:
+    {{Greek th}}
+    line ###:
+    theta = {{Greek th}}
+            ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= theta {{Greek th}}|}
+    line ###:
+    theta = {{Greek th}}
+    ^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [theta]
+    line ###:
+                `Depiction of Angle [theta] = [X]',
+                                    ^^^^^^^
+BRACKETED EXPRESSION:
+    [X]
+    line ###:
+                `Depiction of Angle [theta] = [X]',
+                                              ^^^
+BRACKETED EXPRESSION:
+    `Depiction of Angle [theta] = [X]'
+    line ###:
+                `Depiction of Angle [theta] = [X]',
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [c]
+    line ###:
+                    [c],
+                    ^^^
+BRACKETED EXPRESSION:
+    [x axis]
+    line ###:
+                    [x axis] labeled `X Axis',
+                    ^^^^^^^^
+BRACKETED EXPRESSION:
+    `X Axis'
+    line ###:
+                    [x axis] labeled `X Axis',
+                                     ^^^^^^^^
+BRACKETED EXPRESSION:
+    [y axis]
+    line ###:
+                    [y axis] labeled `Y Axis',
+                    ^^^^^^^^
+BRACKETED EXPRESSION:
+    `Y Axis'
+    line ###:
+                    [y axis] labeled `Y Axis',
+                                     ^^^^^^^^
+BRACKETED EXPRESSION:
+    [line]
+    line ###:
+                    [line],
+                    ^^^^^^
+BRACKETED EXPRESSION:
+    [arc]
+    line ###:
+                    [arc] labeled `[theta]' ))}}
+                    ^^^^^
+BRACKETED EXPRESSION:
+    [theta]
+    line ###:
+                    [arc] labeled `[theta]' ))}}
+                                   ^^^^^^^
+BRACKETED EXPRESSION:
+    `[theta]'
+    line ###:
+                    [arc] labeled `[theta]' ))}}
+                                  ^^^^^^^^^
+BRACKETED EXPRESSION:
+    [c]
+    line ###:
+                    [c],
+                    ^^^
+PURELIST EXPRESSION:
+    {|[x axis] labeled `X Axis'|}
+    line ###:
+                    [x axis] labeled `X Axis',
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|[y axis] labeled `Y Axis'|}
+    line ###:
+                    [y axis] labeled `Y Axis',
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [line]
+    line ###:
+                    [line],
+                    ^^^^^^
+PURELIST EXPRESSION:
+    {|[arc] labeled `[theta]'|}
+    line ###:
+                    [arc] labeled `[theta]' ))}}
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ([c], {|[x axis] labeled `X Axis'|}, {|[y axis] labeled `Y Axis'|},
+     [line], {|[arc] labeled `[theta]'|})
+    lines ###-###:
+                overlap (
+                        ^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Depiction of Angle [theta] = [X]'
+    line ###:
+                `Depiction of Angle [theta] = [X]',
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|overlap
+      ([c], {|[x axis] labeled `X Axis'|},
+       {|[y axis] labeled `Y Axis'|}, [line],
+       {|[arc] labeled `[theta]'|})|}
+    lines ###-###:
+                overlap (
+                ^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (`Depiction of Angle [theta] = [X]',
+     {|overlap
+       ([c], {|[x axis] labeled `X Axis'|},
+        {|[y axis] labeled `Y Axis'|}, [line],
+        {|[arc] labeled `[theta]'|})|})
+    lines ###-###:
+    value = {{label (
+                    ^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{label
+      (`Depiction of Angle [theta] = [X]',
+       {|overlap
+         ([c], {|[x axis] labeled `X Axis'|},
+          {|[y axis] labeled `Y Axis'|}, [line],
+          {|[arc] labeled `[theta]'|})|})}}
+    lines ###-###:
+    value = {{label (
+            ^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WORD LEXEME:
+    value
+    line ###:
+    value = {{label (
+    ^^^^^
+BRACKETED EXPRESSION:
+    {{label
+      (`Depiction of Angle [theta] = [X]',
+       {|overlap
+         ([c], {|[x axis] labeled `X Axis'|},
+          {|[y axis] labeled `Y Axis'|}, [line],
+          {|[arc] labeled `[theta]'|})|})}}
+    lines ###-###:
+    value = {{label (
+            ^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "=", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|= value
+         {{label
+           (`Depiction of Angle [theta] = [X]',
+            {|overlap
+              ([c], {|[x axis] labeled `X Axis'|},
+               {|[y axis] labeled `Y Axis'|}, [line],
+               {|[arc] labeled `[theta]'|})|})}}|}
+    lines ###-###:
+    value = {{label (
+    ^^^^^^^^^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= c
+              {{circle dotted diameter {# 1.0 #} center
+                ({# 0.0 #}, {# 0.0 #})}}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|x axis|}
+              {{arrow from ({# -0.75 #}, {# 0.0 #}) to
+                ({# 0.75 #}, {# 0.0 #})}}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= {|y axis|}
+              {{arrow from ({# 0.0 #}, {# -0.75 #}) to
+                ({# 0.0 #}, {# 0.75 #})}}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= line
+              {{line from ({# 0.0 #}, {# 0.0 #}) to
+                [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+                  {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= arc
+              {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
+                [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+                  {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= theta {{Greek th}}|}
+         {"": .operator = "=", .terminator = "<LF>", .initiator =
+              [$ LOGICAL_LINE $]|= value
+              {{label
+                (`Depiction of Angle [theta] = [X]',
+                 {|overlap
+                   ([c], {|[x axis] labeled `X Axis'|},
+                    {|[y axis] labeled `Y Axis'|}, [line],
+                    {|[arc] labeled `[theta]'|})|})}}|}|}
+    lines ###-###:
+display D <-- D is a demo with angle X:
+                                      ^
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line = {{line from (0.0, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    arc = {{arc arrow from (0.3, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    theta = {{Greek th}}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{label (
+^^^^^^^^^^^^^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|display D|}
+    line ###:
+display D <-- D is a demo with angle X:
+^^^^^^^^^
+PURELIST EXPRESSION:
+    {|D is a demo with angle X|}
+    line ###:
+display D <-- D is a demo with angle X:
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .operator = "<--", .terminator = "<LF>", .initiator =
+         [$ LOGICAL_LINE $]|<-- {|display D|}
+         {|D is a demo with angle X|}
+         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= c
+                   {{circle dotted diameter {# 1.0 #} center
+                     ({# 0.0 #}, {# 0.0 #})}}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|x axis|}
+                   {{arrow from ({# -0.75 #}, {# 0.0 #}) to
+                     ({# 0.75 #}, {# 0.0 #})}}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= {|y axis|}
+                   {{arrow from ({# 0.0 #}, {# -0.75 #}) to
+                     ({# 0.0 #}, {# 0.75 #})}}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= line
+                   {{line from ({# 0.0 #}, {# 0.0 #}) to
+                     [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
+                       {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= arc
+                   {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
+                     [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
+                       {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= theta {{Greek th}}|}
+              {"": .operator = "=", .terminator = "<LF>", .initiator =
+                   [$ LOGICAL_LINE $]|= value
+                   {{label
+                     (`Depiction of Angle [theta] = [X]',
+                      {|overlap
+                        ([c], {|[x axis] labeled `X Axis'|},
+                         {|[y axis] labeled `Y Axis'|}, [line],
+                         {|[arc] labeled `... ... ...'|})|})}}|}|}|}
+    lines ###-###:
+display D <-- D is a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line = {{line from (0.0, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    arc = {{arc arrow from (0.3, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    theta = {{Greek th}}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{label (
+^^^^^^^^^^^^^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    show x
+    line ###:
+show x
+^^^^^^
+BRACKETED EXPRESSION:
+    increment x by {# -15 #} degrees
+    line ###:
+increment x by -15 degrees
+^^^^^^^^^^^^^^^^^^^^^^^^^^
