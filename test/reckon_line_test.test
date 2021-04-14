@@ -1,0 +1,352 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+    trace [+ bracketed subexpressions]
+    print top level
+        block reckon:  selectors [code]
+                       options [end at le indent, end at line separator,
+                                end at outer closing,
+                                enable indented paragraph,
+                                enable header]
+                       paragraph lexical master "PARAGRAPH-CHECK"
+                       line lexical master "DATA-CHECK"
+                       line separator ";"
+        block standard:  selectors [code]
+                         options [end at le indent,
+                                  end at line separator,
+                                  end at outer closing,
+                                  enable indented paragraph,
+                                  enable header]
+                         paragraph lexical master "PARAGRAPH-CHECK"
+                         line lexical master "DATA-CHECK"
+                         line separator ";"
+        block TOP LEVEL:  selectors []
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing,
+                                   enable indented paragraph,
+                                   enable header]
+    print indentation mark ""
+        block standard: indentation mark ":" [data paragraph]
+                        with parsing selectors [data]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+        block standard: indentation mark ":" [text]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+                        with implied header {p||p}
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block standard: indentation mark ":" ... ";" [code]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
+        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block reckon: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
+                      []
+                      with parsing selectors [code]
+                      with parsing options [end at le indent,
+                                            end at line separator,
+                                            end at outer closing,
+                                            enable indented paragraph,
+                                            enable header]
+                      with paragraph lexical master "PARAGRAPH-CHECK"
+                      with line lexical master "DATA-CHECK"
+        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
+                        []
+                        with parsing selectors [code]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing,
+                                              enable indented paragraph,
+                                              enable header]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
+BRACKETED EXPRESSION:
+    This is a first logical line;
+    line ##:
+This is a first logical line; and a second logical line;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and a second logical line;
+    line ##:
+This is a first logical line; and a second logical line;
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a third logical line "."
+    line ##:
+And a third logical line.
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a first logical line;
+    line ##:
+This is a first logical line;;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    a second logical line;
+    line ##:
+a second logical line; and a third logical line;
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    and a third logical line;
+    line ##:
+a second logical line; and a third logical line;
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a logical line "."
+    line ##:
+This is a logical line.
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And another logical line "."
+    lines ##-##:
+And another
+^^^^^^^^^^^
+    logical line.
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    The first logical line of the indented paragraph "."
+    lines ##-##:
+    The first logical line of the
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    The second logical line of the indented paragraph "."
+    lines ##-##:
+    The second logical line
+    ^^^^^^^^^^^^^^^^^^^^^^^
+        of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+WARNING: in lines ##-##: comment after indent that begins non-comment
+         logical line:
+        // ignored.
+        ^^^^^^^^^^^
+<BLANK-LINE>
+^
+BRACKETED EXPRESSION:
+    Line 1 of the subparagraph "."
+    line ##:
+            Line 1 of the subparagraph.
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    Line 2 of the subparagraph "."
+    line ##:
+        Line 2 of the subparagraph.
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|Line
+              1 of the subparagraph "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|Line
+              2 of the subparagraph "."|}|}
+    lines ##-##:
+        subparagraph:
+                    ^
+        // A comment that sets the indented subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // paragraph indent.  A warning will be issued
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // because this comment begins a non-comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // logical line, but the comment is otherwise
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // ignored.
+^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+            Line 1 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        Line 2 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    The third logical line of the indented paragraph containing an
+        indented subparagraph:
+        Line 1 of the subparagraph "."
+        Line 2 of the subparagraph "."
+    lines ##-##:
+    The third logical line of the indented
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        paragraph containing an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        subparagraph:
+^^^^^^^^^^^^^^^^^^^^^
+        // A comment that sets the indented subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // paragraph indent.  A warning will be issued
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // because this comment begins a non-comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // logical line, but the comment is otherwise
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // ignored.
+^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+            Line 1 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        Line 2 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    The fourth logical line of the indented paragraph "."
+    line ##:
+    The fourth logical line of the indented paragraph.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|The
+              first logical line of the indented paragraph "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|The
+              second logical line of the indented paragraph "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|The
+              third logical line of the indented paragraph containing an
+              indented subparagraph
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|Line 1 of the subparagraph
+                        "."|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|Line 2 of the subparagraph
+                        "."|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|The
+              fourth logical line of the indented paragraph "."|}|}
+    lines ##-##:
+And a logical line ending with an indented paragraph:
+                                                    ^
+<BLANK-LINE>
+^
+    The first logical line of the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    // A comment line that is ignored.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    The second logical line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    The third logical line of the indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        paragraph containing an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        subparagraph:
+^^^^^^^^^^^^^^^^^^^^^
+        // A comment that sets the indented subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // paragraph indent.  A warning will be issued
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // because this comment begins a non-comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // logical line, but the comment is otherwise
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // ignored.
+^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+            Line 1 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        Line 2 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    The fourth logical line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a logical line ending with an indented paragraph:
+        The first logical line of the indented paragraph "."
+        The second logical line of the indented paragraph "."
+        The third logical line of the indented paragraph containing an
+            indented subparagraph:
+            Line 1 of the subparagraph "."
+            Line 2 of the subparagraph "."
+        The fourth logical line of the indented paragraph "."
+    lines ##-##:
+And a logical line ending with an indented paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    The first logical line of the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    // A comment line that is ignored.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    The second logical line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    The third logical line of the indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        paragraph containing an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        subparagraph:
+^^^^^^^^^^^^^^^^^^^^^
+        // A comment that sets the indented subparagraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // paragraph indent.  A warning will be issued
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // because this comment begins a non-comment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // logical line, but the comment is otherwise
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // ignored.
+^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+            Line 1 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+        Line 2 of the subparagraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    The fourth logical line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    The logical line after the indented paragraph "." This would end the
+        indented paragraph if the two comment lines above did not exist
+        "."
+    lines ##-##:
+The logical line after the indented paragraph.  This would
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    end the indented paragraph if the two comment lines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    above did not exist.
+^^^^^^^^^^^^^^^^^^^^^^^^
