@@ -350,3 +350,327 @@ The logical line after the indented paragraph.  This would
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     above did not exist.
 ^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {section||section}
+    line ##:
+{section}First Example
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|First Example|s}
+    line ##:
+{section}First Example
+         ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{s|First Example|s}|section}
+    line ##:
+{section}First Example
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{s|First Example|s}|section}
+    line ##:
+{section}First Example
+^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p||p}
+    line ##:
+{p}This is the first paragraph of the first
+^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|This is the first paragraph of the first
+        example|s}
+    lines ##-##:
+{p}This is the first paragraph of the first
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        example.  And
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|And its second sentence|s}
+    lines ##-##:
+        example.  And
+                ^^^^^
+its second sentence.  Line indentation does not
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|Line indentation does not matter in this
+        paragraph "," which is ended by the next blank line|s}
+    lines ##-##:
+its second sentence.  Line indentation does not
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+matter in this paragraph, which is ended by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                next blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|This is the first paragraph of the first
+           example|s} {s: .terminator = "."|And its second sentence|s}
+       {s: .terminator = "."|Line indentation does not matter in this
+           paragraph "," which is ended by the next blank line|s}|p}
+    lines ##-##:
+{p}This is the first paragraph of the first
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        example.  And
+^^^^^^^^^^^^^^^^^^^^^
+its second sentence.  Line indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+matter in this paragraph, which is ended by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                next blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|This is the first paragraph of the first
+           example|s} {s: .terminator = "."|And its second sentence|s}
+       {s: .terminator = "."|Line indentation does not matter in this
+           paragraph "," which is ended by the next blank line|s}|p}
+    lines ##-##:
+{p}This is the first paragraph of the first
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        example.  And
+^^^^^^^^^^^^^^^^^^^^^
+its second sentence.  Line indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+matter in this paragraph, which is ended by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                next blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p||p}
+    line ##:
+{p}
+^^^
+PREFIX EXPRESSION:
+    {quote||quote}
+    line ##:
+    {quote}
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|Remember to begin at the beginning and go to
+        the end|s}
+    lines ##-##:
+    {quote}
+           ^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|This quote is a paragraph by itself|s}
+    lines ##-##:
+    the beginning and go to the end.  This quote
+                                    ^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|Within the paragraph "," indentation does not
+        matter as long as it is at least the paragraph indent|s}
+    lines ##-##:
+                  is a paragraph by itself.
+                                           ^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|So this is the last sentence of the
+        paragraph|s}
+    lines ##-##:
+           indent.
+                  ^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence of the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {quote|{s: .terminator = "."|Remember to begin at the beginning and
+               go to the end|s}
+           {s: .terminator = "."|This quote is a paragraph by itself|s}
+           {s: .terminator = "."|Within the paragraph "," indentation
+               does not matter as long as it is at least the paragraph
+               indent|s}
+           {s: .terminator = "."|So this is the last sentence of the
+               paragraph|s}|quote}
+    lines ##-##:
+    {quote}
+    ^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence of the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {quote|{s: .terminator = "."|Remember to begin at the beginning
+                    and go to the end|s}
+                {s: .terminator = "."|This quote is a paragraph by
+                    itself|s}
+                {s: .terminator = "."|Within the paragraph ","
+                    indentation does not matter as long as it is at
+                    least the paragraph indent|s}
+                {s: .terminator = "."|So this is the last sentence of
+                    the paragraph|s}|quote}|}
+    lines ##-##:
+This paragraph contains a quote:
+                               ^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence of the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|This paragraph contains a quote
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {quote|{s: .terminator = "."|Remember to begin at the
+                       beginning and go to the end|s}
+                   {s: .terminator = "."|This quote is a paragraph by
+                       itself|s}
+                   {s: .terminator = "."|Within the paragraph ","
+                       indentation does not matter as long as it is at
+                       least the paragraph indent|s}
+                   {s: .terminator = "."|So this is the last sentence of
+                       the paragraph|s}|quote}|}|s}
+    lines ##-##:
+{p}
+   ^
+This paragraph contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence of the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|This paragraph contains a quote
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {quote|{s: .terminator = "."|Remember to begin at the
+                          beginning and go to the end|s}
+                      {s: .terminator = "."|This quote is a paragraph by
+                          itself|s}
+                      {s: .terminator = "."|Within the paragraph ","
+                          indentation does not matter as long as it is
+                          at least the paragraph indent|s}
+                      {s: .terminator = "."|So this is the last sentence
+                          of the paragraph|s}|quote}|}|s}|p}
+    lines ##-##:
+{p}
+^^^
+This paragraph contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence of the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|This paragraph contains a quote
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {quote|{s: .terminator = "."|Remember to begin at the
+                          beginning and go to the end|s}
+                      {s: .terminator = "."|This quote is a paragraph by
+                          itself|s}
+                      {s: .terminator = "."|Within the paragraph ","
+                          indentation does not matter as long as it is
+                          at least the paragraph indent|s}
+                      {s: .terminator = "."|So this is the last sentence
+                          of the paragraph|s}|quote}|}|s}|p}
+    lines ##-##:
+{p}
+^^^
+This paragraph contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence of the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
