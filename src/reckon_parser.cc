@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar  5 00:20:56 EST 2021
+// Date:	Thu Apr 15 13:41:07 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -88,6 +88,20 @@ void REC::init_parser ( PAR::parser parser )
         1ull << TAB::find_name
             ( parser->selector_name_table, text_name );
 
+    BRA::push_bracket_type
+	( code_name,
+	    PAR::TOP_LEVEL_SELECTOR
+	  + code + text,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  PARLEX::reset,
+	  min::MISSING(),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  min::NULL_STUB,
+	  min::NULL_STUB,
+	  bracketed_pass->bracket_type_table );
+
     min::locatable_gen equal
         ( min::new_str_gen ( "=" ) );
     min::locatable_gen equal_number_sign
@@ -124,7 +138,8 @@ void REC::init_parser ( PAR::parser parser )
 
     PAR::reformatter right_associative_reformatter =
         PAR::find_reformatter
-	    ( right_associative, OP::reformatter_stack );
+	    ( right_associative,
+	      OP::reformatter_stack );
 
     BRA::push_brackets
         ( PARLEX::left_parenthesis,
@@ -281,7 +296,8 @@ void REC::init_parser ( PAR::parser parser )
 	  right_quote,
 	  code + math + text,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( text, code + math + data, 0 ),
+	  TAB::new_flags
+	      ( text, code + math + data, 0 ),
 	  min::NULL_STUB, min::NULL_STUB,
 	  bracketed_pass->bracket_table );
 
@@ -307,12 +323,15 @@ void REC::init_parser ( PAR::parser parser )
     min::push ( double_quote_arguments ) = period;
     min::push ( double_quote_arguments ) = question;
     min::push ( double_quote_arguments ) = exclamation;
-    min::push ( double_quote_arguments ) = PARLEX::colon;
-    min::push ( double_quote_arguments ) = PARLEX::semicolon;
+    min::push ( double_quote_arguments ) =
+        PARLEX::colon;
+    min::push ( double_quote_arguments ) =
+        PARLEX::semicolon;
 
     PAR::reformatter text_reformatter =
         PAR::find_reformatter
-	    ( text_name, BRA::untyped_reformatter_stack );
+	    ( text_name,
+	      BRA::untyped_reformatter_stack );
 
     BRA::push_brackets
         ( left_double_quote,
