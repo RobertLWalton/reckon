@@ -677,10 +677,143 @@ This paragraph contains a quote:
 PREFIX EXPRESSION:
     {code||code}
     line ##:
-{code} // This is needed to end text and return to code.
+{code}
 ^^^^^^
 BRACKETED EXPRESSION:
-    This is a line of code "."
+    This is a logical code line of the indented paragraph "."
+    lines ##-##:
+    This is a logical code
+    ^^^^^^^^^^^^^^^^^^^^^^
+         line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a second logical code line "."
     line ##:
-This is a line of code.
+    And a second logical code line.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p||p}
+    line ##:
+    {p}But we can have a text paragraph in an indented
+    ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|But we can have a text paragraph in an
+        indented code paragraph|s}
+    lines ##-##:
+    {p}But we can have a text paragraph in an indented
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    code paragraph.
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|But we can have a text paragraph in an
+           indented code paragraph|s}|p}
+    lines ##-##:
+    {p}But we can have a text paragraph in an indented
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    code paragraph.
+^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {code||code}
+    line ##:
+    {code}
+    ^^^^^^
+BRACKETED EXPRESSION:
+    This is the third logical line of code "."
+    line ##:
+    This is the third logical line of code.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p||p}
+    line ##:
+    {p}And another piece of text.
+    ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|And another piece of text|s}
+    line ##:
+    {p}And another piece of text.
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|And another piece of text|s}|p}
+    line ##:
+    {p}And another piece of text.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+              is a logical code line of the indented paragraph "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|And
+              a second logical code line "."|}
+         {p|{s: .terminator = "."|But we can have a text paragraph in an
+                indented code paragraph|s}|p}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+              is the third logical line of code "."|}
+         {p|{s: .terminator = "."|And another piece of text|s}|p}|}
+    lines ##-##:
+This is a line of code:
+                      ^
+    // In code, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This is a logical code
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+         line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    And a second logical code line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p}But we can have a text paragraph in an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    code paragraph.
+^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {code}
+^^^^^^^^^^
+    This is the third logical line of code.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p}And another piece of text.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is a line of code:
+        This is a logical code line of the indented paragraph "."
+        And a second logical code line "."
+        {p|{s: .terminator = "."|But we can have a text paragraph in an
+               indented code paragraph|s}|p}
+        This is the third logical line of code "."
+        {p|{s: .terminator = "."|And another piece of text|s}|p}
+    lines ##-##:
+This is a line of code:
 ^^^^^^^^^^^^^^^^^^^^^^^
+    // In code, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This is a logical code
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+         line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    And a second logical code line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p}But we can have a text paragraph in an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    code paragraph.
+^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {code}
+^^^^^^^^^^
+    This is the third logical line of code.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    {p}And another piece of text.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    And a logical line of code that ends the indented paragraph "."
+    lines ##-###:
+And a logical line of code that ends the indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    paragraph.
+^^^^^^^^^^^^^^
