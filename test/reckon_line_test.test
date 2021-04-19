@@ -817,3 +817,213 @@ And a logical line of code that ends the indented
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     paragraph.
 ^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {section||section}
+    line ###:
+{section}Second Example
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|Second Example|s}
+    line ###:
+{section}Second Example
+         ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{s|Second Example|s}|section}
+    line ###:
+{section}Second Example
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{s|Second Example|s}|section}
+    line ###:
+{section}Second Example
+^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p: indent = "5"||p}
+    line ###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|This is the first paragraph of the second
+        example|s}
+    lines ###-###:
+{p: indent = 5}
+               ^
+This is the first paragraph of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     the second example.
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p: indent = "5"|
+        {s: .terminator = "."|This is the first paragraph of the second
+            example|s}|p}
+    lines ###-###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+This is the first paragraph of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     the second example.
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p: indent = "5"|
+        {s: .terminator = "."|This is the first paragraph of the second
+            example|s}|p}
+    lines ###-###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+This is the first paragraph of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     the second example.
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `"{" p ":" indent = 5 "}"'
+    line ###:
+with an implied `{p: indent = 5}', and which
+                ^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {quote||quote}
+    line ###:
+     {quote}Simplify, simplify, SMPLFY!
+     ^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "!"|Simplify "," simplify "," SMPLFY|s}
+    line ###:
+     {quote}Simplify, simplify, SMPLFY!
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {quote|{s: .terminator = "!"|Simplify "," simplify "," SMPLFY|s}|quote}
+    line ###:
+     {quote}Simplify, simplify, SMPLFY!
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                    SMPLFY|s}|quote}|}
+    lines ###-###:
+     contains a quote:
+                     ^
+<BLANK-LINE>
+^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|This is the next paragraph "," which begins with an implied
+       `"{" p ":" indent = 5 "}"' "," and which contains a quote
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                       SMPLFY|s}|quote}|}|s}
+    lines ###-###:
+This is the next paragraph, which begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+with an implied `{p: indent = 5}', and which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p: indent = "5"|
+        {s|This is the next paragraph "," which begins with an implied
+           `"{" p ":" indent = 5 "}"' "," and which contains a quote
+           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                ":"|
+                {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                           SMPLFY|s}|quote}|}|s}|p}
+    lines ###-###:
+This is the next paragraph, which begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+with an implied `{p: indent = 5}', and which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p: indent = "5"|
+        {s|This is the next paragraph "," which begins with an implied
+           `"{" p ":" indent = 5 "}"' "," and which contains a quote
+           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                ":"|
+                {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                           SMPLFY|s}|quote}|}|s}|p}
+    lines ###-###:
+This is the next paragraph, which begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+with an implied `{p: indent = 5}', and which
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `"{" p ":" indent = 5 "}"'
+    line ###:
+with an implied `{p: indent = 5}'.
+                ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|This is the third paragraph of the section|s}
+    line ###:
+This is the third paragraph of the section.  It begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|It begins with an implied
+        `"{" p ":" indent = 5 "}"'|s}
+    lines ###-###:
+This is the third paragraph of the section.  It begins
+                                           ^^^^^^^^^^^
+with an implied `{p: indent = 5}'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p: indent = "5"|
+        {s: .terminator = "."|This is the third paragraph of the
+            section|s}
+        {s: .terminator = "."|It begins with an implied
+            `"{" p ":" indent = 5 "}"'|s}|p}
+    lines ###-###:
+This is the third paragraph of the section.  It begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+with an implied `{p: indent = 5}'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p: indent = "5"|
+        {s: .terminator = "."|This is the third paragraph of the
+            section|s}
+        {s: .terminator = "."|It begins with an implied
+            `"{" p ":" indent = 5 "}"'|s}|p}
+    lines ###-###:
+This is the third paragraph of the section.  It begins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+with an implied `{p: indent = 5}'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {code||code}
+    line ###:
+{code}
+^^^^^^
+BRACKETED EXPRESSION:
+    `"{" code "}"'
+    line ###:
+     `{code}', it would begin with an implied
+     ^^^^^^^^
+BRACKETED EXPRESSION:
+    `"{" p ":" indent = 5 "}"'
+    line ###:
+     `{p: indent = 5}'.
+     ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [$ LOGICAL_LINE $] {|This is a line of code "." If it was not
+                         preceded by `"{" code "}"'|},
+                       {|it would begin with an implied
+                         `"{" p ":" indent = 5 "}"' "."|} "<LF>"
+    lines ###-###:
+This is a line of code.  If it was not preceded by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     `{code}', it would begin with an implied
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     `{p: indent = 5}'.
+^^^^^^^^^^^^^^^^^^^^^^^
