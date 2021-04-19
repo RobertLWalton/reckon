@@ -1027,3 +1027,216 @@ This is a line of code.  If it was not preceded by
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      `{p: indent = 5}'.
 ^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {table||table}
+    line ###:
+{table}
+^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}-----------------------------------------------------
+^^^^^
+BRACKETED EXPRESSION:
+    {row|-----------------------------------------------------|row}
+    line ###:
+{row}-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}| Name   | Weight   | Height     | Age       | BMI  |
+^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" Name "|" Weight "|" Height "|" Age "|" BMI "|" /ib/|row}
+    lines ###-###:
+{row}| Name   | Weight   | Height     | Age       | BMI  |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}| <name> | <weight> | <height>   | <age>     | B
+^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" <name> "|" <weight> "|" <height> "|" <age> "|" B|row}
+    line ###:
+{row}| <name> | <weight> | <height>   | <age>     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" /l/ "|" /U`lb'/ "|" /U`ft_in'/ "|" /u`yr'.0/ "|"
+         {# /.2/ #}|row}
+    line ###:
+{row}| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}| George | 205      | 6ft 3in    | 25        |
+^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" George "|" 205 "|" {# 6ft #} {# 3in #} "|" 25 "|"|row}
+    line ###:
+{row}| George | 205      | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}| Mary   | 135      | 5ft 5in    | 26        |
+^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" Mary "|" 135 "|" {# 5ft #} {# 5in #} "|" 26 "|"|row}
+    line ###:
+{row}| Mary   | 135      | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {row||row}
+    line ###:
+{row}----------------------------------------------
+^^^^^
+BRACKETED EXPRESSION:
+    {row|----------------------------------------------|row}
+    line ###:
+{row}----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-----------------------------------------------------|row}
+           {row|"|" Name "|" Weight "|" Height "|" Age "|" BMI "|"
+                /ib/|row}
+           {row|"|" <name> "|" <weight> "|" <height> "|" <age> "|"
+                B|row}
+           {row|"|" /l/ "|" /U`lb'/ "|" /U`ft_in'/ "|" /u`yr'.0/ "|"
+                {# /.2/ #}|row}
+           {row|"|" George "|" 205 "|" {# 6ft #} {# 3in #} "|" 25
+                "|"|row}
+           {row|"|" Mary "|" 135 "|" {# 5ft #} {# 5in #} "|" 26 "|"|row}
+           {row|----------------------------------------------|row}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                BMI ":" Body Mass Index|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|B
+                ":" <body mass index>|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                ROW TYPE ":" person|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                SORT ROWS BY ":" name|}|table}
+    lines ###-###:
+{table}
+^^^^^^^
+{row}-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{row}| Name   | Weight   | Height     | Age       | BMI  |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{row}| <name> | <weight> | <height>   | <age>     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{row}| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{row}| George | 205      | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{row}| Mary   | 135      | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+{row}----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BMI: Body Mass Index
+^^^^^^^^^^^^^^^^^^^^
+B: <body mass index>
+^^^^^^^^^^^^^^^^^^^^
+ROW TYPE: person
+^^^^^^^^^^^^^^^^
+SORT ROWS BY: name
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|-----------------------------------------------------|row}
+    line ###:
+-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-----------------------------------------------------|row}|table}
+    line ###:
+-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" Name "|" Weight "|" Height "|" Age "|" BMI "|" /ib/|row}
+    lines ###-###:
+| Name   | Weight   | Height     | Age       | BMI  |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" <name> "|" <weight> "|" <height> "|" <age> "|" B|row}
+    line ###:
+| <name> | <weight> | <height>   | <age>     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" /l/ "|" /U`lb'/ "|" /U`ft_in'/ "|" /u`yr'.0/ "|"
+         {# /.2/ #}|row}
+    line ###:
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" George "|" 205 "|" {# 6ft #} {# 3in #} "|" 25 "|"|row}
+    line ###:
+| George | 205      | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" Mary "|" 135 "|" {# 5ft #} {# 5in #} "|" 26 "|"|row}
+    line ###:
+| Mary   | 135      | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|----------------------------------------------|row}
+    line ###:
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-----------------------------------------------------|row}
+           {row|"|" Name "|" Weight "|" Height "|" Age "|" BMI "|"
+                /ib/|row}
+           {row|"|" <name> "|" <weight> "|" <height> "|" <age> "|"
+                B|row}
+           {row|"|" /l/ "|" /U`lb'/ "|" /U`ft_in'/ "|" /u`yr'.0/ "|"
+                {# /.2/ #}|row}
+           {row|"|" George "|" 205 "|" {# 6ft #} {# 3in #} "|" 25
+                "|"|row}
+           {row|"|" Mary "|" 135 "|" {# 5ft #} {# 5in #} "|" 26 "|"|row}
+           {row|----------------------------------------------|row}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                BMI ":" Body Mass Index|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|B
+                ":" <body mass index>|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                ROW TYPE ":" person|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                SORT ROWS BY ":" name|}|table}
+    lines ###-###:
+-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| Name   | Weight   | Height     | Age       | BMI  |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| <name> | <weight> | <height>   | <age>     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| George | 205      | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| Mary   | 135      | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BMI: Body Mass Index
+^^^^^^^^^^^^^^^^^^^^
+B: <body mass index>
+^^^^^^^^^^^^^^^^^^^^
+ROW TYPE: person
+^^^^^^^^^^^^^^^^
+SORT ROWS BY: name
+^^^^^^^^^^^^^^^^^^
