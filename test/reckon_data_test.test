@@ -1,0 +1,102 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+    trace [+ bracketed subexpressions]
+BRACKETED EXPRESSION:
+    type = woman
+    line ##:
+    type = woman
+    ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    name = Jill
+    line ##:
+    name = Jill
+    ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    husband = PREALLOCATED(1*2) = wife
+    line ##:
+    husband = @@ = wife
+    ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|type
+              = woman|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
+              = Jill|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              husband = PREALLOCATED(1*2) = wife|}|}
+    lines ##-##:
+!@@ =:
+     ^
+    type = woman
+^^^^^^^^^^^^^^^^
+    name = Jill
+^^^^^^^^^^^^^^^
+    husband = @@ = wife
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data||raw data}
+    line ##:
+!@@ =:
+^
+BRACKETED EXPRESSION:
+    {"": husband = @@ = wife, type = "woman", name = "Jill"||}
+    lines ##-##:
+!@@ =:
+^^^^^^
+    type = woman
+^^^^^^^^^^^^^^^^
+    name = Jill
+^^^^^^^^^^^^^^^
+    husband = @@ = wife
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    type = man
+    line ##:
+    type = man
+    ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    name = Jack
+    line ##:
+    name = Jack
+    ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|type
+              = man|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
+              = Jack|}|}
+    lines ##-##:
+!@@ =:
+     ^
+    type = man
+^^^^^^^^^^^^^^
+    name = Jack
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data||raw data}
+    line ##:
+!@@ =:
+^
+BRACKETED EXPRESSION:
+    {"": type = "man", name = "Jack", wife = @@ = husband||}
+    lines ##-##:
+!@@ =:
+^^^^^^
+    type = man
+^^^^^^^^^^^^^^
+    name = Jack
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID 1 ":" OUTPUT ID 2 IS
+        {"": husband = @@ = wife, type = "woman", name = "Jill"||}
+    line ##:
+INPUT ID 1 : OUTPUT ID 2 IS @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID 2 ":" OUTPUT ID 1 IS
+        {"": type = "man", name = "Jack", wife = @@ = husband||}
+    line ##:
+INPUT ID 2 : OUTPUT ID 1 IS @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
