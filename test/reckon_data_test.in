@@ -15,15 +15,39 @@
     trace [+ bracketed subexpressions]
 
 !@1 =:
-    type = woman
+    kind = woman
     name = Jill
     husband = @2 = wife
 !@2 =:
-    type = man
-    name = Jack
+	kind = man
+	name = Jack
+    +=:
+        wife = @1 = husband
 
 // Do not use an operator in the following or the trace
 // will collapse the @1 and @2.
 //
 INPUT ID 1 : OUTPUT ID 2 IS @1
 INPUT ID 2 : OUTPUT ID 1 IS @2
+
+!@11 =:
+    kind = woman
+    name[-] = Jill
+    husband[*] = @12 = wife
+!@12 =:
+	kind = man
+	name[+] = Jack
+    +=:
+        wife[@] = @11 = husband
+
+INPUT ID 11 : OUTPUT ID 11 IS @11
+INPUT ID 12 : OUTPUT ID 12 IS @12
+
+!@13 =:
+    kind = boy
+    name = giddy
+    parent = {* @11, @12 *} = child
+
+INPUT ID 11 : OUTPUT ID 11 IS @11
+INPUT ID 12 : OUTPUT ID 12 IS @12
+INPUT ID 13 : OUTPUT ID 13 IS @13
