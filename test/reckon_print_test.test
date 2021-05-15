@@ -1,0 +1,385 @@
+*PARSER*:
+    print selector ""
+        block standard: data paragraph
+        block standard: text
+        block standard: math
+        block standard: code
+        block TOP LEVEL: atom
+        block TOP LEVEL: data
+        block TOP LEVEL: LINE LEVEL
+        block TOP LEVEL: TOP LEVEL
+    print pass
+        top
+        operator [code, math]
+    print top level
+        block reckon:  selectors [code]
+                       options [end at le indent, end at line separator,
+                                end at outer closing,
+                                enable indented paragraph,
+                                enable header]
+                       paragraph lexical master "PARAGRAPH-CHECK"
+                       line lexical master "DATA-CHECK"
+                       line separator ";"
+        block standard:  selectors [code]
+                         options [end at le indent,
+                                  end at line separator,
+                                  end at outer closing,
+                                  enable indented paragraph,
+                                  enable header]
+                         paragraph lexical master "PARAGRAPH-CHECK"
+                         line lexical master "DATA-CHECK"
+                         line separator ";"
+        block TOP LEVEL:  selectors []
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing,
+                                   enable indented paragraph,
+                                   enable header]
+    print trace
+        [ + warnings, - parser input, - parser output,
+          + parser commands, - subexpression elements,
+          - subexpression details, - subexpression lines, - keys,
+          - bracketed subexpressions, - operator subexpressions ]
+    print ID character
+        block reckon: "@"
+        block standard: "@"
+        block TOP LEVEL: disabled
+    print mapped lexeme ""
+        block standard: mapped lexeme "DATA" [TOP LEVEL]
+                        with token value {data}
+        block standard: mapped lexeme "RAW-DATA" [TOP LEVEL]
+                        with token value {raw data}
+        block standard: mapped lexeme "TABLE" [TOP LEVEL]
+                        with token value {table}
+        block standard: mapped lexeme "ROW" [TOP LEVEL]
+                        with token value {row}
+    print middle break
+        block reckon: "#" "#"
+        block standard: "#" "#"
+        block TOP LEVEL: disabled
+    print quoted string concatenator
+        block reckon: "#"
+        block standard: "#"
+        block TOP LEVEL: disabled
+    print bracket ""
+        block standard: bracket "``" ... "''" [data, code, math, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with text reformatter ( "s", ".", "?", "!", ":",
+                        ";" )
+        block TOP LEVEL: bracket "``" ... "''" [data]
+        block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
+                        [code, math, text]
+                        with parsing selectors [atom]
+                        with label reformatter
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
+                         [data, atom]
+                         with parsing selectors [atom]
+                         with label reformatter
+        block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
+        block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                         with multivalue reformatter ( "," )
+        block reckon: bracket "(" ... ")" [code, math]
+                      with parsing selectors [- code, + math]
+        block standard: bracket "(" ... ")" [code, math, text]
+        block TOP LEVEL: bracket "(" ... ")" [data]
+        block reckon: bracket "[" ... "]" [atom, code, math, text]
+                      with parsing selectors [- atom, - code, + math,
+                                              - text]
+        block standard: bracket "[" ... "]" [code, math, text]
+        block TOP LEVEL: bracket "[" ... "]" [data]
+        block standard: bracket "`" ... "'" [code, math, text]
+                        with parsing selectors [atom]
+        block TOP LEVEL: bracket "`" ... "'" [data]
+                         with parsing selectors [atom]
+        block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
+                        [data, code, math, text]
+                        with parsing selectors [- data, - code, + math,
+                                                - text]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
+                        [code, math, text]
+                        with parsing selectors [atom]
+                        with special reformatter
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
+                         [data, atom]
+                         with parsing selectors [atom]
+                         with special reformatter
+    print indentation mark ""
+        block standard: indentation mark ":" [data paragraph]
+                        with parsing selectors [data]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+        block standard: indentation mark ":" [text]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+                        with implied header {p}
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block standard: indentation mark ":" ... ";" [code]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
+        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block reckon: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
+                      []
+                      with parsing selectors [code]
+                      with parsing options [end at le indent,
+                                            end at line separator,
+                                            end at outer closing,
+                                            enable indented paragraph,
+                                            enable header]
+                      with paragraph lexical master "PARAGRAPH-CHECK"
+                      with line lexical master "DATA-CHECK"
+        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
+                        []
+                        with parsing selectors [code]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing,
+                                              enable indented paragraph,
+                                              enable header]
+                        with paragraph lexical master "PARAGRAPH-CHECK"
+                        with line lexical master "DATA-CHECK"
+        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
+    print indentation offset
+        block reckon: 2
+        block standard: 2
+        block TOP LEVEL: 2
+    print typed bracket ""
+        block standard: typed bracket "{" ... "|" ... "|" ... "}"
+                        // "||" is also allowed.
+                        [code, math, text]
+                        with attribute selectors [data]
+                        with attributes ":" ... "=" ... ","
+                        with attribute negator "no"
+                        with attribute flags initiator "["
+                        with attribute multivalue initiator [< "{" "*" >]
+        block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
+                         // "||" is also allowed.
+                         [data]
+                         with attribute selectors [data]
+                         with attributes ":" ... "=" ... ","
+                         with attribute negator "no"
+                         with attribute flags initiator "["
+                         with attribute multivalue initiator [< "{" "*" >]
+                         with prefix selectors []
+    print bracket type ""
+        block standard: bracket type "p" [code, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix,
+                                              + sticky]
+                        with group paragraph
+                        with implied subprefix {s}
+        block standard: bracket type "s" [text]
+                        with sentence reformatter ( ".", "?", "!", ":",
+                        ";" )
+        block standard: bracket type "quote" [code, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix,
+                                              + sticky]
+                        with group paragraph
+                        with implied subprefix {s}
+        block standard: bracket type "section" [code, text]
+                        with parsing selectors [- data, - code, - math,
+                                                + text]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix]
+                        with group paragraph
+                        with implied subprefix {s}
+        block standard: bracket type "***" [TOP LEVEL, code, text]
+                        with group reset
+        block standard: bracket type [< "raw" "data" >]
+                        [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [data, data paragraph]
+                        with group line
+                        with data reformatter ( "=", "==", "+=", "++=",
+                        "=", "no", "[", [< "{" "*" >] )
+        block standard: bracket type "table" [code, text]
+                        with parsing selectors [text]
+                        with group paragraph
+                        with line lexical master "ROW-CHECK"
+        block standard: bracket type "row" [text]
+                        with group line
+        block standard: bracket type "data"
+                        [TOP LEVEL, data, code, math, text]
+                        with parsing selectors [+ data paragraph]
+                        with group line
+                        with data reformatter ( "=", "==", "+=", "++=",
+                        "=", "no", "[", [< "{" "*" >] )
+        block reckon: bracket type "code" [TOP LEVEL, code, text]
+                      with group reset
+    print operator ""
+        block standard: operator "*" [code, math]
+                        infix
+                        with precedence 5200
+                        with infix reformatter
+        block standard: operator "+" [code, math]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
+        block standard: operator "+" [code, math]
+                        infix
+                        with precedence 5000
+                        with sum reformatter ( "+", "-" )
+        block standard: operator "," [code, math]
+                        nofix
+                        with precedence 2000
+                        with separator reformatter
+        block standard: operator "-" [code, math]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
+        block standard: operator "-" [code, math]
+                        infix
+                        with precedence 5000
+                        with sum reformatter ( "+", "-" )
+        block standard: operator "/" [code, math]
+                        infix
+                        with precedence 5100
+                        with binary reformatter
+        block reckon: operator ":" [code]
+                      right afix line
+                      with precedence 0
+        block standard: operator "<" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "=" [code]
+                        infix line
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator "=" [math]
+                        infix
+                        with precedence 1000
+                        with binary reformatter
+        block standard: operator ">" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "!=" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "^" [code, math]
+                        infix
+                        with precedence 5300
+                        with binary reformatter
+        block standard: operator "NOT" [code, math]
+                        prefix
+                        with precedence 3200
+                        with unary reformatter
+        block reckon: operator [< "else" "if" >] [code]
+                      prefix line
+                      with precedence 0
+        block reckon: operator "for" [code]
+                      prefix line
+                      with precedence 0
+        block reckon: operator "<--" [code]
+                      nofix line
+                      with precedence 0
+                      with declare reformatter
+        block reckon: operator "while" [code]
+                      prefix line
+                      with precedence 0
+        block standard: operator [< "BUT" "NOT" >] [code, math]
+                        infix
+                        with precedence 3000
+                        with binary reformatter
+        block reckon: operator "if" [code]
+                      prefix line
+                      with precedence 0
+        block reckon: operator "else" [code]
+                      nofix line
+                      with precedence 0
+        block standard: operator "*=" [code]
+                        infix line
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator "+=" [code]
+                        infix line
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator "<=" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block reckon: operator "=#" [code, math]
+                      infix line
+                      with precedence 1000
+                      with right associative reformatter
+        block standard: operator "AND" [code, math]
+                        infix
+                        with precedence 3100
+                        with infix reformatter
+        block standard: operator "==" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block standard: operator "-=" [code]
+                        infix line
+                        with precedence 1000
+                        with right associative reformatter
+        block standard: operator ">=" [code, math]
+                        infix
+                        with precedence 4000
+                        with infix and reformatter ( "AND" )
+        block reckon: operator "on" [code]
+                      prefix line
+                      with precedence 0
+        block standard: operator "OR" [code, math]
+                        infix
+                        with precedence 3100
+                        with infix reformatter
+        block standard: operator "/=" [code]
+                        infix line
+                        with precedence 1000
+                        with right associative reformatter
+        block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
+                      nofix afix line
+                      with precedence 0
+        block reckon: bracket ":" [code]
+                      nofix afix line
+                      with precedence 0
