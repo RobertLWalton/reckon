@@ -6,8 +6,8 @@
     trace [+ operator subexpressions]
     print selector ""
         block standard: data paragraph
-        block standard: text
         block standard: math
+        block standard: text
         block standard: code
         block TOP LEVEL: atom
         block TOP LEVEL: data
@@ -74,14 +74,14 @@
                                                enable indented paragraph,
                                                enable header]
     print bracket ""
-        block standard: bracket "``" ... "''" [data, code, math, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+        block standard: bracket "``" ... "''" [data, code, text, math]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
@@ -91,26 +91,24 @@
         block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
-        block reckon: bracket "(" ... ")" [code, math]
-                      with parsing selectors [- code, + math]
-        block standard: bracket "(" ... ")" [code, math, text]
+        block standard: bracket "(" ... ")" [code, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block reckon: bracket "[" ... "]" [atom, code, math, text]
-                      with parsing selectors [- atom, - code, + math,
-                                              - text]
-        block standard: bracket "[" ... "]" [code, math, text]
+        block reckon: bracket "[" ... "]" [atom, code, text, math]
+                      with parsing selectors [- atom, - code, - text,
+                                              + math]
+        block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, math, text]
+        block standard: bracket "`" ... "'" [code, text, math]
                         with parsing selectors [atom]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [atom]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [data, code, math, text]
-                        with parsing selectors [- data, - code, + math,
-                                                - text]
+                        [data, code, text, math]
+                        with parsing selectors [- data, - code, - text,
+                                                + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [code, math, text]
+                        [code, text, math]
                         with parsing selectors [atom]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
@@ -119,8 +117,8 @@
                          with special reformatter
     print bracket type ""
         block standard: bracket type "p" [code, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -135,8 +133,8 @@
                         with sentence reformatter ( ".", "?", "!", ":",
                         ";" )
         block standard: bracket type "quote" [code, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -148,8 +146,8 @@
                         with group paragraph
                         with implied subprefix {s}
         block standard: bracket type "section" [code, text]
-                        with parsing selectors [- data, - code, - math,
-                                                + text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
                         with parsing options [- end at indent,
                                               - end at le indent,
                                               + end at lt indent,
@@ -162,11 +160,11 @@
         block standard: bracket type "***" [TOP LEVEL, code, text]
                         with group reset
         block standard: bracket type [< "raw" "data" >]
-                        [TOP LEVEL, data, code, math, text]
+                        [TOP LEVEL, data, code, text, math]
                         with parsing selectors [data, data paragraph]
                         with group line
-                        with data reformatter ( "=", "==", "+=", "++=",
-                        "=", "no", "[", [< "{" "*" >] )
+                        with data reformatter ( "@@@@", ":=",
+                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
         block standard: bracket type "table" [code, text]
                         with parsing selectors [text]
                         with group paragraph
@@ -174,26 +172,30 @@
         block standard: bracket type "row" [text]
                         with group line
         block standard: bracket type "data"
-                        [TOP LEVEL, data, code, math, text]
+                        [TOP LEVEL, data, code, text, math]
                         with parsing selectors [+ data paragraph]
                         with group line
-                        with data reformatter ( "=", "==", "+=", "++=",
-                        "=", "no", "[", [< "{" "*" >] )
+                        with data reformatter ( "@@@@", ":=",
+                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
         block reckon: bracket type "code" [TOP LEVEL, code, text]
                       with group reset
     print operator ""
+        block standard: operator "&" [code]
+                        infix
+                        with precedence 6000
+                        with infix reformatter ( "&" )
         block standard: operator "*" [code, math]
                         infix
-                        with precedence 5200
-                        with infix reformatter
+                        with precedence 6200
+                        with infix reformatter ( "*" )
         block standard: operator "+" [code, math]
                         prefix
                         with precedence 999999
                         with unary reformatter
         block standard: operator "+" [code, math]
                         infix
-                        with precedence 5000
-                        with sum reformatter ( "+", "-" )
+                        with precedence 6000
+                        with infix reformatter ( "+", "-" )
         block standard: operator "," [code, math]
                         nofix
                         with precedence 2000
@@ -204,115 +206,177 @@
                         with unary reformatter
         block standard: operator "-" [code, math]
                         infix
-                        with precedence 5000
-                        with sum reformatter ( "+", "-" )
+                        with precedence 6000
+                        with infix reformatter ( "+", "-" )
         block standard: operator "/" [code, math]
                         infix
-                        with precedence 5100
+                        with precedence 6100
                         with binary reformatter
-        block reckon: operator ":" [code]
-                      right afix line
-                      with precedence 0
+        block standard: operator ":" [code]
+                        right afix line
+                        with precedence 0
         block standard: operator "<" [code, math]
                         infix
-                        with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with precedence 5000
+                        with infix reformatter
         block standard: operator "=" [code]
                         infix line
                         with precedence 1000
-                        with right associative reformatter
+                        with binary reformatter
         block standard: operator "=" [math]
                         infix
                         with precedence 1000
                         with binary reformatter
         block standard: operator ">" [code, math]
                         infix
-                        with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with precedence 5000
+                        with infix reformatter
         block standard: operator "!=" [code, math]
                         infix
-                        with precedence 4000
-                        with infix and reformatter ( "AND" )
-        block standard: operator "^" [code, math]
+                        with precedence 5000
+                        with infix reformatter
+        block standard: operator "^" [code]
                         infix
-                        with precedence 5300
+                        with precedence 6000
+                        with infix reformatter ( "^" )
+        block standard: operator "|" [code]
+                        infix
+                        with precedence 6000
+                        with infix reformatter ( "|" )
+        block standard: operator "~" [code]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
+        block standard: operator ">>=" [code]
+                        infix line
+                        with precedence 1000
                         with binary reformatter
         block standard: operator "NOT" [code, math]
                         prefix
-                        with precedence 3200
+                        with precedence 4200
                         with unary reformatter
-        block reckon: operator [< "else" "if" >] [code]
-                      prefix line
-                      with precedence 0
+        block standard: operator [< "else" "if" >] [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
         block reckon: operator "for" [code]
                       prefix line
                       with precedence 0
+        block standard: operator "<<=" [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
         block reckon: operator "<--" [code]
                       nofix line
                       with precedence 0
                       with declare reformatter
-        block reckon: operator "while" [code]
-                      prefix line
-                      with precedence 0
+        block standard: operator "&=" [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
+        block standard: operator "while" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
-                        with precedence 3000
+                        with precedence 4000
                         with binary reformatter
-        block reckon: operator "if" [code]
-                      prefix line
-                      with precedence 0
-        block reckon: operator "else" [code]
-                      nofix line
-                      with precedence 0
+        block standard: operator "if" [code, math]
+                        infix
+                        with precedence 3000
+                        with selector reformatter ( "if", "else" )
+        block standard: operator "if" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
+        block standard: operator "until" [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( ":",
+                        [< "has" "condition" >] )
+        block standard: operator "else" [code, math]
+                        infix afix
+                        with precedence 3000
+        block standard: operator "else" [code]
+                        initial line
+                        with precedence 0
+                        with control reformatter ( ":" )
+        block standard: operator "**" [code, math]
+                        infix
+                        with precedence 6300
+                        with binary reformatter
         block standard: operator "*=" [code]
                         infix line
                         with precedence 1000
-                        with right associative reformatter
+                        with binary reformatter
+        block standard: operator "|=" [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
         block standard: operator "+=" [code]
                         infix line
                         with precedence 1000
-                        with right associative reformatter
+                        with binary reformatter
+        block standard: operator "<<" [code]
+                        infix
+                        with precedence 6000
+                        with binary reformatter
         block standard: operator "<=" [code, math]
                         infix
-                        with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with precedence 5000
+                        with infix reformatter
         block reckon: operator "=#" [code, math]
                       infix line
                       with precedence 1000
                       with right associative reformatter
         block standard: operator "AND" [code, math]
                         infix
-                        with precedence 3100
-                        with infix reformatter
+                        with precedence 4100
+                        with infix reformatter ( "AND" )
         block standard: operator "==" [code, math]
                         infix
-                        with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with precedence 5000
+                        with infix reformatter
         block standard: operator "-=" [code]
                         infix line
                         with precedence 1000
-                        with right associative reformatter
+                        with binary reformatter
+        block standard: operator "^=" [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
         block standard: operator ">=" [code, math]
                         infix
-                        with precedence 4000
-                        with infix and reformatter ( "AND" )
+                        with precedence 5000
+                        with infix reformatter
+        block standard: operator ">>" [code]
+                        infix
+                        with precedence 6000
+                        with binary reformatter
         block reckon: operator "on" [code]
                       prefix line
                       with precedence 0
         block standard: operator "OR" [code, math]
                         infix
-                        with precedence 3100
-                        with infix reformatter
+                        with precedence 4100
+                        with infix reformatter ( "OR" )
         block standard: operator "/=" [code]
                         infix line
                         with precedence 1000
-                        with right associative reformatter
+                        with binary reformatter
         block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
                       nofix afix line
                       with precedence 0
         block reckon: bracket ":" [code]
                       nofix afix line
                       with precedence 0
+        block standard: bracket ":" [code]
+                        postfix afix line
+                        with precedence 0
 BRACKETED EXPRESSION:
     9
     line ##:
@@ -329,8 +393,7 @@ NATURAL LEXEME:
 9 + 8
     ^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|+ 9 8|}
+    9 + 8
     line ##:
 9 + 8
 ^^^^^
@@ -345,8 +408,7 @@ NATURAL LEXEME:
 x = 9
     ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= x 9|}
+    x = 9
     line ##:
 x = 9
 ^^^^^
@@ -365,14 +427,13 @@ NATURAL LEXEME:
     line ##:
 y = 9 + 8
         ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ 9 8|}
+PURELIST EXPRESSION:
+    {|9 + 8|}
     line ##:
 y = 9 + 8
     ^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= y {"": .operator = "+"|+ 9 8|}|}
+    y = {|9 + 8|}
     line ##:
 y = 9 + 8
 ^^^^^^^^^
@@ -387,8 +448,7 @@ WORD LEXEME:
 x + y
     ^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|+ x y|}
+    x + y
     line ##:
 x + y
 ^^^^^
@@ -432,20 +492,18 @@ WORD LEXEME:
     line ##:
 f (b, c, x) = b * x + c
                       ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* b x|}
+PURELIST EXPRESSION:
+    {|b * x|}
     line ##:
 f (b, c, x) = b * x + c
               ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ {"": .operator = "*"|* b x|} c|}
+PURELIST EXPRESSION:
+    {|{|b * x|} + c|}
     line ##:
 f (b, c, x) = b * x + c
               ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|f (b, c, x)|}
-         {"": .operator = "+"|+ {"": .operator = "*"|* b x|} c|}|}
+    {|f (b, c, x)|} = {|{|b * x|} + c|}
     line ##:
 f (b, c, x) = b * x + c
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -490,8 +548,7 @@ BRACKETED EXPRESSION:
 g = `hello'
     ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= g `hello'|}
+    g = `hello'
     line ##:
 g = `hello'
 ^^^^^^^^^^^
@@ -541,9 +598,7 @@ BRACKETED EXPRESSION:
 z = ``I thought he said `[g]'.''
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= z
-         ``{s: .terminator = "."|I thought he said `[g]'|s}''|}
+    z = ``{s: .terminator = "."|I thought he said `[g]'|s}''
     line ##:
 z = ``I thought he said `[g]'.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -552,18 +607,13 @@ NATURAL LEXEME:
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
        ^^
-WORD LEXEME:
-    x
+PURELIST EXPRESSION:
+    {|x ^ 2|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
-            ^
-NATURAL LEXEME:
-    2
-    line ##:
-f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
-                ^
-BRACKETED EXPRESSION:
-    {# 3.67 #}
+            ^^^^^
+(UNKNOWN TYPE) EXPRESSION:
+    3.67
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
                     ^^^^
@@ -572,50 +622,28 @@ WORD LEXEME:
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
                            ^
-BRACKETED EXPRESSION:
-    {# 0.04 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.04
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
                                ^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "^"|^ x 2|}
-    line ##:
-f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
-            ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
+PURELIST EXPRESSION:
+    {|10 * {|x ^ 2|}|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
        ^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 3.67 #} x|}
+PURELIST EXPRESSION:
+    {|3.67 * x|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
                     ^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
-    line ##:
-f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
-                  ^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "-"|- {# 0.04 #}|}
-    line ##:
-f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
-                             ^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+
-         {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
-         {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
-         {"": .operator = "-"|- {# 0.04 #}|}|}
+PURELIST EXPRESSION:
+    {|{|10 * {|x ^ 2|}|} - {|3.67 * x|} - 0.04|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = [< "}" "}" >], .initiator =
-         [< "{" "{" >]|+
-         {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
-         {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
-         {"": .operator = "-"|- {# 0.04 #}|}|}
+    {{{|10 * {|x ^ 2|}|} - {|3.67 * x|} - 0.04}}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -625,33 +653,22 @@ WORD LEXEME:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 ^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = [< "}" "}" >], .initiator =
-         [< "{" "{" >]|+
-         {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
-         {"": .operator = "-"|- {"": .operator = "*"|* {# 3.67 #} x|}|}
-         {"": .operator = "-"|- {# 0.04 #}|}|}
+    {{{|10 * {|x ^ 2|}|} - {|3.67 * x|} - 0.04}}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= f
-         {"": .operator = "+", .terminator = [< "}" "}" >], .initiator =
-              [< "{" "{" >]|+
-              {"": .operator = "*"|* 10 {"": .operator = "^"|^ x 2|}|}
-              {"": .operator = "-"|-
-                   {"": .operator = "*"|* {# 3.67 #} x|}|}
-              {"": .operator = "-"|- {# 0.04 #}|}|}|}
+    f = {{{|10 * {|x ^ 2|}|} - {|3.67 * x|} - 0.04}}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.96 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.96
     line ##:
 h = (- 0.96 + 0.67 * x) in x
        ^^^^
-BRACKETED EXPRESSION:
-    {# 0.67 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.67
     line ##:
 h = (- 0.96 + 0.67 * x) in x
               ^^^^
@@ -660,26 +677,23 @@ WORD LEXEME:
     line ##:
 h = (- 0.96 + 0.67 * x) in x
                      ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "-"|- {# 0.96 #}|}
+PURELIST EXPRESSION:
+    {|- 0.96|}
     line ##:
 h = (- 0.96 + 0.67 * x) in x
      ^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 0.67 #} x|}
+PURELIST EXPRESSION:
+    {|0.67 * x|}
     line ##:
 h = (- 0.96 + 0.67 * x) in x
               ^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ {"": .operator = "-"|- {# 0.96 #}|}
-         {"": .operator = "*"|* {# 0.67 #} x|}|}
+PURELIST EXPRESSION:
+    {|{|- 0.96|} + {|0.67 * x|}|}
     line ##:
 h = (- 0.96 + 0.67 * x) in x
      ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = ")", .initiator = "("|+
-         {"": .operator = "-"|- {# 0.96 #}|}
-         {"": .operator = "*"|* {# 0.67 #} x|}|}
+    ({|- 0.96|} + {|0.67 * x|})
     line ##:
 h = (- 0.96 + 0.67 * x) in x
     ^^^^^^^^^^^^^^^^^^^
@@ -689,18 +703,12 @@ WORD LEXEME:
 h = (- 0.96 + 0.67 * x) in x
 ^
 PURELIST EXPRESSION:
-    {|{"": .operator = "+", .terminator = ")", .initiator = "("|+
-           {"": .operator = "-"|- {# 0.96 #}|}
-           {"": .operator = "*"|* {# 0.67 #} x|}|} in x|}
+    {|({|- 0.96|} + {|0.67 * x|}) in x|}
     line ##:
 h = (- 0.96 + 0.67 * x) in x
     ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= h
-         {|{"": .operator = "+", .terminator = ")", .initiator = "("|+
-                {"": .operator = "-"|- {# 0.96 #}|}
-                {"": .operator = "*"|* {# 0.67 #} x|}|} in x|}|}
+    h = {|({|- 0.96|} + {|0.67 * x|}) in x|}
     line ##:
 h = (- 0.96 + 0.67 * x) in x
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -715,13 +723,12 @@ WORD LEXEME:
 (f + h) in x
      ^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|}
+    (f + h)
     line ##:
 (f + h) in x
 ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|} in
-        x
+    (f + h) in x
     line ##:
 (f + h) in x
 ^^^^^^^^^^^^
@@ -730,36 +737,18 @@ WORD LEXEME:
     line ##:
 solve (f + h = 0) for x
        ^
-WORD LEXEME:
-    h
+PURELIST EXPRESSION:
+    {|h = 0|}
     line ##:
 solve (f + h = 0) for x
-           ^
-NATURAL LEXEME:
-    0
-    line ##:
-solve (f + h = 0) for x
-               ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ f h|}
-    line ##:
-solve (f + h = 0) for x
-       ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "="|= {"": .operator = "+"|+ f h|} 0|}
-    line ##:
-solve (f + h = 0) for x
-       ^^^^^^^^^
+           ^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = ")", .initiator = "("|=
-         {"": .operator = "+"|+ f h|} 0|}
+    (f + {|h = 0|})
     line ##:
 solve (f + h = 0) for x
       ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    solve
-        {"": .operator = "=", .terminator = ")", .initiator = "("|=
-             {"": .operator = "+"|+ f h|} 0|} for x
+    solve (f + {|h = 0|}) for x
     line ##:
 solve (f + h = 0) for x
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -774,7 +763,7 @@ WORD LEXEME:
 (f + h) at (x = (3, 4, 5))
      ^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|}
+    (f + h)
     line ##:
 (f + h) at (x = (3, 4, 5))
 ^^^^^^^
@@ -798,64 +787,33 @@ BRACKETED EXPRESSION:
     line ##:
 (f + h) at (x = (3, 4, 5))
                 ^^^^^^^^^
-WORD LEXEME:
-    x
-    line ##:
-(f + h) at (x = (3, 4, 5))
-            ^
 BRACKETED EXPRESSION:
-    (3, 4, 5)
-    line ##:
-(f + h) at (x = (3, 4, 5))
-                ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = ")", .initiator = "("|= x
-         (3, 4, 5)|}
+    (x = (3, 4, 5))
     line ##:
 (f + h) at (x = (3, 4, 5))
            ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = ")", .initiator = "("|+ f h|} at
-        {"": .operator = "=", .terminator = ")", .initiator = "("|= x
-             (3, 4, 5)|}
+    (f + h) at (x = (3, 4, 5))
     line ##:
 (f + h) at (x = (3, 4, 5))
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-WORD LEXEME:
-    x
+PURELIST EXPRESSION:
+    {|x ^ 2|}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
-                 ^
-NATURAL LEXEME:
-    2
-    line ##:
-g = {{ integral (x ^ 2 * dx) }}
-                     ^
+                 ^^^^^
 WORD LEXEME:
     dx
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
                          ^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "^"|^ x 2|}
-    line ##:
-g = {{ integral (x ^ 2 * dx) }}
-                 ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {"": .operator = "^"|^ x 2|} dx|}
-    line ##:
-g = {{ integral (x ^ 2 * dx) }}
-                 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "*", .terminator = ")", .initiator = "("|*
-         {"": .operator = "^"|^ x 2|} dx|}
+    ({|x ^ 2|} * dx)
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
                 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{integral
-      {"": .operator = "*", .terminator = ")", .initiator = "("|*
-           {"": .operator = "^"|^ x 2|} dx|}}}
+    {{integral ({|x ^ 2|} * dx)}}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -865,18 +823,12 @@ WORD LEXEME:
 g = {{ integral (x ^ 2 * dx) }}
 ^
 BRACKETED EXPRESSION:
-    {{integral
-      {"": .operator = "*", .terminator = ")", .initiator = "("|*
-           {"": .operator = "^"|^ x 2|} dx|}}}
+    {{integral ({|x ^ 2|} * dx)}}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= g
-         {{integral
-           {"": .operator = "*", .terminator = ")", .initiator = "("|*
-                {"": .operator = "^"|^ x 2|} dx|}}}|}
+    g = {{integral ({|x ^ 2|} * dx)}}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -885,33 +837,13 @@ BRACKETED EXPRESSION:
     line ##:
 simplify g
 ^^^^^^^^^^
-WORD LEXEME:
-    x
-    line ##:
-v = g from (x = 1) to (x = 5)
-            ^
-NATURAL LEXEME:
-    1
-    line ##:
-v = g from (x = 1) to (x = 5)
-                ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+    (x = 1)
     line ##:
 v = g from (x = 1) to (x = 5)
            ^^^^^^^
-WORD LEXEME:
-    x
-    line ##:
-v = g from (x = 1) to (x = 5)
-                       ^
-NATURAL LEXEME:
-    5
-    line ##:
-v = g from (x = 1) to (x = 5)
-                           ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}
+    (x = 5)
     line ##:
 v = g from (x = 1) to (x = 5)
                       ^^^^^^^
@@ -921,21 +853,12 @@ WORD LEXEME:
 v = g from (x = 1) to (x = 5)
 ^
 PURELIST EXPRESSION:
-    {|g from
-      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
-      to
-      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}|}
+    {|g from (x = 1) to (x = 5)|}
     line ##:
 v = g from (x = 1) to (x = 5)
     ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= v
-         {|g from
-           {"": .operator = "=", .terminator = ")", .initiator = "("|= x
-                1|} to
-           {"": .operator = "=", .terminator = ")", .initiator = "("|= x
-                5|}|}|}
+    v = {|g from (x = 1) to (x = 5)|}
     line ##:
 v = g from (x = 1) to (x = 5)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -955,7 +878,7 @@ NATURAL LEXEME:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
                                      ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
+    (x = 1)
     line ##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
                                 ^^^^^^^
@@ -970,15 +893,12 @@ NATURAL LEXEME:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
                                                 ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}
+    (x = 5)
     line ##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
                                            ^^^^^^^
 BRACKETED EXPRESSION:
-    {{[g] from
-      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 1|}
-      to
-      {"": .operator = "=", .terminator = ")", .initiator = "("|= x 5|}}}
+    {{[g] from (x = 1) to (x = 5)}}
     line ##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -988,24 +908,16 @@ BRACKETED EXPRESSION:
         is [v].''
            ^^^
 BRACKETED EXPRESSION:
-    {s: .terminator = "."|The value of
-        {{[g] from
-          {"": .operator = "=", .terminator = ")", .initiator = "("|= x
-               1|} to
-          {"": .operator = "=", .terminator = ")", .initiator = "("|= x
-               5|}}} is [v]|s}
+    {s: .terminator = "."|The value of {{[g] from (x = 1) to (x = 5)}}
+        is [v]|s}
     lines ##-##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         is [v].''
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ``{s: .terminator = "."|The value of
-          {{[g] from
-            {"": .operator = "=", .terminator = ")", .initiator = "("|=
-                 x 1|} to
-            {"": .operator = "=", .terminator = ")", .initiator = "("|=
-                 x 5|}}} is [v]|s}''
+    ``{s: .terminator = "."|The value of {{[g] from (x = 1) to (x = 5)}}
+          is [v]|s}''
     lines ##-##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1017,26 +929,17 @@ WORD LEXEME:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
 ^^^
 BRACKETED EXPRESSION:
-    ``{s: .terminator = "."|The value of
-          {{[g] from
-            {"": .operator = "=", .terminator = ")", .initiator = "("|=
-                 x 1|} to
-            {"": .operator = "=", .terminator = ")", .initiator = "("|=
-                 x 5|}}} is [v]|s}''
+    ``{s: .terminator = "."|The value of {{[g] from (x = 1) to (x = 5)}}
+          is [v]|s}''
     lines ##-##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         is [v].''
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= out
-         ``{s: .terminator = "."|The value of
-               {{[g] from
-                 {"": .operator = "=", .terminator = ")", .initiator =
-                      "("|= x 1|} to
-                 {"": .operator = "=", .terminator = ")", .initiator =
-                      "("|= x 5|}}} is [v]|s}''|}
+    out =
+        ``{s: .terminator = "."|The value of
+              {{[g] from (x = 1) to (x = 5)}} is [v]|s}''
     lines ##-##:
 out = ``The value of {{[g] from (x = 1) to (x = 5)}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1058,8 +961,7 @@ PURELIST EXPRESSION:
 V =# {| 1 2 3 |}
      ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=#", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|=# V {|1 2 3|}|}
+    V =# {|1 2 3|}
     line ##:
 V =# {| 1 2 3 |}
 ^^^^^^^^^^^^^^^^
@@ -1069,12 +971,12 @@ BRACKETED EXPRESSION:
    0   1   1
    ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {# -1 #} 1 0
+    -1 1 0
     line ##:
    -1  1   0
    ^^^^^^^^^
 BRACKETED EXPRESSION:
-    1 0 {# -1 #}
+    1 0 -1
     line ##:
    1   0  -1
    ^^^^^^^^^
@@ -1082,10 +984,10 @@ BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|0 1
               1|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-              {# -1 #} 1 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|-1 1
+              0|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|1 0
-              {# -1 #}|}|}
+              -1|}|}
     lines ##-##:
 M =#:
     ^
@@ -1104,10 +1006,10 @@ BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|0 1
               1|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-              {# -1 #} 1 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|-1 1
+              0|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|1 0
-              {# -1 #}|}|}
+              -1|}|}
     lines ##-##:
 M =#:
     ^
@@ -1118,15 +1020,10 @@ M =#:
    1   0  -1
 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=#", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|=# M
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|0 1 1|}
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|{# -1 #} 1 0|}
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|1 0 {# -1 #}|}|}|}
+    M =#:
+        0 1 1
+        -1 1 0
+        1 0 -1
     lines ##-##:
 M =#:
 ^^^^^
@@ -1147,8 +1044,7 @@ WORD LEXEME:
 V ^ T
     ^
 BRACKETED EXPRESSION:
-    {"": .operator = "^", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|^ V T|}
+    V ^ T
     line ##:
 V ^ T
 ^^^^^
@@ -1167,14 +1063,18 @@ WORD LEXEME:
     line ##:
 M * V ^ T
         ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "^"|^ V T|}
+PURELIST EXPRESSION:
+    {|M * V|}
     line ##:
 M * V ^ T
-    ^^^^^
+^^^^^
+PURELIST EXPRESSION:
+    {|{|M * V|} ^ T|}
+    line ##:
+M * V ^ T
+^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "*", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|* M {"": .operator = "^"|^ V T|}|}
+    {|M * V|} ^ T
     line ##:
 M * V ^ T
 ^^^^^^^^^
@@ -1194,8 +1094,7 @@ BRACKETED EXPRESSION:
     name = `Jack'
            ^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= name `Jack'|}
+    name = `Jack'
     line ##:
     name = `Jack'
     ^^^^^^^^^^^^^
@@ -1210,8 +1109,7 @@ PURELIST EXPRESSION:
     weight = 123 lb
              ^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= weight {|123 lb|}|}
+    weight = {|123 lb|}
     line ##:
     weight = 123 lb
     ^^^^^^^^^^^^^^^
@@ -1226,8 +1124,7 @@ PURELIST EXPRESSION:
     height = 5 ft 9 in
              ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= height {|5 ft 9 in|}|}
+    height = {|5 ft 9 in|}
     line ##:
     height = 5 ft 9 in
     ^^^^^^^^^^^^^^^^^^
@@ -1242,21 +1139,20 @@ PURELIST EXPRESSION:
     age = 23 yr 2 mo
           ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= age {|23 yr 2 mo|}|}
+    age = {|23 yr 2 mo|}
     line ##:
     age = 23 yr 2 mo
     ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= name `Jack'|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= weight {|123 lb|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= height {|5 ft 9 in|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= age {|23 yr 2 mo|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
+              = `Jack'|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              weight = {|123 lb|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              height = {|5 ft 9 in|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|age
+              = {|23 yr 2 mo|}|}|}
     lines ##-##:
 a person:
         ^
@@ -1270,14 +1166,10 @@ a person:
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     a person:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= name `Jack'|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= weight {|123 lb|}|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= height {|5 ft 9 in|}|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= age {|23 yr 2 mo|}|}
+        name = `Jack'
+        weight = {|123 lb|}
+        height = {|5 ft 9 in|}
+        age = {|23 yr 2 mo|}
     lines ##-##:
 a person:
 ^^^^^^^^^
@@ -1305,8 +1197,7 @@ BRACKETED EXPRESSION:
     name = `Jill'
            ^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= name `Jill'|}
+    name = `Jill'
     line ##:
     name = `Jill'
     ^^^^^^^^^^^^^
@@ -1321,8 +1212,7 @@ PURELIST EXPRESSION:
     weight = 110 lb
              ^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= weight {|110 lb|}|}
+    weight = {|110 lb|}
     line ##:
     weight = 110 lb
     ^^^^^^^^^^^^^^^
@@ -1337,8 +1227,7 @@ PURELIST EXPRESSION:
     height = 5 ft 7 in
              ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= height {|5 ft 7 in|}|}
+    height = {|5 ft 7 in|}
     line ##:
     height = 5 ft 7 in
     ^^^^^^^^^^^^^^^^^^
@@ -1353,21 +1242,20 @@ PURELIST EXPRESSION:
     age = 21 yr 8 mo
           ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= age {|21 yr 8 mo|}|}
+    age = {|21 yr 8 mo|}
     line ##:
     age = 21 yr 8 mo
     ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= name `Jill'|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= weight {|110 lb|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= height {|5 ft 7 in|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= age {|21 yr 8 mo|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
+              = `Jill'|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              weight = {|110 lb|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              height = {|5 ft 7 in|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|age
+              = {|21 yr 8 mo|}|}|}
     lines ##-##:
 a person:
         ^
@@ -1381,14 +1269,10 @@ a person:
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     a person:
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= name `Jill'|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= weight {|110 lb|}|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= height {|5 ft 7 in|}|}
-        {"": .operator = "=", .terminator = "<LF>", .initiator =
-             [$ LOGICAL_LINE $]|= age {|21 yr 8 mo|}|}
+        name = `Jill'
+        weight = {|110 lb|}
+        height = {|5 ft 7 in|}
+        age = {|21 yr 8 mo|}
     lines ##-##:
 a person:
 ^^^^^^^^^
@@ -1415,8 +1299,8 @@ PURELIST EXPRESSION:
     line ##:
     body mass index = 703.06958 * weight in lbs
     ^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 703.06958 #}
+(UNKNOWN TYPE) EXPRESSION:
+    703.06958
     line ##:
     body mass index = 703.06958 * weight in lbs
                       ^^^^^^^^^
@@ -1435,31 +1319,29 @@ NATURAL LEXEME:
     line ##:
                     / height in inches ^ 2
                                          ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 703.06958 #} {|weight in lbs|}|}
+PURELIST EXPRESSION:
+    {|703.06958 * {|weight in lbs|}|}
     line ##:
     body mass index = 703.06958 * weight in lbs
                       ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "^"|^ {|height in inches|} 2|}
-    line ##:
+PURELIST EXPRESSION:
+    {|{|703.06958 * {|weight in lbs|}|} / {|height in inches|}|}
+    lines ##-##:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
                     / height in inches ^ 2
-                      ^^^^^^^^^^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "/"|/
-         {"": .operator = "*"|* {# 703.06958 #} {|weight in lbs|}|}
-         {"": .operator = "^"|^ {|height in inches|} 2|}|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|{|703.06958 * {|weight in lbs|}|} / {|height in inches|}|} ^ 2|}
     lines ##-##:
     body mass index = 703.06958 * weight in lbs
                       ^^^^^^^^^^^^^^^^^^^^^^^^^
                     / height in inches ^ 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|body mass index|}
-         {"": .operator = "/"|/
-              {"": .operator = "*"|* {# 703.06958 #} {|weight in lbs|}|}
-              {"": .operator = "^"|^ {|height in inches|} 2|}|}|}
+    {|body mass index|} =
+        {|{|{|703.06958 * {|weight in lbs|}|} / {|height in inches|}|} ^
+          2|}
     lines ##-##:
     body mass index = 703.06958 * weight in lbs
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1467,12 +1349,10 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|body mass index|}
-              {"": .operator = "/"|/
-                   {"": .operator = "*"|* {# 703.06958 #}
-                        {|weight in lbs|}|}
-                   {"": .operator = "^"|^ {|height in inches|} 2|}|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|body mass index|} =
+              {|{|{|703.06958 * {|weight in lbs|}|} /
+                  {|height in inches|}|} ^ 2|}|}|}
     lines ##-##:
 for every person:
                 ^
@@ -1486,15 +1366,10 @@ PURELIST EXPRESSION:
 for every person:
     ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "for", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|for {|every person|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|body mass index|}
-                   {"": .operator = "/"|/
-                        {"": .operator = "*"|* {# 703.06958 #}
-                             {|weight in lbs|}|}
-                        {"": .operator = "^"|^ {|height in inches|} 2|}|}|}|}|}
+    for {|every person|}:
+        {|body mass index|} =
+            {|{|{|703.06958 * {|weight in lbs|}|} /
+                {|height in inches|}|} ^ 2|}
     lines ##-##:
 for every person:
 ^^^^^^^^^^^^^^^^^
@@ -1528,12 +1403,12 @@ WORD LEXEME:
     if (X > Y):   value = 0
             ^
 BRACKETED EXPRESSION:
-    {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
+    (X > Y)
     line ##:
     if (X > Y):   value = 0
        ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = ">", .terminator = ")", .initiator = "("|> X Y|}
+    (X > Y)
     line ##:
     if (X > Y):   value = 0
        ^^^^^^^
@@ -1547,16 +1422,13 @@ NATURAL LEXEME:
     line ##:
     if (X > Y):   value = 0
                           ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "="|= value 0|}
+PURELIST EXPRESSION:
+    {|value = 0|}
     line ##:
     if (X > Y):   value = 0
                   ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "if", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|if
-         {"": .operator = ">", .terminator = ")", .initiator = "("|> X
-              Y|} ":" {"": .operator = "="|= value 0|}|}
+    if (X > Y) ":" {|value = 0|}
     line ##:
     if (X > Y):   value = 0
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1571,7 +1443,7 @@ NATURAL LEXEME:
     else:         value = X + sum (X + 1) through Y
                                        ^
 BRACKETED EXPRESSION:
-    {"": .operator = "+", .terminator = ")", .initiator = "("|+ X 1|}
+    (X + 1)
     line ##:
     else:         value = X + sum (X + 1) through Y
                                   ^^^^^^^
@@ -1586,37 +1458,22 @@ WORD LEXEME:
     else:         value = X + sum (X + 1) through Y
                           ^
 PURELIST EXPRESSION:
-    {|sum
-      {"": .operator = "+", .terminator = ")", .initiator = "("|+ X 1|}
-      through Y|}
+    {|sum (X + 1) through Y|}
     line ##:
     else:         value = X + sum (X + 1) through Y
                               ^^^^^^^^^^^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ X
-         {|sum
-           {"": .operator = "+", .terminator = ")", .initiator = "("|+ X
-                1|} through Y|}|}
+PURELIST EXPRESSION:
+    {|X + {|sum (X + 1) through Y|}|}
     line ##:
     else:         value = X + sum (X + 1) through Y
                           ^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "="|= value
-         {"": .operator = "+"|+ X
-              {|sum
-                {"": .operator = "+", .terminator = ")", .initiator =
-                     "("|+ X 1|} through Y|}|}|}
+PURELIST EXPRESSION:
+    {|value = {|X + {|sum (X + 1) through Y|}|}|}
     line ##:
     else:         value = X + sum (X + 1) through Y
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "else", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|else ":"
-         {"": .operator = "="|= value
-              {"": .operator = "+"|+ X
-                   {|sum
-                     {"": .operator = "+", .terminator = ")",
-                          .initiator = "("|+ X 1|} through Y|}|}|}|}
+    else ":" {|value = {|X + {|sum (X + 1) through Y|}|}|}
     line ##:
     else:         value = X + sum (X + 1) through Y
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1625,17 +1482,10 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               ``{s: .terminator = "."|Sum of integers from X through
                     Y|s}''|}
-         {"": .operator = "if", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|if
-              {"": .operator = ">", .terminator = ")", .initiator = "("|
-                   > X Y|} ":" {"": .operator = "="|= value 0|}|}
-         {"": .operator = "else", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|else ":"
-              {"": .operator = "="|= value
-                   {"": .operator = "+"|+ X
-                        {|sum
-                          {"": .operator = "+", .terminator = ")",
-                               .initiator = "("|+ X 1|} through Y|}|}|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
+              (X > Y) ":" {|value = 0|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
+              ":" {|value = {|X + {|sum (X + 1) through Y|}|}|}|}|}
     lines ##-##:
                           is an integer Y:
                                          ^
@@ -1668,26 +1518,11 @@ sum from X through Y <-- is an integer X,
                           is an integer Y:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<--", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|<-- {|sum from X through Y|}
-         {|{|is an integer X|}, {|is an integer Y|}|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|
-                   ``{s: .terminator = "."|Sum of integers from X
-                         through Y|s}''|}
-              {"": .operator = "if", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|if
-                   {"": .operator = ">", .terminator = ")", .initiator =
-                        "("|> X Y|} ":"
-                   {"": .operator = "="|= value 0|}|}
-              {"": .operator = "else", .terminator = "<LF>",
-                   .initiator = [$ LOGICAL_LINE $]|else ":"
-                   {"": .operator = "="|= value
-                        {"": .operator = "+"|+ X
-                             {|sum
-                               {"": .operator = "+", .terminator = ")",
-                                    .initiator = "("|+ X 1|} through Y|}|}|}|}|}|}
+    <-- {|sum from X through Y|}
+        {|{|is an integer X|}, {|is an integer Y|}|}:
+        ``{s: .terminator = "."|Sum of integers from X through Y|s}''
+        if (X > Y) ":" {|value = 0|}
+        else ":" {|value = {|X + {|sum (X + 1) through Y|}|}|}
     lines ##-##:
 sum from X through Y <-- is an integer X,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1755,8 +1590,7 @@ NATURAL LEXEME:
     value = 0
             ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value 0|}
+    value = 0
     line ##:
     value = 0
     ^^^^^^^^^
@@ -1771,7 +1605,7 @@ WORD LEXEME:
     while ( X <= Y ):
                  ^
 BRACKETED EXPRESSION:
-    {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X Y|}
+    (X <= Y)
     line ##:
     while ( X <= Y ):
           ^^^^^^^^^^
@@ -1790,15 +1624,13 @@ WORD LEXEME:
     line ##:
         next value = value + X
                              ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ value X|}
+PURELIST EXPRESSION:
+    {|value + X|}
     line ##:
         next value = value + X
                      ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next value|}
-         {"": .operator = "+"|+ value X|}|}
+    {|next value|} = {|value + X|}
     line ##:
         next value = value + X
         ^^^^^^^^^^^^^^^^^^^^^^
@@ -1817,25 +1649,22 @@ NATURAL LEXEME:
     line ##:
         next X = X + 1
                      ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ X 1|}
+PURELIST EXPRESSION:
+    {|X + 1|}
     line ##:
         next X = X + 1
                  ^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next X|} {"": .operator = "+"|+ X 1|}|}
+    {|next X|} = {|X + 1|}
     line ##:
         next X = X + 1
         ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next value|}
-              {"": .operator = "+"|+ value X|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next X|}
-              {"": .operator = "+"|+ X 1|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next value|} = {|value + X|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next X|} = {|X + 1|}|}|}
     lines ##-##:
     while ( X <= Y ):
                     ^
@@ -1844,22 +1673,14 @@ BRACKETED EXPRESSION:
         next X = X + 1
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X Y|}
+    (X <= Y)
     line ##:
     while ( X <= Y ):
           ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "while", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|while
-         {"": .operator = "<=", .terminator = ")", .initiator = "("|<= X
-              Y|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next value|}
-                   {"": .operator = "+"|+ value X|}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next X|}
-                   {"": .operator = "+"|+ X 1|}|}|}|}
+    while (X <= Y):
+        {|next value|} = {|value + X|}
+        {|next X|} = {|X + 1|}
     lines ##-##:
     while ( X <= Y ):
     ^^^^^^^^^^^^^^^^^
@@ -1872,20 +1693,17 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               ``{s: .terminator = "."|Sum of integers from X through
                     Y|s}''|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value 0|}
-         {"": .operator = "while", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|while
-              {"": .operator = "<=", .terminator = ")", .initiator =
-                   "("|<= X Y|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              value = 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              while (X <= Y)
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next value|}
-                        {"": .operator = "+"|+ value X|}|}
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next X|}
-                        {"": .operator = "+"|+ X 1|}|}|}|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next value|} =
+                        {|value + X|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next X|} = {|X + 1|}|}|}|}|}
     lines ##-##:
                          is an integer Y:
                                         ^
@@ -1922,29 +1740,13 @@ sum from X through Y <-- is an integer X,
                          is an integer Y:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<--", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|<-- {|sum from X through Y|}
-         {|{|is an integer X|}, {|is an integer Y|}|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|
-                   ``{s: .terminator = "."|Sum of integers from X
-                         through Y|s}''|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= value 0|}
-              {"": .operator = "while", .terminator = "<LF>",
-                   .initiator = [$ LOGICAL_LINE $]|while
-                   {"": .operator = "<=", .terminator = ")",
-                        .initiator = "("|<= X Y|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next value|}
-                             {"": .operator = "+"|+ value X|}|}
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next X|} {"": .operator = "+"|+ X 1|}|}|}|}|}|}
+    <-- {|sum from X through Y|}
+        {|{|is an integer X|}, {|is an integer Y|}|}:
+        ``{s: .terminator = "."|Sum of integers from X through Y|s}''
+        value = 0
+        while (X <= Y):
+            {|next value|} = {|value + X|}
+            {|next X|} = {|X + 1|}
     lines ##-##:
 sum from X through Y <-- is an integer X,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1986,8 +1788,7 @@ NATURAL LEXEME:
     count = 0
             ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= count 0|}
+    count = 0
     line ##:
     count = 0
     ^^^^^^^^^
@@ -2002,8 +1803,7 @@ NATURAL LEXEME:
     sum = 0
           ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= sum 0|}
+    sum = 0
     line ##:
     sum = 0
     ^^^^^^^
@@ -2027,15 +1827,13 @@ NATURAL LEXEME:
     line ##:
         next count = count + 1
                              ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ count 1|}
+PURELIST EXPRESSION:
+    {|count + 1|}
     line ##:
         next count = count + 1
                      ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next count|}
-         {"": .operator = "+"|+ count 1|}|}
+    {|next count|} = {|count + 1|}
     line ##:
         next count = count + 1
         ^^^^^^^^^^^^^^^^^^^^^^
@@ -2059,15 +1857,13 @@ PURELIST EXPRESSION:
     line ##:
         next sum = sum + the weight of (first X)
                          ^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ sum {|the weight of (first X)|}|}
+PURELIST EXPRESSION:
+    {|sum + {|the weight of (first X)|}|}
     line ##:
         next sum = sum + the weight of (first X)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next sum|}
-         {"": .operator = "+"|+ sum {|the weight of (first X)|}|}|}
+    {|next sum|} = {|sum + {|the weight of (first X)|}|}
     line ##:
         next sum = sum + the weight of (first X)
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2082,21 +1878,18 @@ PURELIST EXPRESSION:
         next X = rest X
                  ^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next X|} {|rest X|}|}
+    {|next X|} = {|rest X|}
     line ##:
         next X = rest X
         ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next count|}
-              {"": .operator = "+"|+ count 1|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next sum|}
-              {"": .operator = "+"|+ sum {|the weight of (first X)|}|}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next X|} {|rest X|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next count|} = {|count + 1|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next sum|} = {|sum + {|the weight of (first X)|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next X|} = {|rest X|}|}|}
     lines ##-##:
     while X != ():
                  ^
@@ -2116,24 +1909,16 @@ BRACKETED EXPRESSION:
     line ##:
     while X != ():
                ^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "!="|!= X ()|}
+PURELIST EXPRESSION:
+    {|X != ()|}
     line ##:
     while X != ():
           ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "while", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|while {"": .operator = "!="|!= X ()|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next count|}
-                   {"": .operator = "+"|+ count 1|}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next sum|}
-                   {"": .operator = "+"|+ sum
-                        {|the weight of (first X)|}|}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next X|} {|rest X|}|}|}|}
+    while {|X != ()|}:
+        {|next count|} = {|count + 1|}
+        {|next sum|} = {|sum + {|the weight of (first X)|}|}
+        {|next X|} = {|rest X|}
     lines ##-##:
     while X != ():
     ^^^^^^^^^^^^^^
@@ -2164,16 +1949,15 @@ PURELIST EXPRESSION:
         value = error ``Cannot average 0 things.''
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value
-         {|error ``{s: .terminator = "."|Cannot average 0 things|s}''|}|}
+    value =
+        {|error ``{s: .terminator = "."|Cannot average 0 things|s}''|}
     line ##:
         value = error ``Cannot average 0 things.''
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              value =
               {|error
                 ``{s: .terminator = "."|Cannot average 0 things|s}''|}|}|}
     lines ##-##:
@@ -2191,19 +1975,16 @@ NATURAL LEXEME:
     line ##:
     if count == 0:
                 ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "=="|== count 0|}
+PURELIST EXPRESSION:
+    {|count == 0|}
     line ##:
     if count == 0:
        ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "if", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|if {"": .operator = "=="|== count 0|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= value
-                   {|error
-                     ``{s: .terminator = "."|Cannot average 0 things|s}''|}|}|}|}
+    if {|count == 0|}:
+        value =
+            {|error
+              ``{s: .terminator = "."|Cannot average 0 things|s}''|}
     lines ##-##:
     if count == 0:
     ^^^^^^^^^^^^^^
@@ -2224,34 +2005,28 @@ WORD LEXEME:
     line ###:
         value = sum / count
                       ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "/"|/ sum count|}
+PURELIST EXPRESSION:
+    {|sum / count|}
     line ###:
         value = sum / count
                 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value {"": .operator = "/"|/ sum count|}|}
+    value = {|sum / count|}
     line ###:
         value = sum / count
         ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value
-              {"": .operator = "/"|/ sum count|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              value = {|sum / count|}|}|}
     lines ##-###:
     else:
         ^
         value = sum / count
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "else", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|else
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= value
-                   {"": .operator = "/"|/ sum count|}|}|}|}
+    else:
+        value = {|sum / count|}
     lines ##-###:
     else:
     ^^^^^
@@ -2259,40 +2034,36 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= count 0|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= sum 0|}
-         {"": .operator = "while", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|while {"": .operator = "!="|!= X ()|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              count = 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|sum
+              = 0|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              while {|X != ()|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next count|}
-                        {"": .operator = "+"|+ count 1|}|}
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next sum|}
-                        {"": .operator = "+"|+ sum
-                             {|the weight of (first X)|}|}|}
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next X|}
-                        {|rest X|}|}|}|}
-         {"": .operator = "if", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|if {"": .operator = "=="|== count 0|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next count|} =
+                        {|count + 1|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next sum|} =
+                        {|sum + {|the weight of (first X)|}|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next X|} = {|rest X|}|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
+              {|count == 0|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= value
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|value =
                         {|error
                           ``{s: .terminator = "."|Cannot average 0
                                 things|s}''|}|}|}|}
-         {"": .operator = "else", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|else
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= value
-                        {"": .operator = "/"|/ sum count|}|}|}|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|value = {|sum / count|}|}|}|}|}
     lines ##-###:
 average weight of X <-- list X of persons:
                                          ^
@@ -2327,48 +2098,19 @@ PURELIST EXPRESSION:
 average weight of X <-- list X of persons:
                         ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<--", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|<-- {|average weight of X|}
-         {|list X of persons|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= count 0|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= sum 0|}
-              {"": .operator = "while", .terminator = "<LF>",
-                   .initiator = [$ LOGICAL_LINE $]|while
-                   {"": .operator = "!="|!= X ()|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next count|}
-                             {"": .operator = "+"|+ count 1|}|}
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next sum|}
-                             {"": .operator = "+"|+ sum
-                                  {|the weight of (first X)|}|}|}
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next X|} {|rest X|}|}|}|}
-              {"": .operator = "if", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|if
-                   {"": .operator = "=="|== count 0|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|= value
-                             {|error
-                               ``{s: .terminator = "."|Cannot average 0
-                                     things|s}''|}|}|}|}
-              {"": .operator = "else", .terminator = "<LF>",
-                   .initiator = [$ LOGICAL_LINE $]|else
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|= value
-                             {"": .operator = "/"|/ sum count|}|}|}|}|}|}
+    <-- {|average weight of X|} {|list X of persons|}:
+        count = 0
+        sum = 0
+        while {|X != ()|}:
+            {|next count|} = {|count + 1|}
+            {|next sum|} = {|sum + {|the weight of (first X)|}|}
+            {|next X|} = {|rest X|}
+        if {|count == 0|}:
+            value =
+                {|error
+                  ``{s: .terminator = "."|Cannot average 0 things|s}''|}
+        else:
+            value = {|sum / count|}
     lines ##-###:
 average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2427,17 +2169,13 @@ PURELIST EXPRESSION:
     line ###:
 z = 10 + average weight of (all persons named `Bill')
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ 10
-         {|average weight of (all persons named `Bill')|}|}
+PURELIST EXPRESSION:
+    {|10 + {|average weight of (all persons named `Bill')|}|}
     line ###:
 z = 10 + average weight of (all persons named `Bill')
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= z
-         {"": .operator = "+"|+ 10
-              {|average weight of (all persons named `Bill')|}|}|}
+    z = {|10 + {|average weight of (all persons named `Bill')|}|}
     line ###:
 z = 10 + average weight of (all persons named `Bill')
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2507,8 +2245,7 @@ BRACKETED EXPRESSION:
 x = (1, (2, 3), 4)
     ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= x (1, (2, 3), 4)|}
+    x = (1, (2, 3), 4)
     line ###:
 x = (1, (2, 3), 4)
 ^^^^^^^^^^^^^^^^^^
@@ -2590,9 +2327,7 @@ PURELIST EXPRESSION:
 Y is wife of X <-- X is husband of Y
                    ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<--", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|<-- {|Y is wife of X|}
-         {|X is husband of Y|}|}
+    <-- {|Y is wife of X|} {|X is husband of Y|}
     line ###:
 Y is wife of X <-- X is husband of Y
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2942,8 +2677,7 @@ BRACKETED EXPRESSION:
 | E 21 | E 22 | E23  | 0.8% | E 25 |
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {row|"|" E 31 "|" E 32 "|" E 33 "|" {# 0.09 #} "|" E 35 "|"
-         /!b/|row}
+    {row|"|" E 31 "|" E 32 "|" E 33 "|" 0.09 "|" E 35 "|" /!b/|row}
     line ###:
 | E 31 | E 32 | E 33 | 0.09 | E 35 | /!b/
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2960,7 +2694,7 @@ BRACKETED EXPRESSION:
            {row|"|" 11 "|" 12 "|" 13 "|" {# 5.4% #} "|" E 15 "|"|row}
            {row|"|" E 21 "|" E 22 "|" E23 "|" {# 0.8% #} "|" E 25
                 "|"|row}
-           {row|"|" E 31 "|" E 32 "|" E 33 "|" {# 0.09 #} "|" E 35 "|"
+           {row|"|" E 31 "|" E 32 "|" E 33 "|" 0.09 "|" E 35 "|"
                 /!b/|row} {row|------------------------------------|row}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|H
                 ":" header|}
@@ -3076,8 +2810,7 @@ BRACKETED EXPRESSION:
 C: [(0,<V>) * (@,<F>)]
               ^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "*", .terminator = "]", .initiator = "["|*
-         ({# 0,<V> #}) (@,<F>)|}
+    [({# 0,<V> #}) * (@,<F>)]
     line ###:
 C: [(0,<V>) * (@,<F>)]
    ^^^^^^^^^^^^^^^^^^^
@@ -3134,9 +2867,7 @@ BRACKETED EXPRESSION:
            {row|"|" /lb/ Total "|" < "|" T "|"|row}
            {row|---------------------------------|row}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|C
-                ":"
-                {"": .operator = "*", .terminator = "]", .initiator =
-                     "["|* ({# 0,<V> #}) (@,<F>)|}|}
+                ":" [({# 0,<V> #}) * (@,<F>)]|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|T
                 ":" [sum ([<FIRST>, "...", {# @-1 #}], @)]|}|table}
     lines ###-###:
@@ -3280,7 +3011,7 @@ ROW_TYPE: person
 SORT ROWS BY: name
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{circle {# 0.4 #}}}
+    {{circle 0.4}}
     line ###:
 x = {{circle 0.4}}
     ^^^^^^^^^^^^^^
@@ -3290,33 +3021,32 @@ WORD LEXEME:
 x = {{circle 0.4}}
 ^
 BRACKETED EXPRESSION:
-    {{circle {# 0.4 #}}}
+    {{circle 0.4}}
     line ###:
 x = {{circle 0.4}}
     ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= x {{circle {# 0.4 #}}}|}
+    x = {{circle 0.4}}
     line ###:
 x = {{circle 0.4}}
 ^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.4 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.4
     line ###:
 y = {{rectangle (0.4, 0.2)}}
                  ^^^
-BRACKETED EXPRESSION:
-    {# 0.2 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.2
     line ###:
 y = {{rectangle (0.4, 0.2)}}
                       ^^^
 BRACKETED EXPRESSION:
-    ({# 0.4 #}, {# 0.2 #})
+    (0.4, 0.2)
     line ###:
 y = {{rectangle (0.4, 0.2)}}
                 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{rectangle ({# 0.4 #}, {# 0.2 #})}}
+    {{rectangle (0.4, 0.2)}}
     line ###:
 y = {{rectangle (0.4, 0.2)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3326,18 +3056,17 @@ WORD LEXEME:
 y = {{rectangle (0.4, 0.2)}}
 ^
 BRACKETED EXPRESSION:
-    {{rectangle ({# 0.4 #}, {# 0.2 #})}}
+    {{rectangle (0.4, 0.2)}}
     line ###:
 y = {{rectangle (0.4, 0.2)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= y {{rectangle ({# 0.4 #}, {# 0.2 #})}}|}
+    y = {{rectangle (0.4, 0.2)}}
     line ###:
 y = {{rectangle (0.4, 0.2)}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    (circle {# 0.4 #})
+    (circle 0.4)
     line ###:
 z = {{(circle 0.4) labeled `Jack'}}
       ^^^^^^^^^^^^
@@ -3347,7 +3076,7 @@ BRACKETED EXPRESSION:
 z = {{(circle 0.4) labeled `Jack'}}
                            ^^^^^^
 BRACKETED EXPRESSION:
-    {{(circle {# 0.4 #}) labeled `Jack'}}
+    {{(circle 0.4) labeled `Jack'}}
     line ###:
 z = {{(circle 0.4) labeled `Jack'}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3357,13 +3086,12 @@ WORD LEXEME:
 z = {{(circle 0.4) labeled `Jack'}}
 ^
 BRACKETED EXPRESSION:
-    {{(circle {# 0.4 #}) labeled `Jack'}}
+    {{(circle 0.4) labeled `Jack'}}
     line ###:
 z = {{(circle 0.4) labeled `Jack'}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= z {{(circle {# 0.4 #}) labeled `Jack'}}|}
+    z = {{(circle 0.4) labeled `Jack'}}
     line ###:
 z = {{(circle 0.4) labeled `Jack'}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3549,9 +3277,7 @@ p = {{column ( row([x], [y], [z]),
                row([z], [y], [x]) )}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= p
-         {{column ({|row ([x], [y], [z])|}, {|row ([z], [y], [x])|})}}|}
+    p = {{column ({|row ([x], [y], [z])|}, {|row ([z], [y], [x])|})}}
     lines ###-###:
 p = {{column ( row([x], [y], [z]),
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3582,48 +3308,55 @@ BRACKETED EXPRESSION:
     line ###:
 display ( P ) <-- person ( P ) has name ( X ):
                                         ^^^^^
-BRACKETED EXPRESSION:
-    ({# 0.4,0.2 #})
+(UNKNOWN TYPE) EXPRESSION:
+    0.4
     line ###:
-    value = {{oval (0.4,0.2) labeled [X]}}
-                   ^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                    ^^^
+(UNKNOWN TYPE) EXPRESSION:
+    0.2
+    line ###:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                         ^^^
+BRACKETED EXPRESSION:
+    (0.4, 0.2)
+    line ###:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                   ^^^^^^^^^^
 BRACKETED EXPRESSION:
     [X]
     line ###:
-    value = {{oval (0.4,0.2) labeled [X]}}
-                                     ^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                                      ^^^
 BRACKETED EXPRESSION:
-    {{oval ({# 0.4,0.2 #}) labeled [X]}}
+    {{oval (0.4, 0.2) labeled [X]}}
     line ###:
-    value = {{oval (0.4,0.2) labeled [X]}}
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 WORD LEXEME:
     value
     line ###:
-    value = {{oval (0.4,0.2) labeled [X]}}
+    value = {{oval (0.4, 0.2) labeled [X]}}
     ^^^^^
 BRACKETED EXPRESSION:
-    {{oval ({# 0.4,0.2 #}) labeled [X]}}
+    {{oval (0.4, 0.2) labeled [X]}}
     line ###:
-    value = {{oval (0.4,0.2) labeled [X]}}
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value
-         {{oval ({# 0.4,0.2 #}) labeled [X]}}|}
+    value = {{oval (0.4, 0.2) labeled [X]}}
     line ###:
-    value = {{oval (0.4,0.2) labeled [X]}}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value
-              {{oval ({# 0.4,0.2 #}) labeled [X]}}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              value = {{oval (0.4, 0.2) labeled [X]}}|}|}
     lines ###-###:
 display ( P ) <-- person ( P ) has name ( X ):
                                              ^
-    value = {{oval (0.4,0.2) labeled [X]}}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|display (P)|}
     line ###:
@@ -3635,18 +3368,13 @@ PURELIST EXPRESSION:
 display ( P ) <-- person ( P ) has name ( X ):
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<--", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|<-- {|display (P)|}
-         {|person (P) has name (X)|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= value
-                   {{oval ({# 0.4,0.2 #}) labeled [X]}}|}|}|}
+    <-- {|display (P)|} {|person (P) has name (X)|}:
+        value = {{oval (0.4, 0.2) labeled [X]}}
     lines ###-###:
 display ( P ) <-- person ( P ) has name ( X ):
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    value = {{oval (0.4,0.2) labeled [X]}}
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     `Jack'
     line ###:
@@ -3702,15 +3430,14 @@ WORD LEXEME:
         angle = X
                 ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= angle X|}
+    angle = X
     line ###:
         angle = X
         ^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= angle X|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              angle = X|}|}
     lines ###-###:
     on a demo with angle X:
                           ^
@@ -3722,11 +3449,8 @@ PURELIST EXPRESSION:
     on a demo with angle X:
        ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "on", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|on {|a demo with angle X|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= angle X|}|}|}
+    on {|a demo with angle X|}:
+        angle = X
     lines ###-###:
     on a demo with angle X:
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -3734,12 +3458,12 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "on", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|on {|a demo with angle X|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|on
+              {|a demo with angle X|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= angle X|}|}|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|angle = X|}|}|}|}
     lines ###-###:
 for every demo:
               ^
@@ -3753,15 +3477,9 @@ PURELIST EXPRESSION:
 for every demo:
     ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "for", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|for {|every demo|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "on", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|on {|a demo with angle X|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|= angle X|}|}|}|}|}
+    for {|every demo|}:
+        on {|a demo with angle X|}:
+            angle = X
     lines ###-###:
 for every demo:
 ^^^^^^^^^^^^^^^
@@ -3780,8 +3498,7 @@ PURELIST EXPRESSION:
 x = a demo with angle 30 degrees
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= x {|a demo with angle 30 degrees|}|}
+    x = {|a demo with angle 30 degrees|}
     line ###:
 x = a demo with angle 30 degrees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3796,15 +3513,14 @@ WORD LEXEME:
         next angle = X
                      ^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next angle|} X|}
+    {|next angle|} = X
     line ###:
         next angle = X
         ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next angle|} X|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next angle|} = X|}|}
     lines ###-###:
     on update THIS to X:
                        ^
@@ -3816,11 +3532,8 @@ PURELIST EXPRESSION:
     on update THIS to X:
        ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "on", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|on {|update THIS to X|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next angle|} X|}|}|}
+    on {|update THIS to X|}:
+        {|next angle|} = X
     lines ###-###:
     on update THIS to X:
     ^^^^^^^^^^^^^^^^^^^^
@@ -3841,23 +3554,20 @@ WORD LEXEME:
     line ###:
         next angle = angle + X
                              ^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "+"|+ angle X|}
+PURELIST EXPRESSION:
+    {|angle + X|}
     line ###:
         next angle = angle + X
                      ^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|next angle|}
-         {"": .operator = "+"|+ angle X|}|}
+    {|next angle|} = {|angle + X|}
     line ###:
         next angle = angle + X
         ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|next angle|}
-              {"": .operator = "+"|+ angle X|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|next angle|} = {|angle + X|}|}|}
     lines ###-###:
     on increment THIS by X:
                           ^
@@ -3869,12 +3579,8 @@ PURELIST EXPRESSION:
     on increment THIS by X:
        ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "on", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|on {|increment THIS by X|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|next angle|}
-                   {"": .operator = "+"|+ angle X|}|}|}|}
+    on {|increment THIS by X|}:
+        {|next angle|} = {|angle + X|}
     lines ###-###:
     on increment THIS by X:
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -3882,20 +3588,19 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "on", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|on {|update THIS to X|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|on
+              {|update THIS to X|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next angle|}
-                        X|}|}|}
-         {"": .operator = "on", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|on {|increment THIS by X|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next angle|} = X|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|on
+              {|increment THIS by X|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
-                   {"": .operator = "=", .terminator = "<LF>",
-                        .initiator = [$ LOGICAL_LINE $]|= {|next angle|}
-                        {"": .operator = "+"|+ angle X|}|}|}|}|}
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|{|next angle|} =
+                        {|angle + X|}|}|}|}|}
     lines ###-###:
 for every demo:
               ^
@@ -3913,24 +3618,11 @@ PURELIST EXPRESSION:
 for every demo:
     ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "for", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|for {|every demo|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "on", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|on {|update THIS to X|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next angle|} X|}|}|}
-              {"": .operator = "on", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|on {|increment THIS by X|}
-                   {"": .terminator = [$ INDENTED_PARAGRAPH $],
-                        .initiator = ":"|
-                        {"": .operator = "=", .terminator = "<LF>",
-                             .initiator = [$ LOGICAL_LINE $]|=
-                             {|next angle|}
-                             {"": .operator = "+"|+ angle X|}|}|}|}|}|}
+    for {|every demo|}:
+        on {|update THIS to X|}:
+            {|next angle|} = X
+        on {|increment THIS by X|}:
+            {|next angle|} = {|angle + X|}
     lines ###-###:
 for every demo:
 ^^^^^^^^^^^^^^^
@@ -3947,23 +3639,23 @@ BRACKETED EXPRESSION:
     line ###:
 update x to 40 degrees
 ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
                                              ^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
                                                   ^^^
 BRACKETED EXPRESSION:
-    ({# 0.0 #}, {# 0.0 #})
+    (0, 0)
     line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
                                             ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{circle dotted diameter {# 1.0 #} center ({# 0.0 #}, {# 0.0 #})}}
+    {{circle dotted diameter 1 center (0, 0)}}
     line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3973,50 +3665,47 @@ WORD LEXEME:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
     ^
 BRACKETED EXPRESSION:
-    {{circle dotted diameter {# 1.0 #} center ({# 0.0 #}, {# 0.0 #})}}
+    {{circle dotted diameter 1 center (0, 0)}}
     line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= c
-         {{circle dotted diameter {# 1.0 #} center
-           ({# 0.0 #}, {# 0.0 #})}}|}
+    c = {{circle dotted diameter 1 center (0, 0)}}
     line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# -0.75 #}
+(UNKNOWN TYPE) EXPRESSION:
+    -0.75
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
                            ^^^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
                                   ^^^
 BRACKETED EXPRESSION:
-    ({# -0.75 #}, {# 0.0 #})
+    (-0.75, 0)
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
                           ^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.75 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.75
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
                                            ^^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
                                                  ^^^
 BRACKETED EXPRESSION:
-    ({# 0.75 #}, {# 0.0 #})
+    (0.75, 0)
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
                                           ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{arrow from ({# -0.75 #}, {# 0.0 #}) to ({# 0.75 #}, {# 0.0 #})}}
+    {{arrow from (-0.75, 0) to (0.75, 0)}}
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4026,50 +3715,47 @@ PURELIST EXPRESSION:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
     ^^^^^^
 BRACKETED EXPRESSION:
-    {{arrow from ({# -0.75 #}, {# 0.0 #}) to ({# 0.75 #}, {# 0.0 #})}}
+    {{arrow from (-0.75, 0) to (0.75, 0)}}
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|x axis|}
-         {{arrow from ({# -0.75 #}, {# 0.0 #}) to
-           ({# 0.75 #}, {# 0.0 #})}}|}
+    {|x axis|} = {{arrow from (-0.75, 0) to (0.75, 0)}}
     line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
                            ^^^
-BRACKETED EXPRESSION:
-    {# -0.75 #}
+(UNKNOWN TYPE) EXPRESSION:
+    -0.75
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
                                 ^^^^^
 BRACKETED EXPRESSION:
-    ({# 0.0 #}, {# -0.75 #})
+    (0, -0.75)
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
                           ^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
                                            ^^^
-BRACKETED EXPRESSION:
-    {# 0.75 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.75
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
                                                 ^^^^
 BRACKETED EXPRESSION:
-    ({# 0.0 #}, {# 0.75 #})
+    (0, 0.75)
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
                                           ^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{arrow from ({# 0.0 #}, {# -0.75 #}) to ({# 0.0 #}, {# 0.75 #})}}
+    {{arrow from (0, -0.75) to (0, 0.75)}}
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4079,35 +3765,32 @@ PURELIST EXPRESSION:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
     ^^^^^^
 BRACKETED EXPRESSION:
-    {{arrow from ({# 0.0 #}, {# -0.75 #}) to ({# 0.0 #}, {# 0.75 #})}}
+    {{arrow from (0, -0.75) to (0, 0.75)}}
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= {|y axis|}
-         {{arrow from ({# 0.0 #}, {# -0.75 #}) to
-           ({# 0.0 #}, {# 0.75 #})}}|}
+    {|y axis|} = {{arrow from (0, -0.75) to (0, 0.75)}}
     line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     line = {{line from (0.0, 0.0)
                         ^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     line = {{line from (0.0, 0.0)
                              ^^^
 BRACKETED EXPRESSION:
-    ({# 0.0 #}, {# 0.0 #})
+    (0, 0)
     line ###:
     line = {{line from (0.0, 0.0)
                        ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.5 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.5
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                        ^^^
@@ -4116,8 +3799,8 @@ PURELIST EXPRESSION:
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                              ^^^^^
-BRACKETED EXPRESSION:
-    {# 0.5 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.5
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                                     ^^^
@@ -4126,38 +3809,33 @@ PURELIST EXPRESSION:
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                                           ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 0.5 #} {|cos X|}|}
+PURELIST EXPRESSION:
+    {|0.5 * {|cos X|}|}
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                        ^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 0.5 #} {|sin X|}|}
+PURELIST EXPRESSION:
+    {|0.5 * {|sin X|}|}
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                                     ^^^^^^^^^^^
 BRACKETABLE EXPRESSION:
-    {|{"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-      {"": .operator = "*"|* {# 0.5 #} {|sin X|}|}|}
+    {|{|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|}|}
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                        ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-     {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})
+    ({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-      {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]
+    [({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})]
     line ###:
                   to [(0.5 * cos X, 0.5 * sin X)]}}
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{line from ({# 0.0 #}, {# 0.0 #}) to
-      [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-        {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}
+    {{line from (0, 0) to [({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})]}}
     lines ###-###:
     line = {{line from (0.0, 0.0)
            ^^^^^^^^^^^^^^^^^^^^^^
@@ -4169,42 +3847,38 @@ WORD LEXEME:
     line = {{line from (0.0, 0.0)
     ^^^^
 BRACKETED EXPRESSION:
-    {{line from ({# 0.0 #}, {# 0.0 #}) to
-      [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-        {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}
+    {{line from (0, 0) to [({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})]}}
     lines ###-###:
     line = {{line from (0.0, 0.0)
            ^^^^^^^^^^^^^^^^^^^^^^
                   to [(0.5 * cos X, 0.5 * sin X)]}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= line
-         {{line from ({# 0.0 #}, {# 0.0 #}) to
-           [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-             {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}|}
+    line =
+        {{line from (0, 0) to
+          [({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})]}}
     lines ###-###:
     line = {{line from (0.0, 0.0)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                   to [(0.5 * cos X, 0.5 * sin X)]}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.3 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.3
     line ###:
     arc = {{arc arrow from (0.3, 0.0)
                             ^^^
-BRACKETED EXPRESSION:
-    {# 0.0 #}
+NATURAL LEXEME:
+    0
     line ###:
     arc = {{arc arrow from (0.3, 0.0)
                                  ^^^
 BRACKETED EXPRESSION:
-    ({# 0.3 #}, {# 0.0 #})
+    (0.3, 0)
     line ###:
     arc = {{arc arrow from (0.3, 0.0)
                            ^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {# 0.3 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.3
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                        ^^^
@@ -4213,8 +3887,8 @@ PURELIST EXPRESSION:
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                              ^^^^^
-BRACKETED EXPRESSION:
-    {# 0.3 #}
+(UNKNOWN TYPE) EXPRESSION:
+    0.3
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                                     ^^^
@@ -4223,38 +3897,34 @@ PURELIST EXPRESSION:
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                                           ^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 0.3 #} {|cos X|}|}
+PURELIST EXPRESSION:
+    {|0.3 * {|cos X|}|}
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                        ^^^^^^^^^^^
-BRACKETABLE EXPRESSION:
-    {"": .operator = "*"|* {# 0.3 #} {|sin X|}|}
+PURELIST EXPRESSION:
+    {|0.3 * {|sin X|}|}
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                                     ^^^^^^^^^^^
 BRACKETABLE EXPRESSION:
-    {|{"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-      {"": .operator = "*"|* {# 0.3 #} {|sin X|}|}|}
+    {|{|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|}|}
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                        ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-     {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})
+    ({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-      {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]
+    [({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})]
     line ###:
                   to [(0.3 * cos X, 0.3 * sin X)]}}
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
-      [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-        {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}
+    {{arc arrow from (0.3, 0) to
+      [({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})]}}
     lines ###-###:
     arc = {{arc arrow from (0.3, 0.0)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4266,20 +3936,17 @@ WORD LEXEME:
     arc = {{arc arrow from (0.3, 0.0)
     ^^^
 BRACKETED EXPRESSION:
-    {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
-      [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-        {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}
+    {{arc arrow from (0.3, 0) to
+      [({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})]}}
     lines ###-###:
     arc = {{arc arrow from (0.3, 0.0)
           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
                   to [(0.3 * cos X, 0.3 * sin X)]}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= arc
-         {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
-           [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-             {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}|}
+    arc =
+        {{arc arrow from (0.3, 0) to
+          [({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})]}}
     lines ###-###:
     arc = {{arc arrow from (0.3, 0.0)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4301,8 +3968,7 @@ BRACKETED EXPRESSION:
     theta = {{Greek th}}
             ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= theta {{Greek th}}|}
+    theta = {{Greek th}}
     line ###:
     theta = {{Greek th}}
     ^^^^^^^^^^^^^^^^^^^^
@@ -4507,14 +4173,13 @@ BRACKETED EXPRESSION:
                     [arc] labeled `[theta]' ))}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "=", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|= value
-         {{label
-           (`Depiction of Angle [theta] = [X]',
-            {|overlap
-              ([c], {|[x axis] labeled `X Axis'|},
-               {|[y axis] labeled `Y Axis'|}, [line],
-               {|[arc] labeled `[theta]'|})|})}}|}
+    value =
+        {{label
+          (`Depiction of Angle [theta] = [X]',
+           {|overlap
+             ([c], {|[x axis] labeled `X Axis'|},
+              {|[y axis] labeled `Y Axis'|}, [line],
+              {|[arc] labeled `[theta]'|})|})}}
     lines ###-###:
     value = {{label (
     ^^^^^^^^^^^^^^^^^
@@ -4534,32 +4199,24 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= c
-              {{circle dotted diameter {# 1.0 #} center
-                ({# 0.0 #}, {# 0.0 #})}}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|x axis|}
-              {{arrow from ({# -0.75 #}, {# 0.0 #}) to
-                ({# 0.75 #}, {# 0.0 #})}}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= {|y axis|}
-              {{arrow from ({# 0.0 #}, {# -0.75 #}) to
-                ({# 0.0 #}, {# 0.75 #})}}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= line
-              {{line from ({# 0.0 #}, {# 0.0 #}) to
-                [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-                  {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= arc
-              {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
-                [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-                  {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= theta {{Greek th}}|}
-         {"": .operator = "=", .terminator = "<LF>", .initiator =
-              [$ LOGICAL_LINE $]|= value
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|c =
+              {{circle dotted diameter 1 center (0, 0)}}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|x axis|} = {{arrow from (-0.75, 0) to (0.75, 0)}}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              {|y axis|} = {{arrow from (0, -0.75) to (0, 0.75)}}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|line
+              =
+              {{line from (0, 0) to
+                [({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})]}}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|arc
+              =
+              {{arc arrow from (0.3, 0) to
+                [({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})]}}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              theta = {{Greek th}}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              value =
               {{label
                 (`Depiction of Angle [theta] = [X]',
                  {|overlap
@@ -4612,42 +4269,24 @@ PURELIST EXPRESSION:
 display D <-- D is a demo with angle X:
               ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": .operator = "<--", .terminator = "<LF>", .initiator =
-         [$ LOGICAL_LINE $]|<-- {|display D|}
-         {|D is a demo with angle X|}
-         {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= c
-                   {{circle dotted diameter {# 1.0 #} center
-                     ({# 0.0 #}, {# 0.0 #})}}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|x axis|}
-                   {{arrow from ({# -0.75 #}, {# 0.0 #}) to
-                     ({# 0.75 #}, {# 0.0 #})}}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= {|y axis|}
-                   {{arrow from ({# 0.0 #}, {# -0.75 #}) to
-                     ({# 0.0 #}, {# 0.75 #})}}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= line
-                   {{line from ({# 0.0 #}, {# 0.0 #}) to
-                     [({"": .operator = "*"|* {# 0.5 #} {|cos X|}|},
-                       {"": .operator = "*"|* {# 0.5 #} {|sin X|}|})]}}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= arc
-                   {{arc arrow from ({# 0.3 #}, {# 0.0 #}) to
-                     [({"": .operator = "*"|* {# 0.3 #} {|cos X|}|},
-                       {"": .operator = "*"|* {# 0.3 #} {|sin X|}|})]}}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= theta {{Greek th}}|}
-              {"": .operator = "=", .terminator = "<LF>", .initiator =
-                   [$ LOGICAL_LINE $]|= value
-                   {{label
-                     (`Depiction of Angle [theta] = [X]',
-                      {|overlap
-                        ([c], {|[x axis] labeled `X Axis'|},
-                         {|[y axis] labeled `Y Axis'|}, [line],
-                         {|[arc] labeled `... ... ...'|})|})}}|}|}|}
+    <-- {|display D|} {|D is a demo with angle X|}:
+        c = {{circle dotted diameter 1 center (0, 0)}}
+        {|x axis|} = {{arrow from (-0.75, 0) to (0.75, 0)}}
+        {|y axis|} = {{arrow from (0, -0.75) to (0, 0.75)}}
+        line =
+            {{line from (0, 0) to
+              [({|0.5 * {|cos X|}|}, {|0.5 * {|sin X|}|})]}}
+        arc =
+            {{arc arrow from (0.3, 0) to
+              [({|0.3 * {|cos X|}|}, {|0.3 * {|sin X|}|})]}}
+        theta = {{Greek th}}
+        value =
+            {{label
+              (`Depiction of Angle [theta] = [X]',
+               {|overlap
+                 ([c], {|[x axis] labeled `X Axis'|},
+                  {|[y axis] labeled `Y Axis'|}, [line],
+                  {|[arc] labeled `... ... ...'|})|})}}
     lines ###-###:
 display D <-- D is a demo with angle X:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4689,7 +4328,7 @@ BRACKETED EXPRESSION:
 show x
 ^^^^^^
 BRACKETED EXPRESSION:
-    increment x by {# -15 #} degrees
+    increment x by -15 degrees
     line ###:
 increment x by -15 degrees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
