@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 15 13:41:07 EDT 2021
+// Date:	Tue Nov 30 04:21:38 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,7 +99,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
 	  min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  bracketed_pass->bracket_type_table );
 
     min::locatable_gen equal
@@ -113,14 +113,6 @@ void REC::init_parser ( PAR::parser parser )
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
 
-    min::locatable_gen if_name
-        ( min::new_str_gen ( "if" ) );
-    min::locatable_gen else_name
-        ( min::new_str_gen ( "else" ) );
-    min::locatable_gen else_if_name
-        ( min::new_lab_gen ( "else", "if" ) );
-    min::locatable_gen while_name
-        ( min::new_str_gen ( "while" ) );
     min::locatable_gen on_name
         ( min::new_str_gen ( "on" ) );
     min::locatable_gen for_name
@@ -142,23 +134,13 @@ void REC::init_parser ( PAR::parser parser )
 	      OP::reformatter_stack );
 
     BRA::push_brackets
-        ( PARLEX::left_parenthesis,
-	  PARLEX::right_parenthesis,
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( math, code, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
-	  bracketed_pass->bracket_table );
-
-    BRA::push_brackets
         ( PARLEX::left_square,
 	  PARLEX::right_square,
 	  text + code + math + atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( math, text + code + atom, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     BRA::push_brackets
@@ -167,7 +149,7 @@ void REC::init_parser ( PAR::parser parser )
           code,
           block_level, PAR::top_level_position,
           TAB::new_flags ( 0, 0, 0 ),
-          min::NULL_STUB, min::NULL_STUB,
+          min::NULL_STUB, min::MISSING(),
           bracketed_pass->bracket_table );
 
     OP::push_oper
@@ -177,47 +159,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::INFIX + OP::LINE,
 	  1000, right_associative_reformatter,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( if_name,
 	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0, min::NULL_STUB,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( else_if_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0, min::NULL_STUB,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( else_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::LINE,
-	  0, min::NULL_STUB,
-	  min::NULL_STUB,
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( while_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0, min::NULL_STUB,
-	  min::NULL_STUB,
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -227,7 +169,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::LINE,
 	  0, min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -237,7 +179,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::LINE,
 	  0, min::NULL_STUB,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
     OP::push_oper
@@ -248,19 +190,8 @@ void REC::init_parser ( PAR::parser parser )
 	  OP::NOFIX + OP::AFIX + OP::LINE,
 	      // No left if `else:'
 	  0,
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  oper_pass->oper_bracket_table );
-
-    OP::push_oper
-        ( PARLEX::colon,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::RIGHT + OP::AFIX + OP::LINE,
-	      // No left if `else:'
-	  0,
-	  min::NULL_STUB, min::NULL_STUB,
-	  oper_pass->oper_table );
 
     OP::push_oper
         ( left_brace_dollar,
@@ -269,7 +200,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX + OP::AFIX + OP::LINE,
 	  0,
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  oper_pass->oper_bracket_table );
 
     OP::push_oper
@@ -279,7 +210,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX + OP::LINE,
 	  0, declare_reformatter,
-	  min::NULL_STUB,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
 }
@@ -298,7 +229,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
 	      ( text, code + math + data, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     min::locatable_gen period
@@ -350,7 +281,7 @@ void REC::init_parser ( PAR::parser parser )
 	  atom,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::NULL_STUB,
+	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
     min::locatable_gen oper
@@ -377,6 +308,6 @@ void REC::init_parser ( PAR::parser parser )
           PAR::find_reformatter
               ( binary,
                 OP::reformatter_stack ),
-          min::NULL_STUB,
+          min::MISSING(),
           oper_pass->oper_table );
 #endif
