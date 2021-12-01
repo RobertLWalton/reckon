@@ -27,8 +27,8 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               husband = PREALLOCATED(1*2) = wife|}|}
     lines ##-##:
-!@@ =:
-     ^
+!@@ :=:
+      ^
     kind = woman
 ^^^^^^^^^^^^^^^^
     name = Jill
@@ -38,13 +38,13 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@ =:
+!@@ :=:
 ^
 BRACKETED EXPRESSION:
-    {"": husband = @@ = wife, kind = "woman", name = "Jill"}
+    {"": husband = @@ = wife, kind = woman, name = Jill}
     lines ##-##:
-!@@ =:
-^^^^^^
+!@@ :=:
+^^^^^^^
     kind = woman
 ^^^^^^^^^^^^^^^^
     name = Jill
@@ -54,69 +54,62 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     kind = man
     line ##:
-        kind = man
-        ^^^^^^^^^^
+    kind = man
+    ^^^^^^^^^^
 BRACKETED EXPRESSION:
     name = Jack
     line ##:
-        name = Jack
-        ^^^^^^^^^^^
+    name = Jack
+    ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    wife = {"": husband = @@ = wife, kind = woman, name = Jill} =
+        husband
+    line ##:
+    wife = @@ = husband
+    ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|kind
               = man|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
-              = Jack|}|}
-    lines ##-##:
-!@@ =:
-     ^
-        kind = man
-^^^^^^^^^^^^^^^^^^
-        name = Jack
-^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    wife = {"": husband = @@ = wife, kind = "woman", name = "Jill"} =
-        husband
-    line ##:
-        wife = @@ = husband
-        ^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              = Jack|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|wife
-              = {"": husband = @@ = wife, kind = "woman", name = "Jill"}
-              = husband|}|}
+              = {"": husband = @@ = wife, kind = woman, name = Jill} =
+              husband|}|}
     lines ##-##:
-    +=:
+!@@ :=:
       ^
-        wife = @@ = husband
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    kind = man
+^^^^^^^^^^^^^^
+    name = Jack
+^^^^^^^^^^^^^^^
+    wife = @@ = husband
+^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@ =:
+!@@ :=:
 ^
 BRACKETED EXPRESSION:
-    {"": kind = "man", name = "Jack", wife = @@ = husband}
+    {"": kind = man, name = Jack, wife = @@ = husband}
     lines ##-##:
-!@@ =:
-^^^^^^
-        kind = man
-^^^^^^^^^^^^^^^^^^
-        name = Jack
-^^^^^^^^^^^^^^^^^^^
-    +=:
+!@@ :=:
 ^^^^^^^
-        wife = @@ = husband
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    kind = man
+^^^^^^^^^^^^^^
+    name = Jack
+^^^^^^^^^^^^^^^
+    wife = @@ = husband
+^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID 1 ":" OUTPUT ID 2 IS
-        {"": husband = @@ = wife, kind = "woman", name = "Jill"}
+        {"": husband = @@ = wife, kind = woman, name = Jill}
     line ##:
 INPUT ID 1 : OUTPUT ID 2 IS @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID 2 ":" OUTPUT ID 1 IS
-        {"": kind = "man", name = "Jack", wife = @@ = husband}
+        {"": kind = man, name = Jack, wife = @@ = husband}
     line ##:
 INPUT ID 2 : OUTPUT ID 1 IS @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -154,8 +147,8 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               husband [*] = PREALLOCATED(1*12) = wife|}|}
     lines ##-##:
-!@@@ =:
-      ^
+!@@@ :=:
+       ^
     kind = woman
 ^^^^^^^^^^^^^^^^
     name[-] = Jill
@@ -165,13 +158,13 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@@ =:
+!@@@ :=:
 ^
 BRACKETED EXPRESSION:
-    {"": husband[*] = @@ = wife, kind = "woman", name[-] = "Jill"}
+    {"": husband[*] = @@ = wife, kind = woman, name[-] = Jill}
     lines ##-##:
-!@@@ =:
-^^^^^^^
+!@@@ :=:
+^^^^^^^^
     kind = woman
 ^^^^^^^^^^^^^^^^
     name[-] = Jill
@@ -181,84 +174,77 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     kind = man
     line ##:
-        kind = man
-        ^^^^^^^^^^
+    kind = man
+    ^^^^^^^^^^
 BRACKETED EXPRESSION:
     [+]
     line ##:
-        name[+] = Jack
-            ^^^
+    name[+] = Jack
+        ^^^
 BRACKETED EXPRESSION:
     name [+] = Jack
     line ##:
-        name[+] = Jack
-        ^^^^^^^^^^^^^^
+    name[+] = Jack
+    ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [@]
+    line ##:
+    wife[@] = @@@ = husband
+        ^^^
+BRACKETED EXPRESSION:
+    wife [@] =
+        {"": husband[*] = @@ = wife, kind = woman, name[-] = Jill} =
+        husband
+    line ##:
+    wife[@] = @@@ = husband
+    ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|kind
               = man|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
-              [+] = Jack|}|}
-    lines ##-##:
-!@@@ =:
-      ^
-        kind = man
-^^^^^^^^^^^^^^^^^^
-        name[+] = Jack
-^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    [@]
-    line ##:
-        wife[@] = @@@ = husband
-            ^^^
-BRACKETED EXPRESSION:
-    wife [@] =
-        {"": husband[*] = @@ = wife, kind = "woman", name[-] = "Jill"} =
-        husband
-    line ##:
-        wife[@] = @@@ = husband
-        ^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+              [+] = Jack|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|wife
               [@] =
-              {"": husband[*] = @@ = wife, kind = "woman", name[-] =
-                   "Jill"} = husband|}|}
+              {"": husband[*] = @@ = wife, kind = woman, name[-] = Jill}
+              = husband|}|}
     lines ##-##:
-    +=:
-      ^
-        wife[@] = @@@ = husband
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+!@@@ :=:
+       ^
+    kind = man
+^^^^^^^^^^^^^^
+    name[+] = Jack
+^^^^^^^^^^^^^^^^^^
+    wife[@] = @@@ = husband
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@@ =:
+!@@@ :=:
 ^
 BRACKETED EXPRESSION:
-    {"": kind = "man", name[+] = "Jack", wife[@] = @@ = husband}
+    {"": kind = man, name[+] = Jack, wife[@] = @@ = husband}
     lines ##-##:
-!@@@ =:
-^^^^^^^
-        kind = man
+!@@@ :=:
+^^^^^^^^
+    kind = man
+^^^^^^^^^^^^^^
+    name[+] = Jack
 ^^^^^^^^^^^^^^^^^^
-        name[+] = Jack
-^^^^^^^^^^^^^^^^^^^^^^
-    +=:
-^^^^^^^
-        wife[@] = @@@ = husband
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    wife[@] = @@@ = husband
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 11 ":" OUTPUT ID 11 IS
-        {"": husband[*] = @@ = wife, kind = "woman", name[-] = "Jill"}
+    INPUT ID 11 ":" OUTPUT ID 4 IS
+        {"": husband[*] = @@ = wife, kind = woman, name[-] = Jill}
     line ##:
-INPUT ID 11 : OUTPUT ID 11 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 11 : OUTPUT ID 4 IS @@@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 12 ":" OUTPUT ID 12 IS
-        {"": kind = "man", name[+] = "Jack", wife[@] = @@ = husband}
+    INPUT ID 12 ":" OUTPUT ID 3 IS
+        {"": kind = man, name[+] = Jack, wife[@] = @@ = husband}
     line ##:
-INPUT ID 12 : OUTPUT ID 12 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 12 : OUTPUT ID 3 IS @@@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     kind = boy
     line ##:
@@ -270,17 +256,22 @@ BRACKETED EXPRESSION:
     name = giddy
     ^^^^^^^^^^^^
 BRACKETABLE EXPRESSION:
-    {|@@, @@|}
+    {|{"": husband[*] = @@ = wife, kind = woman, name[-] = Jill},
+      {"": kind = man, name[+] = Jack, wife[@] = @@ = husband}|}
     line ##:
     parent = {* @@@, @@@ *} = child
              ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {* @@, @@ *}
+    {* {"": husband[*] = @@ = wife, kind = woman, name[-] = Jill},
+       {"": kind = man, name[+] = Jack, wife[@] = @@ = husband} *}
     line ##:
     parent = {* @@@, @@@ *} = child
              ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    parent = {* @@, @@ *} = child
+    parent =
+        {* {"": husband[*] = @@ = wife, kind = woman, name[-] = Jill},
+           {"": kind = man, name[+] = Jack, wife[@] = @@ = husband} *} =
+        child
     line ##:
     parent = {* @@@, @@@ *} = child
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -291,10 +282,14 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|name
               = giddy|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-              parent = {* @@, @@ *} = child|}|}
+              parent =
+              {* {"": husband[*] = @@ = wife, kind = woman, name[-] =
+                      Jill},
+                 {"": kind = man, name[+] = Jack, wife[@] = @@ = husband} *}
+              = child|}|}
     lines ##-##:
-!@@@ =:
-      ^
+!@@@ :=:
+       ^
     kind = boy
 ^^^^^^^^^^^^^^
     name = giddy
@@ -304,13 +299,13 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@@ =:
+!@@@ :=:
 ^
 BRACKETED EXPRESSION:
-    {"": kind = "boy", parent = {* @@, @@ *} = child, name = "giddy"}
+    {"": kind = boy, parent = {* @@, @@ *} = child, name = giddy}
     lines ##-##:
-!@@@ =:
-^^^^^^^
+!@@@ :=:
+^^^^^^^^
     kind = boy
 ^^^^^^^^^^^^^^
     name = giddy
@@ -318,25 +313,25 @@ BRACKETED EXPRESSION:
     parent = {* @@@, @@@ *} = child
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 11 ":" OUTPUT ID 11 IS
-        {"": husband[*] = @@ = wife, child = @@ = parent, kind =
-             "woman", name[-] = "Jill"}
+    INPUT ID 11 ":" OUTPUT ID 4 IS
+        {"": husband[*] = @@ = wife, child = @@ = parent, kind = woman,
+             name[-] = Jill}
     line ##:
-INPUT ID 11 : OUTPUT ID 11 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 11 : OUTPUT ID 4 IS @@@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 12 ":" OUTPUT ID 12 IS
-        {"": child = @@ = parent, kind = "man", name[+] = "Jack",
-             wife[@] = @@ = husband}
+    INPUT ID 12 ":" OUTPUT ID 3 IS
+        {"": child = @@ = parent, kind = man, name[+] = Jack, wife[@] =
+             @@ = husband}
     line ##:
-INPUT ID 12 : OUTPUT ID 12 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 12 : OUTPUT ID 3 IS @@@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 13 ":" OUTPUT ID 13 IS
-        {"": kind = "boy", parent = {* @@, @@ *} = child, name = "giddy"}
+    INPUT ID 13 ":" OUTPUT ID 5 IS
+        {"": kind = boy, parent = {* @@, @@ *} = child, name = giddy}
     line ##:
-INPUT ID 13 : OUTPUT ID 13 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 13 : OUTPUT ID 5 IS @@@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 DERIVED EXPRESSION:
     [< "{" "[" >]
     line ##:
@@ -371,8 +366,8 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               [< x y >] = 6|}|}
     lines ##-##:
-!@@@ =:
-      ^
+!@@@ :=:
+       ^
     x = [< "{" "[" >]
 ^^^^^^^^^^^^^^^^^^^^^
     x y = 5
@@ -382,17 +377,17 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@@ =:
+!@@@ :=:
 ^
 ERROR: in line ##: line does not begin with a (possibly negated)
        attribute label; line ignored:
     [< x y >] = 6
     ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {"": x = [< "{" "[" >], x y = "5"}
+    {"": x = [< "{" "[" >], x y = 5}
     lines ##-##:
-!@@@ =:
-^^^^^^^
+!@@@ :=:
+^^^^^^^^
     x = [< "{" "[" >]
 ^^^^^^^^^^^^^^^^^^^^^
     x y = 5
@@ -400,10 +395,10 @@ BRACKETED EXPRESSION:
     [< x y >] = 6
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 21 ":" OUTPUT ID 21 IS {"": x = [< "{" "[" >], x y = "5"}
+    INPUT ID 21 IS {"": x = [< "{" "[" >], x y = 5}
     line ##:
-INPUT ID 21 : OUTPUT ID 21 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 21 IS @@@
+^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     x = y 1
     line ##:
@@ -438,7 +433,7 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|z =
               {* [< y 1 >], [< y 2 >] *}|}|}
     lines ##-##:
-!@@@ +=:
+!@@@ :=:
        ^
     x = y 1
 ^^^^^^^^^^^
@@ -449,13 +444,15 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@@ +=:
+!@@@ :=:
 ^
+ERROR: in line ##: "x" already has value(s); old value(s) not changed:
+    x = y 2
+      ^^^^^
 BRACKETED EXPRESSION:
-    {"": x = {* [< "y" "1" >], [< "y" "2" >] *}, z =
-         {* [< "y" "1" >], [< "y" "2" >] *}}
+    {"": x = [< y 1 >], z = {* [< y 1 >], [< y 2 >] *}}
     lines ##-##:
-!@@@ +=:
+!@@@ :=:
 ^^^^^^^^
     x = y 1
 ^^^^^^^^^^^
@@ -464,12 +461,10 @@ BRACKETED EXPRESSION:
     z = {* y 1, y 2 *}
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 22 ":" OUTPUT ID 22 IS
-        {"": x = {* [< "y" "1" >], [< "y" "2" >] *}, z =
-             {* [< "y" "1" >], [< "y" "2" >] *}}
+    INPUT ID 22 IS {"": x = [< y 1 >], z = {* [< y 1 >], [< y 2 >] *}}
     line ##:
-INPUT ID 22 : OUTPUT ID 22 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 22 IS @@@
+^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     x
     line ##:
@@ -486,8 +481,8 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|no
               y|}|}
     lines ##-##:
-!@@@ =:
-      ^
+!@@@ :=:
+       ^
     x
 ^^^^^
     no y
@@ -495,19 +490,19 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {raw data}
     line ##:
-!@@@ =:
+!@@@ :=:
 ^
 BRACKETED EXPRESSION:
     {"": x, no y}
     lines ##-##:
-!@@@ =:
-^^^^^^^
+!@@@ :=:
+^^^^^^^^
     x
 ^^^^^
     no y
 ^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 23 ":" OUTPUT ID 23 IS {"": x, no y}
+    INPUT ID 23 IS {"": x, no y}
     line ##:
-INPUT ID 23 : OUTPUT ID 23 IS @@@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INPUT ID 23 IS @@@
+^^^^^^^^^^^^^^^^^^
