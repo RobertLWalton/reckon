@@ -571,7 +571,7 @@ For example:
 One can use definitions to define expressions that compute values:
 
 \begin{indpar}
-\verb|> sum from X through Y <-- is an integer X, is an integer Y:| \\
+\verb|> sum from X through Y <-- X is an integer, Y is an integer:| \\
 \verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     if X > Y:| \\
 \verb|+         value = 0| \\
@@ -633,7 +633,7 @@ one adds 5 to the sum of 6 through 10.  One can also compute sums by
 iteration.
 
 \begin{indpar}
-\verb|> sum from X through Y <-- is an integer X, is an integer Y:| \\
+\verb|> sum from X through Y <-- X is an integer, Y is an integer:| \\
 \verb|+     `Sum of integers from X through Y.'| \\
 \verb|+     value = 0| \\
 \verb|+     while X <= Y:| \\
@@ -1261,8 +1261,8 @@ Displays can be used to make demonstrations:
 \tt @1000045 & demo & 45 degrees \\
 \hline
 \end{tabular} \\[0.5ex]
-\verb/> display ( D ) <-- demo ( D ) with angle ( X ):/ \\
-\verb/+     c = {{circle 1.0 dotted center (0.0,0.0)}}/ \\
+\verb/> display ( D ) <-- D is a demo with angle X:/ \\
+\verb/+     c = {{circle diameter 1.0 dotted center (0.0,0.0)}}/ \\
 \verb/+     x axis = {{arrow from (-0.75,0.0) to (0.75,0.0)}}/ \\
 \verb/+     y axis = {{arrow from (0.0,-0.75) to (0.0,0.75)}}/ \\
 \verb/+     line = {{line from (0.0,0.0)/ \\
@@ -1335,7 +1335,7 @@ is to be printed,
 is printed instead, where `Depiction \ldots' is the \TT{label} part of
 the display.
 
-In extended example is given in the next section.
+An extended example is given in the next section.
 The remainder of this document is a reference manual for RECKON.
 
 \section{Example}
@@ -1350,7 +1350,7 @@ ship names = [`Submarine', `Destroyer', `Cruzier',
 max ship length = 5
 max tries = 100    // max tries to position ship on a board
 
-on a board of size S <-- is an integer S:
+on a board of size S <-- S is an integer:
 
     // Make a board of size SxS.
     size = S
@@ -1368,8 +1368,8 @@ on a board of size S <-- is an integer S:
 for every board:
 
     on shoot at (R, C) on THIS <--
-            is an integer R,  0 <= R < size,
-            is an integer C,  0 <= C < size:
+            R is an integer,  0 <= R < size,
+            C is an integer,  0 <= C < size:
         if state(R,C) != `untouched':
             value = `no effect'
         else if ship(R, C) == `none':
@@ -1389,9 +1389,9 @@ for every board:
     //
     on test position (DIRECTION, START) on THIS
             for ship of length L
-        <-- is a pair of integers DIRECTION,
-            is a pair of integers START,
-            is an integer L, 1 <= L <= max ship length:
+        <-- DIRECTION is a pair of integers,
+            START is a pair of integers,
+            L is an integer, 1 <= L <= max ship length:
 
         (R,C) = START
         if R < 0 OR R >= size:
@@ -1412,7 +1412,7 @@ for every board:
     // where a ship of length L may be placed.
     //
     on find position on THIS for ship of length L
-            <-- is an integer L, 1 <= L <= max ship length:
+            <-- L is an integer, 1 <= L <= max ship length:
         value = loop:
             first tries = 1
             direction =
@@ -1432,10 +1432,10 @@ for every board:
     // length L, install ship S on the board.
     //
     on place ship S of length L at (DIRECTION, START) on THIS
-            <-- is a ship S,
-                is a pair of integers DIRECTION,
-                is a pair of integers START,
-                is an integer L, 1 <= L <= max ship length:
+            <-- S is a ship,
+                DIRECTION is a pair of integers,
+                START is a pair of integers,
+                L is an integer, 1 <= L <= max ship length:
         while L > 0:
             ship(START) <== S
             next START = START + DIRECTION
@@ -1443,7 +1443,7 @@ for every board:
         update ships = ships + 1
     
 on a ship of length L on board B <--
-        is an integer L, 1 <= L <= max ship length:
+        L is an integer, 1 <= L <= max ship length:
     // Make a ship of length L on board B.
 
     (direction, position) =
@@ -1468,7 +1468,7 @@ on a board view for (BOARD) PLAYER
         board ( BOARD ),
         PLAYER :=: owner | opponent,
         SQSIZE :=? 0.25in,
-        is a number SQSIZE, 0.05in <= SQSIZE:
+        SQSIZE is a number, 0.05in <= SQSIZE:
     board = BOARD
     player = PLAYER
     square size = SQSIZE
@@ -1519,7 +1519,7 @@ for every ship:
     // Update ships positions in board view.
     //
     on show ( THIS ) on ( VIEW ) <--
-            is a board view ( VIEW ):
+            VIEW is a board view:
         assert board == VIEW's board
         player = VIEW's player
         plane = VIEW's plane
@@ -8211,7 +8211,7 @@ In this case $v$ may be replaced by $E$ whereever $v$ appears.
 For example, given the code
 
 \begin{indpar}\begin{verbatim}
-sum ($X) and ($Y) <-- is a number X, is a number Y
+sum ($X) and ($Y) <-- X is a number, Y is a number
     { value = X + Y }
 . . . . .
 z = sum (1+1) and (5+5)
@@ -8233,7 +8233,7 @@ equations, among which are:
 
 The last two equations are required to deduce the value of the evaluated
 variables \TT{X} and \TT{Y} that are needed for the guards
-\TT{is a number X} and \TT{is a number Y} and the block code statement
+\TT{X is a number} and \TT{Y is a number} and the block code statement
 `\TT{value = X + Y}'.  These last two equations are obtained by
 the Evaluation Rule.  For example, to obtain the value \TT{2} for the
 evaluated variable \TT{X}, the value `\TT{(1+1)}' of the a associated
@@ -8273,7 +8273,7 @@ For example, the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS ~ by Y ? <-- is a number Y, Y :=? 1:
+    on increment THIS ~ by Y ? <-- Y is a number, Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8281,7 +8281,7 @@ is treated as if it were
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment $THIS ~ by $Y ? <-- is a number Y, $Y :=? 1:
+    on increment $THIS ~ by $Y ? <-- Y is a number, $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8289,7 +8289,7 @@ while the definition
 
 \begin{indpar}\begin{verbatim}
 for every counter:
-    on increment THIS ~ by Y ? <-- is a number Y, $Y :=? 1:
+    on increment THIS ~ by Y ? <-- Y is a number, $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
@@ -8314,11 +8314,11 @@ For example, in
 \begin{indpar}\begin{verbatim}
 for every counter:
     on increment $THIS ~ by $Y ?
-            <-- is a number Y, $Y :=? 1:
+            <-- Y is a number, $Y :=? 1:
         next count = count + Y
 \end{verbatim}\end{indpar}
 
-the expression `\TT{is a number Y}' is a guard.
+the expression `\TT{Y is a number}' is a guard.
 
 \item
 A syntax or pattern equation.  The equation is asserted.
@@ -8634,7 +8634,7 @@ For example, in
 
 \begin{indpar}[1in]
 \verb|sum from X through Y| \\
-\verb|        <--- is an integer X, is an integer Y:| \\
+\verb|        <--- X is an integer, Y is an integer:| \\
 \verb|    |{\em block}
 \end{indpar}
 
