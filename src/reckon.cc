@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 06:24:01 EST 2020
+// Date:	Thu Jul  7 00:50:25 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10,8 +10,10 @@
 
 # include <reckon.h>
 # include <ll_lexeme_test.h>
+# include <ll_parser_standard.h>
 # define REC reckon
 # define PAR ll::parser
+# define PARSTD ll::parser::standard
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 
@@ -42,7 +44,9 @@ int main ( int argc, const char * argv[] )
 	return 0;
     }
 
-    PAR::init ( PAR::default_parser, true );
+    PAR::init ( PAR::default_parser,
+                  PARSTD::ALL
+		- PARSTD::BITWISE_OPERATORS );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
     REC::init_parser ( PAR::default_parser );

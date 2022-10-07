@@ -191,16 +191,16 @@
         
 \title{Personal Reckoning Language\\[2ex]
        RECKON\\[2ex]
-       (Draft 2a)}
+       (Draft 3a)}
 
-\author{Robert L. Walton\thanks{Copyright 2016 Robert L. Walton.
+\author{Robert L. Walton\thanks{Copyright 2022 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 5, 2019}
+\date{October 7, 2022}
 
 \maketitle
 
@@ -301,7 +301,7 @@ syntax matters a lot.  In particular, different kinds of reasoning
 require different syntactic support.
 
 The current version of RECKON is not stable, because it has not been
-implemented, and because, unlike most programming languages, RECKON
+implemented, and because, like most programming languages, RECKON
 has lots of subtle important interactions between its various features.  The
 hope is that after implementation and experimentation a stable sensible
 version of RECKON, integrating all its data types and supporting each
@@ -410,7 +410,7 @@ $10x^2-3x-1$ \\
 $x = (-0.2, 0.5)$ \\
 \verb/> (f + h) at (x = (3, 4, 5))/ \\
 \verb/(78.95, 145.28, 231.61)/ \\
-\verb/> g = {{ integral (x ^ 2 dx) }}/ \\
+\verb/> g = {{ integral (x ^ 2, dx) }}/ \\
 $\int x^2 dx$ \\
 \verb/> simplify g/ \\
 $\frac{1}{3} x^3$ \\
@@ -428,20 +428,20 @@ with:
 \verb/> V =# {| 1  2  3 |}/ \\
 \verb/1 2 3/ \\
 \verb/> M =#:/ \\
-\verb/+     0  1   1/ \\
-\verb/+    -1  1   0/ \\
-\verb/+     1  0  -1/ \\
-\verb/ 0  1   1/ \\
-\verb/-1  1   0/ \\
-\verb/ 1  0  -1/ \\
+\verb/+    | 0  1   1|/ \\
+\verb/+    |-1  1   0|/ \\
+\verb/+    | 1  0  -1|/ \\
+\verb/| 0  1   1|/ \\
+\verb/|-1  1   0|/ \\
+\verb/| 1  0  -1|/ \\
 \verb/> V ^ T/ \\
-\verb/1/ \\
-\verb/2/ \\
-\verb/3/ \\
+\verb/|1|/ \\
+\verb/|2|/ \\
+\verb/|3|/ \\
 \verb/> M * V ^ T/ \\
-\verb/ 5/ \\
-\verb/ 1/ \\
-\verb/-2/
+\verb/| 5|/ \\
+\verb/| 1|/ \\
+\verb/|-2|/
 \end{indpar}
 
 Another kind of datum you can compute with in RECKON is
@@ -548,7 +548,7 @@ For example:
 \begin{indpar}
 \verb|> for every person:| \\
 \verb|+     body mass index = 703.06958 * weight in lbs| \\
-\verb|+                     / (height in inches)^2| \\
+\verb|+                     / height in inches ^ 2| \\
 \verb|> all persons| \\
 \begin{tabular}{@{}|r|l|l|r|r|r|r|@{}}
 \hline
@@ -576,7 +576,7 @@ One can use definitions to define expressions that compute values:
 \verb|+     if ( X > Y ):| \\
 \verb|+         value = 0| \\
 \verb|+     else:| \\
-\verb|+         value = X + sum (X+1) through Y| \\
+\verb|+         value = X + sum (X + 1) through Y| \\
 \verb|> sum from 5 through 10| \\
 \verb|45| \\
 \verb|> all (sums from X through Y)| \\
