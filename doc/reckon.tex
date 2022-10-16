@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{October 7, 2022}
+\date{October 16, 2022}
 
 \maketitle
 
@@ -339,8 +339,8 @@ of functions, predicates, and blocks.  Some examples involving numbers are:
 17
 > x + y
 26
-> f (b, c, x) = b * x + c
-f (b, c, x) evaluates to (b * x + c)
+> f (B, C, X) = B * X + C
+f (B, C, X) evaluates to (B * X + C)
 > f (10, x, y)
 179
 \end{verbatim}\end{indpar}
@@ -1223,9 +1223,8 @@ You can also change how an expression is displayed.
 Displays can be used to make demonstrations:
 
 \begin{indpar}
-\verb|> for every demo:| \\
-\verb|+     on a demo with angle X:| \\
-\verb|+         angle = X| \\
+\verb|> a demo with angle X <-- X is an angle:| \\
+\verb|+     angle = X| \\
 \verb|> x = a demo with angle 30 degrees| \\
 \begin{tabular}{|r|r|r|}
 \hline
@@ -1236,10 +1235,10 @@ Displays can be used to make demonstrations:
 \tt @1000043 & demo & 30 degrees \\
 \hline
 \end{tabular} \\[0.5ex]
-\verb|> for every demo:| \\
-\verb|+     on update THIS to X:|\\
+\verb|> for every demo D:| \\
+\verb|+     update D to X <-- X is an angle:|\\
 \verb|+         next angle = X| \\
-\verb|+     on increment THIS by X:| \\
+\verb|+     increment D by X <-- X is an angle:| \\
 \verb|+         next angle = angle + X| \\
 \verb|> update x to 40 degrees| \\
 \begin{tabular}{|r|r|r|}
@@ -1261,7 +1260,7 @@ Displays can be used to make demonstrations:
 \tt @1000045 & demo & 45 degrees \\
 \hline
 \end{tabular} \\[0.5ex]
-\verb/> display ( D ) <-- D is a demo with angle X:/ \\
+\verb/> display D <-- D is a demo with angle X:/ \\
 \verb/+     c = {{circle diameter 1.0 dotted center (0.0,0.0)}}/ \\
 \verb/+     x axis = {{arrow from (-0.75,0.0) to (0.75,0.0)}}/ \\
 \verb/+     y axis = {{arrow from (0.0,-0.75) to (0.0,0.75)}}/ \\
@@ -1350,24 +1349,28 @@ ship names = [`Submarine', `Destroyer', `Cruzier',
 max ship length = 5
 max tries = 100    // max tries to position ship on a board
 
-on a board of size S <-- S is an integer:
+a board of size S <-- S is an integer, S >= 5:
 
     // Make a board of size SxS.
     size = S
 
     // state(R, C) is `untouched', `miss', `hit',
     // or `sunk' (if final hit on ship).
+    //
     state = an array of size (S, S)
-            with initial element `untouched'
+            with initial elements `untouched'
+
     // ship(R, C) is ID of ship at (R, C) or `none'.
+    //
     ship = an array of size (S, S)
-           with initial element `none'
+           with initial elements `none'
+
     ships = 0  // Number of ships
     sunk  = 0  // Number of ships sunk
 
-for every board:
+for every board B:
 
-    on shoot at (R, C) on THIS <--
+    shoot at (R, C) on B <--
             R is an integer,  0 <= R < size,
             C is an integer,  0 <= C < size:
         if state(R,C) != `untouched':
@@ -1387,7 +1390,7 @@ for every board:
     // Return true iff (DIRECTION,START) is an OK (empty)
     // position for a new ship of length L.
     //
-    on test position (DIRECTION, START) on THIS
+    on test position (DIRECTION, START) on B
             for ship of length L
         <-- DIRECTION is a pair of integers,
             START is a pair of integers,
@@ -1411,7 +1414,7 @@ for every board:
     // Return a random empty place, (DIRECTION,POSITION),
     // where a ship of length L may be placed.
     //
-    on find position on THIS for ship of length L
+    on find position on B for ship of length L
             <-- L is an integer, 1 <= L <= max ship length:
         value = loop:
             first tries = 1
@@ -1422,7 +1425,7 @@ for every board:
                          random ( 0 .. S - 1 ) )
             if tries > max tries:
                 error `board too full to place ship'
-            else if test position (direction, position) on THIS
+            else if test position (direction, position) on B
                     for ship length L:
                 value = (direction, position)
             else:
@@ -1431,7 +1434,7 @@ for every board:
     // Given an empty place (DIRECTION,START) for a ship S of
     // length L, install ship S on the board.
     //
-    on place ship S of length L at (DIRECTION, START) on THIS
+    on place ship S of length L at (DIRECTION, START) on B
             <-- S is a ship,
                 DIRECTION is a pair of integers,
                 START is a pair of integers,
@@ -1448,15 +1451,15 @@ on a ship of length L on board B <--
 
     (direction, position) =
         find position on B for ship of length L
-    place THIS of length L at (direction, position)
+    place B of length L at (direction, position)
           on B
 
     length = L
     board = B
     hits = 0  // Number hits on ship so far
 
-for every ship:
-    on hit ( THIS ):
+for every ship S:
+    on hit ( S ):
         update hits = hits + 1
         if update hits == length:
             value = `sunk'
@@ -1509,16 +1512,16 @@ on a board view for (BOARD) PLAYER
         while c < size:
             next c = c + 1
             if ship(r, c) != none
-                draw ship (ship(r, c)) on THIS
+                draw ship (ship(r, c)) on S
 
     on display ( THIS ) <--:
         value = plane
 
-for every ship:
+for every ship S:
 
     // Update ships positions in board view.
     //
-    on show ( THIS ) on ( VIEW ) <--
+    on show ( S ) on ( VIEW ) <--
             VIEW is a board view:
         assert board == VIEW's board
         player = VIEW's player
