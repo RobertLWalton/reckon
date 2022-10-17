@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{October 16, 2022}
+\date{October 17, 2022}
 
 \maketitle
 
@@ -1388,72 +1388,78 @@ for every board B:
         else if ship(R, C) == `none':
             value = `miss'
         else:
-            s <== ship(R, C)
-            if hit(s) == `sunk':
-                update sunk = sunk + 1
+            s = ship(R, C)
+            next hits(s) = hits(s) + 1
+            if hits(s) == length(s):
+                next sunk = sunk + 1
                 value = `sunk'
             else:
                 value = `hit'
         if value != `no effect':
-            state(R, C) <== value
+            next state(R, C) = value
 
     // Return true iff (DIRECTION,START) is an OK (empty)
     // position for a new ship of length L.
     //
-    on test position (DIRECTION, START) on B
+    test position (DIRECTION, START) on B
             for ship of length L
         <-- DIRECTION is a pair of integers,
             START is a pair of integers,
             L is an integer, 1 <= L <= max ship length:
 
         (R,C) = START
-        if R < 0 OR R >= size:
-            value = `false'
-        else if C < 0 OR C >= size:
-            value = `false'
-        else if ship(START) of B != `none':
+        assert 0 <= R < size
+        assert 0 <= C < size
+
+        (X,Y) = DIRECTION
+        assert -1 <= X <= +1
+        assert -1 <= Y <= +1
+
+        if ship(START) != `none':
             // Position conflicts with previous ship
             value = `false'
         else if L == 1:
             value = `true'
         else
-            value = position ( DIRECTION,
-                               START + DIRECTION,
-                               L - 1 )
+            value = test position ( DIRECTION,
+                                    START + DIRECTION,
+                                    L - 1 )
 
     // Return a random empty place, (DIRECTION,POSITION),
-    // where a ship of length L may be placed.
+    // where a ship of length L may be placed.  Or return
+    // `none' if max tries random attempts fail.
     //
-    on find position on B for ship of length L
+    find position on B for ship of length L
             <-- L is an integer, 1 <= L <= max ship length:
-        value = loop:
-            first tries = 1
+        tries = 0
+        value = 'none'
+        loop:
             direction =
                 random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
                          (1, 1), (1, 0), (1, -1), (0, -1) ]
             position = ( random ( 0 .. S - 1 ),
                          random ( 0 .. S - 1 ) )
-            if tries > max tries:
-                error `board too full to place ship'
+            if tries >= max tries:
+                exit // loop
             else if test position (direction, position) on B
                     for ship length L:
                 value = (direction, position)
+                exit loop
             else:
-                update tries = tries + 1
+                next tries = tries + 1
 
     // Given an empty place (DIRECTION,START) for a ship S of
     // length L, install ship S on the board.
     //
-    on place ship S of length L at (DIRECTION, START) on B
-            <-- S is a ship,
-                DIRECTION is a pair of integers,
+    place ship of length L at (DIRECTION, START) on B
+            <-- DIRECTION is a pair of integers,
                 START is a pair of integers,
                 L is an integer, 1 <= L <= max ship length:
         while L > 0:
-            ship(START) <== S
+            next ship(START) = ships
             next START = START + DIRECTION
             next L = L - 1
-        update ships = ships + 1
+        next ships = ships + 1
     
 on a ship of length L on board B <--
         L is an integer, 1 <= L <= max ship length:
@@ -1538,10 +1544,10 @@ for every ship S:
         plane = VIEW's plane
         sqsize = VIEW's square size
         hlwidth = VIEW's line width / 2
-	ship layer = VIEW's ship layer
-	hit layer = VIEW's hit layer
-	sunk layer = VIEW's sunk layer
-	letter layer = VIEW's letter layer
+        ship layer = VIEW's ship layer
+        hit layer = VIEW's hit layer
+        sunk layer = VIEW's sunk layer
+        letter layer = VIEW's letter layer
         L = length
         P = position
 
@@ -1552,18 +1558,18 @@ for every ship S:
         while L > 0:
             state = board's state(P)
             layers = 0
-	    if player == `owner':
-	        layers = ship layer
-	    if state == `sunk' or hits == L:
-	        layers = hit layer + sunk layer
-	    else if state == `hit'
-	        layers = hit layer
-	        
-	    draw filled polygon in (layers)
-		 on plane (plane)
-		 with vertices
-		      [T*P, T*(P+(0,1)), T*(P+(1,1) ),
-			    T*(P+(1,0))]
+            if player == `owner':
+                layers = ship layer
+            if state == `sunk' or hits == L:
+                layers = hit layer + sunk layer
+            else if state == `hit'
+                layers = hit layer
+                
+            draw filled polygon in (layers)
+                 on plane (plane)
+                 with vertices
+                      [T*P, T*(P+(0,1)), T*(P+(1,1) ),
+                            T*(P+(1,0))]
 
             if player == `owner' or state == `sunk':
                 draw text (ship codes(length))
