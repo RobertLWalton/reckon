@@ -1346,7 +1346,7 @@ The remainder of this document is a reference manual for RECKON.
 ship codes = [`S', `D', `C', `B', `A']
 ship names = [`Submarine', `Destroyer', `Cruzier',
               `Battleship', `Aircraft Carrier']
-max ship length = 5
+max ship length = # ship names
 max tries = 100    // max tries to position ship on a board
 
 a board of size S <-- S is an integer, S >= 5:
@@ -1361,7 +1361,6 @@ a board of size S <-- S is an integer, S >= 5:
             with initial elements `untouched'
 
     // ship(R, C) is ID of ship at (R, C) or `none'.
-    // Ship IDs are 0, 1, 2, ..., ships-1.
     //
     ship = an array of size (S, S)
            with initial elements `none'
@@ -1369,21 +1368,102 @@ a board of size S <-- S is an integer, S >= 5:
     ships = 0  // Number of ships
     sunk  = 0  // Number of ships sunk
 
-    // length(S) is length of ship with ship ID S.
-    //
-    length = an array of size (0)
+a ship of length L on board B <--
+        L is an integer, 1 <= L <= max ship length,
+	B is a board:
+    // Make a ship of length L on board B.
 
-    // hits(S) is the number of hits on the ship with
-    // ship ID S.
-    //
-    hits an array of size (0)
+    (direction, position) =
+        find position on B for ship of length L
+    place B of length L at (direction, position)
+          on B
+
+    length = L
+    board = B
+    hits = 0  // Number hits on ship so far
 
 for every board B:
+
+    // Return true iff (DIRECTION,START) is an OK (empty)
+    // position for a new ship of length L, and false
+    // otherwise.
+    //
+    test position (DIRECTION, START) on B
+            for ship of length L
+        <-- DIRECTION is a pair of integers,
+            START is a pair of integers,
+            L is an integer, 1 <= L <= max ship length:
+
+        (X,Y) = DIRECTION
+        assert -1 <= X <= +1
+        assert -1 <= Y <= +1
+
+        (R, C) = START
+
+        if NOT 0 <= R < size
+           OR
+           NOT 0 <= C < size:
+            value = `false'
+        else if ship(START) != `none':
+            // Position conflicts with previous ship
+            value = `false'
+        else if L == 1:
+            value = `true'
+        else
+            value = test position ( DIRECTION,
+                                    START + DIRECTION,
+                                    L - 1 )
+
+    // Given an empty place (DIRECTION,START) for a ship S of
+    // length L, install ship S on the board.
+    //
+    place ship S of length L at (DIRECTION, START) on B
+            <-- S is a ship,
+                L is an integer, 1 <= L <= max ship length,
+                DIRECTION is a pair of integers,
+                START is a pair of integers:
+
+        (R, C) = START
+	assert 0 <= R < size
+	assert 0 <= C < size
+
+        (X,Y) = DIRECTION
+        assert -1 <= X <= +1
+        assert -1 <= Y <= +1
+
+        while L > 0:
+            ship(START) = ships
+            next START = START + DIRECTION
+            next L = L - 1
+        ships = ships + 1
+
+    // Return a random empty place, (DIRECTION,POSITION),
+    // where a ship of length L may be placed.  Or return
+    // `none' if max tries random attempts fail.
+    //
+    find position on B for ship of length L
+            <-- L is an integer, 1 <= L <= max ship length:
+        tries = 0
+        loop:
+            direction =
+                random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
+                         (1, 1), (1, 0), (1, -1), (0, -1) ]
+            position = ( random ( 0 .. S ),
+                         random ( 0 .. S ) )
+            if tries >= max tries:
+		value = 'none'
+                exit loop
+            else if test position (direction, position) on B
+                    for ship length L:
+                value = (direction, position)
+                exit loop
+            else:
+                next tries = tries + 1
 
     shoot at (R, C) on B <--
             R is an integer,  0 <= R < size,
             C is an integer,  0 <= C < size:
-        if state(R,C) != `untouched':
+        if state(R, C) != `untouched':
             value = `no effect'
         else if ship(R, C) == `none':
             value = `miss'
@@ -1398,89 +1478,14 @@ for every board B:
         if value != `no effect':
             state(R, C) = value
 
-    // Return true iff (DIRECTION,START) is an OK (empty)
-    // position for a new ship of length L.
-    //
-    test position (DIRECTION, START) on B
-            for ship of length L
-        <-- DIRECTION is a pair of integers,
-            START is a pair of integers,
-            L is an integer, 1 <= L <= max ship length:
-
-        (R,C) = START
-        assert 0 <= R < size
-        assert 0 <= C < size
-
-        (X,Y) = DIRECTION
-        assert -1 <= X <= +1
-        assert -1 <= Y <= +1
-
-        if ship(START) != `none':
-            // Position conflicts with previous ship
-            value = `false'
-        else if L == 1:
-            value = `true'
-        else
-            value = test position ( DIRECTION,
-                                    START + DIRECTION,
-                                    L - 1 )
-
-    // Return a random empty place, (DIRECTION,POSITION),
-    // where a ship of length L may be placed.  Or return
-    // `none' if max tries random attempts fail.
-    //
-    find position on B for ship of length L
-            <-- L is an integer, 1 <= L <= max ship length:
-        tries = 0
-        value = 'none'
-        loop:
-            direction =
-                random [ (-1, -1), (-1, 0), (-1, 1), (0, 1),
-                         (1, 1), (1, 0), (1, -1), (0, -1) ]
-            position = ( random ( 0 .. S - 1 ),
-                         random ( 0 .. S - 1 ) )
-            if tries >= max tries:
-                exit // loop
-            else if test position (direction, position) on B
-                    for ship length L:
-                value = (direction, position)
-                exit loop
-            else:
-                next tries = tries + 1
-
-    // Given an empty place (DIRECTION,START) for a ship S of
-    // length L, install ship S on the board.
-    //
-    place ship of length L at (DIRECTION, START) on B
-            <-- DIRECTION is a pair of integers,
-                START is a pair of integers,
-                L is an integer, 1 <= L <= max ship length:
-        while L > 0:
-            ship(START) = ships
-            next START = START + DIRECTION
-            next L = L - 1
-        ships = ships + 1
-    
-on a ship of length L on board B <--
-        L is an integer, 1 <= L <= max ship length:
-    // Make a ship of length L on board B.
-
-    (direction, position) =
-        find position on B for ship of length L
-    place B of length L at (direction, position)
-          on B
-
-    length = L
-    board = B
-    hits = 0  // Number hits on ship so far
-
 for every ship S:
-    on hit ( S ):
-        update hits = hits + 1
-        if update hits == length:
-            value = `sunk'
-        else:
-            value = `not sunk yet'
+    hit S <--:
+        hits = hits + 1
+        value =:
+            if hits == length:
+                value = `sunk'
+            else:
+                value = `not sunk yet'
 
 on a board view for (BOARD) PLAYER
         ~ with square size SQSIZE ? <--
