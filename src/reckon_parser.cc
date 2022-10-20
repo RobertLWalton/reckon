@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 30 04:21:38 EST 2021
+// Date:	Thu Oct 20 07:09:30 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,6 +125,11 @@ void REC::init_parser ( PAR::parser parser )
         PAR::find_reformatter
 	    ( declare, OP::reformatter_stack );
 
+    min::locatable_gen declare_arguments
+	    ( min::new_obj_gen ( 1 ) );
+    min::obj_vec_insptr davp ( declare_arguments );
+    min::attr_push ( davp ) = PARLEX::colon;
+
     min::locatable_gen right_associative
         ( min::new_lab_gen ( "right", "associative" ) );
 
@@ -210,7 +215,7 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::NOFIX + OP::LINE,
 	  0, declare_reformatter,
-	  min::MISSING(),
+	  declare_arguments,
 	  oper_pass->oper_table );
 
 }
