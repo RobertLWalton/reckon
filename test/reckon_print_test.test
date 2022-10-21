@@ -54,8 +54,8 @@
         block standard: mapped lexeme "ROW" [TOP LEVEL]
                         with token value {row}
     print middle break
-        block reckon: "#" "#"
-        block standard: "#" "#"
+        block reckon: "#" ... "#"
+        block standard: "#" ... "#"
         block TOP LEVEL: disabled
     print quoted string concatenator
         block reckon: "#"
@@ -250,13 +250,9 @@
         block reckon: bracket type "code" [TOP LEVEL, code, text]
                       with group reset
     print operator ""
-        block standard: operator "&" [code]
-                        infix
-                        with precedence 6000
-                        with infix reformatter ( "&" )
         block standard: operator "*" [code, math]
                         infix
-                        with precedence 6200
+                        with precedence 13200
                         with infix reformatter ( "*" )
         block standard: operator "+" [code, math]
                         prefix
@@ -264,7 +260,7 @@
                         with unary reformatter
         block standard: operator "+" [code, math]
                         infix
-                        with precedence 6000
+                        with precedence 13000
                         with infix reformatter ( "+", "-" )
         block standard: operator "," [code, math]
                         nofix
@@ -276,54 +272,42 @@
                         with unary reformatter
         block standard: operator "-" [code, math]
                         infix
-                        with precedence 6000
+                        with precedence 13000
                         with infix reformatter ( "+", "-" )
         block standard: operator "/" [code, math]
                         infix
-                        with precedence 6100
+                        with precedence 13100
                         with binary reformatter
         block standard: operator ":" [code]
                         right afix line
                         with precedence 0
         block standard: operator "<" [code, math]
                         infix
-                        with precedence 5000
+                        with precedence 12000
                         with infix reformatter
         block standard: operator "=" [code]
-                        infix line
+                        left line
                         with precedence 1000
-                        with binary reformatter
+                        with assignment reformatter
         block standard: operator "=" [math]
                         infix
                         with precedence 1000
                         with binary reformatter
         block standard: operator ">" [code, math]
                         infix
-                        with precedence 5000
+                        with precedence 12000
                         with infix reformatter
         block standard: operator "!=" [code, math]
                         infix
-                        with precedence 5000
+                        with precedence 12000
                         with infix reformatter
-        block standard: operator "^" [code]
-                        infix
-                        with precedence 6000
-                        with infix reformatter ( "^" )
-        block standard: operator "|" [code]
-                        infix
-                        with precedence 6000
-                        with infix reformatter ( "|" )
-        block standard: operator "~" [code]
-                        prefix
-                        with precedence 999999
+        block standard: operator "do" [code]
+                        prefix line
+                        with precedence 3000
                         with unary reformatter
-        block standard: operator ">>=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
         block standard: operator "NOT" [code, math]
                         prefix
-                        with precedence 4200
+                        with precedence 11200
                         with unary reformatter
         block standard: operator [< "else" "if" >] [code]
                         prefix line
@@ -333,30 +317,24 @@
         block reckon: operator "for" [code]
                       prefix line
                       with precedence 0
-        block standard: operator "<<=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
         block reckon: operator "<--" [code]
                       nofix line
                       with precedence 0
-                      with declare reformatter
-        block standard: operator "&=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
+                      with declare reformatter ( ":" )
         block standard: operator "while" [code]
                         prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
+                        with precedence 3000
+                        with unary reformatter
         block standard: operator [< "BUT" "NOT" >] [code, math]
                         infix
-                        with precedence 4000
+                        with precedence 11000
                         with binary reformatter
+        block standard: operator "times" [code]
+                        nofix afix line
+                        with precedence 3000
         block standard: operator "if" [code, math]
                         infix
-                        with precedence 3000
+                        with precedence 10000
                         with selector reformatter ( "if", "else" )
         block standard: operator "if" [code]
                         prefix line
@@ -365,39 +343,34 @@
                         [< "has" "condition" >] )
         block standard: operator "until" [code]
                         prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
+                        with precedence 3000
+                        with unary reformatter
         block standard: operator "else" [code, math]
                         infix afix
-                        with precedence 3000
+                        with precedence 10000
         block standard: operator "else" [code]
                         initial line
                         with precedence 0
                         with control reformatter ( ":" )
         block standard: operator "**" [code, math]
                         infix
-                        with precedence 6300
+                        with precedence 13300
                         with binary reformatter
         block standard: operator "*=" [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "|=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
+        block standard: operator [< "at" "most" >] [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( "times" )
         block standard: operator "+=" [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "<<" [code]
-                        infix
-                        with precedence 6000
-                        with binary reformatter
         block standard: operator "<=" [code, math]
                         infix
-                        with precedence 5000
+                        with precedence 12000
                         with infix reformatter
         block reckon: operator "=#" [code, math]
                       infix line
@@ -405,34 +378,30 @@
                       with right associative reformatter
         block standard: operator "AND" [code, math]
                         infix
-                        with precedence 4100
+                        with precedence 11100
                         with infix reformatter ( "AND" )
+        block standard: operator "repeat" [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( "times" )
         block standard: operator "==" [code, math]
                         infix
-                        with precedence 5000
+                        with precedence 12000
                         with infix reformatter
         block standard: operator "-=" [code]
                         infix line
                         with precedence 1000
                         with binary reformatter
-        block standard: operator "^=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
         block standard: operator ">=" [code, math]
                         infix
-                        with precedence 5000
+                        with precedence 12000
                         with infix reformatter
-        block standard: operator ">>" [code]
-                        infix
-                        with precedence 6000
-                        with binary reformatter
         block reckon: operator "on" [code]
                       prefix line
                       with precedence 0
         block standard: operator "OR" [code, math]
                         infix
-                        with precedence 4100
+                        with precedence 11100
                         with infix reformatter ( "OR" )
         block standard: operator "/=" [code]
                         infix line
@@ -445,5 +414,8 @@
                       nofix afix line
                       with precedence 0
         block standard: bracket ":" [code]
-                        postfix afix line
+                        nofix afix line
+                        with precedence 0
+        block standard: bracket ":" [code]
+                        postfix line
                         with precedence 0
