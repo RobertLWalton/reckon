@@ -1328,37 +1328,37 @@ BRACKETED EXPRESSION:
 PURELIST EXPRESSION:
     {|X|}
     line ##:
-    if (X > Y):   value = 0
-        ^
+    if X > Y:     value = 0
+       ^
 PURELIST EXPRESSION:
     {|Y|}
     line ##:
-    if (X > Y):   value = 0
-            ^
-BRACKETED EXPRESSION:
-    ({|X|} > {|Y|})
-    line ##:
-    if (X > Y):   value = 0
-       ^^^^^^^
+    if X > Y:     value = 0
+           ^
 PURELIST EXPRESSION:
     {|value|}
     line ##:
-    if (X > Y):   value = 0
+    if X > Y:     value = 0
                   ^^^^^
 PURELIST EXPRESSION:
     {|0|}
     line ##:
-    if (X > Y):   value = 0
+    if X > Y:     value = 0
                           ^
+PURELIST EXPRESSION:
+    {|{|X|} > {|Y|}|}
+    line ##:
+    if X > Y:     value = 0
+       ^^^^^
 PURELIST EXPRESSION:
     {|{|value|} = {|0|}|}
     line ##:
-    if (X > Y):   value = 0
+    if X > Y:     value = 0
                   ^^^^^^^^^
 BRACKETED EXPRESSION:
-    if ({|X|} > {|Y|}) ":" {|{|value|} = {|0|}|}
+    if {|{|X|} > {|Y|}|} ":" {|{|value|} = {|0|}|}
     line ##:
-    if (X > Y):   value = 0
+    if X > Y:     value = 0
     ^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|X|}
@@ -1412,7 +1412,7 @@ BRACKETED EXPRESSION:
               ``{s: .terminator = "."|Sum of integers from X through
                     Y|s}''|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
-              ({|X|} > {|Y|}) ":" {|{|value|} = {|0|}|}|}
+              {|{|X|} > {|Y|}|} ":" {|{|value|} = {|0|}|}|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
               ":"
               {|{|value|} =
@@ -1422,7 +1422,7 @@ BRACKETED EXPRESSION:
                                          ^
     ``Sum of integers from X through Y.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    if (X > Y):   value = 0
+    if X > Y:     value = 0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     else:         value = X + sum (X + 1) through Y
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1452,7 +1452,7 @@ BRACKETED EXPRESSION:
     {|sum from X through Y|} <--
         {|{|is an integer X|}, {|is an integer Y|}|}:
         ``{s: .terminator = "."|Sum of integers from X through Y|s}''
-        if ({|X|} > {|Y|}) ":" {|{|value|} = {|0|}|}
+        if {|{|X|} > {|Y|}|} ":" {|{|value|} = {|0|}|}
         else ":"
             {|{|value|} =
               {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}
@@ -1463,7 +1463,7 @@ sum from X through Y <-- is an integer X,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``Sum of integers from X through Y.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    if (X > Y):   value = 0
+    if X > Y:     value = 0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     else:         value = X + sum (X + 1) through Y
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1528,21 +1528,6 @@ BRACKETED EXPRESSION:
     value = 0
     ^^^^^^^^^
 PURELIST EXPRESSION:
-    {|X|}
-    line ##:
-    while ( X <= Y ):
-            ^
-PURELIST EXPRESSION:
-    {|Y|}
-    line ##:
-    while ( X <= Y ):
-                 ^
-BRACKETED EXPRESSION:
-    ({|X|} <= {|Y|})
-    line ##:
-    while ( X <= Y ):
-          ^^^^^^^^^^
-PURELIST EXPRESSION:
     {|next value|}
     line ##:
         next value = value + X
@@ -1599,38 +1584,53 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|next X|} = {|{|X|} + {|1|}|}|}|}
     lines ##-##:
-    while ( X <= Y ):
-                    ^
+    while X <= Y:
+                ^
         next value = value + X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next X = X + 1
 ^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|while ({|X|} <= {|Y|})|}
+    {|X|}
     line ##:
-    while ( X <= Y ):
-    ^^^^^^^^^^^^^^^^
+    while X <= Y:
+          ^
 PURELIST EXPRESSION:
-    {|{|while ({|X|} <= {|Y|})|}
+    {|Y|}
+    line ##:
+    while X <= Y:
+               ^
+PURELIST EXPRESSION:
+    {|{|X|} <= {|Y|}|}
+    line ##:
+    while X <= Y:
+          ^^^^^^
+PURELIST EXPRESSION:
+    {|while {|{|X|} <= {|Y|}|}|}
+    line ##:
+    while X <= Y:
+    ^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|while {|{|X|} <= {|Y|}|}|}
       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 {|next value|} = {|{|value|} + {|X|}|}|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 {|next X|} = {|{|X|} + {|1|}|}|}|}|}
     lines ##-##:
-    while ( X <= Y ):
-    ^^^^^^^^^^^^^^^^^
+    while X <= Y:
+    ^^^^^^^^^^^^^
         next value = value + X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next X = X + 1
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {|while ({|X|} <= {|Y|})|}:
+    {|while {|{|X|} <= {|Y|}|}|}:
         {|next value|} = {|{|value|} + {|X|}|}
         {|next X|} = {|{|X|} + {|1|}|}
     lines ##-##:
-    while ( X <= Y ):
-    ^^^^^^^^^^^^^^^^^
+    while X <= Y:
+    ^^^^^^^^^^^^^
         next value = value + X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next X = X + 1
@@ -1643,7 +1643,7 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|value|} = {|0|}|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
-              {|while ({|X|} <= {|Y|})|}
+              {|while {|{|X|} <= {|Y|}|}|}
               {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                    ":"|
                    {"": .terminator = "<LF>", .initiator =
@@ -1659,8 +1659,8 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     value = 0
 ^^^^^^^^^^^^^
-    while ( X <= Y ):
-^^^^^^^^^^^^^^^^^^^^^
+    while X <= Y:
+^^^^^^^^^^^^^^^^^
         next value = value + X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next X = X + 1
@@ -1692,7 +1692,7 @@ BRACKETED EXPRESSION:
         {|{|is an integer X|}, {|is an integer Y|}|}:
         ``{s: .terminator = "."|Sum of integers from X through Y|s}''
         {|value|} = {|0|}
-        {|while ({|X|} <= {|Y|})|}:
+        {|while {|{|X|} <= {|Y|}|}|}:
             {|next value|} = {|{|value|} + {|X|}|}
             {|next X|} = {|{|X|} + {|1|}|}
     lines ##-##:
@@ -1704,8 +1704,8 @@ sum from X through Y <-- is an integer X,
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     value = 0
 ^^^^^^^^^^^^^
-    while ( X <= Y ):
-^^^^^^^^^^^^^^^^^^^^^
+    while X <= Y:
+^^^^^^^^^^^^^^^^^
         next value = value + X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next X = X + 1
