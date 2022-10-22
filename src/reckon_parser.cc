@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 20 07:09:30 EDT 2022
+// Date:	Sat Oct 22 00:48:01 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,6 +112,8 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_lab_gen ( "$", "}" ) );
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
+    min::locatable_gen circumflex
+        ( min::new_str_gen ( "^" ) );
 
     min::locatable_gen on_name
         ( min::new_str_gen ( "on" ) );
@@ -137,6 +139,13 @@ void REC::init_parser ( PAR::parser parser )
         PAR::find_reformatter
 	    ( right_associative,
 	      OP::reformatter_stack );
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
 
     BRA::push_brackets
         ( PARLEX::left_square,
@@ -188,17 +197,6 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( PARLEX::colon,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::AFIX + OP::LINE,
-	      // No left if `else:'
-	  0,
-	  min::NULL_STUB, min::MISSING(),
-	  oper_pass->oper_bracket_table );
-
-    OP::push_oper
         ( left_brace_dollar,
 	  dollar_right_brace,
 	  code,
@@ -216,6 +214,16 @@ void REC::init_parser ( PAR::parser parser )
 	  OP::NOFIX + OP::LINE,
 	  0, declare_reformatter,
 	  declare_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( circumflex,
+	  min::MISSING(),
+	  code + math,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  13300, binary_reformatter,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 
 }

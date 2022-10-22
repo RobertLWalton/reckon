@@ -231,6 +231,10 @@
                         infix
                         with precedence 12000
                         with infix reformatter
+        block reckon: operator "^" [code, math]
+                      infix
+                      with precedence 13300
+                      with binary reformatter
         block standard: operator "do" [code]
                         prefix line
                         with precedence 3000
@@ -338,9 +342,6 @@
                         with precedence 1000
                         with binary reformatter
         block reckon: bracket [< "{" "$" >] ... [< "$" "}" >] [code]
-                      nofix afix line
-                      with precedence 0
-        block reckon: bracket ":" [code]
                       nofix afix line
                       with precedence 0
         block standard: bracket ":" [code]
@@ -570,10 +571,15 @@ PURELIST EXPRESSION:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
        ^^
 PURELIST EXPRESSION:
-    {|x ^ 2|}
+    {|x|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
-            ^^^^^
+            ^
+PURELIST EXPRESSION:
+    {|2|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                ^
 PURELIST EXPRESSION:
     {|3.67|}
     line ##:
@@ -590,7 +596,12 @@ PURELIST EXPRESSION:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
                                ^^^^
 PURELIST EXPRESSION:
-    {|{|10|} * {|x ^ 2|}|}
+    {|{|x|} ^ {|2|}|}
+    line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+            ^^^^^
+PURELIST EXPRESSION:
+    {|{|10|} * {|{|x|} ^ {|2|}|}|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
        ^^^^^^^^^^
@@ -600,12 +611,12 @@ PURELIST EXPRESSION:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
                     ^^^^^^^^
 PURELIST EXPRESSION:
-    {|{|{|10|} * {|x ^ 2|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}|}
+    {|{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}|}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{{|{|10|} * {|x ^ 2|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}}}
+    {{{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}}}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -615,7 +626,9 @@ PURELIST EXPRESSION:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 ^
 BRACKETED EXPRESSION:
-    {|f|} = {{{|{|10|} * {|x ^ 2|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}}}
+    {|f|} =
+        {{{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} -
+          {|0.04|}}}
     line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -765,22 +778,37 @@ BRACKETED EXPRESSION:
 {{f + h}} in x at (3, 4, 5)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|x ^ 2|}
+    {|x|}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
-                 ^^^^^
+                 ^
+PURELIST EXPRESSION:
+    {|2|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                     ^
 PURELIST EXPRESSION:
     {|dx|}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
                          ^^
+PURELIST EXPRESSION:
+    {|{|x|} ^ {|2|}|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                 ^^^^^
+PURELIST EXPRESSION:
+    {|{|{|x|} ^ {|2|}|} * {|dx|}|}
+    line ##:
+g = {{ integral (x ^ 2 * dx) }}
+                 ^^^^^^^^^^
 BRACKETED EXPRESSION:
-    ({|x ^ 2|} * {|dx|})
+    ({|{|x|} ^ {|2|}|} * {|dx|})
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
                 ^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {{integral ({|x ^ 2|} * {|dx|})}}
+    {{integral ({|{|x|} ^ {|2|}|} * {|dx|})}}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -790,7 +818,7 @@ PURELIST EXPRESSION:
 g = {{ integral (x ^ 2 * dx) }}
 ^
 BRACKETED EXPRESSION:
-    {|g|} = {{integral ({|x ^ 2|} * {|dx|})}}
+    {|g|} = {{integral ({|{|x|} ^ {|2|}|} * {|dx|})}}
     line ##:
 g = {{ integral (x ^ 2 * dx) }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -799,6 +827,11 @@ BRACKETED EXPRESSION:
     line ##:
 simplify g
 ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    g from 1 to 5
+    line ##:
+g from 1 to 5
+^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (g from 1 to 5)
     line ##:
@@ -866,37 +899,37 @@ BRACKETED EXPRESSION:
 V =# {| 1 2 3 |}
 ^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    0 1 1
+    "|" 0 1 1 "|"
     line ##:
-   0   1   1
-   ^^^^^^^^^
+   |  0   1   1 |
+   ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    -1 1 0
+    "|" -1 1 0 "|"
     line ##:
-   -1  1   0
-   ^^^^^^^^^
+   | -1   1   0 |
+   ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    1 0 -1
+    "|" 1 0 -1 "|"
     line ##:
-   1   0  -1
-   ^^^^^^^^^
+   |  1   0  -1 |
+   ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|0 1
-              1|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|-1 1
-              0|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|1 0
-              -1|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|"|"
+              0 1 1 "|"|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|"|"
+              -1 1 0 "|"|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|"|"
+              1 0 -1 "|"|}|}
     lines ##-##:
 M =#:
     ^
-   0   1   1
-^^^^^^^^^^^^
-   -1  1   0
-^^^^^^^^^^^^
-   1   0  -1
-^^^^^^^^^^^^
+   |  0   1   1 |
+^^^^^^^^^^^^^^^^^
+   | -1   1   0 |
+^^^^^^^^^^^^^^^^^
+   |  1   0  -1 |
+^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|M|}
     line ##:
@@ -904,20 +937,30 @@ M =#:
 ^
 BRACKETED EXPRESSION:
     {|M|} =#:
-        0 1 1
-        -1 1 0
-        1 0 -1
+        "|" 0 1 1 "|"
+        "|" -1 1 0 "|"
+        "|" 1 0 -1 "|"
     lines ##-##:
 M =#:
 ^^^^^
-   0   1   1
-^^^^^^^^^^^^
-   -1  1   0
-^^^^^^^^^^^^
-   1   0  -1
-^^^^^^^^^^^^
+   |  0   1   1 |
+^^^^^^^^^^^^^^^^^
+   | -1   1   0 |
+^^^^^^^^^^^^^^^^^
+   |  1   0  -1 |
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|V|}
+    line ##:
+V ^ T
+^
+PURELIST EXPRESSION:
+    {|T|}
+    line ##:
+V ^ T
+    ^
 BRACKETED EXPRESSION:
-    V ^ T
+    {|V|} ^ {|T|}
     line ##:
 V ^ T
 ^^^^^
@@ -927,12 +970,22 @@ PURELIST EXPRESSION:
 M * V ^ T
 ^
 PURELIST EXPRESSION:
-    {|V ^ T|}
+    {|V|}
+    line ##:
+M * V ^ T
+    ^
+PURELIST EXPRESSION:
+    {|T|}
+    line ##:
+M * V ^ T
+        ^
+PURELIST EXPRESSION:
+    {|{|V|} ^ {|T|}|}
     line ##:
 M * V ^ T
     ^^^^^
 BRACKETED EXPRESSION:
-    {|M|} * {|V ^ T|}
+    {|M|} * {|{|V|} ^ {|T|}|}
     line ##:
 M * V ^ T
 ^^^^^^^^^
@@ -1168,17 +1221,28 @@ PURELIST EXPRESSION:
     body mass index = 703.06958 * weight in lbs
                                   ^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|height in inches ^ 2|}
+    {|height in inches|}
     line ##:
                     / height in inches ^ 2
-                      ^^^^^^^^^^^^^^^^^^^^
+                      ^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|2|}
+    line ##:
+                    / height in inches ^ 2
+                                         ^
 PURELIST EXPRESSION:
     {|{|703.06958|} * {|weight in lbs|}|}
     line ##:
     body mass index = 703.06958 * weight in lbs
                       ^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|{|{|703.06958|} * {|weight in lbs|}|} / {|height in inches ^ 2|}|}
+    {|{|height in inches|} ^ {|2|}|}
+    line ##:
+                    / height in inches ^ 2
+                      ^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|{|703.06958|} * {|weight in lbs|}|} /
+      {|{|height in inches|} ^ {|2|}|}|}
     lines ##-##:
     body mass index = 703.06958 * weight in lbs
                       ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1187,7 +1251,7 @@ PURELIST EXPRESSION:
 BRACKETED EXPRESSION:
     {|body mass index|} =
         {|{|{|703.06958|} * {|weight in lbs|}|} /
-          {|height in inches ^ 2|}|}
+          {|{|height in inches|} ^ {|2|}|}|}
     lines ##-##:
     body mass index = 703.06958 * weight in lbs
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1198,7 +1262,7 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|body mass index|} =
               {|{|{|703.06958|} * {|weight in lbs|}|} /
-                {|height in inches ^ 2|}|}|}|}
+                {|{|height in inches|} ^ {|2|}|}|}|}|}
     lines ##-##:
 for every person:
                 ^
@@ -1215,7 +1279,7 @@ BRACKETED EXPRESSION:
     for {|every person|}:
         {|body mass index|} =
             {|{|{|703.06958|} * {|weight in lbs|}|} /
-              {|height in inches ^ 2|}|}
+              {|{|height in inches|} ^ {|2|}|}|}
     lines ##-##:
 for every person:
 ^^^^^^^^^^^^^^^^^
@@ -1872,34 +1936,34 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|value|}
-    line ##:
+    line ###:
         value = sum / count
         ^^^^^
 PURELIST EXPRESSION:
     {|sum|}
-    line ##:
+    line ###:
         value = sum / count
                 ^^^
 PURELIST EXPRESSION:
     {|count|}
-    line ##:
+    line ###:
         value = sum / count
                       ^^^^^
 PURELIST EXPRESSION:
     {|{|sum|} / {|count|}|}
-    line ##:
+    line ###:
         value = sum / count
                 ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {|value|} = {|{|sum|} / {|count|}|}
-    line ##:
+    line ###:
         value = sum / count
         ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|value|} = {|{|sum|} / {|count|}|}|}|}
-    lines ##-##:
+    lines ##-###:
     else:
         ^
         value = sum / count
@@ -1907,7 +1971,7 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     else:
         {|value|} = {|{|sum|} / {|count|}|}
-    lines ##-##:
+    lines ##-###:
     else:
     ^^^^^
         value = sum / count
@@ -1945,7 +2009,7 @@ BRACKETED EXPRESSION:
                    {"": .terminator = "<LF>", .initiator =
                         [$ LOGICAL_LINE $]|{|value|} =
                         {|{|sum|} / {|count|}|}|}|}|}|}
-    lines ##-##:
+    lines ##-###:
 average weight of X <-- list X of persons:
                                          ^
     count = 0
@@ -1992,7 +2056,7 @@ BRACKETED EXPRESSION:
                   ``{s: .terminator = "."|Cannot average 0 things|s}''|}
         else:
             {|value|} = {|{|sum|} / {|count|}|}
-    lines ##-##:
+    lines ##-###:
 average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     count = 0
