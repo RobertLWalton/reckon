@@ -307,9 +307,9 @@
                         with precedence 12000
                         with infix reformatter
         block reckon: operator "=#" [code, math]
-                      infix line
+                      left line
                       with precedence 1000
-                      with right associative reformatter
+                      with assignment reformatter
         block standard: operator "AND" [code, math]
                         infix
                         with precedence 11100
@@ -935,8 +935,31 @@ PURELIST EXPRESSION:
     line ##:
 M =#:
 ^
+PURELIST EXPRESSION:
+    {|{|M|} =#|}
+    line ##:
+M =#:
+^^^^
+PURELIST EXPRESSION:
+    {|{|{|M|} =#|}
+      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                "|" 0 1 1 "|"|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                "|" -1 1 0 "|"|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                "|" 1 0 -1 "|"|}|}|}
+    lines ##-##:
+M =#:
+^^^^^
+   |  0   1   1 |
+^^^^^^^^^^^^^^^^^
+   | -1   1   0 |
+^^^^^^^^^^^^^^^^^
+   |  1   0  -1 |
+^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {|M|} =#:
+    {|{|M|} =#|}:
         "|" 0 1 1 "|"
         "|" -1 1 0 "|"
         "|" 1 0 -1 "|"
