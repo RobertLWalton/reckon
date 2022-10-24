@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 22 14:47:36 EDT 2022
+// Date:	Mon Oct 24 15:22:26 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,10 +106,6 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "=" ) );
     min::locatable_gen equal_number_sign
         ( min::new_str_gen ( "=#" ) );
-    min::locatable_gen left_brace_dollar
-        ( min::new_lab_gen ( "{", "$" ) );
-    min::locatable_gen dollar_right_brace
-        ( min::new_lab_gen ( "$", "}" ) );
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
     min::locatable_gen circumflex
@@ -157,15 +153,6 @@ void REC::init_parser ( PAR::parser parser )
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
-    BRA::push_brackets
-	( left_brace_dollar,
-          dollar_right_brace,
-          code,
-          block_level, PAR::top_level_position,
-          TAB::new_flags ( 0, 0, 0 ),
-          min::NULL_STUB, min::MISSING(),
-          bracketed_pass->bracket_table );
-
     OP::push_oper
         ( equal_number_sign,
 	  min::MISSING(),
@@ -195,16 +182,6 @@ void REC::init_parser ( PAR::parser parser )
 	  0, min::NULL_STUB,
 	  min::MISSING(),
 	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( left_brace_dollar,
-	  dollar_right_brace,
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::AFIX + OP::LINE,
-	  0,
-	  min::NULL_STUB, min::MISSING(),
-	  oper_pass->oper_bracket_table );
 
     OP::push_oper
         ( arrow,
