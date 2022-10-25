@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 15:22:26 EDT 2022
+// Date:	Mon Oct 24 15:30:18 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -88,6 +88,30 @@ void REC::init_parser ( PAR::parser parser )
         1ull << TAB::find_name
             ( parser->selector_name_table, text_name );
 
+    BRA::push_brackets
+        ( PARLEX::left_square,
+	  PARLEX::right_square,
+	  text + code + math + atom,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( math, text + code + atom, 0 ),
+	  min::NULL_STUB, min::MISSING(),
+	  bracketed_pass->bracket_table );
+
+    min::locatable_gen text_colon
+        ( min::new_lab_gen ( "*TEXT*", ":" ) );
+
+    BRA::push_indentation_mark
+	( text_colon,
+	  min::MISSING(),
+	  code,
+	  0, PAR::top_level_position,
+	  PAR::parsing_selectors ( text ),
+	  min::MISSING(),
+	  PAR::MISSING_MASTER,
+	  PAR::MISSING_MASTER,
+	  bracketed_pass->bracket_table );
+
     BRA::push_bracket_type
 	( code_name,
 	    PAR::TOP_LEVEL_SELECTOR
@@ -142,16 +166,6 @@ void REC::init_parser ( PAR::parser parser )
     PAR::reformatter binary_reformatter =
         PAR::find_reformatter
 	    ( binary, OP::reformatter_stack );
-
-    BRA::push_brackets
-        ( PARLEX::left_square,
-	  PARLEX::right_square,
-	  text + code + math + atom,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags
-	      ( math, text + code + atom, 0 ),
-	  min::NULL_STUB, min::MISSING(),
-	  bracketed_pass->bracket_table );
 
     OP::push_oper
         ( equal_number_sign,

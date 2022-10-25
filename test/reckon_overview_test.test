@@ -41,6 +41,8 @@
                                               + end at outer closing]
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
+        block TOP LEVEL: indentation mark [< "*TEXT*" ":" >] [code]
+                         with parsing selectors [text]
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
@@ -561,6 +563,100 @@ BRACKETED EXPRESSION:
     line ##:
 z = ``I thought he said `[g]'.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p}
+    line ##:
+    {p} // Introduces paragraph.
+    ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|This document is meant to be read|s}
+    lines ##-##:
+    {p} // Introduces paragraph.
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|Reading this document is good "," but "..."|s}
+    lines ##-##:
+    This document is meant to be read.
+                                      ^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|This document is meant to be read|s}
+       {s|Reading this document is good "," but "..."|s}|p}
+    lines ##-##:
+    {p} // Introduces paragraph.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [z]
+    line ##:
+    [z]
+    ^^^
+BRACKETED EXPRESSION:
+    {s|[z]|s}
+    lines ##-##:
+    // {p} is implied after blank line.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [z]
+^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|[z]|s}|p}
+    lines ##-##:
+    // {p} is implied after blank line.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [z]
+^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< *TEXT* ":" >]|
+         {p|{s: .terminator = "."|This document is meant to be read|s}
+            {s|Reading this document is good "," but "..."|s}|p}
+         {p|{s|[z]|s}|p}|}
+    lines ##-##:
+notice = *TEXT*:
+         ^^^^^^^
+    {p} // Introduces paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    // {p} is implied after blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [z]
+^^^^^^^
+PURELIST EXPRESSION:
+    {|notice|}
+    line ##:
+notice = *TEXT*:
+^^^^^^
+BRACKETED EXPRESSION:
+    {|notice|} =*TEXT*:
+        {p|{s: .terminator = "."|This document is meant to be read|s}
+           {s|Reading this document is good "," but "..."|s}|p}
+        {p|{s|[z]|s}|p}
+    lines ##-##:
+notice = *TEXT*:
+^^^^^^^^^^^^^^^^
+    {p} // Introduces paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^
+    // {p} is implied after blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [z]
+^^^^^^^
 PURELIST EXPRESSION:
     {|10|}
     line ##:
@@ -1738,92 +1834,92 @@ BRACKETED EXPRESSION:
     ^^^^^^^^^
 PURELIST EXPRESSION:
     {|sum|}
-    line ##:
+    line ###:
     sum = 0
     ^^^
 PURELIST EXPRESSION:
     {|0|}
-    line ##:
+    line ###:
     sum = 0
           ^
 BRACKETED EXPRESSION:
     {|sum|} = {|0|}
-    line ##:
+    line ###:
     sum = 0
     ^^^^^^^
 BRACKETED EXPRESSION:
     ()
-    line ##:
+    line ###:
     while X != ():
                ^^
 PURELIST EXPRESSION:
     {|next count|}
-    line ##:
+    line ###:
         next count = count + 1
         ^^^^^^^^^^
 PURELIST EXPRESSION:
     {|count|}
-    line ##:
+    line ###:
         next count = count + 1
                      ^^^^^
 PURELIST EXPRESSION:
     {|1|}
-    line ##:
+    line ###:
         next count = count + 1
                              ^
 PURELIST EXPRESSION:
     {|{|count|} + {|1|}|}
-    line ##:
+    line ###:
         next count = count + 1
                      ^^^^^^^^^
 BRACKETED EXPRESSION:
     {|next count|} = {|{|count|} + {|1|}|}
-    line ##:
+    line ###:
         next count = count + 1
         ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (first X)
-    line ##:
+    line ###:
         next sum = sum + the weight of (first X)
                                        ^^^^^^^^^
 PURELIST EXPRESSION:
     {|next sum|}
-    line ##:
+    line ###:
         next sum = sum + the weight of (first X)
         ^^^^^^^^
 PURELIST EXPRESSION:
     {|sum|}
-    line ##:
+    line ###:
         next sum = sum + the weight of (first X)
                    ^^^
 PURELIST EXPRESSION:
     {|the weight of (first X)|}
-    line ##:
+    line ###:
         next sum = sum + the weight of (first X)
                          ^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|{|sum|} + {|the weight of (first X)|}|}
-    line ##:
+    line ###:
         next sum = sum + the weight of (first X)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
-    line ##:
+    line ###:
         next sum = sum + the weight of (first X)
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|next X|}
-    line ##:
+    line ###:
         next X = rest X
         ^^^^^^
 PURELIST EXPRESSION:
     {|rest X|}
-    line ##:
+    line ###:
         next X = rest X
                  ^^^^^^
 BRACKETED EXPRESSION:
     {|next X|} = {|rest X|}
-    line ##:
+    line ###:
         next X = rest X
         ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1834,7 +1930,7 @@ BRACKETED EXPRESSION:
               {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|next X|} = {|rest X|}|}|}
-    lines ##-##:
+    lines ###-###:
     while X != ():
                  ^
         next count = count + 1
@@ -1845,17 +1941,17 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|X|}
-    line ##:
+    line ###:
     while X != ():
           ^
 PURELIST EXPRESSION:
     {|{|X|} != ()|}
-    line ##:
+    line ###:
     while X != ():
           ^^^^^^^
 PURELIST EXPRESSION:
     {|while {|{|X|} != ()|}|}
-    line ##:
+    line ###:
     while X != ():
     ^^^^^^^^^^^^^
 PURELIST EXPRESSION:
@@ -1868,7 +1964,7 @@ PURELIST EXPRESSION:
                 {|{|sum|} + {|the weight of (first X)|}|}|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 {|next X|} = {|rest X|}|}|}|}
-    lines ##-##:
+    lines ###-###:
     while X != ():
     ^^^^^^^^^^^^^^
         next count = count + 1
@@ -1882,7 +1978,7 @@ BRACKETED EXPRESSION:
         {|next count|} = {|{|count|} + {|1|}|}
         {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
         {|next X|} = {|rest X|}
-    lines ##-##:
+    lines ###-###:
     while X != ():
     ^^^^^^^^^^^^^^
         next count = count + 1
@@ -1893,28 +1989,28 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {s: .terminator = "."|Cannot average 0 things|s}
-    line ##:
+    line ###:
         value = error ``Cannot average 0 things.''
                         ^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     ``{s: .terminator = "."|Cannot average 0 things|s}''
-    line ##:
+    line ###:
         value = error ``Cannot average 0 things.''
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|value|}
-    line ##:
+    line ###:
         value = error ``Cannot average 0 things.''
         ^^^^^
 PURELIST EXPRESSION:
     {|error ``{s: .terminator = "."|Cannot average 0 things|s}''|}
-    line ##:
+    line ###:
         value = error ``Cannot average 0 things.''
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {|value|} =
         {|error ``{s: .terminator = "."|Cannot average 0 things|s}''|}
-    line ##:
+    line ###:
         value = error ``Cannot average 0 things.''
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1923,24 +2019,24 @@ BRACKETED EXPRESSION:
               {|value|} =
               {|error
                 ``{s: .terminator = "."|Cannot average 0 things|s}''|}|}|}
-    lines ##-##:
+    lines ###-###:
     if count == 0:
                  ^
         value = error ``Cannot average 0 things.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|count|}
-    line ##:
+    line ###:
     if count == 0:
        ^^^^^
 PURELIST EXPRESSION:
     {|0|}
-    line ##:
+    line ###:
     if count == 0:
                 ^
 PURELIST EXPRESSION:
     {|{|count|} == {|0|}|}
-    line ##:
+    line ###:
     if count == 0:
        ^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -1948,7 +2044,7 @@ BRACKETED EXPRESSION:
         {|value|} =
             {|error
               ``{s: .terminator = "."|Cannot average 0 things|s}''|}
-    lines ##-##:
+    lines ###-###:
     if count == 0:
     ^^^^^^^^^^^^^^
         value = error ``Cannot average 0 things.''
@@ -1982,7 +2078,7 @@ BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|value|} = {|{|sum|} / {|count|}|}|}|}
-    lines ##-###:
+    lines ###-###:
     else:
         ^
         value = sum / count
@@ -1990,7 +2086,7 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     else:
         {|value|} = {|{|sum|} / {|count|}|}
-    lines ##-###:
+    lines ###-###:
     else:
     ^^^^^
         value = sum / count
