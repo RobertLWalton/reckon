@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri May 14 22:40:23 EDT 2021
+# Date:		Fri Oct 28 02:53:56 EDT 2022
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -20,6 +20,8 @@ WFLAGS = -Wall -Wno-char-subscripts
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
+
+DIFFOPT ?= -u
 
 # O3 is needed to inline functions.
 #
@@ -95,7 +97,7 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-	    < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
+	    < $*.out | diff ${DIFFOPT} $*.test -
 
 %.out:	%
 	rm -f $*.out
