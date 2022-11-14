@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{October 25, 2022}
+\date{November 14, 2022}
 
 \maketitle
 
@@ -1632,70 +1632,223 @@ contains in order the following lexemes:
 \end{tabular}
 \end{center}
 
-\ikey{Lexemes}{lexeme} are defined more specifically as follows:
+The lexemes are defined in terms of the following character classes:
 
 \begin{indpar}
-\emkey{lexeme}
-	::= {\em middle-lexeme}
-	$|$ {\em separator}
-	$|$ {\em quoted-string}
-	$|$ {\em comment}
-\label{LEXEME}
-\\[2ex]
-\emkey{strict-separator} :::= {\em singleton-separator-character}
-				 $|$
-				 \TT{|}\PLUS{}
-\\[0.5ex]
-\emkey{strict-separator-character} :::= {\em singleton-separator-character}
-				           $|$
-				           \TT{|}
-\\[0.5ex]
-\emlkey{singleton-separator}{-character} :::=
-    \begin{tabular}[t]{@{}l}
-    character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, or \TT{Pf} \\
-    (includes \TT{\{ ( [ << >> ] ) \}})
-    \end{tabular}
-\\[1ex]
-\emkey{quoted-string}
-    :::= \TT{"} {\em character-representative}\STAR{} \TT{"}
-\\[0.5ex]
-\emkey{character-representative}
+\emkey{horizontal-space-character}
     \begin{tabular}[t]{rl}
-    :::= & {\em graphic-character} other than \TT{"} \\
-    $|$  & {\em ASCII-single-space-character} \\
-    $|$  & {\em special-character-representative} \\
+    :::= & character in UNICODE category \TT{Zs} \\
+         & (includes single space) \\
+    $|$  & {\em horizontal-tab-character}
     \end{tabular}
-\\[0.5ex]
-\emkey{graphic-character} :::=
-    \begin{tabular}[t]{@{}l}
-    character in UNICODE category \TT{L}, \TT{M}, \TT{N}, \TT{P}, or \TT{S} \\
-    (i.e., character that prints some mark)
+\\
+\emkey{vertical-space-character}
+    \begin{tabular}[t]{rl}
+    :::= & {\em line-feed} $|$ {\em carriage-return} \\
+    $|$ & {\em form-feed} $|$ {\em vertical-tab}
     \end{tabular}
-\\[0.5ex]
-\emlkey{special-character}{-representative}
-    :::= \TT{<} \{ {\em upper-case-ASCII-letter} $|$ {\em ASCII-digit}
-         \}\PLUS{} \TT{>}
+\\
+\emkey{space-character} ::= {\em horizontal-space-character}
+                        $|$ {\em vertical-space-character}
 \\[1ex]
-\emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
-                       not beginning with \TT{//}
-\\[0.5ex]
-\emkey{lexical-item-character} :::= {\em graphic-character}
-	other than {\em strict-separator-character} or \TT{"}
-
-\emkey{lexical-item} :::= {\em leading-separator}\STAR{}
-			  {\em middle-lexeme}\QMARK{}
-                          {\em trailing-separator}\STAR{}
-\\[0.5ex]
-\emkey{middle-lexeme} :::=
+\emkey{graphic-character} :::= character in UNICODE category
+                              \TT{L}, \TT{M}, \TT{N}, \TT{P}, or \TT{S}
+\\
+\emkey{control-character} :::=
+	character in UNICODE category \TT{C} or \TT{Z}
+\\[1ex]
+\emkey{isolated-separating-character} :::=
     \begin{tabular}[t]{l}
-    {\em lexical-item} \\
-    not beginning with a {\em leading-separator} \\
-    or ending with a {\em trailing-separator} \\
+    character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
+    or \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
     \end{tabular}
+\\
+\emkey{separating-character} :::= \TT{|} $|$ {\em isolated-separating-character}
+\\[1ex]
+\emkey{leading-separator-character} :::=
+	\TT{`} $|$ \TT{\textexclamdown} $|$ \TT{\textquestiondown}
+\\
+\emkey{trailing-separator-character} :::=
+	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:}
+	       $|$ \TT{,} $|$ \TT{;}
+\\[1ex]
+\emkey{quoting-character} :::= \TT{"}
+\\[1ex]
+\emkey{letter} :::=
+    character in UNICODE category \TT{L}
+\\
+\emkey{decimal-digit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+                       $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+\\
+\emkey{digit} :::=
+    character in UNICODE category \TT{Nd}
+    (includes {\em decimal-digits})
+\\
+\emkey{lexical-item-character}\label{LEXICAL-ITEM-CHARACTER} :::=
+	\begin{tabular}[t]{l}
+        {\em graphic-character} other than \\
+	{\em separating-character} or \TT{"}
+	\end{tabular}
+\end{indpar}
+
+Comments may be placed at the ends of lines:
+\begin{indpar}
+\emkey{comment}\label{COMMENT} :::=
+    \TT{//} {\em comment-character}\,$^\star$
+\\[1ex]
+\emkey{comment-character} :::= {\em graphic-character}
+                          $|$ {\em horizontal-space-character}
+\end{indpar}
+
+Lexemes may be separated by {\em white-space}, which
+is a sequence of {\em space-characters},
+but, with some exceptions mentioned just below, is not itself a lexeme:
+\begin{indpar}
+\emkey{white-space} :::= {\em space-character}\PLUS{}
+\\[0.3ex]
+\emkey{horizontal-space} :::= {\em horizontal-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{vertical-space} :::= {\em vertical-space-character}\PLUS{}
+\end{indpar}
+
+The following is a special virtual lexeme:
+\begin{indpar}
+\emkey{indent}\label{INDENT} ::=
+        virtual lexeme inserted just before the first
+	{\em graphic} character on a line
+\end{indpar}
+
+\ikey{Indent lexemes}{indent lexeme} have no characters, but
+do have an \mkey{indent}{of indent lexeme}, which is the indent of
+the graphic character after the indent lexeme.
+The \mkey{indent}{of character} of a character is the number
+of columns that precede the character in the character's physical line.
+{\em Control-characters} other than {\em horizontal-space-characters}
+take zero columns, as do characters of classes \TT{Mn} (combining-marks)
+and \TT{Me} (ending marks).  All other characters take one column,
+except for tabs, that are set every 8 columns.
+Indent lexemes are used to form logical lines and blocks
+(\pagref{LOGICAL-LINE} and \itemref{LOGICAL-LINES}).
+
+One kind of {\em vertical-space} is given special distinction:
+\begin{indpar}
+\emkey{line-break}\label{LINE-BREAK} ::=
+	\begin{tabular}[t]{l}
+        {\em vertical-space} containing exactly one {\em line-feed}
+	\end{tabular}
+\end{indpar}
+
+This is the {\em line-break} lexeme.
+
+Non-{\em indent}, non-{\em line-break} {\em white-space}, such as occurs
+in the middle of text or code outside comments, is discarded and not treated
+as a lexeme.  Such {\em white-space} may be used to separate lexemes.
+
+{\em Horizontal-\EOL space-\EOL characters}\label{ILLEGAL-CHARACTERS}
+other than single
+space are illegal inside {\em quoted-string} lexemes (defined below).
+{\em Vertical-space} that has \underline{no} {\em line-feeds} is
+illegal (see below).
+{\em Control-characters} not in {\em white-space} are illegal.
+Characters that have no UNICODE category are {\em unrecognized-characters}
+and are illegal:
+\begin{indpar}
+\emkey{misplaced-horizontal-space-character} :::=
+    \begin{tabular}[t]{l}
+    {\em horizontal-space-character}, other than \\
+    ASCII single space
+    \end{tabular}
+\\[0.3ex]
+\emkey{misplaced-vertical-space-character} :::= {\em vertical-space-character}
+	other than {\em line-feed}
+\\[0.3ex]
+\emkey{illegal-control-character} :::=
+    \begin{tabular}[t]{l}
+    {\em control-character},
+    but \underline{not} a {\em horizontal-space-character} \\
+    or {\em vertical-space-character}
+    \end{tabular}
+\\[0.3ex]
+\emkey{unrecognized-character} :::=
+    \begin{tabular}[t]{l}
+    character with no UNICODE category or \\
+    with a category other than
+    \TT{L}, \TT{M}, \TT{N}, \TT{P}, \TT{S}, \TT{C}, or \TT{Z}
+    \end{tabular}
+\end{indpar}
+
+Sequences of these characters generate warning messages,
+but are otherwise like {\em horizontal-space}:
+\begin{indpar}
+\emkey{misplaced-horizontal} :::=
+    {\em misplaced-horizontal-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{misplaced-vertical} :::=
+    {\em misplaced-vertical-space-character}\PLUS{}
+\\[0.3ex]
+\emkey{illegal-control} :::= {\em illegal-control-character}\PLUS{}
+\\[0.3ex]
+\emkey{unrecognized} :::= {\em unrecognized-character}\PLUS{}
+\end{indpar}
+
+{\em Misplaced-horizontal} only exists inside a {\em quoted-string},
+but the other three sequences can appear anywhere.  When they occur,
+these sequences generate warning messages, but otherwise they behave
+like {\em horizontal-space}.  Specifically, outside {\em quoted-strings}
+and {\em comments} these sequences can be used to separate other lexemes,
+just as {\em horizontal-space} can be used,
+whereas inside {\em quoted-strings} and
+{\em comments} these sequences do nothing aside from generating
+warning messages.
+
+The lexemes in a lexical program are specified in
+Figure~\itemref{LEXEME-PROGRAM-LEXEMES}.  This specification assumes there
+are no illegal characters in the input; see text
+above to account for such characters.
+
+The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
+that define lexemes or parts of lexemes whose syntactic elements are
+character sequences that must \underline{not} be separated by {\em white-space}.
+The symbol `\ttmkey{::=}{in syntax equation}'
+is used in syntax equations that define sequences of lexemes that may
+and sometimes must be separated by {\em white-space}.
+
+There is a special \emkey{end-of-file}\label{END-OF-FILE}
+lexeme that occurs only at the end of a file.
+
+A special {\em character-representative} can consist of
+a UNICODE character name surrounded by angle brackets.  Examples are
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
+\tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
+represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
+the `\key{unknown UNICODE character}' which in turn is used to represent
+illegal UTF-8 character encodings.
+
+A special {\em character-representative} can also consist of
+a hexadecimal UNICODE character code, which must begin with a digit.
+Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
+a form feed.
+
+
+\begin{boxedfigure}[!p]
+\begin{indpar}
+
+\emkey{lexeme}
+        \begin{tabular}[t]{rl}
+	::= & {\em numeric-word} $|$ {\em word} $|$
+	      {\em natural} $|$ {\em number} $|$ {\em numeric} \\
+	$|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
+	$|$ & {\em indent} $|${\em line-break} $|$
+	      {\em comment} $|$ {\em end-of-file}
+	\end{tabular}
+\label{LEXEME}
+\\[1ex]
+\emkey{strict-separator} :::= {\em isolated-separating-character} $|$
+                              \TT{|}\PLUS{}
 \\[0.5ex]
 \emkey{leading-separator} :::=
-    \TT{`}\PLUS{} $|$
-    \TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
+	\TT{`}\PLUS{} $|$ 
+	\TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
 \\[0.5ex]
 \emkey{trailing-separator} :::= \TT{'}\PLUS{} $|$
 				   \TT{!}\PLUS{} $|$
@@ -1706,143 +1859,159 @@ contains in order the following lexemes:
 				   \TT{,}
 \\[0.5ex]
 \emkey{separator}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em strict-separator} \\
-    $|$ & {\em leading-separator} \\
-    $|$ & {\em trailing-separator}
-    \end{tabular}
+    ::= {\em strict-separator} 
+    $|$ {\em leading-separator}
+    $|$ {\em trailing-separator}
 \\[1ex]
-\emkey{comment} :::=
-    \TT{//} {\em comment-character}\STAR{}
+\emkey{quoted-string} :::=
+    \TT{"} {\em character-representative}\,\STAR{} \TT{"}
+\\[0.3ex]
+\emkey{character-representative}
+	\begin{tabular}[t]{@{}rl@{}}
+	::= & {\em graphic-character} other than \TT{"} \\
+	$|$ & {\em ASCII-single-space-character} \\
+	$|$ & {\em special-character-representative} \\
+	\end{tabular}
+\\[0.3ex]
+\emkey{special-character-representative} :::=
+    \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
 \\[1ex]
-\emkey{comment-character} :::= {\em graphic-character}
-                           $|$ {\em horizontal-space-character}
-\label{COMMENT}
+\emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
+                       not beginning with \TT{//}
+\\[0.5ex]
+\emkey{lexical-item} :::= {\em leading-separator}\STAR{}
+			  {\em middle-lexeme}\QMARK{}
+                          {\em trailing-separator}\STAR{}
+\\[0.5ex]
+\emkey{middle-lexeme} :::= 
+	{\em lexical-item}
+	\begin{tabular}[t]{@{}l@{}}
+	not beginning with a {\em leading-separator-character} \\
+	or ending with a {\em trailing-separator-character} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{numeric-word} :::= {\em sign}\QMARK{} \ttkey{nan}
+                      $|$ {\em sign}\QMARK{} \ttkey{inf}
+		      ~~~~~
+		      [where {\em letters} are \underline{case insensitive}]
+\\[0.5ex]
+\emkey{word} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em letter} before any {\em digit} \\
+		  and is not a {\em numeric-word}
+		  \end{tabular}
+\\[0.5ex]
+\emkey{natural}\label{NATURAL}
+	\begin{tabular}[t]{@{}rl@{}}
+	:::= & {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$
+	       \TT{0} \\
+	\multicolumn{2}{l}{[but lexical type may be changed;
+	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{number}\label{NUMBER}
+	\begin{tabular}[t]{@{}rl@{}}
+	:::= & {\em sign}\QMARK{} {\em integer-part}
+	                          {\em exponent-part}\QMARK{}
+	     [that is not a {\em natural}] \\
+	 $|$ & {\em sign}\QMARK{} {\em integer-part}\QMARK{}
+	                          {\em fraction-part}
+				  {\em exponent-part}\QMARK{} \\
+	\multicolumn{2}{l}{[but lexical type may be changed;
+	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{numeric} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em digit} before any {\em letter} \\
+		  and is not a {\em natural} or {\em number}
+		  \end{tabular}
+\\[0.5ex]
+\emkey{integer-part} :::= {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\emkey{fraction-part} :::= \TT{.} {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
+                           {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
+\emkey{sign} :::= \TT{+} $|$ \TT{-}
+&
+\emkey{exponent-indicator} :::= \TT{e} $|$ \TT{E}
+\end{tabular}
+\\[0.5ex]
+\emkey{mark}\label{MARK} :::= {\em middle-lexeme} not containing a
+                              {\em letter} or a {\em digit}
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
+{\em indent} ::= see \pagref{INDENT}
+&
+{\em line-break} ::= see \pagref{LINE-BREAK}
+\\[0.5ex]
+{\em comment} ::= see \pagref{COMMENT}
+&
+{\em end-of-file} ::= see \pagref{END-OF-FILE}
+\end{tabular}
+
 
 \end{indpar}
-
-Lexemes may be separated by \key{white-space}, which
-is a sequence of white-space characters (single space, horizontal tab, form
-feed, etc.), but is not itself a lexeme.
-
-\begin{indpar}
-\emkey{white-space} :::= {\em white-space-character}\PLUS{} \\[1ex]
-\emkey{white-space-character}
-    :::= {\em horizontal-space-character} $|$ {\em vertical-space-character}
-    \\[1ex]
-\emkey{horizontal-space-character}
-    \begin{tabular}[t]{@{}rl}
-    :::= & character in UNICODE category \TT{Zs} \\
-         & (includes \emkey{ASCII-single-space}) \\
-     $|$ & \key{horizontal-tab-character}
-    \end{tabular} \\[1ex]
-\emlkey{vertical-space}{-character}
-    \begin{tabular}[t]{rl}
-    :::= & \emkey{line-feed-character} \\
-    $|$ & \emkey{vertical-tab-character} \\
-    $|$ & \emkey{form-feed-character} \\
-    $|$ & \emlkey{carriage-return}{-character} \\
-    \end{tabular}
-\end{indpar}
-
-\begin{boxedfigure}[!t]
-
-\begin{center}
-\begin{tabular}{lp{2in}}
-\tttkey{NUL} & nul \\
-\tttkey{SOH} & start of heading \\
-\tttkey{STX} & start of text \\
-\tttkey{ETX} & end of text \\
-\tttkey{EOT} & end of transmission \\
-\tttkey{ENQ} & enquiry \\
-\tttkey{ACK} & acknowledge \\
-\tttkey{BEL} & bell \\
-\tttkey{BS}  & backspace \\
-\tttkey{HT}  & horizontal tab \\
-\tttkey{LF}  & line feed \\
-\tttkey{VT}  & vertical tab \\
-\tttkey{FF}  & form feed \\
-\tttkey{CR}  & carriage ret \\
-\tttkey{SO}  & shift out \\
-\tttkey{SI}  & shift in \\
-\tttkey{DLE} & data link escape
-\\[1ex]
-\tttkey{NL}  & new line (equals \TT{<LF>}) \\
-\end{tabular}
-\begin{tabular}{lp{2in}}
-\tttkey{DC1} & device control 1 \\
-\tttkey{DC2} & device control 2 \\
-\tttkey{DC3} & device control 3 \\
-\tttkey{DC4} & device control 4 \\
-\tttkey{NAK} & negative ack. \\
-\tttkey{SYN} & synchronous idle \\
-\tttkey{ETB} & end of transmission block \\
-\tttkey{CAN} & cancel \\
-\tttkey{EM}  & end of medium \\
-\tttkey{SUB} & substitute \\
-\tttkey{ESC} & escape \\
-\tttkey{FS}  & file separator \\
-\tttkey{GS}  & group separator \\
-\tttkey{RS}  & record separator \\
-\tttkey{US}  & unit separator \\
-\tttkey{SP}  & single space \\
-\tttkey{DEL} & delete
-\\[1ex]
-\tttkey{Q}  & double quote (\TT{"}) \\
-\end{tabular}
-\end{center}
-
-\caption{Standard Special Character Representatives}
-\label{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES}
+\caption{Lexeme Program Lexemes}
+\label{LEXEME-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
-
-The character set is UTF-8 encoded UNICODE.
-
-The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
-that define lexemes or parts of lexemes whose syntactic elements are
-character sequences that must \underline{not} be separated by {\em white-space}.
-The symbol `\ttmkey{::=}{in syntax equation}'
-is used in syntax equations that define sequences of lexemes that may
-and sometimes must be separated by \emkey{white-space}.
-{\em Comments} are treated as lexemes, but are discarded before the
-lexeme stream is transmitted to the parser.  Comments are necessarily at
-the ends of physical lines.
-
-Non-{\em white-space} control characters are ignored, as if they
-did not exist, except that a warning message is issued.  However
-no warning is issued for \emslkey{carriage-return}{-character}s that are next to
-a {\em vertical-space-character}.
-
-The tabs stops used by the \emkey{horizontal-tab-character} are set every
-8 columns.
-
-Every \emkey{vertical-space-character} causes the current position to
-return to the beginning of a new line.
-\emikey{Horizontal-space-characters}{horizontal-space-character}
-before a {\em vertical-space-character}
-are ignored, as if they did not exist.
-Warning messages are issued for \emskey{form-feed-character}s
-and \emskey{vertical-tab-character}s
-that occur when the column position is not at the beginning of a line.
-
-The definition of a \emkey{middle-lexeme} is unusual: it is what is left over
-after removing \emkey{leading-separators} and \emkey{trailing-separators}
-from a \emkey{lexical-item}.  The lexical scan first scans a
+The definition of a {\em middle-lexeme} is unusual: it is what is left over
+after removing {\em leading-separators} and {\em trailing-separators}
+from a {\em lexical-item}.  The lexical scan first scans a
 {\em lexical-item}, and then removes
 {\em leading-separators} and {\em trailing-separators} from it.
 Also {\em trailing-separators} are removed
 from the end of a {\em lexical-item} by a right-to-left scan, and not
 the usual left-to-right scan which is used for everything else.
-Thus the {\em lexical-item} `\TT{`4,987,{},::'}' yields the
-{\em leading-separator} `\TT{`}', the {\em middle-lexeme} `\TT{4,987}',
-and the four {\em trailing-separators} `\TT{,}' `\TT{,}', `\TT{::}', and
-`\TT{'}'.
+Thus the {\em lexical-item}
+`\TT{\textquestiondown 4,987?,{},::}' yields the
+{\em leading-separator} `\TT{\textquestiondown}',
+the {\em middle-lexeme} `\TT{4,987}',
+and the four {\em trailing-separators} `\TT{?}',
+`\TT{,}' `\TT{,}' and `\TT{::}'.%
+\footnote{It is possible to use a strictly left to right scan with
+backup over lexical atoms to perform
+the right to left removal of {\em trailing-separators} from a
+{\em lexical-item}, by recognizing a sequence of
+{\em trailing-separator-characters} not followed by a
+{\em lexical-item-character} that is not a
+{\em trailing-separator-character}
+as an atom that is backed up over and rescanned:
+see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
-{\em Middle-lexemes}, {\em separators}, and {\em quoted-strings} represent 
+
+A {\em numeric-word}, {\em natural}, or {\em number} lexeme
+is a C/C++ constant, and 
+conversely a C/C++ constant representing decimal number
+and not ending in a {\em decimal-point}
+is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
+All these lexemes are given an IEEE double precision number value
+after the manner of C/C++, and then their lexical type is changed
+as follows:
+\begin{itemize}\label{LEXEME-TYPE-CONVERSION}
+\item If the value is \underline{not} a finite number, the
+new type is {\em numeric-word}.  For example, this applies to {\tt 1e500}
+which converts to the same value as {\tt +inf}.
+\item If the value is an integer in the range $[0,10^{15})$ the new
+type is {\em natural}.
+For example, this applies to {\tt 1e3}
+which converts to the same value as {\tt 1000}.
+\item Otherwise the new type is {\em number}.
+For example, this applies to {\tt 10000000000}
+which converts to the same value as {\tt 1e10}.
+\end{itemize}
+
+In contrast, a {\em numeric} represents a character string and in this
+is like a {\em word}.
+
+{\em Words}, {\em numerics}, {\em marks}, {\em separators},
+and {\em quoted-strings} represent 
 \skey{symbol}s\label{SYMBOL} that store character strings.
-The character strings represented by
-{\em middle-lexemes} and {\em separators}
+The character strings represented by all but {\em quoted-strings}
 are exactly the character strings of these lexemes.
 
 The string of characters represented by a
@@ -1851,46 +2020,14 @@ is recognized by
 a left-to-right scan in which each {\em character-representative}
 is translated into one UNICODE character.
 Most characters
-simply translate to themselves, but {\em special-character-representatives}
-are sequences of characters that represent just one UNICODE character.
+simply translate to themselves, each {\em special-character-representative}
+translate into just one UNICODE character.
 The beginning and ending quotes (\TT{"}) are \underline{not}
 included in the represented character string.
 
-Figure \itemref{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES} defines the
-standard
-{\em special-character-representatives}.  These can represent
-ASCII control characters and the \TT{"} character.
-For other characters, any hexadecimal number in
-\TT{<~>} brackets that begins with a decimal digit is interpreted as
-representing the UNICODE character whose character code is the given
-hexadecimal number.  Thus that \TT{<FF>} represents the ASCII form feed,
-while \TT{<0FF>} represents the UNICODE \"y character which has character
-code FF in hexadecimal.
+TBD
 
-\emikey{Middle-lexemes}{middle-lexeme} are further classified as
-follows:
-
-\begin{indpar}
-\emkey{middle-lexeme} ::= {\em word} $|$ {\em number} $|$ {\em mark}
-\\[1ex]
-\emkey{number}\label{NUMBER} ::=
-    {\em middle-lexeme} with a {\em digit} before any {\em letter}
-\\[1ex]
-\emkey{word}\label{WORD} ::=
-    {\em middle-lexeme} with a {\em letter} before any {\em digit}
-\\[1ex]
-\emkey{mark}\label{MARK} ::=
-    {\em middle-lexeme} not containing a {\em letter} or {\em digit}
-\\[1ex]
-\emkey{digit}\label{DIGIT} ::=
-    UNICODE character in category \TT{Nd}
-    (includes \emskey{ASCII-digit}s)
-\\[1ex]
-\emkey{letter}\label{LETTER} ::=
-    UNICODE character in category \TT{L}
-\end{indpar}
-
-There are many special kinds of {\em number} lexemes:
+There are many special kinds of {\em numeric} lexemes:
 \begin{indpar}
     \begin{tabular}[t]{l@{~~~~~}lll}
           & Section & Examples \\[1ex]
