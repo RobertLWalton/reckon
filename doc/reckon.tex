@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 14, 2022}
+\date{November 15, 2022}
 
 \maketitle
 
@@ -2077,41 +2077,28 @@ Some other kinds of special {\em middle-lexemes} are:
     \end{tabular}
 \end{indpar}
 
-Non-{\em numbers} can be used to form names of variables,
+Lexemes can be used to form \skey{name}s of variables,
 constants, and functions:
 
 \begin{indpar}
-\emkey{name}\label{NAME} ::= \begin{tabular}[t]{l}
-    \{ {\em word} $|$ {\em quoted-mark} $|$ {\em quoted-separator}
-    					$|$ {\em quoted-word} \} \\
-    \{ {\em word} $|$ {\em quoted-mark} $|$ {\em quoted-separator}
-    					$|$ {\em quoted-word}
-    					$|$ {\em natural-index} \}\STAR{} \\
+\emkey{name}\label{NAME} \begin{tabular}[t]{rl}
+	::= & {\em word} \\
+	$|$ & {\em numeric} \\
+	$|$ & {\em quoted-string} \\
+	$|$ & {\em name} {\em word} \\
+	$|$ & {\em name} {\em numeric} \\
+	$|$ & {\em name} {\em quoted-string} \\
+	$|$ & {\em name} {\em natural} \\
+	$|$ & {\em name} {\em number} \\
+	$|$ & {\em name} {\em numeric-word}
     \end{tabular}
-\\[1ex]
-\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
-\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"} \\
-\emkey{quoted-word} :::= \TT{"} {\em word} \TT{"} \\
-\emkey{natural-index}\label{NATURAL-INDEX}
-    :::= \TT{0} $|$ \begin{tabular}[t]{@{}l}
-                    {\em non-zero-ASCII-digit} {\em ASCII-digit}\STAR{} \\
-		    (there can be at most 15 {\em ASCII-digits})
-		    \end{tabular}
 \end{indpar}
 
-Note that in a name digits can appear after letters or in
-{\em natural-indices} that do not begin the name,
-but not elsewhere.  {\em Natural-indices} cannot have high order
-zeros.
-
-There is no difference between a {\em word} and a {\em quoted-word}
-in the name being represented,
-e.g., no difference between \TT{X} and \TT{"X"}.  However,
+There is no difference between a {\em word} and a the same {\em word}
+quoted in a name: both represent a character string that is a component of
+the name.  E.g., there is no difference between \TT{X} and \TT{"X"}.  However,
 sometimes words must be quoted to prevent them from being recognized
 as operators, e.g., \TT{"AND"}.
-
-If a name is to be used as a constant it must be \TT{`~'} quoted.
-However, not everything so quoted is a name.
 
 Some examples are:
 
@@ -2182,28 +2169,6 @@ both are represented by \TT{0}, which on input represents $+0$.
 \label{BUILTIN-NUMBER-CONSTANTS}
 \end{boxedfigure}
 
-It is possible to glue several lexemes together by
-using the lexeme break indicator \ttkey{\#}.  For example,
-\begin{center}
-\tt "Hi"\# \#" "\# \#"There" Jack-\# \#and-\# \#Ji\# \#ll
-\end{center}
-is equivalent to
-\begin{center}
-\tt "Hi There" Jack-and-Jill
-\end{center}
-The lexemes being glued must all be {\em quoted-strings} or must
-all be {\em middle-lexemes}, and they must all be in the same
-logical line.  A logical line 
-may consist of several physical lines, all but the first being
-continuation lines of the first (\itemref{LOGICAL-LINES-AND-PARAGRAPHS}),
-so \TT{\#} can be used to split lexemes across physical lines.
-
-Quoted strings can also be split using \TT{\#} as if it were an operator.
-For example,
-
-\begin{center}
-{\tt "Hi: \# " " \# "There"} ~~~~~ is equivalent to ~~~~~ {\tt "Hi There"}
-\end{center}
 
 
 
