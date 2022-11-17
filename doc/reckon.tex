@@ -2127,14 +2127,32 @@ units `foot' and `inch' (see Section~\itemref{UNITS}),
 and `\TT{PI}' which in some contexts denotes the mathematical
 constant $\pi$ (see Figure~\itemref{BUILTIN-NUMBER-CONSTANTS}).
 
-Special lexemes are described in the following sections.  Some of these
-represent numbers.  When translated into internal computer form,
-which is IEEE double precision floating point,
-integers in the range
+
+
+
+\subsection{Numbers}
+\label{NUMBER}
+
+A {\em number} is an IEEE 64-bit floating point number.
+{\em Number} and {\em numeric-word} lexemes translate to
+numbers, and a {\em numeric} lexeme that is the same as
+a {\em number} lexeme with commas every three integer digits
+also translates to a number.
+
+When a lexeme translates to a number, the type of the lexeme
+is reset.  If the number is not finite, the type is set to
+{\em numeric-word}; examples are {\tt +NaN} and {\tt 1e400}.
+If the number is an integer in the range $[0,10^9)$, the type
+is set to {\em natural}; examples are {\tt 1,234} and {\tt 1.234e3}.
+Otherwise the type is set to {\em number}; examples are {\tt 123e-1}
+and {\tt 1234567890}.
+
+Integers in the range
 \begin{center}
 $-9,007,199,254,740,992~~~~~..~~~~~+9,007,199,254,740,992$
 \end{center}
-are exactly represented, and numbers with absolute values in the range
+are exactly represented in numbers.
+Numbers with absolute values in the range
 \begin{center}
 $2.2250738585072014\times 10^{-308}~~~~~..~~~~~1.7976931348623157\times
                                                                10^{+308}$
@@ -2169,28 +2187,8 @@ both are represented by \TT{0}, which on input represents $+0$.
 \label{BUILTIN-NUMBER-CONSTANTS}
 \end{boxedfigure}
 
+TBD
 
-
-
-\subsection{Integral Numbers}
-\label{INTEGRAL-NUMBER}
-
-A \emkey{natural-number} is a {\em number} with contains only digits
-and commas.  An \emkey{integral-number} is a {\em natural-number}
-optionally preceeded by a {\em sign}:
-
-\begin{indpar}
-\emkey{natural-number} :::= {\em digit}\PLUS{}
-	$|$ {\em digit}\QMARK{} {\em digit}\QMARK{} {\em digit}
-	    \{ \TT{,} {\em digit} {\em digit} {\em digit} \}\PLUS{}
-\label{NATURAL-NUMBER}
-\\[1ex]
-\emkey{integral-number} :::= {\em sign}\QMARK{} {\em natural-number}
-\\[1ex]
-\emkey{sign} ::= \TT{+} $|$ \TT{-}
-\end{indpar}
-
-Note that commas, if present, must appear every 3 digits.
 
 \subsection{Fractional Numbers}
 \label{FRACTIONAL-NUMBER}
