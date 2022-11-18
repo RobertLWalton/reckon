@@ -1816,19 +1816,6 @@ and sometimes must be separated by {\em white-space}.
 There is a special \emkey{end-of-file}\label{END-OF-FILE}
 lexeme that occurs only at the end of a file.
 
-A special {\em character-representative} can consist of
-a UNICODE character name surrounded by angle brackets.  Examples are
-\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
-\tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
-represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
-the `\key{unknown UNICODE character}' which in turn is used to represent
-illegal UTF-8 character encodings.
-
-A special {\em character-representative} can also consist of
-a hexadecimal UNICODE character code, which must begin with a digit.
-Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
-a form feed.
-
 
 \begin{boxedfigure}[!p]
 \begin{indpar}
@@ -2020,17 +2007,6 @@ and {\em quoted-strings} represent
 The character strings represented by all but {\em quoted-strings}
 are exactly the character strings of these lexemes.
 
-The string of characters represented by a
-\emkey{quoted-string}\label{QUOTED-STRING}
-is recognized by
-a left-to-right scan in which each {\em character-representative}
-is translated into one UNICODE character.
-Most characters
-simply translate to themselves, each {\em special-character-representative}
-translate into just one UNICODE character.
-The beginning and ending quotes (\TT{"}) are \underline{not}
-included in the represented character string.
-
 TBD
 
 There are many special kinds of {\em numeric} lexemes:
@@ -2183,9 +2159,90 @@ Some examples of lexemes translating to number values are:
 123e0		& 123e-2	& 123e-321	& 1,234e9 \\
 123E0		& -123E-2	& +123E-321	& 0.123456e-3	\\
 .123e3	& +.123e+1
-				& -0.123,456e-3 & 1,234.567890e6 \\
+				& -0.123456e-3 & 1,234.567890e6 \\
+nan		& +NaN		& -Inf		& +inf \\
 \end{tabular}
 \end{indpar}
+
+\subsection{Quoted Strings}
+\label{QUOTED-STRINGS}
+
+A \emkey{quoted-string} represents the character string consisting of
+the sequence of characters represented by \emkey{charac\-ter-representatives}
+inside the double quotes (\TT{"}).
+The {\em quoted-string} is scanned
+left-to-right to find {\em character-representatives}
+each of which is translated into one UNICODE character.
+The beginning and ending quotes (\TT{"}) are \underline{not}
+included in the represented character string.
+
+Most characters simply represent themselves.
+A \emley{special-character-representative} represents on UNICODE character
+and can consist of the UNICODE character name surrounded by angle brackets.
+Examples are
+\TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
+\tttkey{Q} represents the doublequote \TT{"}, \tttkey{NL} (new line)
+represents a line feed (same as \TT{<LF>}), and \tttkey{UUC} represents
+the `\key{unknown UNICODE character}' which in turn is used to represent
+illegal UTF-8 character encodings.
+Figure~\ref{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES}
+gives the most commonly used {\em special-character-reprentatives}.
+
+A special {\em character-representative} can also consist of
+a hexadecimal UNICODE character code, which must begin with a decimal digit.
+Thus \TT{<0FF>} represents \TT{\"y} whereas \TT{<FF>} represents
+a form feed.
+
+\begin{boxedfigure}[!t]
+
+\begin{center}
+\begin{tabular}{lp{2in}}
+\tttkey{NUL} & nul \\
+\tttkey{SOH} & start of heading \\
+\tttkey{STX} & start of text \\
+\tttkey{ETX} & end of text \\
+\tttkey{EOT} & end of transmission \\
+\tttkey{ENQ} & enquiry \\
+\tttkey{ACK} & acknowledge \\
+\tttkey{BEL} & bell \\
+\tttkey{BS}  & backspace \\
+\tttkey{HT}  & horizontal tab \\
+\tttkey{LF}  & line feed \\
+\tttkey{VT}  & vertical tab \\
+\tttkey{FF}  & form feed \\
+\tttkey{CR}  & carriage ret \\
+\tttkey{SO}  & shift out \\
+\tttkey{SI}  & shift in \\
+\tttkey{DLE} & data link escape
+\\[1ex]
+\tttkey{NL}  & new line (equals \TT{<LF>}) \\
+\end{tabular}
+\begin{tabular}{lp{2in}}
+\tttkey{DC1} & device control 1 \\
+\tttkey{DC2} & device control 2 \\
+\tttkey{DC3} & device control 3 \\
+\tttkey{DC4} & device control 4 \\
+\tttkey{NAK} & negative ack. \\
+\tttkey{SYN} & synchronous idle \\
+\tttkey{ETB} & end of transmission block \\
+\tttkey{CAN} & cancel \\
+\tttkey{EM}  & end of medium \\
+\tttkey{SUB} & substitute \\
+\tttkey{ESC} & escape \\
+\tttkey{FS}  & file separator \\
+\tttkey{GS}  & group separator \\
+\tttkey{RS}  & record separator \\
+\tttkey{US}  & unit separator \\
+\tttkey{SP}  & single space \\
+\tttkey{DEL} & delete
+\\[1ex]
+\tttkey{Q}  & double quote (\TT{"}) \\
+\end{tabular}
+\end{center}
+
+\caption{Standard Special Character Representatives}
+\label{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES}
+\end{boxedfigure}
 
 \subsection{Radix Numbers}
 \label{RADIX-NUMBER}
