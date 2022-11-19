@@ -1977,30 +1977,6 @@ as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
 
-A {\em numeric-word}, {\em natural}, or {\em number} lexeme
-is a C/C++ constant, and 
-conversely a C/C++ constant representing decimal number
-and not ending in a {\em decimal-point}
-is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
-All these lexemes are given an IEEE double precision number value
-after the manner of C/C++, and then their lexical type is changed
-as follows:
-\begin{itemize}\label{LEXEME-TYPE-CONVERSION}
-\item If the value is \underline{not} a finite number, the
-new type is {\em numeric-word}.  For example, this applies to {\tt 1e500}
-which converts to the same value as {\tt +inf}.
-\item If the value is an integer in the range $[0,10^{15})$ the new
-type is {\em natural}.
-For example, this applies to {\tt 1e3}
-which converts to the same value as {\tt 1000}.
-\item Otherwise the new type is {\em number}.
-For example, this applies to {\tt 10000000000}
-which converts to the same value as {\tt 1e10}.
-\end{itemize}
-
-In contrast, a {\em numeric} represents a character string and in this
-is like a {\em word}.
-
 {\em Words}, {\em numerics}, {\em marks}, {\em separators},
 and {\em quoted-strings} represent 
 \skey{symbol}s\label{SYMBOL} that store character strings.
@@ -2063,17 +2039,14 @@ Lexemes can be used to form \skey{name}s of variables,
 constants, and functions:
 
 \begin{indpar}
-\emkey{name}\label{NAME} \begin{tabular}[t]{rl}
-	::= & {\em word} \\
-	$|$ & {\em numeric} \\
-	$|$ & {\em quoted-string} \\
-	$|$ & {\em name} {\em word} \\
-	$|$ & {\em name} {\em numeric} \\
-	$|$ & {\em name} {\em quoted-string} \\
-	$|$ & {\em name} {\em natural} \\
-	$|$ & {\em name} {\em number} \\
-	$|$ & {\em name} {\em numeric-word}
-    \end{tabular}
+\emkey{name}\label{NAME} ::=
+        \begin{tabular}[t]{l}
+	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string} \} \\
+	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string}
+	              $|$ {\em natural}
+		      $|$ {\em number}
+		      $|$ {\em numeric-word} \}\STAR{}
+	\end{tabular}
 \end{indpar}
 
 There is no difference between a {\em word} and a the same {\em word}
@@ -2081,6 +2054,10 @@ quoted in a name: both represent a character string that is a component of
 the name.  E.g., there is no difference between \TT{X} and \TT{"X"}.  However,
 sometimes words must be quoted to prevent them from being recognized
 as operators, e.g., \TT{"AND"}.
+
+As {\em marks} are commonly used as
+operators, these are not allowed in names, but they may be quoted:
+\TT{"+"} is allowed for example.
 
 Some examples are:
 
@@ -2119,12 +2096,19 @@ constant $\pi$ (see Figure~\itemref{BUILTIN-NUMBER-CONSTANTS}).
 number values which are IEEE 64-bit floating point numbers.
 
 When a lexeme translates to a number value, the type of the lexeme
-is reset.  If the number value is not finite, the type is set to
-{\em numeric-word}; examples are {\tt +NaN} and {\tt 1e400}.
-If the number value is an integer in the range $[0,10^9)$, the type
-is set to {\em natural}; examples are {\tt 1,234} and {\tt 1.234e3}.
-Otherwise the type is set to {\em number}; examples are {\tt 123e-1}
-and {\tt 1,234,567,890}.
+is reset.
+\begin{itemize}\label{LEXEME-TYPE-CONVERSION}
+\item If the value is \underline{not} a finite number, the
+new type is {\em numeric-word}.  For example, this applies to {\tt 1e500}
+which converts to the same value as {\tt +inf}.
+\item If the value is an integer in the range $[0,10^{15})$ the new
+type is {\em natural}.
+For example, this applies to {\tt 1e3}
+which converts to the same value as {\tt 1000}.
+\item Otherwise the new type is {\em number}.
+For example, this applies to {\tt 1,234,567,890}
+which converts to the same value as {\tt 1e10}.
+\end{itemize}
 
 Integers in the range
 \begin{center}
