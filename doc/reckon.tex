@@ -1976,6 +1976,9 @@ the right to left removal of {\em trailing-separators} from a
 as an atom that is backed up over and rescanned:
 see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
 
+A {\em middle-lexeme} can be continued across physical lines
+as per \pagref{MIDDLE-LEXEME-CONTINUATION}.
+
 
 {\em Words}, {\em numerics}, {\em marks}, {\em separators},
 and {\em quoted-strings} represent 
@@ -2151,6 +2154,9 @@ a form feed.
 \label{STANDARD-SPECIAL-CHARACTER-REPRESENTATIVES}
 \end{boxedfigure}
 
+A {\em quoted-string} lexeme can be continued across physical lines
+as per \pagref{QUOTED-STRING-CONTINUATION}.
+
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -2283,8 +2289,11 @@ permissible {\em digits} and comma spacings depend upon the radix indicator:
 	    \{ \TT{,} {\em radix-digit}\PLUS{} \}\STAR{} ~~~ [see text]
 \\[1ex]
 \emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
-                          {\em digit}\PLUS{} \\[1ex] 
+                          {\em dit}\PLUS{}
+\\[1ex] 
 \emkey{exponent-indicator} ::= \TT{e} $|$ \TT{E}
+\\[1ex] 
+\emkey{dit} ::= {\em decimal-digit}
 \end{indpar}
 
 The {\em radix-indicators} have the following denotations:
@@ -2292,7 +2301,7 @@ The {\em radix-indicators} have the following denotations:
 \begin{center}
 \begin{tabular}{clll}
 \bf Radix Indicator
-	& \bf Meaning	& \bf Digits 		& \bf Comma Positions
+	& \bf Meaning	& \bf Radix-Digits	& \bf Comma Positions
 \\[1ex]
 \ttkey{B\#} or \ttkey{b\#}
         & binary	& \TT{0}, \TT{1}	& every 2, 3, 4, or 5 digits \\
@@ -2316,16 +2325,17 @@ The {\em radix-indicators} have the following denotations:
 \end{center}
 
 Only certain {\em radix-digits} are permitted: e.g., the digit \TT{2}
-is not allowed in \TT{B"\ldots"} and the digit \TT{E} is not allowed
-with \TT{D"\ldots"}.  Only certain comma spacings are permitted, and comma
-spacing must be consistent.  Thus \TT{x"A,C9,BD,8F"} is permitted but
-\TT{x"A,C9B,D8F"} is not (3-spacing not allowed for hexa-decimal),
-and \TT{x"A,C9,BD8F"} is not permitted (2-spacing combined with
+is not allowed in \TT{B\#"\ldots"} and the digit \TT{E} is not allowed
+with \TT{D\#"\ldots"}.  Only certain comma spacings are permitted, and comma
+spacing must be consistent.  Thus \TT{x\#"A,C9,BD,8F"} is permitted but
+\TT{x\#"A,C9B,D8F"} is not (3-spacing not allowed for hexa-decimal),
+and \TT{x\#"A,C9,BD8F"} is not permitted (2-spacing combined with
 4-spacing is not consistent).
 There may be at most one decimal point.
 Commas may be used before the point without being used after the
 point, and vice versa, but if used in both places, the comma spacing
-must be the same.
+must be the same.  The {\em radix-natural-part}
+cannot be empty: \TT{d\#"0.5"} is legal but \TT{d\#".5"} is not.
 
 Some example {\em radix-numbers} are:
 
@@ -2340,28 +2350,18 @@ B\#"10,1101"E+2	& O\#"2,3456"E-3 & D\#"0.1235"	& X\#"E8A.7CCD,83" \\
 \end{tabular}
 \end{indpar}
 
-Just as for {\em scientific-numbers}\pagnote{SCIENTIFIC-NUMBER}
+Just as for {\em numbers}\pagnote{NUMBERS}
 the {\em exponent-part} shifts the decimal point right (if +) or left (if -)
-by some number of digits (in the given radix).  The {\em digits}
-in the {\em exponent-part} are always decimal.
-
-It is possible to continue the {\em quoted-radix-digits} of a radix number
-across physical line
-boundaries using \TT{\#} string concatenation
-(\pagref{STRING-CONCATENATION}).  For example:
-\begin{center}
-\tt
-\begin{tabular}{l}
-X = D\#"154325615514543561613643161361436754375738383658356" \\
-~~~~~\#"832842806353457831613867849834174813760467184673489"
-\end{tabular}
-\end{center}
+by some number of digits (in the given radix).  The {\em dits}
+in the {\em exponent-part} are always decimal digits.
 
 Note that a {\em radix-number} consists of two or three separate
 lexemes.  The {\em signed-radix-indicator} is always the first
 lexeme and is a {\em word}.  The {\em quoted-radix-digits}
 is the second lexeme and is a {\em quoted-string}.  The
 {\em exponent-part} is an optional third lexeme and is a {\em word}.
+The {\em quoted-string} lexeme can be continued across physical lines
+as per \pagref{QUOTED-STRING-CONTINUATION}.
 
 \subsection{Dates}
 \label{DATES}
