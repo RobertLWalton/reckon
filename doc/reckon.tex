@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 27, 2022}
+\date{November 28, 2022}
 
 \maketitle
 
@@ -2370,8 +2370,9 @@ A \key{date} is lexeme that denotes an integer
 which gives the \key{Julian Day Number} of the day times
 the number of seconds in one day ($60*60*24=86,400$).\footnote{
 On days in which there are leap seconds, the last second of the
-day is either double-length or zero-length, following the Network
-Time Protocol (NTP).}  The value \TT{0} is assigned to
+day may be either double-length or zero-length, following the Network
+Time Protocol (NTP).  Or all the seconds of a leap second day may be
+lengthened slightly, following Google.}  The value \TT{0} is assigned to
 12noon, Monday, January 1, 4713BC.
 Numerically, \TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}, and every increase
 of this date by one day adds \TT{86,400}.  For example,
@@ -2383,44 +2384,43 @@ and disambiguating them generally requires context and intelligence.
 The formats given here are intended to be unambiguously interpreted
 by people and simple computer programs.
 
-The following are the permitted date formats.  All begin with the
-year:
+The following are the permitted date formats.  Note that a {\em date}
+is a sequence of one or more lexemes, and a {\em date-name} is a single
+lexeme.
 
 \begin{indpar}
 \emkey{date} \begin{tabular}[t]{rl}
-	     :::= & {\em long-year} \TT{-} {\em month} \TT{-} {\em day}
-	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
-	      $|$ & {\em year} {\em era} \TT{-} {\em month} \TT{-} {\em day}
-	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
-	      $|$ & {\em long-year} \TT{-}\QMARK{} {\em month-name}
-	            \TT{-}\QMARK{} {\em day}
-	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
-	      $|$ & {\em year} {\em era} \TT{-} {\em month-name}
-	            \TT{-}\QMARK{} {\em day}
-	            \{ \TT{-} {\em weekday} \}\QMARK{} \\
-	      $|$ & {\em long-year} \TT{-}\QMARK{} {\em month-name} \\
-	      $|$ & {\em year} {\em era} \TT{-} {\em month-name} \\
-	      $|$ & {\em year} {\em era} \TT{-} {\em day-of-year} \\
-	      $|$ & {\em year} {\em era} \\
+	      ::= & {\em weekday}\QMARK{} {\em date-name} \\
+	      $|$ & {\em weekday}\QMARK{}
+	            {\em month-word} {\em day} {\em year} \\
+	      $|$ & {\em month-word} {\em year} \\
+	      $|$ & {\em year-with-era} {\em day-of-year} \\
 	     \end{tabular}
 \label{DATE}
 \\[1ex]
 \emkey{date-name} \begin{tabular}[t]{rl}
-	     :::= & {\em year} \TT{-} {\em month} \TT{-} {\em day} \\
-	      $|$ & {\em year}  \TT{-} {\em day-of-year} \\
-	      $|$ & {\em month-name} \TT{-} {\em year} \\
-	      $|$ & {\em month-name} \TT{-} {\em day} \TT{-} {\em year} \\
+	     :::= & {\em year-name} \TT{-} {\em month-name}
+	     	                    \TT{-} {\em day-name} \\
+	      $|$ & {\em year-name}  \TT{-} {\em day-of-year-name} \\
+	      $|$ & {\em month-word} \TT{-} {\em year-name} \\
+	      $|$ & {\em month-word} \TT{-} {\em day-name}
+	                             \TT{-} {\em year-name} \\
 	     \end{tabular}
 \\[1ex]
-\emkey{year} :::=  {\em long-year} $|$ {\em year-name}
+\emkey{year} :::=  {\em integer} {\em era}\QMARK{} $|$ {\em year-name}
 \\[1ex]
-\emkey{long-year} :::=  {\em dit} {\em dit} {\em dit} {\em dit}
+\emkey{year-name} :::= {\em dit} {\em dit} {\em dit} {\em dit}
+                   $|$ {\em year-name-with-era}
 \\[1ex]
-\emkey{year-name} :::= {\em dit}\PLUS{} {\em era}
+\emkey{year-with-era} :::=  {\em integer} {\em era} $|$ {\em year-name-with-era}
 \\[1ex]
-\emkey{month} :::=  {\em dit} {\em dit} $|$ {\em month-name}
+\emkey{year-name-with-era} :::= {\em dit}\PLUS{} {\em era}
 \\[1ex]
-\emkey{month-name} :::= [first letter or whole word may be capitalized] \\
+\emkey{month} :::=  {\em integer} $|$ {\em month-name}
+\\[1ex]
+\emkey{month-name} :::=  {\em dit} {\em dit} $|$ {\em month-word}
+\\[1ex]
+\emkey{month-word} :::= [first letter or whole word may be capitalized] \\
     \hspace*{0.5in}\begin{tabular}[t]{rl}
         & \TT{jan} $|$ \TT{january} \\
     $|$ & \TT{feb} $|$ \TT{february} \\
@@ -2436,9 +2436,13 @@ year:
     $|$ & \TT{dec} $|$ \TT{december} \\
     \end{tabular}
 \\[1ex]
-\emkey{day} :::=  {\em dit} {\em dit}
+\emkey{day} :::=  {\em integer}
 \\[1ex]
-\emkey{day-of-year} :::=  {\em dit} {\em dit} {\em dit}
+\emkey{day-name} :::=  {\em dit} {\em dit}
+\\[1ex]
+\emkey{day-of-year} :::=  {\em integer}
+\\[1ex]
+\emkey{day-of-year-name} :::=  {\em dit} {\em dit} {\em dit}
 \\[1ex]
 \emkey{weekday} :::= [first letter or whole word may be capitalized] \\
     \hspace*{0.5in}\begin{tabular}[t]{rl}
