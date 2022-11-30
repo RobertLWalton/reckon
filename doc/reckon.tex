@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 29, 2022}
+\date{November 30, 2022}
 
 \maketitle
 
@@ -2087,7 +2087,7 @@ The beginning and ending quotes (\TT{"}) are \underline{not}
 included in the represented character string.
 
 Most characters simply represent themselves.
-A \emley{special-character-representative} represents on UNICODE character
+A \emkey{special-character-representative} represents on UNICODE character
 and can consist of the UNICODE character name surrounded by angle brackets.
 Examples are
 \TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
@@ -2518,31 +2518,30 @@ Aug 25 2000	& 15 March 44 BC & 1999AD       & 148 2000 AD \\
 \label{TIMES}
 
 A \key{time} is a {\em number} containing digits, possibly a decimal
-point, and one or two colons, optionally followed by a meridiem indication
+point, and one or two colons, optionally followed by a meridian indication
 and/or a time zone, and optionally preceeded by a date.  Dates and sometimes
 time zones are separated from the rest by `\TT{-}'s.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
      ::= & {\em time-name} \\
-     $|$ & {\em date} {\em time-of-day} \\
+     $|$ & {\em date} ~ {\em time-of-day} \\
     \end{tabular}
 \label{TIME}
 \\[1ex]
 \emkey{time-name}
-    :::= \{ {\em date-name} \TT{-} \}\QMARK{} {\em time-of-day-name}
+    :::= \{ {\em date-name} \TT{-} \}\QMARK{} ~ {\em time-of-day-name}
 \\[1ex]
-\emkey{time-of-day-name} :::= {\em time-interval} {\em meridian}\QMARK{}
+\emkey{time-of-day-name} :::= {\em time-interval} ~ {\em meridian}\QMARK{}
     \{ \TT{-} {\em time-zone} \}\QMARK{}
 \\[1ex]
-\emkey{time-interval} :::= {\em hour} \TT{:} {\em minute}
+\emkey{time-interval} :::= {\em hour} \TT{:} {\em minute} ~
                           \{ \TT{:} {\em second} \}\QMARK{}
 \label{TIME-INTERVAL}
 \\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
-    :::= & {\em time-interval} \{ \TT{-}\QMARK{} {\em meridian} \}\QMARK{}
-                         \{ \TT{-} {\em time-zone} \}\QMARK{} \\
-     $|$ & {\em time-interval} \TT{-}\QMARK{} {\em time-zone} \\
+    :::= & {\em time-of-day-name} \\
+     $|$ & {\em time-interval} ~ {\em meridian}\QMARK{} ~ {\em time-zone} \\
     \end{tabular}
 \\[1ex]
 \emkey{hour} :::= {\em digit}\PLUS{}
@@ -2556,7 +2555,7 @@ time zones are separated from the rest by `\TT{-}'s.
 	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
 \\[1ex]
-\emkey{meridien} ::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
+\emkey{meridian} ::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
                  $|$ \TT{noon} $|$ \TT{midnight}
 \\[1ex]
 \emkey{time-zone}
@@ -2581,11 +2580,14 @@ must be given, even if the {\em hour} is \TT{0}.  Any {\em Minute}
 must have 2 digits, which may require a high order \TT{0}.  
 Any {\em second} must have 2 digits before an optional {\em fractional-second}.
 
-A {\em meridiem} limits the {\em time-interval}
+A {\em meridian} limits the {\em time-interval}
 to be equal to or greater than \TT{1:00} and strictly less than
 \TT{13:00}; else a warning message is issued.  A \TT{noon}
-or \TT{midnight} {\em meridiem} limits the {\em time-interval}
+or \TT{midnight} {\em meridian} limits the {\em time-interval}
 to be equal to \TT{12:00}; else a warning message is issued.
+In the absence of a {\em meridian}, the {\em time-interval}
+must be equal to or greater than \TT{00:00} and strictly less
+than \TT{24:00}, else a warning message is issued.
 
 If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
 {\em time-interval} values equal to or greater than \TT{12:00}.
@@ -2637,7 +2639,6 @@ EAT   & Eastern Africa Time           & +03:00 \\
 GST   & Gulf Standard Time            & +04:00 \\
 PKT   & Pakistan Standard Time        & +05:00 \\
 IST   & India Standard Time           & +05:30 \\
-CST   & China Standard Time           & +08:00 \\
 JST   & Japan Standard Time           & +09:00 \\
 AWST  & Australia Western Standard Time        & +09:00 \\
 AWDT  & Australia Western Daylight Time        & +10:00 \\
@@ -2655,8 +2656,8 @@ NZST  & New Zealand Daylight Time     & +13:00 \\
 \label{PRE-DEFINED-TIME-ZONES}
 \end{boxedfigure}
 
-\ttkey{UTC} (Temps Universel Coordonn\'e in French) and \ttkey{GMT}
-(Greenwich Mean Time) can be used interchangeably.
+\ttkey{UTC} (Coordinated Universal Time), \ttkey{GMT}
+(Greenwich Mean Time), and \ttkey{Z} (Zulu Time) can be used interchangeably.
 \TT{UTC-05:00} refers to Greenwich Mean Time
 minus 5 hours (\TT{-05:00}) and is the same as
 Eastern Standard Time, or \TT{EST}.   When localities that use \TT{EST}
@@ -2679,6 +2680,9 @@ a time in the next GMT day.
 
 The standard time zones pre-defined in RECKON are given in
 Figure~\ref{PRE-DEFINED-TIME-ZONES}.
+Some time zone identifiers are ambiguous.  For example, \TT{CST}
+denotes both `Central Standard Time' (\TT{UTC-06:00} in North America)
+and `China Standard Time' (\TT{UTC+08:00}).  Only the former is standard.
 
 Additional time zones can be defined, or existing time zone
 definitions can be replaced, by the statement:
@@ -2699,6 +2703,8 @@ define time zone VLAT `Vladivostok Time' UTC+10:00
 {\em Defined-time-zone-names} are {\em words} in which
 capitalization is ignored, both in definition and in usage.
 {\em Long-names} are in effect comments.
+
+TBD
 
 All {\em times} are {\em numbers}, as all have a digit before
 any letter.  Some examples are:
