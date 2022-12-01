@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{November 30, 2022}
+\date{December 1, 2022}
 
 \maketitle
 
@@ -2529,19 +2529,23 @@ time zones are separated from the rest by `\TT{-}'s.
     \end{tabular}
 \label{TIME}
 \\[1ex]
-\emkey{time-name}
-    :::= \{ {\em date-name} \TT{-} \}\QMARK{} ~ {\em time-of-day-name}
+\emkey{time-name} \begin{tabular}[t]{rl}
+    :::= & \{ {\em date-name} \TT{-} \}\QMARK{} ~ {\em time-of-day-name} \\
+    :::= & {\em date-name} ~ \TT{T} ~ {\em time-of-day-name} \\
+    \end{tabular}
 \\[1ex]
-\emkey{time-of-day-name} :::= {\em time-interval} ~ {\em meridian}\QMARK{}
-    \{ \TT{-} {\em time-zone} \}\QMARK{}
+\emkey{time-of-day-name} :::= {\em time-interval} {\em time-zone}\QMARK{}
 \\[1ex]
 \emkey{time-interval} :::= {\em hour} \TT{:} {\em minute} ~
                           \{ \TT{:} {\em second} \}\QMARK{}
 \label{TIME-INTERVAL}
 \\[1ex]
+\emkey{extended-time-interval} :::= {\em time-interval} ~ {\em meridan}\QMARK{}
+\label{EXTENDED-TIME-INTERVAL}
+\\[1ex]
 \emkey{time-of-day} \begin{tabular}[t]{rl}
-    :::= & {\em time-of-day-name} \\
-     $|$ & {\em time-interval} ~ {\em meridian}\QMARK{} ~ {\em time-zone} \\
+     ::= & {\em time-of-day-name} \\
+     $|$ & {\em extended-time-interval} ~ {\em time-zone} \\
     \end{tabular}
 \\[1ex]
 \emkey{hour} :::= {\em digit}\PLUS{}
@@ -2555,7 +2559,7 @@ time zones are separated from the rest by `\TT{-}'s.
 	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
 \\[1ex]
-\emkey{meridian} ::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
+\emkey{meridian} :::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
                  $|$ \TT{noon} $|$ \TT{midnight}
 \\[1ex]
 \emkey{time-zone}
@@ -2704,22 +2708,25 @@ define time zone VLAT `Vladivostok Time' UTC+10:00
 capitalization is ignored, both in definition and in usage.
 {\em Long-names} are in effect comments.
 
-TBD
-
-All {\em times} are {\em numbers}, as all have a digit before
-any letter.  Some examples are:
+Some example {\em times} are:
 
 \begin{indpar}[0.1in]
 \tt
 \begin{tabular}{@{}l@{~~}l@{~~}l@{}}
-0:15	& 12:00   & 5:37:23.742 \\
-12:15am	& 12:00noon   & 05:37:23PM \\
-1:15edt	& 12:00est   & 05:37:23WDT \\
-1:15am-edt	& 12:00midnight-EET   & 05:37:23.457pm-WDT \\
-1975May08-1:15am-edt	& 1999-05-04-00:00   & 99AD-05-07-17:37WDT \\
-1975may08-1:15am-edt	& 1AD-jan01-00:00EET   & 1999May23-17:37WDT \\
+0:15			& 12:00			& 5:37:23.742 \\
+12:15am			& 12:00 noon		& 05:37:23PM \\
+1:15-edt		& 12:00 est		& 05:37:23WDT \\
+1:15am-edt		& 12:00 midnight EET	& 05:37:23.457pm-WDT \\
+1975-May-08-1:15am-edt	& 1999-05-04 12:00am Z	& 99AD-05-07-17:37WDT \\
+1975-may-08-1:15am-edt	& 1999-05-04T00:00	& 1999May23-17:37WDT \\
+1975-05-08-1:15am-edt	& 1 1AD 00:00 EET	& 1999May23-17:37WDT \\
 \end{tabular}
 \end{indpar}
+
+Note that {\em meridians} cannot be given in {\em time-names},
+and when given, are \underline{not} preceded by whitespace.
+Also when both {\em meridians} and {\em time-zones} are given
+in a {\em time-of-day}, whitespace must preceed the {\em time-zone}.
 
 \subsection{Units}
 \label{UNITS}
