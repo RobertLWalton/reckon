@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 2, 2022}
+\date{December 3, 2022}
 
 \maketitle
 
@@ -2757,7 +2757,7 @@ and `\TT{\CIRCUM}' for exponentiation:
     \begin{tabular}[t]{rl}
     :::= & {\em unit-name} \\
      $|$ & {\em unit-name} \TT{\CIRCUM}
-           {\em natural-number} \\
+           {\em sign}\QMARK{} {\em dit}\PLUS{}  \\
     \end{tabular}
 \\
 \emkey{unit-name} :::= {\em unit-name-word} $|$ {\em unit-name-mark }
@@ -2777,8 +2777,8 @@ Some examples are
 \tt
 \begin{tabular}{l@{~~~}l@{~~~}l@{~~~}l}
 ft		& inch	& \$	& kg \\
-lb*ft		& inch\CIRCUM 3    & \$/kg & kg/\$ \\
-ft/sec		& ft/sec/sec	& m/sec\CIRCUM 2 & lb*ft/sec \\
+lb*ft		& inch\CIRCUM-3    & \$/kg & kg/\$ \\
+ft/sec		& ft/sec/sec	& m*sec\CIRCUM-2 & lb*ft/sec \\
 ft\CIRCUM 2/sec
 		& ft/sec*sec	& sec\CIRCUM 2/m\CIRCUM 2
 				& sec/lb*ft \\
@@ -2788,11 +2788,27 @@ ft\CIRCUM 2/sec
 
 `\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
-A unit beginning with a `\TT{/}' has an implied `\TT{1}'
-at its beginning: e.g., `\TT{/sec}' means $1/sec$.
+A unit beginning with a `\TT{/}' has an implied $1$
+at its beginning: e.g., `\TT{/sec}' means $1/sec$.  However,
+you cannot actually write \TT{1} as its not a {\em unit}.
 Consecutive `\TT{/}'s left associate: \TT{/sec/sec} is the same
 as \TT{/sec*sec} or \TT{/sec\CIRCUM 2}: `\TT{/}' can be read
 as `per'.
+
+A {\em unit} can be simplified to a form that contains only \TT{*}'s
+and \TT{/}'s, and has no \TT{*} after a \TT{/}.  Examples:
+\begin{center}
+\tt
+\begin{tabular}{r@{~$\Longrightarrow$~}l}
+/sec*sec & /sec/sec \\
+/sec\CIRCUM2 & /sec/sec \\
+sec\CIRCUM-2 & /sec/sec \\
+lb/ft*sec & lb/ft/sec \\
+ft\CIRCUM2*sec\CIRCUM-2 & ft*ft/sec/sec
+\end{tabular}
+\end{center}
+
+TBD
 
 {\em Units} can be separate lexemes, or they can be glued
 to a preceding {\em scientific-number} lexeme,
