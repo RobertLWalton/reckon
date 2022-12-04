@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 3, 2022}
+\date{December 4, 2022}
 
 \maketitle
 
@@ -2034,7 +2034,7 @@ There are many special kinds of {\em names}:
     & \itemref{TIME}
     & \TT{4:30pm} & \multicolumn{2}{l}{\TT{20may05:12:30pm-EDT}} \\
       {\em unit}
-    & \itemref{UNITS}
+    & \itemref{UNITS-AND-QUANTITIES}
     & \TT{mi} & \TT{mi/hr} & \TT{ft*lb} \\
       {\em format}
     & \itemref{FORMATS}
@@ -2068,7 +2068,7 @@ whose character string is that of the {\em quoted-string} \TT{"A line.<LF>"}.
 
 Some {\em names} have builtin definitions, such as the
 words `\TT{ft}' and `\TT{inch}' which in some contexts denote the
-units `foot' and `inch' (see Section~\itemref{UNITS}),
+units `foot' and `inch' (see Section~\itemref{UNITS-AND-QUANTITIES}),
 and `\TT{PI}' which in some contexts denotes the mathematical
 constant $\pi$ (see Figure~\itemref{BUILTIN-NUMBER-CONSTANTS}).
 
@@ -2729,8 +2729,8 @@ Some example {\em times} are:
 \end{tabular}
 \end{indpar}
 
-\subsection{Units}
-\label{UNITS}
+\subsection{Units and Quantities}
+\label{UNITS-AND-QUANTITIES}
 
 Values may have units, such as `\TT{ft}' for `feet' or
 `\TT{inch}' for inch (`\TT{in}' is useful as a preposition and
@@ -2808,6 +2808,30 @@ ft\CIRCUM2*sec\CIRCUM-2 & ft*ft/sec/sec
 \end{tabular}
 \end{center}
 
+A {\em quantity} is a combinations of a number and a {\em unit}.
+Syntactically, consecutive {\em quantities} must have compatible
+{\em units} and are additively combined.
+\begin{indpar}
+\emkey{quantity} ::= \{ {\em general-number} ~ {\em unit} \}\PLUS{} \\
+\emkey{general-number}\label{GENERAL-NUMBER}
+    ::= {\em integer} $|$ {\em number} $|$ {\em fraction} $|$ {numeric-word}
+\end{indpar}
+Examples are:
+\begin{center}
+\tt
+\begin{tabular}{r@{~$\Longrightarrow$~}l}
+5 ft & 5 ft \\
+5 ft 6 inch & 86 inch \\
+5 1/3 ft & 5.333333 ft \\
+3 oz 5 g & 90.048569 g \\
+3 oz 5 g 13 mg & 90.061569 g \\
+3 oz 5 ft & NaN oz [with `incompatible units' warning] \\
+\end{tabular}
+\end{center}
+
+
+TBD
+
 {\em Units} can be combined by the operators \TT{*}, \TT{/},
 and \TT{\CIRCUM} with an integral exponent, using algebraic
 computation treating units as unknowns.
@@ -2822,8 +2846,6 @@ lb / ft * sec & lb/ft/sec \\
 ft \CIRCUM{} 2 * sec\CIRCUM{} -2 & ft*ft/sec/sec
 \end{tabular}
 \end{center}
-
-TBD
 
 {\em Units} can be separate lexemes, or they can be glued
 to a preceding {\em scientific-number} lexeme,
@@ -3063,7 +3085,8 @@ with each other; see the rules below for resolving conflicts.
                 make \TT{0.2} the Number Group default \\
 \GROUPENTRY[\TT{`}\em unit\TT{'}]{u} the numbers are to be expressed in
 		the given {\em unit}'s, where {\em unit} is as per
-		Section~\itemref{UNITS}, but the {\em unit} itself
+		Section~\itemref{UNITS-AND-QUANTITIES},
+		but the {\em unit} itself
 		is \underline{not} to be included in the entry\\
 \GROUPENTRY[\TT{`}\em unit\TT{'}]{U} ditto but
 		the {\em unit} itself
