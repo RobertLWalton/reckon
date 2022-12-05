@@ -1823,9 +1823,9 @@ lexeme that occurs only at the end of a file.
 \emkey{lexeme}
         \begin{tabular}[t]{rl}
 	::= & {\em numeric-word} $|$ {\em word} $|$
-	      {\em natural} $|$ {\em number} $|$ {\em numeric} \\
-	$|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
-	$|$ & {\em indent} $|${\em line-break} $|$
+	      {\em natural} $|$ {\em number} $|$ {\em numeric} $|$
+	      {\em mark} $|$ {\em separator} \\
+	$|$ & {\em quoted-string} $|$ {\em indent} $|${\em line-break} $|$
 	      {\em comment} $|$ {\em end-of-file}
 	\end{tabular}
 \label{LEXEME}
@@ -1849,7 +1849,7 @@ lexeme that occurs only at the end of a file.
     ::= {\em strict-separator} 
     $|$ {\em leading-separator}
     $|$ {\em trailing-separator}
-\\[0.5ex]
+\\[0.3ex]
 \emkey{quoted-string} :::=
     \TT{"} {\em character-representative}\,\STAR{} \TT{"}
 \\
@@ -1862,7 +1862,7 @@ lexeme that occurs only at the end of a file.
 \\
 \emkey{special-character-representative} :::=
     \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
-\\[0.5ex]
+\\[0.3ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
                        not beginning with \TT{//}
 \\
@@ -1876,7 +1876,7 @@ lexeme that occurs only at the end of a file.
 	not beginning with a {\em leading-separator-character} \\
 	or ending with a {\em trailing-separator-character} \\
 	\end{tabular}
-\\[0.5ex]
+\\
 \emkey{numeric-word} :::= {\em sign}\QMARK{} \ttkey{nan}
                       $|$ {\em sign}\QMARK{} \ttkey{inf}
 		      ~~~~~
@@ -1908,23 +1908,19 @@ lexeme that occurs only at the end of a file.
 	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
 	\end{tabular}
 \\
-\emkey{numeric} :::= {\em middle-lexeme}
-                  \begin{tabular}[t]{@{}l@{}}
-		  that contains a {\em digit} before any {\em letter} \\
-		  and is not a {\em natural} or {\em number}
-		  \end{tabular}
-\\
 \emkey{integer-part} :::=
        {\em dit}\PLUS{}
     ~ $|$ ~ \{ {\em dit} $|$ {\em dit} {\em dit}
                          $|$ {\em dit} {\em dit} {\em dit} \}
             \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\PLUS{}
 \\
+\begin{tabular}[t]{@{}l@{\hspace{0.3in}}l@{}}
 \emkey{fraction-part} :::= \TT{.} {\em dit}\PLUS{}
-\\
+&
 \emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
                            {\em dit}\PLUS{}
-\\[0.5ex]
+\end{tabular}
+\\
 \begin{tabular}[t]{@{}l@{\hspace{0.3in}}l@{\hspace{0.3in}}l@{}}
 \emkey{sign} :::= \TT{+} $|$ \TT{-}
 &
@@ -1932,6 +1928,12 @@ lexeme that occurs only at the end of a file.
 &
 \emkey{exponent-indicator} :::= \TT{e} $|$ \TT{E}
 \end{tabular}
+\\[0.3ex]
+\emkey{numeric} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em digit} before any {\em letter} \\
+		  and is not a {\em natural} or {\em number}
+		  \end{tabular}
 \\
 \emkey{mark}\label{MARK} :::= {\em middle-lexeme} not containing a
                               {\em letter} or a {\em digit}
@@ -2856,70 +2858,43 @@ of the two {\em units}.  Examples are:
 A {\em unit} by itself names a quantity whose number part equals $1$:
 e.g., `\TT{ft}' by itself names the quantity `\TT{1 ft}'.
 
-TBD
-
 Units may be defined by statements of the form:
 \begin{center}
 \TT{define unit} {\em unit-name}
-    \{ \TT{=} {\em unit-expression} \}\QMARK{}
+    \{ \TT{=} {\em unit-definition-expression} \}\QMARK{}
 \end{center}
 
 Here
 \begin{indpar}
-\emkey{unit-expression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em unit-quotient} \\
-    $|$ & {\em unit-quotient} \TT{+} {\em unit-number-constant} \\
-    $|$ & {\em unit-quotient} \TT{-} {\em unit-number-constant} \\
-    \end{tabular}
+\emkey{unit-definition-expression} ::= {\em quantity-expression}
+    \{ {\em sign} {\em number-expression} \}\QMARK{}
 \\
-\emkey{unit-quotient}
-    \begin{tabular}[t]{rl}
-    ::= & {\em unit-product} \\
-    $|$ & {\em unit-quotient} \TT{/} {\em unit-number-constant} \\
-    $|$ & {\em unit-quotient} \TT{/} {\em unit-product} \\
-    $|$ & {\em unit-number-constant} \TT{/} {\em unit-product} \\
-    \end{tabular}
+\emkey{quantity-expression} ::= {\em expression} that evaluates to a quantity
 \\
-\emkey{unit-product}
-    \begin{tabular}[t]{rl}
-    ::= & {\em unit-factor} \\
-    $|$ & \{ {\em unit-number-constant} ~ {\em unit-name} \}\PLUS{} \\
-    $|$ & {\em unit-number-constant} \TT{*} {\em unit-factor} \\
-    $|$ & {\em unit-product} \TT{*} {\em unit-number-constant} \\
-    $|$ & {\em unit-product} \TT{*} {\em unit-factor} \\
-    \end{tabular}
+\emkey{number-expression} ::= {\em expression} that evaluates to a number
 \\
-\emkey{unit-factor} ::= {\em unit-name}
-    \{ \TT{\CIRCUM} {\em natural-number} \}\QMARK{}
-\\
-\emkey{unit-number-constant} ::=
-      {\em scientific-number} without any leading {\em sign}
+{\em expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
-
-Note that operators in {\em unit-expressions} are separate
-lexemes.
-Also, the second operand of `\TT{+}', and
-`\TT{-}' must always be a {\em unit-number-constant}, and
-it is not possible to write non-integral or negative exponents.
 
 Standard definitions are given in Figure~\itemref{PRE-DEFINED-UNITS}.
 
 \begin{boxedfigure}[t]
 \begin{indpar}\begin{verbatim}
 define unit m                       // meter
-define unit cm = 0.01m              // centimeter
-define unit inch = 2.54cm           // inch
+define unit cm = 0.01 m             // centimeter
+define unit inch = 2.54 cm          // inch
 define unit ft = 12 inch            // foot
-define unit yd = 3ft                // yard
+define unit yd = 3 ft               // yard
 define unit sqft = ft^2             // square foot
 define unit cuft = ft^3             // cubic foot
 define unit degC                    // degree Centigrade
-define unit degF = 1.8degC + 32     // degree Farenheit
+define unit degF = 1.8 degC + 32    // degree Farenheit
 define unit degK = degC + 273.15    // degree Kelvin
 define unit g                       // gram
-define unit oz = 28.349523g         // ounce
-define unit lb = 16oz               // pound
+define unit kg = 1000 g             // kilogram
+define unit mg = 0.001 g            // milligram
+define unit oz = 28.349523 g        // ounce
+define unit lb = 16 oz              // pound
 define unit sec                     // second
 \end{verbatim}\end{indpar}
 
