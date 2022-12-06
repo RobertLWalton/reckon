@@ -2365,372 +2365,6 @@ is the second lexeme and is a {\em quoted-string}.  The
 The {\em quoted-string} lexeme can be continued across physical lines
 as per \pagref{QUOTED-STRING-CONTINUATION}.
 
-\subsection{Dates}
-\label{DATES}
-
-A \key{date} is lexeme that denotes an integer
-which gives the \key{Julian Day Number} of the day times
-the number of seconds in one day ($60*60*24=86,400$).\footnote{
-On days in which there are leap seconds, the last second of the
-day may be either double-length or zero-length, following the Network
-Time Protocol (NTP).  Or all the seconds of a leap second day may be
-lengthened or shortened slightly, following Google and others.}
-The value \TT{0} is assigned to
-12noon, Monday, January 1, 4713BC.
-Numerically, \TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}, and every increase
-of this date by one day adds \TT{86,400}.  For example,
-\TT{2,458,522*86,400} represents
-12noon on Thursday, February 7, 2019.
-
-There are a large number of date formats in use around the world,
-and disambiguating them generally requires context and intelligence.
-The formats given here are intended to be unambiguously interpreted
-by people and simple computer programs.
-
-The following are the permitted date formats.  Note that a {\em date}
-is a sequence of one or more lexemes, and a {\em date-name} is a single
-lexeme.
-
-\begin{indpar}
-\emkey{date} \begin{tabular}[t]{rl}
-	      ::= & {\em weekday}\QMARK{} ~ {\em date-name} \\
-	      $|$ & {\em weekday}\QMARK{} ~
-	            {\em month-word} ~ {\em day} ~ {\em year} \\
-	      $|$ & {\em weekday}\QMARK{} ~
-	            {\em day} ~ {\em month-word} ~ {\em year} \\
-	      $|$ & {\em month-word} ~ {\em year} \\
-	      $|$ & {\em weekday}\QMARK{} ~
-	            {\em day-of-year}\QMARK{} ~ {\em year-with-era}  \\
-	     \end{tabular}
-\label{DATE}
-\\[1ex]
-\emkey{date-name} \begin{tabular}[t]{rl}
-	     :::= & {\em year-name} \TT{-} {\em month-name}
-	     	                    \TT{-} {\em day-name} \\
-	      $|$ & {\em year-name-with-era}  \TT{-} {\em day-of-year-name} \\
-	     \end{tabular}
-\\[1ex]
-\emkey{year} :::=  {\em integer} {\em era} $|$ {\em year-name}
-\\[1ex]
-\emkey{year-name} :::= {\em dit} {\em dit} {\em dit} {\em dit}
-                   $|$ {\em year-name-with-era}
-\\[1ex]
-\emkey{year-with-era} :::=  {\em integer} {\em era} $|$ {\em year-name-with-era}
-\\[1ex]
-\emkey{year-name-with-era} :::= {\em dit}\PLUS{} {\em era}
-\\[1ex]
-\emkey{month-name} :::=  {\em dit} {\em dit} $|$ {\em month-word}
-\\[1ex]
-\emkey{month-word} :::= [first letter or whole word may be capitalized] \\
-    \hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \TT{jan} $|$ \TT{january} \\
-    $|$ & \TT{feb} $|$ \TT{february} \\
-    $|$ & \TT{mar} $|$ \TT{march} \\
-    $|$ & \TT{apr} $|$ \TT{april} \\
-    $|$ & \TT{may} $|$ \TT{may} \\
-    $|$ & \TT{jun} $|$ \TT{june} \\
-    $|$ & \TT{jul} $|$ \TT{july} \\
-    $|$ & \TT{aug} $|$ \TT{august} \\
-    $|$ & \TT{sep} $|$ \TT{sept} $|$ \TT{september} \\
-    $|$ & \TT{oct} $|$ \TT{october} \\
-    $|$ & \TT{nov} $|$ \TT{november} \\
-    $|$ & \TT{dec} $|$ \TT{december} \\
-    \end{tabular}
-\\[1ex]
-\emkey{day} :::=  {\em integer}
-\\[1ex]
-\emkey{day-name} :::=  {\em dit} {\em dit}
-\\[1ex]
-\emkey{day-of-year} :::=  {\em integer}
-\\[1ex]
-\emkey{day-of-year-name} :::=  {\em dit} {\em dit} {\em dit}
-\\[1ex]
-\emkey{weekday} :::= [first letter or whole word may be capitalized] \\
-    \hspace*{0.5in}\begin{tabular}[t]{rl}
-        & \TT{mon} $|$ \TT{monday} \\
-    $|$ & \TT{tue} $|$ \TT{tues} $|$ \TT{tuesday} \\
-    $|$ & \TT{wed} $|$ \TT{wednesday} \\
-    $|$ & \TT{thu} $|$ \TT{thur} $|$ \TT{thursday} \\
-    $|$ & \TT{fri} $|$ \TT{friday} \\
-    $|$ & \TT{sat} $|$ \TT{saturday} \\
-    $|$ & \TT{sun} $|$ \TT{sunday} \\
-    \end{tabular}
-\\[1ex]
-\emkey{era} :::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
-                          $|$ \TT{BCG} $|$ \TT{BCJ}
-\end{indpar}
-
-In a {\em date-name}, years must be 4 decimal digits or
-end with an {\em era}, months must be 2 decimal digits or
-be named by a {\em month-word}, {\em days} must be two decimal
-digits, and {\em day-of-years} must be 3 decimal digits.
-In other {\em dates}, days and years may be arbitrary integers
-but months must be {\em month-words}.
-
-Where a specific number of decimal digits is required,
-high order zeros may be needed.
-
-In a {\em date-name}, years come first.  In other {\em dates},
-years come last.
-
-{\em Weekdays} are superfluous; if they are input and are wrong,
-a warning message is issued.
-
-The default {\em era} is \TT{AD}.
-A `\TT{G}' at the end of an {\em era} indicates the date is in the
-Gregorian Calendar, and a `\TT{J}' indicates the date is in the Julian
-Calendar.  If neither is given, the date is Gregorian if it is on
-or after 15 October 1582, and Julian otherwise.
-
-\TT{0AD} is the same as \TT{1BC}, \TT{0BC} is the same as \TT{1AD},
-and negative years count from the zero years (`\TT{-1 AD}' is \TT{2BC},
-etc.).
-
-A date containing just a {\em year} must contain an {\em era}
-and refers to January 1 of that
-year; e.g., \TT{1905AD} has the same value as \TT{1905-01-01}.
-A date consisting of just a {\em year} and a {\em month}
-refers to the first day of the month;
-e.g., \TT{2005 May} and \TT{2005-05-01} have the same value.
-
-A warning message is issued if {\em month} is out of the range
-\TT{1..12}, but the date is still computed letting \TT{0} denote
-December of the previous year, \TT{13} denote January of the
-next year, etc.  A warning message is issued if {\em day} is
-\TT{0} or too large for the given month and year, but again
-the date is still computed with \TT{0} denoting the last day of
-the previous month, etc.
-A warning message is issued if {\em day-of-year} is
-\TT{0} or too large for the given year, but again
-the date is still computed with \TT{0} denoting the last day of
-the previous year, etc.
-
-Some example {\em dates} are:
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
-2000-08-25	& 44BC-March-15   & 1999-01-01   & 2000AD-148 \\
-Aug 25 2000	& 15 March -43 AD & 1999AD       & 148 2000 AD \\
-25 Aug 2000ADG	& March 15 44BCJ  & Jan 1999     & May 27 2000 \\
-\end{tabular}
-\end{indpar}
-
-\subsection{Times}
-\label{TIMES}
-
-A \key{time} is a {\em number} containing digits, possibly a decimal
-point, and one or two colons, optionally followed by a meridian indication
-and/or a time zone, and optionally preceeded by a date.  Dates and sometimes
-time zones are separated from the rest by `\TT{-}'s.
-
-\begin{indpar}
-\emkey{time} \begin{tabular}[t]{rl}
-     ::= & {\em time-name} \\
-     $|$ & {\em date} ~ {\em time-of-day} \\
-    \end{tabular}
-\label{TIME}
-\\[1ex]
-\emkey{time-name} \begin{tabular}[t]{rl}
-    :::= & \{ {\em date-name} \TT{-} \}\QMARK{} ~ {\em time-of-day-name} \\
-    :::= & {\em date-name} ~ \TT{T} ~ {\em time-of-day-name} \\
-    \end{tabular}
-\\[1ex]
-\emkey{time-of-day-name} :::= {\em time-interval} {\em time-zone}\QMARK{}
-\\[1ex]
-\emkey{time-interval} :::= {\em hour} \TT{:} {\em minute} ~
-                          \{ \TT{:} {\em second} \}\QMARK{}
-\label{TIME-INTERVAL}
-\\[1ex]
-\emkey{extended-time-interval} :::= {\em time-interval} ~ {\em meridan}\QMARK{}
-\label{EXTENDED-TIME-INTERVAL}
-\\[1ex]
-\emkey{time-of-day} \begin{tabular}[t]{rl}
-     ::= & {\em time-of-day-name} \\
-     $|$ & {\em extended-time-interval} ~ {\em time-zone} \\
-    \end{tabular}
-\\[1ex]
-\emkey{hour} :::= {\em digit}\PLUS{}
-\\[1ex]
-\emkey{minute} :::= {\em digit} {\em digit}
-\\[1ex]
-\emkey{second} :::=
-	{\em digit} {\em digit} {\em fractional-second}\QMARK{}
-\\[1ex]
-\emkey{fractional-second} :::= \TT{.} {\em digit}\PLUS{}
-	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
-	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
-\\[1ex]
-\emkey{meridian} :::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
-                 $|$ \TT{noon} $|$ \TT{midnight}
-\\[1ex]
-\emkey{time-zone}
-    \begin{tabular}[t]{rl}
-    :::= & {\em universal-time-indicator} \\
-    $|$ & {\em universal-time-indicator}
-          {\em sign} {\em digit} {\em digit}
-	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
-    $|$ & {\em defined-time-zone-name}
-    \end{tabular}
-\\[1ex]
-\emkey{universal-time-indicator} :::= \ttkey{UTC} $|$ \ttkey{GMT} $|$ \ttkey{Z}
-\end{indpar}
-
-
-
-A {\em time-interval} represents the number
-$60*(60*hour+minute)+second$.  A {\em minute} or
-{\em second} value equal to or greater than $60$ merely causes a warning
-message to be issued.  The {\em hour} and its following `\TT{:}'
-must be given, even if the {\em hour} is \TT{0}.  Any {\em Minute}
-must have 2 digits, which may require a high order \TT{0}.  
-Any {\em second} must have 2 digits before an optional {\em fractional-second}.
-
-A {\em meridian} limits the {\em time-interval}
-to be equal to or greater than \TT{1:00} and strictly less than
-\TT{13:00}; else a warning message is issued.  A \TT{noon}
-or \TT{midnight} {\em meridian} limits the {\em time-interval}
-to be equal to \TT{12:00}; else a warning message is issued.
-In the absence of a {\em meridian}, the {\em time-interval}
-must be equal to or greater than \TT{00:00} and equal to or less
-than \TT{24:00}, else a warning message is issued.
-Note that \TT{24:00} equals \TT{00:00} of the next day.
-
-If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
-{\em time-interval} values equal to or greater than \TT{12:00}.
-If \TT{pm} or \TT{PM} is given, $12$ hours is added to
-{\em time-interval} values that are strictly less than \TT{12:00}.
-The time \TT{12:00noon} is interpreted as \TT{12:00} and
-the time \TT{12:00midnight} is interpreted as \TT{24:00}.
-Note that \TT{12:00am == 0:00}, \TT{12:00pm == 12:00}, and neither
-equal \TT{24:00}.
-
-{\em Meridians} cannot be given in {\em time-names},
-and when given, are \underline{not} preceded by whitespace.
-Also when both {\em meridians} and {\em time-zones} are given
-in a {\em time-of-day}, whitespace must preceed the {\em time-zone}.
-
-\begin{boxedfigure}[t]
-
-\footnotesize
-
-\begin{center}
-\begin{tabular}{l|l}
-\begin{tabular}[t]{@{}lll@{}}
-      &                               & UTC \\
-HST   & Hawaii Standard Time          & -10:00 \\
-AKST  & Alaska Standard Time          & -09:00 \\
-AKDT  & Alaska Daylight Time          & -08:00 \\
-PST   & Pacific Standard Time         & -08:00 \\
-PDT   & Pacific Daylight Time         & -07:00 \\
-MST   & Mountain Standard Time        & -07:00 \\
-MDT   & Mountain Daylight Time        & -06:00 \\
-CST   & Central Standard Time         & -06:00 \\
-CDT   & Central Daylight Time         & -05:00 \\
-EST   & Eastern Standard Time         & -05:00 \\
-EDT   & Eastern Datlight Time         & -04:00 \\
-AST   & Atlantic Standard Time        & -04:00 \\
-ADT   & Atlantic Daylight Time        & -03:00 \\
-ART   & Argentina Time                & -03:00 \\
-BRT   & Brasilia Time                 & -03:00 \\
-BRST  & Brasilia Summer Time          & -02:00 \\
-GMT   & Greenwich Mean Time           & +00:00 \\
-WET   & Western European Time         & +00:00 \\
-BST   & British Summer Time           & +01:00 \\
-\end{tabular}
-&
-\begin{tabular}[t]{@{}lll@{}}
-      &                               & UTC \\
-CET   & Central European Time         & +01:00 \\
-WAT   & West Africa Time              & +01:00 \\
-CEST  & Central European Summer Time  & +02:00 \\
-EET   & Eastern European Time         & +02:00 \\
-CAT   & Central Africa Time           & +02:00 \\
-EEST  & Eastern European Summer Time  & +03:00 \\
-EAT   & Eastern Africa Time           & +03:00 \\
-GST   & Gulf Standard Time            & +04:00 \\
-PKT   & Pakistan Standard Time        & +05:00 \\
-IST   & India Standard Time           & +05:30 \\
-JST   & Japan Standard Time           & +09:00 \\
-AWST  & Australia Western Standard Time        & +09:00 \\
-AWDT  & Australia Western Daylight Time        & +10:00 \\
-ACST  & Australia Central Standard Time        & +09:30 \\
-ACDT  & Australia Central Daylight Time        & +10:30 \\
-AEST  & Australia Eastern Standard Time        & +10:00 \\
-AEDT  & Australia Eastern Daylight Time        & +11:00 \\
-NZST  & New Zealand Standard Time     & +12:00 \\
-NZST  & New Zealand Daylight Time     & +13:00 \\
-\end{tabular}
-\end{tabular}
-\end{center}
-\vspace*{-3ex}
-\caption{Pre-Defined Time Zones}
-\label{PRE-DEFINED-TIME-ZONES}
-\end{boxedfigure}
-
-\ttkey{UTC} (Coordinated Universal Time), \ttkey{GMT}
-(Greenwich Mean Time), and \ttkey{Z} (Zulu Time) can be used interchangeably.
-\TT{UTC-05:00} refers to Greenwich Mean Time
-minus 5 hours (\TT{-05:00}) and is the same as
-Eastern Standard Time, or \TT{EST}.   When localities that use \TT{EST}
-go on Daylight Savings Time, they convert to Eastern Daylight Time, or
-\TT{EDT}, which is that same as \TT{UTC-04:00}.
-
-As another example, \TT{NZST}, New Zealand Standard Time, is the same
-as \TT{UTC+12:00}.
-
-If a {\em time-zone} is given, the difference between the {\em time-zone}
-time and GMT is subtracted from the {\em time-interval}.
-Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
-so \TT{10:00EST == 15:00GMT}.
-Similarly
-for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval},
-so \TT{17:00NZST == 5:00GMT}.
-It is possible to get negative numbers, which indicate a time in the previous
-GMT day, or numbers equal to or larger than \TT{24:00}, which indicate
-a time in the next GMT day.
-
-The standard time zones pre-defined in RECKON are given in
-Figure~\ref{PRE-DEFINED-TIME-ZONES}.
-Some time zone identifiers are ambiguous.  For example, \TT{CST}
-denotes both `Central Standard Time' (\TT{UTC-06:00} in North America)
-and `China Standard Time' (\TT{UTC+08:00}).  Only the former is standard.
-
-Additional time zones can be defined, or existing time zone
-definitions can be replaced, by the statement:
-\begin{center}
-\TT{define time zone} {\em defined-time-zone-name}
-    \TT{`}{\em long-name}\TT{' UTC}$\pm${\em offset}
-\end{center}
-
-as for example
-\begin{indpar}\begin{verbatim}
-define time zone WGST `West Greenland Summer Time' UTC-02:00
-define time zone AZOST `Azores Summer Time' UTC+00:00
-define time zone BST `Bangladesh Standard Time' UTC+06:00
-       // Replaces British Summer Time, UTC+01:00
-define time zone VLAT `Vladivostok Time' UTC+10:00
-\end{verbatim}\end{indpar}
-
-{\em Defined-time-zone-names} are {\em words} in which
-capitalization is ignored, both in definition and in usage.
-{\em Long-names} are in effect comments.
-
-Some example {\em times} are:
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{@{}l@{~}l@{~}l@{}}
-0:15EST			& 12:00EST		& 15:37:23.742z \\
-12:15am est		& 12:00noon		& 15:37:23.742 Z \\
-1:15 edt		& 12:00 est		& 05:37:23.742HST \\
-1:15am edt		& 12:00pm EST		& 03:37:23.742pm GMT \\
-1975-May-08-0:15edt	& 1999-05-04 12:00est	& 1999May23-15:37z \\
-1975-May-08T1:15edt	& 1999-05-04T17:00z	& 1999May24T01:37WDT \\
-1975-May-08 1:15am edt	& 1999-05-04 11:00edt	& 1999May23 20:37 PKT \\
-\end{tabular}
-\end{indpar}
-
 \subsection{Units and Quantities}
 \label{UNITS-AND-QUANTITIES}
 
@@ -2923,6 +2557,387 @@ when such can be done by linear algebra and simple substitution; e.g.
 will be derived automatically when needed.
 
 
+
+\subsection{Dates}
+\label{DATES}
+
+A \key{date} is a quantity whose unit is \TT{sec}
+and whose number is an integer
+that gives the \key{Julian Day Number} of the day times
+the number of seconds in one day ($60*60*24=86,400$).\footnote{
+On days in which there are leap seconds, the last second of the
+day may be either double-length or zero-length, following the Network
+Time Protocol (NTP).  Or all the seconds of a leap second day may be
+lengthened or shortened slightly, following Google and others.}
+The value \TT{0} is assigned to
+12noon, Monday, January 1, 4713BC.
+Numerically, \TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}, and every increase
+of this date by one day adds \TT{86,400}.  For example,
+\TT{2,458,522*86,400} represents
+12noon on Thursday, February 7, 2019.
+
+Because dates are quantities with \TT{sec} units, they may be subtracted to
+produce time interval quantitites with \TT{sec} units.
+
+There are a large number of date formats in use around the world,
+and disambiguating them generally requires context and intelligence.
+The formats given here are intended to be unambiguously interpreted
+by people and simple computer programs.
+
+The following are the permitted date formats.  Note that a {\em date}
+is a sequence of one or more lexemes, and a {\em date-name} is a single
+lexeme.
+
+\begin{indpar}
+\emkey{date} \begin{tabular}[t]{rl}
+	      ::= & {\em weekday}\QMARK{} ~ {\em date-name} \\
+	      $|$ & {\em weekday}\QMARK{} ~
+	            {\em month-word} ~ {\em day} ~ {\em year} \\
+	      $|$ & {\em weekday}\QMARK{} ~
+	            {\em day} ~ {\em month-word} ~ {\em year} \\
+	      $|$ & {\em month-word} ~ {\em year} \\
+	      $|$ & {\em weekday}\QMARK{} ~
+	            {\em day-of-year}\QMARK{} ~ {\em year-with-era}  \\
+	     \end{tabular}
+\label{DATE}
+\\[1ex]
+\emkey{date-name} \begin{tabular}[t]{rl}
+	     :::= & {\em year-name} \TT{-} {\em month-name}
+	     	                    \TT{-} {\em day-name} \\
+	      $|$ & {\em year-name-with-era}  \TT{-} {\em day-of-year-name} \\
+	     \end{tabular}
+\\[1ex]
+\emkey{year} :::=  {\em integer} {\em era} $|$ {\em year-name}
+\\[1ex]
+\emkey{year-name} :::= {\em dit} {\em dit} {\em dit} {\em dit}
+                   $|$ {\em year-name-with-era}
+\\[1ex]
+\emkey{year-with-era} :::=  {\em integer} {\em era} $|$ {\em year-name-with-era}
+\\[1ex]
+\emkey{year-name-with-era} :::= {\em dit}\PLUS{} {\em era}
+\\[1ex]
+\emkey{month-name} :::=  {\em dit} {\em dit} $|$ {\em month-word}
+\\[1ex]
+\emkey{month-word} :::= [first letter or whole word may be capitalized] \\
+    \hspace*{0.5in}\begin{tabular}[t]{rl}
+        & \TT{jan} $|$ \TT{january} \\
+    $|$ & \TT{feb} $|$ \TT{february} \\
+    $|$ & \TT{mar} $|$ \TT{march} \\
+    $|$ & \TT{apr} $|$ \TT{april} \\
+    $|$ & \TT{may} $|$ \TT{may} \\
+    $|$ & \TT{jun} $|$ \TT{june} \\
+    $|$ & \TT{jul} $|$ \TT{july} \\
+    $|$ & \TT{aug} $|$ \TT{august} \\
+    $|$ & \TT{sep} $|$ \TT{sept} $|$ \TT{september} \\
+    $|$ & \TT{oct} $|$ \TT{october} \\
+    $|$ & \TT{nov} $|$ \TT{november} \\
+    $|$ & \TT{dec} $|$ \TT{december} \\
+    \end{tabular}
+\\[1ex]
+\emkey{day} :::=  {\em integer}
+\\[1ex]
+\emkey{day-name} :::=  {\em dit} {\em dit}
+\\[1ex]
+\emkey{day-of-year} :::=  {\em integer}
+\\[1ex]
+\emkey{day-of-year-name} :::=  {\em dit} {\em dit} {\em dit}
+\\[1ex]
+\emkey{weekday} :::= [first letter or whole word may be capitalized] \\
+    \hspace*{0.5in}\begin{tabular}[t]{rl}
+        & \TT{mon} $|$ \TT{monday} \\
+    $|$ & \TT{tue} $|$ \TT{tues} $|$ \TT{tuesday} \\
+    $|$ & \TT{wed} $|$ \TT{wednesday} \\
+    $|$ & \TT{thu} $|$ \TT{thur} $|$ \TT{thursday} \\
+    $|$ & \TT{fri} $|$ \TT{friday} \\
+    $|$ & \TT{sat} $|$ \TT{saturday} \\
+    $|$ & \TT{sun} $|$ \TT{sunday} \\
+    \end{tabular}
+\\[1ex]
+\emkey{era} :::=  \TT{AD} $|$ \TT{BC} $|$ \TT{ADG} $|$ \TT{ADJ}
+                          $|$ \TT{BCG} $|$ \TT{BCJ}
+\end{indpar}
+
+In a {\em date-name}, years must be 4 decimal digits or
+end with an {\em era}, months must be 2 decimal digits or
+be named by a {\em month-word}, {\em days} must be two decimal
+digits, and {\em day-of-years} must be 3 decimal digits.
+In other {\em dates}, days and years may be arbitrary integers
+but months must be {\em month-words}.
+
+Where a specific number of decimal digits is required,
+high order zeros may be needed.
+
+In a {\em date-name}, years come first.  In other {\em dates},
+years come last.
+
+{\em Weekdays} are superfluous; if they are input and are wrong,
+a warning message is issued.
+
+The default {\em era} is \TT{AD}.
+A `\TT{G}' at the end of an {\em era} indicates the date is in the
+Gregorian Calendar, and a `\TT{J}' indicates the date is in the Julian
+Calendar.  If neither is given, the date is Gregorian if it is on
+or after 15 October 1582, and Julian otherwise.
+
+\TT{0AD} is the same as \TT{1BC}, \TT{0BC} is the same as \TT{1AD},
+and negative years count from the zero years (`\TT{-1 AD}' is \TT{2BC},
+etc.).
+
+A date containing just a {\em year} must contain an {\em era}
+and refers to January 1 of that
+year; e.g., \TT{1905AD} has the same value as \TT{1905-01-01}.
+A date consisting of just a {\em year} and a {\em month}
+refers to the first day of the month;
+e.g., \TT{2005 May} and \TT{2005-05-01} have the same value.
+
+A warning message is issued if {\em month} is out of the range
+\TT{1..12}, but the date is still computed letting \TT{0} denote
+December of the previous year, \TT{13} denote January of the
+next year, etc.  A warning message is issued if {\em day} is
+\TT{0} or too large for the given month and year, but again
+the date is still computed with \TT{0} denoting the last day of
+the previous month, etc.
+A warning message is issued if {\em day-of-year} is
+\TT{0} or too large for the given year, but again
+the date is still computed with \TT{0} denoting the last day of
+the previous year, etc.
+
+Some example {\em dates} are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{@{}l@{~~}l@{~~}l@{~~}l@{}}
+2000-08-25	& 44BC-March-15   & 1999-01-01   & 2000AD-148 \\
+Aug 25 2000	& 15 March -43 AD & 1999AD       & 148 2000 AD \\
+25 Aug 2000ADG	& March 15 44BCJ  & Jan 1999     & May 27 2000 \\
+\end{tabular}
+\end{indpar}
+
+\subsection{Times}
+\label{TIMES}
+
+\ikey{Times}{time}, \ikey{times of day}{time of day}, and \skey{time interval}s
+are a quantities with \TT{sec} units
+and numbers that need not be integers.  As such times of day can be added
+to dates to produce times, dates can be subtracted from times to produce
+times of day, time intervals can be added to times to produce new
+times, and times can be subtracted from each other to
+produce time intervals.
+
+The following are the permitted time and time of day formats.
+Note that a {\em date} and {\em time-of-day}
+are sequences of one or more lexemes, while a {\em date-name},
+{\em time-of-day-name}, and {\em time-interval} are single lexemes.
+
+\begin{indpar}
+\emkey{time} \begin{tabular}[t]{rl}
+     ::= & {\em time-name} \\
+     $|$ & {\em date} ~ {\em time-of-day} \\
+    \end{tabular}
+\label{TIME}
+\\[1ex]
+\emkey{time-name} \begin{tabular}[t]{rl}
+    :::= & \{ {\em date-name} \TT{-} \}\QMARK{} ~ {\em time-of-day-name} \\
+    :::= & {\em date-name} ~ \TT{T} ~ {\em time-of-day-name} \\
+    \end{tabular}
+\\[1ex]
+\emkey{time-of-day-name} \begin{tabular}[t]{rl}
+     ::= & {\em time-interval} \\
+     $|$ & {\em time-interval} ~ {\em time-zone} \\
+     $|$ & {\em time-interval} ~ {\em meridian} \\
+    \end{tabular}
+\\[1ex]
+\emkey{time-interval} :::= {\em hour} \TT{:} {\em minute} ~
+                          \{ \TT{:} {\em second} \}\QMARK{}
+\label{TIME-INTERVAL}
+\\[1ex]
+\emkey{meridian-time} :::= {\em time-of-day-name} with {\em meridan}
+\\[1ex]
+\emkey{time-of-day} \begin{tabular}[t]{rl}
+     ::= & {\em time-of-day-name} \\
+     $|$ & {\em time-interval} ~ {\em time-zone} \\
+     $|$ & {\em meridian-time} ~ {\em time-zone} \\
+    \end{tabular}
+\\[1ex]
+\emkey{hour} :::= {\em digit}\PLUS{}
+\\[1ex]
+\emkey{minute} :::= {\em digit} {\em digit}
+\\[1ex]
+\emkey{second} :::=
+	{\em digit} {\em digit} {\em fractional-second}\QMARK{}
+\\[1ex]
+\emkey{fractional-second} :::= \TT{.} {\em digit}\PLUS{}
+	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
+	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
+\\[1ex]
+\emkey{meridian} :::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
+                 $|$ \TT{noon} $|$ \TT{midnight}
+\\[1ex]
+\emkey{time-zone}
+    \begin{tabular}[t]{rl}
+    :::= & {\em universal-time-indicator} \\
+    $|$ & {\em universal-time-indicator}
+          {\em sign} {\em digit} {\em digit}
+	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
+    $|$ & {\em defined-time-zone-name}
+    \end{tabular}
+\\[1ex]
+\emkey{universal-time-indicator} :::= \ttkey{UTC} $|$ \ttkey{GMT} $|$ \ttkey{Z}
+\end{indpar}
+
+
+
+A {\em time-interval} represents the number
+$60*(60*hour+minute)+second$.  A {\em minute} or
+{\em second} value equal to or greater than $60$ merely causes a warning
+message to be issued.  The {\em hour} and its following `\TT{:}'
+must be given, even if the {\em hour} is \TT{0}.  Any {\em Minute}
+must have 2 digits, which may require a high order \TT{0}.  
+Any {\em second} must have 2 digits before an optional {\em fractional-second}.
+
+A {\em meridian} limits the {\em time-interval}
+to be equal to or greater than \TT{1:00} and strictly less than
+\TT{13:00}; else a warning message is issued.  A \TT{noon}
+or \TT{midnight} {\em meridian} limits the {\em time-interval}
+to be equal to \TT{12:00}; else a warning message is issued.
+In the absence of a {\em meridian}, the {\em time-interval}
+must be equal to or greater than \TT{00:00} and equal to or less
+than \TT{24:00}, else a warning message is issued.
+Note that \TT{24:00} equals \TT{00:00} of the next day.
+
+If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
+{\em time-interval} values equal to or greater than \TT{12:00}.
+If \TT{pm} or \TT{PM} is given, $12$ hours is added to
+{\em time-interval} values that are strictly less than \TT{12:00}.
+The time \TT{12:00noon} is interpreted as \TT{12:00} and
+the time \TT{12:00midnight} is interpreted as \TT{24:00}.
+Note that \TT{12:00am == 0:00}, \TT{12:00pm == 12:00}, and neither
+equal \TT{24:00}.
+
+{\em Meridians} cannot be preceded by whitespace.
+When both {\em meridians} and {\em time-zones} are given
+in a {\em time-of-day}, whitespace must preceed the {\em time-zone}.
+
+\begin{boxedfigure}[t]
+
+\footnotesize
+
+\begin{center}
+\begin{tabular}{l|l}
+\begin{tabular}[t]{@{}lll@{}}
+      &                               & UTC \\
+HST   & Hawaii Standard Time          & -10:00 \\
+AKST  & Alaska Standard Time          & -09:00 \\
+AKDT  & Alaska Daylight Time          & -08:00 \\
+PST   & Pacific Standard Time         & -08:00 \\
+PDT   & Pacific Daylight Time         & -07:00 \\
+MST   & Mountain Standard Time        & -07:00 \\
+MDT   & Mountain Daylight Time        & -06:00 \\
+CST   & Central Standard Time         & -06:00 \\
+CDT   & Central Daylight Time         & -05:00 \\
+EST   & Eastern Standard Time         & -05:00 \\
+EDT   & Eastern Datlight Time         & -04:00 \\
+AST   & Atlantic Standard Time        & -04:00 \\
+ADT   & Atlantic Daylight Time        & -03:00 \\
+ART   & Argentina Time                & -03:00 \\
+BRT   & Brasilia Time                 & -03:00 \\
+BRST  & Brasilia Summer Time          & -02:00 \\
+GMT   & Greenwich Mean Time           & +00:00 \\
+WET   & Western European Time         & +00:00 \\
+BST   & British Summer Time           & +01:00 \\
+\end{tabular}
+&
+\begin{tabular}[t]{@{}lll@{}}
+      &                               & UTC \\
+CET   & Central European Time         & +01:00 \\
+WAT   & West Africa Time              & +01:00 \\
+CEST  & Central European Summer Time  & +02:00 \\
+EET   & Eastern European Time         & +02:00 \\
+CAT   & Central Africa Time           & +02:00 \\
+EEST  & Eastern European Summer Time  & +03:00 \\
+EAT   & Eastern Africa Time           & +03:00 \\
+GST   & Gulf Standard Time            & +04:00 \\
+PKT   & Pakistan Standard Time        & +05:00 \\
+IST   & India Standard Time           & +05:30 \\
+JST   & Japan Standard Time           & +09:00 \\
+AWST  & Australia Western Standard Time        & +09:00 \\
+AWDT  & Australia Western Daylight Time        & +10:00 \\
+ACST  & Australia Central Standard Time        & +09:30 \\
+ACDT  & Australia Central Daylight Time        & +10:30 \\
+AEST  & Australia Eastern Standard Time        & +10:00 \\
+AEDT  & Australia Eastern Daylight Time        & +11:00 \\
+NZST  & New Zealand Standard Time     & +12:00 \\
+NZST  & New Zealand Daylight Time     & +13:00 \\
+\end{tabular}
+\end{tabular}
+\end{center}
+\vspace*{-3ex}
+\caption{Pre-Defined Time Zones}
+\label{PRE-DEFINED-TIME-ZONES}
+\end{boxedfigure}
+
+\ttkey{UTC} (Coordinated Universal Time), \ttkey{GMT}
+(Greenwich Mean Time), and \ttkey{Z} (Zulu Time) can be used interchangeably.
+\TT{UTC-05:00} refers to Greenwich Mean Time
+minus 5 hours (\TT{-05:00}) and is the same as
+Eastern Standard Time, or \TT{EST}.   When localities that use \TT{EST}
+go on Daylight Savings Time, they convert to Eastern Daylight Time, or
+\TT{EDT}, which is that same as \TT{UTC-04:00}.
+
+As another example, \TT{NZST}, New Zealand Standard Time, is the same
+as \TT{UTC+12:00}.
+
+If a {\em time-zone} is given, the difference between the {\em time-zone}
+time and GMT is subtracted from the {\em time-interval}.
+Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
+so \TT{10:00EST == 15:00GMT}.
+Similarly
+for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval},
+so \TT{17:00NZST == 5:00GMT}.
+It is possible to get negative numbers, which indicate a time in the previous
+GMT day, or numbers equal to or larger than \TT{24:00}, which indicate
+a time in the next GMT day.
+
+The standard time zones pre-defined in RECKON are given in
+Figure~\ref{PRE-DEFINED-TIME-ZONES}.
+Some time zone identifiers are ambiguous.  For example, \TT{CST}
+denotes both `Central Standard Time' (\TT{UTC-06:00} in North America)
+and `China Standard Time' (\TT{UTC+08:00}).  Only the former is standard.
+
+Additional time zones can be defined, or existing time zone
+definitions can be replaced, by the statement:
+\begin{center}
+\TT{define time zone} ~{\em defined-time-zone-name} ~
+    \TT{`}{\em long-name}\TT{' UTC}$\pm${\em offset}
+\end{center}
+
+as for example
+\begin{indpar}\begin{verbatim}
+define time zone WGST `West Greenland Summer Time' UTC-02:00
+define time zone AZOST `Azores Summer Time' UTC+00:00
+define time zone BST `Bangladesh Standard Time' UTC+06:00
+       // Replaces British Summer Time, UTC+01:00
+define time zone VLAT `Vladivostok Time' UTC+10:00
+\end{verbatim}\end{indpar}
+
+{\em Defined-time-zone-names} are {\em words} in which
+capitalization is ignored, both in definition and in usage.
+{\em Long-names} are in effect comments.
+
+Some example {\em times} are:
+
+\begin{indpar}[0.1in]
+\tt
+\begin{tabular}{@{}l@{~}l@{~}l@{}}
+0:15EST			& 12:00EST		& 15:37:23.742z \\
+12:15am est		& 12:00noon		& 15:37:23.742 Z \\
+1:15 edt		& 12:00 est		& 05:37:23.742HST \\
+1:15am edt		& 12:00pm EST		& 03:37:23.742pm GMT \\
+1975-May-08-0:15edt	& 1999-05-04 12:00est	& 1999May23-15:37z \\
+1975-May-08T1:15edt	& 1999-05-04T17:00z	& 1999May24T01:37WDT \\
+1975-May-08 1:15am edt	& 1999-05-04 11:00edt	& 1999May23 20:37 PKT \\
+\end{tabular}
+\end{indpar}
 
 \subsection{Formats}
 \label{FORMATS}
