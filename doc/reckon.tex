@@ -200,7 +200,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 11, 2022}
+\date{December 12, 2022}
 
 \maketitle
 
@@ -2023,21 +2023,30 @@ There are many special kinds of {\em names}:
       {\em number}
     & \itemref{NUMBERS}
     & \TT{4.3} & \TT{-0.0098} & \TT{0.314159e1} \\
+      {\em numeric-word}
+    & \itemref{NUMBERS}
+    & \TT{+inf} & \TT{-Inf} & \TT{Nan} \\
       {\em fraction}
     & \itemref{FRACTIONS}
-    & \TT{4/3} & \TT{-1 1/3} \\
-      {\em date}
-    & \itemref{DATE}
-    & \TT{04may2003} & \multicolumn{2}{l}{\TT{03-May-2019-Fri}} \\
-      {\em time-interval}
-    & \itemref{TIME-INTERVAL}
-    & \TT{4:30} & \TT{4:30:23.78} \\
-      {\em time}
-    & \itemref{TIME}
-    & \TT{4:30pm} & \multicolumn{2}{l}{\TT{20may05:12:30pm-EDT}} \\
+    & \TT{4/3} & \TT{-4/3} & \TT{-1 1/3} \\
       {\em unit}
     & \itemref{UNITS-AND-QUANTITIES}
-    & \TT{mi} & \TT{mi/hr} & \TT{ft*lb} \\
+    & \TT{mi} & \TT{ft*lb} & \TT{mi/hr} \\
+      {\em quantity}
+    & \itemref{UNITS-AND-QUANTITIES}
+    & \TT{5 mi} & \TT{3.4 ft*lb} & \TT{4 ft 2 in} \\
+      {\em date}
+    & \itemref{DATE}
+    & \TT{4 may 2003} & \TT{May 4 2003} & \TT{2003-05-04} \\
+      {\em time-interval}
+    & \itemref{TIMES}
+    & \TT{4:30} & \TT{4:30:23} & \TT{4:30:23.78} \\
+      {\em time-of-day}
+    & \itemref{TIMES}
+    & \TT{16:30} & \TT{4:30pm} & \TT{4.30pm EST} \\
+      {\em time}
+    & \itemref{TIMES}
+    & \TT{4:30pm} & \multicolumn{2}{l}{\TT{2005-05-29T16:30EDT}} \\
       {\em format}
     & \itemref{FORMATS}
     & \TT{/.1/} & \TT{/10.1c/} \\
@@ -2713,6 +2722,11 @@ Aug 25 2000	& 15 March -43 AD & 1999AD       & 148 2000 AD \\
 \end{tabular}
 \end{indpar}
 
+Dates formatted as \TT{05/04/2003} and \TT{May 4 03} are not allowed
+because of ambiguities (e.g., Europeans would write this date as
+\TT{04/05/2003} and the Japanese as \TT{03/05/04} and in some contexts
+\TT{03} might refer to \TT{1903} instead of \TT{2003}).
+
 \subsection{Times}
 \label{TIMES}
 
@@ -2742,7 +2756,7 @@ are sequences of one or more lexemes, while a {\em date-name},
     \end{tabular}
 \\[1ex]
 \emkey{time-of-day-name} \begin{tabular}[t]{rl}
-     ::= & {\em time-interval} \\
+    :::= & {\em time-interval} \\
      $|$ & {\em time-interval} ~ {\em time-zone} \\
      $|$ & {\em time-interval} ~ {\em meridian} \\
     \end{tabular}
