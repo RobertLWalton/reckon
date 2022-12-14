@@ -3316,29 +3316,34 @@ the special value \TT[\DOLLAR{ LOGICAL\_LINE \DOLLAR]} and a
 `\TT{;}' separator or equals \TT{"<LF>"}.  The vector part of the
 object can only be empty if the \TT{.terminator} is a `\TT{;}' separator.
 
-TBD
+In code,
+a physical line whose indent is greater than the current paragraph indent
+is a \key{continuation line} that
+continues the current \key{logical line}, and blank lines 
+preceeding a continuation line are ignored.
 
-A physical line whose indent equals the current paragraph indent
-begins a new \key{logical line}.
-A physical line whose indent is greater than the current paragraph indent
-is a \skey{continuation line} that
-continues the current \key{logical line}.
-Blank lines preceeding a continuation line are ignored.
-The current logical line ends with
-a semi-colon (`\TT{;}'), or just before the next non-blank physical line
-with indent not greater than the current paragraph indent, or
-with an end of file.  Immediately after a logical line ending semi-colon,
-a new logical line is begun.
+In text,
+a physical line whose indent is greater than or equal to
+the current paragraph indent
+is a \key{continuation line} that
+continues the current logical line, and blank lines 
+terminate the current logical line.
 
-Empty logical lines are ignored
+In code empty logical lines and blank lines within a logical line
+are ignored
 as if they did not exist, so in the file:
 \begin{indpar}\begin{verbatim}
-This is a first logical line;;; and a second logical line;
+This is a first logical line;;; and a second
+
+  logical line;
 And a third logical line.
 \end{verbatim}\end{indpar}
 there are only 3 logical lines: the extra `\TT{;}'s are ignored at the
-end of the first logical line, and the line end after the `\TT{;}' at the
-end of the second logical line is ignored.
+end of the first logical line, the line end after the `\TT{;}' at the
+end of the second logical line is ignored, and the blank line within
+the first logical line is ignored.
+
+TBD
 
 A comment lexeme which has an indent equal to the current paragraph
 indent can begin a logical line that contains only comment lexemes and
