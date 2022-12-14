@@ -138,6 +138,7 @@
 \newcommand{\TILDE}{\textasciitilde}
 \newcommand{\CIRCUM}{\textasciicircum}
 \newcommand{\BSLASH}{\textbackslash}
+\newcommand{\DOLLAR}{\textdollar}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -3267,8 +3268,9 @@ The \key{top level} behaves like the inside of a paragraph
 whose paragraph indent is \TT{0}.  The logical lines inside
 this top level pseudo-paragraph are called \skey{top level logical lines}.
 
-The first lexeme in a file must be an indent lexeme with indent \TT{0},
-and is immediately followed by a top level logical line.
+The first non-blank physical line in a file must have indent \TT{0},
+and its beginning indent lexeme is immediately followed
+by the first top level logical line.
 
 In code, a logical line ends with an indent lexeme whose indent is
 not greater than that of the current paragraph indent,
@@ -3277,7 +3279,7 @@ or with an end-of-file lexeme.
 If the logical line ends with an indent lexeme whose indent equals
 the current paragraph indent, or ends with a `\TT{;}' separator lexeme,
 the next logical line of the paragraph follows immediately.  Otherwise
-the paragraph ends.
+the current paragraph ends.
 
 In text, a logical line ends with an indent lexeme whose indent is
 strictly less than the current paragraph ident, or with an indent
@@ -3293,28 +3295,26 @@ logical line of the paragraph begins immediately after the indent lexeme
 of the non-blank physical line.  Otherwise the
 indented paragraph is empty.
 
-The indented paragraph ends just before the next
+It follows from the above discussion that an indented paragraph ends
+just before the next
 non-blank physical line with less indent than the
 current paragraph indent, or just before an end-of-file.
-
-TBD
-
 
 Logical lines consisting of nothing but comment lexeme lexemes and not
 ended by a line separator are
 called `\skey{comment line}s'.  Comment lines are discarded,
-as are empty logical lines not ended by a line separator.
+as are empty logical lines not ended by a `\TT{;}' separator.
 
 After a logical
 line has been scanned, any indent, line-break, end-of-file, terminating
-line separator, or comment lexemes
+`\TT{;}' separator, or comment lexemes
 are removed.  The logical line is then compacted to form
-a MIN object to which an \TT{.initiator}
+a object to which an \TT{.initiator}
 attribute is added that equals
-the special value \TT{min::\EOL LOGICAL\_\EOL LINE()} and a
+the special value \TT[\DOLLAR{ LOGICAL\_LINE \DOLLAR]} and a
 \TT{.terminator} attribute is added that is either the terminating 
-line separator or equals \TT{"<LF>"}.  The vector part of the MIN
-object can only be empty if the \TT{.terminator} is a line separator.
+`\TT{;}' separator or equals \TT{"<LF>"}.  The vector part of the
+object can only be empty if the \TT{.terminator} is a `\TT{;}' separator.
 
 TBD
 
