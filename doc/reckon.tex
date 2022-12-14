@@ -3247,7 +3247,7 @@ Some example {\em time-formats} and associated times are:
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
 
 Input is parsed into a sequence of \skey{logical line}s, each of which is
-a sequence of lexemes.  Once parsed, logical lines may be grouped into
+a sequence of lexemes.  Logical lines in turn are grouped into
 paragraphs.  A paragraph with its logical lines may be nested inside
 a larger logical line.
 
@@ -3262,10 +3262,13 @@ only a line-break lexeme, and do not have an indent lexeme.
 The \mkey{indent}{of physical line} of a non-blank physical line is the
 indent of its indent lexeme.
 
-Each indented paragraph has a \key{paragraph indent}.
-The \key{top level} behaves like the inside of an indented paragraph
-whose paragraph indent is \TT{0}.
-The first indent lexeme in a file must have indent \TT{0}.
+Each paragraph has a \key{paragraph indent}.
+The \key{top level} behaves like the inside of a paragraph
+whose paragraph indent is \TT{0}.  The logical lines inside
+this top level pseudo-paragraph are called \skey{top level logical lines}.
+
+The first lexeme in a file must be an indent lexeme with indent \TT{0},
+and is immediately followed by a top level logical line.
 
 In code, a logical line ends with an indent lexeme whose indent is
 not greater than that of the current paragraph indent,
@@ -3277,9 +3280,22 @@ the next logical line of the paragraph follows immediately.  Otherwise
 the paragraph ends.
 
 In text, a logical line ends with an indent lexeme whose indent is
-strictly less than the current paragraph ident or with an indent
+strictly less than the current paragraph ident, or with an indent
 lexeme that is both immediately preceeded by a blank line and whose
-indent equals the current paragraph indent.
+indent equals the current paragraph indent, or with an end-of-file lexeme.
+
+A `\TT{:}'
+lexeme at the \underline{end of a physical line} begins an
+\key{indented paragraph}.  If the indent of the next non-blank
+physical line exceeds the current paragraph indent, the indent of this
+line becomes the new current \key{paragraph indent}, and the first
+logical line of the paragraph begins immediately after the indent lexeme
+of the non-blank physical line.  Otherwise the
+indented paragraph is empty.
+
+The indented paragraph ends just before the next
+non-blank physical line with less indent than the
+current paragraph indent, or just before an end-of-file.
 
 TBD
 
@@ -3301,19 +3317,6 @@ line separator or equals \TT{"<LF>"}.  The vector part of the MIN
 object can only be empty if the \TT{.terminator} is a line separator.
 
 TBD
-
-A `\TT{:}' or `\TT{::}'
-lexeme at the \underline{end of a physical line} begins an
-\key{indented paragraph}.  If the indent of the next non-blank
-physical line exceeds the current paragraph indent, the indent of this
-line becomes the new current \key{paragraph indent}, and this line
-begins the first physical line of a new indented paragraph.  Otherwise the
-indented paragraph is empty.
-
-The indented paragraph ends just before the next
-non-blank physical line with less indent than the
-current paragraph indent, or just before the end of file if that
-occurs first.
 
 A physical line whose indent equals the current paragraph indent
 begins a new \key{logical line}.
