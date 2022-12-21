@@ -3285,11 +3285,25 @@ In a data paragraph (beginning with \TT{\{data\}}, \TT{\{raw data\}},
 or equivalent: see \pagref{DATA-PARAGRAH}) logical lines end as for code
 except that the separator `\TT{;}' lexeme is not recognized.
 
+In code or data,
+a physical line whose indent is \underline{greater than}
+the current paragraph indent
+is a \key{continuation line} that
+continues the current \key{logical line}, and blank lines 
+preceeding a continuation line are ignored.
+
 In a text paragraph (beginning, for example, with \TT{\{p\}}:
 see \pagref{TEXT-PARAGRAPH})
 a logical line ends with an indent lexeme whose indent is
 \underline{strictly less} than the current paragraph ident, or with
 a blank line, or with an end-of-file lexeme.
+
+In text,
+a physical line whose indent is greater than \underline{or equal to}
+the current paragraph indent
+is a \key{continuation line} that
+continues the current logical line, and blank lines 
+terminate the current logical line.
 
 A `\TT{:}'
 lexeme at the \underline{end of a physical line} begins an
@@ -3308,33 +3322,20 @@ current paragraph indent, or just before an end-of-file.
 Logical lines consisting of nothing but comment lexeme lexemes and not
 ended by a line separator are
 called `\skey{comment line}s'.  Comment lines are discarded,
-as are empty logical lines not ended by a `\TT{;}' separator.
+as are empty logical lines, including those ended by a `\TT{;}' separator.
 
 After a logical
-line has been scanned, any indent, line-break, end-of-file, terminating
-`\TT{;}' separator, or comment lexemes
+line has been scanned, any indent, line-break, end-of-file,
+or comment lexemes
 are removed.  The logical line is then compacted to form
-a object to which an \TT{.initiator}
+a object (see \pagref{OBJECT}) to which an \TT{.initiator}
 attribute is added that equals
 the special value \TT[\DOLLAR{ LOGICAL\_LINE \DOLLAR]} and a
 \TT{.terminator} attribute is added that is either the terminating 
 `\TT{;}' separator or equals \TT{"<LF>"}.  The vector part of the
-object can only be empty if the \TT{.terminator} is a `\TT{;}' separator.
+object is never empty.
 
-In code,
-a physical line whose indent is greater than the current paragraph indent
-is a \key{continuation line} that
-continues the current \key{logical line}, and blank lines 
-preceeding a continuation line are ignored.
-
-In text,
-a physical line whose indent is greater than or equal to
-the current paragraph indent
-is a \key{continuation line} that
-continues the current logical line, and blank lines 
-terminate the current logical line.
-
-In code empty logical lines and blank lines within a logical line
+In code and data blank lines within a logical line
 are ignored
 as if they did not exist, so in the file:
 \begin{indpar}\begin{verbatim}
@@ -3343,24 +3344,21 @@ This is a first logical line;;; and a second
   logical line;
 And a third logical line.
 \end{verbatim}\end{indpar}
-there are only 3 logical lines: the extra `\TT{;}'s are ignored at the
-end of the first logical line, the line end after the `\TT{;}' at the
+there are only 3 logical lines: the extra `\TT{;}'s at the
+end of the first logical line produce empty logical lines that
+are discarded, the empty logical line after the `\TT{;}' at the
 end of the second logical line is ignored, and the blank line within
-the first logical line is ignored.
+the second logical line is ignored.
 
-A comment lexeme which has an indent equal to the current paragraph
-indent can begin a logical line that contains only comment lexemes and
-is called a \key{comment line}.
 A comment
 line may be used as the first line of an indented paragraph which sets
 the paragraph indent, or as the line after an indented paragraph that
 ends the indented paragraph.
-A warning message is issued if a comment lexeme that is not
-inside a comment line
-is not indented more than the current paragraph indent
-(such a comment lexeme begins a logical line that is not a comment line).
+A warning message is issued if a comment lexeme begins a logical
+line that is not a comment line (i.e., that contains a non-comment
+lexeme).
 Aside from rules regarding indentation,
-comment lexemes are ignored as if they did not exist.
+comment lexemes are discarded and thereby ignored as if they did not exist.
 
 
 As an example, consider the file:
@@ -3381,10 +3379,10 @@ And a logical line ending with an indented paragraph:
         paragraph containing an indented
         subparagraph:
         // A comment that sets the indented subparagraph
-        // paragraph indent.  A warning will be issued
-        // because this comment begins a non-comment
-        // logical line, but the comment is otherwise
-        // ignored.
+        // paragraph indent.
+
+        // The following comment will issue a warning:
+        // Comment beginning non-comment logical line.
 
             Line 1 of subparagraph.
 
