@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 20, 2022}
+\date{December 21, 2022}
 
 \maketitle
 
@@ -1728,8 +1728,8 @@ of columns that precede the character in the character's physical line.
 take zero columns, as do characters of classes \TT{Mn} (combining-marks)
 and \TT{Me} (ending marks).  All other characters take one column,
 except for tabs, that are set every 8 columns.
-Indent lexemes are used to form logical lines and blocks
-(\pagref{LOGICAL-LINE} and \itemref{LOGICAL-LINES}).
+Indent lexemes are used to form logical lines and indented paragraphs
+(see \itemref{LOGICAL-LINES-AND-PARAGRAPHS}).
 
 One kind of {\em vertical-space} is given special distinction:
 \begin{indpar}
@@ -1968,19 +1968,10 @@ Thus the {\em lexical-item}
 {\em leading-separator} `\TT{\textquestiondown}',
 the {\em middle-lexeme} `\TT{4,987}',
 and the four {\em trailing-separators} `\TT{?}',
-`\TT{,}' `\TT{,}' and `\TT{::}'.%
-\footnote{It is possible to use a strictly left to right scan with
-backup over lexical atoms to perform
-the right to left removal of {\em trailing-separators} from a
-{\em lexical-item}, by recognizing a sequence of
-{\em trailing-separator-characters} not followed by a
-{\em lexical-item-character} that is not a
-{\em trailing-separator-character}
-as an atom that is backed up over and rescanned:
-see Appendix \itemref{STANDARD-LEXICAL-PROGRAM}.}
+`\TT{,}' `\TT{,}' and `\TT{::}'.
 
 A {\em middle-lexeme} can be continued across physical lines
-as per \pagref{MIDDLE-LEXEME-CONTINUATION}.
+as per \pagref{MIDDLE-LEXEME-CONCATENATION}.
 
 
 {\em Words}, {\em numerics}, {\em marks}, {\em separators},
@@ -2167,7 +2158,7 @@ a form feed.
 \end{boxedfigure}
 
 A {\em quoted-string} lexeme can be continued across physical lines
-as per \pagref{QUOTED-STRING-CONTINUATION}.
+as per \pagref{QUOTED-STRING-CONCATENATION}.
 
 
 \subsection{Numbers}
@@ -2373,7 +2364,7 @@ lexeme and is a {\em word}.  The {\em quoted-radix-digits}
 is the second lexeme and is a {\em quoted-string}.  The
 {\em exponent-part} is an optional third lexeme and is a {\em word}.
 The {\em quoted-string} lexeme can be continued across physical lines
-as per \pagref{QUOTED-STRING-CONTINUATION}.
+as per \pagref{QUOTED-STRING-CONCATENATION}.
 
 \subsection{Units and Quantities}
 \label{UNITS-AND-QUANTITIES}
@@ -3282,7 +3273,7 @@ the next logical line of the paragraph follows immediately.  Otherwise
 the current paragraph ends.
 
 In a data paragraph (beginning with \TT{\{data\}}, \TT{\{raw data\}},
-or equivalent: see \pagref{DATA-PARAGRAH}) logical lines end as for code
+or equivalent: see \pagref{DATA-PARAGRAPH}) logical lines end as for code
 except that the separator `\TT{;}' lexeme is not recognized.
 
 In code or data,
@@ -3434,7 +3425,8 @@ the next blank line, or the headed paragraph may be a single logical
 line ending with the next blank line.
 
 The latter kind of headed paragraph
-is called a \key{text paragraph}.  In a text the paragraph
+is called a \key{text paragraph}\label{TEXT-PARAGRAPH}.
+In a text paragraph
 physical lines have no indentation rules other than that all paragraph lines
 must have indent not less than the current indented paragraph indent.
 The text paragraph is a single logical line that
@@ -3518,9 +3510,6 @@ This is a line of code.  If it was not preceeded by
      `{p: indent = 5}'.
 \end{verbatim}\end{indpar}
 
-The part of a file that is outside headed paragraphs contains code in
-logical lines or data in headed logical lines.
-
 Headed text paragraphs must begin at the current paragraph indent
 and not contain any lines with less than the current paragraph indent.
 Lines of a headed text paragraph other than the first may be indented
@@ -3536,12 +3525,21 @@ paragraph header is a copy of the explicit paragraph header:
 e.g., for `\TT{\{p:~indent = 5\}}' the implied header will
 be `\TT{\{p:~indent = 5\}}'.
 
+Text paragraph headers deactivate any previously installed implied
+paragraph header, but may install their own implied paragraph header.
 The `\TT{\{section\}}' paragraph
 header does \underline{not} install an implied paragraph header.
-To deactivate an implied header, it is necessary
-to use `\TT{\{code\}}' as if it were a paragraph header, but
-this just deactivates any current implied header
+
+To deactivate an implied header, so the following logical lines
+are treated as code, it is necessary
+to use `\TT{\{code\}}' as if it were a paragraph header.
+This just deactivates any current implied header
 and is otherwise ignored.
+
+TBD
+
+The part of a file that is outside headed paragraphs contains code in
+logical lines or data in headed logical lines.
 
 Besides text paragraphs, there are headed paragraphs that consist
 of a sequence logical lines.  An example is:
@@ -3660,7 +3658,7 @@ See
 http://forecast.weather.gov/MapClick.php?lat=42&lon=-71#.V036u7
 \end{verbatim}\end{indpar}
 
-\item\label{STRING-CONCATENATION}
+\item\label{QUOTED-STRING-CONCATENATION}
 If two \emskey{quoted-string}s in a logical line are separated by
 one or two \TT{\#} mark lexemes, the strings
 are concatenated \underline{after} {\em character-represen\-ta\-tives}
