@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 21, 2022}
+\date{December 22, 2022}
 
 \maketitle
 
@@ -1658,7 +1658,7 @@ The lexemes are defined in terms of the following character classes:
 \emkey{control-character} :::=
 	character in UNICODE category \TT{C} or \TT{Z}
 \\[1ex]
-\emkey{isolated-separating-character} :::=
+\emlkey{isolated-separating-}{character} :::=
     \begin{tabular}[t]{l}
     character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
     or \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
@@ -1669,7 +1669,7 @@ The lexemes are defined in terms of the following character classes:
 \emkey{leading-separator-character} :::=
 	\TT{`} $|$ \TT{\textexclamdown} $|$ \TT{\textquestiondown}
 \\
-\emkey{trailing-separator-character} :::=
+\emlkey{trailing-separator-}{character} :::=
 	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:}
 	       $|$ \TT{,} $|$ \TT{;}
 \\[1ex]
@@ -1754,13 +1754,14 @@ illegal (see below).
 Characters that have no UNICODE category are {\em unrecognized-characters}
 and are illegal:
 \begin{indpar}
-\emkey{misplaced-horizontal-space-character} :::=
+\emlkey{misplaced-horizontal-}{space-character} :::=
     \begin{tabular}[t]{l}
     {\em horizontal-space-character}, other than \\
     ASCII single space
     \end{tabular}
 \\[0.3ex]
-\emkey{misplaced-vertical-space-character} :::= {\em vertical-space-character}
+\emlkey{misplaced-vertical-}{space-character}
+		:::= {\em vertical-space-character}
 	other than {\em line-feed}
 \\[0.3ex]
 \emkey{illegal-control-character} :::=
@@ -1861,7 +1862,7 @@ lexeme that occurs only at the end of a file.
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\
-\emkey{special-character-representative} :::=
+\emlkey{special-character-}{representative} :::=
     \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
 \\[0.3ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
@@ -2090,7 +2091,7 @@ The beginning and ending quotes (\TT{"}) are \underline{not}
 included in the represented character string.
 
 Most characters simply represent themselves.
-A \emkey{special-character-representative} represents on UNICODE character
+A \emlkey{special-character-}{representative} represents on UNICODE character
 and can consist of the UNICODE character name surrounded by angle brackets.
 Examples are
 \TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
@@ -3272,9 +3273,21 @@ the current paragraph indent, or ends with a `\TT{;}' separator lexeme,
 the next logical line of the paragraph follows immediately.  Otherwise
 the current paragraph ends.
 
-In a data paragraph (beginning with \TT{\{data\}}, \TT{\{raw data\}},
-or equivalent: see \pagref{DATA-PARAGRAPH}) logical lines end as for code
-except that the separator `\TT{;}' lexeme is not recognized.
+In a text paragraph (beginning, for example, with \TT{\{p\}}:
+see \pagref{TEXT-PARAGRAPH})
+a logical line ends with an indent lexeme whose indent is
+\underline{strictly less} than the current paragraph ident, or with
+a blank line, or with an end-of-file lexeme.  The `\TT{;}' separator
+lexeme does \underline{not} end a text paragraph logical line.
+
+Logical lines that are not code or text are data lines.  These lines
+follow the same line ending rules as code lines, except that the
+`\TT{;}' separator is \underline{not} recognized as a line end.
+Examples of data lines are the lines of a table paragraph
+(that begins with \TT{\{table\}}: see \pagref{TABLE-PARAGRAPH})
+and data entry lines beginning with
+\TT{\{data\}} or \TT{\{raw data\}} (see \pagref{DATA-ENTRY-LINE} and
+\itemref{OBJECT-REPRESENTATIONS}).
 
 In code or data,
 a physical line whose indent is \underline{greater than}
@@ -3282,12 +3295,6 @@ the current paragraph indent
 is a \key{continuation line} that
 continues the current \key{logical line}, and blank lines 
 preceeding a continuation line are ignored.
-
-In a text paragraph (beginning, for example, with \TT{\{p\}}:
-see \pagref{TEXT-PARAGRAPH})
-a logical line ends with an indent lexeme whose indent is
-\underline{strictly less} than the current paragraph ident, or with
-a blank line, or with an end-of-file lexeme.
 
 In text,
 a physical line whose indent is greater than \underline{or equal to}
@@ -3394,6 +3401,10 @@ which determines the paragraph indent of the indented paragraph, may
 be a comment line.  Any non-blank physical line with less indent than
 the current paragraph indent ends the indented paragraph, and this
 too may be a comment line.
+
+A bracketed expression, e.g., \TT{(~\ldots~)}, or a quoted expression,
+e.g., \TT{`~\ldots~'} or \TT{`{}`~\ldots~'{}'},
+must be completely inside a logical line.
 
 As explained so far, the top level, and each indented paragraph,
 consists of a sequence of logical lines that contain code.
@@ -3536,11 +3547,6 @@ to use `\TT{\{code\}}' as if it were a paragraph header.
 This just deactivates any current implied header
 and is otherwise ignored.
 
-TBD
-
-The part of a file that is outside headed paragraphs contains code in
-logical lines or data in headed logical lines.
-
 Besides text paragraphs, there are headed paragraphs that consist
 of a sequence logical lines.  An example is:
 \begin{indpar}\begin{verbatim}
@@ -3560,7 +3566,8 @@ ROW TYPE: person
 SORT ROWS BY: name
 \end{verbatim}\end{indpar}
 
-Here `\TT{\{table\}}' is a paragraph header that introduces
+Here `\TT{\{table\}}'\label{TABLE-PARAGRAPH}
+is a paragraph header that introduces
 a headed paragraph consisting of logical lines.  The logical
 lines can each be continued by indented continuation lines
 if neccessary, as is done for the logical line ending with
@@ -3603,16 +3610,14 @@ A paragraph headed by an explicit or implied
 A table paragraph can appear anywhere a headed paragraph can appear.
 Table paragraphs do not install implied headers.
 
-A bracketed expression, e.g., \TT{(~\ldots~)}, or a quoted expression,
-e.g., \TT{`~\ldots~'} or \TT{`{}`~\ldots~'{}'},
-must be completely inside a logical line.
-In the case of text paragraphs, the entire paragraph is a single
-logical line, so it suffices to be inside the paragraph.
+The part of a file that is outside headed paragraphs contains code in
+logical lines or data in headed logical lines.
 
-A logical line beginning with \TT{@} has the implied line header
-\TT{\{data\}} and is used to enter data.
+A logical line beginning with \TT{@}\label{DATA-ENTRY-LINE}
+has the implied line header
+\TT{\{data\}} and is a headed line used to enter data.
 A logical line beginning with \TT{!@} has the implied line header
-\TT{\{raw data\}} and is used similarly.
+\TT{\{raw data\}} and is a headed line used similarly.
 See the Low Level Data section, \itemref{LOW-LEVEL-DATA}.
 
 There are some special rules for gluing together lexemes within
@@ -3696,13 +3701,12 @@ The sequence
 \begin{center}
 {\em indentation-mark} {\em bip} \ldots{} {\em eip}
 \end{center}
-denotes use of a physical line ending lexeme (or sequence of several),
-the \emkey{indentation-mark},
+denotes use of a physical line ending
+\emkey{indentation-mark} (always `\TT{:}'),
 followed by an indented paragraph (the {\em bip} \ldots{} {\em eip}).
-Example {\em indentation-marks} are `\TT{:} and `\TT{::}'.
 If the line containing the {\em indentation-mark} is a code line,
 the indented paragraph consists of code lines, and if instead the
-containing line is a text line, the indented paragraph has in
+containing line is a text line, the indented paragraph has an
 implied \TT{\{p\}} paragraph header, and consists of text subparagraphs
 (unless overridden by \TT{\{code\}}).
 
@@ -3727,7 +3731,8 @@ is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
 every other object and from every atom.  But it is nothing more.
 
-However, as a place in memory, an object has a identifier.  Objects are assigned
+However, as a place in memory, an object has a identifier.
+Objects are assigned
 \skey{raw object identifier}s
 of the form `\ttmkey{@}{in raw object identifier}$N$' where $N$
 is a natural number (non-negative integer).
@@ -3814,7 +3819,7 @@ arrows may be either objects or atoms.
 
 
 \subsection{Object Representations}
-\label{RAW-OBJECT-REPRESENTATIONS}
+\label{OBJECT-REPRESENTATIONS}
 
 A set of objects can be written to a text file or read from a text file.
 When this is done, a textual representation of the object set exists
@@ -6410,7 +6415,7 @@ have the syntax:
     \\[1ex]
 {\em number} ::= see \pagref{NUMBER}
     \\[1ex]
-{\em quoted-string} ::= see \pagref{QUOTED-STRING}
+{\em quoted-string} ::= see \pagref{QUOTED-STRINGS}
 \end{indpar}
 
 The names of text brackets and operators are
