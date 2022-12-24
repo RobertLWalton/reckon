@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 22, 2022}
+\date{December 24, 2022}
 
 \maketitle
 
@@ -1605,12 +1605,13 @@ for every ship S:
 
 Input text is a sequence of characters.  This is scanned from
 left to right and top to bottom to produce a sequence of lexemes,
-which include words, marks, separators, numbers, and quoted strings.
+which include words, marks, separators, quoted strings, numbers,
+and numerics.
 
 For example, the input
 \begin{center}
 \begin{tabular}{l}
-\verb|x = 7ft 1_3/4 in;| \\
+\verb|x = 7 ft 1 3/4 in;| \\
 \verb|y = ``This is (we think) a sentence.''|
 \end{tabular}
 \end{center}
@@ -1619,12 +1620,12 @@ contains in order the following lexemes:
 \begin{tabular}{ll@{\hspace{1in}}ll}
 \tt x		& word 		& \tt y & word \\
 \tt =		& mark		& \tt =	& mark	\\
-\tt 7ft		& number with embedded unit & \tt `{}` & (leading) separator \\
-\tt 1\_3/4	& number	& \tt This & word \\
-\tt in		& unit		& \tt is & word \\
-\tt ;		& (trailing) separator	& \tt ( & (strict) separator \\
-		&		& \tt we & word \\
-		& 		& \tt think & word \\
+\tt 7		& number	& \tt `{}` & (leading) separator \\
+\tt ft		& word (unit)	& \tt This & word \\
+\tt 1		& number	& \tt is & word \\
+\tt 3/4		& numeric (fraction)	& \tt ( & (strict) separator \\
+\tt in		& word (unit)		& \tt we & word \\
+\tt ;		& (trailing) separator	& \tt think & word \\
 		& 		& \tt ) & (strict) separator \\
 		& 		& \tt a & word \\
 		& 		& \tt sentence & word \\
@@ -1824,8 +1825,8 @@ lexeme that occurs only at the end of a file.
 
 \emkey{lexeme}
         \begin{tabular}[t]{rl}
-	::= & {\em numeric-word} $|$ {\em word} $|$
-	      {\em natural} $|$ {\em number} $|$ {\em numeric} $|$
+	::= & {\em word} $|$
+	      {\em number} $|$ {\em numeric} $|$
 	      {\em mark} $|$ {\em separator} \\
 	$|$ & {\em quoted-string} $|$ {\em indent} $|${\em line-break} $|$
 	      {\em comment} $|$ {\em end-of-file}
@@ -1890,24 +1891,14 @@ lexeme that occurs only at the end of a file.
 		  and is not a {\em numeric-word}
 		  \end{tabular}
 \\
-\emkey{natural}\label{NATURAL}
-	\begin{tabular}[t]{@{}rl@{}}
-	:::= & {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$
-	       \TT{0} \\
-	\multicolumn{2}{l}{[but lexical type may be changed;
-	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
-	\end{tabular}
-\\
 \emkey{number}\label{NUMBER}
 	\begin{tabular}[t]{@{}rl@{}}
 	:::= & {\em sign}\QMARK{} {\em integer-part}
-	                          {\em exponent-part}\QMARK{}
-	     [that is not a {\em natural}] \\
+	                          {\em exponent-part}\QMARK{} \\
 	 $|$ & {\em sign}\QMARK{} {\em integer-part}\QMARK{}
 	                          {\em fraction-part}
 				  {\em exponent-part}\QMARK{} \\
-	\multicolumn{2}{l}{[but lexical type may be changed;
-	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
+	 $|$ & {\em numeric-word} \\
 	\end{tabular}
 \\
 \emkey{integer-part} :::=
@@ -1934,7 +1925,7 @@ lexeme that occurs only at the end of a file.
 \emkey{numeric} :::= {\em middle-lexeme}
                   \begin{tabular}[t]{@{}l@{}}
 		  that contains a {\em digit} before any {\em letter} \\
-		  and is not a {\em natural} or {\em number}
+		  and is not a {\em number}
 		  \end{tabular}
 \\
 \emkey{mark}\label{MARK} :::= {\em middle-lexeme} not containing a
@@ -1987,9 +1978,7 @@ constants, and functions:
 \begin{indpar}
 \emkey{name}\label{NAME} ::=
 	\{ {\em word} $|$ {\em numeric} $|$ {\em quoted-string}
-	              $|$ {\em natural}
-		      $|$ {\em number}
-		      $|$ {\em numeric-word} \}\PLUS{}
+		      $|$ {\em number} \}\PLUS{}
 \end{indpar}
 
 There is no difference between a {\em word} and a the same {\em word}
