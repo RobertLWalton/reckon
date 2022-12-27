@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 24, 2022}
+\date{December 25, 2022}
 
 \maketitle
 
@@ -1986,6 +1986,8 @@ quoted in a name: both represent a character string that is a component of
 the name.  E.g., there is no difference between \TT{X} and \TT{"X"}.  However,
 sometimes words must be quoted to prevent them from being recognized
 as operators, e.g., \TT{"AND"}.
+Similarly there is no difference between a {\em numeric} and the same
+{\em numeric} quoted in a name.
 
 As {\em marks} are commonly used as
 operators, these are not allowed in names, but they may be quoted:
@@ -1996,17 +1998,20 @@ There are many special kinds of {\em names}:
 \begin{indpar}
     \begin{tabular}[t]{l@{~~~~~}llll}
           & Section & Examples \\[1ex]
+      {\em variable-name}
+    & \itemref{VARIABLE-NAMES}
+    & \TT{X} & \TT{X1} & \TT{x 1} \\
+    &
+    & \TT{X 1.1} & \TT{X1.1} & \TT{my weight} \\
       {\em quoted string}
     & \itemref{QUOTED-STRINGS}
     & \TT{"+"} & \multicolumn{2}{l}{\TT{"Hello There!<LF>"}} \\
-      {\em natural}
-    & \itemref{NUMBERS}
-    & \TT{43} & \TT{9,587} & \TT{1e3} \\
       {\em number}
     & \itemref{NUMBERS}
+    & \TT{43} & \TT{9,587} & \TT{1e3} \\
+    & 
     & \TT{4.3} & \TT{-0.0098} & \TT{0.314159e1} \\
-      {\em numeric-word}
-    & \itemref{NUMBERS}
+    & 
     & \TT{+inf} & \TT{-Inf} & \TT{Nan} \\
       {\em fraction}
     & \itemref{FRACTIONS}
@@ -2066,6 +2071,11 @@ and `\TT{PI}' which in some contexts denotes the mathematical
 constant $\pi$ (see Figure~\itemref{BUILTIN-NUMBER-CONSTANTS}).
 
 
+
+\subsection{Variable Names}
+\label{VARIABLE-NAMES}
+a \emkey{varible-name} is a {\em name} that begins with a
+{\em word} that in turn begins with a {\em letter}.
 
 \subsection{Quoted Strings}
 \label{QUOTED-STRINGS}
@@ -2154,23 +2164,8 @@ as per \pagref{QUOTED-STRING-CONCATENATION}.
 \subsection{Numbers}
 \label{NUMBERS}
 
-{\em Number} and {\em numeric-word} lexemes translate to
+{\em Number} lexemes translate to
 number values which are IEEE 64-bit floating point numbers.
-
-When a lexeme translates to a number value, the type of the lexeme
-is reset.
-\begin{itemize}\label{LEXEME-TYPE-CONVERSION}
-\item If the value is \underline{not} a finite number, the
-new type is {\em numeric-word}.  For example, this applies to {\tt 1e500}
-which converts to the same value as {\tt +inf}.
-\item If the value is an integer in the range $[0,10^{15})$ the new
-type is {\em natural}.
-For example, this applies to {\tt 1e3}
-which converts to the same value as {\tt 1000}.
-\item Otherwise the new type is {\em number}.
-For example, this applies to {\tt 1,234,567,890}
-which converts to the same value as {\tt 1e10}.
-\end{itemize}
 
 Integers in the range
 \begin{center}
