@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 26, 2022}
+\date{December 31, 2022}
 
 \maketitle
 
@@ -3831,8 +3831,6 @@ the person
 may decide to use cooked representations.  When these are input
 operators are recognized when used in object vector elements.
 
-TBD: vector elements
-
 A {\em object-representation} is a logical line beginning
 with a {\em represented-object-identifier}
 lexeme, which consists of either `\TT{@}'
@@ -3846,15 +3844,14 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \emkey{object-representation}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
-        := {\em bll} & {\em represented-object-identifier} ~
-	               {\em object-assignment-operator} \\
-		     & {\em object-element}\STAR{} \\
-	             & \{ \TT{::} {\em bip} ~
+        := {\em bll} & {\em represented-object-identifier} ~ \TT{:=} \\
+		     & {\em element-list} \\
+	             & \{ \TT{:} {\em bip} ~
 		          \{ {\em bll} {\em attribute-representation}
 			     {\em ell} \}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
-        := {\em bll} & {\em represented-object-identifier} ~ \TT{=} ~
-		       {\em object-element} ~ {\em ell} \\
+        := {\em bll} & {\em represented-object-identifier} ~ \TT{:=} ~
+		       {\em element} ~ {\em ell} \\
         \end{tabular}
 \end{tabular}
 
@@ -3863,21 +3860,38 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
     {\em raw-object-identifier} $|$ {\em cooked-object-identifier} \\
 \emkey{raw-object-identifier} :::= \TT{!} {\em object-identifier} \\
 \emkey{cooked-object-identifier} :::= {\em object-identifier} \\
-\emkey{object-identifier} :::=
+\emkey{object-identifier} :::= {\em numeric-object-identifier}
+                           $|$ {\em symbolic-object-identifier} \\
+\emkey{numeric-object-identifier} :::=
 	\ttmkey{@}{in {\em object-identifier}}
 	{\em digit}\PLUS{} \\
+\emkey{symbolic-object-identifier} :::=
+	\ttmkey{@}{in {\em object-identifier}}\TT{<}
+	{\em letter} {\em letter-or-digit}\STAR{} \TT{>} \\
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-assignment-operator} ::= ~~~
-	\ttmkey{=}{object assignment operator} $|$
-	\ttmkey{=>}{object assignment operator} $|$
-	\ttmkey{=>{}>}{object assignment operator}
+\emkey{element-list} ::= {\em prefix-0-list} \\
+\emkey{prefix-0-list}
+    \begin{tabular}[t]{rl}
+    ::= & {\em simple-element-list} \\
+    $|$ & see \pagref{TBD} \\
+    \end{tabular} \\
+\emkey{simple-element-list} ::= {\em element}\STAR{} \\
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{object-element}\label{OBJECT-ELEMENT}
-    ::= {\em object-identifier} $|$ {\em atom-name} $|$ {\em bracketed-list} \\
+\emkey{element}\label{ELEMENT}
+    \begin{tabular}[t]{rl}
+    ::= & {\em word} $|$ {\em numeric} $|$ {\em number} $|$
+          {\em natural} $|$ {\em numeric-word} \\
+    $|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
+    $|$ & {\em untyped-bracketed-subexpression} \\
+    $|$ & {\em typed-bracketed-subexpression} \\
+    \end{tabular} \\
+
+TBD \\
+
 \emkey{atom-name}\label{ATOM-NAME}
     ::= {\em word} $|$ {\em quoted-string}
 		   $|$ {\em number-name} $|$ {\em bracketed-label} \\
