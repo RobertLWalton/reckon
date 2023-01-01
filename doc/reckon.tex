@@ -3921,7 +3921,8 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \begin{tabular}{l}
 \emkey{attribute-label-flags} ::= \TT{[} {\em flag-lexeme} \TT{]} \\
 \emkey{flag-lexeme}
-    ::= {\em word} containing just the letters \TT{H} and \TT{G} \\
+    ::= {\em word} or {\em mark} containing just letters and/or
+        \TT{*+-/@\&#=\$\%<>}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -3963,23 +3964,14 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 
 \end{indpar}
 
-Raw {\em object-representations} only parse the punctuation given
-above plus brackets and separators.  Assuming that by custom
-all brackets and separators contain a
-{\em mark} or {\em separator} lexeme, it is never necessary
-to quote a {\em word} in a raw {\em object-representation}.
-This can be exploited by quoting just {\em marks},
-{\em separators}, and {\em number} symbols when outputting
-raw {\em object-representations}.
-
 For example:
 
 \begin{indpar}\begin{verbatim}
-!@1 =::
+!@<X> :=:
     type = woman
     name = Jill
-    husband = @2 = wife
-!@2 =::
+    husband = @<Y> = wife
+!@<Y> :=:
     type = man
     name = Jack
 \end{verbatim}\end{indpar}
@@ -3990,7 +3982,7 @@ be represented pictorially as:
 \begin{center}
 \begin{picture}(3.0,1.5)
 \put(0,0){\framebox(3.0,1.5){}}
-\put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt @<X>}}
 \put(0.7,1.15){\oval(0.8,0.3)}
 \put(0.5,1.00){\vector(0,-1){0.5}}
 \put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
@@ -3998,7 +3990,7 @@ be represented pictorially as:
 \put(0.9,1.00){\vector(0,-1){0.7}}
 \put(0.95,0.55){\makebox(0,0)[l]{\tt name}}
 \put(0.9,0.2){\makebox(0,0){\tt Jill}}
-\put(1.9,1.00){\makebox(0.8,0.3){\tt @2}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt @<Y>}}
 \put(2.3,1.15){\oval(0.8,0.3)}
 \put(2.1,1.00){\vector(0,-1){0.5}}
 \put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
@@ -4014,14 +4006,14 @@ be represented pictorially as:
 \end{picture}
 \end{center}
 
-There are two single attributes of object \TT{@1} (arrows sourced
-at \TT{@1}),
+There are two single attributes of object \TT{@<X>} (arrows sourced
+at \TT{@<X>}),
 one attribute labeled \TT{type} whose value (target) is the atom \TT{woman},
 and one attribute labeled \TT{name} whose value is the atom \TT{Jill}.
-There are two similar single attributes from object \TT{@2}.
+There are two similar single attributes from object \TT{@<Y>}.
 There is a double attribute (double arrow)
 between the two objects which has the
-label \TT{husband} when going from \TT{@1} to \TT{@2}
+label \TT{husband} when going from \TT{@<X>} to \TT{@<Y>}
 and the label \TT{wife} when going in the reverse direction.
 
 It is possible to place \skey{attribute flag}s on attribute labels
@@ -4035,18 +4027,18 @@ have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
-\verb/!@1 =::/\\
+\verb/!@<X> =::/\\
 \verb|    type = woman|\\
 \verb|    name[-] = Jill|\\
-\verb|    husband[*] = @2 = wife[@]|\\
-\verb/!@2 =::/\\
+\verb|    husband[*] = @<Y> = wife[@]|\\
+\verb/!@<Y> =::/\\
 \verb|    type = man|\\
 \verb|    name[+] = Jack|\\
 \end{tabular}
 ~~~~~~~
 \begin{picture}(3.2,1.5)
 \put(0,0){\framebox(3.2,1.5){}}
-\put(0.3,1.00){\makebox(0.8,0.3){\tt @1}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt @<X>}}
 \put(0.7,1.15){\oval(0.8,0.3)}
 \put(0.5,1.00){\vector(0,-1){0.5}}
 \put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
@@ -4054,7 +4046,7 @@ have been added to some of the attributes:
 \put(0.9,1.00){\vector(0,-1){0.7}}
 \put(0.95,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt -}}$}}
 \put(0.9,0.2){\makebox(0,0){\tt Jill}}
-\put(1.9,1.00){\makebox(0.8,0.3){\tt @2}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt @<Y>}}
 \put(2.3,1.15){\oval(0.8,0.3)}
 \put(2.1,1.00){\vector(0,-1){0.5}}
 \put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
@@ -4076,25 +4068,25 @@ inside \TT{[ ]} brackets that follow attribute labels.
 
 Several attributes of the same object (arrows sourced at the object)
 may have the same attribute
-label.  An example of this, in which object \TT{@1} has two
+label.  An example of this, in which object \TT{@<X>} has two
 attributes labeled \TT{child}, is:
 
 \begin{center}
 \begin{tabular}{l@{\hspace*{0.5in}}l}
 \begin{tabular}{@{}l@{}}
 \\[-20ex]
-\verb/!@1 =::/\\
-\verb|    child = @2 = parent|\\
-\verb|    child = @3 = parent|\\[1ex]
+\verb/!@<X> =::/\\
+\verb|    child = @<Y> = parent|\\
+\verb|    child = @<Z> = parent|\\[1ex]
 or\\[1ex]
-\verb/!@1 =::/\\
-\verb|    child = {* @2, @3 *}|\\
+\verb/!@<X> =::/\\
+\verb|    child = {* @<Y>, @<Z> *}|\\
 \verb|          = parent|\\
 \end{tabular}
 &
 \begin{picture}(3.1,1.5)
 \put(0,0){\framebox(3.1,1.5){}}
-\put(0.3,1.00){\makebox(2.4,0.3){\tt @1}}
+\put(0.3,1.00){\makebox(2.4,0.3){\tt @<X>}}
 \put(1.5,1.15){\oval(2.4,0.3)}
 \put(0.65,1.00){\vector(0,-1){0.6}}
 \put(0.60,0.80){\makebox(0,0)[r]{\tt child}}
@@ -4104,58 +4096,18 @@ or\\[1ex]
 \put(2.20,0.80){\makebox(0,0)[r]{\tt child}}
 \put(2.35,0.40){\vector(0,1){0.6}}
 \put(2.40,0.55){\makebox(0,0)[l]{\tt parent}}
-\put(0.3,0.10){\makebox(0.8,0.3){\tt @2}}
+\put(0.3,0.10){\makebox(0.8,0.3){\tt @<Y>}}
 \put(0.7,0.25){\oval(0.8,0.3)}
-\put(1.9,0.10){\makebox(0.8,0.3){\tt @3}}
+\put(1.9,0.10){\makebox(0.8,0.3){\tt @<Z>}}
 \put(2.3,0.25){\oval(0.8,0.3)}
 \end{picture}
 \end{tabular}
 \end{center}
 
-We say that the value of the \TT{child} attribute of \TT{@1} is
-the set to two elements, \TT{@2} and \TT{@3}.
+We say that the value of the \TT{child} attribute of \TT{@<X>} is
+the set to two elements, \TT{@<Y>} and \TT{@<Z>}.
 
-The differences between \TT{=}, \TT{=>}, and \TT{=>{}>} in a
-{\em object-representation} relate
-to what is done when an object or attribute label previously exists.
-
-\ttmkey{=}{in {\em object-representation}}
-indicates that the object being represented should not previously
-exist, or if it does exist, must not have been defined by any previous
-{\em object-representation} (it may have been defined as the value of an
-attribute).  Second, any attribute label represented in the
-{\em object-representation}, if it previously exists because it was part of a
-{\em double-attribute-representation} of another {\em object-representation},
-must be represented with exactly the same flags as it already has.
-
-At the other extreme,
-\ttmkey{=>{}>}{in {\em object-representation}}
-adds to existing objects.
-The object being represented can previously exist.  Any attribute
-representation in the {\em object-representation} creates a new attribute value
-to be added to the set of values of the given attribute label (which
-is created if it did not previously exist).
-Any flags on an attribute label are added to the flags of the label if
-that label already exists.
-
-\ttmkey{=>}{in {\em object-representation}}
-is like \TT{=>{}>}
-except that the {\em object-representation} cannot
-add new values to previously existing attributes of the object being
-represented.
-More precisely, the {\em attribute-label} of any
-{\em attribute-representation}
-in the {\em object-representation} must not have previously (before the
-{\em object-representa\-tion} is read)
-been an {\em attribute-label} of the represented object.
-Thus \TT{=>} is used to introduce new attributes to an existing object.
-
-However, if \TT{=>} is used to add a double attribute to
-object $O1$ whose value is object $O2$, then while
-the {\em double-attribute-label}
-of the added attribute must \underline{not} have previously existed for $O1$,
-the {\em reverse-attribute-label} \underline{may} have previously existed
-for $O2$.
+TBD
 
 Double attributes must have only one representation.  If they
 are given two representations, one for each end of the attribute
