@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{December 31, 2022}
+\date{January 1, 2023}
 
 \maketitle
 
@@ -3884,8 +3884,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
     ::= & {\em word} $|$ {\em numeric} $|$ {\em number} $|$
           {\em natural} $|$ {\em numeric-word} \\
     $|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
-    $|$ & {\em untyped-bracketed-subexpression} \\
-    $|$ & {\em typed-bracketed-subexpression} \\
+    $|$ & {\em bracketed-subexpression} \\
     \end{tabular} \\
 \end{tabular}
 
@@ -3902,39 +3901,33 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \label{SINGLE-ATTRIBUTE-REPRESENTATION}
 \\\hspace*{0.5in}
     \begin{tabular}[t]{rl}
-    ::= & {\em single-attribute-label}
+    ::= & {\em attribute-label}
 	  \begin{tabular}[t]{l}
 	  {\em attribute-label-flags}\QMARK{} ~
 	  \TT{=} ~
 	  {\em single-attribute-values}
 	  \end{tabular} \\
-    $|$ & {\em single-attribute-label} \\
-    $|$ & \TT{no} {\em single-attribute-label} \\
+    $|$ & {\em attribute-label} \\
+    $|$ & \TT{no} {\em attribute-label} \\
     \end{tabular}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{single-attribute-label}\label{SINGLE-ATTRIBUTE-LABEL}
-    ::= {\em name}\pagnote{NAME} $|$ {\em natural-index}\pagnote{NATURAL-INDEX}
+\emkey{attribute-label}\label{ATTRIBUTE-LABEL}
+    ::= {\em name} not beginning with a {\em number} \\
+{\em name} ::= see \pagref{NAME} \\
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{attribute-label-flags} ::=
-    \TT{[} {\em flag-lexeme}\STAR{} \TT{]}
-\end{tabular}%
-\index{flags!attribute label}%
-\index{attribute label!flags}
-
-\begin{tabular}{l}
+\emkey{attribute-label-flags} ::= \TT{[} {\em flag-lexeme} \TT{]} \\
 \emkey{flag-lexeme}
-    ::= {\em word} $|$ {\em mark} $|$ \TT{.} $|$ \TT{?} $|$ \TT{!}
-                   $|$ {\em quoted-string}
+    ::= {\em word} containing just the letters \TT{H} and \TT{G} \\
 \end{tabular}
 
 \begin{tabular}{l}
 \emkey{single-attribute-value}\label{SINGLE-ATTRIBUTE-VALUE}
-    ::= {\em atom-name}\STAR{} $|$ {\em object-identifier}
-                               $|$ {\em bracketed-list} \\
+    ::= {\em name} $|$ {\em object-identifier}
+                   $|$ {\em bracketed-subexpression} \\
 \emkey{single-attribute-values}\label{SINGLE-ATTRIBUTE-VALUES}
     \begin{tabular}[t]{rl}
     ::= & {\em single-attribute-value} \\
@@ -3948,23 +3941,14 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \label{DOUBLE-ATTRIBUTE-REPRESENTATION}
     ::=
 \\\hspace*{0.5in}
-	{\em double-attribute-label}
+	{\em attribute-label}
 	{\em attribute-label-flags}\QMARK{}
 \\\hspace*{1.0in}
 	\begin{tabular}[t]{@{}l@{}}
 	\TT{=} {\em double-attribute-values} \\
 	\TT{=} {\em reverse-attribute-label}
-	       {\em attribute-label-flags}\QMARK{}
-	\end{tabular}
-\end{tabular}
-
-\begin{tabular}{l}
-\emkey{double-attribute-label}
-    ::= {\em name}\pagnote{NAME}
-        $|$ {\em natural-index}\pagnote{NATURAL-INDEX} \\
-\emkey{reverse-attribute-label}
-    ::= {\em name}\pagnote{NAME}
-        $|$ {\em natural-index}\pagnote{NATURAL-INDEX} \\
+	\end{tabular} \\
+\emkey{reverse-attribute-label} ::= {\em attribute-label} \\
 \end{tabular}
 
 \begin{tabular}{l}
