@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 2, 2023}
+\date{January 3, 2023}
 
 \maketitle
 
@@ -3704,110 +3704,81 @@ on top of these low level data.  An expression is either an atom or
 a particular kind of object.  A block is a particular kind of object,
 and a description is a particular kind of block.
 
-An \key{atom} is a symbol, a number, or a label.
-A \key{symbol} is a character string that can be represented by
+An \key{atom} is a string, a number, or a label.
+
+A \key{string} is a character string that can be represented by
 a {\em word}, {\em numeric}, or {\em quoted-string} (but \underline{not}
-by a {\em mark})\pagnote{LEXEME-SYNTAX}.
+by a {\em mark} or {\em separator})\pagnote{LEXEME-SYNTAX}.
+A {\em word} and the same {\em word} quoted represent the same string:
+e.g., \TT{X} and \TT{"X"} represent the same string.  Similarly
+a {\em numeric} and the same {\em numeric} quoted represent the same
+string.
+
 A \key{number} is an IEEE 64-bit floating point
 value that can be represented by a {\em number} lexeme\pagnote{NUMBERS}.
 
 A \key{label} is a sequence of 0 or more atoms, and can be represented
 by a {\em name}\pagnote{NAME}.
-A single symbol or number is frequently
+A single string or number is frequently
 treated as if were a label whose only element
-is the symbol or number itself.
+is the string or number itself.
 
-An \key{object}\label{OBJECT}
-is just a place in memory, and is like a dot on a blank page.
+An \key{object}\label{OBJECT} is just a place in memory.
 It can be the source or target of arrows, and it is different from
-every other object and from every atom.  But it is nothing more.
+every other object and from every atom.  An object contains a \key{vector}
+whose elements can be atoms, special values, or pointers to objects.
+An object can also contain a set of \skey{attribute}s, each with an
+attribute label and one or more attribute values which can be atoms,
+special values, or pointers to objects.
 
-However, as a place in memory, an object has a identifier.
-Objects are assigned
-\skey{raw object identifier}s
-of the form `\ttmkey{@}{in raw object identifier}$N$' where $N$
-is a natural number (non-negative integer).
-Raw object identifiers of this form are assigned only to objects
-that must be named in an output stream (e.g., printed output).
-The first object named in an output stream is assigned the identifier
-\TT{@1}, the second object named in the output stream is assigned
-the identifier \TT{@2},
-and so forth.  The same object may be assigned different identifiers
-in different output streams.%
-\footnote{A possible implementation is to give objects that
-have been assigned identifiers
-in an output stream a hidden system defined output
-stream specific attribute (\pagref{ATTRIBUTE})
-equal to the object's identifier integer.  Another implementation uses a
-hash table per stream.}
+The elements of a vector are referred to by the \ikey{indeces}{index!of vector}
+\TT{0}, \TT{1}, \TT{2}, \ldots{}.
 
-There are two kinds of arrows: single and double.
+An attribute is referred to by an \key{attribute label} which is
+a label represented by a {\em name} not beginning with a {\em number}.
+More specifically, an attribute label is either a string or is a
+label atom whose elements are strings or numbers and whose first element
+is a string.
 
-A \key{single arrow} is an arrow from an object to either another object
-or to an atom.  The arrow has a label, which is a
-sequence of symbols and natural numbers.
+There are two kinds of pointers to object: single and double.
 
-A \key{double arrow} is a double headed arrow between two objects.
-It has a separate label for each direction, with each label being a
-sequence of symbols and natural numbers.
-A double arrow is equivalent to a
-\underline{related pair}
-of single arrows going in opposite directions between the same two objects.
-The difference between a double arrow and a pair of single arrows is that
-it is possible to delete only one direction of a pair of single arrows, but 
-when deleting a double arrow, both directions are deleted.
+A \key{single pointer} is just a normal pointer to the target object.
+It is named by the vector element index containing the pointer, or by
+the attribute label of the attribute one of whose values is the pointer.
 
-An \key{arrow label} is an atom that encodes a {\em name} (\pagref{NAME})
-or a single {\em natural-index} (\pagref{NATURAL-INDEX}).
-If the former, the atom is either
-a single symbol, or is a label with 2 or more elements, the first of
-which is a symbol, and the remainder of which are either symbols or
-natural indices.
+A \key{double pointer} is a double headed pointer between two objects,
+and acts like a pair of pointers, one in each direction.  The difference
+between a double pointer and a pair of single pointers is that 
+it is possible to delete only one direction of a pair of single pointers, but 
+when deleting a double pointer, both directions are deleted.
 
-Two arrows leaving the same object may have the same label.  Thus
-an object and an arrow label together name
-a set of arrows sourced at the object.
-We say that the object and label together specify a set of values,
-each of which is an atom or an object.
+A double pointer must be an attribute value at each of its ends, and
+has an attribute label for each of its directions.  From the point
+of view of an object at one of its ends, it is named by the pair
+of \underline{both} attribute labels.  The attribute label of the
+attribute of the object which has the pointer as one of its values
+is called the \key{forward attribute label}, and the attribute label
+going in the other direction is called the \key{reverse attribute label}.
 
-\ikey{Arrow flags}{arrow flag} may be attached to arrow labels.
-More precisely, a set of arrow flags is defined for each object
-and each arrow label, and these flags apply to all arrows sourced at the
-object that have the given label.
-The standard flags are the \key{dot flag} (\ttmkey{.}{dot flag}),
-and the \key{maybe flag} (\ttmkey{?}{maybe flag}).
-Arrows with a dot flagged label are not to be output when their source
+An attribute may have multiple values.  Except for double pointers,
+each of these values is named by the attribute label of the attribute.
+For double pointers, each is named by the pair consisting of the
+forward and reverse attribute labels.
+
+\ikey{Attribute flags}{attribute flag} may be attached to the
+attribute labels of an object.
+More precisely, a set of attribute flags is defined for each object
+and each attribute label, and these flags apply to all attribute values
+with the of the object that have the given label (in the case of
+double pointer values, this means the forward attribute label).
+The standard flags are the \key{hidden flag} (\ttmkey{H}{hidden flag}),
+and the \key{maybe flag} (\ttmkey{G}{maybe flag}).
+Attributes with a hidden flagged are not to be output when their object
 is output.
 Targets of arrows with a maybe flagged label may be garbage collected
 (made to disappear automatically, see \secref{GARBAGE-COLLECTION})
-if they cannot be reached without traversing an arrow whose label
+if they cannot be reached without traversing an pointer whose label
 has a maybe flag.
-
-We will give examples in the next section along with a basic way of
-representing sets of objects in text.  In the rest of this document
-arrows are called \skey{attribute}s,\label{ATTRIBUTE} arrow labels are called
-\skey{attribute label}s, arrow flags are called \skey{attribute flag}s,
-and arrow targets are called \skey{attribute value}s.
-Also `\ikey{attribute L of object O}{attribute!of an object}\,'
-denotes the set of all values (arrow targets) of attributes
-of object O (arrows sourced at O) which have the attribute label
-(arrow label) L.
-
-A double arrow is called a \key{double attribute}.  When viewed from
-an object at one end of the double arrow, the double arrow is an
-attribute of that object, the label of the arrow directed away from that object
-is the \mkey{attribute label}{of double attribute} of the double attribute,
-the object at the other end is the \mkey{attribute value}{of double attribute}
-of the double attribute,
-and the label of the arrow directed toward the object is the
-\mkey{reverse attribute label}{of double attribute} of the double attribute.
-
-For a given object, an attribute label may label both single and double
-arrows.  A distinction is made between the set of values of the single
-arrows, and the set of values of the double arrows.  The values of double
-arrows, of course, must all be objects, while the values of the single
-arrows may be either objects or atoms.
-
 
 \subsection{Object Representations}
 \label{OBJECT-REPRESENTATIONS}
