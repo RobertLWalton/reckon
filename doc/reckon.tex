@@ -3697,7 +3697,7 @@ implied \TT{\{p\}} paragraph header, and consists of text subparagraphs
 \section{Low Level Data}
 \label{LOW-LEVEL-DATA}
 
-A low level \key{datum} in RECKON is either an atom, an object, or an arrow.
+A low level \key{datum} in RECKON is either an atom, an object, or a pointer.
 
 Expressions, blocks, and descriptions are higher level data layered
 on top of these low level data.  An expression is either an atom or
@@ -3717,65 +3717,52 @@ string.
 A \key{number} is an IEEE 64-bit floating point
 value that can be represented by a {\em number} lexeme\pagnote{NUMBERS}.
 
-A \key{label} is a sequence of 0 or more atoms, and can be represented
-by a {\em name}\pagnote{NAME}.
+A \key{label} is a sequence of 0 or more atoms.
 A single string or number is frequently
 treated as if were a label whose only element
 is the string or number itself.
 
 An \key{object}\label{OBJECT} is just a place in memory.
-It can be the source or target of arrows, and it is different from
+It can be the target of pointers, and it is different from
 every other object and from every atom.  An object contains a \key{vector}
-whose elements can be atoms, special values, or pointers to objects.
+whose element values can be atoms, special values, or pointers to objects.
 An object can also contain a set of \skey{attribute}s, each with an
 attribute label and one or more attribute values which can be atoms,
 special values, or pointers to objects.
 
-The elements of a vector are referred to by the \ikey{indeces}{index!of vector}
+The elements of a vector are labelled by \ikey{indeces}{index!of vector}
 \TT{0}, \TT{1}, \TT{2}, \ldots{}.
 
-An attribute is referred to by an \key{attribute label} which is
-a label represented by a {\em name} not beginning with a {\em number}.
+An attribute is referred to by an \key{attribute label}, which is
+a label representable by a {\em name} not beginning with a {\em number}.
 More specifically, an attribute label is either a string or is a
-label atom whose elements are strings or numbers and whose first element
-is a string.
+label atom whose first element is a string and whose other elements
+are strings or numbers.
 
-There are two kinds of pointers to object: single and double.
+There are two kinds of attributes: single valued and double valued.
 
-A \key{single pointer} is just a normal pointer to the target object.
-It is named by the vector element index containing the pointer, or by
-the attribute label of the attribute one of whose values is the pointer.
+A \key{single valued} attribute takes as values atoms, special values,
+and pointers to object, and is named by an attribute label.
 
-A \key{double pointer} is a double headed pointer between two objects,
-and acts like a pair of pointers, one in each direction.  The difference
-between a double pointer and a pair of single pointers is that 
-it is possible to delete only one direction of a pair of single pointers, but 
-when deleting a double pointer, both directions are deleted.
+A \key{double values} attribute takes as values double headed pointers
+and it named by a pair of labels: the \key{forward label} and the
+\key{reverse label}.  A double pointer between objects $X$ and $Y$
+that is the value of the $X$ double attribute with
+forward label $Lx$ and reverse label $Ly$ is also a value of the
+$Y$ double attribute with forward label $Ly$ and reverse label $Lx$.
 
-A double pointer must be an attribute value at each of its ends, and
-has an attribute label for each of its directions.  From the point
-of view of an object at one of its ends, it is named by the pair
-of \underline{both} attribute labels.  The attribute label of the
-attribute of the object which has the pointer as one of its values
-is called the \key{forward attribute label}, and the attribute label
-going in the other direction is called the \key{reverse attribute label}.
+Both kinds of attributes can take multisets of values.
 
-An attribute may have multiple values.  Except for double pointers,
-each of these values is named by the attribute label of the attribute.
-For double pointers, each is named by the pair consisting of the
-forward and reverse attribute labels.
-
-\ikey{Attribute flags}{attribute flag} may be attached to the
-attribute labels of an object.
-More precisely, a set of attribute flags is defined for each object
-and each attribute label, and these flags apply to all attribute values
-with the of the object that have the given label (in the case of
-double pointer values, this means the forward attribute label).
+\ikey{Attribute flags}{attribute flag} may be attached to an
+attribute label of an object.  The flags of an attribute label
+apply to both a single attribute with that label and to all
+double attributes with that label as forward label.
 The standard flags are the \key{hidden flag} (\ttmkey{H}{hidden flag}),
 and the \key{maybe flag} (\ttmkey{G}{maybe flag}).
 Attributes with a hidden flagged are not to be output when their object
 is output.
-Targets of arrows with a maybe flagged label may be garbage collected
+Targets of pointers that are values of attributes with
+a maybe flagged label may be garbage collected
 (made to disappear automatically, see \secref{GARBAGE-COLLECTION})
 if they cannot be reached without traversing an pointer whose label
 has a maybe flag.
