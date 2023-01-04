@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 3, 2023}
+\date{January 4, 2023}
 
 \maketitle
 
@@ -3791,7 +3791,8 @@ operators are recognized when used in object vector elements.
 A {\em object-representation} is a logical line beginning
 with a {\em represented-object-identifier}
 lexeme, which consists of either `\TT{@}'
-or `\TT{!@}', followed by digits.  Use of `\TT{!@}' turns operator and
+or `\TT{!@}', followed by digits or a \TT{<~>} bracketed word.
+Use of `\TT{!@}' turns operator and
 text parsing off and makes the representation `\key{raw}'.  The use
 of just `\TT{@}' instead leaves operator and text parsing on and makes the
 representation `\key{cooked}'.  Bracket parsing is on in either case.
@@ -3802,13 +3803,13 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         := {\em bll} & {\em represented-object-identifier} ~ \TT{:=} \\
-		     & {\em element-list} \\
+		     & {\em vector-element-list} \\
 	             & \{ \TT{:} {\em bip} ~
 		          \{ {\em bll} {\em attribute-representation}
 			     {\em ell} \}\STAR{} ~
 			  {\em eip} \}\QMARK{} ~ {\em ell} \\
         := {\em bll} & {\em represented-object-identifier} ~ \TT{:=} ~
-		       {\em element} ~ {\em ell} \\
+		       {\em vector-element} ~ {\em ell} \\
         \end{tabular}
 \end{tabular}
 
@@ -3828,15 +3829,15 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{element-list} ::=
-	{\em raw-element-list} $|$ {\em cooked-element-list} \\
-\emkey{raw-element-list} ::= {\em raw-element}\STAR{} \\
-\emkey{cooked-element-list} ::= {\em expression}
+\emkey{vector-element-list} ::=
+	{\em raw-vector-element-list} $|$ {\em cooked-vector-element-list} \\
+\emkey{raw-vector-element-list} ::= {\em raw-vector-element}\STAR{} \\
+\emkey{cooked-vector-element-list} ::= {\em expression}
                                 ~~~~~ [see \pagref{EXPRESSION}] \\
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-element}\label{RAW-ELEMENT}
+\emkey{raw-vector-element}\label{RAW-ELEMENT}
     \begin{tabular}[t]{rl}
     ::= & {\em word} $|$ {\em numeric} $|$ {\em number} $|$
           {\em natural} $|$ {\em numeric-word} \\
@@ -3963,12 +3964,12 @@ be represented pictorially as:
 \end{picture}
 \end{center}
 
-There are two single attributes of object \TT{@<X>} (arrows sourced
+There are two single attributes of object \TT{@<X>} (pointers sourced
 at \TT{@<X>}),
 one attribute labeled \TT{type} whose value (target) is the atom \TT{woman},
 and one attribute labeled \TT{name} whose value is the atom \TT{Jill}.
 There are two similar single attributes from object \TT{@<Y>}.
-There is a double attribute (double arrow)
+There is a double attribute (double headed pointer)
 between the two objects which has the
 label \TT{husband} when going from \TT{@<X>} to \TT{@<Y>}
 and the label \TT{wife} when going in the reverse direction.
@@ -4030,7 +4031,7 @@ but they can \underline{all} be cleared by a logical line
 containing nothing but \ttkey{@@@@}, after which they can all be
 reused.
 
-Several attributes of the same object (arrows sourced at the object)
+Several attributes of the same object (pointers sourced at the object)
 may have the same attribute
 label.  An example of this, in which object \TT{@<Z>} has two
 attributes labeled \TT{parent}, is the following extension of the
@@ -4082,51 +4083,42 @@ the set to two elements, \TT{@<X>} and \TT{@<Y>}.
 
 Double attributes must have only one representation.  If they
 are given two representations, one for each end of the attribute
-(double headed arrow),
-\underline{two} identical double attributes (two double headed arrows with the
+(double headed pointer),
+\underline{two} identical double attributes (two double headed pointers with the
 same end points and labels) will be created.
 Usually one end of a double attribute is
 thought of as the primary end, and its object representation is used to
 include the sole representation of the double attribute.
 
-TBD
-
-The {\em object-identifier} \ttkey{@0} is special; it always names
-a particular object, the \ttnbdkey{GLOBAL} object,
-whose attributes are called \skey{global variables}.  One of the global
-variables is named \TT{.GLOBAL} and has as its value the \TT{.GLOBAL}
-object itself, a situation which can be achieved by the
-{\em object-representation}:
-
-\begin{indpar}\begin{verbatim}
-!@0 =>::
-    .GLOBAL = @0
-\end{verbatim}\end{indpar}
-
-Labels beginning with `\ttkey{.}' are reserved for use by
-the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
-is an example of such a label.
-
-An {\em attribute-value} that is a sequence of two or more {\em atom-names}
-abbreviates a single {\em bracketed-label} atom that can be otherwise
-represented by placing the {\em atom-names} in \TT{\{*~*\}} brackets.  Thus the
-{\em attribute-representations}
+An {\em attribute-value} that is a sequence of two or more strings or numbers
+abbreviates a single label atom that can be otherwise
+represented by placing the strings or numbers in \TT{\{<~>\}} brackets.
+Thus the {\em attribute-representations}
 \begin{center}
-\TT{X = "\{" "["} ~~~~~~~~~~ and ~~~~~~~~~~ \TT{X = \{* "\{" "[" *\}}
+\TT{X = "\{" "["} ~~~~~~~~~~ and ~~~~~~~~~~ \TT{X = \{< "\{" "[" >\}}
 \end{center}
 are equivalent.  However, an {\em attribute-value} consisting of just
-one {\em atom-name} consists of just the named atom.
+one string or number consists of just that string or number.
 
-{\em Attribute-labels}, which are {\em names}, are also sequences
-of {\em atom-names}, and also represent label atoms if there are two
-or more {\em atom-names} in the label.  If there is just one {\em atom-name},
-the label is the named atom.  However, names
-cannot contain {\em bracketed-labels},
-so
+A {\em single-attribute-representation} of the form `\TT{X = TRUE}'
+can be abbreviated as just `\TT{X}', while one of the form
+`\TT{X = FALSE}' can be abbreviated as just `\TT{no X}'.  Thus
 \begin{center}
-\TT{X Y = 1} ~~~~~~~~~~ \underline{cannot} be rewritten as ~~~~~~~~~~
-         \TT{\{* X Y *\} = 1}
+\tt
+\begin{tabular}{l}
+@<Z> :=: \\
+~~~~X = TRUE \\
+~~~~Y = FALSE \\
+\end{tabular}
+~~~~{\rm can be rewritten as}~~~~
+\begin{tabular}{l}
+@<Z> :=: \\
+~~~~X \\
+~~~~no Y \\
+\end{tabular}
 \end{center}
+
+TBD
 
 An attribute may have a single value, or a set of two or more
 values.  In the latter case, the values are written separated by
@@ -4148,22 +4140,31 @@ Thus
 \end{tabular}
 \end{center}
 
-A {\em single-attribute-representation} of the form `\TT{X = true}'
-can be abbreviated as just `\TT{X}', while one of the form
-`\TT{X = false}' can be abbreviated as just `\TT{no X}'.  Thus
+The {\em object-identifier} \ttkey{@0} is special; it always names
+a particular object, the \ttnbdkey{GLOBAL} object,
+whose attributes are called \skey{global variables}.  One of the global
+variables is named \TT{.GLOBAL} and has as its value the \TT{.GLOBAL}
+object itself, a situation which can be achieved by the
+{\em object-representation}:
+
+\begin{indpar}\begin{verbatim}
+!@0 =>::
+    .GLOBAL = @0
+\end{verbatim}\end{indpar}
+
+Labels beginning with `\ttkey{.}' are reserved for use by
+the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
+is an example of such a label.
+
+{\em Attribute-labels}, which are {\em names}, are also sequences
+of {\em atom-names}, and also represent label atoms if there are two
+or more {\em atom-names} in the label.  If there is just one {\em atom-name},
+the label is the named atom.  However, names
+cannot contain {\em bracketed-labels},
+so
 \begin{center}
-\tt
-\begin{tabular}{l}
-@49 =>:: \\
-~~~~X = true \\
-~~~~Y = false \\
-\end{tabular}
-~~~~{\rm can be rewritten as}~~~~
-\begin{tabular}{l}
-@49 =>:: \\
-~~~~X \\
-~~~~no Y \\
-\end{tabular}
+\TT{X Y = 1} ~~~~~~~~~~ \underline{cannot} be rewritten as ~~~~~~~~~~
+         \TT{\{* X Y *\} = 1}
 \end{center}
 
 The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
