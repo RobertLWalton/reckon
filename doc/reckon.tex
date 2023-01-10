@@ -194,14 +194,14 @@
        RECKON\\[2ex]
        (Draft 3a)}
 
-\author{Robert L. Walton\thanks{Copyright 2022 Robert L. Walton.
+\author{Robert L. Walton\thanks{Copyright 2023 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 4, 2023}
+\date{January 10, 2023}
 
 \maketitle
 
@@ -3726,45 +3726,62 @@ An \key{object}\label{OBJECT} is just a place in memory.
 It can be the target of pointers, and it is different from
 every other object and from every atom.  An object contains a \key{vector}
 whose element values can be atoms, special values, or pointers to objects.
-An object can also contain a set of \skey{attribute}s, each with an
-attribute label and one or more attribute values which can be atoms,
+An object can also contain a set of \skey{attribute}s, each with one or two
+attribute labels and one or more attribute values which can be atoms,
 special values, or pointers to objects.
 
 The elements of a vector are labelled by \ikey{indeces}{index!of vector}
 \TT{0}, \TT{1}, \TT{2}, \ldots{}.
 
-An attribute is referred to by an \key{attribute label}, which is
-a label representable by a {\em name} not beginning with a {\em number}.
+An attribute is labeled to one or two \skey{attribute label}s, which are
+representable by a {\em name} not beginning with a {\em number}.
 More specifically, an attribute label is either a string or is a
 label atom whose first element is a string and whose other elements
 are strings or numbers.
 
-There are two kinds of attributes: single valued and double valued.
+There are two kinds of attributes: single and double.
 
-A \key{single valued} attribute takes as values atoms, special values,
-and pointers to objects, and is named by an attribute label.
+A \key{single attribute} is named by a a single attribute label and
+takes as values atoms, special values, and pointers to objects.
 
-A \key{double valued} attribute takes as values double headed pointers
-and is named by a pair of labels: the \key{forward label} and the
-\key{reverse label}.  A double headed pointer between objects $X$ and $Y$
+A \key{double attribute} is named by a pair of attribute labels,
+a \key{forward label} and a \key{reverse label}, and
+takes as values double headed pointers.
+A double headed pointer between objects $X$ and $Y$
 that is the value of the $X$ double attribute with
 forward label $Lx$ and reverse label $Ly$ is also a value of the
 $Y$ double attribute with forward label $Ly$ and reverse label $Lx$.
 
-Both kinds of attributes can take multisets of values.
+Single attributes can take single values, or sets of values, or
+multisets of values.  Double attribute always take sets of values.
 
 \ikey{Attribute flags}{attribute flag} may be attached to an
 attribute label of an object.  The flags of an attribute label
-apply to both a single attribute with that label and to all
-double attributes with that label as forward label.
-The standard flags are the \key{hidden flag} (\ttmkey{H}{hidden flag}),
-and the \key{maybe flag} (\ttmkey{G}{maybe flag}).
-Attributes with a hidden flagged are not output when their object
-is output.
-Targets of pointers may be garbage collected
-(made to disappear automatically, see \secref{GARBAGE-COLLECTION})
-if they cannot be reached without traversing an pointer whose label
-has a maybe flag.
+may apply to either a single attribute with that label or to all
+double attributes with that label as forward label, or to both.
+The standard flags are:
+\begin{center}
+\begin{tabular}{lp{5.0in}}
+\TT{H} & {\bf Hidden Flag}.  All single attributes with the label
+and all double attributes with the label as forward label are
+\underline{not} output (e.g., printed) when the object is output.
+\\[0.5ex]
+\TT{M} & {\bf Multiset Flag}.  The single attribute with the label
+has a multiset of values.  Storing a value in the attribute adds the
+value to the attribute's multiset, even if a duplicate value is already
+in the multiset.
+\\[0.5ex]
+\TT{S} & {\bf Set Flag}.  The single attribute with the label
+has a set (\underline{not} multiset) of values.  Storing a value in the
+single attribute does nothing if the value is already in the attribute's set.
+\\[0.5ex]
+\TT{B} & {\bf Backpointer Flag}.  A pointer to an object which is a value
+of either the single attribute with the label or any double attribute
+with the label as forward label is a \key{backpointer} which is
+\underline{not} to be traced (is to be ignored) by the
+garbage collector (\secref{GARBAGE-COLLECTION}).
+\end{tabular}
+\end{center}
 
 \subsection{Object Representations}
 \label{OBJECT-REPRESENTATIONS}
@@ -4092,10 +4109,10 @@ include the sole representation of the double attribute.
 
 An {\em attribute-value} that is a sequence of two or more strings or numbers
 abbreviates a single label atom that can be otherwise
-represented by placing the strings or numbers in \TT{\{<~>\}} brackets.
+represented by placing the strings or numbers in \TT{[<~>]} brackets.
 Thus the {\em attribute-representations}
 \begin{center}
-\TT{X = "\{" "["} ~~~~~~~~~~ and ~~~~~~~~~~ \TT{X = \{< "\{" "[" >\}}
+\TT{X = "\{" "["} ~~~~~~~~~~ and ~~~~~~~~~~ \TT{X = [< "\{" "[" >]}
 \end{center}
 are equivalent.  However, an {\em attribute-value} consisting of just
 one string or number consists of just that string or number.
