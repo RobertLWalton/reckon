@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 10, 2023}
+\date{January 11, 2023}
 
 \maketitle
 
@@ -4096,7 +4096,10 @@ or\\[1ex]
 \end{center}
 
 We say that the value of the \TT{parent} attribute of \TT{@<Z>} is
-the set to two elements, \TT{@<X>} and \TT{@<Y>}.
+the set to two elements, \TT{@<X>} and \TT{@<Y>}.  Two lines can be
+used to specify the two values, or a single line with the values
+separated by commas inside \TT{\{*~*\}} brackets may specify the
+two values.
 
 A double headed pointer can be represented in two ways, one way for
 each end of the pointer.  Either way can be used, or both.  As
@@ -4132,27 +4135,42 @@ can be abbreviated as just `\TT{X}', while one of the form
 \end{tabular}
 \end{center}
 
-TBD
-
-An attribute may have a single value, or a set of two or more
-values.  In the latter case, the values are written separated by
-commas (\TT{,}) and surrounded by \TT{\{*~*\}} brackets (the same
-as are used to surround the {\em atom-names} of several element label atoms).
-Thus
+A single attribute can have at most one value by default.
+If its attribute label has the \TT{M} flag, it can have
+a multiset of values, and if its label has the \TT{S} flag, it can have
+a set of values.  A double attribute always has a set of values.
+For example:
 \begin{center}
 \tt
 \begin{tabular}{l}
-!@83 =>:: \\
-~~~~X = Y 1 \\
-!@83 =>:: \\
-~~~~X = Y 2 \\
+!@<X> :=: \\
+~~~~X[M] = A \\
+~~~~X~~~~= A \\
+~~~~X~~~~= B \\
 \end{tabular}
-~~~~{\rm can be rewritten as}~~~~
+~{\rm has the same effect as}~
 \begin{tabular}{l}
-!@83 =>:: \\
-~~~~X = \{* Y 1, Y 2 *\} \\
+!@<X> :=: \\
+~~~~X[M] = \{* A, A, B *\} \\
 \end{tabular}
 \end{center}
+and
+\begin{center}
+\tt
+\begin{tabular}{l}
+!@<X> :=: \\
+~~~~X[S] = A \\
+~~~~X~~~~= A \\
+~~~~X~~~~= B \\
+\end{tabular}
+~{\rm has the same effect as}~
+\begin{tabular}{l}
+!@<X> :=: \\
+~~~~X[S] = \{* A, B *\} \\
+\end{tabular}
+\end{center}
+
+TBD
 
 The {\em object-identifier} \ttkey{@0} is special; it always names
 a particular object, the \ttnbdkey{GLOBAL} object,
