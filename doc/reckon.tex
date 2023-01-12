@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 11, 2023}
+\date{January 12, 2023}
 
 \maketitle
 
@@ -4169,6 +4169,39 @@ and
 ~~~~X[S] = \{* A, B *\} \\
 \end{tabular}
 \end{center}
+
+The vector part of an object is represented by the {\em vector-element-list}
+in an {\em object-representation}.  If the representation is raw,
+this is a list of {\em raw-vector-elements} that represent strings, numbers,
+and bracketed subexpressions.  An example is:
+\begin{center}
+{\tt !@<X> := A 2 (C D) E}
+\\[1ex]
+is equivalent to
+\\[1ex]
+{\tt
+\begin{tabular}{l}
+!@<X>~~:= A 2 @<X1> E \\
+!@<X1>~:= C D: \\
+~~~~ .initiator = "(" \\
+~~~~ .terminator = "(" \\
+\end{tabular}
+}
+\end{center}
+
+The third element of {\tt @<X>} is a bracketed subexpression that
+represents a pointer to a second object, here denoted by {\tt @<X1>},
+that is a list of the vector elements inside the brackets with the brackets
+themselves becoming the values of the second object's {\tt .initiator}
+and {\tt .terminator} attributes.
+
+Bracketed subexpressions can also be used to represent vector elements
+that are \underline{not} pointers to object.  \TT{[<~>]}
+bracketed subexpressions are used to represent
+label atoms (see \pagref{LABELS}),
+and \TT{[\$~\$]} bracketed subexpressions are used to represent
+special values (see \itemref{SPECIAL-VALUES}).
+
 
 TBD
 
