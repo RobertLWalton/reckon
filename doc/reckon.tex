@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 12, 2023}
+\date{January 13, 2023}
 
 \maketitle
 
@@ -4104,7 +4104,16 @@ two values.
 A double headed pointer can be represented in two ways, one way for
 each end of the pointer.  Either way can be used, or both.  As
 double attribute values are sets, using both ways results in only
-one attribute value, and not two identical values.
+one attribute value, and not two identical values.  For example:
+\begin{center}
+\tt
+\begin{tabular}{l}
+@<X> :=: \\
+~~~~a = @<Y> b \\
+@<Y> :=: \\
+~~~~b = @<X> a~~~~// This is redundant and does nothing. \\
+\end{tabular}
+\end{center}
 
 An {\em single-attribute-value} that is a sequence
 of two or more strings or numbers
@@ -4120,78 +4129,89 @@ one string or number consists of just that string or number.
 A {\em single-attribute-representation} of the form `\TT{X = TRUE}'
 can be abbreviated as just `\TT{X}', while one of the form
 `\TT{X = FALSE}' can be abbreviated as just `\TT{no X}'.  Thus
-\begin{center}
+\begin{indpar}
 \tt
 \begin{tabular}{l}
 @<Z> :=: \\
-~~~~X = TRUE \\
-~~~~Y = FALSE \\
+~~~~x = TRUE \\
+~~~~y = FALSE \\
 \end{tabular}
 ~~~~{\rm can be rewritten as}~~~~
 \begin{tabular}{l}
 @<Z> :=: \\
-~~~~X \\
-~~~~no Y \\
+~~~~x \\
+~~~~no y \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 A single attribute can have at most one value by default.
 If its attribute label has the \TT{M} flag, it can have
 a multiset of values, and if its label has the \TT{S} flag, it can have
 a set of values.  A double attribute always has a set of values.
 For example:
-\begin{center}
+\begin{indpar}
 \tt
 \begin{tabular}{l}
-!@<X> :=: \\
-~~~~X[M] = A \\
-~~~~X~~~~= A \\
-~~~~X~~~~= B \\
+@<X> :=: \\
+~~~~y[M] = A \\
+~~~~y~~~~= A \\
+~~~~y~~~~= B \\
 \end{tabular}
 ~{\rm has the same effect as}~
 \begin{tabular}{l}
-!@<X> :=: \\
-~~~~X[M] = \{* A, A, B *\} \\
+@<X> :=: \\
+~~~~y[M] = \{* A, A, B *\} \\
 \end{tabular}
-\end{center}
+\end{indpar}
 and
-\begin{center}
+\begin{indpar}
 \tt
 \begin{tabular}{l}
-!@<X> :=: \\
-~~~~X[S] = A \\
-~~~~X~~~~= A \\
-~~~~X~~~~= B \\
+@<X> :=: \\
+~~~~y[S] = A \\
+~~~~y~~~~= A \\
+~~~~y~~~~= B \\
 \end{tabular}
 ~{\rm has the same effect as}~
 \begin{tabular}{l}
-!@<X> :=: \\
-~~~~X[S] = \{* A, B *\} \\
+@<X> :=: \\
+~~~~y[S] = \{* A, B *\} \\
 \end{tabular}
-\end{center}
+\end{indpar}
+while
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+@<X> :=: \\
+~~~~y~~~~=~A \\
+~~~~y~~~~=~B~~~~// This line is in error; \\
+~~~~~~~~~~~~~~~~// y already has a value. \\
+\end{tabular}
+\end{indpar}
 
 The vector part of an object is represented by the {\em vector-element-list}
 in an {\em object-representation}.  If the representation is raw,
 this is a list of {\em raw-vector-elements} that represent strings, numbers,
 and bracketed subexpressions.  An example is:
-\begin{center}
+\begin{indpar}
+\begin{indpar}
 {\tt !@<X> := A 2 (C D) E}
-\\[1ex]
+\end{indpar}
 is equivalent to
-\\[1ex]
-{\tt
+\begin{indpar}
+\tt
 \begin{tabular}{l}
 !@<X>~~:= A 2 @<X1> E \\
 !@<X1>~:= C D: \\
 ~~~~ .initiator = "(" \\
 ~~~~ .terminator = "(" \\
 \end{tabular}
-}
-\end{center}
+\end{indpar}
+\end{indpar}
 
 The third element of {\tt @<X>} is a bracketed subexpression that
 represents a pointer to a second object, here denoted by {\tt @<X1>},
-that is a list of the vector elements inside the brackets with the brackets
+that is a list of the vector elements inside the brackets, with the brackets
 themselves becoming the values of the second object's {\tt .initiator}
 and {\tt .terminator} attributes.
 
@@ -4201,6 +4221,10 @@ bracketed subexpressions are used to represent
 label atoms (see \pagref{LABELS}),
 and \TT{[\$~\$]} bracketed subexpressions are used to represent
 special values (see \itemref{SPECIAL-VALUES}).
+
+If an {\em object-representation} is cooked instead of raw,
+its {\em vector-element-list} is an {\em expression} that can
+contain operators.  For example,
 
 
 TBD

@@ -540,7 +540,7 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               [< x y >] = 6|}|}
     lines ##-##:
-!@@@ :=:
+@<X> :=:
        ^
     x1 = "{" "["
 ^^^^^^^^^^^^^^^^
@@ -551,9 +551,9 @@ BRACKETED EXPRESSION:
     [< x y >] = 6
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data}
+    {data}
     line ##:
-!@@@ :=:
+@<X> :=:
 ^
 ERROR: in line ##: not a legal label initial element `x y':
     [< x y >] = 6
@@ -565,7 +565,7 @@ ERROR: in line ##: line does not begin with a (possibly negated)
 BRACKETED EXPRESSION:
     {"": x1 = [< "{" "[" >], x2 = [< "{" "[" >], x y = 5}
     lines ##-##:
-!@@@ :=:
+@<X> :=:
 ^^^^^^^^
     x1 = "{" "["
 ^^^^^^^^^^^^^^^^
@@ -576,77 +576,48 @@ BRACKETED EXPRESSION:
     [< x y >] = 6
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 21 IS {"": x1 = [< "{" "[" >], x2 = [< "{" "[" >], x y = 5}
+    INPUT ID <X> ":" OUTPUT ID 9 IS
+        {"": x1 = [< "{" "[" >], x2 = [< "{" "[" >], x y = 5}
     line ##:
-INPUT ID 21 IS @@@
-^^^^^^^^^^^^^^^^^^
+INPUT ID <X> : OUTPUT ID 9 IS @<X>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    x = y 1
+    x = TRUE
     line ##:
-    x = y 1
-    ^^^^^^^
+    x = TRUE
+    ^^^^^^^^
 BRACKETED EXPRESSION:
-    x = 2 y
+    y = FALSE
     line ##:
-    x = 2 y
-    ^^^^^^^
-BRACKETABLE EXPRESSION:
-    {|[< y 1 >], [< 2 y >]|}
-    line ##:
-    z = {* y 1, 2 y *}
-        ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {* [< y 1 >], [< 2 y >] *}
-    line ##:
-    z = {* y 1, 2 y *}
-        ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    z = {* [< y 1 >], [< 2 y >] *}
-    line ##:
-    z = {* y 1, 2 y *}
-    ^^^^^^^^^^^^^^^^^^
+    y = FALSE
+    ^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
-              y 1|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
-              2 y|}
-         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|z =
-              {* [< y 1 >], [< 2 y >] *}|}|}
+              TRUE|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              FALSE|}|}
     lines ##-##:
-!@@@ :=:
-       ^
-    x = y 1
-^^^^^^^^^^^
-    x = 2 y
-^^^^^^^^^^^
-    z = {* y 1, 2 y *}
-^^^^^^^^^^^^^^^^^^^^^^
+@<Z1> :=:
+        ^
+    x = TRUE
+^^^^^^^^^^^^
+    y = FALSE
+^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data}
+    {data}
     line ##:
-!@@@ :=:
+@<Z1> :=:
 ^
-ERROR: in line ##: "x" already has different value(s); old value(s) not
-       changed:
-    x = 2 y
-      ^^^^^
 BRACKETED EXPRESSION:
-    {"": x = [< y 1 >], z = {* [< y 1 >], [< 2 y >] *}}
+    {"": x, no y}
     lines ##-##:
-!@@@ :=:
-^^^^^^^^
-    x = y 1
-^^^^^^^^^^^
-    x = 2 y
-^^^^^^^^^^^
-    z = {* y 1, 2 y *}
-^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    INPUT ID 22 IS {"": x = [< y 1 >], z = {* [< y 1 >], [< 2 y >] *}}
-    line ##:
-INPUT ID 22 IS @@@
-^^^^^^^^^^^^^^^^^^
+@<Z1> :=:
+^^^^^^^^^
+    x = TRUE
+^^^^^^^^^^^^
+    y = FALSE
+^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     x
     line ##:
@@ -663,119 +634,455 @@ BRACKETED EXPRESSION:
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|no
               y|}|}
     lines ##-##:
-!@@@ :=:
-       ^
+@<Z2> :=:
+        ^
     x
 ^^^^^
     no y
 ^^^^^^^^
 BRACKETED EXPRESSION:
-    {raw data}
+    {data}
     line ##:
-!@@@ :=:
+@<Z2> :=:
 ^
 BRACKETED EXPRESSION:
     {"": x, no y}
     lines ##-##:
-!@@@ :=:
-^^^^^^^^
+@<Z2> :=:
+^^^^^^^^^
     x
 ^^^^^
     no y
 ^^^^^^^^
 BRACKETED EXPRESSION:
-    INPUT ID 23 IS {"": x, no y}
+    INPUT ID <Z1> ":" OUTPUT ID 10 IS {"": x, no y}
     line ##:
-INPUT ID 23 IS @@@
-^^^^^^^^^^^^^^^^^^
+INPUT ID <Z1> : OUTPUT ID 10 IS @<Z1>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <Z2> ":" OUTPUT ID 11 IS {"": x, no y}
+    line ##:
+INPUT ID <Z2> : OUTPUT ID 11 IS @<Z2>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [M]
+    line ##:
+    y[M] = A
+     ^^^
+BRACKETED EXPRESSION:
+    y [M] = A
+    line ##:
+    y[M] = A
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    y = A
+    line ##:
+    y    = A
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    y = B
+    line ##:
+    y    = B
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y
+              [M] = A|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              A|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              B|}|}
+    lines ##-##:
+@<X1> :=:
+        ^
+    y[M] = A
+^^^^^^^^^^^^
+    y    = A
+^^^^^^^^^^^^
+    y    = B
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data}
+    line ##:
+@<X1> :=:
+^
+BRACKETED EXPRESSION:
+    {"": y[M] = {* B, A, A *}}
+    lines ##-##:
+@<X1> :=:
+^^^^^^^^^
+    y[M] = A
+^^^^^^^^^^^^
+    y    = A
+^^^^^^^^^^^^
+    y    = B
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [M]
+    line ##:
+    y[M] = {* A, A, B *}
+     ^^^
+BRACKETABLE EXPRESSION:
+    {|A, A, B|}
+    line ##:
+    y[M] = {* A, A, B *}
+           ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* A, A, B *}
+    line ##:
+    y[M] = {* A, A, B *}
+           ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    y [M] = {* A, A, B *}
+    line ##:
+    y[M] = {* A, A, B *}
+    ^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y
+              [M] = {* A, A, B *}|}|}
+    lines ##-##:
+@<X2> :=:
+        ^
+    y[M] = {* A, A, B *}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data}
+    line ##:
+@<X2> :=:
+^
+BRACKETED EXPRESSION:
+    {"": y[M] = {* B, A, A *}}
+    lines ##-##:
+@<X2> :=:
+^^^^^^^^^
+    y[M] = {* A, A, B *}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X1> ":" OUTPUT ID 12 IS {"": y[M] = {* B, A, A *}}
+    line ##:
+INPUT ID <X1> : OUTPUT ID 12 IS @<X1>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X2> ":" OUTPUT ID 13 IS {"": y[M] = {* B, A, A *}}
+    line ##:
+INPUT ID <X2> : OUTPUT ID 13 IS @<X2>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [S]
+    line ##:
+    y[S] = A
+     ^^^
+BRACKETED EXPRESSION:
+    y [S] = A
+    line ##:
+    y[S] = A
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    y = A
+    line ###:
+    y    = A
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    y = B
+    line ###:
+    y    = B
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y
+              [S] = A|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              A|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              B|}|}
+    lines ##-###:
+@<X1> :=:
+        ^
+    y[S] = A
+^^^^^^^^^^^^
+    y    = A
+^^^^^^^^^^^^
+    y    = B
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data}
+    line ##:
+@<X1> :=:
+^
+BRACKETED EXPRESSION:
+    {"": y[S] = {* B, A *}}
+    lines ##-###:
+@<X1> :=:
+^^^^^^^^^
+    y[S] = A
+^^^^^^^^^^^^
+    y    = A
+^^^^^^^^^^^^
+    y    = B
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [S]
+    line ###:
+    y[S] = {* A, B *}
+     ^^^
+BRACKETABLE EXPRESSION:
+    {|A, B|}
+    line ###:
+    y[S] = {* A, B *}
+           ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {* A, B *}
+    line ###:
+    y[S] = {* A, B *}
+           ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    y [S] = {* A, B *}
+    line ###:
+    y[S] = {* A, B *}
+    ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y
+              [S] = {* A, B *}|}|}
+    lines ###-###:
+@<X2> :=:
+        ^
+    y[S] = {* A, B *}
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data}
+    line ###:
+@<X2> :=:
+^
+BRACKETED EXPRESSION:
+    {"": y[S] = {* B, A *}}
+    lines ###-###:
+@<X2> :=:
+^^^^^^^^^
+    y[S] = {* A, B *}
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X1> ":" OUTPUT ID 14 IS {"": y[S] = {* B, A *}}
+    line ###:
+INPUT ID <X1> : OUTPUT ID 14 IS @<X1>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X2> ":" OUTPUT ID 15 IS {"": y[S] = {* B, A *}}
+    line ###:
+INPUT ID <X2> : OUTPUT ID 15 IS @<X2>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    y = A
+    line ###:
+    y    = A
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    y = B
+    line ###:
+    y    = B
+    ^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              A|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              B|}|}
+    lines ###-###:
+@<X> :=:
+       ^
+    y    = A
+^^^^^^^^^^^^
+    y    = B
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data}
+    line ###:
+@<X> :=:
+^
+ERROR: in line ###: "y" already has different value(s); old value(s) not
+       changed:
+    y    = B
+           ^
+BRACKETED EXPRESSION:
+    {"": y = A}
+    lines ###-###:
+@<X> :=:
+^^^^^^^^
+    y    = A
+^^^^^^^^^^^^
+    y    = B
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X> ":" OUTPUT ID 16 IS {"": y = A}
+    line ###:
+INPUT ID <X> : OUTPUT ID 16 IS @<X>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (C D)
+    line ###:
+!@<X1> := A 2 (C D) E
+              ^^^^^
+BRACKETED EXPRESSION:
+    {raw data|A 2 (C D) E|raw data}
+    line ###:
+!@<X1> := A 2 (C D) E
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|A 2 (C D) E|}
+    line ###:
+!@<X1> := A 2 (C D) E
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|A 2 PREALLOCATED(1*0) E|raw data}
+    line ###:
+!@<X2> := A 2 @<X3> E
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|A 2 PREALLOCATED(1*0) E|}
+    line ###:
+!@<X2> := A 2 @<X3> E
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    .initiator = "("
+    line ###:
+    .initiator = "("
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    .terminator = ")"
+    line ###:
+    .terminator = ")"
+    ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              .initiator = "("|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              .terminator = ")"|}|}
+    lines ###-###:
+!@<X3> := C D:
+             ^
+    .initiator = "("
+^^^^^^^^^^^^^^^^^^^^
+    .terminator = ")"
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|C D|raw data}
+    line ###:
+!@<X3> := C D:
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (C D)
+    lines ###-###:
+!@<X3> := C D:
+^^^^^^^^^^^^^^
+    .initiator = "("
+^^^^^^^^^^^^^^^^^^^^
+    .terminator = ")"
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X1> ":" OUTPUT ID 17 IS {|A 2 (C D) E|}
+    line ###:
+INPUT ID <X1> : OUTPUT ID 17 IS @<X1>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X2> ":" OUTPUT ID 18 IS {|A 2 (C D) E|}
+    line ###:
+INPUT ID <X2> : OUTPUT ID 18 IS @<X2>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X3> ":" OUTPUT ID 19 IS (C D)
+    line ###:
+INPUT ID <X3> : OUTPUT ID 19 IS @<X3>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|a b c d|raw data}
-    line ##:
+    line ###:
 !@@@ := a b c d
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {|a b c d|}
-    line ##:
+    line ###:
 !@@@ := a b c d
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID 30 IS {|a b c d|}
-    line ##:
+    line ###:
 INPUT ID 30 IS @@@
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (a b c d)
-    line ##:
+    line ###:
 !@@@ := ( a b c d )
         ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|(a b c d)|raw data}
-    line ##:
+    line ###:
 !@@@ := ( a b c d )
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (a b c d)
-    line ##:
+    line ###:
 !@@@ := ( a b c d )
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID 31 IS (a b c d)
-    line ##:
+    line ###:
 INPUT ID 31 IS @@@
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     [a b c d]
-    line ##:
+    line ###:
 !@@@ := [ a b c d ]
         ^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|[a b c d]|raw data}
-    line ##:
+    line ###:
 !@@@ := [ a b c d ]
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     [a b c d]
-    line ##:
+    line ###:
 !@@@ := [ a b c d ]
 ^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID 32 IS [a b c d]
-    line ##:
+    line ###:
 INPUT ID 32 IS @@@
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {{a b c d}}
-    line ##:
+    line ###:
 !@@@ := {{ a b c d }}
         ^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|{{a b c d}}|raw data}
-    line ##:
+    line ###:
 !@@@ := {{ a b c d }}
 ^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {{a b c d}}
-    line ##:
+    line ###:
 !@@@ := {{ a b c d }}
 ^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID 33 IS {{a b c d}}
-    line ##:
+    line ###:
 INPUT ID 33 IS @@@
 ^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (a + b)
-    line ##:
+    line ###:
 !@@@ := ( a + b )
         ^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|(a + b)|raw data}
-    line ##:
+    line ###:
 !@@@ := ( a + b )
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     (a + b)
-    line ##:
+    line ###:
 !@@@ := ( a + b )
 ^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
