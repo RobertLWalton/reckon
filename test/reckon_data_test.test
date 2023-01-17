@@ -1096,6 +1096,265 @@ BRACKETED EXPRESSION:
 INPUT ID <C> IS @<C>
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
+    {raw data|A "B" C|raw data}
+    line ###:
+!@<X> := A "B" C
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|A "B" C|}
+    line ###:
+!@<X> := A "B" C
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X> IS {|A "B" C|}
+    line ###:
+INPUT ID <X> IS @<X>
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|A PREALLOCATED(1*0) C|raw data}
+    line ###:
+!@<X> := A @<QUOTED> C
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|A PREALLOCATED(1*0) C|}
+    line ###:
+!@<X> := A @<QUOTED> C
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    .type = "<Q>"
+    line ###:
+    .type = "<Q>"
+    ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              .type = "<Q>"|}|}
+    lines ###-###:
+!@<QUOTED> := B:
+               ^
+    .type = "<Q>"
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|B|raw data}
+    line ###:
+!@<QUOTED> := B:
+^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    "B"
+    lines ###-###:
+!@<QUOTED> := B:
+^^^^^^^^^^^^^^^^
+    .type = "<Q>"
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X> IS {|A "B" C|}
+    line ###:
+INPUT ID <X> IS @<X>
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <QUOTED> IS "B"
+    line ###:
+INPUT ID <QUOTED> IS @<QUOTED>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [S]
+    line ###:
+    x[S]
+     ^^^
+BRACKETED EXPRESSION:
+    x [S]
+    line ###:
+    x[S]
+    ^^^^
+BRACKETED EXPRESSION:
+    x = "X"
+    line ###:
+    x = "X"
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    "x" = "X"
+    line ###:
+    "x" = "X"
+    ^^^^^^^^^
+BRACKETED EXPRESSION:
+    x = A "B" C
+    line ###:
+    x = A "B" C
+    ^^^^^^^^^^^
+DERIVED EXPRESSION:
+    [< A B C >]
+    line ###:
+    x = [< A "B" C >]
+        ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    x = [< A B C >]
+    line ###:
+    x = [< A "B" C >]
+    ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x
+              [S]|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
+              "X"|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|"x"
+              = "X"|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
+              A "B" C|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
+              [< A B C >]|}|}
+    lines ###-###:
+!@<X> :=:
+        ^
+    x[S]
+^^^^^^^^
+    x = "X"
+^^^^^^^^^^^
+    "x" = "X"
+^^^^^^^^^^^^^
+    x = A "B" C
+^^^^^^^^^^^^^^^
+    x = [< A "B" C >]
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data}
+    line ###:
+!@<X> :=:
+^
+BRACKETED EXPRESSION:
+    {"": x[S] = {* [< A B C >], X *}}
+    lines ###-###:
+!@<X> :=:
+^^^^^^^^^
+    x[S]
+^^^^^^^^
+    x = "X"
+^^^^^^^^^^^
+    "x" = "X"
+^^^^^^^^^^^^^
+    x = A "B" C
+^^^^^^^^^^^^^^^
+    x = [< A "B" C >]
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    x + = 5
+    line ###:
+    x + = 5
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    x "+" = 5
+    line ###:
+    x "+" = 5
+    ^^^^^^^^^
+BRACKETED EXPRESSION:
+    y = A +
+    line ###:
+    y = A +
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    y = A "+"
+    line ###:
+    y = A "+"
+    ^^^^^^^^^
+WARNING: in line ###: mark should be quoted:
+    z = [< A + B >]
+             ^
+DERIVED EXPRESSION:
+    [< A + B >]
+    line ###:
+    z = [< A + B >]
+        ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    z = [< A + B >]
+    line ###:
+    z = [< A + B >]
+    ^^^^^^^^^^^^^^^
+DERIVED EXPRESSION:
+    [< A + B >]
+    line ###:
+    z = [< A "+" B >]
+        ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    z = [< A + B >]
+    line ###:
+    z = [< A "+" B >]
+    ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x +
+              = 5|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x
+              "+" = 5|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              A +|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y =
+              A "+"|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|z =
+              [< A + B >]|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|z =
+              [< A + B >]|}|}
+    lines ###-###:
+!@<Y> :=:
+        ^
+    x + = 5
+^^^^^^^^^^^
+    x "+" = 5
+^^^^^^^^^^^^^
+    y = A +
+^^^^^^^^^^^
+    y = A "+"
+^^^^^^^^^^^^^
+    z = [< A + B >]
+^^^^^^^^^^^^^^^^^^^
+    z = [< A "+" B >]
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data}
+    line ###:
+!@<Y> :=:
+^
+ERROR: in line ###: not a legal label element `+':
+    x + = 5
+      ^
+ERROR: in line ###: line does not begin with a (possibly negated)
+       attribute label; line ignored:
+    x + = 5
+    ^^^^^^^
+ERROR: in line ###: not a legal value element `+':
+    y = A +
+          ^
+ERROR: in line ###: after `=' attribute value (label or single bracketed
+       subexpression) was expected but none found; line ignored:
+    y = A +
+      ^
+BRACKETED EXPRESSION:
+    {"": x "+" = 5, y = [< A "+" >], z = [< A "+" B >]}
+    lines ###-###:
+!@<Y> :=:
+^^^^^^^^^
+    x + = 5
+^^^^^^^^^^^
+    x "+" = 5
+^^^^^^^^^^^^^
+    y = A +
+^^^^^^^^^^^
+    y = A "+"
+^^^^^^^^^^^^^
+    z = [< A + B >]
+^^^^^^^^^^^^^^^^^^^
+    z = [< A "+" B >]
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X> IS {"": x[S] = {* [< A B C >], X *}}
+    line ###:
+INPUT ID <X> IS @<X>
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <Y> IS {"": x "+" = 5, y = [< A "+" >], z = [< A "+" B >]}
+    line ###:
+INPUT ID <Y> IS @<Y>
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     {raw data|a b c d|raw data}
     line ###:
 !@@@ := a b c d

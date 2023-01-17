@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 13, 2023}
+\date{January 17, 2023}
 
 \maketitle
 
@@ -3707,12 +3707,14 @@ and a description is a particular kind of block.
 An \key{atom} is a string, a number, or a label.
 
 A \key{string} is a character string that can be represented by
-a {\em word}, {\em numeric}, or {\em quoted-string} (but \underline{not}
-by a {\em mark} or {\em separator})\pagnote{LEXEME-SYNTAX}.
-A {\em word} and the same {\em word} quoted represent the same string:
-e.g., \TT{X} and \TT{"X"} represent the same string.  Similarly
-a {\em numeric} and the same {\em numeric} quoted represent the same
-string.
+a {\em word} or {\em numeric}, and sometimes by a {\em quoted-string},
+{\em mark}, or {\em separator} (see \pagref{LEXEME-SYNTAX}).
+In contexts where {\em quoted-strings} can be used to represent strings,
+{\em marks} and {\em separators} cannot appear, but quoted {\em marks}
+and {\em separators} can be used to represent their strings.
+In other contexts {\em quoted-strings} represent bracketed subexpressions
+(see \pagref{QUOTE-BRACKETS}) and in these contexts {\em marks} and
+{\em separators} can be used to represent their lexeme strings.
 
 A \key{number} is an IEEE 64-bit floating point
 value that can be represented by a {\em number} lexeme\pagnote{NUMBERS}.
@@ -4227,19 +4229,84 @@ its {\em vector-element-list} is an {\em expression} that can
 contain operators.  For example,
 \begin{indpar}
 \begin{indpar}
-{\tt @<X> := a + b * c~~~// Cooked.
+\tt
+@<X> := a + b * c~~~// Cooked.
 \end{indpar}
 is equivalent to
 \begin{indpar}
 \tt
 \begin{tabular}{l}
-!@<X>~~:= @<A> + @<X1>~~~// Raw. \\
-!@<X1>~:= @<B> * @<C>~~~~// Raw. \\
-!@<A>~~:= a~~~~~~~~~~~~~~// Raw. \\
-!@<B>~~:= b~~~~~~~~~~~~~~// Raw. \\
-!@<C>~~:= c~~~~~~~~~~~~~~// Raw. \\
+!@<X>~~:= @<A> + @<PRODUCT>~~~// Raw. \\
+!@<PRODUCT>~:= @<B> * @<C>~~~~// Raw. \\
+!@<A>~~:= a~~~~~~~~~~~~~~~~~~~// Raw. \\
+!@<B>~~:= b~~~~~~~~~~~~~~~~~~~// Raw. \\
+!@<C>~~:= c~~~~~~~~~~~~~~~~~~~// Raw. \\
 \end{tabular}
 \end{indpar}
+\end{indpar}
+
+In general a {\em quoted-string} lexeme\label{QUOTE-BRACKETS}
+represents an object
+whose only vector element is the string and whose \ttdkey{type}
+attribute is \TT{"<Q>"}.  For example,
+\begin{indpar}
+\begin{indpar}
+\tt
+!@<X> := A "B" C
+\end{indpar}
+is equivalent to
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+!@<X>~~:= A + @<QUOTED> C \\
+!@<QUOTED>~:= B: \\
+~~~~.type = "<Q>" \\
+\end{tabular}
+\end{indpar}
+\end{indpar}
+
+The exceptions is when a {\em quoted-string} lexeme appears in an attribute
+label or attribute value or as a label element.  In these situations
+the {\em quoted-string} lexeme represents its string.  In these situations
+\TT{"X"} and \TT{X} represent the same string, as do \TT{"1.1B"}
+and \TT{1.1B}.
+
+When a {\em quoted-string} lexeme represents an object, {\em mark}
+and {\em separator} lexemes can be used to represent their strings.
+When a {\em quoted-string} lexeme represents a string, {\em mark}
+and {\em separator} lexemes cannot be used, but can be quoted.
+For example:
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+!@<X> :=: \\
+~~~~x[S]~~~~~~~~~~~~~~~~// x has value set \\
+~~~~x~=~"X"~~~~~~~~~~~~~// same as x = X \\
+~~~~"x"~=~X~~~~~~~~~~~~~// same as x = X \\
+~~~~x~=~A~"B"~C~~~~~~~~~// same as x = [< A B C >] \\
+~~~~x~=~[<~A~"B"~C~>]~~~// same as x = [< A B C >] \\
+\\
+!@<Y> :=: \\
+~~~~x~+~~~=~5~~~~~~~~~~~~~~~~// erroneous; ignored \\
+~~~~x~"+"~=~5~~~~~~~~~~~~~~~~// legal \\
+~~~~y~~~~~=~A~+~~~~~~~~~~~~~~// erroneous; ignored \\
+~~~~y~~~~~=~A~"+"~~~~~~~~~~~~// legal \\
+~~~~z~~~~~=~[<~A~+~B~>]~~~~~~// erroneous; ignored \\
+~~~~z~~~~~=~[<~A~"+"~B~>]~~~~// legal \\
+\\
+!@<Z>~:=:~A,~B,~C~+~F(X,~Y)~~// legal
+\end{tabular}
+\end{indpar}
+
+Here the \TT{!@<Z>} object representation is equivalent to:
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+!@<Z>~:=:~A,~B,~C~+~F~@<ARGS> \\
+!@<ARGS>~:=~X~,~Y: \\
+~~~~.initiator~=~"(" \\
+~~~~.terminator~=~")" \\
+\end{tabular}
 \end{indpar}
 
 
