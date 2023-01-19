@@ -1355,6 +1355,78 @@ BRACKETED EXPRESSION:
 INPUT ID <Y> IS @<Y>
 ^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
+    (X "," Y)
+    line ###:
+!@<Z1> := A, B, C + F(X, Y)
+                     ^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|A "," B "," C + F (X "," Y)|raw data}
+    line ###:
+!@<Z1> := A, B, C + F(X, Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|A "," B "," C + F (X "," Y)|}
+    line ###:
+!@<Z1> := A, B, C + F(X, Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|A "," B "," C + F PREALLOCATED(1*0)|raw data}
+    line ###:
+!@<Z2> := A, B, C + F @<ARGS>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|A "," B "," C + F PREALLOCATED(1*0)|}
+    line ###:
+!@<Z2> := A, B, C + F @<ARGS>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    .initiator = "("
+    line ###:
+    .initiator = "("
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    .terminator = ")"
+    line ###:
+    .terminator = ")"
+    ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              .initiator = "("|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              .terminator = ")"|}|}
+    lines ###-###:
+!@<ARGS> := X , Y:
+                 ^
+    .initiator = "("
+^^^^^^^^^^^^^^^^^^^^
+    .terminator = ")"
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {raw data|X "," Y|raw data}
+    line ###:
+!@<ARGS> := X , Y:
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (X "," Y)
+    lines ###-###:
+!@<ARGS> := X , Y:
+^^^^^^^^^^^^^^^^^^
+    .initiator = "("
+^^^^^^^^^^^^^^^^^^^^
+    .terminator = ")"
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <Z1> IS {|A "," B "," C + F (X "," Y)|}
+    line ###:
+INPUT ID <Z1> IS @<Z1>
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <Z2> IS {|A "," B "," C + F (X "," Y)|}
+    line ###:
+INPUT ID <Z2> IS @<Z2>
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     {raw data|a b c d|raw data}
     line ###:
 !@@@ := a b c d

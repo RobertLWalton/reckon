@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 17, 2023}
+\date{January 19, 2023}
 
 \maketitle
 
@@ -4294,7 +4294,7 @@ For example:
 ~~~~z~~~~~=~[<~A~+~B~>]~~~~~~// erroneous; ignored \\
 ~~~~z~~~~~=~[<~A~"+"~B~>]~~~~// legal \\
 \\
-!@<Z>~:=:~A,~B,~C~+~F(X,~Y)~~// legal
+!@<Z>~:=~A,~B,~C~+~F(X,~Y)~~// legal
 \end{tabular}
 \end{indpar}
 
@@ -4302,53 +4302,13 @@ Here the \TT{!@<Z>} object representation is equivalent to:
 \begin{indpar}
 \tt
 \begin{tabular}{l}
-!@<Z>~:=:~A,~B,~C~+~F~@<ARGS> \\
+!@<Z>~:=~A,~B,~C~+~F~@<ARGS> \\
 !@<ARGS>~:=~X~,~Y: \\
 ~~~~.initiator~=~"(" \\
 ~~~~.terminator~=~")" \\
 \end{tabular}
 \end{indpar}
 
-
-TBD
-
-The {\em object-identifier} \ttkey{@0} is special; it always names
-a particular object, the \ttnbdkey{GLOBAL} object,
-whose attributes are called \skey{global variables}.  One of the global
-variables is named \TT{.GLOBAL} and has as its value the \TT{.GLOBAL}
-object itself, a situation which can be achieved by the
-{\em object-representation}:
-
-\begin{indpar}\begin{verbatim}
-!@0 =>::
-    .GLOBAL = @0
-\end{verbatim}\end{indpar}
-
-Labels beginning with `\ttkey{.}' are reserved for use by
-the RECKON system, and should not be defined by RECKON users.  \TT{.GLOBAL}
-is an example of such a label.
-
-{\em Attribute-labels}, which are {\em names}, are also sequences
-of {\em atom-names}, and also represent label atoms if there are two
-or more {\em atom-names} in the label.  If there is just one {\em atom-name},
-the label is the named atom.  However, names
-cannot contain {\em bracketed-labels},
-so
-\begin{center}
-\TT{X Y = 1} ~~~~~~~~~~ \underline{cannot} be rewritten as ~~~~~~~~~~
-         \TT{\{* X Y *\} = 1}
-\end{center}
-
-The RECKON parser (\secref{PARSING}) parses {\em object-representations}.
-However, within {\em object-representa\-tions} that begin with
-\TT{@} the parser only recognizes brackets and separators, and does
-not recognize operators, number units, formats, sentence and phrase
-terminators, etc.\label{RAW-PARSING}  The parser does recognize
-lists as described in the next sections.  In order to ensure that
-the parser does not mistakenly recognize {\em separators} and {\em marks}
-as delimiting lists,
-both {\em separators} and {\em marks} must be quoted as per \TT{"} when
-they are used in {\em atom-names}.
 
 \subsection{Lists}
 
