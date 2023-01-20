@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 15:30:18 EDT 2022
+// Date:	Fri Jan 20 05:15:11 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,10 +91,10 @@ void REC::init_parser ( PAR::parser parser )
     BRA::push_brackets
         ( PARLEX::left_square,
 	  PARLEX::right_square,
-	  text + code + math + atom,
+	  atom + text + math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( math, text + code + atom, 0 ),
+	      ( code, atom + text + math, 0 ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
