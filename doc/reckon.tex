@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the work of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 19, 2023}
+\date{January 22, 2023}
 
 \maketitle
 
@@ -4316,31 +4316,72 @@ A \key{bracketed expression} represents a label or object and
 consists of brackets (e.g., \TT{(~)}) surrounding an expression or list.
 
 There are many kinds of {\em bracketed-expression}:
-\begin{indpar}
+\begin{center}
     \begin{tabular}[t]{l@{~~~~~}lll}
-          & Section & Example & When Inside \\[1ex]
-      {\em label-value}
-    & \itemref{LABEL-EXPRESSION}
-    & \TT{[<} {\em label-expression} \TT{>]}
+          & Section & Example \\[1ex]
+      {\em label-constant}
+    & \itemref{LABEL-Constant}
+    & \TT{[< X 1 >]}
     \\
       {\em parenthesized-expression}
-    & \itemref{CODE-EXPRESSION}
-    & \TT{(} {\em code-expression} \TT{)} & {\em code-expression} \\
-    & \itemref{MATH-EXPRESSION}
-    & \TT{(} {\em math-expression} \TT{)} & {\em math-expression} \\
-    & \itemref{TEXT-EXPRESSION}
-    & \TT{(} {\em phrase-expression} \TT{)} & {\em text-expression}
+    & \itemref{PARENTHESIZED-EXPRESSION}
+    & \TT{( 6 * ( x + y ) )}
     \\
-      {\em math-value}
-    & \itemref{MATH-EXPRESSION}
-    & \TT{\{\{} {\em math-expression} \TT{\}\}}
+      {\em math-constant}
+    & \itemref{MATH-CONSTANT}
+    & \TT{\{\{ 2 * x \CIRCUM{} 2 + 6 * x + 3 \}\}} 
     \\
-      {\em code-value}
-    & \itemref{CODE-EXPRESSION}
-    & \TT{[} {\em code-expression} \TT{]}
+      {\em phrase-constant}
+    & \itemref{PHRASE-CONSTANT}
+    & \TT{`John Doe'}
+    \\
+      {\em sentence-constant}
+    & \itemref{SENTENCE-CONSTANT}
+    & \TT{``All men do what?''}
+    \\
+      {\em subscript}
+    & \itemref{SUBSCRIPT}
+    & \TT{[ i + 10 ]}
+    \\
+      {\em insertion}
+    & \itemref{INSERTION}
+    & \TT{[ my name ]}
     \\
     \end{tabular}
-\end{indpar}
+\end{center}
+
+The interpretation of brackets depends upon the context in whish
+they occur.  Brackets can also change the context: specifically,
+the context inside the brackets can be different from the context
+outside the brackets.  The possible contexts are:
+\begin{center}
+\begin{tabular}%
+  {l@{\hspace*{0.3in}}p{3.5in}}
+\bf Context & \bf Usage
+\\[1ex]
+\TT{data} & {\em object-representations } \\
+\TT{label} & {\em label-constants } \\
+\TT{code} & executable code \\
+\TT{math} & {\em math-constants } \\
+\TT{text} & text constants \\
+\end{tabular}
+\end{center}
+
+The interpretation of brackets within contexts is:
+\begin{center}
+\begin{tabular}%
+  {l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}l@{\hspace*{0.3in}}p{2.2in}}
+\bf Brackets & \bf Context & \bf New Context & \bf Usage \\[1ex]
+\TT{[<\ldots>]} & all & \TT{label} & {\em label-constant} \\
+\TT{(\ldots)} & all & unchanged & {\em parenthesized-expression} \\
+\TT{\{\{\ldots\}\}} & \TT{code}, \TT{text} & \TT{math} & {\em math-constant} \\
+\TT{`\ldots'} & \TT{code}, \TT{text} & \TT{text} & {\em phrase-constant} \\
+\TT{``\ldots''} & \TT{code}, \TT{text} & \TT{text} & {\em sentence-constant} \\
+\TT{[\ldots]} & \TT{code} & \TT{code} & {\em subscript } \\
+\TT{[\ldots]} & \TT{math}, \TT{text} & \TT{code} & {\em insertion } \\
+all & \TT{data} & \TT{data} & {\em object-representation } \\
+\end{tabular}
+\end{center}
 
 \subsection{Lists}
 
