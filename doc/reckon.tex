@@ -3719,7 +3719,7 @@ In other contexts {\em quoted-strings} represent bracketed subexpressions
 A \key{number} is an IEEE 64-bit floating point
 value that can be represented by a {\em number} lexeme\pagnote{NUMBERS}.
 
-A \key{label} is a sequence of 0 or more atoms.
+A \key{label}\label{LABEL} is a sequence of 0 or more atoms.
 A single string or number is frequently
 treated as if were a label whose only element
 is the string or number itself.
@@ -4319,8 +4319,8 @@ There are many kinds of {\em bracketed-expression}:
 \begin{center}
     \begin{tabular}[t]{l@{~~~~~}lll}
           & Section & Example \\[1ex]
-      {\em label-constant}
-    & \itemref{LABEL-Constant}
+      {\em label-value}
+    & \itemref{LABEL-VALUE}
     & \TT{[< X 1 >]}
     \\
       {\em special-value}
@@ -4331,16 +4331,16 @@ There are many kinds of {\em bracketed-expression}:
     & \itemref{PARENTHESIZED-EXPRESSION}
     & \TT{( 6 * ( x + y ) )}
     \\
-      {\em math-constant}
-    & \itemref{MATH-CONSTANT}
+      {\em math-value}
+    & \itemref{MATH-VALUE}
     & \TT{\{\{ 2 * x \CIRCUM{} 2 + 6 * x + 3 \}\}} 
     \\
-      {\em phrase-constant}
-    & \itemref{PHRASE-CONSTANT}
+      {\em phrase-value}
+    & \itemref{PHRASE-VALUE}
     & \TT{`John Doe'}
     \\
-      {\em sentence-constant}
-    & \itemref{SENTENCE-CONSTANT}
+      {\em sentence-value}
+    & \itemref{SENTENCE-VALUE}
     & \TT{``All men do what?''}
     \\
       {\em subscript}
@@ -4364,10 +4364,10 @@ outside the brackets.  The possible contexts are:
 \bf Context & \bf Usage
 \\[1ex]
 \TT{data} & {\em object-representations } \\
-\TT{label} & {\em label-constants } \\
+\TT{label} & {\em label-values } \\
 \TT{code} & executable code \\
-\TT{math} & {\em math-constants } \\
-\TT{text} & text constants \\
+\TT{math} & {\em math-values } \\
+\TT{text} & text values \\
 \end{tabular}
 \end{center}
 
@@ -4376,15 +4376,65 @@ The interpretation of brackets within contexts is:
 \begin{tabular}%
   {l@{\hspace*{0.2in}}l@{\hspace*{0.2in}}l@{\hspace*{0.2in}}l}
 \bf Brackets & \bf Context & \bf New Context & \bf Usage \\[1ex]
-\TT{[<\ldots>]} & all & \TT{label} & {\em label-constant} \\
+\TT{[<\ldots>]} & all & \TT{label} & {\em label-value} \\
 \TT{[\$\ldots\$]} & all & \TT{data} & {\em special-value} \\
 \TT{(\ldots)} & all & unchanged & {\em parenthesized-expression} \\
-\TT{\{\{\ldots\}\}} & \TT{code}, \TT{text} & \TT{math} & {\em math-constant} \\
-\TT{`\ldots'} & \TT{code}, \TT{text} & \TT{text} & {\em phrase-constant} \\
-\TT{``\ldots''} & \TT{code}, \TT{text} & \TT{text} & {\em sentence-constant} \\
+\TT{\{\{\ldots\}\}} & \TT{code}, \TT{text} & \TT{math} & {\em math-value} \\
+\TT{`\ldots'} & \TT{code}, \TT{text} & \TT{text} & {\em phrase-value} \\
+\TT{``\ldots''} & \TT{code}, \TT{text} & \TT{text} & {\em sentence-value} \\
 \TT{[\ldots]} & \TT{code} & \TT{code} & {\em subscript } \\
 \TT{[\ldots]} & \TT{label}, \TT{math}, \TT{text} & \TT{code} & {\em insertion } \\
 all & \TT{data} & \TT{data} & {\em object-representation } \\
+\end{tabular}
+\end{center}
+
+\ikey{Insertions}{insertion} contain code that is executed to produce
+a value that is inserted in a {\em label-value}, {\tt math-value},
+or {\tt text}.  Their syntax is:
+
+\begin{indpar}
+\emkey{insertion}\label{INSERTION} ::= \TT{[} {\em code-expression} \TT{]} \\
+\emkey{code-expression} ::= {\em expression} parsed in the \TT{code} context \\
+\emkey{expression} ::= see \pagref{EXPRESSION}
+\end{indpar}
+
+\subsubsection{Label Values}
+\label{LABEL-VALUES}
+
+A \key{label-value} is a \TT{[<~>]} bracketed expression that represents
+a label atom.  A label atom \pagnote{LABEL} is a sequence of atoms:
+strings, numbers, and other label atoms.  The syntax is:
+
+\begin{indpar}
+\emkey{label-value} ::= \TT{[<} {\em label-element}\STAR{} \TT{>]} \\
+\emkey{label-element} ::= {\em word} $|$ {\em numeric}
+                                     $|$ {\em quoted-string}
+                                     $|$ {\em label-value}
+                                     $|$ {\em insertion} \\
+\emkey{insertion} ::= see \pagref{INSERTION}
+\end{indpar}
+
+A label is immutable: it cannot be changed.  Labels have hash values
+and two labels with the same elements are identical (\TT{==}).
+
+A {\em word} and the same {\em word} quoted represent the same string
+{\em label-element}.  E.g., \TT{X} and \TT{"X"} represent the same
+{\em label-element}.  Similarly for {\em numerics}, e.g., \TT{3X5} and
+\TT{"3X5"}.
+
+On the other hand, {\em marks} and {\em separators} must be quoted
+to be {\em label-elements}.
+
+An insertion must evaluate to a string, number, or label value.
+If it evaluates to a label value, that value is \underline{spliced}
+into its containing label.  Some examples:
+\begin{center}
+\begin{tabular}{rcl}
+\tt [< A \TT{[} [< B C >] \TT{]} D >] & $\Longrightarrow$ & \tt [< A B C D >] \\
+\tt [< A \TT{[} [< >] \TT{]} D >] & $\Longrightarrow$ & \tt [< A D >] \\
+\tt [< \TT{[} [< B C >] \TT{]} >] & $\Longrightarrow$ & \tt [< B C >] \\
+\tt [< A \TT{[} [< [< B C >] >] \TT{]} D >] & $\Longrightarrow$
+                                        & \tt [< A [< B C >] D >] \\
 \end{tabular}
 \end{center}
 
