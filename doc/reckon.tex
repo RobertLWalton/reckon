@@ -4312,8 +4312,14 @@ Here the \TT{!@<Z>} object representation is equivalent to:
 
 \subsection{Bracketed Expressions}
 
-A \key{bracketed expression} represents a label or object and
+A \key{bracketed expression} represents a label, special value, or object and
 consists of brackets (e.g., \TT{(~)}) surrounding an expression or list.
+
+Objects represented by bracketed expressions have the brackets as
+\TT{.initiator} and \TT{.termin\-a\-tor}, and have no other non-hidden
+attributes.  When produced by parsing, such objects have the
+\TT{.posi\-tion} hidden attribute that tells where the text representing
+the object and each of its elements is located in the parsing input.
 
 There are many kinds of {\em bracketed-expression}:
 \begin{center}
@@ -4384,7 +4390,10 @@ The interpretation of brackets within contexts is:
 \TT{``\ldots''} & \TT{code}, \TT{text} & \TT{text} & {\em sentence-value} \\
 \TT{[\ldots]} & \TT{code} & \TT{code} & {\em subscript } \\
 \TT{[\ldots]} & \TT{label}, \TT{math}, \TT{text} & \TT{code} & {\em insertion } \\
-all but \TT{[<\ldots>]} & \TT{data} & \TT{data} & {\em object-representation } \\
+all \begin{tabular}[t]{@{}l@{}}
+    but \TT{[<\ldots>]} \\
+    and \TT{[\$\ldots\$]} \\
+    \end{tabular} & \TT{data} & \TT{data} & {\em object-representation } \\
 \end{tabular}
 \end{center}
 
@@ -4438,8 +4447,7 @@ into its containing label.  Some examples:
 \end{tabular}
 \end{center}
 
-Objects (e.g., those represented by {\em parenthesized-expressions})
-and special values (e.g., \TT{[\$ MISSING \$]}) \underline{cannot}
+Objects other than {\em insertions} and special values \underline{cannot}
 be {\em label-elements}.
 
 \subsubsection{Special Values}
@@ -4503,7 +4511,9 @@ Parenthesized expressions \underline{cannot} appear in the
 
 A \key{math value} is an object defined by a
 {\em math-expression}\pagnote{MATH-EXPRESSION}
-inside \TT{\{\{~\}\}} brackets.
+inside \TT{\{\{~\}\}} brackets.  The object has \TT{.initiator}
+\TT{[< "\{" "\{" >]} and \TT{.terminator}
+\TT{[< "\}" "\}" >]} and no other (non-hidden) attributes.
 
 A math value may be pretty-printed as in:
 \begin{indpar}
@@ -4516,6 +4526,10 @@ and used in computations as in:
 \verb/> g = {{ integral ( x ^ 2, dx ) }}/ \\
 \verb/> simplify g/ \\
 $\frac{1}{3} x^3$ \\
+\verb/> {{[g] from 1 to 5}}/ \\
+$\int_{x = 1}^{x = 5} x^2 dx$ \\
+\verb/> simplify ( {{[g] from 1 to 5}} )/ \\
+\verb:41 1/3: \\
 \end{indpar}
 
 \subsection{Lists}
