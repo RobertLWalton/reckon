@@ -8,6 +8,7 @@
         block standard: data paragraph
         block standard: math
         block standard: text
+        block standard: label
         block standard: code
         block TOP LEVEL: atom
         block TOP LEVEL: data
@@ -78,12 +79,13 @@
     print bracket ""
         block standard: bracket "``" ... "''" [code, text, math]
                         with parsing selectors [- code, + text, - math]
+                        with parsing options [+ enable table prefix]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [code, text, math]
-                        with parsing selectors [atom]
+                        [code, label, text, math]
+                        with parsing selectors [label]
                         with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
@@ -99,20 +101,20 @@
         block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
         block standard: bracket "`" ... "'" [code, text, math]
-                        with parsing selectors [atom]
+                        with parsing selectors [text]
         block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [atom]
+                         with parsing selectors [data]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
                         [code, text, math]
                         with parsing selectors [- code, - text, + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [code, text, math]
-                        with parsing selectors [atom]
+                        [code, label, text, math]
+                        with parsing selectors [data]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
-                         with parsing selectors [atom]
+                         with parsing selectors [data]
                          with special reformatter
     print bracket type ""
         block standard: bracket type "p" [code, text]
