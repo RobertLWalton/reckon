@@ -1471,6 +1471,57 @@ BRACKETED EXPRESSION:
     line ###:
 @<X2>  := ``This is a {b|sentence|b}.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {s: text = i}
+    line ###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+            ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {b|sentence|b}
+    line ###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+                                   ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {i|really|i}
+    line ###:
+                         Is it {i|really|}?''
+                               ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = ".", text = i|This is a {b|sentence|b}|s}
+    line ###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "?", text = i|Is it {i|really|i}|s}
+    lines ###-###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+                                                  ^
+                         Is it {i|really|}?''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = ".", text = i|This is a {b|sentence|b}|s}
+      {s: .terminator = "?", text = i|Is it {i|really|i}|s}''
+    lines ###-###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         Is it {i|really|}?''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {data|``{s: .terminator = ".", text = i|This is a {b|sentence|b}|s}
+            {s: .terminator = "?", text = i|Is it {i|really|i}|s}''|data}
+    lines ###-###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         Is it {i|really|}?''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = ".", text = i|This is a {b|sentence|b}|s}
+      {s: .terminator = "?", text = i|Is it {i|really|i}|s}''
+    lines ###-###:
+@<X3>  := ``{s: text = i}This is a {b|sentence|b}.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         Is it {i|really|}?''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     INPUT ID <X1> IS ``This is a {b|sentence|b} "."''
     line ###:
@@ -1481,6 +1532,13 @@ BRACKETED EXPRESSION:
         ``{s: .terminator = "."|This is a {b|sentence|b}|s}''
     line ###:
 INPUT ID <X2> IS @<X2>
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    INPUT ID <X3> IS
+        ``{s: .terminator = ".", text = i|This is a {b|sentence|b}|s}
+          {s: .terminator = "?", text = i|Is it {i|really|i}|s}''
+    line ###:
+INPUT ID <X3> IS @<X3>
 ^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {raw data|a b c d|raw data}
