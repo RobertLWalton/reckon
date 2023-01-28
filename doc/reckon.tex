@@ -4520,6 +4520,27 @@ inside \TT{\{\{~\}\}} brackets.  The object has \TT{.initiator}
 \TT{[< "\{" "\{" >]} and \TT{.terminator}
 \TT{[< "\}" "\}" >]} and no other (non-hidden) attributes.
 
+For example,
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+@<X> := \{\{ integral (x \textcircum{} 2, dx) \}\}
+\end{tabular}
+\end{indpar}
+{\rm has the same effect as}
+\begin{indpar}
+\begin{tabular}{l}
+!@<X>~:=~integral @<ARGS>: \\
+~~~~.initiator = "\{\{" \\
+~~~~.terminator = "\}\}" \\
+!@<ARGS> := @<SUBEXP> dx: \\
+~~~~.initiator = "(" \\
+~~~~.terminator = ")" \\
+~~~~.separator = "," \\
+!@<SUBEXP> := x \textcircum{} 2 \\
+\end{tabular}
+\end{indpar}
+
 A math value may be pretty-printed as in:
 \begin{indpar}
 \verb/> {{ integral (x ^ 2, dx) }}/ \\
@@ -4536,6 +4557,10 @@ $\int_{x = 1}^{x = 5} x^2 dx$ \\
 \verb/> simplify ( {{[g] from 1 to 5}} )/ \\
 \verb:41 1/3: \\
 \end{indpar}
+
+Insertions may appear in {\em math-values} if their values are
+{\em math-values}.   These values are inserted as subexpressions:
+see \TT{[g]} in the example.
 
 {\em Math-values} can only appear in the \TT{code} and \TT{text}
 contexts.  \TT{\{\{~\}\}} bracketed subexpressions may appear in the
@@ -4561,6 +4586,10 @@ elements are spliced into the phrase.  An example is:
 \end{tabular}
 \end{center}
 
+{\em Phrase-values} can only appear in the \TT{code} and \TT{text}
+contexts.  \TT{`~'} bracketed subexpressions may appear in the
+\TT{data} context but insertions inside will not be processed.
+
 \subsubsection{Sentence Values}
 \label{SENTENCE-VALUES}
 
@@ -4585,13 +4614,13 @@ For example,
 {\rm has the same effect as}
 \begin{indpar}
 \begin{tabular}{l}
-@<X>~:=~@<S1> @<S2>: \\
+!@<X>~:=~@<S1> @<S2>: \\
 ~~~~.initiator = "`{}`" \\
 ~~~~.terminator = "'{}'" \\
-@<S1> := this is a sentence \\
+!@<S1> := this is a sentence \\
 ~~~~.type = s \\
 ~~~~.terminator = "." \\
-@<S2> := and this is a question \\
+!@<S2> := and this is a question \\
 ~~~~.type = s \\
 ~~~~.terminator = "?" \\
 \end{tabular}
@@ -4623,6 +4652,10 @@ $\Longrightarrow$ \\
 `{}`Hello. How are you?  How's Jill?  Goodby.'{}' \\
 \end{tabular}
 \end{center}
+
+{\em Sentence-values} can only appear in the \TT{code} and \TT{text}
+contexts.  \TT{`{}`~'{}'} bracketed subexpressions may appear in the
+\TT{data} context but insertions inside will not be processed.
 
 
 \subsection{Lists}
