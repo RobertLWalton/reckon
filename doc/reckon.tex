@@ -198,10 +198,10 @@
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by teaching courses at Suffolk University with the help of
-Paul Ezust, and by the work of Thomas
+Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 25, 2023}
+\date{January 28, 2023}
 
 \maketitle
 
@@ -4403,8 +4403,8 @@ all \begin{tabular}[t]{@{}l@{}}
 \end{center}
 
 \ikey{Insertions}{insertion} contain code that is executed to produce
-a value that is inserted in a {\em label-value}, {\tt math-value},
-or {\tt text}.  Their syntax is:
+a value that is inserted in a {\em label-value}, {\em math-value},
+or {\em text}.  Their syntax is:
 
 \begin{indpar}
 \emkey{insertion}\label{INSERTION} ::= \TT{[} {\em code-expression} \TT{]} \\
@@ -4540,6 +4540,90 @@ $\int_{x = 1}^{x = 5} x^2 dx$ \\
 {\em Math-values} can only appear in the \TT{code} and \TT{text}
 contexts.  \TT{\{\{~\}\}} bracketed subexpressions may appear in the
 \TT{data} context but operators inside will not be recognized.
+
+\subsubsection{Phrase Values}
+\label{PHRASE-VALUES}
+
+A \key{phrase-value} contains text that is \underline{not} organized into
+sentences or paragraphs.
+A {\em phrase-value} is an object
+that has \TT{.initiator}
+\TT{"`"} and \TT{.terminator}
+\TT{"'"} and no other (non-hidden) attributes.
+
+{\em Phrase-values} can contain insertions.
+If an insertion evaluates to a {\em phrase-value}, that {\em phrase-value}'s
+elements are spliced into the phrase.  An example is:
+\begin{center}
+\begin{tabular}{rcl}
+\tt `say hello to \TT{[} `John Doe' \TT{]}' & $\Longrightarrow$
+                                           & \tt `say hello to John Doe'
+\end{tabular}
+\end{center}
+
+\subsubsection{Sentence Values}
+\label{SENTENCE-VALUES}
+
+A \key{sentence-value} contains text organized into one or more
+sentences.  Each sentence ends with a `\TT{.}', `\TT{?}', or
+`\TT{!}'.
+A {\em sentence-value} is an object whose elements are sentences and which
+has \TT{.initiator}
+\TT{"`{}`"} and \TT{.terminator}
+\TT{"'{}'"} and no other (non-hidden) attributes.
+A \key{sentence} is an object that has \TT{.type} `\TT{s}'
+and \TT{.terminator} `\TT{.}', `\TT{?}', or `\TT{~}' and
+no other (non-hidden) attributes.
+
+For example,
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+@<X> := ``This is a sentence.  And this is a question?''
+\end{tabular}
+\end{indpar}
+{\rm has the same effect as}
+\begin{indpar}
+\begin{tabular}{l}
+@<X>~:=~@<S1> @<S2>: \\
+~~~~.initiator = "`{}`" \\
+~~~~.terminator = "'{}'" \\
+@<S1> := this is a sentence \\
+~~~~.type = s \\
+~~~~.terminator = "." \\
+@<S2> := and this is a question \\
+~~~~.type = s \\
+~~~~.terminator = "?" \\
+\end{tabular}
+\end{indpar}
+
+If the first word in a \TT{`{}`~'{}'} bracketed sentence has a capital
+at its beginning and has no other capital letters, that word de-capitalized
+becomes the first element of the sentence, unless the word is `\TT{I}.
+
+{\em Sentence-values} can contain insertions.
+If an insertion evaluates to a {\em phrase-value}, that {\em phrase-value}'s
+elements are spliced into the sentence containing the insertion.
+Some examples are:
+\begin{center}
+\begin{tabular}{rcl}
+\tt `{}`Hello to \TT{[} `John Doe' \TT{]}.'{}' & $\Longrightarrow$
+                                           & \tt `{}`Hello to John Doe.'{}' \\
+\tt `{}`\TT{[} `hello to' \TT{]} John Doe.'{}' & $\Longrightarrow$
+                                           & \tt `{}`Hello to John Doe.'{}' \\
+\end{tabular}
+\end{center}
+If the insertion evaluates to a {\em sentence-value}, the insertion must
+be between sentences in the {\em sentence-value} containing the insertion.
+An example is:
+\begin{center}
+\tt
+`{}`Hello. \TT{[} `{}`How are you?  How's Jill?'{}' \TT{]} Goodby.'{}' \\
+$\Longrightarrow$ \\
+`{}`Hello. How are you?  How's Jill?  Goodby.'{}' \\
+\end{tabular}
+\end{center}
+
 
 \subsection{Lists}
 
