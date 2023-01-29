@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 28, 2023}
+\date{January 29, 2023}
 
 \maketitle
 
@@ -4461,7 +4461,7 @@ be {\em label-elements}.
 The following is a complete list of all the \skey{special value}s:
 
 \begin{center}
-\begin{tabular}{lp{4in}}
+\begin{tabular}{lp{3.5in}}
 \bf Value & \bf Meaning
 \\[1ex]
 \TT{[\$ NONE \$]} & Non-existant function argument or result.
@@ -4524,7 +4524,7 @@ For example,
 \begin{indpar}
 \tt
 \begin{tabular}{l}
-@<X> := \{\{ integral (x \textcircum{} 2, dx) \}\}
+@<X> := \{\{ integral (x \textasciicircum{} 2, dx) \}\}
 \end{tabular}
 \end{indpar}
 {\rm has the same effect as}
@@ -4537,14 +4537,14 @@ For example,
 ~~~~.initiator = "(" \\
 ~~~~.terminator = ")" \\
 ~~~~.separator = "," \\
-!@<SUBEXP> := x \textcircum{} 2 \\
+!@<SUBEXP> := x \textasciicircum{} 2 \\
 \end{tabular}
 \end{indpar}
 
 A math value may be pretty-printed as in:
 \begin{indpar}
 \verb/> {{ integral (x ^ 2, dx) }}/ \\
-$\int x^2 dx$ \\
+$\int x^2 dx$
 \end{indpar}
 
 and used in computations as in:
@@ -4555,7 +4555,7 @@ $\frac{1}{3} x^3$ \\
 \verb/> {{[g] from 1 to 5}}/ \\
 $\int_{x = 1}^{x = 5} x^2 dx$ \\
 \verb/> simplify ( {{[g] from 1 to 5}} )/ \\
-\verb:41 1/3: \\
+\verb:41 1/3:
 \end{indpar}
 
 Insertions may appear in {\em math-values} if their values are
@@ -4579,12 +4579,12 @@ that has \TT{.initiator}
 {\em Phrase-values} can contain insertions.
 If an insertion evaluates to a {\em phrase-value}, that {\em phrase-value}'s
 elements are spliced into the phrase.  An example is:
-\begin{center}
+\begin{indpar}
 \begin{tabular}{rcl}
 \tt `say hello to \TT{[} `John Doe' \TT{]}' & $\Longrightarrow$
                                            & \tt `say hello to John Doe'
 \end{tabular}
-\end{center}
+\end{indpar}
 
 {\em Phrase-values} can only appear in the \TT{code} and \TT{text}
 contexts.  \TT{`~'} bracketed subexpressions may appear in the
@@ -4634,28 +4634,40 @@ becomes the first element of the sentence, unless the word is `\TT{I}.
 If an insertion evaluates to a {\em phrase-value}, that {\em phrase-value}'s
 elements are spliced into the sentence containing the insertion.
 Some examples are:
-\begin{center}
+\begin{indpar}
 \begin{tabular}{rcl}
 \tt `{}`Hello to \TT{[} `John Doe' \TT{]}.'{}' & $\Longrightarrow$
                                            & \tt `{}`Hello to John Doe.'{}' \\
 \tt `{}`\TT{[} `hello to' \TT{]} John Doe.'{}' & $\Longrightarrow$
                                            & \tt `{}`Hello to John Doe.'{}' \\
 \end{tabular}
-\end{center}
+\end{indpar}
 If the insertion evaluates to a {\em sentence-value}, the insertion must
 be between sentences in the {\em sentence-value} containing the insertion.
 An example is:
-\begin{center}
+\begin{indpar}
 \tt
+\begin{tabular}{l}
 `{}`Hello. \TT{[} `{}`How are you?  How's Jill?'{}' \TT{]} Goodby.'{}' \\
 $\Longrightarrow$ \\
 `{}`Hello. How are you?  How's Jill?  Goodby.'{}' \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 {\em Sentence-values} can only appear in the \TT{code} and \TT{text}
 contexts.  \TT{`{}`~'{}'} bracketed subexpressions may appear in the
 \TT{data} context but insertions inside will not be processed.
+
+\subsubsection{Subscripts}
+\label{SUBSCRIPTS}
+
+A \key{subscript} is a \TT{[~]} bracketed
+{\em code-expression}\pagnote{CODE-EXPRESSION} in the
+\TT{code} context.  If the subscript evaluates to a number,
+that number must be an integer, and the subscript
+selects a vector element of an object or a character of a string.
+If the subscript evaluates to a string or label, it selects the
+attribute of an object named by the string or label.
 
 
 \subsection{Lists}
