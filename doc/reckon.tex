@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 29, 2023}
+\date{January 31, 2023}
 
 \maketitle
 
@@ -3930,7 +3930,8 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{double-attribute-value} ::= {\em object-identifier} \\
+\emkey{double-attribute-value}\label{DOUBLE-ATTRIBUTE-VALUE}
+	::= {\em object-identifier} \\
 \emkey{double-attribute-values}\label{DOUBLE-ATTRIBUTE-VALUES}
     \begin{tabular}[t]{rl}
     ::= & {\em double-attribute-value} \\
@@ -4147,8 +4148,9 @@ can be abbreviated as just `\TT{X}', while one of the form
 \end{indpar}
 
 A single attribute can have at most one value by default.
-If its attribute label has the \TT{M} flag, it can have
-a multiset of values, and if its label has the \TT{S} flag, it can have
+If its attribute label has the \TT{M} flag\label{M-FLAG}, it can have
+a multiset of values,
+and if its label has the \TT{S} flag\label{S-FLAG}, it can have
 a set of values.  A double attribute always has a set of values.
 For example:
 \begin{indpar}
@@ -4688,6 +4690,36 @@ An \key{insertion} is a \TT{[~]} bracketed
 are in \itemref{LABEL-VALUES}, and in \TT{text} context are in
 \itemref{PHRASE-VALUES} and \itemref{SENTENCE-VALUES}.
 
+\subsubsection{Multi-Values}
+\label{MULTI-VALUES}
+
+\ikey{Multi-values}{multi-value}, which are only recognized in
+the \TT{data} context, are used to set attribute values.
+They consist of a \TT{\{*~*\}} bracketed comma separated list
+of {\em single-attribute-values}\pagnote{SINGLE-ATTRIBUTE-VALUE} or
+of {\em double-attribute-values}\pagnote{DOUBLE-ATTRIBUTE-VALUE}.
+Empty list elements, such as occur when two commas are consecutive,
+are ignored.
+
+The values in a {\em multi-value} are added to the attribute
+as if the attribute had the \TT{M} flag\pagnote{M-FLAG}, even if
+the attribute does not have this flag.  An example is:
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+@<X> :=: \\
+~~~~y = A \\
+~~~~y = \{* A, B, D, C,, D, *\} \\
+\end{tabular}
+\end{indpar}
+has the same effect as
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+@<X> :=: \\
+~~~~y = \{* A, A, C, D, D *\} \\
+\end{tabular}
+\end{indpar}
 
 \subsection{Lists}
 
