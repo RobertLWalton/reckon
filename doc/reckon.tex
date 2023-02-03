@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{January 31, 2023}
+\date{February 3, 2023}
 
 \maketitle
 
@@ -4343,6 +4343,10 @@ There are many kinds of {\em bracketed-expression}:
     & \itemref{MATH-VALUES}
     & \TT{\{\{ 2 * x \CIRCUM{} 2 + 6 * x + 3 \}\}} 
     \\
+      {\em code-value}
+    & \itemref{CODE-VALUES}
+    & \TT{\{! x if x < y else y !\}} 
+    \\
       {\em phrase-value}
     & \itemref{PHRASE-VALUES}
     & \TT{`John Doe'}
@@ -4392,6 +4396,7 @@ The interpretation of brackets within contexts is:
 \TT{[\$\ldots\$]} & all & \TT{data} & {\em special-value} \\
 \TT{(\ldots)} & all & unchanged & {\em parenthesized-expression} \\
 \TT{\{\{\ldots\}\}} & \TT{code}, \TT{text} & \TT{math} & {\em math-value} \\
+\TT{\{!\ldots!\}} & \TT{code} & \TT{code} & {\em code-value} \\
 \TT{`\ldots'} & \TT{code}, \TT{text} & \TT{text} & {\em phrase-value} \\
 \TT{``\ldots''} & \TT{code}, \TT{text} & \TT{text} & {\em sentence-value} \\
 \TT{[\ldots]} & \TT{code} & \TT{code} & {\em subscript } \\
@@ -4533,8 +4538,8 @@ For example,
 \begin{indpar}
 \begin{tabular}{l}
 !@<X>~:=~integral @<ARGS>: \\
-~~~~.initiator = "\{\{" \\
-~~~~.terminator = "\}\}" \\
+~~~~.initiator = "\{" "\{" \\
+~~~~.terminator = "\}" "\}" \\
 !@<ARGS> := @<SUBEXP> dx: \\
 ~~~~.initiator = "(" \\
 ~~~~.terminator = ")" \\
@@ -4552,6 +4557,7 @@ $\int x^2 dx$
 and used in computations as in:
 \begin{indpar}
 \verb/> g = {{ integral ( x ^ 2, dx ) }}/ \\
+$\int x^2 dx$ \\
 \verb/> simplify g/ \\
 $\frac{1}{3} x^3$ \\
 \verb/> {{[g] from 1 to 5}}/ \\
@@ -4566,6 +4572,60 @@ see \TT{[g]} in the example.
 
 {\em Math-values} can only appear in the \TT{code} and \TT{text}
 contexts.  \TT{\{\{~\}\}} bracketed subexpressions may appear in the
+\TT{data} context but operators inside will not be recognized.
+
+\subsubsection{Code Values}
+\label{CODE-VALUES}
+
+A \key{code value} is an object defined by a
+{\em code-expression}\pagnote{CODE-EXPRESSION}
+inside \TT{\{!~!\}} brackets.  The object has \TT{.initiator}
+\TT{[< "\{" "!" >]} and \TT{.terminator}
+\TT{[< "!" "\}" >]} and no other (non-hidden) attributes.
+
+For example,
+\begin{indpar}
+\tt
+\begin{tabular}{l}
+@<X> := \{! x if x < y else y !\}
+\end{tabular}
+\end{indpar}
+{\rm has the same effect as}
+\begin{indpar}
+\begin{tabular}{l}
+!@<X>~:=~@<X1>~if~@<X2>~else~@<X3> : \\
+~~~~.initiator = "\{" "!" \\
+~~~~.terminator = "!" "\}" \\
+!@<X1> := x \\
+!@<X2> := @<X21> < @<X22> \\
+!@<X21> := x \\
+!@<X22> := y \\
+!@<X3> := y \\
+\end{tabular}
+\end{indpar}
+
+A code value may be used in computations as in:
+\begin{indpar}
+\tt
+> x = 4 \\
+4 \\
+> x = 9 \\
+9 \\
+c = \{!~x if x < y else y !\} \\
+\{!~\{|x|\} if \{|\{|x|\} < \{|y|\}|\} else \{|y|\} !\} \\
+eval c \\
+4
+\end{indpar}
+
+where \TT{\{|~|\}} are implied brackets that surround the
+operands of the operators \\
+\centerline{\TT{\ldots{}~if~\ldots{}~else~\ldots{}}
+~~~~and~~~~ \TT{\ldots{}~<~\ldots{}}}
+
+Insertions may \underline{not} appear in {\em code-values}.
+
+{\em Code-values} can only appear in the \TT{code}
+context.  \TT{\{!~!\}} bracketed subexpressions may appear in the
 \TT{data} context but operators inside will not be recognized.
 
 \subsubsection{Phrase Values}
