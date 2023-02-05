@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 3, 2023}
+\date{February 5, 2023}
 
 \maketitle
 
@@ -4220,9 +4220,9 @@ themselves becoming the values of the second object's {\tt .initiator}
 and {\tt .terminator} attributes.
 
 Bracketed subexpressions can also be used to represent vector elements
-that are \underline{not} pointers to object.  \TT{[<~>]}
+that are \underline{not} pointers to objects.  \TT{[<~>]}
 bracketed subexpressions are used to represent
-label atoms (see \pagref{LABELS}),
+label atoms (see \itemref{LABEL-VALUES}),
 and \TT{[\$~\$]} bracketed subexpressions are used to represent
 special values (see \itemref{SPECIAL-VALUES}).
 
@@ -4339,6 +4339,10 @@ There are many kinds of {\em bracketed-expression}:
     & \itemref{PARENTHESIZED-EXPRESSIONS}
     & \TT{( 6 * ( x + y ) )}
     \\
+      {\em purelist}
+    & \itemref{PURELISTS}
+    & \TT{\{| 6 * \{| x + y |\} |\}}
+    \\
       {\em math-value}
     & \itemref{MATH-VALUES}
     & \TT{\{\{ 2 * x \CIRCUM{} 2 + 6 * x + 3 \}\}} 
@@ -4364,7 +4368,7 @@ There are many kinds of {\em bracketed-expression}:
     & \TT{[ my name ]}
     \\
       {\em multi-value}
-    & \pagref{MULTI-VALIE}
+    & \pagref{MULTI-VALUES}
     & \TT{\{* Jack, Jill *\}}
     \\
     \end{tabular}
@@ -4395,6 +4399,7 @@ The interpretation of brackets within contexts is:
 \TT{[<\ldots>]} & all & \TT{label} & {\em label-value} \\
 \TT{[\$\ldots\$]} & all & \TT{data} & {\em special-value} \\
 \TT{(\ldots)} & all & unchanged & {\em parenthesized-expression} \\
+\TT{\{|\ldots|\}} & all & unchanged & {\em purelist} \\
 \TT{\{\{\ldots\}\}} & \TT{code}, \TT{text} & \TT{math} & {\em math-value} \\
 \TT{\{!\ldots!\}} & \TT{code} & \TT{code} & {\em code-value} \\
 \TT{`\ldots'} & \TT{code}, \TT{text} & \TT{text} & {\em phrase-value} \\
@@ -4517,6 +4522,42 @@ phrase in the same manner as \TT{`\dots'}.
 
 Parenthesized expressions \underline{cannot} appear in the
 \TT{label} context.
+
+\subsubsection{Purelists}
+\label{PURELISTS}
+
+A \key{purelist} represents an object with with
+\underline{no} (non-hidden) attributes, and the
+\TT{\{|~|\}} bracketed items in the purelist
+become the vector elements of the object.
+
+A {\em purelist} is just like a {\em parenthesized-expression} except that
+the object represented has \underline{no} \TT{.ini\-ti\-ator}
+or \TT{.ter\-min\-ator}.
+Thus \TT{\{|~|\}} behave like implied parentheses, are in fact used to
+surround operands of expressions, and are called
+\ikey{implied parentheses}{implied parenthesis}.
+For example, in the \TT{code} or \TT{math} contexts: \\
+\centerline{`\TT{x + 5 * y}' becomes \TT{\{|x|\} + \{|\{|5|\} * \{|y|\}|\}}.}
+
+In the \TT{code} context the implied parentheses surround
+a {\em code-expression}\pagnote{CODE-EXPRESSION} that contains operators.
+Similarly in the \TT{math} context the implied parentheses surround
+a {\em math-expression}\pagnote{MATH-EXPRESSION} that contains operators.
+
+In the \TT{text} context purelists may be used lie
+text items that may be spliced into text.
+
+In the \TT{text} context a purelist may be spliced into text like
+a {\em phrase-value}\pagnote{PHRASE-VALUES}:
+\begin{indpar}[1em]
+\begin{tabular}{rcl}
+\tt `say hello to \TT{[} \{|John Doe|\} \TT{]}' & $\Longrightarrow$
+                                           & \tt `say hello to John Doe'
+\end{tabular}
+\end{indpar}
+
+Purelists \underline{cannot} appear in the \TT{label} context.
 
 \subsubsection{Math Values}
 \label{MATH-VALUES}
