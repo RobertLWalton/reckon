@@ -4364,11 +4364,11 @@ There are many kinds of {\em bracketed-expression}:
     & \TT{[ i + 10 ]}
     \\
       {\em insertion}
-    & \pagref{INSERTION}
+    & \itemref{INSERTIONS}
     & \TT{[ my name ]}
     \\
       {\em multi-value}
-    & \pagref{MULTI-VALUES}
+    & \itemref{MULTI-VALUES}
     & \TT{\{* Jack, Jill *\}}
     \\
     \end{tabular}
@@ -4419,9 +4419,9 @@ a value that is inserted in a {\em label-value}, {\em math-value},
 or {\em text}.  Their syntax is:
 
 \begin{indpar}
-\emkey{insertion}\label{INSERTION} ::= \TT{[} {\em code-expression} \TT{]} \\
-\emkey{code-expression} ::= {\em expression} parsed in the \TT{code} context \\
-\emkey{expression} ::= see \pagref{EXPRESSION}
+\emkey{insertion} ::= \TT{[} {\em code-expression} \TT{]} \\
+{\em code-expression} ::= {\em expression} parsed in the \TT{code} context
+    ~~~~ [see \pagref{CODE-EXPRESSION}]
 \end{indpar}
 
 \subsubsection{Label Values}
@@ -4688,6 +4688,8 @@ elements are spliced into the phrase.  An example is:
                                            & \tt `say hello to John Doe'
 \end{tabular}
 \end{indpar}
+{\em Purelists}\pagnote{PURELISTS}
+can be used in place of {\em phrase-values} in such insertions.
 
 {\em Phrase-values} can only appear in the \TT{code} and \TT{text}
 contexts.  \TT{`~'} bracketed subexpressions may appear in the
@@ -4745,6 +4747,9 @@ Some examples are:
                                            & \tt `{}`Hello to John Doe.'{}' \\
 \end{tabular}
 \end{indpar}
+{\em Purelists}\pagnote{PURELISTS}
+can be used in place of {\em phrase-values} in such insertions.
+
 If the insertion evaluates to a {\em sentence-value}, the insertion must
 be between sentences in the {\em sentence-value} containing the insertion.
 An example is:
@@ -4787,8 +4792,11 @@ Z2 = X[".terminator"]   // Same effect as Z2 = "'"
 
 An \key{insertion} is a \TT{[~]} bracketed
 {\em code-expression}\pagnote{CODE-EXPRESSION} in a
-\TT{label} or \TT{text} context.  Examples in \TT{label} context
-are in \itemref{LABEL-VALUES}, and in \TT{text} context are in
+\TT{label}, \TT{math}, or \TT{text} context.
+
+Examples in \TT{label} context are in \itemref{LABEL-VALUES},
+in the \TT{math} context are in \itemref{MATH-VALUES},
+and in \TT{text} context are in
 \itemref{PHRASE-VALUES} and \itemref{SENTENCE-VALUES}.
 
 \subsubsection{Multi-Values}
@@ -4822,192 +4830,10 @@ has the same effect as
 \end{tabular}
 \end{indpar}
 
-\subsection{Lists}
+\subsection{Typed Lists}
+\label{TYPED-LISTS}
 
-Objects are implemented so that attributes whose labels are small
-strictly positive integers can be accessed with more efficiency
-than other attributes.  If an object has attributes with consecutive
-labels from \TT{1} to $N$, with no gaps,
-then these values are said to form a \key{list} that is represented
-by the object.  An example is
-
-\begin{indpar}\begin{verbatim}
-!@93 =::
-    1 = this
-    2 = is
-    3 = a
-    4 = sentence
-    .type = s
-    .initiator = "`"
-    .terminator = "'"
-    capitalize = true
-    end mark = "."
-\end{verbatim}\end{indpar}
-
-which represents the list
-\begin{indpar}
-\verb|this is a sentence|
-\end{indpar}
-
-but also has some additional attributes, labeled \TT{.type},
-\TT{.initiator}, \TT{.terminator},
-\TT{cap\-it\-al\-ize}, and \TT{end mark}.
-
-An alternative raw {\em object-representation}
-to the one just given is:
-
-\begin{indpar}\begin{verbatim}
-!@93 = this is a sentence::
-    .type = s
-    .initiator = "`"
-    .terminator = "'"
-    capitalize = true
-    end mark = "."
-\end{verbatim}\end{indpar}
-
-The {\em object-elements} just after the {\em object-assignment-operator}
-in an {\em object-representation} specify
-values of the attributes labeled \TT{1}, \TT{2},
-\TT{3}, \ldots.  In this case the attributes labeled
-\TT{1}, \TT{2}, \TT{3}, and \TT{4} are given respectively the
-atoms denoted by the {\em atom-names} `\TT{this}', `\TT{is}',
-`\TT{a}', and `\TT{sentence}'.  Additional attribute values can be given by
-following the {\em object-list} by a line ending `\TT{::}' that begins an
-{\em attribute-representation-subparagraph}, which in this case
-gives values to the \TT{.type}, \TT{.initiator}, \TT{.terminator},
-\TT{capitalize}, and \TT{end mark} attributes.
-
-Another alternative raw representation to the ones just
-given is:
-
-\begin{indpar}\begin{verbatim}
-!@93 = `{s} this is a sentence'::
-    capitalize = true
-    end mark = "."
-\end{verbatim}\end{indpar}
-
-This works because bracket parsing, explained in the next section,
-is turned on within a raw {\em object-representation}, and parses
-the \TT{`~~'} quotes and `\TT{s}' prefix separator to produce the
-\TT{.initiator}, \TT{.terminator}, and \TT{.type} attributes.
-
-An alternative \underline{cooked} representation to the ones just
-given is:
-
-\begin{indpar}\begin{verbatim}
-@93 = `This is a sentence.'
-\end{verbatim}\end{indpar}
-
-The absence of an initial `\TT{!}' and the presence of the \TT{`~'}
-quotes turns text parsing on, and this
-computes the `\TT{type}', `\TT{capitalize}', and `\TT{end mark}' attributes.
-
-Notice that the second form of object representation
-\begin{center}
-{\em bll} ~ {\em represented-object-identifier} ~ \TT{=} ~
-	    {\em object-element} ~ {\em ell} \\
-\end{center}
-
-is ambiguous with the first form which permits multi-element lists
-and extra attributes.  The second is always preferred when it applies,
-and simply assigns the object identifier to the {\em object-element}.
-The first form, were it applied, would assign the identifier to a list
-whose single element is the {\em object-element}.
-
-Thus
-
-\begin{indpar}\begin{verbatim}
-!@93 = (X Y Z)::
-    weight = 55
-\end{verbatim}\end{indpar}
-
-means
-
-\begin{indpar}\begin{verbatim}
-!@93 =::
-    1 = X
-    2 = Y
-    3 = Z
-    .initiator = "("
-    .terminator = ")"
-    weight = 55
-\end{verbatim}\end{indpar}
-
-and does \underline{not} mean
-
-\begin{indpar}\begin{verbatim}
-!@93 =::
-    1 = @94
-    weight = 55
-!@94 =::
-    1 = X
-    2 = Y
-    3 = Z
-    .initiator = "("
-    .terminator = ")"
-\end{verbatim}\end{indpar}
-
-Similarly
-
-\begin{indpar}\begin{verbatim}
-!@93 = "this is a"
-       " long symbol with spaces in it"
-\end{verbatim}\end{indpar}
-
-means that \TT{@93} identifies not an object, but a symbol
-atom, and
-
-\begin{indpar}\begin{verbatim}
-!@93 = @94
-\end{verbatim}\end{indpar}
-
-means that \TT{@93} is an alternative designation for whatever
-\TT{@94} designates.
-
-Also
-\begin{indpar}\begin{verbatim}
-!@93 = X
-\end{verbatim}\end{indpar}
-
-assigns the identifier \TT{@93} to the symbol \TT{X}, but
-
-\begin{indpar}\begin{verbatim}
-!@93 = X::
-    Y = 5
-\end{verbatim}\end{indpar}
-
-means
-
-\begin{indpar}\begin{verbatim}
-!@93 =::
-    1 = X
-    Y = 5
-\end{verbatim}\end{indpar}
-
-which has a single element list.
-
-Note that single element lists can be represented using \TT{\{|~|\}}
-as described in the next section.  For example,
-
-\begin{indpar}\begin{verbatim}
-!@93 = {| X |}
-\end{verbatim}\end{indpar}
-
-means
-
-\begin{indpar}\begin{verbatim}
-!@93 =::
-    1 = X
-\end{verbatim}\end{indpar}
-
-It is also true that calling
-
-\begin{indpar}\begin{verbatim}
-!@93 = X
-\end{verbatim}\end{indpar}
-
-an \underline{object} representation is a misnomer, as its
-really an atom representation.
+TBD
 
 \subsection{Bracket Parsing}
 \label{BRACKET-PARSING}
