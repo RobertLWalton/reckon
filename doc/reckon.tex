@@ -3848,7 +3848,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{vector-element-list} ::=
+\emkey{vector-element-list}\label{VECTOR-ELEMENT-LIST} ::=
 	{\em raw-vector-element-list} $|$ {\em cooked-vector-element-list} \\
 \emkey{raw-vector-element-list} ::= {\em raw-vector-element}\STAR{} \\
 \emkey{cooked-vector-element-list} ::= {\em expression}
@@ -4326,7 +4326,7 @@ the object and each of its elements is located in the parsing input.
 There are many kinds of {\em bracketed-expression}:
 \begin{center}
     \begin{tabular}[t]{l@{~~~~~}lll}
-          & Section & Example \\[1ex]
+          & \bf Section & \bf Example \\[1ex]
       {\em label-value}
     & \itemref{LABEL-VALUES}
     & \TT{[< X 1 >]}
@@ -4558,6 +4558,9 @@ a {\em phrase-value}\pagnote{PHRASE-VALUES}:
 \end{indpar}
 
 Purelists \underline{cannot} appear in the \TT{label} context.
+
+A purelist is also a {\em typed-list}\pagnote{TYPED-LISTS} that has
+no \TT{.type} or other non-hidden attributes.
 
 \subsubsection{Math Values}
 \label{MATH-VALUES}
@@ -4832,6 +4835,51 @@ has the same effect as
 
 \subsection{Typed Lists}
 \label{TYPED-LISTS}
+
+A \key{typed list} represents an object that (usually) has a
+\TT{.type} attribute, and may have other attributes.  Examples are:
+\begin{center}
+    \begin{tabular}[t]{l@{~~~~~}l}
+     \bf Example & \bf Usage
+     \\[1ex]
+    \TT{\{b|\ldots|\}} & bold face text
+    \\
+    \TT{\{b|\ldots|b\}} & bold face text
+    \\
+    \TT{\{+ \ldots{}~+\}} & text with larger font
+    \\
+    \TT{\{s:~.terminator = "."|\ldots|\}} & sentence
+    \\
+    \end{tabular}
+\end{center}
+
+The syntax of typed lists is:
+
+\begin{indpar}[0.5in]
+
+\emkey{typed-list}\label{TYPED-LIST}
+	\begin{tabular}[t]{@{}rl@{}}
+        ::= & \TT{\{} {\em type-name}\QMARK{}
+	              \{ \TT{:} {\em attribute-list} \}\QMARK{} \TT{|}
+	      {\em prefix-0-list} \TT{|} {\em type-name}\QMARK{} \TT{\}} \\
+	$|$ & \TT{\{} {\em type-mark} ~ {\em prefix-0-list}
+	                              ~ {\em type-mark} \TT{\}}
+	\end{tabular}
+\\[0.5ex]
+\emkey{type-name} ::= {\em name} not beginning with a {\em number}
+\\
+{\em name} ::= see \pagref{NAME}
+\\
+\emkey{type-mark} ::= {\em mark}
+\\[0.5ex]
+\emkey{attribute-list} ::= {\em attribute-representation}
+                           \{ \TT{,} {\em attribute-representation} \}\STAR{} \\
+{\em attribute-representation} ::= see \pagref{ATTRIBUTE-REPRESENTATION}
+\\[0.5ex]
+{\em prefix-0-list} ::= see \pagref{PREFIX-0-LIST}
+		        ~~~ [can be {\em vector-element-list}] \\
+{\em vector-element-list} ::= see \pagref{VECTOR-ELEMENT-LIST}
+\end{indpar}
 
 TBD
 
