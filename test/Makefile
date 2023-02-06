@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Feb  6 02:03:33 EST 2023
+# Date:		Mon Feb  6 02:09:12 EST 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -27,9 +27,10 @@ DIFFOPT ?= -u
 #
 OPTIMIZE = -O3
 
-RECKON_TESTS = reckon_lexeme_test reckon_prefix_test \
-	       reckon_line_test reckon_overview_test \
-	       reckon_data_test reckon_print_test
+RECKON_TESTS = reckon_lexeme_test reckon_overview_test \
+	       reckon_line_test reckon_data_test \
+	       reckon_typed_list_test reckon_prefix_test \
+	       reckon_print_test
 
 TESTS = ${RECKON_TESTS}
 
@@ -135,8 +136,8 @@ reckon_lexeme_test.out:	\
 	rm -f $*.out
 	${RUNENV} reckon --lexeme-test < $*.in > $*.out
 
-reckon_prefix_test.out:	\
-	    reckon reckon_prefix_test.in
+reckon_overview_test.out:	\
+	    reckon reckon_overview_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
@@ -145,18 +146,23 @@ reckon_line_test.out:	\
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
-reckon_overview_test.out:	\
-	    reckon reckon_overview_test.in
+reckon_data_test.out:	\
+	    reckon reckon_data_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
+
+reckon_prefix_test.out:	\
+	    reckon reckon_prefix_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
+
+reckon_typed_list_test.out:	\
+	    reckon reckon_typed_list_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
 reckon_print_test.out:	\
 	    reckon reckon_print_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_data_test.out:	\
-	    reckon reckon_data_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
