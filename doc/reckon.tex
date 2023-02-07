@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 5, 2023}
+\date{February 7, 2023}
 
 \maketitle
 
@@ -4855,7 +4855,7 @@ A \key{typed list} represents an object that (usually) has a
 
 The syntax of typed lists is:
 
-\begin{indpar}[0.5in]
+\begin{indpar}[0.2in]
 
 \emkey{typed-list}\label{TYPED-LIST}
 	\begin{tabular}[t]{@{}rl@{}}
@@ -4879,6 +4879,29 @@ The syntax of typed lists is:
 {\em prefix-0-list} ::= see \pagref{PREFIX-0-LIST}
 		        ~~~ [can be {\em vector-element-list}] \\
 {\em vector-element-list} ::= see \pagref{VECTOR-ELEMENT-LIST}
+
+
+\begin{itemize}
+\item If a {\em typed-list} has a {\em type-name} at both its beginning
+and end, these must be the same.  This {\em type-name} then becomes the
+value of the
+\ttdkey{type} attribute of the object, as is also the case if there
+is only one {\em type-name} at the beginning.  Thus in \TT{\{b|\ldots|\}}
+and \TT{\{b|\ldots|b\}}, \TT{b} becomes the value of the \TT{.type}
+attribute.
+But if the {\em type-name}
+is completely missing (as in \TT{\{|\ldots|\}}) or
+is \TT{""}, the object is not given any \TT{.type} attribute.
+\item If the same {\em type-mark} begins and ends the
+{\em typed-list}, that {\em type-mark} becomes the value of the
+of the object's \TT{.type} attribute.  If different {\em type-marks}
+begin and end the {\em typed-list}, the squence of the two
+{\em type-marks}, as a label, becomes the value of the \TT{.type}
+attribute.  Thus in \TT{\{+\ldots+\}}, \TT{"+"} is the \TT{.type}
+attribute value, whereas is \TT{\{<\ldots>\}}, the label \TT{[< "<" ">" >]}
+is the \TT{.type} attribute value.
+
+\end{itemize}
 \end{indpar}
 
 TBD
