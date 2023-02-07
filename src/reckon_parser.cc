@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 20 05:15:11 EST 2023
+// Date:	Tue Feb  7 01:02:53 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,8 +66,8 @@ void REC::init_parser ( PAR::parser parser )
     }
     MIN_REQUIRE ( oper_pass != min::NULL_STUB );
 
-    min::locatable_gen atom_name
-        ( min::new_str_gen ( "atom" ) );
+    min::locatable_gen label_name
+        ( min::new_str_gen ( "label" ) );
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
     min::locatable_gen math_name
@@ -75,9 +75,9 @@ void REC::init_parser ( PAR::parser parser )
     min::locatable_gen text_name
         ( min::new_str_gen ( "text" ) );
 
-    TAB::flags atom =
+    TAB::flags label =
         1ull << TAB::find_name
-            ( parser->selector_name_table, atom_name );
+            ( parser->selector_name_table, label_name );
     TAB::flags code =
         1ull << TAB::find_name
             ( parser->selector_name_table, code_name );
@@ -91,10 +91,10 @@ void REC::init_parser ( PAR::parser parser )
     BRA::push_brackets
         ( PARLEX::left_square,
 	  PARLEX::right_square,
-	  atom + text + math,
+	  label + text + math,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
-	      ( code, atom + text + math, 0 ),
+	      ( code, label + text + math, 0 ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
@@ -278,15 +278,6 @@ void REC::init_parser ( PAR::parser parser )
 	  text_reformatter, double_quote_arguments,
 	  bracketed_pass->bracket_table );
 
-
-    BRA::push_brackets
-        ( left_quote,
-	  right_quote,
-	  atom,
-	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( 0, 0, 0 ),
-	  min::NULL_STUB, min::MISSING(),
-	  bracketed_pass->bracket_table );
 
     min::locatable_gen oper
         ( min::new_str_gen ( "operator" ) );

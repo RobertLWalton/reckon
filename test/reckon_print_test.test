@@ -5,7 +5,6 @@
         block standard: text
         block standard: label
         block standard: code
-        block TOP LEVEL: atom
         block TOP LEVEL: data
         block TOP LEVEL: LINE LEVEL
         block TOP LEVEL: TOP LEVEL
@@ -73,16 +72,15 @@
                         [code, label, text, math]
                         with parsing selectors [label]
                         with label reformatter
-        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
-                         [data, atom]
-                         with parsing selectors [atom]
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
+                         with parsing selectors [data]
                          with label reformatter
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
         block standard: bracket "(" ... ")" [code, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
-        block reckon: bracket "[" ... "]" [atom, text, math]
-                      with parsing selectors [- atom, + code, - text,
+        block reckon: bracket "[" ... "]" [label, text, math]
+                      with parsing selectors [+ code, - label, - text,
                                               - math]
         block standard: bracket "[" ... "]" [code, text, math]
         block TOP LEVEL: bracket "[" ... "]" [data]
@@ -98,8 +96,7 @@
                         [code, label, text, math]
                         with parsing selectors [data]
                         with special reformatter
-        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
-                         [data, atom]
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
                          with special reformatter
     print indentation mark ""
