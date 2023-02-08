@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 7, 2023}
+\date{February 8, 2023}
 
 \maketitle
 
@@ -3818,7 +3818,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 
 \begin{indpar}[0.5em]
 \begin{tabular}{l}
-\emkey{object-representation}
+\emkey{object-representation}\label{OBJECT-REPRESENTATION}
 \\\hspace*{0.5in}
 	\begin{tabular}[t]{rl}
         := {\em bll} & {\em represented-object-identifier} ~ \TT{:=} \\
@@ -4437,7 +4437,7 @@ strings, numbers, and other label atoms.  The syntax is:
                                      $|$ {\em quoted-string}
                                      $|$ {\em label-value}
                                      $|$ {\em insertion} \\
-\emkey{insertion} ::= see \pagref{INSERTION}
+\emkey{insertion} ::= see \pagref{INSERTIONS}
 \end{indpar}
 
 A label is immutable: it cannot be changed.  Labels have hash values
@@ -4882,6 +4882,7 @@ The syntax of typed lists is:
 
 
 \begin{itemize}
+
 \item If a {\em typed-list} has a {\em type-name} at both its beginning
 and end, these must be the same.  This {\em type-name} then becomes the
 value of the
@@ -4892,6 +4893,7 @@ attribute.
 But if the {\em type-name}
 is completely missing (as in \TT{\{|\ldots|\}}) or
 is \TT{""}, the object is not given any \TT{.type} attribute.
+
 \item If the same {\em type-mark} begins and ends the
 {\em typed-list}, that {\em type-mark} becomes the value of the
 of the object's \TT{.type} attribute.  If different {\em type-marks}
@@ -4900,6 +4902,18 @@ begin and end the {\em typed-list}, the squence of the two
 attribute.  Thus in \TT{\{+\ldots+\}}, \TT{"+"} is the \TT{.type}
 attribute value, whereas is \TT{\{<\ldots>\}}, the label \TT{[< "<" ">" >]}
 is the \TT{.type} attribute value.
+
+\item {\em Attribute-representations} in a {\em typed-list} are processed
+in the same manner as {\em attribute-representations} in an
+{\em object-representation}\pagnote{OBJECT-REPRESENTATION}.
+In particular, they are parsed in the \TT{data} context in which
+operators and special text constructs are not recognized.
+
+\item The {\em prefix-0-list} (which can be a {\em vector-element-list})
+is parsed in the context in which the {\em typed-list} is embedded,
+unless the {\em type-name} of the {\em typed-list} is special (see
+below).
+
 
 \end{itemize}
 \end{indpar}
