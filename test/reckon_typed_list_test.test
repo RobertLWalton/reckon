@@ -18,17 +18,50 @@ BRACKETED EXPRESSION:
 {b|x + 5 * y|b}
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|{s: .terminator = "."|This is a sentence|s}|p}
-    line ##:
-{p}This is a sentence.
-^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
     {p|X + 5 * Y|p}
     line ##:
 {p|X + 5 * Y|p}
 ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|(X + 5 * Y)|p}
+    {p|This is a sentence "."|p}
     line ##:
-{p|(X + 5 * Y)|p}
-^^^^^^^^^^^^^^^^^
+{p|This is a sentence.|p}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|This is sentence 1 "." This is sentence 2 "."|p}
+    lines ##-##:
+{p|
+^^^
+This is sentence 1.
+^^^^^^^^^^^^^^^^^^^
+This is sentence 2.
+^^^^^^^^^^^^^^^^^^^
+|}
+^^
+ERROR: in line ##: missing `|'; inserted before:
+This is sentence 1.
+^
+ERROR: in line ##: missing closing bracket `}' inserted at end of
+       logical line that ends here:
+{b|
+   ^
+BRACKETED EXPRESSION:
+    {b}
+    line ##:
+{b|
+^^^
+BRACKETED EXPRESSION:
+    This is sentence 1 "."
+    line ##:
+This is sentence 1.
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    This is sentence 2 "."
+    line ##:
+This is sentence 2.
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    "|" "}"
+    line ##:
+|}
+^^
