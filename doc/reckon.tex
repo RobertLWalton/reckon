@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 8, 2023}
+\date{February 16, 2023}
 
 \maketitle
 
@@ -4861,8 +4861,9 @@ The syntax of typed lists is:
 	\begin{tabular}[t]{@{}rl@{}}
         ::= & \TT{\{} {\em type-name}\QMARK{}
 	              \{ \TT{:} {\em attribute-list} \}\QMARK{} \TT{|}
-	      {\em prefix-0-list} \TT{|} {\em type-name}\QMARK{} \TT{\}} \\
-	$|$ & \TT{\{} {\em type-mark} ~ {\em prefix-0-list}
+	      {\em vector-element-list}
+	      \TT{|} {\em type-name}\QMARK{} \TT{\}} \\
+	$|$ & \TT{\{} {\em type-mark} ~ {\em vector-element-list}
 	                              ~ {\em type-mark} \TT{\}}
 	\end{tabular}
 \\[0.5ex]
@@ -4876,8 +4877,6 @@ The syntax of typed lists is:
                            \{ \TT{,} {\em attribute-representation} \}\STAR{} \\
 {\em attribute-representation} ::= see \pagref{ATTRIBUTE-REPRESENTATION}
 \\[0.5ex]
-{\em prefix-0-list} ::= see \pagref{PREFIX-0-LIST}
-		        ~~~ [can be {\em vector-element-list}] \\
 {\em vector-element-list} ::= see \pagref{VECTOR-ELEMENT-LIST}
 
 
@@ -4909,15 +4908,18 @@ in the same manner as {\em attribute-representations} in an
 In particular, they are parsed in the \TT{data} context in which
 operators and special text constructs are not recognized.
 
-\item The {\em prefix-0-list} (which can be a {\em vector-element-list})
+\item The {\em vector-element-list}
 is parsed in the context in which the {\em typed-list} is embedded,
 unless the {\em type-name} of the {\em typed-list} is special (see
 below).
 
+\item {\em Prefixes}\pagnote{PREFIXES} are not recognized as such in the
+{\em vector-element-list}.  Instead they simply represent objects
+with an empty {\em vector-element-list}.
+
 \item {\em Type-names} beginning and ending with `\TT{*}'
 (such as `\TT{*DATA*}') are reserved and should not be created by the
 user of Reckon.
-/bin/bash: date4992: command not found
 
 \end{itemize}
 \end{indpar}
@@ -4927,10 +4929,10 @@ particular contexts:
 
 \begin{indpar}[0.2in]
 
-{\bf s} \hfill `Sentence' type; recognized in the \TT{text} context.
+{\bf s} \hfill `Sentence' type. \hfill Recognized in \TT{text} context.
 \begin{indpar}[0.2in]
-If the {\em prefix-0-list} is in fact a {\em vector-element-list}
-ending in a \key{sentence terminator},
+If the {\em vector-element-list}
+ends in a \key{sentence terminator},
 the {\em vector-element-list} is separated into a sequence of
 \skey{sentence}s each ending with a sentence terminator.
 The sentence terminators are `\TT{.}', `\TT{?}', and `\TT{!}'.
@@ -4980,9 +4982,15 @@ TBD
 \\[0.5ex]
 {\bf section} \hfill  Same properties as `\TT{p}'.
 \\[0.5ex]
-{\bf table}
+{\bf table} \hfill `Table' type. \hfill Recognized in \TT{code}
+                                    and \TT{text} contexts.
+\begin{indpar}[0.2in]
+\end{indpar}
 \\[0.5ex]
-{\bf row}
+{\bf row} \hfill `Table Row' type. \hfill Recognized in
+                                    \TT{text} context.
+\begin{indpar}[0.2in]
+\end{indpar}
 \\[0.5ex]
 {\bf code}
 
@@ -4991,6 +4999,9 @@ TBD
 
 TBD
 
+
+\subsection{Prefixes}
+\label{PREFIXES}
 
 \subsection{Bracket Parsing}
 \label{BRACKET-PARSING}
