@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{February 19, 2023}
+\date{February 20, 2023}
 
 \maketitle
 
@@ -4864,7 +4864,10 @@ The syntax of typed lists is:
 	      {\em vector-element-list}
 	      \TT{|} {\em type-name}\QMARK{} \TT{\}} \\
 	$|$ & \TT{\{} {\em type-mark} ~ {\em vector-element-list}
-	                              ~ {\em type-mark} \TT{\}}
+	                              ~ {\em type-mark} \TT{\}} \\
+        $|$ & \TT{\{} {\em type-name}\QMARK{}
+	              \{ \TT{:} {\em attribute-list} \}\QMARK{} \TT{\}} \\
+	$|$ & \TT{\{} {\em type-mark} \TT{\}} \\
 	\end{tabular}
 \\[0.5ex]
 \emkey{type-name}\label{TYPE-NAME}
@@ -4888,16 +4891,17 @@ The syntax of typed lists is:
 and end, these must be the same.  This {\em type-name} then becomes the
 value of the
 \ttdkey{type} attribute of the object, as is also the case if there
-is only one {\em type-name} at the beginning.  Thus in \TT{\{b|\ldots|\}}
-and \TT{\{b|\ldots|b\}}, \TT{b} becomes the value of the \TT{.type}
+is only one {\em type-name} at the beginning.  Thus in \TT{\{b|\ldots|\}},
+\TT{\{b|\ldots|b\}}, and \TT{\{b\}}, \TT{b} becomes the value of the \TT{.type}
 attribute.
 But if the {\em type-name}
-is completely missing (as in \TT{\{|\ldots|\}}) or
+is completely missing (as in \TT{\{|\ldots|\}} or \TT{\{\}}), or
 is \TT{""}, the object is not given any \TT{.type} attribute.
 
 \item If the same {\em type-mark} begins and ends the
 {\em typed-list}, that {\em type-mark} becomes the value of the
-of the object's \TT{.type} attribute.  If different {\em type-marks}
+of the object's \TT{.type} attribute.  Similarly for
+\TT{\{}{\em type-mark}\TT{\}}.  If different {\em type-marks}
 begin and end the {\em typed-list}, the squence of the two
 {\em type-marks}, as a label, becomes the value of the \TT{.type}
 attribute.  Thus in \TT{\{+\ldots+\}}, \TT{"+"} is the \TT{.type}
@@ -4913,10 +4917,15 @@ operators and special text constructs are not recognized.
 \item The {\em vector-element-list}
 is parsed in the context in which the {\em typed-list} is embedded,
 unless the {\em type-name} of the {\em typed-list} is special (see
-below).
+below).  If there are no `\TT{|}'s  in a {\em typed-list} (as in
+\TT{\{b: indent = 2\}} or \TT{\{+\}}), the
+{\em vector-element-list} is empty.
 
-\item {\em Prefixes}\pagnote{PREFIXES} are not recognized as such in the
-{\em vector-element-list}.  Instead they simply represent objects
+\item A {\em prefixes} is a {\em typed-list} that has
+no `\TT{|}'s and is recognized in certain contexts.\pagnote{PREFIXES}
+Prefixes are not recognized in {\em typed-lists}, in particular, in the
+{\em attributes} and the {\em vector-element-list} of a {\em typed-list}.
+Instead they simply represent objects
 with an empty {\em vector-element-list}.
 
 \item {\em Type-names} beginning and ending with `\TT{*}'
