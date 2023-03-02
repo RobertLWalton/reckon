@@ -25,43 +25,85 @@ BRACKETED EXPRESSION:
 BRACKETED EXPRESSION:
     {p|This is a sentence "."|p}
     line ##:
-{p|This is a sentence.|p}
+{p|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{b} This is a sentence "."|p}
+    line ##:
+{p|{b}This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{p|{s} This is a sentence "."|p}''
+    line ##:
+``{p|{s}This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{b|{s} This is a sentence "."|b}''
+    line ##:
+``{b|{s}This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR: in line ##: explicit prefix separator of type `p' has `paragraph'
+       group but is not at beginning of a logical line that is in
+       paragraph beginning position; prefix unrecognized:
+``{p}This is a sentence.''
+  ^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|{p} This is a sentence|s}''
+    line ##:
+``{p}This is a sentence.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({table|=====|table})
+    line ##:
+({table|=====|})
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{s} Fee Fie Foe|section}
+    line ##:
+{section|{s}Fee Fie Foe|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    {p|This is sentence 1 "." This is sentence 2 "."|p}
-    lines ##-##:
-{p|
-^^^
-This is sentence 1.
-^^^^^^^^^^^^^^^^^^^
-This is sentence 2.
-^^^^^^^^^^^^^^^^^^^
-|}
-^^
-ERROR: in line ##: missing `|'; inserted before:
-This is sentence 1.
-^
-ERROR: in line ##: missing closing bracket `}' inserted at end of
-       logical line that ends here:
-{b|
-   ^
-BRACKETED EXPRESSION:
-    {b}
+    {b} foo
     line ##:
-{b|
-^^^
+{b} foo
+^^^^^^^
 BRACKETED EXPRESSION:
-    This is sentence 1 "."
+    {p|This is a sentence "."|p}
     line ##:
-This is sentence 1.
-^^^^^^^^^^^^^^^^^^^
+{p|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    This is sentence 2 "."
+    {p|{s: .terminator = "."|This is a sentence|s}|p}
     line ##:
-This is sentence 2.
-^^^^^^^^^^^^^^^^^^^
+{p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    "|" "}"
+    ID X is {|{p} This is a sentence "."|}
     line ##:
-|}
-^^
+ID X is @<X>
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID Y is {|{p} This is a sentence "."|}
+    line ##:
+ID Y is @<Y>
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID Z is {|{|x|} + {|y|}|}
+    line ##:
+ID Z is @<Z>
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|{a} {b} B B B {b} C C C {a} D D D|s}|p}
+    line ##:
+{p}{a}{b}B B B {b} C C C {a} D D D
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID X is {|fee {fie} fo fum|}
+    line ##:
+ID X is @<X>
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID Y is {|fee {fie} fo fum|}
+    line ##:
+ID Y is @<Y>
+^^^^^^^^^^^^
