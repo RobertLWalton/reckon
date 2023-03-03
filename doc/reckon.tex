@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 2, 2023}
+\date{March 3, 2023}
 
 \maketitle
 
@@ -3223,7 +3223,8 @@ Some example {\em time-formats} and associated times are:
 \section{Logical Lines and Paragraphs}
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
 
-Input is parsed into a sequence of \skey{logical line}s, each of which is
+Input is parsed into a sequence of
+\skey{logical line}s,\label{LOGICAL-LINE} each of which is
 a sequence of lexemes.  Logical lines in turn are grouped into
 paragraphs.  A paragraph with its logical lines may be nested inside
 a larger logical line.
@@ -5051,7 +5052,7 @@ TBD
 \subsection{Prefixes}
 \label{PREFIXES}
 
-A \key{prefix} is syntactically like a {\em typed-list}\pagnote{TYPED-LIST}
+A \key{prefix} is a {\em typed-list}\pagnote{TYPED-LIST}
 without any `\TT{|}'s or {\em vector-element-list}:
 
 \begin{indpar}[0.2in]
@@ -5069,11 +5070,54 @@ without any `\TT{|}'s or {\em vector-element-list}:
 \\
 {\em attribute-list} ::= see \pagref{ATTRIBUTE-LIST}
 
-\begin{itemize}
+\end{indpar}
 
-\item TBD 
+However, not every {\em typed-list} of this form is a prefix.
+{\em Typed-lists} of this form which are \underline{not}
+prefixes just represent objects with \underline{no} vector elements.
 
-\end{itemize}
+To be recognized as a prefix a {\em typed-list} must have one of the
+prefix {\em bracket-types}, must be in the correct context for that
+type, and must be inside a {\em prefix-0-list}:
+
+\begin{indpar}[0.2in]
+
+\emkey{prefix-n-list}
+    ::= \{ {\em prefix-n} {\em prefix-n+1-list} \}\STAR{}
+    $|$ {\em vector-element-list}
+\\[0.5ex]
+\emkey{prefix-n} ::= {\em prefix}
+\\[0.5ex]
+{\em vector-element-list} ::= see \pagref{VECTOR-ELEMENT-LIST}
+
+\end{indpar}
+
+The following are the contexts containing {\em prefix-0-lists}:
+
+\begin{indpar}[0.2in]
+
+\mkey{logical-line}{prefix-0-list} \hfill \TT{code} or \TT{text} context
+
+\begin{indpar}[0.5em]
+A logical line\pagnote{LOGICAL-LINE} in \TT{code} or \TT{text} context
+is a {\em prefix-0-list} which has the same context as the logical line.
+\end{indpar}
+
+\ttmkey{`{}`\ldots'{}'}{prefix-0-list} \hfill \TT{code} or \TT{text} context
+
+\begin{indpar}[0.5em]
+The lexemes inside \TT{`{}`~'{}'} brackets 
+in \TT{code} or \TT{text} context
+form a {\em prefix-0-list} which has the \TT{text} context.
+\end{indpar}
+
+\ttmkey{(\ldots)}{prefix-0-list} \hfill inside a {\em prefix-n-list}
+
+\begin{indpar}[0.5em]
+The lexemes inside \TT{(~)} brackets that are inside a {\em prefix-n-list}
+form a {\em prefix-0-list} which has the same context as {\em prefix-n-list}.
+\end{indpar}
+
 \end{indpar}
 
 \subsection{Bracket Parsing}
