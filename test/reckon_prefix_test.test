@@ -3,6 +3,130 @@
     trace [+ subexpression lines]
     trace [+ subexpression elements]
 BRACKETED EXPRESSION:
+    {b} foo
+    line ##:
+{b} foo
+^^^^^^^
+BRACKETED EXPRESSION:
+    {s|This is a sentence "."|s}
+    line ##:
+{s|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s} This is a sentence "."
+    line ##:
+{s}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {section|{s} Fee Fie Foe|section}
+    line ##:
+{section|{s}Fee Fie Foe|}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s|This is a sentence "."|s}''
+    line ##:
+``{s|This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|This is a sentence|s}''
+    line ##:
+``{s}This is a sentence.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|This is a sentence "."|p}
+    line ##:
+{p|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|This is a sentence|s}|p}
+    line ##:
+{p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID X is {|{p} This is a sentence "."|}
+    line ##:
+ID X is @<X> // From @<X> := {p}This ...
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID Y is {|{p} This is a sentence "."|}
+    line ##:
+ID Y is @<Y> // From !@<Y> := {p}This ...
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID Z is {|{|x|} + {|y|}|}
+    line ##:
+ID Z is @<Z> // From @<Z> := x + y
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s|{a} {b} B B B {b} C C C {a} D D D|s}|p}
+    line ##:
+{p}{a}{b}B B B {b} C C C {a} D D D
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    hello there
+    line ##:
+hello there
+^^^^^^^^^^^
+ERROR: in line ##: explicit prefix separator of type `p' has *PARAGRAPH*
+       group but is not at beginning of a logical line that is in
+       paragraph beginning position; prefix unrecognized:
+{p}goodbye // Preceeded by non-blank line.
+^^^
+BRACKETED EXPRESSION:
+    {p} goodbye
+    line ##:
+{p}goodbye // Preceeded by non-blank line.
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID X is {|fee {fie} fo fum|}
+    line ##:
+ID X is @<X> // From @<X> := fee {fie} fo fum
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ID Y is {|fee {fie} fo fum|}
+    line ##:
+ID Y is @<Y> // From !@<Y> := fee {fie} fo fum
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|This is a quote ":"
+          `{s: .terminator = "."|I came|s}
+           {s: .terminator = "."|I saw|s}
+           {s: .terminator = "."|I conquered|s}'|s}''
+    line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|I came|s} {s: .terminator = ".", i|I saw|s}
+      {s: .terminator = ".", b|I conquered|s}''
+    line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|This is a sentence "."|p}
+    line ##:
+{p|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{b} This is a sentence "."|p}
+    line ##:
+{p|{b}This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{p|{s} This is a sentence "."|p}''
+    line ##:
+``{p|{s}This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{b|{s} This is a sentence "."|b}''
+    line ##:
+``{b|{s}This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({table|=====|table})
+    line ##:
+({table|=====|})
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     {section|{s|First Example|s}|section}
     line ##:
 {section}First Example
@@ -62,7 +186,7 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     So this is the last sentence in the paragraph.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ERROR: in line ##: non-comments after isolated header; ignored:
+ERROR: in line ###: non-comments after isolated header; ignored:
    {***}This is ignored
         ^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
@@ -73,7 +197,7 @@ BRACKETED EXPRESSION:
                indented code paragraph|s}|p}
         This is the third logical line of code "."
         {p|{s: .terminator = "."|Another piece of text|s}|p}
-    lines ##-##:
+    lines ##-###:
 This is a line of code:
 ^^^^^^^^^^^^^^^^^^^^^^^
    // In code, `:' can start an indented paragraph.
@@ -104,21 +228,21 @@ This is a line of code:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     And a logical line of code that ends the indented paragraph "."
-    lines ##-##:
+    lines ###-###:
 And a logical line of code that ends the indented
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     paragraph.
 ^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {section|{s|Second Example|s}|section}
-    line ##:
+    line ###:
 {section}Second Example
 ^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {p: indent = 5|
         {s: .terminator = "."|This is the first paragraph of the second
             example|s}|p}
-    lines ##-##:
+    lines ###-###:
 {p: indent = 5}
 ^^^^^^^^^^^^^^^
 This is the first paragraph of
@@ -133,7 +257,7 @@ BRACKETED EXPRESSION:
                 ":"|
                 {quote|{s: .terminator = "!"|Simplify "," simplify ","
                            SMPLFY|s}|quote}|}|s}|p}
-    lines ##-##:
+    lines ###-###:
 This is the next paragraph, which begins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 with an implied "{p: indent = 5}", and which
@@ -150,7 +274,7 @@ BRACKETED EXPRESSION:
             section|s}
         {s: .terminator = "."|It begins with an implied
             "{p: indent = 5}"|s}|p}
-    lines ##-##:
+    lines ###-###:
 This is the third paragraph of the section.  It begins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 with an implied "{p: indent = 5}".
@@ -160,7 +284,7 @@ BRACKETED EXPRESSION:
                          preceeded by or begun with "{***}"|},
                        {|it would begin with an implied
                          "{p: indent = 5}" "."|} "<LF>"
-    lines ##-##:
+    lines ###-###:
 This is a line of code.  If it was not preceeded by
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      or begun with "{***}", it would begin with
@@ -187,7 +311,7 @@ BRACKETED EXPRESSION:
                 ROW TYPE ":" person|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 SORT ROWS BY ":" name|}|table}
-    lines ##-##:
+    lines ###-###:
 {table}
 ^^^^^^^
 {row}-----------------------------------------------------
@@ -234,7 +358,7 @@ BRACKETED EXPRESSION:
                 ROW TYPE ":" person|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 SORT ROWS BY ":" name|}|table}
-    lines ##-###:
+    lines ###-###:
 -----------------------------------------------------
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Name   | Weight   | Height     | Age       | BMI  | /ib/
