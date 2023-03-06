@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 5, 2023}
+\date{March 6, 2023}
 
 \maketitle
 
@@ -4431,6 +4431,53 @@ or {\em text}.  Their syntax is:
     ~~~~ [see \pagref{CODE-EXPRESSION}]
 \end{indpar}
 
+Some examples are:
+
+\begin{center}
+\tt
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = \{| X Y Z |\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = `{}`X Y Z'{}' \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z \\
+~~~~.initiator = "`{}`" \\
+~~~~.terminator = "'{}'" \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = ( X Y Z ) \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z \\
+~~~~.initiator = "(" \\
+~~~~.terminator = ")" \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{\{X Y Z\}\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z \\
+~~~~.initiator = "\{" "\{" \\
+~~~~.terminator = "\}" "\}" \\
+\end{tabular}
+\end{tabular}
+
+\end{center}
+
+Note that in these example \TT{\{|~|\}} purelists have no attributes,
+\TT{`{}`} and \TT{'{}'} are single lexemes,
+while \TT{\{\{} and \TT{\}\}} are each two-lexeme sequences.
+
 \subsubsection{Label Values}
 \label{LABEL-VALUES}
 
@@ -4928,7 +4975,7 @@ below).  If there are no `\TT{|}'s  in a {\em typed-list} (as in
 \TT{\{b: indent = 2\}} or \TT{\{+\}}), the
 {\em vector-element-list} is empty.
 
-\item A {\em prefixes} is a {\em typed-list} that has
+\item A {\em prefix} is a {\em typed-list} that has
 no `\TT{|}'s and is recognized in certain contexts.\pagnote{PREFIXES}
 Prefixes are not recognized in {\em typed-lists}, in particular, in the
 {\em attributes} and the {\em vector-element-list} of a {\em typed-list}.
@@ -5249,87 +5296,6 @@ These {\em list-openings} and {\em list-closings} become the
 by the {\em bracketed-list}, with the exception of the \TT{\{|~|\}}
 brackets, which enclose a pure list that has no attributes other
 than its list elements.
-
-Thus, for example:
-
-\begin{center}
-\tt
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = \{| X Y Z |\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = `{}`X Y Z'{}' \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.initiator = "`" "`" \\
-~~~~.terminator = "'" "'" \\
-\end{tabular}
-\end{tabular}
-
-\bigskip
-\bigskip
-
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = ( X Y Z ) \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.initiator = "(" \\
-~~~~.terminator = ")" \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = \{\{X Y Z\}\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.initiator = "\{" "\{" \\
-~~~~.terminator = "\}" "\}" \\
-\end{tabular}
-\end{tabular}
-
-\bigskip
-\bigskip
-
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = `X Y Z' \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.initiator = "`" \\
-~~~~.terminator = "'" \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = \{`X Y Z'\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.initiator = "\{" "`" \\
-~~~~.terminator = "'" "\}" \\
-\end{tabular}
-\end{tabular}
-\end{center}
 
 A {\em bracketed-list} with a {\em mark-type} is similar to an untyped
 {\em bracketed-list}, but the {\em mark-type} becomes the \TT{.type}
