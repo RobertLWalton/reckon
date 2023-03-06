@@ -4437,15 +4437,15 @@ Some examples are:
 \tt
 \begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
-!@53 = \{| X Y Z |\} \\[1ex]
+!@53 := \{| X Y Z |\} \\[1ex]
 \multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 := X Y Z \\
 \end{tabular}
 &
 \begin{tabular}[t]{l}
-!@53 = `{}`X Y Z'{}' \\[1ex]
+!@53 := `{}`X Y Z'{}' \\[1ex]
 \multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 := X Y Z \\
+!@53 := X Y Z: \\
 ~~~~.initiator = "`{}`" \\
 ~~~~.terminator = "'{}'" \\
 \end{tabular}
@@ -4456,17 +4456,17 @@ Some examples are:
 
 \begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
 \begin{tabular}[t]{l}
-!@53 = ( X Y Z ) \\[1ex]
+!@53 := ( X Y Z ) \\[1ex]
 \multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 := X Y Z \\
+!@53 := X Y Z: \\
 ~~~~.initiator = "(" \\
 ~~~~.terminator = ")" \\
 \end{tabular}
 &
 \begin{tabular}[t]{l}
-!@53 = \{\{X Y Z\}\} \\[1ex]
+!@53 := \{\{X Y Z\}\} \\[1ex]
 \multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 := X Y Z \\
+!@53 := X Y Z: \\
 ~~~~.initiator = "\{" "\{" \\
 ~~~~.terminator = "\}" "\}" \\
 \end{tabular}
@@ -4922,6 +4922,7 @@ The syntax of typed lists is:
         $|$ & \TT{\{} {\em type-name}\QMARK{}
 	              \{ \TT{:} {\em attribute-list} \}\QMARK{} \TT{\}} \\
 	$|$ & \TT{\{} {\em type-mark} \TT{\}} \\
+	$|$ & \TT{\{\}}
 	\end{tabular}
 \\[0.5ex]
 \emkey{type-name}\label{TYPE-NAME}
@@ -4941,15 +4942,18 @@ The syntax of typed lists is:
 
 \begin{itemize}
 
-\item If a {\em typed-list} has a {\em type-name} at both its beginning
-and end, these must be the same.  This {\em type-name} then becomes the
-value of the
-\ttdkey{type} attribute of the object, as is also the case if there
-is only one {\em type-name} at the beginning.  Thus in \TT{\{b|\ldots|\}},
-\TT{\{b|\ldots|b\}}, and \TT{\{b\}}, \TT{b} becomes the value of the \TT{.type}
+\item If a {\em typed-list} has a {\em type-name} at its end, it must
+have the identical {\em type-name} at its beginning.
+\item If the {\em typed-list} has \underline{no} {\em type-name}
+at its beginning may \underline{not} have an {\em attribute-list}.
+However the {\em type-name} may be given as \TT{""} (see below).
+\item A {\em type-name} at the beginning of a {\em typed-list}
+becomes the value of the
+\ttdkey{type} attribute of the object.
 attribute.
-But if the {\em type-name}
-is completely missing (as in \TT{\{|\ldots|\}} or \TT{\{\}}), or
+\item
+If {\em type-names} are completely missing
+(as in \TT{\{|\ldots|\}} or \TT{\{\}}), or if the {\em type-name}
 is \TT{""}, the object is not given any \TT{.type} attribute.
 
 \item If the same {\em type-mark} begins and ends the
@@ -4991,6 +4995,75 @@ user of Reckon.
 
 TBD
 
+
+Some examples are:
+
+\begin{center}
+\tt
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = \{T| X Y Z |\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 = \{T| X Y Z |T\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z: \\
+~~~~.type = T \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{"*" 1| X Y Z |\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 = \{"*" 1| X Y Z |"*" 1\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z: \\
+~~~~.type = "*" 1 \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = \{T: i| X Y Z |\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 = \{T: i| X Y Z |T\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z: \\
+~~~~.type = T \\
+~~~~i = TRUE \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{T: i\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 :=: \\
+~~~~.type = T: \\
+~~~~i = TRUE \\
+\end{tabular}
+\end{tabular}
+
+\bigskip
+\bigskip
+
+\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
+\begin{tabular}[t]{l}
+!@53 = \{+ X Y Z +\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z: \\
+~~~~.type = "+" \\
+\end{tabular}
+&
+\begin{tabular}[t]{l}
+!@53 = \{< X Y Z >\} \\[1ex]
+\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
+!@53 := X Y Z: \\
+~~~~.type = "<" ">" \\
+\end{tabular}
+\end{tabular}
+
+\end{center}
 
 \subsection{Prefixes}
 \label{PREFIXES}
@@ -5314,118 +5387,6 @@ But if they are not identical, the label atom
 \TT{\{*} {\em mark-type} {\em reflected-mark-type} \TT{*\}}
 \end{center}
 becomes the \TT{.type} attribute value.
-
-Thus we have the examples:
-
-\begin{center}
-\tt
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = \{+ X Y Z +\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = "+" \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = \{<+ X Y Z +>\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = "<+" "+>" \\
-\end{tabular}
-\end{tabular}
-
-\bigskip
-\bigskip
-
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = \{\$\$ X Y Z \$\$\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = "\$\$" \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = \{\$* X Y Z *\$\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = "\$*" "*\$" \\
-\end{tabular}
-\end{tabular}
-\end{center}
-
-{\em Bracketed-lists} with {\em named-types} but no {\em attributes}
-are similar but have the syntax:
-\begin{center}
-\TT{\{} {\em name-type}\QMARK{} \TT{|} {\em prefix-0-list}
-                                \TT{|} {\em name-type}\QMARK{} \TT{\}}
-\end{center}
-where the {\em name-type} must not be completely omitted, and if
-given twice, must be identical in both instances.
-Examples are:
-
-\begin{center}
-\tt
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = \{T| X Y Z |\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = T \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = \{T| X Y Z |T\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = T \\
-\end{tabular}
-\end{tabular}
-
-\bigskip
-\bigskip
-
-\begin{tabular}{p{2.5in}@{\hspace*{0.5in}}p{3.0in}}
-\begin{tabular}[t]{l}
-!@53 = \{| X Y Z |T\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = T \\
-\end{tabular}
-&
-\begin{tabular}[t]{l}
-!@53 = \{"*" 1| X Y Z |\} \\[1ex]
-\multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
-!@53 =:: \\
-~~~~1 = X \\
-~~~~2 = Y \\
-~~~~3 = Z \\
-~~~~.type = "*" 1 \\
-\end{tabular}
-\end{tabular}
-\end{center}
 
 {\em Bracketed-lists} with {\em named-types} can have {\em attributes}.
 These are either comma separated {\em attribute-representations}
