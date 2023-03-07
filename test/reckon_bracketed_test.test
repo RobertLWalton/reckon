@@ -1,0 +1,59 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+    trace [+ subexpression details]
+BRACKETED EXPRESSION:
+    ({|x|} + {|y|})
+!@@ := @@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+!@@ := @@ "+" @@:
+           .terminator = ")"
+           .initiator = "("
+           .position[H] = PACKED_VEC
+!@@ := x:
+           .position[H] = PACKED_VEC
+!@@ := y:
+           .position[H] = PACKED_VEC
+    line ##:
+(x + y)
+^^^^^^^
+BRACKETED EXPRESSION:
+    {{{|x|} + {|y|}}}
+!@@ := @@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+!@@ := @@ "+" @@:
+           .terminator = [< "}" "}" >]
+           .initiator = [< "{" "{" >]
+           .position[H] = PACKED_VEC
+!@@ := x:
+           .position[H] = PACKED_VEC
+!@@ := y:
+           .position[H] = PACKED_VEC
+    line ##:
+{{x + y}}
+^^^^^^^^^
+WARNING: in line ##: mark should be quoted:
+  {x + y}}
+     ^
+ERROR: in line ##: not a legal label initial element `{x "+" y}':
+  {x + y}}
+  ^^^^^^^
+ERROR: in line ##: bad type label; "" assumed:
+  {x + y}}
+  ^^^^^^^
+BRACKETED EXPRESSION:
+
+!@@ :=:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+    lines ##-##:
+{
+^
+  {x + y}}
+^^^^^^^^^^

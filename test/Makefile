@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Feb  6 02:09:12 EST 2023
+# Date:		Tue Mar  7 02:35:13 EST 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -27,9 +27,13 @@ DIFFOPT ?= -u
 #
 OPTIMIZE = -O3
 
-RECKON_TESTS = reckon_lexeme_test reckon_overview_test \
-	       reckon_line_test reckon_data_test \
-	       reckon_typed_list_test reckon_prefix_test \
+RECKON_TESTS = reckon_lexeme_test \
+	       reckon_overview_test \
+	       reckon_line_test \
+	       reckon_data_test \
+	       reckon_bracketed_test \
+	       reckon_typed_list_test \
+	       reckon_prefix_test \
 	       reckon_print_test
 
 TESTS = ${RECKON_TESTS}
@@ -151,13 +155,18 @@ reckon_data_test.out:	\
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
-reckon_prefix_test.out:	\
-	    reckon reckon_prefix_test.in
+reckon_bracketed_test.out:	\
+	    reckon reckon_bracketed_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
 reckon_typed_list_test.out:	\
 	    reckon reckon_typed_list_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
+
+reckon_prefix_test.out:	\
+	    reckon reckon_prefix_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
