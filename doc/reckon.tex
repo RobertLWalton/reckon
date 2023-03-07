@@ -4958,13 +4958,11 @@ is \TT{""}, the object is not given any \TT{.type} attribute.
 
 \item If the same {\em type-mark} begins and ends the
 {\em typed-list}, that {\em type-mark} becomes the value of the
-of the object's \TT{.type} attribute.  Similarly for
-\TT{\{}{\em type-mark}\TT{\}}.  If different {\em type-marks}
+of the object's \TT{.type} attribute.
+If different {\em type-marks}
 begin and end the {\em typed-list}, the squence of the two
 {\em type-marks}, as a label, becomes the value of the \TT{.type}
-attribute.  Thus in \TT{\{+\ldots+\}}, \TT{"+"} is the \TT{.type}
-attribute value, whereas is \TT{\{<\ldots>\}}, the label \TT{[< "<" ">" >]}
-is the \TT{.type} attribute value.
+attribute.
 
 \item {\em Attribute-representations} in a {\em typed-list} are processed
 in the same manner as {\em attribute-representations} in an
@@ -4981,10 +4979,16 @@ below).  If there are no `\TT{|}'s  in a {\em typed-list} (as in
 
 \item A {\em prefix} is a {\em typed-list} that has
 no `\TT{|}'s and is recognized in certain contexts.\pagnote{PREFIXES}
-Prefixes are not recognized in {\em typed-lists}, in particular, in the
+Prefixes are not recognized outside brackets in {\em typed-lists},
+in particular, in the
 {\em attributes} and the {\em vector-element-list} of a {\em typed-list}.
-Instead they simply represent objects
+However they may be recognized inside \TT{`{}`~'{}'} brackets.
+When not recognized as prefixes, {\em typed-lists} without `\TT{|}'s
+simply represent objects
 with an empty {\em vector-element-list}.
+
+\item The \TT{\{\}} {\em typed-list} represents an object with
+\underline{no} vector elements and \underline{no} attributes.
 
 \item {\em Type-names} beginning and ending with `\TT{*}'
 (such as `\TT{*DATA*}') are reserved and should not be created by the
@@ -5036,11 +5040,12 @@ Some examples are:
 \end{tabular}
 &
 \begin{tabular}[t]{l}
-!@53 = \{T: i\} \\[1ex]
+!@53 = \{T: i, size = 5\} \\[1ex]
 \multicolumn{1}{c}{\rm is equivalent to} \\[1ex]
 !@53 :=: \\
 ~~~~.type = T: \\
 ~~~~i = TRUE \\
+~~~~size = 5 \\
 \end{tabular}
 \end{tabular}
 
