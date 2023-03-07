@@ -4,6 +4,35 @@
     trace [+ subexpression elements]
     trace [+ subexpression details]
 BRACKETED EXPRESSION:
+    [< X 1 >]
+!@@ := [< X 1 >]:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+    line ##:
+[< X 1 >]
+^^^^^^^^^
+ERROR: in line ##: missing operand; error operand inserted:
+    < X 1 >]
+            ^
+BRACKETED EXPRESSION:
+    [{|< X 1|} > ERROR'OPERAND]
+!@@ := @@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+!@@ := @@ ">" ERROR'OPERAND:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
+!@@ := "<" X 1:
+           .position[H] = PACKED_VEC
+    lines ##-##:
+[
+^
+    < X 1 >]
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
     ({|x|} + {|y|})
 !@@ := @@:
            .terminator = "<LF>"
@@ -22,38 +51,31 @@ BRACKETED EXPRESSION:
 ^^^^^^^
 BRACKETED EXPRESSION:
     {{{|x|} + {|y|}}}
-!@@ := @@:
+!@@ := @@@:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-!@@ := @@ "+" @@:
-           .terminator = [< "}" "}" >]
-           .initiator = [< "{" "{" >]
-           .position[H] = PACKED_VEC
-!@@ := x:
-           .position[H] = PACKED_VEC
-!@@ := y:
-           .position[H] = PACKED_VEC
+!@@@ := @@@ "+" @@@:
+            .terminator = [< "}" "}" >]
+            .initiator = [< "{" "{" >]
+            .position[H] = PACKED_VEC
+!@@@ := x:
+            .position[H] = PACKED_VEC
+!@@@ := y:
+            .position[H] = PACKED_VEC
     line ##:
 {{x + y}}
 ^^^^^^^^^
-WARNING: in line ##: mark should be quoted:
-  {x + y}}
-     ^
-ERROR: in line ##: not a legal label initial element `{x "+" y}':
-  {x + y}}
-  ^^^^^^^
-ERROR: in line ##: bad type label; "" assumed:
-  {x + y}}
-  ^^^^^^^
 BRACKETED EXPRESSION:
-
-!@@ :=:
-           .terminator = "<LF>"
-           .initiator = [$ LOGICAL_LINE $]
-           .position[H] = PACKED_VEC
+    X Y Z
+!@@@ := X Y Z:
+            .terminator = "<LF>"
+            .initiator = [$ LOGICAL_LINE $]
+            .position[H] = PACKED_VEC
     lines ##-##:
 {
 ^
-  {x + y}}
-^^^^^^^^^^
+    | X Y Z|
+^^^^^^^^^^^^
+    }
+^^^^^
