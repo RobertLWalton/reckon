@@ -201,7 +201,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 7, 2023}
+\date{March 8, 2023}
 
 \maketitle
 
@@ -5159,19 +5159,67 @@ The following are the prefix {\em bracket-types}:
 \ttkey{p}	& \itemref{PARAGRAPHS} & paragraph
 	& \TT{code} or \TT{text},
 \\\cline{1-1}\cline{3-3}
-\ttkey{quote}	& & quoted paragraph & at beginning of logical line
+\ttkey{quote}	& & quoted paragraph & at beginning of a logical line
 \\\cline{1-1}\cline{3-3}
-\ttkey{section}	& & section header &
+\ttkey{section}	& & section header & that is in paragraph beginning position
 \\\cline{1-3}
 \ttkey{table}	& \itemref{TABLES} & table &
 \\\cline{1-1}\cline{3-4}
 \ttkey{row}	& & row (of table) & \TT{code} or \TT{text} \\
-		& &		   & at beginning of logical line
+		& &		   & at beginning of a logical line
 \\\hline
 \ttkey{s}	& \itemref{SENTENCES}& sentence & \TT{code} or \TT{text}
 \\\hline
 \end{tabular}
 \end{center}
+
+\begin{indpar}
+Paragraph Header
+\begin{indpar}
+Paragraph header prefixes must begin a logical line in paragraph position.
+A logical line is in paragraph position if it is the first logical
+line in a file, is the first logical line in an indented paragraph,
+or follows a completely blank line (which can\underline{not} contain
+comments).
+
+Single Line \hfill \TT{p}, \TT{quote}, \TT{section}
+\begin{indpar}
+Single line paragraph headers modify the definition of a logical
+line so that the logical line beginning with the paragraph header
+ends only at:
+\begin{itemize}
+\item The next blank line (which can\underline{not} contain comments).
+\item The end of the logical line's containing paragraph.
+\item The end of the logical line's containing file.
+\end{itemize}
+Thus the logical line begun at the paragraph header does \underline{not}
+end with a physical line indented to the current paragraph indent
+or with a line separator `\TT{;}'.
+
+Also the logical line beginning with the paragraph header is the entire
+paragraph: there is only this logical line in the paragraph.  This
+paragraph is represented by an object whose type is the paragraph header
+{\em bracket-type} (e.g., \TT{p}).
+\end{indpar}
+Multiple Line \hfill \TT{table}
+\begin{indpar}
+Multiple line paragraph headers group logical lines into a paragraph
+which is an object whose \TT{.type} is the paragraph header
+{\em bracket-type} (e.g., \TT{table}).
+\end{indpar}
+\end{indpar}
+Line Header \hfill \TT{row}
+\begin{indpar}
+A line header heads a logical line that represents an object
+whose \TT{.type} is the line header {\em bracket-type} (e.g., \TT{row}).
+\end{indpar}
+Non-Header \hfill \TT{s}
+\begin{indpar}
+TBD
+\end{indpar}
+\end{indpar}
+
+
 
 \subsubsection{Sentences}
 \label{SENTENCES}
