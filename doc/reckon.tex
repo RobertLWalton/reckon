@@ -31,6 +31,7 @@
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.65in}
 \raggedbottom
 
 \setlength{\unitlength}{1in}
@@ -201,7 +202,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 8, 2023}
+\date{March 9, 2023}
 
 \maketitle
 
@@ -5182,25 +5183,51 @@ line in a file, is the first logical line in an indented paragraph,
 or follows a completely blank line (which can\underline{not} contain
 comments).
 
+The paragraph headed by a paragraph header ends only at the first of:
+\begin{itemize}
+\item A blank line (which can\underline{not} contain comments).
+\item The end of the paragraph's containing paragraph.
+\item The end of the paragraph's containing file.
+\end{itemize}
+
+The paragraph represents and object
+whose type is the paragraph header
+{\em bracket-type} (e.g., \TT{p}).
+
 Single Line \hfill \TT{p}, \TT{quote}, \TT{section}
 \begin{indpar}
 Single line paragraph headers modify the definition of a logical
 line so that the logical line beginning with the paragraph header
-ends only at:
-\begin{itemize}
-\item The next blank line (which can\underline{not} contain comments).
-\item The end of the logical line's containing paragraph.
-\item The end of the logical line's containing file.
-\end{itemize}
-Thus the logical line begun at the paragraph header does \underline{not}
-end with a physical line indented to the current paragraph indent
+ends only at the end of the paragraph.
+In particular, this logical line does \underline{not}
+end with a physical line indented to the current paragraph indent,
 or with a line separator `\TT{;}'.
 
-Also the logical line beginning with the paragraph header is the entire
-paragraph: there is only this logical line in the paragraph.  This
-paragraph is represented by an object whose type is the paragraph header
-{\em bracket-type} (e.g., \TT{p}).
+The prefix \TT{\{s\}} is implied after the paragraph header,
+unless it is already present.  Thus
+\begin{center}
+{\tt \{p\}The...} is rewritten as {\tt \{p\}\{s\}The...}
+\\[2ex]
+\begin{tabular}{l}
+\tt \{p\} \\
+\tt The... \\
+\end{tabular}
+is rewritten as
+\begin{tabular}{l}
+\tt \{p\} \\
+\tt \{s\}The... \\
+\end{tabular}
+\\[2ex]
+{\tt \{p\}\{s\}The...} is \underline{not} rewritten
+\\[2ex]
+\begin{tabular}{l}
+\tt \{p\} \\
+\tt The... \\
+\end{tabular} is \underline{not} rewritten
+\end{center}
+Attributes may be added to the prefixes in these examples.
 \end{indpar}
+
 Multiple Line \hfill \TT{table}
 \begin{indpar}
 Multiple line paragraph headers group logical lines into a paragraph
