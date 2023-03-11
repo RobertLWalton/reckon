@@ -123,8 +123,7 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
-                                              + enable table prefix,
-                                              + sticky]
+                                              + enable table prefix]
                         with group *PARAGRAPH*
                         with implied subprefix {s}
         block standard: bracket type "s" [text]
@@ -138,8 +137,7 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
-                                              + enable table prefix,
-                                              + sticky]
+                                              + enable table prefix]
                         with group *PARAGRAPH*
                         with implied subprefix {s}
         block standard: bracket type [< "*RAW*" "*DATA*" >]
@@ -595,31 +593,36 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Reading this document is good, but ...
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p}
+    line ##:
+    {p}
+    ^^^
 BRACKETED EXPRESSION:
     [z]
     line ##:
-    [z]
+    A line with an insertion [z].
+                             ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = "."|A line with an insertion [z]|s}
+    lines ##-##:
+    {p}
+       ^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = "."|A line with an insertion [z]|s}|p}
+    lines ##-##:
+    {p}
     ^^^
-BRACKETED EXPRESSION:
-    {s|[z]|s}
-    lines ##-##:
-    // {p} is implied after blank line.
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [z]
-^^^^^^^
-BRACKETED EXPRESSION:
-    {p|{s|[z]|s}|p}
-    lines ##-##:
-    // {p} is implied after blank line.
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [z]
-^^^^^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
          [< *TEXT* ":" >]|
          {p|{s: .terminator = "."|This document is meant to be read|s}
             {s|Reading this document is good "," but "..."|s}|p}
-         {p|{s|[z]|s}|p}|}
+         {p|{s: .terminator = "."|A line with an insertion [z]|s}|p}|}
     lines ##-##:
 notice = *TEXT*:
          ^^^^^^^
@@ -631,10 +634,10 @@ notice = *TEXT*:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-    // {p} is implied after blank line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [z]
+    {p}
 ^^^^^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
     {|notice|}
     line ##:
@@ -644,7 +647,7 @@ BRACKETED EXPRESSION:
     {|notice|} =*TEXT*:
         {p|{s: .terminator = "."|This document is meant to be read|s}
            {s|Reading this document is good "," but "..."|s}|p}
-        {p|{s|[z]|s}|p}
+        {p|{s: .terminator = "."|A line with an insertion [z]|s}|p}
     lines ##-##:
 notice = *TEXT*:
 ^^^^^^^^^^^^^^^^
@@ -656,10 +659,10 @@ notice = *TEXT*:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <BLANK-LINE>
 ^
-    // {p} is implied after blank line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [z]
+    {p}
 ^^^^^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
     [x]
     line ##:
