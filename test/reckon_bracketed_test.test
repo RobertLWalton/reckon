@@ -79,3 +79,29 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^
     }
 ^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = "."|This is text X + Y with insert
+          [{|X|} + {|Y|}]|s}''
+!@@@ := @@@:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := @@@:
+            .terminator = "''"
+            .initiator = "``"
+            .position[H] = PACKED_VEC
+!@@@ := This is text X "+" Y with insert @@@:
+            .terminator = "."
+            .position[H] = PACKED_VEC
+            .type = s
+!@@@ := @@@ "+" @@@:
+            .terminator = "]"
+            .initiator = "["
+            .position[H] = PACKED_VEC
+!@@@ := X:
+            .position[H] = PACKED_VEC
+!@@@ := Y:
+            .position[H] = PACKED_VEC
+    line ##:
+``This is text X + Y with insert [X + Y].''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
