@@ -202,7 +202,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 11, 2023}
+\date{March 12, 2023}
 
 \maketitle
 
@@ -5314,28 +5314,36 @@ A multi-line paragraph header example is:
 \tt
 \begin{tabular}{l}
 \{table\} \\
-\{row\}------------------------- \\
-\{row\}| Name | Height | Weight | \\
-\{row\}------------------------- \\
+\{row\}-------------------- \\
+\{row\}| Name | Height | W | \\
+\{row\}-------------------- \\
 \{row\}| Jack | 10 ft 3 in | 307 lb | \\
 \{row\}| Jill | 11 ft 8 in | 248 lb | \\
 \{row\}------------------------- \\
+W: Weight \\
 \end{tabular}
-\end{indpar}
-TBD
-\begin{indpar}
-\tt
-TBD
 \end{indpar}
 which is rewritten to:
 \begin{indpar}
 \tt
 \begin{tabular}{l}
-TBD
+\{table| \begin{tabular}[t]{@{}l}
+         \{row|~"--------------------" |row\} \\
+         \{row|~"|" Name "|" Height "|" W "|" |row\} \\
+         \{row|~"--------------------"|row\} \\
+         \{row|~"|" Jack "|" 10 ft 3 in "|" 307 lb "|" |row\} \\
+         \{row|~"|" Jill "|" 11 ft 8 in "|" 248 lb "|" |row\} \\
+         \{row|~"--------------------"|row\} \\
+	 \{"":~.terminator = "<LF>", \\
+	 ~~~~~.initiator = [\$ LOGICAL\_LINE \$] \\
+	 ~~~~~| W ":" Weight |\} \\
+	 |table\} \\
+	 \end{tabular}
 \end{tabular}
 \end{indpar}
 
-TBD
+Typically the \TT{\{table\}} and \TT{\{row\}} prefixes are
+implied: see \itemref{TABLES} for table details.
 
 
 \subsubsection{Sentences}
