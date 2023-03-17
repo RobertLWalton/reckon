@@ -26,8 +26,6 @@
 \usepackage{makeidx}
 \usepackage{etoolbox}
 
-\makeindex
-
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\textwidth}{6.5in}
@@ -89,51 +87,23 @@
 
 \newcommand{\TT}[1]{{\tt \bfseries #1}}
 
-\newcommand{\key}[1]{{\bf \em #1}\index{#1}}
-\newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
-\newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
-\newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
-\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
-\newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
-\newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
-\newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
-\newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
-\newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
-\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1!#2}}}
-\newcommand{\ttnbdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
-\newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
-\newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
-\newcommand{\tttbkey}[1]{{\TT {<#1|}\ldots\TT{|#1>}}%
-    \index{#1@\TT{<#1|}\ldots\TT{|#1>}}}
-\newcommand{\tttbmkey}[2]{{\TT{<#1|}\ldots\TT{|#1>}}%
-    \index{#1@\TT{<#1|}\ldots\TT{|#1>}!#2}}
-\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
-\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
-\newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
-\newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
-\newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
-\newcommand{\emslkey}[3]{{\bf \em #1#2#3}\index{#1@{\em #1}!#2@{\em #2}}}
-\newcommand{\emikey}[2]{{\bf \em #1}\index{\em #2}}
-\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+\newcommand{\key}[1]{{\rm \bfseries #1}}
+\newcommand{\ttkey}[1]{{\tt \bfseries #1}}
+\newcommand{\emkey}[1]{{\em \bfseries #1}}
+\newcommand{\tttkey}[1]{{\tt \bfseries <#1>}}
+\newcommand{\ttakey}[1]{{\tt \bfseries *#1*}}
+\newcommand{\ttdkey}[1]{{\tt \bfseries .#1}}
 
-\newcommand{\opt}{$^!$}
-
-\newcommand{\itemref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
-\newcommand{\secref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
-\newcommand{\stepref}[1]{\ref{#1}\,$^{p\,\pageref{#1}}$}
-\newcommand{\appref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
-\newcommand{\figref}[1]{\ref{#1}$\,^{p\,\pageref{#1}}$}
+\newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
-\newcommand{\pagnote}[1]{$\,^{p\,\pageref{#1}}$}
+\newcommand{\pagnote}[1]{$\,^{p\pageref{#1}}$}
+\newcommand{\stack}[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
 \newcommand{\STAR}{{\Large $^\star$}}
 \newcommand{\PLUS}[1][]{{$^{+#1}$}}
 \newcommand{\QMARK}{{$^{\,\mbox{\footnotesize ?}}$}}
-\newcommand{\OPEN}{{$\{$}}
-\newcommand{\CLOSE}{{$\}$}}
 
 \newcommand{\VSP}{\textvisiblespace}
 \newcommand{\TILDE}{\textasciitilde}
@@ -362,7 +332,7 @@ separated from anything else by whitespace, and separators such as
 by whitespace.
 
 At somewhat the opposite extreme from numbers are words, phrases, sentences,
-and paragraphs.  You can calculate with these `\skey{document expression}s\,'.%
+and paragraphs.  You can calculate with these `\key{document expressions}\,'.%
 \footnote{In what follows,
 if we followed LISP, each \TT{[]} would cancel one \TT{`~'},
 so \TT{`{}`[g]'{}'} would evaluate to \TT{`[g]'}
@@ -393,7 +363,7 @@ When you add 9 and 17 you get 26.
 \end{indpar}
 
 Modern math computes with expressions, and not just numbers.
-You can compute with \skey{math expression}s in RECKON.
+You can compute with \key{math expressions} in RECKON.
 
 \begin{indpar}
 \verb/> f = {{ 10 x ^ 2 - 3.67 x - 0.04 }}/ \\
@@ -706,7 +676,7 @@ Expressions are just strings of words, numbers, and subexpressions.
 Subexpressions must be parenthesized unless they
 are delimited by operators.
 
-Lists of values can be stored in \skey{list}s, which are computed by comma
+Lists of values can be stored in \key{lists}, which are computed by comma
 separated lists in parentheses.  Thus
 
 \begin{indpar}
@@ -776,7 +746,7 @@ compute such lists are \key{flattened}:
 \verb|()|
 \end{indpar}
 
-For this reason RECKON lists are sometimes called `\skey{flat list}s'.
+For this reason RECKON lists are sometimes called `\key{flat lists}'.
 
 RECKON has different kinds of quotes or brackets.  The brackets
 \verb|{{|\ldots\verb|}}| and \verb|`|\ldots\verb|'|
@@ -1660,7 +1630,7 @@ The lexemes are defined in terms of the following character classes:
 \emkey{control-character} :::=
 	character in UNICODE category \TT{C} or \TT{Z}
 \\[1ex]
-\emlkey{isolated-separating-}{character} :::=
+\emkey{isolated-separating-character} :::=
     \begin{tabular}[t]{l}
     character in UNICODE category \TT{Ps}, \TT{Pi}, \TT{Pe}, \\
     or \TT{Pf}; includes \TT{\{ ( [ << >> ] ) \}}
@@ -1671,7 +1641,7 @@ The lexemes are defined in terms of the following character classes:
 \emkey{leading-separator-character} :::=
 	\TT{`} $|$ \TT{\textexclamdown} $|$ \TT{\textquestiondown}
 \\
-\emlkey{trailing-separator-}{character} :::=
+\emkey{trailing-separator-character} :::=
 	\TT{'} $|$ \TT{!} $|$ \TT{?} $|$ \TT{.} $|$ \TT{:}
 	       $|$ \TT{,} $|$ \TT{;}
 \\[1ex]
@@ -1721,10 +1691,10 @@ The following is a special virtual lexeme:
 	{\em graphic} character on a line
 \end{indpar}
 
-\ikey{Indent lexemes}{indent lexeme} have no characters, but
-do have an \mkey{indent}{of indent lexeme}, which is the indent of
+\key{Indent lexemes}
+do have an \key{indent}
 the graphic character after the indent lexeme.
-The \mkey{indent}{of character} of a character is the number
+The \key{indent}
 of columns that precede the character in the character's physical line.
 {\em Control-characters} other than {\em horizontal-space-characters}
 take zero columns, as do characters of classes \TT{Mn} (combining-marks)
@@ -1756,13 +1726,13 @@ illegal (see below).
 Characters that have no UNICODE category are {\em unrecognized-characters}
 and are illegal:
 \begin{indpar}
-\emlkey{misplaced-horizontal-}{space-character} :::=
+\emkey{misplaced-horizontal-space-character} :::=
     \begin{tabular}[t]{l}
     {\em horizontal-space-character}, other than \\
     ASCII single space
     \end{tabular}
 \\[0.3ex]
-\emlkey{misplaced-vertical-}{space-character}
+\emkey{misplaced-vertical-space-character}
 		:::= {\em vertical-space-character}
 	other than {\em line-feed}
 \\[0.3ex]
@@ -1810,10 +1780,10 @@ Figure~\itemref{LEXEME-SYNTAX}.  This specification assumes there
 are no illegal characters in the input; see text
 above to account for such characters.
 
-The symbol `\ttmkey{:::=}{in syntax equation}' is used in syntax equations
+The symbol `\ttkey{:::=}' is used in syntax equations
 that define lexemes or parts of lexemes whose syntactic elements are
 character sequences that must \underline{not} be separated by {\em white-space}.
-The symbol `\ttmkey{::=}{in syntax equation}'
+The symbol `\ttkey{::=}'
 is used in syntax equations that define sequences of lexemes that may
 and sometimes must be separated by {\em white-space}.
 
@@ -1864,7 +1834,7 @@ lexeme that occurs only at the end of a file.
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\
-\emlkey{special-character-}{representative} :::=
+\emkey{special-character-representative} :::=
     \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
 \\[0.3ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
@@ -1969,11 +1939,11 @@ as per \pagref{MIDDLE-LEXEME-CONCATENATION}.
 
 {\em Words}, {\em numerics}, {\em marks}, {\em separators},
 and {\em quoted-strings} represent 
-\skey{symbol}s\label{SYMBOL} that store character strings.
+\key{symbols}\label{SYMBOL} that store character strings.
 The character strings represented by all but {\em quoted-strings}
 are exactly the character strings of these lexemes.
 
-Lexemes can be used to form \skey{name}s of variables,
+Lexemes can be used to form \key{names} of variables,
 constants, and functions:
 
 \begin{indpar}
@@ -2091,7 +2061,7 @@ The beginning and ending quotes (\TT{"}) are \underline{not}
 included in the represented character string.
 
 Most characters simply represent themselves.
-A \emlkey{special-character-}{representative} represents on UNICODE character
+A \emkey{special-character-representative} represents on UNICODE character
 and can consist of the UNICODE character name surrounded by angle brackets.
 Examples are
 \TT{<NUL>}, \TT{<LF>}, \TT{<SP>}, \TT{<NBSP>}.  There are three other cases:
@@ -2708,7 +2678,7 @@ because of ambiguities (e.g., Europeans would write this date as
 \subsection{Times}
 \label{TIMES}
 
-\ikey{Times}{time}, \ikey{times of day}{time of day}, and \skey{time interval}s
+\key{Times}, \key{times of day}, and \key{time intervals}
 are a quantities with \TT{sec} units
 and numbers that need not be integers.  As such times of day can be added
 to dates to produce times, dates can be subtracted from times to produce
@@ -2990,7 +2960,7 @@ with each other; see the rules below for resolving conflicts.
 & \multicolumn{3}{l}{{\bf #2}\ifstrequal{}{#1}{}{ ~~~~~ #1}} \\
 }
 \newcommand{\GROUPENTRY}[2][]{
-&& \ttmkey{#2}{table format}\ifstrequal{}{#1}{}{#1} & }
+&& \ttkey{#2}\ifstrequal{}{#1}{}{#1} & }
 \newcommand{\GROUPNEWLINE}{\\&&&}
 \newcommand{\ENDGROUP}{\end{tabular}}
 
@@ -3136,7 +3106,7 @@ A format item does not override another item with which it does not conflict.
 
 A {\em time-format} is a string of any characters surrounded by
 \TT{`~'}s that are
-allowed inside a {\em middle-lexeme} in which the following \emskey{time-code}s
+allowed inside a {\em middle-lexeme} in which the following \emkey{time-codes}
 are replaced as indicated in Figure~\ref{TIME-FORMAT-CODES}.
 Note it is in the nature of formats that the \TT{`~'}s are not at the
 ends of the {\em middle-lexeme} and are therefore not recognized as
@@ -3176,42 +3146,42 @@ Some example {\em time-formats} and associated times are:
 \begin{boxedfigure}
 \begin{center}
 \begin{tabular}{lp{4.5in}}
-\ttmkey{\BSLASH}{{\em time-code}} & delete the `\TT{\BSLASH}'
+\ttkey{\BSLASH} & delete the `\TT{\BSLASH}'
                                 and keep the following character without
 				giving it a special interpretation
 				(\TT{\BSLASH'} can be use to include
 				 \TT{'} in a {\em time-format})\\
-\ttmkey{dd}{{\em time-code}} & day of month: \TT{01} \ldots{} \TT{31} \\
-\ttmkey{ddd}{{\em time-code}} & day of year: \TT{01} \ldots{} \TT{366} \\
-\ttmkey{ww}{{\em time-code}} & day of week: \TT{01} \ldots{} \TT{07} \\
-\ttmkey{www}{{\em time-code}} & day of week: \TT{sun} \ldots{} \TT{sat} \\
-\ttmkey{Www}{{\em time-code}} & day of week: \TT{Sun} \ldots{} \TT{Sat} \\
-\ttmkey{WWW}{{\em time-code}} & day of week: \TT{SUN} \ldots{} \TT{SAT} \\
-\ttmkey{mm}{{\em time-code}} & month: \TT{01} \ldots{} \TT{12}
+\ttkey{dd} & day of month: \TT{01} \ldots{} \TT{31} \\
+\ttkey{ddd} & day of year: \TT{01} \ldots{} \TT{366} \\
+\ttkey{ww} & day of week: \TT{01} \ldots{} \TT{07} \\
+\ttkey{www} & day of week: \TT{sun} \ldots{} \TT{sat} \\
+\ttkey{Www} & day of week: \TT{Sun} \ldots{} \TT{Sat} \\
+\ttkey{WWW} & day of week: \TT{SUN} \ldots{} \TT{SAT} \\
+\ttkey{mm} & month: \TT{01} \ldots{} \TT{12}
                                if next to \TT{/} \\
-\ttmkey{mmm}{{\em time-code}} & month: \TT{jan} \ldots{} \TT{dec} \\
-\ttmkey{Mmm}{{\em time-code}} & month: \TT{Jan} \ldots{} \TT{Dec} \\
-\ttmkey{MMM}{{\em time-code}} & month: \TT{JAN} \ldots{} \TT{DEC} \\
-\ttmkey{yy}{{\em time-code}} & year: \TT{00} \ldots{} \TT{99} \\
-\ttmkey{yyyy}{{\em time-code}} & year: \TT{0000} \ldots{} \TT{9999} \\
-\ttmkey{xm}{{\em time-code}} & meridian: \TT{am} or \TT{pm} \\
-\ttmkey{XM}{{\em time-code}} & meridian: \TT{AM} or \TT{PM} \\
-\ttmkey{hh}{{\em time-code}} & hour: \TT{00} \ldots{} \TT{12}
+\ttkey{mmm} & month: \TT{jan} \ldots{} \TT{dec} \\
+\ttkey{Mmm} & month: \TT{Jan} \ldots{} \TT{Dec} \\
+\ttkey{MMM} & month: \TT{JAN} \ldots{} \TT{DEC} \\
+\ttkey{yy} & year: \TT{00} \ldots{} \TT{99} \\
+\ttkey{yyyy} & year: \TT{0000} \ldots{} \TT{9999} \\
+\ttkey{xm} & meridian: \TT{am} or \TT{pm} \\
+\ttkey{XM} & meridian: \TT{AM} or \TT{PM} \\
+\ttkey{hh} & hour: \TT{00} \ldots{} \TT{12}
 			       if xm or XM in {\em time-format} \\
 			     & or: \TT{00} \ldots{} \TT{23}
 			       if xm and XM \underline{not}
 			       in {\em time-format} \\
-\ttmkey{mm}{{\em time-code}} & minute: \TT{00} \ldots{} \TT{59}
+\ttkey{mm} & minute: \TT{00} \ldots{} \TT{59}
                                if next to \TT{:} \\
-\ttmkey{ss}{{\em time-code}} & second: \TT{00} \ldots{} \TT{59} \\
-\ttmkey{\_}{{\em time-code}} & single space \\
-\ttmkey{zzz}{{\em time-code}} & local time zone (e.g. \TT{est}),
+\ttkey{ss} & second: \TT{00} \ldots{} \TT{59} \\
+\ttkey{\_} & single space \\
+\ttkey{zzz} & local time zone (e.g. \TT{est}),
                                 and adjust time to be in that zone \\
-\ttmkey{ZZZ}{{\em time-code}} & local time zone (e.g. \TT{EST}),
+\ttkey{ZZZ} & local time zone (e.g. \TT{EST}),
 				and adjust time to be in that zone \\
-\ttmkey{gmt}{{\em time-code}} & do not replace,
+\ttkey{gmt} & do not replace,
 				and adjust time to be gmt \\
-\ttmkey{GMT}{{\em time-code}} & do not replace,
+\ttkey{GMT} & do not replace,
 				and adjust time to be gmt \\
 \end{tabular}
 \end{center}
@@ -3225,26 +3195,26 @@ Some example {\em time-formats} and associated times are:
 \label{LOGICAL-LINES-AND-PARAGRAPHS}
 
 Input is parsed into a sequence of
-\skey{logical line}s,\label{LOGICAL-LINE} each of which is
+\key{logical lines},\label{LOGICAL-LINE} each of which is
 a sequence of lexemes.  Logical lines in turn are grouped into
 paragraphs.  A paragraph with its logical lines may be nested inside
 a larger logical line.
 
 In the input, non-blank
 physical lines begin with an indent lexeme that
-contains an \mkey{indent}{of indent lexeme}
+contains an \key{indent}
 parameter that is the number of columns before the first
 graphic character in the physical line.  All physical lines end with a
 line-break or end-of-file lexeme.  Blank physical lines have
 only a line-break lexeme, and do not have an indent lexeme.
 
-The \mkey{indent}{of physical line} of a non-blank physical line is the
+The \key{indent}
 indent of its indent lexeme.
 
 Each paragraph has a \key{paragraph indent}.
 The \key{top level} behaves like the inside of a paragraph
 whose paragraph indent is \TT{0}.  The logical lines inside
-this top level pseudo-paragraph are called \skey{top level logical lines}.
+this top level pseudo-paragraph are called \key{top level logical lines}.
 
 The first non-blank physical line in a file must have indent \TT{0},
 and its beginning indent lexeme is immediately followed
@@ -3305,7 +3275,7 @@ current paragraph indent, or just before an end-of-file.
 
 Logical lines consisting of nothing but comment lexeme lexemes and not
 ended by a line separator are
-called `\skey{comment line}s'.  Comment lines are discarded,
+called `\key{comment lines}'.  Comment lines are discarded,
 as are empty logical lines, including those ended by a `\TT{;}' separator.
 
 After a logical
@@ -3513,7 +3483,7 @@ Lines of a headed text paragraph other than the first may be indented
 by the current paragraph indent, or by more than the current paragraph
 indent.
 
-Generally a text paragraph installs an \lkey{implied paragraph}{header}
+Generally a text paragraph installs an \key{implied paragraph header}
 which will be inserted automatically at the beginning of the first
 line after the next blank line, unless that line begins with an
 explicit paragraph header or is after the indented paragraph containing
@@ -3614,7 +3584,7 @@ indent are continuation lines.
 
 \begin{enumerate}
 \item\label{MIDDLE-LEXEME-CONCATENATION}
-Two consecutive \emskey{middle-lexeme}s in a logical line are concatenated
+Two consecutive \emkey{middle-lexemes} in a logical line are concatenated
 if the first ends with \TT{\#}, the second begins with \TT{\#}, and both
 contain more than just a \TT{\#}.
 More than two {\em middle-lexemes} may be concatenated
@@ -3650,7 +3620,7 @@ http://forecast.weather.gov/MapClick.php?lat=42&lon=-71#.V036u7
 \end{verbatim}\end{indpar}
 
 \item\label{QUOTED-STRING-CONCATENATION}
-If two \emskey{quoted-string}s in a logical line are separated by
+If two \emkey{quoted-strings} in a logical line are separated by
 one or two \TT{\#} mark lexemes, the strings
 are concatenated \underline{after} {\em character-represen\-ta\-tives}
 have been replaced by the characters they represent.  The separating mark
@@ -3730,14 +3700,14 @@ An \key{object}\label{OBJECT} is just a place in memory.
 It can be the target of pointers, and it is different from
 every other object and from every atom.  An object contains a \key{vector}
 whose element values can be atoms, special values, or pointers to objects.
-An object can also contain a set of \skey{attribute}s, each with one or two
+An object can also contain a set of \key{attributes}, each with one or two
 attribute labels and one or more attribute values which can be atoms,
 special values, or pointers to objects.
 
-The elements of a vector are labelled by \ikey{indeces}{index!of vector}
+The elements of a vector are labelled by \key{indeces}
 \TT{0}, \TT{1}, \TT{2}, \ldots{}.
 
-An attribute is labeled to one or two \skey{attribute label}s, which are
+An attribute is labeled to one or two \key{attribute labels}, which are
 representable by a {\em name} not beginning with a {\em number}.
 More specifically, an attribute label is either a string or is a
 label atom whose first element is a string and whose other elements
@@ -3759,7 +3729,7 @@ $Y$ double attribute with forward label $Ly$ and reverse label $Lx$.
 Single attributes can take single values, or sets of values, or
 multisets of values.  Double attribute always take sets of values.
 
-\ikey{Attribute flags}{attribute flag} may be attached to an
+\key{Attribute flags}
 attribute label of an object.  The flags of an attribute label
 may apply to either a single attribute with that label or to all
 double attributes with that label as forward label, or to both.
@@ -3783,7 +3753,7 @@ single attribute does nothing if the value is already in the attribute's set.
 of either the single attribute with the label or any double attribute
 with the label as forward label is a \key{backpointer} which is
 \underline{not} to be traced (is to be ignored) by the
-garbage collector (\secref{GARBAGE-COLLECTION}).
+garbage collector (\itemref{GARBAGE-COLLECTION}).
 \end{tabular}
 \end{center}
 
@@ -3798,7 +3768,7 @@ is the \key{object representation}, which we now describe.
 There are two kinds of object representation:
 raw and cooked.
 When object representations are written to a file,
-\skey{raw object representation}s
+\key{raw object representations}
 are used.  Reading raw object representations
 makes minimal use of the parser: brackets are recognized , but operators
 are not.  When a person types object representations into a file,
@@ -3835,17 +3805,17 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{represented}{-object-identifier} :::=
+\emkey{represented-object-identifier} :::=
     {\em raw-object-identifier} $|$ {\em cooked-object-identifier} \\
 \emkey{raw-object-identifier} :::= \TT{!} {\em object-identifier} \\
 \emkey{cooked-object-identifier} :::= {\em object-identifier} \\
 \emkey{object-identifier} :::= {\em numeric-object-identifier}
                            $|$ {\em symbolic-object-identifier} \\
 \emkey{numeric-object-identifier} :::=
-	\ttmkey{@}{in {\em object-identifier}}
+	\ttkey{@}
 	{\em digit}\PLUS{} \\
 \emkey{symbolic-object-identifier} :::=
-	\ttmkey{@}{in {\em object-identifier}}\TT{<}
+	\ttkey{@}\TT{<}
 	{\em letter} {\em letter-or-digit}\STAR{} \TT{>} \\
 \end{tabular}
 
@@ -3877,7 +3847,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{single-attribute}{-representation}%
+\emkey{single-attribute-representation}%
 \label{SINGLE-ATTRIBUTE-REPRESENTATION}
 \\\hspace*{0.5in}
     \begin{tabular}[t]{rl}
@@ -3918,7 +3888,7 @@ representation `\key{cooked}'.  Bracket parsing is on in either case.
 \end{tabular}
 
 \begin{tabular}{l}
-\emlkey{double-attribute}{-representation}%
+\emkey{double-attribute-representation}%
 \label{DOUBLE-ATTRIBUTE-REPRESENTATION}
     ::=
 \\\hspace*{0.5in}
@@ -3997,7 +3967,7 @@ between the two objects which has the
 label \TT{husband} when going from \TT{@<X>} to \TT{@<Y>}
 and the label \TT{wife} when going in the reverse direction.
 
-It is possible to place \skey{attribute flag}s on attribute labels
+It is possible to place \key{attribute flags} on attribute labels
 by putting flag characters in a {\em flag-lexeme} inside
 \TT{[ ]} brackets after a label.
 It may be necessary to use a
@@ -4430,7 +4400,7 @@ all \begin{tabular}[t]{@{}l@{}}
 \end{tabular}
 \end{center}
 
-\ikey{Insertions}{insertion} contain code that is executed to produce
+\key{Insertions} contain code that is executed to produce
 a value that is inserted in a {\em label-value}, {\em math-value},
 or {\em text}.  Their syntax is:
 
@@ -4533,7 +4503,7 @@ be {\em label-elements}.
 \subsubsection{Special Values}
 \label{SPECIAL-VALUES}
 
-The following is a complete list of all the \skey{special value}s:
+The following is a complete list of all the \key{special values}:
 
 \begin{center}
 \begin{tabular}{lp{3.5in}}
@@ -4599,7 +4569,7 @@ the object represented has \underline{no} \TT{.ini\-ti\-ator}
 or \TT{.ter\-min\-ator}.
 Thus \TT{\{|~|\}} behave like implied parentheses, are in fact used to
 surround operands of expressions, and are called
-\ikey{implied parentheses}{implied parenthesis}.
+\key{implied parentheses}.
 For example, in the \TT{code} or \TT{math} contexts: \\
 \centerline{`\TT{x + 5 * y}' becomes \TT{\{|x|\} + \{|\{|5|\} * \{|y|\}|\}}.}
 
@@ -4868,7 +4838,7 @@ and in \TT{text} context are in
 \subsubsection{Multi-Values}
 \label{MULTI-VALUES}
 
-\ikey{Multi-values}{multi-value}, which are only recognized in
+\key{Multi-values}, which are only recognized in
 the \TT{data} context, are used to set attribute values.
 They consist of a \TT{\{*~*\}} bracketed comma separated list
 of {\em single-attribute-values}\pagnote{SINGLE-ATTRIBUTE-VALUE} or
@@ -5126,14 +5096,14 @@ The following are the contexts containing {\em prefix-0-lists}:
 
 \begin{indpar}[0.2in]
 
-\mkey{logical-line}{prefix-0-list} \hfill \TT{code} or \TT{text} context
+\key{logical-line}
 
 \begin{indpar}[0.5em]
 A logical line\pagnote{LOGICAL-LINE} in \TT{code} or \TT{text} context
 is a {\em prefix-0-list} which has the same context as the logical line.
 \end{indpar}
 
-\ttmkey{`{}`\ldots'{}'}{prefix-0-list} \hfill \TT{code} or \TT{text} context
+\ttkey{`{}`\ldots'{}'} \hfill \TT{code} or \TT{text} context
 
 \begin{indpar}[0.5em]
 The lexemes inside \TT{`{}`~'{}'} brackets 
@@ -5141,7 +5111,7 @@ in \TT{code} or \TT{text} context
 form a {\em prefix-0-list} which has the \TT{text} context.
 \end{indpar}
 
-\ttmkey{(\ldots)}{prefix-0-list} \hfill inside a {\em prefix-n-list}
+\ttkey{(\ldots)} \hfill inside a {\em prefix-n-list}
 
 \begin{indpar}[0.5em]
 The lexemes inside \TT{(~)} brackets that are inside a {\em prefix-n-list}
@@ -5367,7 +5337,7 @@ implied: see \itemref{TABLES} for table details.
 If the {\em vector-element-list}
 ends in a \key{sentence terminator},
 the {\em vector-element-list} is separated into a sequence of
-\skey{sentence}s each ending with a sentence terminator.
+\key{sentences} each ending with a sentence terminator.
 The sentence terminators are `\TT{.}', `\TT{?}', and `\TT{!}'.
 Then each sentence is reformatted as: \\
 \hspace*{0.2in}\begin{tabular}{rl}
@@ -5412,6 +5382,760 @@ TBD
 \subsubsection{Tables}
 \label{TABLES}
 
+\section{Expressions}
+
+Expressions are built from operators, such as \TT{+} and \TT{*},
+and primaries, such as variable names and function calls.
+
+Operators are characterized by fixity, precedence, and format.
+RECKON operators are listed in
+Figures~\itemref{RECKON-LINE-OPERATORS},
+~\itemref{RECKON-NON-LINE-OPERATORS-1},
+and~\itemref{RECKON-NON-LINE-OPERATORS-2}.
+
+
+Given this, expressions have the following syntax,
+where an {\em P-expression}
+is an expression all of whose operators that are outside brackets
+have precedence equal to or greater than P:
+
+\begin{indpar}\begin{minipage}{6in}
+\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\\[0.5ex]
+\emkey{P-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
+        & where no two {\em (P+1)-expressions} may be adjacent \\ 
+        & and the {\em P-operators} must obey the fixity rules below \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{P-operator} ::= operator of precedence P
+\\[0.5ex]
+\emkey{(H+1)-expression} ::= {\em primary}
+\\[0.5ex]
+\emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
+\\[0.5ex]
+\emkey{primary-element} ::= {\em non-operator-lexeme} $|$
+                            {\em bracketed-subexpression}
+\\[2.0ex]
+\hspace*{3em}\begin{tabular}{l}
+where P is any precedence in the range [L-1,H] \\
+\end{tabular}
+\end{minipage}\end{indpar}
+
+
+Generally
+a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
+separated by operators of precedence $P$.
+Precedence L-1 is reserved for an error operator used to fix up parsing errors,
+precedence H-1 is reserved for highest precedence prefix operators,
+and precedence H is reserved for highest precedence postfix operators.
+
+The operators can have any combination of the following \key{base fixities}:
+
+\begin{center}
+\begin{tabular}{lp{5.0in}}
+\ttkey{initial}	& {\em P-operator} must be the first thing
+                  in its {\em P-expression}. \\
+\ttkey{final}	& {\em P-operator} must be the last thing
+                  in its {\em P-expression}. \\
+\ttkey{left}	& {\em P-operator} must be immediately
+                  preceded by a {\em (P+1)-expression}
+                  in its {\em P-expression}. \\
+\ttkey{right}	& {\em P-operator} must be immediately
+                  followed by a {\em (P+1)-expression}
+                  in its {\em P-expression}. \\
+\ttkey{afix}	& {\em P-operator} must be after a (not necessarily
+                  immediately) preceding {\em P-operator}
+                  in its {\em P-expression}. \\
+\end{tabular}
+\end{center}
+
+The following \key{combination fixities} are defined:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttkey{prefix}	& {\tt initial} + {\tt right} \\
+\ttkey{infix}	& {\tt left} + {\tt right} \\
+\ttkey{postfix}	& {\tt left} + {\tt final} \\
+\ttkey{nofix}	& none of {\tt initial}, {\tt final}, {\tt left},
+                  or {\tt right} \\
+\end{tabular}
+\end{center}
+
+All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
+
+\newpage
+
+\begin{boxedfigure}[!p]
+\begin{center}
+Line Level Operators \\
+Must Occur Outside Parentheses and Brackets \\
+At Top Level or Inside \{* \ldots{} *\}
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
+\ttkey{if} & conditional & prefix & conditional & 0000
+\\\cline{1-1}
+\ttkey{else if} & & & &
+\\\cline{1-4}
+\ttkey{else} & terminating & initial & terminating & \\
+             & conditional & & conditional &
+\\\cline{1-4}
+\ttkey{:} & conditional & afix & (none) & \\
+                   & completion & right & &
+\\\cline{1-3}
+\key{subblock} & conditional & afix & & \\
+               & or declaration &      & & \\
+               & completion &      & &
+\\\cline{2-4}
+	       & assignment & postfix & postfix & \\
+	       & or loop    &         &         &
+\\\cline{1-4}
+\ttkey{type} & declaration & prefix & declaration &
+\\\cline{1-1}
+\ttkey{pointer type} & & & &
+\\\cline{1-1}
+\ttkey{function} & & & &
+\\\cline{1-1}
+\ttkey{\begin{tabular}[t]{@{}l@{}}
+       reference\\
+       ~~function
+       \end{tabular}} & & & &
+\\\cline{1-1}
+\ttkey{\begin{tabular}[t]{@{}l@{}}
+       out-of-line\\
+       ~~function
+       \end{tabular}} & & & &
+\\\cline{1-1}\cline{3-4}
+\ttkey{is type} & & afix & (none) &
+\\\cline{1-1}
+\ttkey{is function} & & infix & &
+\\\hline
+\ttkey{=} & assignment & left & assignment & 1000
+\\\cline{1-4}
+\ttkey{+=} & increment & infix & binary &
+\\\cline{1-2}
+\ttkey{-=} & decrement & & &
+\\\cline{1-2}
+\ttkey{*=} & multiply by & & &
+\\\cline{1-2}
+\ttkey{/=} & divide by & & &
+\\\cline{1-2}
+\ttkey{|=} & include & & &
+\\\cline{1-2}
+\ttkey{\&=} & mask & & &
+\\\cline{1-2}
+\ttkey{\textasciicircum=} & flip & & &
+\\\cline{1-2}
+\ttkey{<{}<=} & shift left & & &
+\\\cline{1-2}
+\ttkey{>{}>=} & shift right & & &
+\\\hline
+\ttkey{=@} & pointer & infix & binary & 1100 \\
+           & assignment & & &
+\\\hline
+\end{tabular}
+\end{center}
+
+\caption{L-Language Line Operators}
+\label{RECKON-LINE-OPERATORS}
+\end{boxedfigure}
+
+\begin{boxedfigure}[!p]
+\begin{center}
+Non-Line Level Operators: Part I \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
+\ttkey{,} & separator & nofix & separator & 2000
+\\\hline
+\ttkey{do} & iterator & prefix & unary & 3000
+\\\cline{1-1}
+\ttkey{while} &       &        &       &
+\\\cline{1-1}
+\ttkey{until} &       &        &       &
+\\\cline{1-1}\cline{4-4}
+\ttkey{repeat} &       &        & iteration       &
+\\\cline{1-1}
+\ttkey{at most} &       &        &       &
+\\\cline{1-4}
+\ttkey{times} & iterator & afix   & (none) & \\
+               & modifier &        &       &
+\\\hline
+\ttkey{if} & selector & infix & selector & 10000
+\\\cline{1-1}\cline{3-4}
+\ttkey{else} & & infix & (none) & \\
+             & & afix & &
+\\\hline
+\ttkey{BUT NOT} & logical and not & infix & binary & 11000
+\\\hline
+\ttkey{AND} & logical and & infix & n-ary & 11100
+\\\cline{1-2}
+\ttkey{OR}  & logical or  & & &
+\\\hline
+\ttkey{NOT}  & logical not & prefix & unary & 11200
+\\\hline
+\ttkey{==}  & is equal & infix & (none) & 12000
+\\\cline{1-2}
+\ttkey{!=}  & is not equal & & &
+\\\cline{1-2}
+\ttkey{<}  & is less than & & &
+\\\cline{1-2}
+\ttkey{<=}  & is less than or equal & & &
+\\\cline{1-2}
+\ttkey{>}  & is greater than & & &
+\\\cline{1-2}
+\ttkey{>=}  & is greater than or equal & & &
+\\\hline
+\ttkey{+}  & addition & infix & sum & 13000
+\\\cline{1-2}
+\ttkey{-}  & subtraction & & &
+\\\cline{1-2}\cline{4-4}
+\ttkey{|}  & bitwise or & & n-ary &
+\\\cline{1-2}
+\ttkey{\&}  & bitwise and & & &
+\\\cline{1-2}
+\ttkey{\textasciicircum}  & bitwise xor & & &
+\\\hline
+\ttkey{/}  & division & infix & binary & 13100
+\\\cline{1-2}\cline{4-5}
+\ttkey{*}  & multiplication & & n-ary & 13200
+\\\cline{1-2}\cline{4-5}
+\ttkey{**}  & exponentiation & & binary & 13300
+\\\cline{1-2}
+\ttkey{<{}<}  & left shift & & &
+\\\cline{1-2}
+\ttkey{>{}>}  & right shift & & &
+\\\hline
+
+\end{tabular}
+\end{center}
+
+\caption{L-Language Non-Line Operators}
+\label{RECKON-NON-LINE-OPERATORS-1}
+\end{boxedfigure}
+
+\clearpage
+
+\begin{boxedfigure}[!t]
+\begin{center}
+Non-Line Level Operators: Part II \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
+\ttkey{+}  & no-op & prefix & unary & H-1
+\\\cline{1-2}
+\ttkey{-}  & negation & & & 
+\\\cline{1-2}
+\ttkey{\textasciitilde}  & bitwise complement & & & 
+\\\cline{1-2}
+\ttkey{\#}  & length & & & 
+\\\cline{1-2}
+\ttkey{D\#}  & decimal rational & & & 
+\\\cline{1-2}
+\ttkey{B\#}  & binary rational & & & 
+\\\cline{1-2}
+\ttkey{X\#}  & hexadecimal rational & & & 
+\\\cline{1-2}
+\ttkey{C\#}  & character rational & & & 
+\\\hline
+
+\end{tabular}
+\end{center}
+
+\caption{L-Language Non-Line Operators}
+\label{RECKON-NON-LINE-OPERATORS-2}
+\end{boxedfigure}
+
+The operators in
+Figures~\itemref{RECKON-LINE-OPERATORS},
+~\itemref{RECKON-NON-LINE-OPERATORS-1},
+and~\itemref{RECKON-NON-LINE-OPERATORS-2}
+have precedences in
+the range {\em [L,H]}.
+Precedence {\em (L-1)} is reserved for the `error operator' which is a
+nofix operator inserted by the parser to `fix up' parsing errors
+so parsing can continue.
+
+The first {\em P-operator} in a {\em P-expression} determines
+the {\em P-expression}'s \key{format}, which is one of the following,
+where in describing expression formats we use:
+\begin{center}
+`expression' to mean {\em P-expression}, \\
+`operator' to mean {\em P-operator}, \\
+and `operand' to mean {\em (P+1)-expression}:
+\end{center}
+\begin{center}
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{conditional}
+    & The expression must consist of the operator followed by an
+      operand followed by either a \TT{:} operator and an
+      operand or by just a subblock operator (\TT{:} indented paragraph,
+      which can be an operator).
+\\[0.5ex]
+\ttkey{\begin{tabular}[t]{@{}l@{}}terminating\\conditional\end{tabular}}
+    & The expression must consist of the operator followed by
+      either a \TT{:} operator and an
+      operand or by just a subblock operator.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{postfix}
+    & The expression must consist of an operand followed by the operator.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{declaration}
+    & The expression must consist of an operator followed by
+      an operand (that may contain {\tt =} and {\tt ,}) followed sometimes
+      by a subblock operator.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{binary}
+    & The expression must consist of an operand followed by
+      the operator followed by an operand.  There must be only one
+      operator in the expression.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{assignment}
+    & The expression must consist of an operand followed by
+      the operator followed by an \underline{optional} operand.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{selector}
+    & The expression operators must all be either \TT{if} or \TT{else}.
+      The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+      The two possible operators alternate, with \TT{if} first.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{separator}\label{SEPARATOR-FORMAT}
+    & All operators in the expression must be identical.
+      There are no other constraints on the expression.  An implied empty
+      operand is inserted between two consecutive operators,
+      at the beginning if the expression begins with an operator,
+      and at the end if the expression ends with an operator.
+      Then the operators are deleted from the expression and
+      the expression operator is attached
+      to the expression as its \TT{.separator} attribute.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{n-ary}
+    & All operators in the expression must be identical.
+      The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+\\[1ex]
+\ttkey{unary}
+    & The expression must consist of
+      the operator followed by an operand.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{sum}
+    & The expression operators must all be either \TT{+} or \TT{-}.
+      The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+\end{tabular}
+\end{center}
+
+There are a few additional special syntactic rules:
+\begin{enumerate}
+\item Non-line bitwise operators (\TT{|}, \TT{\&}, \TT{\textasciicircum},
+\TT{<{}<}, \TT{>{}>}, and \TT{\textasciitilde}) cannot be mixed
+with non-line arithmetic operators
+(\TT{+}, \TT{-}, \TT{/}, \TT{*}, and \TT{**})
+outside parentheses in a subexpression.
+E.g., `{\tt x + (y * \textasciitilde{} z)}'
+is illegal but `{\tt x + (y * (\textasciitilde{} z))}' is legal.
+\end{enumerate}
+
+
+Full semantics of operators and expressions is described later,
+but the following examples give an idea of some of this semantics:
+
+\begin{indpar}
+\hspace*{-0.2in}{\tt T v \TT{=} x + y * z} \\
+       Here {\tt T} is the \key{target type} of the expression
+       `{\tt x + y * z}' and thus must be the result type of the prototype
+       of the `{\tt +}' function, since function results cannot be
+       implicitly converted.  Because it is the result type of {\tt +} and
+       arithmetic operators (with a few exceptions)
+       have operands that are of the same
+       type as their result,
+       {\tt T} is also the target type of {\tt x} and {\tt *}, and since it is
+       the target type of {\tt *} it will be the target type of {\tt y}
+       and {\tt z}.  Implicit conversions of variables are allowed,
+       so {\tt x}, {\tt y}, and {\tt z} will all be converted
+       to type {\tt T} before any computation is done.
+
+\hspace*{-0.2in}{\tt T v \TT{=} x \TT{if} y \TT{else} z} \\
+      If {\tt y} is not a {\tt const}, it is evaluated with
+      target type {\tt bool}.  If that value
+      is {\tt true}, {\tt x} is evaluated and returned; otherwise
+      {\tt z} is evaluated and returned.  Both {\tt x} and {\tt z},
+      have target type {\tt T}.
+
+      However if {\tt y} is a {\tt const} value, the right-side of
+      the statement is replaced by {\tt x} or {\tt z}, whichever
+      is discarded is also not compiled, and if it would be in error
+      were it compiled, the error is not detected (unless it is a parsing
+      error).
+
+\hspace*{-0.2in}{\tt bool v = x \TT{AND} y} \\
+      If either operand evaluates to {\tt FALSE},
+      compile-time evaluation stops and the statement is replaced by
+      `{\tt bool v \TT{=} FALSE}'.
+
+      Otherwise same as `{\tt bool v \TT{=} y if x else FALSE}'.
+
+      The {\tt const} values {\tt TRUE}
+      and {\tt FALSE} are implicitly convertible to run-time {\tt bool}
+      {\tt true} ({\tt 1}) and {\tt false} ({\tt 0}), respectively.
+ 
+\hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
+      This is logically equivalent to `{\tt x < y} AND {\tt y < z}', except that
+      {\tt y} is evaluated at most once.
+
+      If any comparison evaluates to {\tt FALSE} at compile-time,
+      compile-time evaluation stops and the entire expression is replaced by
+      `{\tt FALSE}'.
+
+      If a single comparison evaluates to {\tt TRUE} at compile-time,
+      that comparison is removed from the {\tt AND}-containing version
+      of the expression.
+
+      If run-time evaluation is necessary,
+      some operands need to be evaluated
+      at run-time, and a target type {\tt T} needs to be found for
+      these operands.
+      A single target type {\tt T} must work as the target type of all
+      the run-time operands.  If several target types {\tt T} work and
+      one is the type of a reference expression operand, that is used.
+      Otherwise if several work, it is a compile error.
+
+      Changing the expression to `{\tt T(x) < y < z}' will force
+      the target type to be {\tt T} if that works, or a compile
+      error otherwise.
+
+\hspace*{-0.2in}{\tt v[x+5] \TT{=} y} \\
+      The target type of subscript expressions such as `{\tt x + 5}'
+      is {\tt int}.
+
+\hspace*{-0.2in}{\tt \TT{\textasciitilde} x} \\
+       The `{\tt \textasciitilde}' operator
+       evaluates on signed integers as if they were represented
+       in two's complement by binary values of unbounded size,
+       and similarly for other bitwise operators.
+
+\hspace*{-0.2in}{\tt x \TT{**} y} \\
+       Requires that {\tt y} be a {\tt const} non-negative integer;
+       {\tt x ** 0 \TT{==} 1} and {\tt x ** 1 \TT{==} x} for all {\tt x}.
+
+\hspace*{-0.2in}{\tt x \TT{+=} y} \\
+	Means `{\tt x \TT{=} x + y}', where {\tt x} must be {\tt *READ-WRITE*}.
+
+\hspace*{-0.2in}{\tt next x \TT{+=} y} \\
+	Means `{\tt next x = x + y}'.  `{\tt next x}' must be defined.
+\end{indpar}
+
+\section{Primaries}
+\label{PRIMARIES}
+
+A \key{primary} is an {\em expression} that has no operators outside
+parentheses or brackets:
+\begin{indpar}
+\emkey{primary}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em constant-primary} \\
+    $|$ & {\em reference-expression}    & [\pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
+    $|$ & {\em bracketed-expression}	& [\pagref{BRACKETED-EXPRESSIONS}] \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{constant-primary} ::= {\em constant} other than {\em rational-constant}
+\\[0.5ex]
+{\em constant} ::= see \pagref{CONSTANTS}
+\\[0.5ex]
+{\em rational-constant} ::= see \pagref{RATIONAL-CONSTANTS}
+
+\end{indpar}
+
+Note that a {\em rational-constant} is an operator (e.g. {\tt D\#})
+followed by a {\em string-constant}, and therefore contains an operator
+and is not a {\em primary}.
+
+\subsection{Names}
+\label{NAMES}
+
+A \key{name} is a sequence of lexemes used to name things like
+variables and functions.  Names are building blocks of primaries.
+
+\begin{indpar}
+\emkey{name}\label{NAME} ::=
+    {\em initial-name-item} {\em continuing-name-item}\STAR{} \\
+\emkey{initial-name-item} ::= {\em name-item} other than {\em natural} \\
+\emkey{continuing-name-item} ::= {\em name-item} not containing `\TT{.}' \\
+\emkey{name-item}\label{NAME-ITEM}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} containing no `\TT{.}' that follows a character
+                     that is not a `\TT{.}' \\
+        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
+	   of the {\em word}] \\
+        & [see text about splitting words with embedded `\TT{.}'s] \\
+    $|$ & {\em natural} [see \pagref{LEXEME-TYPE-CONVERSION}] \\
+    $|$ & {\em quoted-mark} containing no `\TT{.}' that follows a character \\
+        & that is not the beginning \TT{"} or another `\TT{.}' \\
+        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
+	   of the {\em mark}] \\
+        & [see text about splitting marks with embedded `\TT{.}'s] \\
+    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
+    \end{tabular} \\
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
+\end{indpar}
+
+{\em Words} and {\em marks} containing embedded `\TT{.}'s are split into
+parts which contain `\TT{.}'s only at their beginning.
+Thus:
+\begin{center}
+\begin{tabular}{lcl}
+\TT{bill.1.weight..size} & splits into & \TT{bill~~~.1~~~.weight~~~~..size} \\
+\TT{p.@.*}               & splits into & \TT{p~~~.@~~~.*} \\
+\TT{.@.*}               & splits into & \TT{.@~~~.*} \\
+\TT{.,.*}               & splits into & \TT{.,~~~.*} \\
+\TT{.*.p}               & splits into & \TT{.*~~~.p} \\
+\end{tabular}
+\end{center}
+However it is a compile error if one of the parts is not a {\em word}
+or {\em mark}, as in the examples where {\tt .1} is a {\em number} and
+{\tt .,} is not a legal lexeme.
+
+{\em Quoted-marks} are \underline{not} split.
+
+A function may be defined with a {\em name} that is a {\em quoted-mark},
+such as {\tt "+"}.  It may then be called by an expression in which the
+quotes are omitted, such as {\tt x + y}.  Similarly a function may be
+defined with a function-term {\tt ".*"} and called by the expression
+{\tt p.*} which is split into {\tt p .*}.
+
+
+Name items beginning with more than one `\TT{.}' are reserved
+for use by systems and compilers (e.g., \TT{..size} in the example).
+Name items that are words containing `\TT{\$}' or that both
+begin and end with `\TT{*}' are
+similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
+are reserved for use as type wildcards.
+
+A name may begin with a {\em word} that is a {\em module-abbreviation}
+that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
+For example {\tt std} abbreviates the builtin standard module.
+
+L-Language uses several kinds of names:
+
+\begin{indpar}
+\emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s \\
+\emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
+\emkey{ma} ::= {\em module-abbreviation} \\
+\\[1ex]
+\emkey{basic-name}\label{BASIC-NAME} ::=
+	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, or
+	    {\em quoted-separator} \\
+\emkey{variable-name}\label{VARIABLE-NAME} ::=
+    {\em basic-name} \\
+\emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
+    {\em variable-name} whose {\em basic-name} begins with an \TT{@} \\
+\emkey{target-variable}\label{TARGET-VARIABLE} ::=
+    {\em variable-name} whose {\em basic-name} does \underline{not}
+    begin with an \TT{@} \\
+\emkey{statement-label} ::= {\em basic-name}
+    \label{STATEMENT-LABEL} not containing `\TT{@}'s
+\\[1ex]
+\emkey{member-name}\label{MEMBER-NAME}
+	::= \begin{tabular}[t]{@{}l@{}}
+                        {\em name} beginning with a {\em word} or
+			{\em quoted-mark} containing a `\TT{.}', \\
+			but not containing a {\em quoted-separator} \\
+			(note: all `\TT{.}'s in a {\em name} must be at
+			 the beginning of the {\em name})
+			\end{tabular} \\
+\emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
+    {\em member-name} with `\TT{@}' following the initial `\TT{.}'s \\
+\emkey{target-member-name}\label{TARGET-MEMBER-NAME} ::=
+    {\em member-name} that is \underline{not} a {\em pointer-member-name}
+\\[1ex]
+\emkey{data-label}\label{DATA-LABEL} ::=
+    {\em basic-name} $|$ {\em member-name}
+\\[1ex]
+\emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
+    \label{FUNCTION-TERM-NAME}
+\\[1ex]
+\emkey{qualifier-name}\label{QUALIFIER-NAME}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
+                     $|$ \ttakey{WRITE-ONLY} \\
+    $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
+    \end{tabular}
+\begin{indpar}
+{\tt co} abbreviates `constant' meaning `never changes' \\
+{\tt ro} abbreviates `read-only' meaning `other code may change' \\
+{\tt *GLOBAL*} has global (forever) lifetime \\
+{\tt *LOCAL*} has lifetime that ends when current stack frame is destroyed \\
+{\tt *HEAP*} has lifetime managed by a garbage collector
+\end{indpar}
+\emkey{operator-word}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{if} $|$ \TT{else} $|$ \TT{while} $|$ \TT{until}
+                  $|$ \TT{AND} $|$ \TT{OR}
+		  $|$ \TT{NOT} $|$ \TT{BUT}
+    \end{tabular}
+
+\emkey{function-keyword}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{no} $|$ \TT{not} $|$ \TT{function} \\
+    $|$ & \TT{"="} $|$ \TT{","} $|$ \TT{"("} $|$ \TT{")"} $|$
+          \TT{"["} $|$ \TT{"]"}
+    \end{tabular}
+
+\emkey{wild-card}\label{WILD-CARD}
+    ::= {\em simple-name} beginning with {\em wild-card-prefix}
+
+\emkey{wild-card-prefix}\label{WILD-CARD-PREFIX} :::= one of: \\
+\hspace*{0.2in}\begin{tabular}{rp{4in}}
+\ttkey{T\$} & name is assigned a {\em type-name} \\
+\ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
+\ttkey{Q\ldots\$} & {\em qualifier-wild-card}; name is assigned a
+                    list of {\em qualifier-names} subject to
+		    {\em qualifier-wild-card-flags} `\ldots'\\
+\end{tabular}
+
+\emkey{qualifier-wild-card}\label{QUALIFIER-WILD-CARD} :::=
+    \TT{Q}~{\em qualifier-wild-card-flag}\STAR{}~ \TT{\$}
+
+\emkey{qualifier-wild-card-flag}\label{QUALIFIER-WILD-FLAG} :::= one of: \\
+\hspace*{0.2in}\begin{tabular}{rll}
+\ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
+\ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
+\ttkey{L} & allows \TT{*LOCAL*}  & (see rule \ref{Q-FLAG-RULE} below )\\
+\ttkey{G} & allows \TT{*GLOBAL*} & (see rule \ref{Q-FLAG-RULE} below )\\
+\ttkey{H} & allows \TT{*HEAP*}   & (see rule \ref{Q-FLAG-RULE} below )\\
+\end{tabular}
+
+
+where the following rules should be followed, least there be
+various confusing syntax or semantic errors (some, but not all,
+violations of these rules will be detected as compilation errors):
+\begin{enumerate}
+\item
+A {\em type-name} should not begin with a {\em pointer-type-name}.
+\item
+A {\em pointer-type-name} should not begin with a {\em type-name}.
+\item
+{\em Function-term-names} and {\em basic-names}
+should not begin with a {\em module-abbre\-viation}
+or contain {\em function-keywords}.
+\item
+{\em Names} not used as operators should not begin with initial {\em operators},
+should not end with final {\em operators}, and should not contain
+{\em operators} that are neither initial nor final.
+\item
+{\em Names} that are not {\em qualifier-names}
+should not contain {\em qualifier-names}, with the
+exception that a {\em qualifier-name} by itself can be
+a {\em function-term}.
+\item\label{Q-FLAG-RULE}
+If any of {\tt L}, {\tt G}, or {\tt H} are
+used as a {\em qualifier-wild-card-flags}, those \underline{not} used
+indicate that their corresponding lifetime types are not allowed.
+If none of {\tt L}, {\tt G}, or {\tt H} are used,
+all lifetime types are allowed (as if {\tt LGH} has been used).
+\end{enumerate}
+\end{indpar}
+
+
+\subsection{Function Calls}
+\label{FUNCTION-CALLS}
+
+The syntax of function calls is:
+
+\begin{indpar}
+\emkey{function-call}\label{FUNCTION-CALL} ::= \\
+\hspace*{0.5in}
+        {\em module-abbreviation}\QMARK{}
+        {\em parenthesized-call-argument-list}\STAR{}
+        {\em call-term}\PLUS{}
+\\[0.5ex]
+\emkey{call-term}\label{CALL-TERM}
+    \begin{tabular}[t]{rl}
+    ::= & {\em call-term-name} {\em call-argument-list}\STAR{} \\
+    $|$ & \ttkey{no} {\em call-term-name} \\
+    $|$ & \ttkey{not} {\em call-term-name} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{call-term-name}\label{CALL-TERM-NAME} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em function-term-name} with quotes \underline{optionally} removed from \\
+    {\em quoted-marks} and {\em quoted-separators}
+    \end{tabular}
+\\[0.5ex]
+{\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
+\\[0.5ex]
+\emkey{call-argument-list}\label{CALL-ARGUMENT-LIST}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{(} {\em actual-argument}
+          \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em actual-argument}
+          \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
+    $|$ & \TT{(~)} $|$ \TT{[~]} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{parenthesized-call-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em call-argument-list} with parentheses \TT{(~)}
+    (and \underline{not} square brackets \TT{[~]})
+\\[0.5ex]
+\emkey{actual-argument} ::= {\em expression}
+\\[0.5ex]
+{\em expression} ::= see \pagref{EXPRESSION}
+\begin{itemize}
+\item {\em Call-term-names} cannot be abbreviated.
+\item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
+equivalent to `{\tt x(FALSE)}'.
+\end{itemize}
+\end{indpar}
+
+Thus a {\em function-call} is a sequence of {\em function-term-names}
+and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
+contain `\TT{.}'s and therefore cannot be {\em member-names},
+which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
+Also \TT{[~]} bracketed {\em call-argument-lists} cannot be placed
+before a {\em call-term-name}, a syntactic distinction to their
+use in {\em reference-calls}.
+
+{\em Function-calls} are matched to function prototypes.  The
+{\em call-term-names} in a match are identical to the
+{\em function-term-names} taken from the prototype being matched, except
+that quotes (\TT{"}) in a prototype {\em quoted-mark} or
+{\em quoted-separator} may (or may not) be omitted in the
+{\em function-call}.  The first
+step in matching is to scan the {\em function-call} to identify the
+{\em call-term-names}.  There is no parser backing up after this is
+done: if the results of this initial scan do not lead to a satisfying
+match, the entire call-prototype match fails.
+
 \section{Parsing}
 \label{PARSING}
 
@@ -5419,14 +6143,14 @@ Input is read and parsed to form objects from {\em bracketed-lists}.
 These objects are then further parsed to find operators, separators,
 number units (e.g., \TT{lb} and \TT{\$}), and some other constructions
 such as possessives (\TT{George's weight} become \TT{George 's weight}).
-The input to this parsing is a list of \skey{token}s, which initially are
+The input to this parsing is a list of \key{tokens}, which initially are
 all lexemes.  But as the parsing proceeds, bracketed lists are replaced
-by tokens that are \skey{expression object}s (e.g., objects which may have
+by tokens that are \key{expression objects} (e.g., objects which may have
 \TT{.initiators} and \TT{.terminators}), and parsing proceeds on 
 a list of tokens some of which are lexemes and some of which are objects.
 
 Parsing at this point is a top down process.  The parser is organized
-into \skey{pass}{es} which are applied to the token list in order.
+into \key{passes} which are applied to the token list in order.
 The first pass always handles bracketed expressions.
 Then the brackets of a subexpression establish a parsing
 \key{context} which determines
@@ -5903,7 +6627,7 @@ objects.
 
 During parsing both the parsing passes and definitions of parsing units such as
 operators are turned on or off by manipulating a \key{parsing context},
-which is just a set of \skey{parsing selector}s.\label{PARSING-SELECTORS}
+which is just a set of \key{parsing selectors}.\label{PARSING-SELECTORS}
 Thus the passes and
 definitions appropriate to text processing are turned on by the
 `\TT{text}' selector, and those appropriate to code parsing are
@@ -6119,7 +6843,7 @@ Precedence & Reformatter	& Kind	& Name		& Meaning
 \end{tabular}
 
 Each entry in these tables describes an
-`\ikey{operator parsing instruction}{operator parsing!instruction}'.
+`\key{operator parsing instruction}'.
 Parsing instructions appear in an ordered list, called the
 parsing instruction stack.
 
@@ -6143,7 +6867,7 @@ instruction stack is used, unless that instruction has the
 process is repeated with only shorter names allowed.
 
 With this in mind the possible operator parsing instruction
-\ikey{kinds}{kind!of operator parsing!instruction}
+\key{kinds}
 are recognized according to the following rules:
 
 \begin{indpar}[0.5in]
@@ -6347,7 +7071,7 @@ is reformatted to
 
 \end{indpar}
 
-It is possible to make new reformatters using \skey{reformatter constructor}s
+It is possible to make new reformatters using \key{reformatter constructors}
 that take arguments which are constant expressions.  There are examples
 in the above tables; e.g., \TT{summation (`+', `-')}.
 
@@ -6427,7 +7151,7 @@ beginning of the expression.
 
 \end{indpar}
 
-Sometimes \ikey{temporaries}{temporary}\label{TEMPORARY}
+Sometimes \key{temporaries}\label{TEMPORARY}
 are introduced by reformatting.  The syntax involving temporaries is:
 
 \begin{indpar}
@@ -6622,12 +7346,12 @@ After input text is scanned into symbols and these are parsed into
 typed lists, each typed list may optionally be parsed further using
 instructions in a parsing table associated with the type of the list.
 A \key{parsing table} is a list
-of \ikey{operator parsing instructions}{operator parsing!instruction}
+of \key{operator parsing instructions}
 which have the form:
 
 \begin{tabular}{rcl}
 \hspace*{1.7in} \\[-2ex]
-\emlkey{operator-parsing}{-instruction}
+\emkey{operator-parsing-instruction}
     & ::= & \TT{\{ operator parsing instruction:} \\
     &     & ~~~ \TT{name =} {\em operator-name}\TT{,} \\
     &     & ~~~ \TT{kind =} {\em operator-kind}\PLUS{} \\
@@ -6760,13 +7484,13 @@ recognized.
 \subsubsection{Unit Multiplication Insertion}
 \label{UNIT-MULTIPLICATION-INSERTION}
 
-The \lkey{unit multiplication}{insertion} phase of
+The \key{unit multiplication insertion} phase of
 parsing inserts a multiplication operator lexeme, `\TT{*}',
 before a {\em postfix-unit-specifier}, and
 after a {\em prefix-unit-specifier}, unless the point at which the
 `\TT{*}' is to be inserted is already occupied by a
 `\TT{*}' or `\TT{/}' lexeme.  This is done after number unit
-grouping (\secref{NUMBER-UNIT-GROUPING}).
+grouping (\itemref{NUMBER-UNIT-GROUPING}).
 
 For example, if `\TT{sec}', `\TT{ft}', and `\TT{lb}'
 are {\em postfix-unit-specifiers},
@@ -6832,7 +7556,7 @@ have the syntax:
 \end{indpar}
 
 The names of text brackets and operators are
-referred to as `\skey{text type}s'.  For example, `\TT{<p>}' is a text
+referred to as `\key{text types}'.  For example, `\TT{<p>}' is a text
 operator of text type `\TT{p}', and `\TT{<b|}~\ldots~\TT{|b>}'
 are text brackets of text type `\TT{b}'.
 Text types have attributes
@@ -6852,10 +7576,10 @@ text type, and to give names to attribute values (e.g., `\TT{default style}'
 is a standard name for a `\TT{style}' attribute value).
 
 If a text type has no value for an attribute, or has the value
-`\ttmkey{none}{text attribute value}', a piece of text of that type
+`\ttkey{none}', a piece of text of that type
 has no value for the attribute, and
 gets the attribute value if it needs it from the surrounding text, or from an
-\mkey{initial value}{for text attribute}
+\key{initial value}
 for the attribute if there is no surrounding text.
 Thus since `\TT{p}' has no `\TT{weight}' attribute value, surrounding a
 paragraph by `\TT{<b|}~\ldots~\TT{|b>}' produces a bold paragraph,
@@ -6929,7 +7653,7 @@ to the labeled bold text and labeled paragraph.  For convenience
 `\TT{<k|}{\em text}\TT{|k>}' can be used to abbreviate
 `\TT{<b:} {\em text}\TT{|}{\em text}\TT{|b>}', for example,
 `\TT{<k|porch|k>}' could be used above instead of
-`\TT{<b: porch|porch|b>}' (the text type `\ttmkey{k}{text type}'
+`\TT{<b: porch|porch|b>}' (the text type `\ttkey{k}'
 denotes a `keyword').
 
 
@@ -7085,7 +7809,7 @@ is converted by the text parser to
 \end{verbatim}\end{indpar}
 
 If you want to eliminate spacing where it would normally occur,
-you can use \skey{glue bracket}s, `\TT{<g|} \ldots{} \TT{|g>}',
+you can use \key{glue brackets}, `\TT{<g|} \ldots{} \TT{|g>}',
 which can also be implied by the absence of spacing in the input.
 Thus
 
@@ -7146,11 +7870,11 @@ precedence & reformatter	& operator	& meaning
 
 \begin{indpar}[1em]
 
-\newcommand{\OP}[1]{\tttmkey{#1}{reformatting}}
+\newcommand{\OP}[1]{\tttkey{#1}}
 
 \bigskip
 
-\ttmkey{text-prefix}{reformatter} \hfill \OP{section($n$)}
+\ttkey{text-prefix} \hfill \OP{section($n$)}
 ~~~ \OP{tr} ~~~ \OP{ti($m$,$n$)}
 ~~~ \OP{li} ~~~ \OP{p}
 
@@ -7205,9 +7929,7 @@ specifies that the entire paragraph is to be indented.
 
 \bigskip
 
-\ttmkey{sentence}{reformatter} \hfill \OP{s} ~~~ \ttmkey{.}{reformatting}
-					     ~~~ \ttmkey{?}{reformatting}
-					     ~~~ \ttmkey{!}{reformatting}
+\ttkey{sentence} \hfill \OP{s} ~~~ \ttkey{.} ~~~ \ttkey{?} ~~~ \ttkey{!}
 
 \begin{indpar}[0.5em]
 
@@ -7216,14 +7938,14 @@ The expression must have the form
 \{ \TT{<s>}{\em -option} {\em subexpression} {\em subexpression}\STAR{}
 	{\em terminator} \}\STAR{}
 \end{center}
-where the {\em terminator} is one of `\ttmkey{.}{terminator}',
-`\ttmkey{?}{terminator}', or `\ttmkey{!}{terminator}'.
+where the {\em terminator} is one of `\ttkey{.}',
+`\ttkey{?}', or `\ttkey{!}'.
 
-That is, it must consist of a sequence of `\skey{sentence}s' each beginning
+That is, it must consist of a sequence of `\key{sentences}' each beginning
 with an optional `\TT{<s>}', each ending with one of the {\em terminators},
 and each being non-empty otherwise.  Each sentence is reformatted into
-a list whose \TT{.text-type} is `\ttmkey{s}{\tt .text-type}', whose
-\TT{.initiator} may be `\ttmkey{capitalize}{\tt .text-type}', and whose
+a list whose \TT{.text-type} is `\ttkey{s}', whose
+\TT{.initiator} may be `\ttkey{capitalize}', and whose
 \TT{.terminator} is the {\em terminator} at the end of the sentence.
 If there is just one sentence, its reformatted list becomes the
 reformatted expression.  If there
@@ -7248,11 +7970,11 @@ This list is then the reformatted list for the sentence.
 
 \bigskip
 
-\ttmkey{text-separator}{reformatter} \hfill \ttmkey{--}{reformatting}
-				   ~~~ \ttmkey{---}{reformatting}
-				   ~~~ \ttmkey{,}{reformatting}
-				   ~~~ \ttmkey{;}{reformatting}
-				   ~~~ \ttmkey{:}{reformatting}
+\ttkey{text-separator} \hfill \ttkey{--}
+				   ~~~ \ttkey{---}
+				   ~~~ \ttkey{,}
+				   ~~~ \ttkey{;}
+				   ~~~ \ttkey{:}
 
 \begin{indpar}[0.5em]
 Here `\TT{--}' (or `\TT{---}'),
@@ -7293,14 +8015,14 @@ element of the final list.
 
 bracket	& meaning 
 \\[2ex]
-\tttbkey{b} & boldface text (heavy weight) \\
-\tttbkey{n} & normal text (normal weight) \\
-\tttbkey{i} & italic text (TBD) \\
-\tttbkey{r} & roman text (TBD) \\
-\tttbkey{em} & emphasized text (TBD) \\
-\tttbkey{table} & table (TBD) \\
-\tttbkey{list} & list (TBD) \\
-\tttbkey{g} & glued text (TBD) \\
+\TT{\{b|\ldots|b\}} & boldface text (heavy weight) \\
+\TT{\{n|\ldots|n\}} & normal text (normal weight) \\
+\TT{\{i|\ldots|i\}} & italic text (TBD) \\
+\TT{\{r|\ldots|r\}} & roman text (TBD) \\
+\TT{\{em|\ldots|em\}} & emphasized text (TBD) \\
+\TT{\{table|\ldots|table\}} & table (TBD) \\
+\TT{\{list|\ldots|list\}} & list (TBD) \\
+\TT{\{g|\ldots|g\}} & glued text (TBD) \\
 \end{tabular}
 
 \end{center}
@@ -7310,7 +8032,7 @@ bracket	& meaning
 
 OBSOLETE - incorporate into above
 
-\ikey{Text parsing}{text parsing} is performed by the \ttkey{-TEXT-PARSER-},
+\key{Text parsing} is performed by the \ttkey{-TEXT-PARSER-},
 which is the parser for subexpressions of the
 \TT{`}...\TT{'}, etc. matchfix operators.
 The \TT{|} format separator and sentence and paragraph ends are
@@ -7419,7 +8141,7 @@ a sentence terminator, that is not preceded by a {\em white-space}
 lexeme, and that is followed by a {\em white-space} lexeme, a
 {\em closing-mark} lexeme, or the
 end of the lexeme sequence.  All other lexemes and all subexpressions are
-\skey{sentence-non-terminator}s.
+\key{sentence-non-terminators}.
 
 {\bf Initial Capitalization Rule.}\index{Initial Capitalization!Rule}
 A {\em word} consisting of an initial capital letter followed
@@ -7558,9 +8280,9 @@ blank lines.
 Paragraphs are classified as tabular or free-form according
 to whether their first line is a tabular format line.
 A \key{tabular format line} contains optional whitespace characters,
-followed by a `\ttmkey{+}{in tabular format line}', followed
+followed by a `\ttkey{+}', followed
 by any number of `\TT{+}' or
-`\ttmkey{-}{in tabular format line}' characters,
+`\ttkey{-}' characters,
 followed by a `\TT{+}' that ends the line, except that superfluous
 whitespace characters are allowed after the `line ending' {\tt+}.
 An example of a tabular paragraph is:
@@ -7574,7 +8296,7 @@ An example of a tabular paragraph is:
 \end{verbatim}\end{indpar}
 
 
-A paragraph that is not tabular is \ikey{free-form}{paragraph}.
+A paragraph that is not tabular is \key{free-form}.
 Each free-form paragraph is scanned for explicitly bracketed subexpressions,
 phrase separators, and sentence terminators.  The paragraph is divided into
 sentences using sentence terminators outside brackets, and each sentence
@@ -7651,10 +8373,10 @@ expression evaluates to \TT{false}.  If only one choice succeeds, that
 choice is used to evaluate the expression.  If several choices succeed,
 the situation becomes ambiguous, and the evaluation proceeds according
 to the matching mode, as is described below
-(\secref{EXPRESSION-MATCHING-ALGORITHM}).
+(\itemref{EXPRESSION-MATCHING-ALGORITHM}).
 
 A syntax variable name beginning with
-\ttmkey{\$}{in syntax variable name} denotes an unevaluated
+\ttkey{\$} denotes an unevaluated
 expression.  The same name without the \TT{\$} denotes the value
 of this unevaluated expression when it is evaluated
 in the context in which the unevaluated expression appears.
@@ -7733,7 +8455,7 @@ would if a guard evaluated to false.
 \subsection{Expression Definitions}
 \label{EXPRESSION-DEFINITION}
 
-\ikey{Expression definitions}{expression definition} have the syntax:
+\key{Expression definitions}
 
 \begin{indpar}
 \emkey{expression-definition} ::=
@@ -7775,7 +8497,7 @@ would if a guard evaluated to false.
 {\em statement} ::= see \pagref{STATEMENT}
 \end{indpar}
 
-The \mkey{pattern}{in expression definition} of an expression definition
+The \key{pattern}
 is the subexpression before the \TT{<-{}-}.  If the expression definition
 with pattern $p$ is being matched to the expression $e$,
 the pattern equation $e$ \TT{:=\TILDE} $p$ is asserted and
@@ -7800,7 +8522,7 @@ a knowledge of syntax equations is required to understand pattern
 equations.
 
 A \key{syntax equation} asserts syntactic identity between two
-\skey{syntax expression}s.  A syntax expression is a syntax variable,
+\key{syntax expressions}.  A syntax expression is a syntax variable,
 an atom, or an object whose attribute values are single valued with
 these values being syntax expressions.
 Atoms are represented by {\em atom-names} (\pagref{ATOM-NAME})
@@ -7828,10 +8550,10 @@ The syntax of a syntax equation is:
 			\end{tabular} \\[1ex]
 {\em capitalized-word} ::= {\em word} beginning with capitalized letter
 				in which all letters are capitalized \\[1ex]
-\emlkey{place-holding}{-syntax-variable} ::= \TT{\$\$}
-	~~~ [see \secref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\[1ex]
-\emlkey{evaluated}{-syntax-variable} ::= {\em capitalized-word}
-	~~~ [see \secref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
+\emkey{place-holding-syntax-variable} ::= \TT{\$\$}
+	~~~ [see \itemref{PLACE-HOLDING-SYNTAX-VARIABLES}] \\[1ex]
+\emkey{evaluated-syntax-variable} ::= {\em capitalized-word}
+	~~~ [see \itemref{EVALUATED-SYNTAX-VARIABLES}] \\[1ex]
 \emkey{atom}\label{ATOM-REPRESENTATION}
     ::= {\em atom-name} \\[1ex]
 \emkey{syntax-object}\label{SYNTAX-OBJECT}
@@ -7853,8 +8575,7 @@ Syntax equations can be consistent or inconsistent according to the:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Syntax Equation Consistency Rules}%
-           {consistency rules!syntax equation}%
+\item[\key{Syntax Equation Consistency Rules}%
 	   \label{SYNTAX-EQUATION-CONSISTENCY-RULES}:]~
 
 \begin{enumerate}
@@ -7909,8 +8630,8 @@ to Syntax Equation Consistency Rules (5) or (6):
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Syntax Equation Propagation Rules}%
-           {propagation rules!syntax equation}:]%
+\item[\key{Syntax Equation Propagation Rules}%
+           :]%
 	   \label{SYNTAX-EQUATION-PROPAGATION-RULES}
 From a consistent syntax equation asserting the identity
 of two objects new equations are deduced as follows:
@@ -7964,12 +8685,12 @@ syntax equations:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Subexpression Symmetry Rule}{subexpression!symmetry rule}:]%
+\item [\key{Subexpression Symmetry Rule}:]%
 \label{SUBEXPRESSION-SYMMETRY-RULE}
 From $e_1$ \TT{:=:} $e_2$ we deduce $e_2$ \TT{:=:} $e_1$.
 
-\item [\ikey{Subexpression Transitivity Rule}%
-            {subexpression!transitivity rule}:]%
+\item [\key{Subexpression Transitivity Rule}%
+            :]%
 \label{SUBEXPRESSION-TRANSITIVITY-RULE}
 From $e_1$ \TT{:=:} $e_2$ and $e_2$ \TT{:=:} $e_3$
 we deduce $e_1$ \TT{:=:} $e_3$.
@@ -8009,8 +8730,8 @@ $e_1$, and $e_2$ of the original syntax equations:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Syntax Variable Identity Rule}%
-            {syntax variable!identity rule}:]%
+\item [\key{Syntax Variable Identity Rule}%
+            :]%
 \label{SYNTAX-VARIABLE-IDENTITY-RULE} ~\\
 If $v_1$ and $v_2$ name the same syntax variable, \\
 then from $v_1$ \TT{:=:} $e_1$ and $v_2$ \TT{:=:} $e_2$
@@ -8104,7 +8825,7 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
     \end{tabular}
 \label{PATTERN}
     \\[1ex]
-\emkey{pattern-separator} ::= \ttmkey{\TILDE}{pattern separator} \\[1ex]
+\emkey{pattern-separator} ::= \ttkey{\TILDE}
 \emkey{pattern-term} ::= {\em pattern-clause} {\em pattern-qualifier}\QMARK{}
 	\\[1ex]
 \emkey{pattern-clause} ::= {\em pattern-factor}\PLUS{} ~~~ [see text]
@@ -8117,13 +8838,13 @@ a {\em pattern}.  The syntax of a pattern equations and patterns is:
                               \TT{.terminator} attributes
        \\[1ex]
 \emkey{pattern-qualifier} ::=
-		           \ttmkey{?}{pattern qualifier}
-		       $|$ \ttmkey{??}{pattern qualifier}
-		       $|$ \ttmkey{...}{pattern qualifier}
-		       $|$ \ttmkey{...?}{pattern qualifier}
+		           \ttkey{?}
+		       $|$ \ttkey{??}
+		       $|$ \ttkey{...}
+		       $|$ \ttkey{...?}
 \end{indpar}
 
-A `\mkey{key}{of a pattern clause}' of a {\em pattern-clause}
+A `\key{key}
 an {\em atom-name} that is a {\em pattern-factor} in the clause
 or in one of the alternatives of
 an {\em alternative-syntax-variable} that is in the clause
@@ -8155,7 +8876,7 @@ For example, the {\em pattern}
 contains the following keys: \TT{replace}, \TT{in}, and \TT{by}.
 
 A pattern represents one of many possible syntax expressions, which are
-called `\skey{unfolded pattern}s' or `\skey{unfolding}s' of the pattern,
+called `\key{unfolded patterns}' or `\key{unfoldings}' of the pattern,
 and are made by concatenating the
 {\em pattern-clauses} in different ways.  For example,
 the {\em pattern} just given has three unfoldings:
@@ -8172,8 +8893,7 @@ The rules for unfolding are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Pattern Unfolding Rules}%
-           {pattern unfolding rules}%
+\item[\key{Pattern Unfolding Rules}%
 	   \index{unfolding rules}%
 	   \label{PATTERN-UNFOLDING-RULES}:]~
 
@@ -8195,12 +8915,12 @@ once in the unfolded {\em pattern}.
 in the {\em pattern} is an \key{optional pattern clause}
 and must be copied exactly once or not at all
 in the unfolded {\em pattern}.
-See \secref{DEFAULT-EQUATIONS} for examples.
+See \itemref{DEFAULT-EQUATIONS} for examples.
 
 \item\label{OPTIONAL-TRUTH-VALUE-CLAUSE-RULE}
 A {\em pattern-clause} followed by `\TT{??}'
 in the {\em pattern} is an
-\ikey{optional truth-value pattern clause}{optional truth-value!pattern clause}.
+\key{optional truth-value pattern clause}
 It must end with a {\em pattern-factor} of the form
 `\TT{(} {\em syntax-variable} \TT{)}'.
 Like an optional {\em pattern-clause}, this {\em pattern-clause}
@@ -8209,22 +8929,22 @@ in the unfolded {\em pattern}.  The copy may omit the last
 {\em pattern-factor}, in which case the omitted {\em syntax-variable}
 will default to `\TT{TRUE'}.
 Or the copy may both omit the last factor and add the factor
-`\ttmkey{not}{in optional truth-value!pattern clause copy}' to the beginning
+`\ttkey{not}' to the beginning
 of the copy, in which case the omitted {\em syntax-variable}
 will default to `\TT{FALSE}'.
-See \secref{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES} for examples.
+See \itemref{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\TT{...}'
 in the {\em pattern} is a \key{repeated pattern clause}
 and must be copied one or more times
 in the unfolded {\em pattern}.
-See \secref{REPEATED-PATTERN-CLAUSES} for examples.
+See \itemref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em pattern-clause} followed by `\TT{...?}'
-in the {\em pattern} is an \lkey{optional repeated}{pattern clause}
+in the {\em pattern} is an \key{optional repeated pattern clause}
 and must be copied one or more times or not at all
 in the unfolded {\em pattern}.
-See \secref{REPEATED-PATTERN-CLAUSES} for examples.
+See \itemref{REPEATED-PATTERN-CLAUSES} for examples.
 
 \item A {\em syntax-variable} in a {\em pattern}
 that appears in an {\em alternative-equation}
@@ -8236,7 +8956,7 @@ If the replacement is a sequence of more than one atom, the replacement
 atoms are inserted in the unfolded pattern increasing the length of
 the unfolded pattern (and not simply replacing
 the {\em alternative-syntax-variable} by a single list object).
-See \secref{ALTERNATIVE-EQUATIONS} for examples.
+See \itemref{ALTERNATIVE-EQUATIONS} for examples.
 
 \item An attribute that does \underline{not} have the \TT{?} attribute flag
 must appear exactly once in the unfolded {\em pattern}.
@@ -8253,7 +8973,7 @@ in the unfolded {\em pattern}.
 A consistent pattern equation produces a unique matching between
 the syntax expression on the right and an unfolding of the pattern
 on the left.  Matching makes use of the concept of a
-`\mkey{terminating key}{of a pattern}' of a {\em pattern}.  This is
+`\key{terminating key}' of a {\em pattern}.  This is
 just a key of the {\em pattern} that can follow a `\TT{(~)}' bracketed
 element in an unfolding of the {\em pattern}.  For example, given
 the pattern
@@ -8263,7 +8983,7 @@ the pattern
 \end{center}
 
 with \TT{\$WHERE} being an {\em alternative-syntax-variable}
-(see \secref{ALTERNATIVE-EQUATIONS} for details)
+(see \itemref{ALTERNATIVE-EQUATIONS} for details)
 defined by
 
 \begin{center}
@@ -8279,8 +8999,7 @@ The rules governing the formation of the matching are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Pattern Matching Rules}%
-           {pattern matching rules}%
+\item[\key{Pattern Matching Rules}%
 	   \index{matching rules}%
 	   \label{PATTERN-MATCHING-RULES}:]~
 
@@ -8345,8 +9064,8 @@ Then the pattern equation consistency rule is:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Pattern Equation Consistency Rule}%
-           {pattern equation!consistency rule}:] ~\\
+\item[\key{Pattern Equation Consistency Rule}%
+           :] ~\\
 A pattern equation is \key{consistent} if either:
 \begin{enumerate}
 \item
@@ -8382,8 +9101,8 @@ to Pattern Equation Consistency Rules:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\ikey{Pattern Equation Propagation Rules}%
-           {propagation rules!pattern equation}:]%
+\item[\key{Pattern Equation Propagation Rules}%
+           :]%
 	   \label{PATTERN-EQUATION-PROPAGATION-RULES}
 When a pattern equation is consistent, the following
 deduce new pattern equations or syntax equations.
@@ -8647,8 +9366,7 @@ on would deduce among other things:
 \subsubsection{Optional Truth-Value Pattern Clauses}
 \label{OPTIONAL-TRUTH-VALUE-PATTERN-CLAUSES}
 
-An \ikey{optional truth-value pattern clause}%
-{optional truth-value!pattern clause}%
+An \key{optional truth-value pattern clause}%
 \index{truth-value!pattern clause}%
 \index{pattern clause!optional truth value}
 (with `\TT{??}' {\em clause-qualifier}\,)
@@ -8784,12 +9502,12 @@ yields
 \label{PLACE-HOLDING-SYNTAX-VARIABLES}
 
 A `\TT{\$\$}' by itself can be used as a syntax variable called
-a \lkey{place holding}{syntax variable} that has the special
+a \key{place holding syntax variable} that has the special
 property that each of its original equation occurrences
 is treated as if it were a \underline{different} variable.  The syntax is:
 
 \begin{indpar}
-\emlkey{place-holding}{-syntax-variable} ::= \ttkey{\$\$}
+\emkey{place-holding-syntax-variable} ::= \ttkey{\$\$}
 \end{indpar}
 
 More specifically, whenever \TT{\$\$} appears in an original
@@ -8820,14 +9538,14 @@ syntax variable names created by the RECKON system.
 Syntax variables
 take values that are syntax expressions
 which are \underline{not} evaluated.  Such syntax variables are called
-\lkey{unevaluated}{syntax variables}.  With every unevaluated syntax
+\key{unevaluated syntax variables}.  With every unevaluated syntax
 variable there can be associated an \key{evaluated syntax variable}
 whose name is made by omitting the \TT{\$} from the beginning of the
 unevaluated syntax variable name.  Thus \TT{X} is associated with
 \TT{\$X} and \TT{X 5} is associated with \TT{\$(X 5)}.  The syntax is:
 
 \begin{indpar}
-\emlkey{unevaluated}{-syntax-variable}\label{UNEVALUATED-SYNTAX-VARIABLE}
+\emkey{unevaluated-syntax-variable}\label{UNEVALUATED-SYNTAX-VARIABLE}
 			\begin{tabular}[t]{rl}
 			::= & \TT{\$} {\em capitalized-word }
 				as a single lexeme \\
@@ -8849,7 +9567,7 @@ More formally:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Evaluatable Definition}{evaluatable definition}:]%
+\item [\key{Evaluatable Definition}:]%
 \label{EVALUATABLE-DEFINITION}
 An unevaluated
 syntax variable \TT{\$}$v$ is evaluatable if a syntax equation
@@ -8859,10 +9577,10 @@ In particular, \TT{\$}$v$ is evaluatable if $e$ does not contain any syntax
 variables.
 
 Here $e$ is called the \key{unevaluated value} of \TT{\$}$v$, and
-the \lkey{completed}{unevaluated value} of \TT{\$}$v$ is $e$ with all the
+the \key{completed unevaluated value} of \TT{\$}$v$ is $e$ with all the
 syntax variables it contains replaced by their completed unevaluated values.
 
-\item [\ikey{Evaluation Rule}{evaluation rule}:]%
+\item [\key{Evaluation Rule}:]%
 \label{EVALUATION-RULE}
 If an evaluated syntax variable $v$ appears in a syntax equation and
 its associated unevaluated syntax variable \TT{\$}$v$ is evaluatable,
@@ -8915,8 +9633,8 @@ following:
 
 \begin{indpar}
 \begin{list}{}{}
-\item [\ikey{Evaluated Variable Promotion Rule}%
-{evaluated variable!promotion rule}:]%
+\item [\key{Evaluated Variable Promotion Rule}%
+:]%
 \label{EVALUATED-VARIABLE-PROMOTION-RULE}
 If an evaluated syntax variable $v$ appears in an expression definition
 in places where only an unevaluated syntax variable can appear
@@ -9018,7 +9736,7 @@ given a value.
 \label{EXPRESSION-MATCHING-ALGORITHM}
 
 The \key{evaluation algorithm} inputs an expression to be evaluated
-and a context.  The context (\secref{CONTEXTS}) provides a list of expression
+and a context.  The context (\itemref{CONTEXTS}) provides a list of expression
 definitions that may match the expression.  Evaluating the expression
 requires searching contexts for expression definitions that match the
 expression.
@@ -9039,7 +9757,7 @@ the outcome of the matching process is uniquely determined, and does not
 depend on the order of syntax equation deductions, guard evaluations, etc.,
 or on the order in which the choices are tried.
 
-Matching may be done in any of the following \skey{matching mode}s:
+Matching may be done in any of the following \key{matching modes}:
 
 \begin{list}{}{}
 
@@ -9087,12 +9805,12 @@ other contexts.  Context elements that are expression definitions are
 matched to the expression being evaluated.  Context elements that are
 themselves contexts are searched recursively.
 
-\ikey{Context lists}{list!context}
+\key{Context lists}
 \label{CONTEXT-MODE}
 are searched in order if the
 matching mode is \TT{first-value}, and are searched exhaustively
 otherwise.
-\ikey{Context sets}{set!context} are always searched exhaustively.
+\key{Context sets} are always searched exhaustively.
 
 There is a \key{current context} which is the value of the
 global variable `\ttkey{CURRENT CONTEXT}'.
@@ -9122,18 +9840,18 @@ computes a new context mark.
 
 The statements
 \begin{indpar}
-\ttmkey{add}{to context} {\em expression-definition} \TT{to}
+\ttkey{add}
     {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{} \\
-\ttmkey{add}{to context} {\em context} \TT{to}
+\ttkey{add}
     {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{} \\
-\ttmkey{add}{to context} {\em context-mark} \TT{to}
+\ttkey{add}
     {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{}
 \end{indpar}
 add elements to the context beginning or end, where the
 default is to add to the \underline{beginning} (which is searched first).
 The statement
 \begin{indpar}
-\ttmkey{pop}{from context} {\em context-mark} \TT{from}
+\ttkey{pop}
     {\em context} \{ \TT{beginning} $|$ \TT{end} \}\QMARK{}
 \end{indpar}
 removes elements from the context beginning or end until the
@@ -9145,13 +9863,13 @@ write-only.  They can also be treated as lists or sets when
 searched (\pagref{CONTEXT-MODE}).  These context attributes
 can be changed by the statement
 \begin{indpar}
-\ttmkey{make}{context} {\em context} {\em context-mode} \\
+\ttkey{make}
 \emkey{context-mode} \begin{tabular}[t]{@{}cl}
-                     ::= & \ttmkey{READ-WRITE}{context mode} \\
-                     $|$ & \ttmkey{READ-ONLY}{context mode} \\
-                     $|$ & \ttmkey{WRITE-ONLY}{context mode} \\
-                     $|$ & \ttmkey{SET-SEARCH}{context mode} \\
-                     $|$ & \ttmkey{LIST-SEARCH}{context mode} \\
+                     ::= & \ttkey{READ-WRITE} \\
+                     $|$ & \ttkey{READ-ONLY} \\
+                     $|$ & \ttkey{WRITE-ONLY} \\
+                     $|$ & \ttkey{SET-SEARCH} \\
+                     $|$ & \ttkey{LIST-SEARCH} \\
 		     \end{tabular}
 \end{indpar}
 
@@ -9161,7 +9879,7 @@ The list of context elements
 can be copied from the context object by
 
 \begin{indpar}
-\TT{the} \ttmkey{list}{of context} \TT{of} {\em context}
+\TT{the} \ttkey{list}
 \end{indpar}
 
 The result is a list object whose elements are expression definition,
@@ -9174,7 +9892,7 @@ the context object.
 
 A block is a set of variables, values for some of the variables, and
 code for computing these values.  Blocks are optional parts of
-{\em expression-definitions} (\secref{EXPRESSION-DEFINITION}).
+{\em expression-definitions} (\itemref{EXPRESSION-DEFINITION}).
 
 \subsection{Block Syntax}
 \label{BLOCK-SYNTAX}
@@ -9219,20 +9937,20 @@ The code of a block has the following syntax:
     $|$ & {\em guarded-statement}
     \end{tabular}
 \\[1ex]
-\emlkey{variable}{-assignment-statement} \\
+\emkey{variable-assignment-statement} \\
 \hspace*{0.5in}
 	\begin{tabular}[t]{rl}
-	::= & {\em output-variable} \ttmkey{=}{in assignment}
+	::= & {\em output-variable} \ttkey{=}
 	      {\em value-expression} \\
 	$|$ & \TT{(} {\em output-variable}
 	             \{ \TT{,} {\em output-variable} \}\STAR{} \TT{)}
 	      \ttkey{=} {\em value-expression} \\
 	\end{tabular}
 \\[1ex]
-\emlkey{variable}{-assignment-subblock} \\
+\emkey{variable-assignment-subblock} \\
 \hspace*{0.5in}
 	\begin{tabular}[t]{rl}
-	::= & {\em output-variable} \ttmkey{=}{in assignment}
+	::= & {\em output-variable} \ttkey{=}
 	      {\em temporary-subblock} \\
 	$|$ & \TT{(} {\em output-variable}
 	             \{ \TT{,} {\em output-variable} \}\STAR{} \TT{)}
@@ -9247,7 +9965,7 @@ The code of a block has the following syntax:
 \\[1ex]
 \emkey{variable-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
 \\[1ex]
-\emlkey{pattern}{-assignment-statement} ::=
+\emkey{pattern-assignment-statement} ::=
 	{\em pattern}~~\TT{\TILDE=:}\index{~=:@{\TT{\TILDE=:}}}~~%
 	{\em value-expression}
 \\[1ex]
@@ -9280,7 +9998,7 @@ must be identified.  These have
 {\em variable-names} that are one of the following:
 \begin{enumerate}
 \item
-{\em Variable-names} \mkey{inherited}{variable-name}
+{\em Variable-names} \key{inherited}
 from a {\em expression-definition} containing the block.
 \item
 {\em Output-variables} in {\em assignment-statements}.
@@ -9367,8 +10085,8 @@ Block evaluation proceeds according to the following rules:
 \begin{enumerate}
 
 \item
-\ikey{Blocks}{block!evaluation}
-are divided into \ikey{groups}{group!evaluation} by \skey{sequence-break}s.
+\key{Blocks}
+are divided into \key{groups} by \key{sequence-breaks}.
 The {\em groups} are evaluated in order: each group being completely
 evaluated before the next group is evaluated.  No part of a {\em group}
 can evaluate until all previous {\em groups} of the block have completely
@@ -9378,14 +10096,14 @@ a previous {\em group} can evaluate.
 A {\em block} terminates when its last group terminates.
 
 \item
-The \ikey{declarations}{declaration!evaluation} of a
-\mkey{declaration-group}{evaluation} are evaluated in order.  Evaluation of a
+The \key{declarations} of a
+\key{declaration-group}
 {\em declaration} just adds its definition to the current context.
 The {\em declaration-group} terminates when its last {\em declaration}
 has evaluated.
 
 \item
-Evaluation within a \mkey{statement-group}{evaluation}
+Evaluation within a \key{statement-group}
 is driven by availability of variable values,
 and not by the order of the {\em statements} in the group.
 
@@ -9396,7 +10114,7 @@ a block evaluation, even if all the values assigned are the same.
 
 \item
 Block variables named in an {\em value-expression}
-are called \skey{input-variable}s.
+are called \key{input-variables}.
 Each {\em value-expres\-sion} in a {\em statement-group}
 is evaluated \underline{only after all} its input variables have be
 given values.
@@ -9487,12 +10205,12 @@ later in the block defines that part's input variables.
 
 However, {\em statement-group}
 evaluation is additionally modified by {\em statement-qualifiers}:
-see Default Statements \secref{DEFAULT-STATEMENTS}
-and Iteration \secref{ITERATION}.
+see Default Statements \itemref{DEFAULT-STATEMENTS}
+and Iteration \itemref{ITERATION}.
 
 \item
 When a block that is not a subblock
-terminates, the \mkey{value}{of block} of the block is the
+terminates, the \key{value}
 value of its \TT{value} variable\index{value variable@\TT{value} variable},
 if any.  Thus a one-statement block
 
@@ -9505,7 +10223,7 @@ the sum of its inherited variables as the value of the block.
 
 If a block that is not a subblock
 finishes without producing a value for a variable named
-\TT{value}, the value of the block is \ttmkey{true}{block value}.
+\TT{value}, the value of the block is \ttkey{true}
 
 \end{enumerate}
 
@@ -9566,7 +10284,7 @@ which is a block variable whose name has the form `\TT{next} $V$'
 for some ordinary variable name $V$.
 
 The blocks in the sequence are called the
-\skey{iteration}s of the original {\em block}.
+\key{iterations} of the original {\em block}.
 Evaluation of a block can always
 be thought of as producing a sequence of iterations, though this
 sequence might include only one block which does not iterate.
@@ -9652,14 +10370,14 @@ An \key{description} can be created by an {\em description-expression}:
 \end{indpar}
 
 The {\em block} executes and the block variables it gives values to
-become \skey{component}s of the description.
+become \key{components} of the description.
 These components can be retrieved by expressions of the form:
 
 \begin{indpar}
 \emkey{component-expression} ::=
-    \ttmkey{the}{the of@\TT{the} \ldots \TT{of}}
+    \ttkey{the}
     {\em variable-name}
-    \ttmkey{of}{the of@\TT{the} \ldots \TT{of}}
+    \ttkey{of}
     {\em description}
 \end{indpar}
 
@@ -9669,14 +10387,14 @@ Description components can be updated by
 expressions such as:
 
 \begin{indpar}
-\emlkey{description}{-update-expression} ::=
-    \ttmkey{for}{description update}
+\emkey{description-update-expression} ::=
+    \ttkey{for}
     {\em description} \TT{:} {\em block}
 \end{indpar}
 
 Here the {\em block} inherits existing components of the {\em description}
 and may add new components.  The {\em block} in a
-{\em description-update-expression} may also define `\skey{update variable}s'
+{\em description-update-expression} may also define `\key{update variables}'
 that have names of the form `\TT{update} $v$'.  When the {\em block}
 terminates, if it has given a value to a block variable with such a name,
 the value becomes the new value of description component $v$.
@@ -9686,7 +10404,7 @@ given a value becomes the value of the {\em description-update-expression}.
 Code can be added to a description type by:
 \begin{indpar}
 \emkey{type-update-statement} ::=
-    \ttmkey{for every}{type update}
+    \ttkey{for every}
     {\em type-name} \TT{:} {\em block}
 \end{indpar}
 
@@ -9714,7 +10432,7 @@ description.  A big advantage of constructors over {\em description-expressions}
 is that constructors can have arguments that are inherited by the block
 that defines the description.
 
-For updating descriptions, `\skey{method}s' can be defined by syntax
+For updating descriptions, `\key{methods}' can be defined by syntax
 of the form:
 \begin{center}
 \begin{tabular}{l}
@@ -9759,7 +10477,7 @@ When an expression is evaluated, it may or may not have side effects.
 
 The order in which side effects are executed is determined by
 {\em sequence-breaks} that divide a {\em block} into {\em groups}
-further (\secref{BLOCK-EVALUATION}).  A programmer typically writes code
+further (\itemref{BLOCK-EVALUATION}).  A programmer typically writes code
 so there is at most one side effect per {\em group}, in order to
 ensure side effects execute in the desired order.
 
@@ -9777,8 +10495,8 @@ while output side effects do not execute, but are instead put on a
 \TT{todo} list.
 
 There are two lists maintained that permit side effects to be delayed
-or undone.  The \ttmkey{todo}{list} list is a list of delayed output
-actions that have been delayed.  The \ttmkey{undo}{list} list is
+or undone.  The \ttkey{todo}
+actions that have been delayed.  The \ttkey{undo}
 a list of input and memory change actions that can be undone.
 The position of these lists can be recorded and an undo
 operation can be performed that backs up to previously recorded positions
@@ -9797,35 +10515,35 @@ item.
 The following statements operate on the side effect mode stack:
 
 \begin{list}{}{}
-\item[\ttlkey{begin executing}{side effects}]~~~Push a new item with side effect
+\item[\ttkey{begin executing side effects}]~~~Push a new item with side effect
 execute mode onto the side effect mode stack.  Before the push the
 stack must be empty or the top item in the stack must have execute or
 error mode.
 
-\item[\ttlkey{end executing}{side effects}]~~~Pop the top item from
+\item[\ttkey{end executing side effects}]~~~Pop the top item from
 the side effect mode stack.  This top item must have
 execute mode.
 
-\item[\ttlkey{begin forbidding}{side effects}]~~~Push
+\item[\ttkey{begin forbidding side effects}]~~~Push
 a new item with side effect
 error mode onto the side effect mode stack.  Before the push the
 stack must be empty or the top item in the stack must have execute or
 error mode.
 
-\item[\ttlkey{end forbidding}{side effects}]~~~Pop the top item from the
+\item[\ttkey{end forbidding side effects}]~~~Pop the top item from the
 side effect mode stack.  This top item must have
 error mode.
 
-\item[\ttlkey{delay}{side effects}]~~~Push a new item with side effect
+\item[\ttkey{delay side effects}]~~~Push a new item with side effect
 delay mode onto the side effect mode stack.
 
-\item[\ttlkey{commit}{side effects}]~~~Pop the top item from the
+\item[\ttkey{commit side effects}]~~~Pop the top item from the
 side effect mode stack.  This top item must have
 delay mode.  It the resulting stack has a new top item that is not
 delay mode, discard the contents of the \TT{undo} stack, and execute
 and then discard the contents of the \TT{todo} stack.
 
-\item[\ttlkey{abort side}{effects}]~~~Pop the item from the
+\item[\ttkey{abort side effects}]~~~Pop the item from the
 the side effect mode stack.  This top item must have
 delay mode.  Consider the \TT{todo} and \TT{undo} list positions
 of the new item at the top of the stack, or take these positions to be
