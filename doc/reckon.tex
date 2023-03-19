@@ -172,7 +172,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 13, 2023}
+\date{March 19, 2023}
 
 \maketitle
 
@@ -5389,9 +5389,8 @@ and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
 RECKON operators are listed in
-Figures~\itemref{RECKON-LINE-OPERATORS},
-~\itemref{RECKON-NON-LINE-OPERATORS-1},
-and~\itemref{RECKON-NON-LINE-OPERATORS-2}.
+Figures~\itemref{RECKON-LINE-OPERATORS}
+and~\itemref{RECKON-NON-LINE-OPERATORS}.
 
 
 Given this, expressions have the following syntax,
@@ -5488,31 +5487,10 @@ Operator & Meaning & Fixity & Format & Precedence \\
                    & completion & right & &
 \\\cline{1-3}
 \key{subblock} & conditional & afix & & \\
-               & or declaration &      & & \\
-               & completion &      & &
+               & or completion &      & &
 \\\cline{2-4}
 	       & assignment & postfix & postfix & \\
 	       & or loop    &         &         &
-\\\cline{1-4}
-\ttkey{type} & declaration & prefix & declaration &
-\\\cline{1-1}
-\ttkey{pointer type} & & & &
-\\\cline{1-1}
-\ttkey{function} & & & &
-\\\cline{1-1}
-\ttkey{\begin{tabular}[t]{@{}l@{}}
-       reference\\
-       ~~function
-       \end{tabular}} & & & &
-\\\cline{1-1}
-\ttkey{\begin{tabular}[t]{@{}l@{}}
-       out-of-line\\
-       ~~function
-       \end{tabular}} & & & &
-\\\cline{1-1}\cline{3-4}
-\ttkey{is type} & & afix & (none) &
-\\\cline{1-1}
-\ttkey{is function} & & infix & &
 \\\hline
 \ttkey{=} & assignment & left & assignment & 1000
 \\\cline{1-4}
@@ -5523,37 +5501,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{*=} & multiply by & & &
 \\\cline{1-2}
 \ttkey{/=} & divide by & & &
-\\\cline{1-2}
-\ttkey{|=} & include & & &
-\\\cline{1-2}
-\ttkey{\&=} & mask & & &
-\\\cline{1-2}
-\ttkey{\textasciicircum=} & flip & & &
-\\\cline{1-2}
-\ttkey{<{}<=} & shift left & & &
-\\\cline{1-2}
-\ttkey{>{}>=} & shift right & & &
-\\\hline
-\ttkey{=@} & pointer & infix & binary & 1100 \\
-           & assignment & & &
-\\\hline
-\end{tabular}
-\end{center}
-
-\caption{L-Language Line Operators}
-\label{RECKON-LINE-OPERATORS}
-\end{boxedfigure}
-
-\begin{boxedfigure}[!p]
-\begin{center}
-Non-Line Level Operators: Part I \\
-May Occur Inside or Outside Parentheses and Brackets
-\\[1ex]
-\begin{tabular}{|l|l|l|l|r|}
-\hline
-Operator & Meaning & Fixity & Format & Precedence \\
-\hline
-\ttkey{,} & separator & nofix & separator & 2000
 \\\hline
 \ttkey{do} & iterator & prefix & unary & 3000
 \\\cline{1-1}
@@ -5567,6 +5514,24 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-4}
 \ttkey{times} & iterator & afix   & (none) & \\
                & modifier &        &       &
+\\\hline
+\end{tabular}
+\end{center}
+
+\caption{RECKON Line Operators}
+\label{RECKON-LINE-OPERATORS}
+\end{boxedfigure}
+
+\begin{boxedfigure}[!p]
+\begin{center}
+Non-Line Level Operators: Part I \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
+\ttkey{,} & separator & nofix & separator & 2000
 \\\hline
 \ttkey{if} & selector & infix & selector & 10000
 \\\cline{1-1}\cline{3-4}
@@ -5596,47 +5561,16 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{+}  & addition & infix & sum & 13000
 \\\cline{1-2}
 \ttkey{-}  & subtraction & & &
-\\\cline{1-2}\cline{4-4}
-\ttkey{|}  & bitwise or & & n-ary &
-\\\cline{1-2}
-\ttkey{\&}  & bitwise and & & &
-\\\cline{1-2}
-\ttkey{\textasciicircum}  & bitwise xor & & &
 \\\hline
 \ttkey{/}  & division & infix & binary & 13100
 \\\cline{1-2}\cline{4-5}
 \ttkey{*}  & multiplication & & n-ary & 13200
 \\\cline{1-2}\cline{4-5}
-\ttkey{**}  & exponentiation & & binary & 13300
-\\\cline{1-2}
-\ttkey{<{}<}  & left shift & & &
-\\\cline{1-2}
-\ttkey{>{}>}  & right shift & & &
+\ttkey{\textasciicircum}  & exponentiation & & binary & 13300
 \\\hline
-
-\end{tabular}
-\end{center}
-
-\caption{L-Language Non-Line Operators}
-\label{RECKON-NON-LINE-OPERATORS-1}
-\end{boxedfigure}
-
-\clearpage
-
-\begin{boxedfigure}[!t]
-\begin{center}
-Non-Line Level Operators: Part II \\
-May Occur Inside or Outside Parentheses and Brackets
-\\[1ex]
-\begin{tabular}{|l|l|l|l|r|}
-\hline
-Operator & Meaning & Fixity & Format & Precedence \\
-\hline
 \ttkey{+}  & no-op & prefix & unary & H-1
 \\\cline{1-2}
 \ttkey{-}  & negation & & & 
-\\\cline{1-2}
-\ttkey{\textasciitilde}  & bitwise complement & & & 
 \\\cline{1-2}
 \ttkey{\#}  & length & & & 
 \\\cline{1-2}
@@ -5652,14 +5586,13 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \end{tabular}
 \end{center}
 
-\caption{L-Language Non-Line Operators}
-\label{RECKON-NON-LINE-OPERATORS-2}
+\caption{RECKON Non-Line Operators}
+\label{RECKON-NON-LINE-OPERATORS}
 \end{boxedfigure}
 
 The operators in
-Figures~\itemref{RECKON-LINE-OPERATORS},
-~\itemref{RECKON-NON-LINE-OPERATORS-1},
-and~\itemref{RECKON-NON-LINE-OPERATORS-2}
+Figures~\itemref{RECKON-LINE-OPERATORS}
+and~\itemref{RECKON-NON-LINE-OPERATORS}
 have precedences in
 the range {\em [L,H]}.
 Precedence {\em (L-1)} is reserved for the `error operator' which is a
@@ -5691,13 +5624,6 @@ and `operand' to mean {\em (P+1)-expression}:
 \begin{tabular}{p{1in}p{5.0in}}
 \ttkey{postfix}
     & The expression must consist of an operand followed by the operator.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1in}p{5.0in}}
-\ttkey{declaration}
-    & The expression must consist of an operator followed by
-      an operand (that may contain {\tt =} and {\tt ,}) followed sometimes
-      by a subblock operator.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
@@ -5752,105 +5678,7 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \end{center}
 
-There are a few additional special syntactic rules:
-\begin{enumerate}
-\item Non-line bitwise operators (\TT{|}, \TT{\&}, \TT{\textasciicircum},
-\TT{<{}<}, \TT{>{}>}, and \TT{\textasciitilde}) cannot be mixed
-with non-line arithmetic operators
-(\TT{+}, \TT{-}, \TT{/}, \TT{*}, and \TT{**})
-outside parentheses in a subexpression.
-E.g., `{\tt x + (y * \textasciitilde{} z)}'
-is illegal but `{\tt x + (y * (\textasciitilde{} z))}' is legal.
-\end{enumerate}
-
-
-Full semantics of operators and expressions is described later,
-but the following examples give an idea of some of this semantics:
-
-\begin{indpar}
-\hspace*{-0.2in}{\tt T v \TT{=} x + y * z} \\
-       Here {\tt T} is the \key{target type} of the expression
-       `{\tt x + y * z}' and thus must be the result type of the prototype
-       of the `{\tt +}' function, since function results cannot be
-       implicitly converted.  Because it is the result type of {\tt +} and
-       arithmetic operators (with a few exceptions)
-       have operands that are of the same
-       type as their result,
-       {\tt T} is also the target type of {\tt x} and {\tt *}, and since it is
-       the target type of {\tt *} it will be the target type of {\tt y}
-       and {\tt z}.  Implicit conversions of variables are allowed,
-       so {\tt x}, {\tt y}, and {\tt z} will all be converted
-       to type {\tt T} before any computation is done.
-
-\hspace*{-0.2in}{\tt T v \TT{=} x \TT{if} y \TT{else} z} \\
-      If {\tt y} is not a {\tt const}, it is evaluated with
-      target type {\tt bool}.  If that value
-      is {\tt true}, {\tt x} is evaluated and returned; otherwise
-      {\tt z} is evaluated and returned.  Both {\tt x} and {\tt z},
-      have target type {\tt T}.
-
-      However if {\tt y} is a {\tt const} value, the right-side of
-      the statement is replaced by {\tt x} or {\tt z}, whichever
-      is discarded is also not compiled, and if it would be in error
-      were it compiled, the error is not detected (unless it is a parsing
-      error).
-
-\hspace*{-0.2in}{\tt bool v = x \TT{AND} y} \\
-      If either operand evaluates to {\tt FALSE},
-      compile-time evaluation stops and the statement is replaced by
-      `{\tt bool v \TT{=} FALSE}'.
-
-      Otherwise same as `{\tt bool v \TT{=} y if x else FALSE}'.
-
-      The {\tt const} values {\tt TRUE}
-      and {\tt FALSE} are implicitly convertible to run-time {\tt bool}
-      {\tt true} ({\tt 1}) and {\tt false} ({\tt 0}), respectively.
- 
-\hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
-      This is logically equivalent to `{\tt x < y} AND {\tt y < z}', except that
-      {\tt y} is evaluated at most once.
-
-      If any comparison evaluates to {\tt FALSE} at compile-time,
-      compile-time evaluation stops and the entire expression is replaced by
-      `{\tt FALSE}'.
-
-      If a single comparison evaluates to {\tt TRUE} at compile-time,
-      that comparison is removed from the {\tt AND}-containing version
-      of the expression.
-
-      If run-time evaluation is necessary,
-      some operands need to be evaluated
-      at run-time, and a target type {\tt T} needs to be found for
-      these operands.
-      A single target type {\tt T} must work as the target type of all
-      the run-time operands.  If several target types {\tt T} work and
-      one is the type of a reference expression operand, that is used.
-      Otherwise if several work, it is a compile error.
-
-      Changing the expression to `{\tt T(x) < y < z}' will force
-      the target type to be {\tt T} if that works, or a compile
-      error otherwise.
-
-\hspace*{-0.2in}{\tt v[x+5] \TT{=} y} \\
-      The target type of subscript expressions such as `{\tt x + 5}'
-      is {\tt int}.
-
-\hspace*{-0.2in}{\tt \TT{\textasciitilde} x} \\
-       The `{\tt \textasciitilde}' operator
-       evaluates on signed integers as if they were represented
-       in two's complement by binary values of unbounded size,
-       and similarly for other bitwise operators.
-
-\hspace*{-0.2in}{\tt x \TT{**} y} \\
-       Requires that {\tt y} be a {\tt const} non-negative integer;
-       {\tt x ** 0 \TT{==} 1} and {\tt x ** 1 \TT{==} x} for all {\tt x}.
-
-\hspace*{-0.2in}{\tt x \TT{+=} y} \\
-	Means `{\tt x \TT{=} x + y}', where {\tt x} must be {\tt *READ-WRITE*}.
-
-\hspace*{-0.2in}{\tt next x \TT{+=} y} \\
-	Means `{\tt next x = x + y}'.  `{\tt next x}' must be defined.
-\end{indpar}
+\clearpage
 
 \section{Primaries}
 \label{PRIMARIES}
@@ -5944,7 +5772,7 @@ A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
-L-Language uses several kinds of names:
+RECKON uses several kinds of names:
 
 \begin{indpar}
 \emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s \\
