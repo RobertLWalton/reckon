@@ -172,7 +172,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{March 19, 2023}
+\date{March 29, 2023}
 
 \maketitle
 
@@ -1942,6 +1942,9 @@ and {\em quoted-strings} represent
 \key{symbols}\label{SYMBOL} that store character strings.
 The character strings represented by all but {\em quoted-strings}
 are exactly the character strings of these lexemes.
+
+\section{Names}
+\label{NAMES}
 
 Lexemes can be used to form \key{names} of variables,
 constants, and functions:
@@ -5689,7 +5692,7 @@ parentheses or brackets:
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em constant-primary} \\
-    $|$ & {\em reference-expression}    & [\pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & {\em variable-name}           & [\pagref{VARIABLE-NAMES}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     $|$ & {\em bracketed-expression}	& [\pagref{BRACKETED-EXPRESSIONS}] \\
     \end{tabular}
@@ -5705,193 +5708,6 @@ parentheses or brackets:
 Note that a {\em rational-constant} is an operator (e.g. {\tt D\#})
 followed by a {\em string-constant}, and therefore contains an operator
 and is not a {\em primary}.
-
-\subsection{Names}
-\label{NAMES}
-
-A \key{name} is a sequence of lexemes used to name things like
-variables and functions.  Names are building blocks of primaries.
-
-\begin{indpar}
-\emkey{name}\label{NAME} ::=
-    {\em initial-name-item} {\em continuing-name-item}\STAR{} \\
-\emkey{initial-name-item} ::= {\em name-item} other than {\em natural} \\
-\emkey{continuing-name-item} ::= {\em name-item} not containing `\TT{.}' \\
-\emkey{name-item}\label{NAME-ITEM}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em word} containing no `\TT{.}' that follows a character
-                     that is not a `\TT{.}' \\
-        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
-	   of the {\em word}] \\
-        & [see text about splitting words with embedded `\TT{.}'s] \\
-    $|$ & {\em natural} [see \pagref{LEXEME-TYPE-CONVERSION}] \\
-    $|$ & {\em quoted-mark} containing no `\TT{.}' that follows a character \\
-        & that is not the beginning \TT{"} or another `\TT{.}' \\
-        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
-	   of the {\em mark}] \\
-        & [see text about splitting marks with embedded `\TT{.}'s] \\
-    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
-    \end{tabular} \\
-\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
-\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
-\end{indpar}
-
-{\em Words} and {\em marks} containing embedded `\TT{.}'s are split into
-parts which contain `\TT{.}'s only at their beginning.
-Thus:
-\begin{center}
-\begin{tabular}{lcl}
-\TT{bill.1.weight..size} & splits into & \TT{bill~~~.1~~~.weight~~~~..size} \\
-\TT{p.@.*}               & splits into & \TT{p~~~.@~~~.*} \\
-\TT{.@.*}               & splits into & \TT{.@~~~.*} \\
-\TT{.,.*}               & splits into & \TT{.,~~~.*} \\
-\TT{.*.p}               & splits into & \TT{.*~~~.p} \\
-\end{tabular}
-\end{center}
-However it is a compile error if one of the parts is not a {\em word}
-or {\em mark}, as in the examples where {\tt .1} is a {\em number} and
-{\tt .,} is not a legal lexeme.
-
-{\em Quoted-marks} are \underline{not} split.
-
-A function may be defined with a {\em name} that is a {\em quoted-mark},
-such as {\tt "+"}.  It may then be called by an expression in which the
-quotes are omitted, such as {\tt x + y}.  Similarly a function may be
-defined with a function-term {\tt ".*"} and called by the expression
-{\tt p.*} which is split into {\tt p .*}.
-
-
-Name items beginning with more than one `\TT{.}' are reserved
-for use by systems and compilers (e.g., \TT{..size} in the example).
-Name items that are words containing `\TT{\$}' or that both
-begin and end with `\TT{*}' are
-similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
-are reserved for use as type wildcards.
-
-A name may begin with a {\em word} that is a {\em module-abbreviation}
-that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
-For example {\tt std} abbreviates the builtin standard module.
-
-RECKON uses several kinds of names:
-
-\begin{indpar}
-\emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s \\
-\emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
-\emkey{ma} ::= {\em module-abbreviation} \\
-\\[1ex]
-\emkey{basic-name}\label{BASIC-NAME} ::=
-	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, or
-	    {\em quoted-separator} \\
-\emkey{variable-name}\label{VARIABLE-NAME} ::=
-    {\em basic-name} \\
-\emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
-    {\em variable-name} whose {\em basic-name} begins with an \TT{@} \\
-\emkey{target-variable}\label{TARGET-VARIABLE} ::=
-    {\em variable-name} whose {\em basic-name} does \underline{not}
-    begin with an \TT{@} \\
-\emkey{statement-label} ::= {\em basic-name}
-    \label{STATEMENT-LABEL} not containing `\TT{@}'s
-\\[1ex]
-\emkey{member-name}\label{MEMBER-NAME}
-	::= \begin{tabular}[t]{@{}l@{}}
-                        {\em name} beginning with a {\em word} or
-			{\em quoted-mark} containing a `\TT{.}', \\
-			but not containing a {\em quoted-separator} \\
-			(note: all `\TT{.}'s in a {\em name} must be at
-			 the beginning of the {\em name})
-			\end{tabular} \\
-\emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
-    {\em member-name} with `\TT{@}' following the initial `\TT{.}'s \\
-\emkey{target-member-name}\label{TARGET-MEMBER-NAME} ::=
-    {\em member-name} that is \underline{not} a {\em pointer-member-name}
-\\[1ex]
-\emkey{data-label}\label{DATA-LABEL} ::=
-    {\em basic-name} $|$ {\em member-name}
-\\[1ex]
-\emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
-    \label{FUNCTION-TERM-NAME}
-\\[1ex]
-\emkey{qualifier-name}\label{QUALIFIER-NAME}
-    \begin{tabular}[t]{rl}
-    ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
-                     $|$ \ttakey{WRITE-ONLY} \\
-    $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
-    \end{tabular}
-\begin{indpar}
-{\tt co} abbreviates `constant' meaning `never changes' \\
-{\tt ro} abbreviates `read-only' meaning `other code may change' \\
-{\tt *GLOBAL*} has global (forever) lifetime \\
-{\tt *LOCAL*} has lifetime that ends when current stack frame is destroyed \\
-{\tt *HEAP*} has lifetime managed by a garbage collector
-\end{indpar}
-\emkey{operator-word}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{if} $|$ \TT{else} $|$ \TT{while} $|$ \TT{until}
-                  $|$ \TT{AND} $|$ \TT{OR}
-		  $|$ \TT{NOT} $|$ \TT{BUT}
-    \end{tabular}
-
-\emkey{function-keyword}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{no} $|$ \TT{not} $|$ \TT{function} \\
-    $|$ & \TT{"="} $|$ \TT{","} $|$ \TT{"("} $|$ \TT{")"} $|$
-          \TT{"["} $|$ \TT{"]"}
-    \end{tabular}
-
-\emkey{wild-card}\label{WILD-CARD}
-    ::= {\em simple-name} beginning with {\em wild-card-prefix}
-
-\emkey{wild-card-prefix}\label{WILD-CARD-PREFIX} :::= one of: \\
-\hspace*{0.2in}\begin{tabular}{rp{4in}}
-\ttkey{T\$} & name is assigned a {\em type-name} \\
-\ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
-\ttkey{Q\ldots\$} & {\em qualifier-wild-card}; name is assigned a
-                    list of {\em qualifier-names} subject to
-		    {\em qualifier-wild-card-flags} `\ldots'\\
-\end{tabular}
-
-\emkey{qualifier-wild-card}\label{QUALIFIER-WILD-CARD} :::=
-    \TT{Q}~{\em qualifier-wild-card-flag}\STAR{}~ \TT{\$}
-
-\emkey{qualifier-wild-card-flag}\label{QUALIFIER-WILD-FLAG} :::= one of: \\
-\hspace*{0.2in}\begin{tabular}{rll}
-\ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
-\ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{L} & allows \TT{*LOCAL*}  & (see rule \ref{Q-FLAG-RULE} below )\\
-\ttkey{G} & allows \TT{*GLOBAL*} & (see rule \ref{Q-FLAG-RULE} below )\\
-\ttkey{H} & allows \TT{*HEAP*}   & (see rule \ref{Q-FLAG-RULE} below )\\
-\end{tabular}
-
-
-where the following rules should be followed, least there be
-various confusing syntax or semantic errors (some, but not all,
-violations of these rules will be detected as compilation errors):
-\begin{enumerate}
-\item
-A {\em type-name} should not begin with a {\em pointer-type-name}.
-\item
-A {\em pointer-type-name} should not begin with a {\em type-name}.
-\item
-{\em Function-term-names} and {\em basic-names}
-should not begin with a {\em module-abbre\-viation}
-or contain {\em function-keywords}.
-\item
-{\em Names} not used as operators should not begin with initial {\em operators},
-should not end with final {\em operators}, and should not contain
-{\em operators} that are neither initial nor final.
-\item
-{\em Names} that are not {\em qualifier-names}
-should not contain {\em qualifier-names}, with the
-exception that a {\em qualifier-name} by itself can be
-a {\em function-term}.
-\item\label{Q-FLAG-RULE}
-If any of {\tt L}, {\tt G}, or {\tt H} are
-used as a {\em qualifier-wild-card-flags}, those \underline{not} used
-indicate that their corresponding lifetime types are not allowed.
-If none of {\tt L}, {\tt G}, or {\tt H} are used,
-all lifetime types are allowed (as if {\tt LGH} has been used).
-\end{enumerate}
-\end{indpar}
 
 
 \subsection{Function Calls}
