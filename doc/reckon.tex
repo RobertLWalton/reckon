@@ -1996,12 +1996,15 @@ There are many kinds of {\em names}:
       {\em quantity}
     & \itemref{UNITS-AND-QUANTITIES}
     & \TT{5 mi} & \TT{3.4 ft*lb} & \TT{4 ft 2 in} \\
+      {\em time-interval}
+    & \itemref{TIME-INTERVALS}
+    & \TT{4:30} & \TT{4:30:23} & \TT{4:30:23.78} \\
+      {\em time-of-day}
+    & \itemref{TIMES-OF-DAYS}
+    & \TT{4:30pm} & \TT{4:30EDT} & \TT{4:30 pm EDT} \\
       {\em date}
     & \itemref{DATE}
     & \TT{4 may 2003} & \TT{May 4 2003} & \TT{2003-05-04} \\
-      {\em time-interval}
-    & \itemref{TIMES}
-    & \TT{4:30} & \TT{4:30:23} & \TT{4:30:23.78} \\
       {\em time-of-day}
     & \itemref{TIMES}
     & \TT{16:30} & \TT{4:30pm} & \TT{4.30pm EST} \\
@@ -2522,6 +2525,39 @@ when such can be done by linear algebra and simple substitution; e.g.
 will be derived automatically when needed.
 
 
+
+\subsection{Time Intervals}
+\label{TIME-INTERVALS}
+
+A \key{time interval} is a shorthand for a {\em quantity} whose
+unit is \TT{sec}:
+
+\begin{indpar}
+\emkey{time-interval} :::= {\em sign}\QMARK{} {\em hour} \TT{:} {\em minute} ~
+                          \{ \TT{:} {\em second} \}\QMARK{}
+\label{TIME-INTERVAL}
+\\[1ex]
+\emkey{hour} :::= {\em digit}\PLUS{}
+\\[1ex]
+\emkey{minute} :::= {\em digit} {\em digit}
+\\[1ex]
+\emkey{second} :::=
+	{\em digit} {\em digit} {\em fractional-second}\QMARK{}
+\\[1ex]
+\emkey{fractional-second} :::= \TT{.} {\em digit}\PLUS{}
+	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
+	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
+\end{indpar}
+
+Specifically a {\em time-interval} is a shorthand for
+\begin{center}
+\tt ( {\em sign} ( 60 * 60 * {\em hour} + 60 * {\em minute} + {\em second} ) ) sec
+\end{center}
+
+where {\em sign} defaults to \TT{+} and {\em second} defaults to \TT{0}.
+
+\subsection{Times of Days}
+\label{TIMES-OF-DAYS}
 
 \subsection{Dates}
 \label{DATES}
