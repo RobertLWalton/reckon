@@ -172,7 +172,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 2, 2023}
+\date{April 3, 2023}
 
 \maketitle
 
@@ -514,8 +514,8 @@ For example:
 
 \begin{indpar}
 \verb|> for every person:| \\
-\verb|+     body mass index = 703.06958 * weight in lbs| \\
-\verb|+                     / height in inches ^ 2| \\
+\verb|+     body mass index = 703.06958 * weight as lbs| \\
+\verb|+                     / height as in^2| \\
 \verb|> all persons| \\
 \begin{tabular}{@{}|r|l|l|r|r|r|r|@{}}
 \hline
@@ -2497,7 +2497,7 @@ define unit lb = 16 oz              // pound
 define unit sec                     // second
 define unit min = 60 sec            // minute
 define unit hr = 60 min             // hour
-define unit dy = 24 hr              // day
+define unit date                    // date
 \end{verbatim}\end{indpar}
 
 \caption{Pre-Defined UNITS}
@@ -2526,7 +2526,7 @@ will be derived automatically when needed.
 
 
 
-\subsection{Time Intervals}
+\subsubsection{Time Intervals}
 \label{TIME-INTERVALS}
 
 A \key{time interval} is a shorthand for a {\em quantity} whose
@@ -2556,13 +2556,16 @@ Specifically a {\em time-interval} is a shorthand for
 
 where {\em sign} defaults to \TT{+} and {\em second} defaults to \TT{0}.
 
-\subsection{Times of Day}
+\subsubsection{Times of Day}
 \label{TIMES-OF-DAY}
 
 A \key{time-of-day} is a time interval paired with a time zone.
-The time zone acts something like a {\em unit-name}, but also
-sometimes acts like the specific {\em unit-name} `\TT{sec}'
-(for seconds).
+A {\em time-of-day} represents a quantity
+with {\em time-zone} as {\em unit-name}
+(\itemref{UNITS-AND-QUANTITIES}).
+In some contexts the {\em time-zone} acts like a {\em unit-name} in
+its own right, but in other contexts it acts
+like the specific {\em unit-name} `\TT{sec}' (for seconds).
 
 The syntax is:
 
@@ -2738,23 +2741,23 @@ Some example {\em times-of-day} are:
 \end{tabular}
 \end{indpar}
 
-\subsection{Dates}
+\subsubsection{Dates}
 \label{DATES}
 
-A \key{date} is a quantity whose unit is \TT{sec}
-and whose number is an integer
-that gives the \key{Julian Day Number} of the day times
-the number of seconds in one day ($60*60*24=86,400$).\footnote{
+A \key{date} is a quantity whose unit is \TT{date}
+and whose number is the integer
+\key{Julian Day Number} of a day.
+The value \TT{0} is assigned to
+12noon, Monday, January 1, 4713BC:
+\TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}.
+For example, \TT{2,451,545} represents January 1, 2000.
+
+TBD
+
 On days in which there are leap seconds, the last second of the
 day may be either double-length or zero-length, following the Network
 Time Protocol (NTP).  Or all the seconds of a leap second day may be
-lengthened or shortened slightly, following Google and others.}
-The value \TT{0} is assigned to
-12noon, Monday, January 1, 4713BC.
-Numerically, \TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}, and every increase
-of this date by one day adds \TT{86,400}.  For example,
-\TT{2,458,522*86,400} represents
-12noon on Thursday, February 7, 2019.
+lengthened or shortened slightly, following Google and others.
 
 Because dates are quantities with \TT{sec} units, they may be subtracted to
 produce time interval quantitites with \TT{sec} units.
