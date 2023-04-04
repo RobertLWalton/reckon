@@ -2749,13 +2749,9 @@ A \key{date} is a quantity whose unit is \TT{date}
 and whose number is the integer
 \key{Julian Day Number} of a day.
 The value \TT{0} is assigned to
-12noon, Monday, January 1, 4713BC:
+Monday, January 1, 4713BC:
 \TT{4713-01-01BC == 4713jan01BC == 4713BC == 0}.
 For example, \TT{2,451,545} represents January 1, 2000.
-
-Although most days are 24*60*60 = 86,400 seconds long,
-days that contain \skey{leap second}s are either one
-second longer or one second shorter.
 
 Dates may be subtracted to produce differences with unit `\TT{day}'.
 
@@ -2901,9 +2897,25 @@ because of ambiguities (e.g., Europeans would write this date as
 \subsection{Times}
 \label{TIMES}
 
+
+A \key{time} is a quantity like a {\em time-of day}, but is measured
+in UTC seconds from 12noon, Monday, January 1, 4713BC (12noon on
+the date with day value \TT{0}).  \skey{UTC second}s are such that
+each day has \TT{86,400} = 24*60*60 UTC seconds.  However, to make
+this true, some UTC seconds have to be lengthened or shortened.
+
+Most UTC seconds are the same as \skey{TAI} seconds (International
+Atomic Time seconds), which are determined by an atomic clock
+independently of the Earth's rotation.  Some very few UTC seconds, called
+\skey{leap second}s, are double length or zero length.  
+These exist to match UTC time with time determined by the rotational
+position of the Earth, which in turn determines where very distant
+stars appear in the sky.  The earth rotational time day is not quite
+exactly 86,400 TAI seconds long, and UTC seconds with
+leap seconds exist to manage the descrepancy.
+
 TBD
 
-\key{Times}, \key{times of day}, and \key{time intervals}
 are a quantities with \TT{sec} units
 and numbers that need not be integers.  As such times of day can be added
 to dates to produce times, dates can be subtracted from times to produce
@@ -2927,49 +2939,6 @@ are sequences of one or more lexemes, while a {\em date-name},
     :::= & \{ {\em date-name} \TT{-} \}\QMARK{} ~ {\em time-of-day-name} \\
     :::= & {\em date-name} ~ \TT{T} ~ {\em time-of-day-name} \\
     \end{tabular}
-\\[1ex]
-\emkey{time-of-day-name} \begin{tabular}[t]{rl}
-    :::= & {\em time-interval} \\
-     $|$ & {\em time-interval} ~ {\em time-zone} \\
-     $|$ & {\em time-interval} ~ {\em meridian} \\
-    \end{tabular}
-\\[1ex]
-\emkey{time-interval} :::= {\em hour} \TT{:} {\em minute} ~
-                          \{ \TT{:} {\em second} \}\QMARK{}
-\label{TIME-INTERVAL}
-\\[1ex]
-\emkey{meridian-time} :::= {\em time-of-day-name} with {\em meridan}
-\\[1ex]
-\emkey{time-of-day} \begin{tabular}[t]{rl}
-     ::= & {\em time-of-day-name} \\
-     $|$ & {\em time-interval} ~ {\em time-zone} \\
-     $|$ & {\em meridian-time} ~ {\em time-zone} \\
-    \end{tabular}
-\\[1ex]
-\emkey{hour} :::= {\em digit}\PLUS{}
-\\[1ex]
-\emkey{minute} :::= {\em digit} {\em digit}
-\\[1ex]
-\emkey{second} :::=
-	{\em digit} {\em digit} {\em fractional-second}\QMARK{}
-\\[1ex]
-\emkey{fractional-second} :::= \TT{.} {\em digit}\PLUS{}
-	$|$ \TT{.} \{ {\em digit} {\em digit} {\em digit} \TT{,} \}\PLUS{}
-	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
-\\[1ex]
-\emkey{meridian} :::= \TT{am} $|$ \TT{AM} $|$ \TT{pm} $|$ \TT{PM}
-                 $|$ \TT{noon} $|$ \TT{midnight}
-\\[1ex]
-\emkey{time-zone}
-    \begin{tabular}[t]{rl}
-    :::= & {\em universal-time-indicator} \\
-    $|$ & {\em universal-time-indicator}
-          {\em sign} {\em digit} {\em digit}
-	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
-    $|$ & {\em defined-time-zone-name}
-    \end{tabular}
-\\[1ex]
-\emkey{universal-time-indicator} :::= \ttkey{UTC} $|$ \ttkey{GMT} $|$ \ttkey{Z}
 \end{indpar}
 
 
