@@ -2593,7 +2593,7 @@ The syntax is:
     $|$ & {\em universal-time-indicator}
           {\em sign} {\em digit} {\em digit}
 	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
-    $|$ & {\em missing-time-indicator}
+    $|$ & {\em missing-time-indicator} \\
     $|$ & {\em defined-time-zone-name}
     \end{tabular}
 \\[1ex]
@@ -2692,16 +2692,16 @@ go on Daylight Savings Time, they convert to Eastern Daylight Time, or
 As another example, \TT{NZST}, New Zealand Standard Time, is the same
 as \TT{UTC+12:00}.
 
-If a {\em time-zone} is given, the difference between the {\em time-zone}
-time and GMT is subtracted from the {\em time-interval}.
-Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
-so \TT{10:00EST == 15:00GMT}.
-Similarly
-for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval},
-so \TT{17:00NZST == 5:00GMT}.
+To convert a time-of-day\label{CONVERT-TIME-OF-DAY}
+from a source time zone to a target time zone,
+the diffence between the source time zone and GMT is first subtracted
+from the time interval, and then the differnce between GMT and the
+target time zone is added.  Thus to convert \TT{EST} to \TT{NZST},
+subtract {\tt -5:00} and then add {\tt +12:00}, or equivalently, just
+add {\tt +17:00}.
 It is possible to get negative numbers, which indicate a time in the previous
-GMT day, or numbers equal to or larger than \TT{24:00}, which indicate
-a time in the next GMT day.
+day, or numbers equal to or larger than \TT{24:00}, which indicate
+a time in the next day.
 
 The standard time zones pre-defined in RECKON are given in
 Figure~\ref{PRE-DEFINED-TIME-ZONES}.
@@ -2900,33 +2900,26 @@ because of ambiguities (e.g., Europeans would write this date as
 
 A \key{time} is a quantity like a {\em time-of day}, but is measured
 in UTC seconds from 12noon, Monday, January 1, 4713BC (12noon on
-the date with day value \TT{0}).  \skey{UTC second}s are such that
+the date with day value \TT{0}).  \key{UTC seconds} (Coordinated
+Universal Time seconds) are such that
 each day has \TT{86,400} = 24*60*60 UTC seconds.  However, to make
-this true, some UTC seconds have to be lengthened or shortened.
+this true, some UTC seconds, called leap seconds,
+have to be lengthened or shortened.
 
-Most UTC seconds are the same as \skey{TAI} seconds (International
+Most UTC seconds are the same as \key{TAI seconds} (International
 Atomic Time seconds), which are determined by an atomic clock
 independently of the Earth's rotation.  Some very few UTC seconds, called
-\skey{leap second}s, are double length or zero length.  
+\key{leap seconds}, are double length or zero length.  
 These exist to match UTC time with time determined by the rotational
-position of the Earth, which in turn determines where very distant
-stars appear in the sky.  The earth rotational time day is not quite
+position of the Earth, which in turn determines where the sun and stars
+appear in the sky.  The earth rotational time day is not quite
 exactly 86,400 TAI seconds long, and UTC seconds with
 leap seconds exist to manage the descrepancy.
 
-TBD
-
-are a quantities with \TT{sec} units
-and numbers that need not be integers.  As such times of day can be added
-to dates to produce times, dates can be subtracted from times to produce
-times of day, time intervals can be added to times to produce new
-times, and times can be subtracted from each other to
-produce time intervals.
-
 The following are the permitted time and time of day formats.
 Note that a {\em date} and {\em time-of-day}
-are sequences of one or more lexemes, while a {\em date-name},
-{\em time-of-day-name}, and {\em time-interval} are single lexemes.
+are sequences of one or more lexemes, while a {\em date-name} and
+{\em time-of-day-name} are single lexemes.
 
 \begin{indpar}
 \emkey{time} \begin{tabular}[t]{rl}
@@ -2941,159 +2934,31 @@ are sequences of one or more lexemes, while a {\em date-name},
     \end{tabular}
 \end{indpar}
 
+Conversion of times between time zones follows the same rules
+as conversion of times-of-day: see \pagref{CONVERT-TIME-OF-DAY}.
+
+The \TT{TAI} function converts a time from UTC seconds to TAI seconds
+by adjusting for leap seconds.  If you want the number of TAI seconds between
+times {\tt t1} and {\tt t2}, use {\tt TAI(t2) - TAI(t1)}.
+
+\subsubsection{Leap Seconds}
+
+\centerline{
+{\tt TAI(t) = t + 10 +} adjustment for leap seconds at or before t}
+
+For doubled leap seconds, the adjustment is \TT{+1}.  For zero length
+leap seconds, the adjustment is \TT{-1}.  The {\tt + 10} is because
+when the leap second system was created in 1972, TAI was already
+10 seconds ahead of UTC.
 
 
-A {\em time-interval} represents the number
-$60*(60*hour+minute)+second$.  A {\em minute} or
-{\em second} value equal to or greater than $60$ merely causes a warning
-message to be issued.  The {\em hour} and its following `\TT{:}'
-must be given, even if the {\em hour} is \TT{0}.  Any {\em Minute}
-must have 2 digits, which may require a high order \TT{0}.  
-Any {\em second} must have 2 digits before an optional {\em fractional-second}.
+Leap seconds are always the last second of a month in GMT time,
+where so far the only months used are June and December.
+The last second of the month is always computed using GMT time:
+for example, a leap second at {\tt 23:59GMT} will be at
+{\tt 18:59EST}.
 
-A {\em meridian} limits the {\em time-interval}
-to be equal to or greater than \TT{1:00} and strictly less than
-\TT{13:00}; else a warning message is issued.  A \TT{noon}
-or \TT{midnight} {\em meridian} limits the {\em time-interval}
-to be equal to \TT{12:00}; else a warning message is issued.
-In the absence of a {\em meridian}, the {\em time-interval}
-must be equal to or greater than \TT{00:00} and equal to or less
-than \TT{24:00}, else a warning message is issued.
-Note that \TT{24:00} equals \TT{00:00} of the next day.
 
-If \TT{am} or \TT{AM} is given, $12$ hours is subtracted from
-{\em time-interval} values equal to or greater than \TT{12:00}.
-If \TT{pm} or \TT{PM} is given, $12$ hours is added to
-{\em time-interval} values that are strictly less than \TT{12:00}.
-The time \TT{12:00noon} is interpreted as \TT{12:00} and
-the time \TT{12:00midnight} is interpreted as \TT{24:00}.
-Note that \TT{12:00am == 0:00}, \TT{12:00pm == 12:00}, and neither
-equal \TT{24:00}.
-
-{\em Meridians} cannot be preceded by whitespace.
-When both {\em meridians} and {\em time-zones} are given
-in a {\em time-of-day}, whitespace must preceed the {\em time-zone}.
-
-\begin{boxedfigure}[t]
-
-\footnotesize
-
-\begin{center}
-\begin{tabular}{l|l}
-\begin{tabular}[t]{@{}lll@{}}
-      &                               & UTC \\
-HST   & Hawaii Standard Time          & -10:00 \\
-AKST  & Alaska Standard Time          & -09:00 \\
-AKDT  & Alaska Daylight Time          & -08:00 \\
-PST   & Pacific Standard Time         & -08:00 \\
-PDT   & Pacific Daylight Time         & -07:00 \\
-MST   & Mountain Standard Time        & -07:00 \\
-MDT   & Mountain Daylight Time        & -06:00 \\
-CST   & Central Standard Time         & -06:00 \\
-CDT   & Central Daylight Time         & -05:00 \\
-EST   & Eastern Standard Time         & -05:00 \\
-EDT   & Eastern Datlight Time         & -04:00 \\
-AST   & Atlantic Standard Time        & -04:00 \\
-ADT   & Atlantic Daylight Time        & -03:00 \\
-ART   & Argentina Time                & -03:00 \\
-BRT   & Brasilia Time                 & -03:00 \\
-BRST  & Brasilia Summer Time          & -02:00 \\
-GMT   & Greenwich Mean Time           & +00:00 \\
-WET   & Western European Time         & +00:00 \\
-BST   & British Summer Time           & +01:00 \\
-\end{tabular}
-&
-\begin{tabular}[t]{@{}lll@{}}
-      &                               & UTC \\
-CET   & Central European Time         & +01:00 \\
-WAT   & West Africa Time              & +01:00 \\
-CEST  & Central European Summer Time  & +02:00 \\
-EET   & Eastern European Time         & +02:00 \\
-CAT   & Central Africa Time           & +02:00 \\
-EEST  & Eastern European Summer Time  & +03:00 \\
-EAT   & Eastern Africa Time           & +03:00 \\
-GST   & Gulf Standard Time            & +04:00 \\
-PKT   & Pakistan Standard Time        & +05:00 \\
-IST   & India Standard Time           & +05:30 \\
-JST   & Japan Standard Time           & +09:00 \\
-AWST  & Australia Western Standard Time        & +09:00 \\
-AWDT  & Australia Western Daylight Time        & +10:00 \\
-ACST  & Australia Central Standard Time        & +09:30 \\
-ACDT  & Australia Central Daylight Time        & +10:30 \\
-AEST  & Australia Eastern Standard Time        & +10:00 \\
-AEDT  & Australia Eastern Daylight Time        & +11:00 \\
-NZST  & New Zealand Standard Time     & +12:00 \\
-NZST  & New Zealand Daylight Time     & +13:00 \\
-\end{tabular}
-\end{tabular}
-\end{center}
-\vspace*{-3ex}
-\caption{Pre-Defined Time Zones}
-\label{PRE-DEFINED-TIME-ZONES}
-\end{boxedfigure}
-
-\ttkey{UTC} (Coordinated Universal Time), \ttkey{GMT}
-(Greenwich Mean Time), and \ttkey{Z} (Zulu Time) can be used interchangeably.
-\TT{UTC-05:00} refers to Greenwich Mean Time
-minus 5 hours (\TT{-05:00}) and is the same as
-Eastern Standard Time, or \TT{EST}.   When localities that use \TT{EST}
-go on Daylight Savings Time, they convert to Eastern Daylight Time, or
-\TT{EDT}, which is that same as \TT{UTC-04:00}.
-
-As another example, \TT{NZST}, New Zealand Standard Time, is the same
-as \TT{UTC+12:00}.
-
-If a {\em time-zone} is given, the difference between the {\em time-zone}
-time and GMT is subtracted from the {\em time-interval}.
-Thus for \TT{UTC-5:00} 5 hours is added to the {\em time-interval},
-so \TT{10:00EST == 15:00GMT}.
-Similarly
-for \TT{UTC+12:00} 12 hours is subtracted from the {\em time-interval},
-so \TT{17:00NZST == 5:00GMT}.
-It is possible to get negative numbers, which indicate a time in the previous
-GMT day, or numbers equal to or larger than \TT{24:00}, which indicate
-a time in the next GMT day.
-
-The standard time zones pre-defined in RECKON are given in
-Figure~\ref{PRE-DEFINED-TIME-ZONES}.
-Some time zone identifiers are ambiguous.  For example, \TT{CST}
-denotes both `Central Standard Time' (\TT{UTC-06:00} in North America)
-and `China Standard Time' (\TT{UTC+08:00}).  Only the former is standard.
-
-Additional time zones can be defined, or existing time zone
-definitions can be replaced, by the statement:
-\begin{center}
-\TT{define time zone} ~{\em defined-time-zone-name} ~
-    \TT{`}{\em long-name}\TT{' UTC}$\pm${\em offset}
-\end{center}
-
-as for example
-\begin{indpar}\begin{verbatim}
-define time zone WGST `West Greenland Summer Time' UTC-02:00
-define time zone AZOST `Azores Summer Time' UTC+00:00
-define time zone BST `Bangladesh Standard Time' UTC+06:00
-       // Replaces British Summer Time, UTC+01:00
-define time zone VLAT `Vladivostok Time' UTC+10:00
-\end{verbatim}\end{indpar}
-
-{\em Defined-time-zone-names} are {\em words} in which
-capitalization is ignored, both in definition and in usage.
-{\em Long-names} are in effect comments.
-
-Some example {\em times} are:
-
-\begin{indpar}[0.1in]
-\tt
-\begin{tabular}{@{}l@{~}l@{~}l@{}}
-0:15EST			& 12:00EST		& 15:37:23.742z \\
-12:15am est		& 12:00noon		& 15:37:23.742 Z \\
-1:15 edt		& 12:00 est		& 05:37:23.742HST \\
-1:15am edt		& 12:00pm EST		& 03:37:23.742pm GMT \\
-1975-May-08-0:15edt	& 1999-05-04 12:00est	& 1999May23-15:37z \\
-1975-May-08T1:15edt	& 1999-05-04T17:00z	& 1999May24T01:37WDT \\
-1975-May-08 1:15am edt	& 1999-05-04 11:00edt	& 1999May23 20:37 PKT \\
-\end{tabular}
-\end{indpar}
 
 \subsection{Formats}
 \label{FORMATS}
