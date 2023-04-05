@@ -2593,17 +2593,17 @@ The syntax is:
     $|$ & {\em universal-time-indicator}
           {\em sign} {\em digit} {\em digit}
 	   \{ \TT{:} {\em digit} {\em digit} \}\QMARK{} \\
-    $|$ & {\em missing-time-indicator} \\
+    $|$ & {\em missing-time-zone-indicator} \\
     $|$ & {\em defined-time-zone-name}
     \end{tabular}
 \\[1ex]
 \emkey{universal-time-indicator} :::= \ttkey{UTC} $|$ \ttkey{GMT} $|$ \ttkey{Z}
 \\[1ex]
-\emkey{missing-time-indicator} :::= \ttkey{??T}
+\emkey{missing-time-zone-indicator} :::= \ttkey{??T}
 \end{indpar}
 
-Times-of-day with {\em meridians} but \underline{time zones}
-are given the {\em missing-time-indicator} \TT{??T} as their
+A time-of-day with a {\em meridian} but \underline{no} time zone
+is given the {\em missing-time-zone-indicator} \TT{??T} as its
 time zone.
 
 A {\em meridian} limits the {\em time-interval}
@@ -2702,6 +2702,9 @@ add {\tt +17:00}.
 It is possible to get negative numbers, which indicate a time in the previous
 day, or numbers equal to or larger than \TT{24:00}, which indicate
 a time in the next day.
+
+Conversions involving the {\em missing-time-zone-indicator} are not
+allowed.
 
 The standard time zones pre-defined in RECKON are given in
 Figure~\ref{PRE-DEFINED-TIME-ZONES}.
@@ -2934,6 +2937,12 @@ are sequences of one or more lexemes, while a {\em date-name} and
     \end{tabular}
 \end{indpar}
 
+A time is a quantity with the {\em time-zone} taken from the
+time-of-day as its unit and with a numeric value: \\
+\centerline{ day number from date * 86,400 - 12::00 + time-of-day} \\[0.5ex]
+Here -12:00 occurs because the time is the number of UTC seconds
+from \underline{noon} on the day with day number \TT{0}.
+
 Conversion of times between time zones follows the same rules
 as conversion of times-of-day: see \pagref{CONVERT-TIME-OF-DAY}.
 
@@ -2941,13 +2950,12 @@ The \TT{TAI} function converts a time from UTC seconds to TAI seconds
 by adjusting for leap seconds.  If you want the number of TAI seconds between
 times {\tt t1} and {\tt t2}, use {\tt TAI(t2) - TAI(t1)}.
 
-\subsubsection{Leap Seconds}
-
+Here
 \centerline{
 {\tt TAI(t) = t + 10 +} adjustment for leap seconds at or before t}
 
-For doubled leap seconds, the adjustment is \TT{+1}.  For zero length
-leap seconds, the adjustment is \TT{-1}.  The {\tt + 10} is because
+For double length leap seconds, the adjustment is \TT{+1}.  For zero length
+leap seconds, the adjustment is \TT{-1}.  Here {\tt + 10} appears because
 when the leap second system was created in 1972, TAI was already
 10 seconds ahead of UTC.
 
@@ -2957,6 +2965,8 @@ where so far the only months used are June and December.
 The last second of the month is always computed using GMT time:
 for example, a leap second at {\tt 23:59GMT} will be at
 {\tt 18:59EST}.
+
+GPS satellites use GPS time defined by GPS = TAI - 19.
 
 
 
