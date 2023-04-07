@@ -172,7 +172,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 6, 2023}
+\date{April 7, 2023}
 
 \maketitle
 
@@ -5772,28 +5772,67 @@ and is not a {\em primary}.
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
+A \emkey{reference-expression} names a variable, which may be
+a variable allocated by a statement and named by a simple
+{\em variable-name}, or may be variable that is an attribute
+of another variable which is also named by the {\em reference-expression}.
+
+For example, a statement may create a variable who {\em variable-name}
+is `\TT{the person}' and whose value is an object with an attribute
+named `\TT{weight}', and this attribute of this particular object
+is named by either of the {\em reference-expressions}
+`\TT{the person 's weight}' or `\TT{weight of the person}'.
+The first of these can be contracted to `\TT{the person's weight}'
+as the single lexeme `\TT{person's}' will be split into the
+two lexemes `\TT{person 's}': see \pagref{POSSESSIVE-SPLITING}.
+
+In this case the attribute can also be named by
+`\TT{the person[{\rm \em subscript}]}'
+where {\em subscript} is a {\em code-expression}
+that evaluates to \TT{"weight"}.
+
+The syntax is:
+
 \begin{indpar}
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     ::= \begin{tabular}[t]{@{}l@{}}
-        \{ {\em attribute-label} {\em subscript-expression}\STAR{} \TT{of}
+        \{ {\em attribute-label} ~ {\em subscript-expression}\STAR{} ~ \TT{of}
            \}\STAR{} \\
         {\em reference-primary} \\
-	\{ \TT{'s} {\em attribute-label} {\em subscript-expression}\STAR{}
+	\{ \TT{'s} ~ {\em attribute-label} ~ {\em subscript-expression}\STAR{}
         \}\STAR{}
 	\end{tabular}
 \\[0.5ex]
-\emkey{reference-primary} ::= {\em name} {\em subscript-expression}
+\emkey{reference-primary} ::= {\em name} ~ {\em subscript-expression}\STAR{}
 \\[0.5ex]
 {\em name} ::= see \itemref{NAMES}
 \\[0.5ex]
 \emkey{subscript-expression} ::=
-    \TT{[} {\em code-expression} \{ \TT{,} {\em code-expression} \}\STAR{}
+    \TT{[} {\em subscript} ~ \{ \TT{,} {\em subscript} \}\STAR{}
     \TT{]}
+\\[0.5ex]
+\emkey{subscript} ::= {\em code-expression}
 \\[0.5ex]
 {\em code-expression} ::= see \pagref{CODE-EXPRESSION}
 
 
 \end{indpar}
+
+In a {\em reference-expression} the {\em reference-primary}
+is evaluated first, then the `\TT{'s \ldots{}}' clauses are
+evaluated left to right, and then the `\TT{\ldots{} of}' clauses
+are evaluated right to left.  Thus all the following are equivalent:
+\begin{center}
+\tt
+the man's wife's weight \\
+the weight of the man's wife \\
+the weight of the wife of the man \\
+the man["wife"]'s weight \\
+the man's wife["weight"] \\
+wife["weight"] of the man \\
+weight of the man["wife"] \\
+the man["wife"]["weight"]
+\end{center}
 
 \subsection{Function Calls}
 \label{FUNCTION-CALLS}
