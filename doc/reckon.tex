@@ -172,7 +172,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 7, 2023}
+\date{April 8, 2023}
 
 \maketitle
 
@@ -2951,8 +2951,7 @@ by adjusting for leap seconds.  If you want the number of TAI seconds between
 times {\tt t1} and {\tt t2}, use {\tt TAI(t2) - TAI(t1)}.
 
 Here
-\centerline{
-{\tt TAI(t) = t + 10 +} adjustment for leap seconds at or before t}
+{\tt TAI(t) = t + 10 +} adjustment for leap seconds at or before t.
 
 For double length leap seconds, the adjustment is \TT{+1}.  For zero length
 leap seconds, the adjustment is \TT{-1}.  Here {\tt + 10} appears because
@@ -5677,7 +5676,7 @@ where in describing expression formats we use:
 and `operand' to mean {\em (P+1)-expression}:
 \end{center}
 \begin{center}
-\begin{tabular}{p{1in}p{5.0in}}
+\begin{tabular}{p{1.1in}p{5.0in}}
 \ttkey{conditional}
     & The expression must consist of the operator followed by an
       operand followed by either a \TT{:} operator and an
@@ -5842,7 +5841,6 @@ The syntax of function calls is:
 \begin{indpar}
 \emkey{function-call}\label{FUNCTION-CALL} ::= \\
 \hspace*{0.5in}
-        {\em module-abbreviation}\QMARK{}
         {\em parenthesized-call-argument-list}\STAR{}
         {\em call-term}\PLUS{}
 \\[0.5ex]
@@ -5855,11 +5853,10 @@ The syntax of function calls is:
 \\[0.5ex]
 \emkey{call-term-name}\label{CALL-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l}
-    {\em function-term-name} with quotes \underline{optionally} removed from \\
+    {\em name} \underline{not} beginning with a {\em number} \\
+    and with quotes \underline{optionally} removed from \\
     {\em quoted-marks} and {\em quoted-separators}
     \end{tabular}
-\\[0.5ex]
-{\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{call-argument-list}\label{CALL-ARGUMENT-LIST}
     \begin{tabular}[t]{rl}
@@ -5879,19 +5876,16 @@ The syntax of function calls is:
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \begin{itemize}
-\item {\em Call-term-names} cannot be abbreviated.
 \item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
+\item
+\TT{[~]} bracketed {\em call-argument-lists} cannot be placed
+before a {\em call-term-name}.
 \end{itemize}
 \end{indpar}
 
-Thus a {\em function-call} is a sequence of {\em function-term-names}
-and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
-contain `\TT{.}'s and therefore cannot be {\em member-names},
-which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
-Also \TT{[~]} bracketed {\em call-argument-lists} cannot be placed
-before a {\em call-term-name}, a syntactic distinction to their
-use in {\em reference-calls}.
+Thus a {\em function-call} is a sequence of {\em call-term-names}
+and {\em call-argument-lists}.
 
 {\em Function-calls} are matched to function prototypes.  The
 {\em call-term-names} in a match are identical to the
