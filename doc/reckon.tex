@@ -25,6 +25,7 @@
 \usepackage{times}
 \usepackage{makeidx}
 \usepackage{etoolbox}
+\usepackage{needspace}
 
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
@@ -172,7 +173,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 9, 2023}
+\date{April 10, 2023}
 
 \maketitle
 
@@ -2360,7 +2361,6 @@ and `\TT{\CIRCUM}' for exponentiation:
     :::= & {\em unit-name} \\
      $|$ & {\em unit-name} \TT{\CIRCUM}
            {\em sign}\QMARK{} {\em dit}\PLUS{}  \\
-     $|$ & \TT{1} \\
     \end{tabular}
 \\
 \emkey{unit-name} :::= {\em unit-name-word} $|$ {\em unit-name-mark }
@@ -2391,8 +2391,6 @@ ft\CIRCUM 2/sec
 
 `\TT{*}' takes precedence over `\TT{/}', and `\TT{\CIRCUM}'
 takes precedence over `\TT{*}'.
-A unit beginning with a `\TT{/}' has an implied \TT{1}
-at its beginning: e.g., `\TT{/sec}' means \TT{1/sec}.
 Consecutive `\TT{/}'s left associate: \TT{/sec/sec} is the same
 as \TT{/sec*sec} or \TT{/sec\CIRCUM 2}: `\TT{/}' can be read
 as `per'.
@@ -2426,20 +2424,29 @@ smallest of the two {\em units}.
     \{ {\em number} ~ {\em unit}
        $|$ {\em fraction} ~ {\em unit}
        $|$ {\em number-with-unit} \}\PLUS{} \\
-\emkey{number-with-unit}
-    :::= {\em number-containing-digit} ~ {\em unit-name-word} \\
-\emkey{number-containing-digit} ::= {\em number}
-    that is not a {\em numeric-word}
+\emkey{number-with-unit} :::= \\
+\hspace*{2em}\begin{tabular}[t]{rl}
+         & {\em number-containing-digit} ~ {\em unit-name-word} \\
+     $|$ & {\em number-containing-digit} ~ {\em postfix-unit-name-mark} \\
+     $|$ & {\em sign}\QMARK{} ~ {\em prefix-unit-name-mark} ~
+           {\em unsigned-number-containing-digit} \\
+     \end{tabular} \\
+\emkey{number-containing-digit} :::= {\em number}
+    that is not a {\em numeric-word} \\
+\emkey{unsigned-number-containing-digit} :::= {\em number-containing-digit} that
+    has no {\em sign}
 \end{indpar}
 Examples are:
 \begin{center}
 \tt
 \begin{tabular}{r@{~$\Longrightarrow$~}l}
 5 ft & 5 ft \\
+5ft & 5 ft \\
+\$1.00 & 1.00 \$ \\
 5 ft 6 in & 86 in \\
 5 1/3 ft & 5.333333 ft \\
 3 oz 5 g & 90.048569 g \\
-3 oz 5 g 13 mg & 90061.569 mg \\
+3oz 5g 13mg & 90061.569 mg \\
 3 oz 5 ft & NaN oz [with `incompatible units' warning] \\
 \end{tabular}
 \end{center}
@@ -2461,13 +2468,28 @@ of the two {\em units}.  Examples are:
 \end{center}
 
 A {\em unit} by itself names a quantity whose number part equals $1$:
-e.g., `\TT{ft}' by itself names the quantity `\TT{1 ft}'.
-
-Units may be defined by statements of the form:
+e.g., `\TT{ft}' by itself names the quantity `\TT{1 ft}'.  For
+example:
 \begin{center}
-\TT{define unit} {\em unit-name}
-    \{ \TT{=} {\em unit-definition-expression} \}\QMARK{}
+\tt
+\begin{tabular}{r@{~$\Longrightarrow$~}l}
+18 ft / sec & 18 ft/sec \\
+5 ft 6 in / sec & 66 in/sec \\
+\end{tabular}
 \end{center}
+
+Units may be defined by {\em unit-definition} statement:
+\begin{indpar}
+\emkey{unit-definition} ::= \\
+\hspace*{2em}\begin{tabular}{l@{~~}l}
+\TT{define unit} & {\em unit-fixity}\QMARK{} ~ {\em unit-name}
+                   \{ \TT{,}
+		      {\em unit-fixity}\QMARK{} ~ {\em unit-name} \}\STAR{} \\
+                 & \{ \TT{=} {\em unit-definition-expression} \}\QMARK{} \\
+\end{tabular}
+\\
+\emkey{unit-fixity} ::= \TT{prefix} $|$ \TT{postfix}
+\end{indpar}
 
 Here
 \begin{indpar}
@@ -2475,9 +2497,13 @@ Here
     \{ {\em sign} {\em number} \}\QMARK{}
 \end{indpar}
 
+A unit may have multiple names (e.g., \TT{lb} and \TT{lbs}).
+A {\em unit-name} that is a {\em mark} may be \TT{prefix};
+all other {\em unit-names} are \TT{postfix} (which is the default).
+
 Standard definitions are given in Figure~\itemref{PRE-DEFINED-UNITS}.
 
-\begin{boxedfigure}[t]
+\begin{boxedfigure}[!t]
 \begin{indpar}\begin{verbatim}
 define unit m                       // meter
 define unit cm = 0.01 m             // centimeter
@@ -2493,12 +2519,13 @@ define unit g                       // gram
 define unit kg = 1000 g             // kilogram
 define unit mg = 0.001 g            // milligram
 define unit oz = 28.349523 g        // ounce
-define unit lb = 16 oz              // pound
+define unit lb, lbs = 16 oz         // pound, pounds
 define unit sec                     // second
 define unit min = 60 sec            // minute
 define unit hr = 60 min             // hour
-define unit day                     // day
+define unit day, days               // day, days
 define unit date                    // date
+define unit prefix $                // dollars
 \end{verbatim}\end{indpar}
 
 \caption{Pre-Defined UNITS}
@@ -2550,6 +2577,7 @@ unit is \TT{sec}:
 	    {\em digit} {\em digit}\QMARK{} {\em digit}\QMARK{}
 \end{indpar}
 
+\needspace{5ex}
 Specifically a {\em time-interval} is a shorthand for
 \begin{center}
 \tt ( {\em sign} ( 60 * 60 * {\em hour} + 60 * {\em minute} + {\em second} ) ) sec
