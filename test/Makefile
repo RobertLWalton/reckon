@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Mar  7 02:35:13 EST 2023
+# Date:		Tue Apr 11 09:34:05 EDT 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -34,6 +34,7 @@ RECKON_TESTS = reckon_lexeme_test \
 	       reckon_bracketed_test \
 	       reckon_typed_list_test \
 	       reckon_prefix_test \
+	       reckon_expression_test \
 	       reckon_print_test
 
 TESTS = ${RECKON_TESTS}
@@ -167,6 +168,11 @@ reckon_typed_list_test.out:	\
 
 reckon_prefix_test.out:	\
 	    reckon reckon_prefix_test.in
+	rm -f $*.out
+	${RUNENV} reckon < $*.in > $*.out
+
+reckon_expression_test.out:	\
+	    reckon reckon_expression_test.in
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 

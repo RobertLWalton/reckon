@@ -1,0 +1,77 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression details]
+BRACKETED EXPRESSION:
+!@@ := @@ "+" @@:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+!@@ := x:
+           .position[H] = PACKED_VEC
+!@@ := y:
+           .position[H] = PACKED_VEC
+    line ##:
+x + y
+^^^^^
+BRACKETED EXPRESSION:
+!@@ := @@ @@:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+!@@ := function @@:
+           .position[H] = PACKED_VEC
+!@@ := @@ @@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+!@@ := @@@ @@@:
+           .terminator = ")"
+           .initiator = "("
+           .separator = ","
+           .position[H] = PACKED_VEC
+!@@ := if @@@ @@@:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+!@@ := else @@@:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+!@@@ := x:
+            .position[H] = PACKED_VEC
+!@@@ := y:
+            .position[H] = PACKED_VEC
+!@@@ := @@@ ">" @@@:
+            .position[H] = PACKED_VEC
+!@@@ := @@@:
+            .terminator = [$ INDENTED_PARAGRAPH $]
+            .position[H] = PACKED_VEC
+            .initiator = ":"
+!@@@ := @@@:
+            .terminator = [$ INDENTED_PARAGRAPH $]
+            .position[H] = PACKED_VEC
+            .initiator = ":"
+!@@@ := x:
+            .position[H] = PACKED_VEC
+!@@@ := y:
+            .position[H] = PACKED_VEC
+!@@@ := return y:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+!@@@ := return x:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+    lines ##-##:
+function (x, y):
+^^^^^^^^^^^^^^^^
+    if x > y:
+^^^^^^^^^^^^^
+        return y
+^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        return x
+^^^^^^^^^^^^^^^^
