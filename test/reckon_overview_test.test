@@ -250,9 +250,6 @@
                         with precedence 0
                         with control reformatter ( ":",
                         [< "has" "condition" >] )
-        block reckon: operator "for" [code]
-                      prefix line
-                      with precedence 0
         block reckon: operator "<--" [code]
                       nofix line
                       with precedence 0
@@ -328,6 +325,10 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block reckon: operator [< "for" "every" >] [code]
+                      prefix line
+                      with precedence 3000
+                      with unary reformatter
         block standard: operator ">=" [code, math]
                         infix
                         with precedence 12000
@@ -1435,12 +1436,31 @@ for every person:
                     / height in inches ^ 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|every person|}
+    {|person|}
     line ##:
 for every person:
-    ^^^^^^^^^^^^
+          ^^^^^^
+PURELIST EXPRESSION:
+    {|[< for every >] {|person|}|}
+    line ##:
+for every person:
+^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|[< for every >] {|person|}|}
+      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+                {|body mass index|} =
+                {|{|{|703.06958|} * {|weight in lbs|}|} /
+                  {|{|height in inches|} ^ {|2|}|}|}|}|}|}
+    lines ##-##:
+for every person:
+^^^^^^^^^^^^^^^^^
+    body mass index = 703.06958 * weight in lbs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    for {|every person|}:
+    {|[< for every >] {|person|}|}:
         {|body mass index|} =
             {|{|{|703.06958|} * {|weight in lbs|}|} /
               {|{|height in inches|} ^ {|2|}|}|}
@@ -3480,12 +3500,33 @@ for every demo:
         angle = X
 ^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|every demo|}
+    {|demo|}
     line ###:
 for every demo:
-    ^^^^^^^^^^
+          ^^^^
+PURELIST EXPRESSION:
+    {|[< for every >] {|demo|}|}
+    line ###:
+for every demo:
+^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|[< for every >] {|demo|}|}
+      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|on
+                {|a demo with angle X|}
+                {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                     .initiator = ":"|
+                     {"": .terminator = "<LF>", .initiator =
+                          [$ LOGICAL_LINE $]|{|angle|} = {|X|}|}|}|}|}|}
+    lines ###-###:
+for every demo:
+^^^^^^^^^^^^^^^
+    on a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    for {|every demo|}:
+    {|[< for every >] {|demo|}|}:
         on {|a demo with angle X|}:
             {|angle|} = {|X|}
     lines ###-###:
@@ -3621,12 +3662,44 @@ for every demo:
         next angle = angle + X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 PURELIST EXPRESSION:
-    {|every demo|}
+    {|demo|}
     line ###:
 for every demo:
-    ^^^^^^^^^^
+          ^^^^
+PURELIST EXPRESSION:
+    {|[< for every >] {|demo|}|}
+    line ###:
+for every demo:
+^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|[< for every >] {|demo|}|}
+      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|on
+                {|update THIS to X|}
+                {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                     .initiator = ":"|
+                     {"": .terminator = "<LF>", .initiator =
+                          [$ LOGICAL_LINE $]|{|next angle|} = {|X|}|}|}|}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|on
+                {|increment THIS by X|}
+                {"": .terminator = [$ INDENTED_PARAGRAPH $],
+                     .initiator = ":"|
+                     {"": .terminator = "<LF>", .initiator =
+                          [$ LOGICAL_LINE $]|{|next angle|} =
+                          {|{|angle|} + {|X|}|}|}|}|}|}|}
+    lines ###-###:
+for every demo:
+^^^^^^^^^^^^^^^
+    on update THIS to X:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+    on increment THIS by X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 BRACKETED EXPRESSION:
-    for {|every demo|}:
+    {|[< for every >] {|demo|}|}:
         on {|update THIS to X|}:
             {|next angle|} = {|X|}
         on {|increment THIS by X|}:

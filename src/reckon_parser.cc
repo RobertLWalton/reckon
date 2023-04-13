@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  2 04:21:53 EST 2023
+// Date:	Thu Apr 13 02:43:31 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -137,8 +137,8 @@ void REC::init_parser ( PAR::parser parser )
 
     min::locatable_gen on_name
         ( min::new_str_gen ( "on" ) );
-    min::locatable_gen for_name
-        ( min::new_str_gen ( "for" ) );
+    min::locatable_gen for_every
+        ( min::new_lab_gen ( "for", "every" ) );
 
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
@@ -160,6 +160,13 @@ void REC::init_parser ( PAR::parser parser )
 	    ( assignment,
 	      OP::reformatter_stack );
 
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
+
+    PAR::reformatter unary_reformatter =
+        PAR::find_reformatter
+	    ( unary, OP::reformatter_stack );
+
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
 
@@ -178,12 +185,12 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( for_name,
+        ( for_every,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::LINE,
-	  0, min::NULL_STUB,
+	  3000, unary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
