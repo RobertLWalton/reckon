@@ -173,7 +173,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{April 13, 2023}
+\date{April 14, 2023}
 
 \maketitle
 
@@ -5511,7 +5511,8 @@ have precedence equal to or greater than P:
 \\[0.5ex]
 \emkey{(H+1)-expression} ::= {\em primary}
 \\[0.5ex]
-\emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
+\emkey{primary}\label{PRIMARY} ::=
+    {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
 \\[0.5ex]
 \emkey{primary-element} ::= {\em non-operator-lexeme} $|$
                             {\em bracketed-subexpression}
@@ -5775,6 +5776,49 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{center}
 
 \clearpage
+
+The following are some examples of parsed expressions:
+
+\begin{center}
+\tt
+
+\begin{tabular}[t]{c}
+x + 5 * y \\
+\rm parses to \\
+\{|x|\} "+" \{| \{|5|\} "*" \{|y|\} \}
+\end{tabular}
+
+\medskip
+
+\begin{tabular}[t]{c}
+x + ( 5 * y ) \\
+\rm parses to \\
+\{|x|\} "+" ( \{|5|\} "*" \{|y|\} )
+\end{tabular}
+
+\medskip
+
+\begin{tabular}[t]{c}
+x 1 = x 2 + B\#"1010" \\
+\rm parses to \\
+\{|x 1|\} "=" \{| \{|x 2|\} "+" \{|B\# "1010"|\} |\}
+\end{tabular}
+
+\medskip
+
+\begin{tabular}[t]{c}
+x if x < y else y \\
+\rm parses to \\
+\{|x|\} "if" \{| \{|x|\} "<" \{|y|\} |\} "else" \{|y|\}
+\end{tabular}
+
+\end{center}
+
+Note that operands are objects that
+may or may not have brackets, or equivalently, that
+have \TT{\{|~|\}} `implied brackets' if there are no
+explicit brackets.  Note that operands that do not
+themselves contain operators are {\em primaries}\pagnote{PRIMARY}.
 
 \section{Primaries}
 \label{PRIMARIES}
