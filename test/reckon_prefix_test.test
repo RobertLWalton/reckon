@@ -382,3 +382,66 @@ BRACKETED EXPRESSION:
 ^^^^^^^^^^^^^^^^^^^^^
         =============
 ^^^^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    begin block BLOCK
+    trace [+ subexpression details]
+BRACKETED EXPRESSION:
+    {|{row} "|" A "|" B|} + {|C "|"|}
+!@@ := @@ "+" @@:
+           .terminator = "<LF>"
+           .initiator = [$ LOGICAL_LINE $]
+           .position[H] = PACKED_VEC
+!@@ := @@ "|" A "|" B:
+           .position[H] = PACKED_VEC
+!@@ := C "|":
+           .position[H] = PACKED_VEC
+!@@ :=:
+           .type = row
+           .position[H] = PACKED_VEC
+    line ###:
+{row}| A | B + C |
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|"|" A "|" B "|"|row}
+!@@ := @@:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+!@@ := @@ A @@ B @@:
+           .type = row
+           .position[H] = PACKED_VEC
+!@@ := "|":
+           .type = "<Q>"
+!@@ := "|":
+           .type = "<Q>"
+!@@ := "|":
+           .type = "<Q>"
+    line ###:
+{row| "|" A "|" B "|" |}
+^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|"|" A "|" B + C "|"|row}|table}
+!@@@ := @@@:
+            .type = table
+            .position[H] = PACKED_VEC
+!@@@ := "|" A "|" B "+" C "|":
+            .type = row
+            .position[H] = PACKED_VEC
+    lines ###-###:
+{table}
+^^^^^^^
+{row}| A | B + C |
+^^^^^^^^^^^^^^^^^^
+*PARSER*:
+    end block BLOCK
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------|row} {row|"|" foo|row}
+           {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|A
+                ":" [{|B|} + {|C|}]|}|table}
+    lines ###-###:
+------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| foo
+^^^^^
+A : [B + C]
+^^^^^^^^^^^
