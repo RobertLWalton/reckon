@@ -2,7 +2,7 @@
 //
 // File:	reckon_server.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  9 02:28:45 EDT 2023
+// Date:	Tue May  9 12:15:14 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Design
 //	Usage and Setup
+//	Data
 //	Reckon Server Functions
 //	Reckon Server
 
@@ -74,6 +75,11 @@
 
 // Usage and Setup
 // ----- --- -----
+
+
+// Data
+// ----
+
 
 
 
