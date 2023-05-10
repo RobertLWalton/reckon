@@ -76,11 +76,38 @@
 // Usage and Setup
 // ----- --- -----
 
+extern "C" {
+
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <fcntl.h>
+
+}
 
 // Data
 // ----
 
+// Buffer for building file names and log messages.
+//
+char buffer[4000];
 
+// Name of home directory in which other directories
+// (log, sessions, page) are located.
+//
+const char * homedir = '.';
+
+// Server port (NOT in network byte order).
+//
+int port = 0;
+
+// File descriptor for /log/reckon.log.  Append only
+// file.
+//
+int logfd = -1;
+
+// File descriptor of our one and only socket.
+//
+int socketfd = -1;
 
 
 // Reckon Server Functions
@@ -115,5 +142,57 @@ void sys_error ( const char * message )
 
 int server ( void )
 {
-    int fd = socket ( AR_INET, SOCK_STREAM, 0 );
-    if ( fd < 0 ) sys_error ( "opening TCP socket" );
+
+    homedir = getenv ( "HOMEDIR" );
+    if ( homedir == NULL ) homedir = ".";
+    if ( strlen ( homedir > 1024 ) )
+    {
+        errno = ENAMETOOLONG;
+        perror ( "reckon_server:"
+	         " reading environment HOMEDIR=... " );
+	exit ( errno );
+    }
+
+    {
+        const char * portname = getenv ( "PORT" );
+	if ( portname == NULL }
+	{
+	    errno = ENXIO;
+	    perror ( "reckon_server:"
+	         " reading environment PORT=... " );
+	    exit ( errno );
+	}
+
+	TBD EINVAL Invalid argument
+	TBD ENXIO No such device or address
+    }
+
+
+    // Startup.  Errors are announced by perror and
+    // exit ( errno ).
+
+    sprintf ( buffer, "%s/log/reckon.log", homedir );
+    logfd = open
+        ( buffer,
+	  O_WRONLY + O_CREAT + O_APPEND + O_CLOEXEC,
+	  S_IRUSR + S_IWUSR + S_IRGRP );
+    if ( logfd < 0 )
+    {
+        perror ( "reckon_server: opening reckon.log" );
+	exit ( errno );
+    }
+ 
+    socketfd = socket ( AR_INET, SOCK_STREAM, 0 );
+    if ( fd < 0 )
+    {
+        perror ( "reckon_server: opening TCP socket" );
+	exit ( errno );
+    }
+    struct sockaddr socketaddr
+        { AF_INET, 0, { INADDR_ANY } };
+    if ( bind ( socketfd, &socketaddr,
+                sizeof ( socketaddr ) ) < 0 ); 
+    {
+        perror ( "reckon_server: binding TCP socket" );
+	exit ( errno );
+    }
