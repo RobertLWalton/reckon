@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  7 00:50:25 EDT 2022
+// Date:	Sun May 28 13:29:05 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,9 +37,7 @@ int main ( int argc, const char * argv[] )
 	LEX::init_input_stream
 	    ( LEX::default_scanner,
 	      std::cin,
-		min::DISPLAY_PICTURE
-	      + min::DISPLAY_NON_GRAPHIC
-	      + min::DISPLAY_EOL );
+	      min::eol_line_format );
 	LEX::test_input ( LEXSTD::end_of_file_t );
 	return 0;
     }
@@ -52,12 +50,7 @@ int main ( int argc, const char * argv[] )
     REC::init_parser ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin,
-	    min::DISPLAY_PICTURE
-	  + min::DISPLAY_NON_GRAPHIC
-	  + min::DISPLAY_EOL );
-    PAR::init_line_display
-	( PAR::default_parser,
-	  min::DISPLAY_PICTURE );
+	  min::marked_line_format );
     PAR::default_parser->trace_flags |=
 	PAR::TRACE_PARSER_COMMANDS;
     PAR::parse();
