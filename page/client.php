@@ -2,7 +2,7 @@
 
 // File:    client.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Fri Jun  2 02:25:23 EDT 2023
+// Date:    Fri Jun  2 05:54:57 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -62,18 +62,31 @@ height: 30vh;
 }
 .header {
 text-align: center;
+font-size: 200%;
+font-weight: bold;
+}
+button {
+height: 2em;
 }
 </style>
 <script>
-    var ID = '<?php echo $ID; ?>';
+var ID = '<?php echo $ID; ?>';
+function LOG()
+{
+    var input = document.getElementById ( 'input' );
+    console.log ( input.innerText );
+    console.log ( 'FOO' );
+}
+
 </script>
 </head>
 <body>
 <h2 class='header'>Output</h2>
 <div class='output'>
 </div>
-<h2 class='header'>Input</h2>
-<div class='input' contenteditable='true'>
+<div class='header'>Input
+     <button type='button' onclick='LOG()'>Submit</button></div>
+<div class='input' contenteditable='true' id='input'>
 </div>
 </body>
 </html>
