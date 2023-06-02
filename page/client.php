@@ -2,7 +2,7 @@
 
 // File:    client.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Thu Jun  1 15:17:55 EDT 2023
+// Date:    Fri Jun  2 02:25:23 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -45,6 +45,7 @@ $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 <head>
 <style>
 div.output {
+font-family: monospace;
 overflow-y: scroll;
 overflow-x: auto;
 border: 5px solid red;
@@ -52,6 +53,7 @@ width: 100%;
 height: 50vh;
 }
 div.input {
+font-family: monospace;
 overflow-y: scroll;
 overflow-x: auto;
 border: 5px dashed green;
