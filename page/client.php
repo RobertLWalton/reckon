@@ -2,7 +2,7 @@
 
 // File:    client.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Fri Jun  2 05:54:57 EDT 2023
+// Date:    Sat Jun  3 07:18:25 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -70,19 +70,62 @@ height: 2em;
 }
 </style>
 <script>
-var ID = '<?php echo $ID; ?>';
-function LOG()
+let ID = '<?php echo $ID; ?>';
+
+let xhttp = new XMLHttpRequest();
+
+let request_in_progress = fals;
+
+function FAIL ( message )
 {
-    var input = document.getElementById ( 'input' );
-    console.log ( input.innerText );
-    console.log ( 'FOO' );
+    alert ( message );
+    window.close();
+    location.assign ( 'client.php' );
+}
+
+function SUBMIT()
+{
+    let input = document.getElementById ( 'input' );
+
+    xhttp.onreadystatechange = function() {
+        if ( this.readystate != XMLHttpRequest.DONE
+	     ||
+	     ! request_in_progress )
+	    return;
+	request_in_progress = false;
+	if ( this.status != 200 )
+	    FAIL ( 'Bad response statue ('
+		   + this.status
+		   + ') from server on update request' );
+	PROCESS_RESPONSE ( this.responseText );
+    }
+
+    xhttp.open
+        ( 'POST', 'client.php', true /* async */ );
+    xhttp.setRequestHeader
+	( "Content-Type",
+	  "application/x-www-form-urlencoded" );
+    request_in_progress = true;
+
+    data = 'id=' + ID + '&input=' +
+           encodeURIComponent ( input.innerText );
+    xhttp.send ( data );
+}
+
+function PROCESS_RESPONSE ( responseText )
+{
+    let output = document.getElementById ( 'output' );
+    let ID = responseText.slice ( 0, 32 );
+    let outputText = responseText.slice ( 32 );
+    output.insertAdjacentHTML
+        ( 'afterend', outputText );
 }
 
 </script>
 </head>
 <body>
 <h2 class='header'>Output</h2>
-<div class='output'>
+<div class='output' id='output'>
 </div>
 <div class='header'>Input
      <button type='button' onclick='LOG()'>Submit</button></div>
