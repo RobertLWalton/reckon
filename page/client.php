@@ -74,7 +74,7 @@ let ID = '<?php echo $ID; ?>';
 
 let xhttp = new XMLHttpRequest();
 
-let request_in_progress = fals;
+let request_in_progress = false;
 
 function FAIL ( message )
 {
@@ -101,7 +101,7 @@ function SUBMIT()
     }
 
     xhttp.open
-        ( 'POST', 'client.php', true /* async */ );
+        ( 'POST', 'server.php', true /* async */ );
     xhttp.setRequestHeader
 	( "Content-Type",
 	  "application/x-www-form-urlencoded" );
@@ -109,13 +109,19 @@ function SUBMIT()
 
     data = 'id=' + ID + '&input=' +
            encodeURIComponent ( input.innerText );
+    console.log ( 'SEND: ' + data );
     xhttp.send ( data );
 }
 
+is_id_re = '^[a-fA-F0-9]{32}$';
+
 function PROCESS_RESPONSE ( responseText )
 {
+    console.log ( 'RECEIVE: ' + responseText );
     let output = document.getElementById ( 'output' );
     let ID = responseText.slice ( 0, 32 );
+    if ( ! preg_match ( $is_id_re, $ID ) )
+        FAIL ( 'BAD RESPONSE: ' + responseText );
     let outputText = responseText.slice ( 32 );
     output.insertAdjacentHTML
         ( 'afterend', outputText );
@@ -128,7 +134,7 @@ function PROCESS_RESPONSE ( responseText )
 <div class='output' id='output'>
 </div>
 <div class='header'>Input
-     <button type='button' onclick='LOG()'>Submit</button></div>
+     <button type='button' onclick='SUBMIT()'>Submit</button></div>
 <div class='input' contenteditable='true' id='input'>
 </div>
 </body>
