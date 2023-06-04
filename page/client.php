@@ -2,7 +2,7 @@
 
 // File:    client.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Sat Jun  3 07:18:25 EDT 2023
+// Date:    Sat Jun  3 23:51:41 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -15,8 +15,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ( $method != 'GET' )
     exit ( "UNACCEPTABLE HTTP METHOD $method" );
 
-// Set $key, $id, and $name to random 16 byte binary
-// strings.
+// Set $key and $id to random 16 byte binary strings.
 //
 $rdesc = @fopen ( '/dev/random', 'r' );
 if ( $rdesc === false )
@@ -24,10 +23,9 @@ if ( $rdesc === false )
 	   ' READING' );
 $key = @fread ( $rdesc, 32 );  // Pseudo-random key.
 $id = @fread ( $rdesc, 32 );   // Pseudo-random seed.
-$name = @fread ( $rdesc, 32 ); // Session name.
 fclose ( $rdesc );
 
-session_name ( 'RECKON-SESSION-' . bin2hex ( $name ) );
+session_name ( 'RECKON-SESSION' );
 session_start();
 clearstatcache();
 umask ( 07 );
@@ -46,6 +44,7 @@ $_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 <style>
 div.output {
 font-family: monospace;
+white-space: pre;
 overflow-y: scroll;
 overflow-x: auto;
 border: 5px solid red;
@@ -54,6 +53,7 @@ height: 50vh;
 }
 div.input {
 font-family: monospace;
+white-space: pre;
 overflow-y: scroll;
 overflow-x: auto;
 border: 5px dashed green;
@@ -88,10 +88,11 @@ function SUBMIT()
     let input = document.getElementById ( 'input' );
 
     xhttp.onreadystatechange = function() {
-        if ( this.readystate != XMLHttpRequest.DONE
+        if ( this.readyState != XMLHttpRequest.DONE
 	     ||
 	     ! request_in_progress )
 	    return;
+	console.log ( 'STATUS: ' + this.status );
 	request_in_progress = false;
 	if ( this.status != 200 )
 	    FAIL ( 'Bad response statue ('
@@ -113,18 +114,21 @@ function SUBMIT()
     xhttp.send ( data );
 }
 
-is_id_re = '^[a-fA-F0-9]{32}$';
+let is_id_re = /^[a-fA-F0-9]{32}$/;
 
 function PROCESS_RESPONSE ( responseText )
 {
     console.log ( 'RECEIVE: ' + responseText );
     let output = document.getElementById ( 'output' );
-    let ID = responseText.slice ( 0, 32 );
-    if ( ! preg_match ( $is_id_re, $ID ) )
+    let ID = responseText.substring ( 0, 32 );
+    if ( ! is_id_re.test ( ID ) )
         FAIL ( 'BAD RESPONSE: ' + responseText );
-    let outputText = responseText.slice ( 32 );
+    let outputText = responseText.substring ( 32 );
+    console.log ( responseText );
+    console.log ( ID );
+    console.log ( outputText );
     output.insertAdjacentHTML
-        ( 'afterend', outputText );
+        ( 'beforeend', outputText );
 }
 
 </script>

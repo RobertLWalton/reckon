@@ -2,20 +2,27 @@
 
 // File:    server.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Sat Jun  3 13:20:49 EDT 2023
+// Date:    Sat Jun  3 23:52:23 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
 // make no warranty and accept no liability for RECKON.
 
 
-// Method must be GET.
+// Method must be POST.
 //
 $method = $_SERVER['REQUEST_METHOD'];
 if ( $method != 'POST' )
     exit ( "UNACCEPTABLE HTTP METHOD $method" );
 
+session_name ( 'RECKON-SESSION' );
+session_start();
+clearstatcache();
+umask ( 07 );
+header ( 'Cache-Control: no-store' );
+
 $ID = $_SESSION['ID'];
+
 if ( ! isset ( $_POST['id'] )
      ||
      $ID != $_POST['id'] )
@@ -32,9 +39,11 @@ $iv = hex2bin ( '00000000000000000000000000000000' );
 $id    = @openssl_encrypt ( $id, 'aes-128-cbc', $key,   
                            OPENSSL_RAW_DATA +
 			   OPENSSL_ZERO_PADDING, $iv );
+$id = substr ( $id, 0, 16 );
 $_SESSION['ID'] = bin2hex ( $id );
 
-echo ( $_SESSION['ID'] + $_POST['input'] );
+echo ( $_SESSION['ID'] . $_POST['input'] );
+exit;
 
 ?>
 
