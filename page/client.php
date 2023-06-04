@@ -2,7 +2,7 @@
 
 // File:    client.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Sat Jun  3 23:51:41 EDT 2023
+// Date:    Sun Jun  4 05:31:38 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -70,7 +70,7 @@ height: 2em;
 }
 </style>
 <script>
-let ID = '<?php echo $ID; ?>';
+var ID = '<?php echo $ID; ?>';
 
 let xhttp = new XMLHttpRequest();
 
@@ -92,7 +92,6 @@ function SUBMIT()
 	     ||
 	     ! request_in_progress )
 	    return;
-	console.log ( 'STATUS: ' + this.status );
 	request_in_progress = false;
 	if ( this.status != 200 )
 	    FAIL ( 'Bad response statue ('
@@ -110,7 +109,6 @@ function SUBMIT()
 
     data = 'id=' + ID + '&input=' +
            encodeURIComponent ( input.innerText );
-    console.log ( 'SEND: ' + data );
     xhttp.send ( data );
 }
 
@@ -118,17 +116,18 @@ let is_id_re = /^[a-fA-F0-9]{32}$/;
 
 function PROCESS_RESPONSE ( responseText )
 {
-    console.log ( 'RECEIVE: ' + responseText );
     let output = document.getElementById ( 'output' );
-    let ID = responseText.substring ( 0, 32 );
+    ID = responseText.substring ( 0, 32 );
     if ( ! is_id_re.test ( ID ) )
         FAIL ( 'BAD RESPONSE: ' + responseText );
     let outputText = responseText.substring ( 32 );
-    console.log ( responseText );
-    console.log ( ID );
-    console.log ( outputText );
     output.insertAdjacentHTML
         ( 'beforeend', outputText );
+
+    // Set scroll so end of text is at bottom.
+    //
+    let top = output.scrollHeight - output.clientHeight;
+    if ( top > 0 ) output.scrollTop = top;
 }
 
 </script>

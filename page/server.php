@@ -2,7 +2,7 @@
 
 // File:    server.php
 // Author:  Robert L Walton <walton@acm.org>
-// Date:    Sat Jun  3 23:52:23 EDT 2023
+// Date:    Sun Jun  4 05:31:50 EDT 2023
 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -46,5 +46,3 @@ echo ( $_SESSION['ID'] . $_POST['input'] );
 exit;
 
 ?>
-
-
