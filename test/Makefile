@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Apr 11 09:34:05 EDT 2023
+# Date:		Mon Jun  5 15:02:51 EDT 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -19,7 +19,7 @@ GFLAGS = -DMIN_PROTECT=1
 WFLAGS = -Wall -Wno-char-subscripts
 
 .SUFFIXES:
-.SUFFIXES: .out .test .diff
+.SUFFIXES: .out .test .diff .html
 
 DIFFOPT ?= -u
 
@@ -27,7 +27,7 @@ DIFFOPT ?= -u
 #
 OPTIMIZE = -O3
 
-RECKON_TESTS = reckon_lexeme_test \
+PARSER_TESTS = reckon_lexeme_test \
 	       reckon_overview_test \
 	       reckon_line_test \
 	       reckon_data_test \
@@ -37,18 +37,19 @@ RECKON_TESTS = reckon_lexeme_test \
 	       reckon_expression_test \
 	       reckon_print_test
 
-TESTS = ${RECKON_TESTS}
+HTML_TESTS = reckon_overview_test
 
-.SECONDARY:	${TESTS:=.out}
+.SECONDARY:	${PARSER_TESTS:=.out}
 
-all:		diff
+all:		diff html
 
-reckon_diff:	${RECKON_TESTS:=.diff}
-diff:		${TESTS:=.diff}
+diff:		${PARSER_TESTS:=.diff}
 
-out:		${TESTS:=.out}
+out:		${PARSER_TESTS:=.out}
 
-test:		${TESTS:=.test}
+test:		${PARSER_TESTS:=.test}
+
+html:		${HTML_TESTS:=.html}
 
 
 %.test:	%.out Makefile
@@ -78,7 +79,7 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    < $*.out > $*.test
 
-%.diff:	%.out
+%.diff:	%.out Makefile
 	@echo DIFFING $*.test $*.out
 	-@sed \
 	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
@@ -104,10 +105,6 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    < $*.out | diff ${DIFFOPT} $*.test -
-
-%.out:	%
-	rm -f $*.out
-	${RUNENV} $* > $*.out
 
 reckon_parser.o:            \
 	    ../src/reckon_parser.cc \
@@ -136,51 +133,19 @@ reckon:		\
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a
 
+%.html:	%.in reckon
+	rm -f $*.html
+	${RUNENV} reckon --html < $*.in > $*.html
+
 reckon_lexeme_test.out:	\
 	    reckon reckon_lexeme_test.in
 	rm -f $*.out
 	${RUNENV} reckon --lexeme-test < $*.in > $*.out
 
-reckon_overview_test.out:	\
-	    reckon reckon_overview_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_line_test.out:	\
-	    reckon reckon_line_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_data_test.out:	\
-	    reckon reckon_data_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_bracketed_test.out:	\
-	    reckon reckon_bracketed_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_typed_list_test.out:	\
-	    reckon reckon_typed_list_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_prefix_test.out:	\
-	    reckon reckon_prefix_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_expression_test.out:	\
-	    reckon reckon_expression_test.in
-	rm -f $*.out
-	${RUNENV} reckon < $*.in > $*.out
-
-reckon_print_test.out:	\
-	    reckon reckon_print_test.in
+%.out:	%.in reckon
 	rm -f $*.out
 	${RUNENV} reckon < $*.in > $*.out
 
 clean:
-	rm -f ${TESTS} ${TESTS:=.out} reckon
+	rm -f ${PARSER_TESTS:=.out} reckon *.o
 

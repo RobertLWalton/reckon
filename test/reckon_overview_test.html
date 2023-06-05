@@ -1,0 +1,4402 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+    trace [+ bracketed subexpressions]
+    trace [+ operator subexpressions]
+    print selector &quot;&quot;
+        block standard: data paragraph
+        block standard: math
+        block standard: text
+        block standard: label
+        block standard: code
+        block TOP LEVEL: data
+        block TOP LEVEL: LINE LEVEL
+        block TOP LEVEL: TOP LEVEL
+    print indentation mark &quot;&quot;
+        block standard: indentation mark &quot;:&quot; [data paragraph]
+                        with parsing selectors [data]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+        block standard: indentation mark &quot;:&quot; [text]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+                        with implied header {p}
+                        with paragraph lexical master &quot;PARAGRAPH-CHECK&quot;
+                        with line lexical master &quot;DATA-CHECK&quot;
+        block standard: indentation mark &quot;:&quot; ... &quot;;&quot; [code]
+                        with parsing options [- end at indent,
+                                              + end at le indent,
+                                              - end at lt indent,
+                                              - end at paragraph break,
+                                              + end at line separator,
+                                              + end at outer closing]
+                        with paragraph lexical master &quot;PARAGRAPH-CHECK&quot;
+                        with line lexical master &quot;DATA-CHECK&quot;
+        block TOP LEVEL: indentation mark [&lt; &quot;*TEXT*&quot; &quot;:&quot; &gt;] [code]
+                         with parsing selectors [text]
+        block TOP LEVEL: indentation mark [&lt; &quot;*PARSER*&quot; &quot;*TEST*&quot; &quot;:&quot; &gt;] ... &quot;;&quot;
+                         [TOP LEVEL]
+        block TOP LEVEL: indentation mark [&lt; &quot;*PARSER*&quot; &quot;:&quot; &gt;] ... &quot;;&quot;
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block reckon: indentation mark [&lt; &quot;*TOP*&quot; &quot;*LEVEL*&quot; &gt;] ... &quot;;&quot;
+                      []
+                      with parsing selectors [code]
+                      with parsing options [end at le indent,
+                                            end at line separator,
+                                            end at outer closing,
+                                            enable indented paragraph,
+                                            enable header]
+                      with paragraph lexical master &quot;PARAGRAPH-CHECK&quot;
+                      with line lexical master &quot;DATA-CHECK&quot;
+        block standard: indentation mark [&lt; &quot;*TOP*&quot; &quot;*LEVEL*&quot; &gt;] ... &quot;;&quot;
+                        []
+                        with parsing selectors [code]
+                        with parsing options [end at le indent,
+                                              end at line separator,
+                                              end at outer closing,
+                                              enable indented paragraph,
+                                              enable header]
+                        with paragraph lexical master &quot;PARAGRAPH-CHECK&quot;
+                        with line lexical master &quot;DATA-CHECK&quot;
+        block TOP LEVEL: indentation mark [&lt; &quot;*TOP*&quot; &quot;*LEVEL*&quot; &gt;] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
+    print bracket &quot;&quot;
+        block standard: bracket &quot;``&quot; ... &quot;''&quot; [code, text, math]
+                        with parsing selectors [- code, + text, - math]
+                        with parsing options [+ enable table prefix]
+                        with text reformatter ( &quot;s&quot;, &quot;.&quot;, &quot;?&quot;, &quot;!&quot;, &quot;:&quot;,
+                        &quot;;&quot; )
+        block TOP LEVEL: bracket &quot;``&quot; ... &quot;''&quot; [data]
+        block standard: bracket [&lt; &quot;[&quot; &quot;&lt;&quot; &gt;] ... [&lt; &quot;&gt;&quot; &quot;]&quot; &gt;]
+                        [code, label, text, math]
+                        with parsing selectors [label]
+                        with label reformatter
+        block TOP LEVEL: bracket [&lt; &quot;[&quot; &quot;&lt;&quot; &gt;] ... [&lt; &quot;&gt;&quot; &quot;]&quot; &gt;] [data]
+                         with parsing selectors [data]
+                         with label reformatter
+        block TOP LEVEL: bracket [&lt; &quot;{&quot; &quot;*&quot; &gt;] ... [&lt; &quot;*&quot; &quot;}&quot; &gt;] [data]
+                         with multivalue reformatter ( &quot;,&quot; )
+        block standard: bracket &quot;(&quot; ... &quot;)&quot; [code, text, math]
+        block TOP LEVEL: bracket &quot;(&quot; ... &quot;)&quot; [data]
+        block reckon: bracket &quot;[&quot; ... &quot;]&quot; [label, text, math]
+                      with parsing selectors [+ code, - label, - text,
+                                              - math]
+        block standard: bracket &quot;[&quot; ... &quot;]&quot; [code, text, math]
+        block TOP LEVEL: bracket &quot;[&quot; ... &quot;]&quot; [data]
+        block standard: bracket &quot;`&quot; ... &quot;'&quot; [code, text, math]
+                        with parsing selectors [text]
+        block TOP LEVEL: bracket &quot;`&quot; ... &quot;'&quot; [data]
+                         with parsing selectors [data]
+        block standard: bracket [&lt; &quot;{&quot; &quot;{&quot; &gt;] ... [&lt; &quot;}&quot; &quot;}&quot; &gt;]
+                        [code, text, math]
+                        with parsing selectors [- code, - text, + math]
+        block TOP LEVEL: bracket [&lt; &quot;{&quot; &quot;{&quot; &gt;] ... [&lt; &quot;}&quot; &quot;}&quot; &gt;] [data]
+        block standard: bracket [&lt; &quot;[&quot; &quot;$&quot; &gt;] ... [&lt; &quot;$&quot; &quot;]&quot; &gt;]
+                        [code, label, text, math]
+                        with parsing selectors [data]
+                        with special reformatter
+        block TOP LEVEL: bracket [&lt; &quot;[&quot; &quot;$&quot; &gt;] ... [&lt; &quot;$&quot; &quot;]&quot; &gt;] [data]
+                         with parsing selectors [data]
+                         with special reformatter
+    print bracket type &quot;&quot;
+        block standard: bracket type &quot;p&quot; [code, text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix]
+                        with group *PARAGRAPH*
+                        with implied subprefix {s}
+        block standard: bracket type &quot;s&quot; [text]
+                        with sentence reformatter ( &quot;.&quot;, &quot;?&quot;, &quot;!&quot; )
+        block standard: bracket type &quot;quote&quot; [code, text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix]
+                        with group *PARAGRAPH*
+                        with implied subprefix {s}
+        block standard: bracket type [&lt; &quot;*RAW*&quot; &quot;*DATA*&quot; &gt;]
+                        [TOP LEVEL, data, code, text, math]
+                        with parsing selectors [data, data paragraph]
+                        with parsing options [- enable prefix,
+                                              - enable table prefix,
+                                              - enable header]
+                        with group *LINE*
+                        with data reformatter ( &quot;@@@@&quot;, &quot;:=&quot;,
+                        {|&quot;:&quot; &quot;::&quot;|}, &quot;=&quot;, &quot;no&quot;, &quot;[&quot;, [&lt; &quot;{&quot; &quot;*&quot; &gt;] )
+        block standard: bracket type &quot;section&quot; [code, text]
+                        with parsing selectors [- data, - code, + text,
+                                                - math]
+                        with parsing options [- end at indent,
+                                              - end at le indent,
+                                              + end at lt indent,
+                                              + end at paragraph break,
+                                              - end at line separator,
+                                              - end at outer closing,
+                                              + enable table prefix]
+                        with group *PARAGRAPH*
+                        with implied subprefix {s}
+        block standard: bracket type &quot;***&quot; [TOP LEVEL, code, text]
+                        with group *RESET*
+        block standard: bracket type &quot;table&quot; [code, text]
+                        with parsing selectors [text]
+                        with parsing options [- end at line separator]
+                        with group *PARAGRAPH*
+                        with line lexical master &quot;ROW-CHECK&quot;
+        block standard: bracket type &quot;row&quot; [text]
+                        with group *LINE*
+        block standard: bracket type &quot;*DATA*&quot;
+                        [TOP LEVEL, data, code, text, math]
+                        with parsing selectors [+ data paragraph]
+                        with parsing options [- enable prefix,
+                                              - enable table prefix,
+                                              - enable header]
+                        with group *LINE*
+                        with data reformatter ( &quot;@@@@&quot;, &quot;:=&quot;,
+                        {|&quot;:&quot; &quot;::&quot;|}, &quot;=&quot;, &quot;no&quot;, &quot;[&quot;, [&lt; &quot;{&quot; &quot;*&quot; &gt;] )
+        block reckon: bracket type &quot;code&quot; [TOP LEVEL, code, text]
+                      with group *RESET*
+    print operator &quot;&quot;
+        block standard: operator &quot;*&quot; [code, math]
+                        infix
+                        with precedence 13200
+                        with infix reformatter ( &quot;*&quot; )
+        block standard: operator &quot;+&quot; [code, math]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
+        block standard: operator &quot;+&quot; [code, math]
+                        infix
+                        with precedence 13000
+                        with infix reformatter ( &quot;+&quot;, &quot;-&quot; )
+        block standard: operator &quot;,&quot; [code, math]
+                        nofix
+                        with precedence 2000
+                        with separator reformatter
+        block standard: operator &quot;-&quot; [code, math]
+                        prefix
+                        with precedence 999999
+                        with unary reformatter
+        block standard: operator &quot;-&quot; [code, math]
+                        infix
+                        with precedence 13000
+                        with infix reformatter ( &quot;+&quot;, &quot;-&quot; )
+        block standard: operator &quot;/&quot; [code, math]
+                        infix
+                        with precedence 13100
+                        with binary reformatter
+        block standard: operator &quot;:&quot; [code]
+                        right afix line
+                        with precedence 0
+        block standard: operator &quot;&lt;&quot; [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter
+        block standard: operator &quot;=&quot; [code]
+                        left line
+                        with precedence 1000
+                        with assignment reformatter
+        block standard: operator &quot;=&quot; [math]
+                        infix
+                        with precedence 1000
+                        with binary reformatter
+        block standard: operator &quot;&gt;&quot; [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter
+        block standard: operator &quot;!=&quot; [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter
+        block reckon: operator &quot;^&quot; [code, math]
+                      infix
+                      with precedence 13300
+                      with binary reformatter
+        block standard: operator &quot;do&quot; [code]
+                        prefix line
+                        with precedence 3000
+                        with unary reformatter
+        block standard: operator &quot;NOT&quot; [code, math]
+                        prefix
+                        with precedence 11200
+                        with unary reformatter
+        block standard: operator [&lt; &quot;else&quot; &quot;if&quot; &gt;] [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( &quot;:&quot;,
+                        [&lt; &quot;has&quot; &quot;condition&quot; &gt;] )
+        block reckon: operator &quot;&lt;--&quot; [code]
+                      nofix line
+                      with precedence 0
+                      with declare reformatter ( &quot;:&quot; )
+        block standard: operator &quot;while&quot; [code]
+                        prefix line
+                        with precedence 3000
+                        with unary reformatter
+        block standard: operator [&lt; &quot;BUT&quot; &quot;NOT&quot; &gt;] [code, math]
+                        infix
+                        with precedence 11000
+                        with binary reformatter
+        block standard: operator &quot;times&quot; [code]
+                        nofix afix line
+                        with precedence 3000
+        block standard: operator &quot;if&quot; [code, math]
+                        infix
+                        with precedence 10000
+                        with selector reformatter ( &quot;if&quot;, &quot;else&quot; )
+        block standard: operator &quot;if&quot; [code]
+                        prefix line
+                        with precedence 0
+                        with control reformatter ( &quot;:&quot;,
+                        [&lt; &quot;has&quot; &quot;condition&quot; &gt;] )
+        block standard: operator &quot;until&quot; [code]
+                        prefix line
+                        with precedence 3000
+                        with unary reformatter
+        block standard: operator &quot;else&quot; [code, math]
+                        infix afix
+                        with precedence 10000
+        block standard: operator &quot;else&quot; [code]
+                        initial line
+                        with precedence 0
+                        with control reformatter ( &quot;:&quot; )
+        block standard: operator &quot;**&quot; [code, math]
+                        infix
+                        with precedence 13300
+                        with binary reformatter
+        block standard: operator &quot;*=&quot; [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
+        block standard: operator [&lt; &quot;at&quot; &quot;most&quot; &gt;] [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( &quot;times&quot; )
+        block standard: operator &quot;+=&quot; [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
+        block standard: operator &quot;&lt;=&quot; [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter
+        block reckon: operator &quot;=#&quot; [code, math]
+                      left line
+                      with precedence 1000
+                      with assignment reformatter
+        block standard: operator &quot;AND&quot; [code, math]
+                        infix
+                        with precedence 11100
+                        with infix reformatter ( &quot;AND&quot; )
+        block standard: operator &quot;repeat&quot; [code]
+                        prefix line
+                        with precedence 3000
+                        with iteration reformatter ( &quot;times&quot; )
+        block standard: operator &quot;==&quot; [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter
+        block standard: operator &quot;-=&quot; [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
+        block reckon: operator [&lt; &quot;for&quot; &quot;every&quot; &gt;] [code]
+                      prefix line
+                      with precedence 3000
+                      with unary reformatter
+        block standard: operator &quot;&gt;=&quot; [code, math]
+                        infix
+                        with precedence 12000
+                        with infix reformatter
+        block reckon: operator &quot;on&quot; [code]
+                      prefix line
+                      with precedence 0
+        block standard: operator &quot;OR&quot; [code, math]
+                        infix
+                        with precedence 11100
+                        with infix reformatter ( &quot;OR&quot; )
+        block standard: operator &quot;/=&quot; [code]
+                        infix line
+                        with precedence 1000
+                        with binary reformatter
+        block standard: bracket &quot;:&quot; [code]
+                        nofix afix line
+                        with precedence 0
+        block standard: bracket &quot;:&quot; [code]
+                        postfix line
+                        with precedence 0
+BRACKETED EXPRESSION:
+    9
+    line 23:
+9
+^
+PURELIST EXPRESSION:
+    {|9|}
+    line 24:
+9 + 8
+^
+PURELIST EXPRESSION:
+    {|8|}
+    line 24:
+9 + 8
+    ^
+BRACKETED EXPRESSION:
+    {|9|} + {|8|}
+    line 24:
+9 + 8
+^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 25:
+x = 9
+^
+PURELIST EXPRESSION:
+    {|9|}
+    line 25:
+x = 9
+    ^
+BRACKETED EXPRESSION:
+    {|x|} = {|9|}
+    line 25:
+x = 9
+^^^^^
+PURELIST EXPRESSION:
+    {|y|}
+    line 26:
+y = 9 + 8
+^
+PURELIST EXPRESSION:
+    {|9|}
+    line 26:
+y = 9 + 8
+    ^
+PURELIST EXPRESSION:
+    {|8|}
+    line 26:
+y = 9 + 8
+        ^
+PURELIST EXPRESSION:
+    {|{|9|} + {|8|}|}
+    line 26:
+y = 9 + 8
+    ^^^^^
+BRACKETED EXPRESSION:
+    {|y|} = {|{|9|} + {|8|}|}
+    line 26:
+y = 9 + 8
+^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 27:
+x + y
+^
+PURELIST EXPRESSION:
+    {|y|}
+    line 27:
+x + y
+    ^
+BRACKETED EXPRESSION:
+    {|x|} + {|y|}
+    line 27:
+x + y
+^^^^^
+PURELIST EXPRESSION:
+    {|b|}
+    line 28:
+f (b, c, x) = b * x + c
+   ^
+PURELIST EXPRESSION:
+    {|c|}
+    line 28:
+f (b, c, x) = b * x + c
+      ^
+PURELIST EXPRESSION:
+    {|x|}
+    line 28:
+f (b, c, x) = b * x + c
+         ^
+BRACKETED EXPRESSION:
+    ({|b|}, {|c|}, {|x|})
+    line 28:
+f (b, c, x) = b * x + c
+  ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|f ({|b|}, {|c|}, {|x|})|}
+    line 28:
+f (b, c, x) = b * x + c
+^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|b|}
+    line 28:
+f (b, c, x) = b * x + c
+              ^
+PURELIST EXPRESSION:
+    {|x|}
+    line 28:
+f (b, c, x) = b * x + c
+                  ^
+PURELIST EXPRESSION:
+    {|c|}
+    line 28:
+f (b, c, x) = b * x + c
+                      ^
+PURELIST EXPRESSION:
+    {|{|b|} * {|x|}|}
+    line 28:
+f (b, c, x) = b * x + c
+              ^^^^^
+PURELIST EXPRESSION:
+    {|{|{|b|} * {|x|}|} + {|c|}|}
+    line 28:
+f (b, c, x) = b * x + c
+              ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|f ({|b|}, {|c|}, {|x|})|} = {|{|{|b|} * {|x|}|} + {|c|}|}
+    line 28:
+f (b, c, x) = b * x + c
+^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|10|}
+    line 29:
+f (10, x, y)
+   ^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 29:
+f (10, x, y)
+       ^
+PURELIST EXPRESSION:
+    {|y|}
+    line 29:
+f (10, x, y)
+          ^
+BRACKETED EXPRESSION:
+    ({|10|}, {|x|}, {|y|})
+    line 29:
+f (10, x, y)
+  ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    f ({|10|}, {|x|}, {|y|})
+    line 29:
+f (10, x, y)
+^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `hello'
+    line 31:
+g = `hello'
+    ^^^^^^^
+PURELIST EXPRESSION:
+    {|g|}
+    line 31:
+g = `hello'
+^
+BRACKETED EXPRESSION:
+    {|g|} = `hello'
+    line 31:
+g = `hello'
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [g]
+    line 32:
+`[g] there'
+ ^^^
+BRACKETED EXPRESSION:
+    `[g] there'
+    line 32:
+`[g] there'
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `[g] there'
+    line 32:
+`[g] there'
+^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [g]
+    line 33:
+z = ``I thought he said `[g]'.''
+                         ^^^
+BRACKETED EXPRESSION:
+    `[g]'
+    line 33:
+z = ``I thought he said `[g]'.''
+                        ^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|I thought he said `[g]'|s}
+    line 33:
+z = ``I thought he said `[g]'.''
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|I thought he said `[g]'|s}''
+    line 33:
+z = ``I thought he said `[g]'.''
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|z|}
+    line 33:
+z = ``I thought he said `[g]'.''
+^
+BRACKETED EXPRESSION:
+    {|z|} = ``{s: .terminator = &quot;.&quot;|I thought he said `[g]'|s}''
+    line 33:
+z = ``I thought he said `[g]'.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p}
+    line 36:
+    {p} // Introduces paragraph.
+    ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|This document is meant to be read|s}
+    lines 36-37:
+    {p} // Introduces paragraph.
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s|Reading this document is good &quot;,&quot; but &quot;...&quot;|s}
+    lines 37-38:
+    This document is meant to be read.
+                                      ^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = &quot;.&quot;|This document is meant to be read|s}
+       {s|Reading this document is good &quot;,&quot; but &quot;...&quot;|s}|p}
+    lines 36-38:
+    {p} // Introduces paragraph.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PREFIX EXPRESSION:
+    {p}
+    line 40:
+    {p}
+    ^^^
+BRACKETED EXPRESSION:
+    [z]
+    line 41:
+    A line with an insertion [z].
+                             ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|A line with an insertion [z]|s}
+    lines 40-41:
+    {p}
+       ^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {p|{s: .terminator = &quot;.&quot;|A line with an insertion [z]|s}|p}
+    lines 40-41:
+    {p}
+    ^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [&lt; *TEXT* &quot;:&quot; &gt;]|
+         {p|{s: .terminator = &quot;.&quot;|This document is meant to be read|s}
+            {s|Reading this document is good &quot;,&quot; but &quot;...&quot;|s}|p}
+         {p|{s: .terminator = &quot;.&quot;|A line with an insertion [z]|s}|p}|}
+    lines 35-41:
+notice = *TEXT*:
+         ^^^^^^^
+    {p} // Introduces paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;BLANK-LINE&gt;
+^
+    {p}
+^^^^^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|notice|}
+    line 35:
+notice = *TEXT*:
+^^^^^^
+BRACKETED EXPRESSION:
+    {|notice|} =*TEXT*:
+        {p|{s: .terminator = &quot;.&quot;|This document is meant to be read|s}
+           {s|Reading this document is good &quot;,&quot; but &quot;...&quot;|s}|p}
+        {p|{s: .terminator = &quot;.&quot;|A line with an insertion [z]|s}|p}
+    lines 35-41:
+notice = *TEXT*:
+^^^^^^^^^^^^^^^^
+    {p} // Introduces paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;BLANK-LINE&gt;
+^
+    {p}
+^^^^^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [x]
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+               ^^^
+BRACKETED EXPRESSION:
+    [y]
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+                       ^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+                                    ^
+PURELIST EXPRESSION:
+    {|y|}
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+                                        ^
+BRACKETED EXPRESSION:
+    [{|x|} + {|y|}]
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+                                   ^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|When you add [x] and [y] you get
+        [{|x|} + {|y|}]|s}
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|When you add [x] and [y] you get
+          [{|x|} + {|y|}]|s}''
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|When you add [x] and [y] you get
+          [{|x|} + {|y|}]|s}''
+    line 43:
+``When you add [x] and [y] you get [x + y].''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|10|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+       ^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+            ^
+PURELIST EXPRESSION:
+    {|2|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                ^
+PURELIST EXPRESSION:
+    {|3.67|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                    ^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                           ^
+PURELIST EXPRESSION:
+    {|0.04|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                               ^^^^
+PURELIST EXPRESSION:
+    {|{|x|} ^ {|2|}|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+            ^^^^^
+PURELIST EXPRESSION:
+    {|{|10|} * {|{|x|} ^ {|2|}|}|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+       ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|3.67|} * {|x|}|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+                    ^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}}}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|f|}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+^
+BRACKETED EXPRESSION:
+    {|f|} =
+        {{{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} -
+          {|0.04|}}}
+    line 45:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0.96|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+        ^^^^
+PURELIST EXPRESSION:
+    {|0.67|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+               ^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+                      ^
+PURELIST EXPRESSION:
+    {|- {|0.96|}|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+      ^^^^^^
+PURELIST EXPRESSION:
+    {|{|0.67|} * {|x|}|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+               ^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|- {|0.96|}|} + {|{|0.67|} * {|x|}|}|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+      ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{{|- {|0.96|}|} + {|{|0.67|} * {|x|}|}}}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+    ^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|h|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+^
+PURELIST EXPRESSION:
+    {|{{{|- {|0.96|}|} + {|{|0.67|} * {|x|}|}}} in x|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|h|} = {|{{{|- {|0.96|}|} + {|{|0.67|} * {|x|}|}}} in x|}
+    line 46:
+h = {{- 0.96 + 0.67 * x}} in x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|f|}
+    line 47:
+{{f + h}} in x
+  ^
+PURELIST EXPRESSION:
+    {|h|}
+    line 47:
+{{f + h}} in x
+      ^
+BRACKETED EXPRESSION:
+    {{{|f|} + {|h|}}}
+    line 47:
+{{f + h}} in x
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{{|f|} + {|h|}}} in x
+    line 47:
+{{f + h}} in x
+^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|f|}
+    line 48:
+solve {{f + h = 0}} in x for x
+        ^
+PURELIST EXPRESSION:
+    {|h|}
+    line 48:
+solve {{f + h = 0}} in x for x
+            ^
+PURELIST EXPRESSION:
+    {|0|}
+    line 48:
+solve {{f + h = 0}} in x for x
+                ^
+PURELIST EXPRESSION:
+    {|{|f|} + {|h|}|}
+    line 48:
+solve {{f + h = 0}} in x for x
+        ^^^^^
+PURELIST EXPRESSION:
+    {|{|{|f|} + {|h|}|} = {|0|}|}
+    line 48:
+solve {{f + h = 0}} in x for x
+        ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{{|{|f|} + {|h|}|} = {|0|}}}
+    line 48:
+solve {{f + h = 0}} in x for x
+      ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    solve {{{|{|f|} + {|h|}|} = {|0|}}} in x for x
+    line 48:
+solve {{f + h = 0}} in x for x
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|f|}
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+  ^
+PURELIST EXPRESSION:
+    {|h|}
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+      ^
+BRACKETED EXPRESSION:
+    {{{|f|} + {|h|}}}
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+^^^^^^^^^
+PURELIST EXPRESSION:
+    {|3|}
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+                   ^
+PURELIST EXPRESSION:
+    {|4|}
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+                      ^
+PURELIST EXPRESSION:
+    {|5|}
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+                         ^
+BRACKETED EXPRESSION:
+    ({|3|}, {|4|}, {|5|})
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+                  ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{{|f|} + {|h|}}} in x at ({|3|}, {|4|}, {|5|})
+    line 49:
+{{f + h}} in x at (3, 4, 5)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+                 ^
+PURELIST EXPRESSION:
+    {|2|}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+                     ^
+PURELIST EXPRESSION:
+    {|dx|}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+                        ^^
+PURELIST EXPRESSION:
+    {|{|x|} ^ {|2|}|}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+                 ^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|{|x|} ^ {|2|}|}, {|dx|}|}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+                 ^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|{|x|} ^ {|2|}|}, {|dx|})
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+                ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{integral ({|{|x|} ^ {|2|}|}, {|dx|})}}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|g|}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+^
+BRACKETED EXPRESSION:
+    {|g|} = {{integral ({|{|x|} ^ {|2|}|}, {|dx|})}}
+    line 50:
+g = {{ integral (x ^ 2, dx) }}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    simplify g
+    line 51:
+simplify g
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    g from 1 to 5
+    line 52:
+g from 1 to 5
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (g from 1 to 5)
+    line 53:
+v = simplify ( g from 1 to 5 )
+             ^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|v|}
+    line 53:
+v = simplify ( g from 1 to 5 )
+^
+PURELIST EXPRESSION:
+    {|simplify (g from 1 to 5)|}
+    line 53:
+v = simplify ( g from 1 to 5 )
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|v|} = {|simplify (g from 1 to 5)|}
+    line 53:
+v = simplify ( g from 1 to 5 )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [g from 1 to 5]
+    line 54:
+out = ``The value of [g from 1 to 5] is [v].''
+                     ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [v]
+    line 54:
+out = ``The value of [g from 1 to 5] is [v].''
+                                        ^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|The value of [g from 1 to 5] is [v]|s}
+    line 54:
+out = ``The value of [g from 1 to 5] is [v].''
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|The value of [g from 1 to 5] is [v]|s}''
+    line 54:
+out = ``The value of [g from 1 to 5] is [v].''
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|out|}
+    line 54:
+out = ``The value of [g from 1 to 5] is [v].''
+^^^
+BRACKETED EXPRESSION:
+    {|out|} =
+        ``{s: .terminator = &quot;.&quot;|The value of [g from 1 to 5] is [v]|s}''
+    line 54:
+out = ``The value of [g from 1 to 5] is [v].''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|1 2 3|}
+    line 55:
+V =# {| 1 2 3 |}
+     ^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|V|}
+    line 55:
+V =# {| 1 2 3 |}
+^
+BRACKETED EXPRESSION:
+    {|V|} =# {|1 2 3|}
+    line 55:
+V =# {| 1 2 3 |}
+^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    &quot;|&quot; 0 1 1 &quot;|&quot;
+    line 57:
+   |  0   1   1 |
+   ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    &quot;|&quot; -1 1 0 &quot;|&quot;
+    line 58:
+   | -1   1   0 |
+   ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    &quot;|&quot; 1 0 -1 &quot;|&quot;
+    line 59:
+   |  1   0  -1 |
+   ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|&quot;|&quot;
+              0 1 1 &quot;|&quot;|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|&quot;|&quot;
+              -1 1 0 &quot;|&quot;|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|&quot;|&quot;
+              1 0 -1 &quot;|&quot;|}|}
+    lines 56-59:
+M =#:
+    ^
+   |  0   1   1 |
+^^^^^^^^^^^^^^^^^
+   | -1   1   0 |
+^^^^^^^^^^^^^^^^^
+   |  1   0  -1 |
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|M|}
+    line 56:
+M =#:
+^
+PURELIST EXPRESSION:
+    {|{|M|} =#|}
+    line 56:
+M =#:
+^^^^
+PURELIST EXPRESSION:
+    {|{|{|M|} =#|}
+      {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                &quot;|&quot; 0 1 1 &quot;|&quot;|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                &quot;|&quot; -1 1 0 &quot;|&quot;|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                &quot;|&quot; 1 0 -1 &quot;|&quot;|}|}|}
+    lines 56-59:
+M =#:
+^^^^^
+   |  0   1   1 |
+^^^^^^^^^^^^^^^^^
+   | -1   1   0 |
+^^^^^^^^^^^^^^^^^
+   |  1   0  -1 |
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|{|M|} =#|}:
+        &quot;|&quot; 0 1 1 &quot;|&quot;
+        &quot;|&quot; -1 1 0 &quot;|&quot;
+        &quot;|&quot; 1 0 -1 &quot;|&quot;
+    lines 56-59:
+M =#:
+^^^^^
+   |  0   1   1 |
+^^^^^^^^^^^^^^^^^
+   | -1   1   0 |
+^^^^^^^^^^^^^^^^^
+   |  1   0  -1 |
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|V|}
+    line 60:
+V ^ T
+^
+PURELIST EXPRESSION:
+    {|T|}
+    line 60:
+V ^ T
+    ^
+BRACKETED EXPRESSION:
+    {|V|} ^ {|T|}
+    line 60:
+V ^ T
+^^^^^
+PURELIST EXPRESSION:
+    {|M|}
+    line 61:
+M * V ^ T
+^
+PURELIST EXPRESSION:
+    {|V|}
+    line 61:
+M * V ^ T
+    ^
+PURELIST EXPRESSION:
+    {|T|}
+    line 61:
+M * V ^ T
+        ^
+PURELIST EXPRESSION:
+    {|{|V|} ^ {|T|}|}
+    line 61:
+M * V ^ T
+    ^^^^^
+BRACKETED EXPRESSION:
+    {|M|} * {|{|V|} ^ {|T|}|}
+    line 61:
+M * V ^ T
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 64:
+    name = `Jack'
+           ^^^^^^
+PURELIST EXPRESSION:
+    {|name|}
+    line 64:
+    name = `Jack'
+    ^^^^
+BRACKETED EXPRESSION:
+    {|name|} = `Jack'
+    line 64:
+    name = `Jack'
+    ^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|weight|}
+    line 65:
+    weight = 123 lb
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|123 lb|}
+    line 65:
+    weight = 123 lb
+             ^^^^^^
+BRACKETED EXPRESSION:
+    {|weight|} = {|123 lb|}
+    line 65:
+    weight = 123 lb
+    ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|height|}
+    line 66:
+    height = 5 ft 9 in
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|5 ft 9 in|}
+    line 66:
+    height = 5 ft 9 in
+             ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|height|} = {|5 ft 9 in|}
+    line 66:
+    height = 5 ft 9 in
+    ^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|age|}
+    line 67:
+    age = 23 yr 2 mo
+    ^^^
+PURELIST EXPRESSION:
+    {|23 yr 2 mo|}
+    line 67:
+    age = 23 yr 2 mo
+          ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|age|} = {|23 yr 2 mo|}
+    line 67:
+    age = 23 yr 2 mo
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|name|} = `Jack'|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|weight|} = {|123 lb|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|height|} = {|5 ft 9 in|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|age|} = {|23 yr 2 mo|}|}|}
+    lines 63-67:
+a person:
+        ^
+    name = `Jack'
+^^^^^^^^^^^^^^^^^
+    weight = 123 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 9 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 23 yr 2 mo
+^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|a person|}
+    line 63:
+a person:
+^^^^^^^^
+BRACKETED EXPRESSION:
+    {|a person|}:
+        {|name|} = `Jack'
+        {|weight|} = {|123 lb|}
+        {|height|} = {|5 ft 9 in|}
+        {|age|} = {|23 yr 2 mo|}
+    lines 63-67:
+a person:
+^^^^^^^^^
+    name = `Jack'
+^^^^^^^^^^^^^^^^^
+    weight = 123 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 9 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 23 yr 2 mo
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line 69:
+    name = `Jill'
+           ^^^^^^
+PURELIST EXPRESSION:
+    {|name|}
+    line 69:
+    name = `Jill'
+    ^^^^
+BRACKETED EXPRESSION:
+    {|name|} = `Jill'
+    line 69:
+    name = `Jill'
+    ^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|weight|}
+    line 70:
+    weight = 110 lb
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|110 lb|}
+    line 70:
+    weight = 110 lb
+             ^^^^^^
+BRACKETED EXPRESSION:
+    {|weight|} = {|110 lb|}
+    line 70:
+    weight = 110 lb
+    ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|height|}
+    line 71:
+    height = 5 ft 7 in
+    ^^^^^^
+PURELIST EXPRESSION:
+    {|5 ft 7 in|}
+    line 71:
+    height = 5 ft 7 in
+             ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|height|} = {|5 ft 7 in|}
+    line 71:
+    height = 5 ft 7 in
+    ^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|age|}
+    line 72:
+    age = 21 yr 8 mo
+    ^^^
+PURELIST EXPRESSION:
+    {|21 yr 8 mo|}
+    line 72:
+    age = 21 yr 8 mo
+          ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|age|} = {|21 yr 8 mo|}
+    line 72:
+    age = 21 yr 8 mo
+    ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|name|} = `Jill'|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|weight|} = {|110 lb|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|height|} = {|5 ft 7 in|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|age|} = {|21 yr 8 mo|}|}|}
+    lines 68-72:
+a person:
+        ^
+    name = `Jill'
+^^^^^^^^^^^^^^^^^
+    weight = 110 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 7 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 21 yr 8 mo
+^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|a person|}
+    line 68:
+a person:
+^^^^^^^^
+BRACKETED EXPRESSION:
+    {|a person|}:
+        {|name|} = `Jill'
+        {|weight|} = {|110 lb|}
+        {|height|} = {|5 ft 7 in|}
+        {|age|} = {|21 yr 8 mo|}
+    lines 68-72:
+a person:
+^^^^^^^^^
+    name = `Jill'
+^^^^^^^^^^^^^^^^^
+    weight = 110 lb
+^^^^^^^^^^^^^^^^^^^
+    height = 5 ft 7 in
+^^^^^^^^^^^^^^^^^^^^^^
+    age = 21 yr 8 mo
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the person named Jack's height
+    line 73:
+the person named Jack's height
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    the weight of the person named Jack
+    line 74:
+the weight of the person named Jack
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|body mass index|}
+    line 77:
+    body mass index = 703.06958 * weight in lbs
+    ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|703.06958|}
+    line 77:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|weight in lbs|}
+    line 77:
+    body mass index = 703.06958 * weight in lbs
+                                  ^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|height in inches|}
+    line 78:
+                    / height in inches ^ 2
+                      ^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|2|}
+    line 78:
+                    / height in inches ^ 2
+                                         ^
+PURELIST EXPRESSION:
+    {|{|703.06958|} * {|weight in lbs|}|}
+    line 77:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|height in inches|} ^ {|2|}|}
+    line 78:
+                    / height in inches ^ 2
+                      ^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|{|703.06958|} * {|weight in lbs|}|} /
+      {|{|height in inches|} ^ {|2|}|}|}
+    lines 77-78:
+    body mass index = 703.06958 * weight in lbs
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|body mass index|} =
+        {|{|{|703.06958|} * {|weight in lbs|}|} /
+          {|{|height in inches|} ^ {|2|}|}|}
+    lines 77-78:
+    body mass index = 703.06958 * weight in lbs
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|body mass index|} =
+              {|{|{|703.06958|} * {|weight in lbs|}|} /
+                {|{|height in inches|} ^ {|2|}|}|}|}|}
+    lines 76-78:
+for every person:
+                ^
+    body mass index = 703.06958 * weight in lbs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|person|}
+    line 76:
+for every person:
+          ^^^^^^
+PURELIST EXPRESSION:
+    {|[&lt; for every &gt;] {|person|}|}
+    line 76:
+for every person:
+^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|[&lt; for every &gt;] {|person|}|}
+      {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                {|body mass index|} =
+                {|{|{|703.06958|} * {|weight in lbs|}|} /
+                  {|{|height in inches|} ^ {|2|}|}|}|}|}|}
+    lines 76-78:
+for every person:
+^^^^^^^^^^^^^^^^^
+    body mass index = 703.06958 * weight in lbs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|[&lt; for every &gt;] {|person|}|}:
+        {|body mass index|} =
+            {|{|{|703.06958|} * {|weight in lbs|}|} /
+              {|{|height in inches|} ^ {|2|}|}|}
+    lines 76-78:
+for every person:
+^^^^^^^^^^^^^^^^^
+    body mass index = 703.06958 * weight in lbs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    / height in inches ^ 2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}
+    line 82:
+    ``Sum of integers from X through Y.''
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}''
+    line 82:
+    ``Sum of integers from X through Y.''
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}''
+    line 82:
+    ``Sum of integers from X through Y.''
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 83:
+    if X &gt; Y:     value = 0
+       ^
+PURELIST EXPRESSION:
+    {|Y|}
+    line 83:
+    if X &gt; Y:     value = 0
+           ^
+PURELIST EXPRESSION:
+    {|value|}
+    line 83:
+    if X &gt; Y:     value = 0
+                  ^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 83:
+    if X &gt; Y:     value = 0
+                          ^
+PURELIST EXPRESSION:
+    {|{|X|} &gt; {|Y|}|}
+    line 83:
+    if X &gt; Y:     value = 0
+       ^^^^^
+PURELIST EXPRESSION:
+    {|{|value|} = {|0|}|}
+    line 83:
+    if X &gt; Y:     value = 0
+                  ^^^^^^^^^
+BRACKETED EXPRESSION:
+    if {|{|X|} &gt; {|Y|}|} &quot;:&quot; {|{|value|} = {|0|}|}
+    line 83:
+    if X &gt; Y:     value = 0
+    ^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                                   ^
+PURELIST EXPRESSION:
+    {|1|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                                       ^
+BRACKETED EXPRESSION:
+    ({|X|} + {|1|})
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                                  ^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                  ^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                          ^
+PURELIST EXPRESSION:
+    {|sum ({|X|} + {|1|}) through Y|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                              ^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|value|} = {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    else &quot;:&quot;
+        {|{|value|} = {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}
+    line 84:
+    else:         value = X + sum (X + 1) through Y
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              ``{s: .terminator = &quot;.&quot;|Sum of integers from X through
+                    Y|s}''|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|if
+              {|{|X|} &gt; {|Y|}|} &quot;:&quot; {|{|value|} = {|0|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|else
+              &quot;:&quot;
+              {|{|value|} =
+                {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}|}|}
+    lines 81-84:
+                          is an integer Y:
+                                         ^
+    ``Sum of integers from X through Y.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if X &gt; Y:     value = 0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|sum from X through Y|}
+    line 80:
+sum from X through Y &lt;-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer X|}
+    line 80:
+sum from X through Y &lt;-- is an integer X,
+                         ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer Y|}
+    line 81:
+                          is an integer Y:
+                          ^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|is an integer X|}, {|is an integer Y|}|}
+    lines 80-81:
+sum from X through Y &lt;-- is an integer X,
+                         ^^^^^^^^^^^^^^^^
+                          is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|sum from X through Y|} &lt;--
+        {|{|is an integer X|}, {|is an integer Y|}|}:
+        ``{s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}''
+        if {|{|X|} &gt; {|Y|}|} &quot;:&quot; {|{|value|} = {|0|}|}
+        else &quot;:&quot;
+            {|{|value|} =
+              {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}
+    lines 80-84:
+sum from X through Y &lt;-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``Sum of integers from X through Y.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if X &gt; Y:     value = 0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:         value = X + sum (X + 1) through Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    sum from 5 through 10
+    line 85:
+sum from 5 through 10
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (sums from X through Y)
+    line 86:
+all (sums from X through Y)
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    all (sums from X through Y)
+    line 86:
+all (sums from X through Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    sum from 1 through 2
+    line 87:
+sum from 1 through 2
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (sums from X through Y)
+    line 88:
+all (sums from X through Y)
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    all (sums from X through Y)
+    line 88:
+all (sums from X through Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}
+    line 92:
+    ``Sum of integers from X through Y.''
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}''
+    line 92:
+    ``Sum of integers from X through Y.''
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}''
+    line 92:
+    ``Sum of integers from X through Y.''
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 93:
+    value = 0
+    ^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 93:
+    value = 0
+            ^
+BRACKETED EXPRESSION:
+    {|value|} = {|0|}
+    line 93:
+    value = 0
+    ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next value|}
+    line 95:
+        next value = value + X
+        ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 95:
+        next value = value + X
+                     ^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 95:
+        next value = value + X
+                             ^
+PURELIST EXPRESSION:
+    {|{|value|} + {|X|}|}
+    line 95:
+        next value = value + X
+                     ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|next value|} = {|{|value|} + {|X|}|}
+    line 95:
+        next value = value + X
+        ^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next X|}
+    line 96:
+        next X = X + 1
+        ^^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 96:
+        next X = X + 1
+                 ^
+PURELIST EXPRESSION:
+    {|1|}
+    line 96:
+        next X = X + 1
+                     ^
+PURELIST EXPRESSION:
+    {|{|X|} + {|1|}|}
+    line 96:
+        next X = X + 1
+                 ^^^^^
+BRACKETED EXPRESSION:
+    {|next X|} = {|{|X|} + {|1|}|}
+    line 96:
+        next X = X + 1
+        ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next value|} = {|{|value|} + {|X|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next X|} = {|{|X|} + {|1|}|}|}|}
+    lines 94-96:
+    while X &lt;= Y:
+                ^
+        next value = value + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 94:
+    while X &lt;= Y:
+          ^
+PURELIST EXPRESSION:
+    {|Y|}
+    line 94:
+    while X &lt;= Y:
+               ^
+PURELIST EXPRESSION:
+    {|{|X|} &lt;= {|Y|}|}
+    line 94:
+    while X &lt;= Y:
+          ^^^^^^
+PURELIST EXPRESSION:
+    {|while {|{|X|} &lt;= {|Y|}|}|}
+    line 94:
+    while X &lt;= Y:
+    ^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|while {|{|X|} &lt;= {|Y|}|}|}
+      {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                {|next value|} = {|{|value|} + {|X|}|}|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                {|next X|} = {|{|X|} + {|1|}|}|}|}|}
+    lines 94-96:
+    while X &lt;= Y:
+    ^^^^^^^^^^^^^
+        next value = value + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|while {|{|X|} &lt;= {|Y|}|}|}:
+        {|next value|} = {|{|value|} + {|X|}|}
+        {|next X|} = {|{|X|} + {|1|}|}
+    lines 94-96:
+    while X &lt;= Y:
+    ^^^^^^^^^^^^^
+        next value = value + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              ``{s: .terminator = &quot;.&quot;|Sum of integers from X through
+                    Y|s}''|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|value|} = {|0|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|while {|{|X|} &lt;= {|Y|}|}|}
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next value|} =
+                        {|{|value|} + {|X|}|}|}
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next X|} =
+                        {|{|X|} + {|1|}|}|}|}|}|}
+    lines 91-96:
+                         is an integer Y:
+                                        ^
+    ``Sum of integers from X through Y.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = 0
+^^^^^^^^^^^^^
+    while X &lt;= Y:
+^^^^^^^^^^^^^^^^^
+        next value = value + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|sum from X through Y|}
+    line 90:
+sum from X through Y &lt;-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer X|}
+    line 90:
+sum from X through Y &lt;-- is an integer X,
+                         ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|is an integer Y|}
+    line 91:
+                         is an integer Y:
+                         ^^^^^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|is an integer X|}, {|is an integer Y|}|}
+    lines 90-91:
+sum from X through Y &lt;-- is an integer X,
+                         ^^^^^^^^^^^^^^^^
+                         is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|sum from X through Y|} &lt;--
+        {|{|is an integer X|}, {|is an integer Y|}|}:
+        ``{s: .terminator = &quot;.&quot;|Sum of integers from X through Y|s}''
+        {|value|} = {|0|}
+        {|while {|{|X|} &lt;= {|Y|}|}|}:
+            {|next value|} = {|{|value|} + {|X|}|}
+            {|next X|} = {|{|X|} + {|1|}|}
+    lines 90-96:
+sum from X through Y &lt;-- is an integer X,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         is an integer Y:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``Sum of integers from X through Y.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = 0
+^^^^^^^^^^^^^
+    while X &lt;= Y:
+^^^^^^^^^^^^^^^^^
+        next value = value + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = X + 1
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    sum from 5 through 10
+    line 97:
+sum from 5 through 10
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (sums from X through Y)
+    line 98:
+all ( sums from X through Y)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    all (sums from X through Y)
+    line 98:
+all ( sums from X through Y)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|count|}
+    line 101:
+    count = 0
+    ^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 101:
+    count = 0
+            ^
+BRACKETED EXPRESSION:
+    {|count|} = {|0|}
+    line 101:
+    count = 0
+    ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|sum|}
+    line 102:
+    sum = 0
+    ^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 102:
+    sum = 0
+          ^
+BRACKETED EXPRESSION:
+    {|sum|} = {|0|}
+    line 102:
+    sum = 0
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    ()
+    line 103:
+    while X != ():
+               ^^
+PURELIST EXPRESSION:
+    {|next count|}
+    line 104:
+        next count = count + 1
+        ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|count|}
+    line 104:
+        next count = count + 1
+                     ^^^^^
+PURELIST EXPRESSION:
+    {|1|}
+    line 104:
+        next count = count + 1
+                             ^
+PURELIST EXPRESSION:
+    {|{|count|} + {|1|}|}
+    line 104:
+        next count = count + 1
+                     ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|next count|} = {|{|count|} + {|1|}|}
+    line 104:
+        next count = count + 1
+        ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (first X)
+    line 105:
+        next sum = sum + the weight of (first X)
+                                       ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next sum|}
+    line 105:
+        next sum = sum + the weight of (first X)
+        ^^^^^^^^
+PURELIST EXPRESSION:
+    {|sum|}
+    line 105:
+        next sum = sum + the weight of (first X)
+                   ^^^
+PURELIST EXPRESSION:
+    {|the weight of (first X)|}
+    line 105:
+        next sum = sum + the weight of (first X)
+                         ^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|sum|} + {|the weight of (first X)|}|}
+    line 105:
+        next sum = sum + the weight of (first X)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
+    line 105:
+        next sum = sum + the weight of (first X)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next X|}
+    line 106:
+        next X = rest X
+        ^^^^^^
+PURELIST EXPRESSION:
+    {|rest X|}
+    line 106:
+        next X = rest X
+                 ^^^^^^
+BRACKETED EXPRESSION:
+    {|next X|} = {|rest X|}
+    line 106:
+        next X = rest X
+        ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next count|} = {|{|count|} + {|1|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next X|} = {|rest X|}|}|}
+    lines 103-106:
+    while X != ():
+                 ^
+        next count = count + 1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next sum = sum + the weight of (first X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = rest X
+^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 103:
+    while X != ():
+          ^
+PURELIST EXPRESSION:
+    {|{|X|} != ()|}
+    line 103:
+    while X != ():
+          ^^^^^^^
+PURELIST EXPRESSION:
+    {|while {|{|X|} != ()|}|}
+    line 103:
+    while X != ():
+    ^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|while {|{|X|} != ()|}|}
+      {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                {|next count|} = {|{|count|} + {|1|}|}|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                {|next sum|} =
+                {|{|sum|} + {|the weight of (first X)|}|}|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                {|next X|} = {|rest X|}|}|}|}
+    lines 103-106:
+    while X != ():
+    ^^^^^^^^^^^^^^
+        next count = count + 1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next sum = sum + the weight of (first X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = rest X
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|while {|{|X|} != ()|}|}:
+        {|next count|} = {|{|count|} + {|1|}|}
+        {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
+        {|next X|} = {|rest X|}
+    lines 103-106:
+    while X != ():
+    ^^^^^^^^^^^^^^
+        next count = count + 1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next sum = sum + the weight of (first X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = rest X
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {s: .terminator = &quot;.&quot;|Cannot average 0 things|s}
+    line 108:
+        value = error ``Cannot average 0 things.''
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``{s: .terminator = &quot;.&quot;|Cannot average 0 things|s}''
+    line 108:
+        value = error ``Cannot average 0 things.''
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 108:
+        value = error ``Cannot average 0 things.''
+        ^^^^^
+PURELIST EXPRESSION:
+    {|error ``{s: .terminator = &quot;.&quot;|Cannot average 0 things|s}''|}
+    line 108:
+        value = error ``Cannot average 0 things.''
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|value|} =
+        {|error ``{s: .terminator = &quot;.&quot;|Cannot average 0 things|s}''|}
+    line 108:
+        value = error ``Cannot average 0 things.''
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|value|} =
+              {|error
+                ``{s: .terminator = &quot;.&quot;|Cannot average 0 things|s}''|}|}|}
+    lines 107-108:
+    if count == 0:
+                 ^
+        value = error ``Cannot average 0 things.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|count|}
+    line 107:
+    if count == 0:
+       ^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 107:
+    if count == 0:
+                ^
+PURELIST EXPRESSION:
+    {|{|count|} == {|0|}|}
+    line 107:
+    if count == 0:
+       ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    if {|{|count|} == {|0|}|}:
+        {|value|} =
+            {|error
+              ``{s: .terminator = &quot;.&quot;|Cannot average 0 things|s}''|}
+    lines 107-108:
+    if count == 0:
+    ^^^^^^^^^^^^^^
+        value = error ``Cannot average 0 things.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 110:
+        value = sum / count
+        ^^^^^
+PURELIST EXPRESSION:
+    {|sum|}
+    line 110:
+        value = sum / count
+                ^^^
+PURELIST EXPRESSION:
+    {|count|}
+    line 110:
+        value = sum / count
+                      ^^^^^
+PURELIST EXPRESSION:
+    {|{|sum|} / {|count|}|}
+    line 110:
+        value = sum / count
+                ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|value|} = {|{|sum|} / {|count|}|}
+    line 110:
+        value = sum / count
+        ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|value|} = {|{|sum|} / {|count|}|}|}|}
+    lines 109-110:
+    else:
+        ^
+        value = sum / count
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    else:
+        {|value|} = {|{|sum|} / {|count|}|}
+    lines 109-110:
+    else:
+    ^^^^^
+        value = sum / count
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|count|} = {|0|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|sum|} = {|0|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|while {|{|X|} != ()|}|}
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next count|} =
+                        {|{|count|} + {|1|}|}|}
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next sum|} =
+                        {|{|sum|} + {|the weight of (first X)|}|}|}
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next X|} = {|rest X|}|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|if
+              {|{|count|} == {|0|}|}
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|value|} =
+                        {|error
+                          ``{s: .terminator = &quot;.&quot;|Cannot average 0
+                                things|s}''|}|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|else
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|value|} =
+                        {|{|sum|} / {|count|}|}|}|}|}|}
+    lines 100-110:
+average weight of X &lt;-- list X of persons:
+                                         ^
+    count = 0
+^^^^^^^^^^^^^
+    sum = 0
+^^^^^^^^^^^
+    while X != ():
+^^^^^^^^^^^^^^^^^^
+        next count = count + 1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next sum = sum + the weight of (first X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = rest X
+^^^^^^^^^^^^^^^^^^^^^^^
+    if count == 0:
+^^^^^^^^^^^^^^^^^^
+        value = error ``Cannot average 0 things.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        value = sum / count
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|average weight of X|}
+    line 100:
+average weight of X &lt;-- list X of persons:
+^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|list X of persons|}
+    line 100:
+average weight of X &lt;-- list X of persons:
+                        ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|average weight of X|} &lt;-- {|list X of persons|}:
+        {|count|} = {|0|}
+        {|sum|} = {|0|}
+        {|while {|{|X|} != ()|}|}:
+            {|next count|} = {|{|count|} + {|1|}|}
+            {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
+            {|next X|} = {|rest X|}
+        if {|{|count|} == {|0|}|}:
+            {|value|} =
+                {|error
+                  ``{s: .terminator = &quot;.&quot;|Cannot average 0 things|s}''|}
+        else:
+            {|value|} = {|{|sum|} / {|count|}|}
+    lines 100-110:
+average weight of X &lt;-- list X of persons:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    count = 0
+^^^^^^^^^^^^^
+    sum = 0
+^^^^^^^^^^^
+    while X != ():
+^^^^^^^^^^^^^^^^^^
+        next count = count + 1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next sum = sum + the weight of (first X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next X = rest X
+^^^^^^^^^^^^^^^^^^^^^^^
+    if count == 0:
+^^^^^^^^^^^^^^^^^^
+        value = error ``Cannot average 0 things.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        value = sum / count
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (all persons)
+    line 111:
+average weight of (all persons)
+                  ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    average weight of (all persons)
+    line 111:
+average weight of (all persons)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Bill'
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+                                              ^^^^^^
+BRACKETED EXPRESSION:
+    (all persons named `Bill')
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|z|}
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+^
+PURELIST EXPRESSION:
+    {|10|}
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+    ^^
+PURELIST EXPRESSION:
+    {|average weight of (all persons named `Bill')|}
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|10|} + {|average weight of (all persons named `Bill')|}|}
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|z|} =
+        {|{|10|} + {|average weight of (all persons named `Bill')|}|}
+    line 112:
+z = 10 + average weight of (all persons named `Bill')
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (all persons)
+    line 114:
+raw (all persons)
+    ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    raw (all persons)
+    line 114:
+raw (all persons)
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (all persons)
+    line 115:
+really raw (all persons)
+           ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    really raw (all persons)
+    line 115:
+really raw (all persons)
+^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|2|}
+    line 117:
+x = (1, (2, 3), 4)
+         ^
+PURELIST EXPRESSION:
+    {|3|}
+    line 117:
+x = (1, (2, 3), 4)
+            ^
+BRACKETED EXPRESSION:
+    ({|2|}, {|3|})
+    line 117:
+x = (1, (2, 3), 4)
+        ^^^^^^
+PURELIST EXPRESSION:
+    {|1|}
+    line 117:
+x = (1, (2, 3), 4)
+     ^
+PURELIST EXPRESSION:
+    {|4|}
+    line 117:
+x = (1, (2, 3), 4)
+                ^
+BRACKETED EXPRESSION:
+    ({|1|}, ({|2|}, {|3|}), {|4|})
+    line 117:
+x = (1, (2, 3), 4)
+    ^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 117:
+x = (1, (2, 3), 4)
+^
+BRACKETED EXPRESSION:
+    {|x|} = ({|1|}, ({|2|}, {|3|}), {|4|})
+    line 117:
+x = (1, (2, 3), 4)
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    first x
+    line 118:
+first x
+^^^^^^^
+BRACKETED EXPRESSION:
+    rest x
+    line 119:
+rest x
+^^^^^^
+BRACKETED EXPRESSION:
+    (rest x)
+    line 120:
+rest (rest x)
+     ^^^^^^^^
+BRACKETED EXPRESSION:
+    rest (rest x)
+    line 120:
+rest (rest x)
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (rest x)
+    line 121:
+rest (rest (rest x))
+           ^^^^^^^^
+BRACKETED EXPRESSION:
+    (rest (rest x))
+    line 121:
+rest (rest (rest x))
+     ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    rest (rest (rest x))
+    line 121:
+rest (rest (rest x))
+^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    rest 4
+    line 122:
+rest 4
+^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 124:
+(a person named `Jack') is husband of
+                ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack')
+    line 124:
+(a person named `Jack') is husband of
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line 125:
+    (a person named `Jill')
+                    ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jill')
+    line 125:
+    (a person named `Jill')
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack') is husband of (a person named `Jill')
+    lines 124-125:
+(a person named `Jack') is husband of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (a person named `Jill')
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|Y is wife of X|}
+    line 126:
+Y is wife of X &lt;-- X is husband of Y
+^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|X is husband of Y|}
+    line 126:
+Y is wife of X &lt;-- X is husband of Y
+                   ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|Y is wife of X|} &lt;-- {|X is husband of Y|}
+    line 126:
+Y is wife of X &lt;-- X is husband of Y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line 128:
+(a person named `Jill') is wife of
+                ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jill')
+    line 128:
+(a person named `Jill') is wife of
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 129:
+    (a person named `Jack')?
+                    ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack')
+    line 129:
+    (a person named `Jack')?
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jill') is wife of (a person named `Jack') &quot;?&quot;
+    lines 128-129:
+(a person named `Jill') is wife of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (a person named `Jack')?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 130:
+(a person named `Jack') is wife of
+                ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack')
+    line 130:
+(a person named `Jack') is wife of
+^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line 131:
+    (a person named `Jill')?
+                    ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jill')
+    line 131:
+    (a person named `Jill')?
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack') is wife of (a person named `Jill') &quot;?&quot;
+    lines 130-131:
+(a person named `Jack') is wife of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (a person named `Jill')?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (a person named X)
+    line 132:
+(a person named X) is wife of
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 133:
+    (a person named `Jack')?
+                    ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack')
+    line 133:
+    (a person named `Jack')?
+    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (a person named X) is wife of (a person named `Jack') &quot;?&quot;
+    lines 132-133:
+(a person named X) is wife of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (a person named `Jack')?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 134:
+X is wife of (a person named `Jack')
+                             ^^^^^^
+BRACKETED EXPRESSION:
+    (a person named `Jack')
+    line 134:
+X is wife of (a person named `Jack')
+             ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    X is wife of (a person named `Jack')
+    line 134:
+X is wife of (a person named `Jack')
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|--------------------------------------------------------|row}
+    line 136:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-------------------------------------------------------#
+                #-|row}|table}
+    line 136:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; header 1 &quot;|&quot; header 2 &quot;|&quot; header 3 &quot;|&quot; header 4 &quot;|&quot; header
+         5 &quot;|&quot;|row}
+    line 137:
+| header 1 | header 2 | header 3 | header 4 | header 5 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|--------------------------------------------------------|row}
+    line 138:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; entry 11 &quot;|&quot; entry 12 &quot;|&quot; entry 13 &quot;|&quot; entry 14 &quot;|&quot; entry
+         15 &quot;|&quot;|row}
+    line 139:
+| entry 11 | entry 12 | entry 13 | entry 14 | entry 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; entry 21 &quot;|&quot; entry 22 &quot;|&quot; entry 23 &quot;|&quot; entry 24 &quot;|&quot; entry
+         25 &quot;|&quot;|row}
+    line 140:
+| entry 21 | entry 22 | entry 23 | entry 24 | entry 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; entry 31 &quot;|&quot; entry 32 &quot;|&quot; entry 33 &quot;|&quot; entry 34 &quot;|&quot; entry
+         35 &quot;|&quot;|row}
+    line 141:
+| entry 31 | entry 32 | entry 33 | entry 34 | entry 35 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|--------------------------------------------------------|row}
+    line 142:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-------------------------------------------------------#
+                #-|row}
+           {row|&quot;|&quot; header 1 &quot;|&quot; header 2 &quot;|&quot; header 3 &quot;|&quot; header 4 &quot;|&quot;
+                header 5 &quot;|&quot;|row}
+           {row|--------------------------------------------------------|row}
+           {row|&quot;|&quot; entry 11 &quot;|&quot; entry 12 &quot;|&quot; entry 13 &quot;|&quot; entry 14 &quot;|&quot;
+                entry 15 &quot;|&quot;|row}
+           {row|&quot;|&quot; entry 21 &quot;|&quot; entry 22 &quot;|&quot; entry 23 &quot;|&quot; entry 24 &quot;|&quot;
+                entry 25 &quot;|&quot;|row}
+           {row|&quot;|&quot; entry 31 &quot;|&quot; entry 32 &quot;|&quot; entry 33 &quot;|&quot; entry 34 &quot;|&quot;
+                entry 35 &quot;|&quot;|row}
+           {row|--------------------------------------------------------|row}|table}
+    lines 136-142:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| header 1 | header 2 | header 3 | header 4 | header 5 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| entry 11 | entry 12 | entry 13 | entry 14 | entry 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| entry 21 | entry 22 | entry 23 | entry 24 | entry 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| entry 31 | entry 32 | entry 33 | entry 34 | entry 35 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 144:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------------|row}|table}
+    line 144:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; H 1 &quot;|&quot; H 2 &quot;|&quot; H 3 &quot;|&quot; H 4 &quot;|&quot; H 5 &quot;|&quot;|row}
+    line 145:
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 146:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 11 &quot;|&quot; E 12 &quot;|&quot; E 13 &quot;|&quot; E 14 &quot;|&quot; E 15 &quot;|&quot;|row}
+    line 147:
+| E 11 | E 12 | E 13 | E 14 | E 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 21 &quot;|&quot; E 22 &quot;|&quot; E 23 &quot;|&quot; E 24 &quot;|&quot; E 25 &quot;|&quot;|row}
+    line 148:
+| E 21 | E 22 | E 23 | E 24 | E 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 31 &quot;|&quot; E 32 &quot;|&quot; E 33 &quot;|&quot; E 34 &quot;|&quot; E 35 &quot;|&quot;|row}
+    line 149:
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 150:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------------|row}
+           {row|&quot;|&quot; H 1 &quot;|&quot; H 2 &quot;|&quot; H 3 &quot;|&quot; H 4 &quot;|&quot; H 5 &quot;|&quot;|row}
+           {row|------------------------------------|row}
+           {row|&quot;|&quot; E 11 &quot;|&quot; E 12 &quot;|&quot; E 13 &quot;|&quot; E 14 &quot;|&quot; E 15 &quot;|&quot;|row}
+           {row|&quot;|&quot; E 21 &quot;|&quot; E 22 &quot;|&quot; E 23 &quot;|&quot; E 24 &quot;|&quot; E 25 &quot;|&quot;|row}
+           {row|&quot;|&quot; E 31 &quot;|&quot; E 32 &quot;|&quot; E 33 &quot;|&quot; E 34 &quot;|&quot; E 35 &quot;|&quot;|row}
+           {row|------------------------------------|row}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|H
+                &quot;:&quot; header|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|E
+                &quot;:&quot; entry|}|table}
+    lines 144-152:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 11 | E 12 | E 13 | E 14 | E 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 21 | E 22 | E 23 | E 24 | E 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+H: header
+^^^^^^^^^
+E: entry
+^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 154:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------------|row}|table}
+    line 154:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; H 1 &quot;|&quot; H 2 &quot;|&quot; H 3 &quot;|&quot; H 4 &quot;|&quot; H 5 &quot;|&quot;|row}
+    line 155:
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 156:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 11 &quot;|&quot; E 12 &quot;|&quot; ABOT &quot;|&quot; &lt; &quot;|&quot; E 15 &quot;|&quot;|row}
+    line 157:
+| E 11 | E 12 | ABOT | &lt;    | E 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 21 &quot;|&quot; E 22 &quot;|&quot; &gt; &quot;|&quot; ^ &quot;|&quot; E 25 &quot;|&quot;|row}
+    line 158:
+| E 21 | E 22 |    &gt; | ^    | E 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 31 &quot;|&quot; E 32 &quot;|&quot; E 33 &quot;|&quot; E 34 &quot;|&quot; E 35 &quot;|&quot;|row}
+    line 159:
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 160:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------------|row}
+           {row|&quot;|&quot; H 1 &quot;|&quot; H 2 &quot;|&quot; H 3 &quot;|&quot; H 4 &quot;|&quot; H 5 &quot;|&quot;|row}
+           {row|------------------------------------|row}
+           {row|&quot;|&quot; E 11 &quot;|&quot; E 12 &quot;|&quot; ABOT &quot;|&quot; &lt; &quot;|&quot; E 15 &quot;|&quot;|row}
+           {row|&quot;|&quot; E 21 &quot;|&quot; E 22 &quot;|&quot; &gt; &quot;|&quot; ^ &quot;|&quot; E 25 &quot;|&quot;|row}
+           {row|&quot;|&quot; E 31 &quot;|&quot; E 32 &quot;|&quot; E 33 &quot;|&quot; E 34 &quot;|&quot; E 35 &quot;|&quot;|row}
+           {row|------------------------------------|row}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|H
+                &quot;:&quot; header|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|E
+                &quot;:&quot; entry|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                ABOT &quot;:&quot; a bit of text|}|table}
+    lines 154-163:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 11 | E 12 | ABOT | &lt;    | E 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 21 | E 22 |    &gt; | ^    | E 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+H: header
+^^^^^^^^^
+E: entry
+^^^^^^^^
+ABOT: a bit of text
+^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 165:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------------|row}|table}
+    line 165:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; H 1 &quot;|&quot; H 2 &quot;|&quot; H 3 &quot;|&quot; H 4 &quot;|&quot; H 5 &quot;|&quot; /ib/|row}
+    line 166:
+| H  1 | H  2 | H  3 | H  4 | H  5 | /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 167:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; /l/ &quot;|&quot; /r/ &quot;|&quot; c &quot;|&quot; P &quot;|&quot; cb &quot;|&quot;|row}
+    line 168:
+| /l/  | /r/  | c    | P    | cb   |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; 11 &quot;|&quot; 12 &quot;|&quot; 13 &quot;|&quot; 5.4% &quot;|&quot; E 15 &quot;|&quot;|row}
+    line 169:
+|   11 |   12 |   13 | 5.4% | E 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 21 &quot;|&quot; E 22 &quot;|&quot; E23 &quot;|&quot; 0.8% &quot;|&quot; E 25 &quot;|&quot;|row}
+    line 170:
+| E 21 | E 22 | E23  | 0.8% | E 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; E 31 &quot;|&quot; E 32 &quot;|&quot; E 33 &quot;|&quot; 0.09 &quot;|&quot; E 35 &quot;|&quot; /!b/|row}
+    line 171:
+| E 31 | E 32 | E 33 | 0.09 | E 35 | /!b/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|------------------------------------|row}
+    line 172:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|------------------------------------|row}
+           {row|&quot;|&quot; H 1 &quot;|&quot; H 2 &quot;|&quot; H 3 &quot;|&quot; H 4 &quot;|&quot; H 5 &quot;|&quot; /ib/|row}
+           {row|------------------------------------|row}
+           {row|&quot;|&quot; /l/ &quot;|&quot; /r/ &quot;|&quot; c &quot;|&quot; P &quot;|&quot; cb &quot;|&quot;|row}
+           {row|&quot;|&quot; 11 &quot;|&quot; 12 &quot;|&quot; 13 &quot;|&quot; 5.4% &quot;|&quot; E 15 &quot;|&quot;|row}
+           {row|&quot;|&quot; E 21 &quot;|&quot; E 22 &quot;|&quot; E23 &quot;|&quot; 0.8% &quot;|&quot; E 25 &quot;|&quot;|row}
+           {row|&quot;|&quot; E 31 &quot;|&quot; E 32 &quot;|&quot; E 33 &quot;|&quot; 0.09 &quot;|&quot; E 35 &quot;|&quot;
+                /!b/|row} {row|------------------------------------|row}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|H
+                &quot;:&quot; header|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|E
+                &quot;:&quot; entry|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                E23 &quot;:&quot; /b/ entry 23|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|P
+                &quot;:&quot; /.0u%r/|}|table}
+    lines 165-176:
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| H  1 | H  2 | H  3 | H  4 | H  5 | /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| /l/  | /r/  | c    | P    | cb   |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+|   11 |   12 |   13 | 5.4% | E 15 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 21 | E 22 | E23  | 0.8% | E 25 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| E 31 | E 32 | E 33 | 0.09 | E 35 | /!b/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+H: header
+^^^^^^^^^
+E: entry
+^^^^^^^^
+E23: /b/ entry 23
+^^^^^^^^^^^^^^^^^
+P: /.0u%r/
+^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|---------------------------------|row}
+    line 178:
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|---------------------------------|row}|table}
+    line 178:
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; Value &quot;|&quot; Factor &quot;|&quot; Contribution &quot;|&quot;|row}
+    line 179:
+| Value | Factor | Contribution |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|---------------------------------|row}
+    line 180:
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; &lt;V&gt; &quot;|&quot; &lt;F&gt; &quot;|&quot; &quot;|&quot;|row}
+    line 181:
+| &lt;V&gt;   | &lt;F&gt;    |              |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; /u$/ &quot;|&quot; /u%/ &quot;|&quot; /u$.00/ &quot;|&quot;|row}
+    line 182:
+| /u$/  | /u%/   | /u$.00/      |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; 100 &quot;|&quot; 20 &quot;|&quot; C &quot;|&quot;|row}
+    line 183:
+| 100   | 20     | C            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; 200 &quot;|&quot; 5 &quot;|&quot; C &quot;|&quot;|row}
+    line 184:
+| 200   | 5      | C            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; 300 &quot;|&quot; 8 &quot;|&quot; C &quot;|&quot;|row}
+    line 185:
+| 300   | 8      | C            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|---------------------------------|row}
+    line 186:
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; /lb/ Total &quot;|&quot; &lt; &quot;|&quot; T &quot;|&quot;|row}
+    line 187:
+| /lb/ Total | &lt; | T            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|---------------------------------|row}
+    line 188:
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (0,&lt;V&gt;)
+    line 189:
+C: [(0,&lt;V&gt;) * (@,&lt;F&gt;)]
+    ^^^^^^^
+BRACKETED EXPRESSION:
+    (@,&lt;F&gt;)
+    line 189:
+C: [(0,&lt;V&gt;) * (@,&lt;F&gt;)]
+              ^^^^^^^
+BRACKETED EXPRESSION:
+    [(0,&lt;V&gt;) * (@,&lt;F&gt;)]
+    line 189:
+C: [(0,&lt;V&gt;) * (@,&lt;F&gt;)]
+   ^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|&lt;FIRST&gt;|}
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+         ^^^^^^^
+PURELIST EXPRESSION:
+    {|&quot;...&quot;|}
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+                  ^^^
+PURELIST EXPRESSION:
+    {|@-1|}
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+                       ^^^
+BRACKETED EXPRESSION:
+    [{|&lt;FIRST&gt;|}, {|&quot;...&quot;|}, {|@-1|}]
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+        ^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|@|}
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+                             ^
+BRACKETED EXPRESSION:
+    ([{|&lt;FIRST&gt;|}, {|&quot;...&quot;|}, {|@-1|}], {|@|})
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+       ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [sum ([{|&lt;FIRST&gt;|}, {|&quot;...&quot;|}, {|@-1|}], {|@|})]
+    line 190:
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|---------------------------------|row}
+           {row|&quot;|&quot; Value &quot;|&quot; Factor &quot;|&quot; Contribution &quot;|&quot;|row}
+           {row|---------------------------------|row}
+           {row|&quot;|&quot; &lt;V&gt; &quot;|&quot; &lt;F&gt; &quot;|&quot; &quot;|&quot;|row}
+           {row|&quot;|&quot; /u$/ &quot;|&quot; /u%/ &quot;|&quot; /u$.00/ &quot;|&quot;|row}
+           {row|&quot;|&quot; 100 &quot;|&quot; 20 &quot;|&quot; C &quot;|&quot;|row}
+           {row|&quot;|&quot; 200 &quot;|&quot; 5 &quot;|&quot; C &quot;|&quot;|row}
+           {row|&quot;|&quot; 300 &quot;|&quot; 8 &quot;|&quot; C &quot;|&quot;|row}
+           {row|---------------------------------|row}
+           {row|&quot;|&quot; /lb/ Total &quot;|&quot; &lt; &quot;|&quot; T &quot;|&quot;|row}
+           {row|---------------------------------|row}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|C
+                &quot;:&quot; [(0,&lt;V&gt;) * (@,&lt;F&gt;)]|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|T
+                &quot;:&quot; [sum ([{|&lt;FIRST&gt;|}, {|&quot;...&quot;|}, {|@-1|}], {|@|})]|}|table}
+    lines 178-190:
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| Value | Factor | Contribution |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| &lt;V&gt;   | &lt;F&gt;    |              |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| /u$/  | /u%/   | /u$.00/      |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| 100   | 20     | C            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| 200   | 5      | C            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| 300   | 8      | C            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| /lb/ Total | &lt; | T            |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C: [(0,&lt;V&gt;) * (@,&lt;F&gt;)]
+^^^^^^^^^^^^^^^^^^^^^^
+T: [sum([&lt;FIRST&gt;, ..., @-1], @)]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|--------------------------------------------------------|row}
+    line 192:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-------------------------------------------------------#
+                #-|row}|table}
+    line 192:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; Name &quot;|&quot; Weight &quot;|&quot; Height &quot;|&quot; Age &quot;|&quot; BMI &quot;|&quot; /ib/|row}
+    line 193:
+| Name   | Weight   | Height     | Age       | BMI  | /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|--------------------------------------------------------|row}
+    line 194:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; &lt;name&gt; &quot;|&quot; &lt;weight&gt; &quot;|&quot; &lt;height&gt; &quot;|&quot; &lt;age&gt; &quot;|&quot; B|row}
+    line 195:
+| &lt;name&gt; | &lt;weight&gt; | &lt;height&gt;   | &lt;age&gt;     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|----------------------------------------------|row}
+    line 196:
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; /l/ &quot;|&quot; /U`lb'/ &quot;|&quot; /U`ft_in'/ &quot;|&quot; /u`yr'.0/ &quot;|&quot; /.2/|row}
+    line 197:
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|----------------------------------------------|row}
+    line 198:
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; George &quot;|&quot; 205lb &quot;|&quot; 6ft 3in &quot;|&quot; 25 &quot;|&quot;|row}
+    line 199:
+| George | 205lb    | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|&quot;|&quot; Mary &quot;|&quot; 135lb &quot;|&quot; 5ft 5in &quot;|&quot; 26 &quot;|&quot;|row}
+    line 200:
+| Mary   | 135lb    | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {row|----------------------------------------------|row}
+    line 201:
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {table|{row|-------------------------------------------------------#
+                #-|row}
+           {row|&quot;|&quot; Name &quot;|&quot; Weight &quot;|&quot; Height &quot;|&quot; Age &quot;|&quot; BMI &quot;|&quot;
+                /ib/|row}
+           {row|--------------------------------------------------------|row}
+           {row|&quot;|&quot; &lt;name&gt; &quot;|&quot; &lt;weight&gt; &quot;|&quot; &lt;height&gt; &quot;|&quot; &lt;age&gt; &quot;|&quot;
+                B|row}
+           {row|----------------------------------------------|row}
+           {row|&quot;|&quot; /l/ &quot;|&quot; /U`lb'/ &quot;|&quot; /U`ft_in'/ &quot;|&quot; /u`yr'.0/ &quot;|&quot;
+                /.2/|row}
+           {row|----------------------------------------------|row}
+           {row|&quot;|&quot; George &quot;|&quot; 205lb &quot;|&quot; 6ft 3in &quot;|&quot; 25 &quot;|&quot;|row}
+           {row|&quot;|&quot; Mary &quot;|&quot; 135lb &quot;|&quot; 5ft 5in &quot;|&quot; 26 &quot;|&quot;|row}
+           {row|----------------------------------------------|row}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                BMI &quot;:&quot; Body Mass Index|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|B
+                &quot;:&quot; &lt;body mass index&gt;|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                ROW_TYPE &quot;:&quot; person|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+                SORT ROWS BY &quot;:&quot; name|}|table}
+    lines 192-205:
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| Name   | Weight   | Height     | Age       | BMI  | /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| &lt;name&gt; | &lt;weight&gt; | &lt;height&gt;   | &lt;age&gt;     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| George | 205lb    | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| Mary   | 135lb    | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BMI: Body Mass Index
+^^^^^^^^^^^^^^^^^^^^
+B: &lt;body mass index&gt;
+^^^^^^^^^^^^^^^^^^^^
+ROW_TYPE: person
+^^^^^^^^^^^^^^^^
+SORT ROWS BY: name
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{circle 0.4}}
+    line 207:
+x = {{circle 0.4}}
+    ^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 207:
+x = {{circle 0.4}}
+^
+BRACKETED EXPRESSION:
+    {|x|} = {{circle 0.4}}
+    line 207:
+x = {{circle 0.4}}
+^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0.4|}
+    line 208:
+y = {{rectangle (0.4, 0.2)}}
+                 ^^^
+PURELIST EXPRESSION:
+    {|0.2|}
+    line 208:
+y = {{rectangle (0.4, 0.2)}}
+                      ^^^
+BRACKETED EXPRESSION:
+    ({|0.4|}, {|0.2|})
+    line 208:
+y = {{rectangle (0.4, 0.2)}}
+                ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{rectangle ({|0.4|}, {|0.2|})}}
+    line 208:
+y = {{rectangle (0.4, 0.2)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|y|}
+    line 208:
+y = {{rectangle (0.4, 0.2)}}
+^
+BRACKETED EXPRESSION:
+    {|y|} = {{rectangle ({|0.4|}, {|0.2|})}}
+    line 208:
+y = {{rectangle (0.4, 0.2)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (circle 0.4)
+    line 209:
+z = {{(circle 0.4) labeled `Jack'}}
+      ^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 209:
+z = {{(circle 0.4) labeled `Jack'}}
+                           ^^^^^^
+BRACKETED EXPRESSION:
+    {{(circle 0.4) labeled `Jack'}}
+    line 209:
+z = {{(circle 0.4) labeled `Jack'}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|z|}
+    line 209:
+z = {{(circle 0.4) labeled `Jack'}}
+^
+BRACKETED EXPRESSION:
+    {|z|} = {{(circle 0.4) labeled `Jack'}}
+    line 209:
+z = {{(circle 0.4) labeled `Jack'}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [x]
+    line 210:
+{{([x] right of [y]) above [z]}}
+   ^^^
+BRACKETED EXPRESSION:
+    [y]
+    line 210:
+{{([x] right of [y]) above [z]}}
+                ^^^
+BRACKETED EXPRESSION:
+    ([x] right of [y])
+    line 210:
+{{([x] right of [y]) above [z]}}
+  ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [z]
+    line 210:
+{{([x] right of [y]) above [z]}}
+                           ^^^
+BRACKETED EXPRESSION:
+    {{([x] right of [y]) above [z]}}
+    line 210:
+{{([x] right of [y]) above [z]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{([x] right of [y]) above [z]}}
+    line 210:
+{{([x] right of [y]) above [z]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [x]
+    line 211:
+{{row([x], [y], [z])}}
+      ^^^
+BRACKETED EXPRESSION:
+    [y]
+    line 211:
+{{row([x], [y], [z])}}
+           ^^^
+BRACKETED EXPRESSION:
+    [z]
+    line 211:
+{{row([x], [y], [z])}}
+                ^^^
+BRACKETED EXPRESSION:
+    ([x], [y], [z])
+    line 211:
+{{row([x], [y], [z])}}
+     ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{row ([x], [y], [z])}}
+    line 211:
+{{row([x], [y], [z])}}
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{row ([x], [y], [z])}}
+    line 211:
+{{row([x], [y], [z])}}
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [x]
+    line 212:
+p = {{column ( row([x], [y], [z]),
+                   ^^^
+BRACKETED EXPRESSION:
+    [y]
+    line 212:
+p = {{column ( row([x], [y], [z]),
+                        ^^^
+BRACKETED EXPRESSION:
+    [z]
+    line 212:
+p = {{column ( row([x], [y], [z]),
+                             ^^^
+BRACKETED EXPRESSION:
+    ([x], [y], [z])
+    line 212:
+p = {{column ( row([x], [y], [z]),
+                  ^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [z]
+    line 213:
+               row([z], [y], [x]) )}}
+                   ^^^
+BRACKETED EXPRESSION:
+    [y]
+    line 213:
+               row([z], [y], [x]) )}}
+                        ^^^
+BRACKETED EXPRESSION:
+    [x]
+    line 213:
+               row([z], [y], [x]) )}}
+                             ^^^
+BRACKETED EXPRESSION:
+    ([z], [y], [x])
+    line 213:
+               row([z], [y], [x]) )}}
+                  ^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|row ([x], [y], [z])|}
+    line 212:
+p = {{column ( row([x], [y], [z]),
+               ^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|row ([z], [y], [x])|}
+    line 213:
+               row([z], [y], [x]) )}}
+               ^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|row ([x], [y], [z])|}, {|row ([z], [y], [x])|})
+    lines 212-213:
+p = {{column ( row([x], [y], [z]),
+             ^^^^^^^^^^^^^^^^^^^^^
+               row([z], [y], [x]) )}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{column ({|row ([x], [y], [z])|}, {|row ([z], [y], [x])|})}}
+    lines 212-213:
+p = {{column ( row([x], [y], [z]),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               row([z], [y], [x]) )}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|p|}
+    line 212:
+p = {{column ( row([x], [y], [z]),
+^
+BRACKETED EXPRESSION:
+    {|p|} =
+        {{column ({|row ([x], [y], [z])|}, {|row ([z], [y], [x])|})}}
+    lines 212-213:
+p = {{column ( row([x], [y], [z]),
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               row([z], [y], [x]) )}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    raw x
+    line 214:
+raw x
+^^^^^
+BRACKETED EXPRESSION:
+    raw p
+    line 215:
+raw p
+^^^^^
+BRACKETED EXPRESSION:
+    (P)
+    line 217:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+        ^^^^^
+BRACKETED EXPRESSION:
+    (P)
+    line 217:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+                         ^^^^^
+BRACKETED EXPRESSION:
+    (X)
+    line 217:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+                                        ^^^^^
+PURELIST EXPRESSION:
+    {|0.4|}
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                    ^^^
+PURELIST EXPRESSION:
+    {|0.2|}
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                         ^^^
+BRACKETED EXPRESSION:
+    ({|0.4|}, {|0.2|})
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                   ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [X]
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+                                      ^^^
+BRACKETED EXPRESSION:
+    {{oval ({|0.4|}, {|0.2|}) labeled [X]}}
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+    ^^^^^
+BRACKETED EXPRESSION:
+    {|value|} = {{oval ({|0.4|}, {|0.2|}) labeled [X]}}
+    line 218:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|value|} = {{oval ({|0.4|}, {|0.2|}) labeled [X]}}|}|}
+    lines 217-218:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+                                             ^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|display (P)|}
+    line 217:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|person (P) has name (X)|}
+    line 217:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|display (P)|} &lt;-- {|person (P) has name (X)|}:
+        {|value|} = {{oval ({|0.4|}, {|0.2|}) labeled [X]}}
+    lines 217-218:
+display ( P ) &lt;-- person ( P ) has name ( X ):
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{oval (0.4, 0.2) labeled [X]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 219:
+a person named `Jack'
+               ^^^^^^
+BRACKETED EXPRESSION:
+    a person named `Jack'
+    line 219:
+a person named `Jack'
+^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jill'
+    line 220:
+``[a person named `Jill'] is the wife of
+                  ^^^^^^
+BRACKETED EXPRESSION:
+    [a person named `Jill']
+    line 220:
+``[a person named `Jill'] is the wife of
+  ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    `Jack'
+    line 221:
+  [a person named `Jack']''
+                  ^^^^^^
+BRACKETED EXPRESSION:
+    [a person named `Jack']
+    line 221:
+  [a person named `Jack']''
+  ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``[a person named `Jill'] is the wife of [a person named `Jack']''
+    lines 220-221:
+``[a person named `Jill'] is the wife of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [a person named `Jack']''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ``[a person named `Jill'] is the wife of [a person named `Jack']''
+    lines 220-221:
+``[a person named `Jill'] is the wife of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [a person named `Jack']''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|angle|}
+    line 225:
+        angle = X
+        ^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 225:
+        angle = X
+                ^
+BRACKETED EXPRESSION:
+    {|angle|} = {|X|}
+    line 225:
+        angle = X
+        ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|angle|} = {|X|}|}|}
+    lines 224-225:
+    on a demo with angle X:
+                          ^
+        angle = X
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|a demo with angle X|}
+    line 224:
+    on a demo with angle X:
+       ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    on {|a demo with angle X|}:
+        {|angle|} = {|X|}
+    lines 224-225:
+    on a demo with angle X:
+    ^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|on
+              {|a demo with angle X|}
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|angle|} = {|X|}|}|}|}|}
+    lines 223-225:
+for every demo:
+              ^
+    on a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|demo|}
+    line 223:
+for every demo:
+          ^^^^
+PURELIST EXPRESSION:
+    {|[&lt; for every &gt;] {|demo|}|}
+    line 223:
+for every demo:
+^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|[&lt; for every &gt;] {|demo|}|}
+      {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|on
+                {|a demo with angle X|}
+                {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $],
+                     .initiator = &quot;:&quot;|
+                     {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                          [$ LOGICAL_LINE $]|{|angle|} = {|X|}|}|}|}|}|}
+    lines 223-225:
+for every demo:
+^^^^^^^^^^^^^^^
+    on a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|[&lt; for every &gt;] {|demo|}|}:
+        on {|a demo with angle X|}:
+            {|angle|} = {|X|}
+    lines 223-225:
+for every demo:
+^^^^^^^^^^^^^^^
+    on a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        angle = X
+^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 226:
+x = a demo with angle 30 degrees
+^
+PURELIST EXPRESSION:
+    {|a demo with angle 30 degrees|}
+    line 226:
+x = a demo with angle 30 degrees
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|x|} = {|a demo with angle 30 degrees|}
+    line 226:
+x = a demo with angle 30 degrees
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next angle|}
+    line 230:
+        next angle = X
+        ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 230:
+        next angle = X
+                     ^
+BRACKETED EXPRESSION:
+    {|next angle|} = {|X|}
+    line 230:
+        next angle = X
+        ^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next angle|} = {|X|}|}|}
+    lines 229-230:
+    on update THIS to X:
+                       ^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|update THIS to X|}
+    line 229:
+    on update THIS to X:
+       ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    on {|update THIS to X|}:
+        {|next angle|} = {|X|}
+    lines 229-230:
+    on update THIS to X:
+    ^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|next angle|}
+    line 232:
+        next angle = angle + X
+        ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|angle|}
+    line 232:
+        next angle = angle + X
+                     ^^^^^
+PURELIST EXPRESSION:
+    {|X|}
+    line 232:
+        next angle = angle + X
+                             ^
+PURELIST EXPRESSION:
+    {|{|angle|} + {|X|}|}
+    line 232:
+        next angle = angle + X
+                     ^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|next angle|} = {|{|angle|} + {|X|}|}
+    line 232:
+        next angle = angle + X
+        ^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|next angle|} = {|{|angle|} + {|X|}|}|}|}
+    lines 231-232:
+    on increment THIS by X:
+                          ^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|increment THIS by X|}
+    line 231:
+    on increment THIS by X:
+       ^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    on {|increment THIS by X|}:
+        {|next angle|} = {|{|angle|} + {|X|}|}
+    lines 231-232:
+    on increment THIS by X:
+    ^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|on
+              {|update THIS to X|}
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next angle|} = {|X|}|}|}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|on
+              {|increment THIS by X|}
+              {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   &quot;:&quot;|
+                   {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                        [$ LOGICAL_LINE $]|{|next angle|} =
+                        {|{|angle|} + {|X|}|}|}|}|}|}
+    lines 228-232:
+for every demo:
+              ^
+    on update THIS to X:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+    on increment THIS by X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|demo|}
+    line 228:
+for every demo:
+          ^^^^
+PURELIST EXPRESSION:
+    {|[&lt; for every &gt;] {|demo|}|}
+    line 228:
+for every demo:
+^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|[&lt; for every &gt;] {|demo|}|}
+      {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|on
+                {|update THIS to X|}
+                {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $],
+                     .initiator = &quot;:&quot;|
+                     {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                          [$ LOGICAL_LINE $]|{|next angle|} = {|X|}|}|}|}
+           {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|on
+                {|increment THIS by X|}
+                {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $],
+                     .initiator = &quot;:&quot;|
+                     {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator =
+                          [$ LOGICAL_LINE $]|{|next angle|} =
+                          {|{|angle|} + {|X|}|}|}|}|}|}|}
+    lines 228-232:
+for every demo:
+^^^^^^^^^^^^^^^
+    on update THIS to X:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+    on increment THIS by X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|[&lt; for every &gt;] {|demo|}|}:
+        on {|update THIS to X|}:
+            {|next angle|} = {|X|}
+        on {|increment THIS by X|}:
+            {|next angle|} = {|{|angle|} + {|X|}|}
+    lines 228-232:
+for every demo:
+^^^^^^^^^^^^^^^
+    on update THIS to X:
+^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = X
+^^^^^^^^^^^^^^^^^^^^^^
+    on increment THIS by X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next angle = angle + X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    update x to 40 degrees
+    line 233:
+update x to 40 degrees
+^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 236:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+                                             ^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 236:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+                                                  ^^^
+BRACKETED EXPRESSION:
+    ({|0|}, {|0|})
+    line 236:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+                                            ^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{circle dotted diameter 1 center ({|0|}, {|0|})}}
+    line 236:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|c|}
+    line 236:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+    ^
+BRACKETED EXPRESSION:
+    {|c|} = {{circle dotted diameter 1 center ({|0|}, {|0|})}}
+    line 236:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|-0.75|}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                           ^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                  ^^^
+BRACKETED EXPRESSION:
+    ({|-0.75|}, {|0|})
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                          ^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0.75|}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                           ^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                                 ^^^
+BRACKETED EXPRESSION:
+    ({|0.75|}, {|0|})
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+                                          ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{arrow from ({|-0.75|}, {|0|}) to ({|0.75|}, {|0|})}}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x axis|}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+    ^^^^^^
+BRACKETED EXPRESSION:
+    {|x axis|} = {{arrow from ({|-0.75|}, {|0|}) to ({|0.75|}, {|0|})}}
+    line 237:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                           ^^^
+PURELIST EXPRESSION:
+    {|-0.75|}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                ^^^^^
+BRACKETED EXPRESSION:
+    ({|0|}, {|-0.75|})
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                          ^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                           ^^^
+PURELIST EXPRESSION:
+    {|0.75|}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                                ^^^^
+BRACKETED EXPRESSION:
+    ({|0|}, {|0.75|})
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+                                          ^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{arrow from ({|0|}, {|-0.75|}) to ({|0|}, {|0.75|})}}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|y axis|}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+    ^^^^^^
+BRACKETED EXPRESSION:
+    {|y axis|} = {{arrow from ({|0|}, {|-0.75|}) to ({|0|}, {|0.75|})}}
+    line 238:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 239:
+    line = {{line from (0.0, 0.0)
+                        ^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 239:
+    line = {{line from (0.0, 0.0)
+                             ^^^
+BRACKETED EXPRESSION:
+    ({|0|}, {|0|})
+    line 239:
+    line = {{line from (0.0, 0.0)
+                       ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0.5|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                       ^^^
+PURELIST EXPRESSION:
+    {|cos X|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                             ^^^^^
+PURELIST EXPRESSION:
+    {|0.5|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                                    ^^^
+PURELIST EXPRESSION:
+    {|sin X|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                                          ^^^^^
+PURELIST EXPRESSION:
+    {|{|0.5|} * {|cos X|}|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                       ^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|0.5|} * {|sin X|}|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                                    ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|}|}
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})]
+    line 240:
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{line from ({|0|}, {|0|}) to
+      [({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})]}}
+    lines 239-240:
+    line = {{line from (0.0, 0.0)
+           ^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|line|}
+    line 239:
+    line = {{line from (0.0, 0.0)
+    ^^^^
+BRACKETED EXPRESSION:
+    {|line|} =
+        {{line from ({|0|}, {|0|}) to
+          [({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})]}}
+    lines 239-240:
+    line = {{line from (0.0, 0.0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0.3|}
+    line 241:
+    arc = {{arc arrow from (0.3, 0.0)
+                            ^^^
+PURELIST EXPRESSION:
+    {|0|}
+    line 241:
+    arc = {{arc arrow from (0.3, 0.0)
+                                 ^^^
+BRACKETED EXPRESSION:
+    ({|0.3|}, {|0|})
+    line 241:
+    arc = {{arc arrow from (0.3, 0.0)
+                           ^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|0.3|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                       ^^^
+PURELIST EXPRESSION:
+    {|cos X|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                             ^^^^^
+PURELIST EXPRESSION:
+    {|0.3|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                                    ^^^
+PURELIST EXPRESSION:
+    {|sin X|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                                          ^^^^^
+PURELIST EXPRESSION:
+    {|{|0.3|} * {|cos X|}|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                       ^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|{|0.3|} * {|sin X|}|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                                    ^^^^^^^^^^^
+BRACKETABLE EXPRESSION:
+    {|{|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|}|}
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})]
+    line 242:
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{arc arrow from ({|0.3|}, {|0|}) to
+      [({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})]}}
+    lines 241-242:
+    arc = {{arc arrow from (0.3, 0.0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|arc|}
+    line 241:
+    arc = {{arc arrow from (0.3, 0.0)
+    ^^^
+BRACKETED EXPRESSION:
+    {|arc|} =
+        {{arc arrow from ({|0.3|}, {|0|}) to
+          [({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})]}}
+    lines 241-242:
+    arc = {{arc arrow from (0.3, 0.0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{Greek th}}
+    line 243:
+    theta = {{Greek th}}
+            ^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|theta|}
+    line 243:
+    theta = {{Greek th}}
+    ^^^^^
+BRACKETED EXPRESSION:
+    {|theta|} = {{Greek th}}
+    line 243:
+    theta = {{Greek th}}
+    ^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [theta]
+    line 245:
+                `Depiction of Angle [theta] = [X]',
+                                    ^^^^^^^
+BRACKETED EXPRESSION:
+    [X]
+    line 245:
+                `Depiction of Angle [theta] = [X]',
+                                              ^^^
+BRACKETED EXPRESSION:
+    `Depiction of Angle [theta] = [X]'
+    line 245:
+                `Depiction of Angle [theta] = [X]',
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    [c]
+    line 247:
+                    [c],
+                    ^^^
+BRACKETED EXPRESSION:
+    [x axis]
+    line 248:
+                    [x axis] labeled `X Axis',
+                    ^^^^^^^^
+BRACKETED EXPRESSION:
+    `X Axis'
+    line 248:
+                    [x axis] labeled `X Axis',
+                                     ^^^^^^^^
+BRACKETED EXPRESSION:
+    [y axis]
+    line 249:
+                    [y axis] labeled `Y Axis',
+                    ^^^^^^^^
+BRACKETED EXPRESSION:
+    `Y Axis'
+    line 249:
+                    [y axis] labeled `Y Axis',
+                                     ^^^^^^^^
+BRACKETED EXPRESSION:
+    [line]
+    line 250:
+                    [line],
+                    ^^^^^^
+BRACKETED EXPRESSION:
+    [arc]
+    line 251:
+                    [arc] labeled `[theta]' ))}}
+                    ^^^^^
+BRACKETED EXPRESSION:
+    [theta]
+    line 251:
+                    [arc] labeled `[theta]' ))}}
+                                   ^^^^^^^
+BRACKETED EXPRESSION:
+    `[theta]'
+    line 251:
+                    [arc] labeled `[theta]' ))}}
+                                  ^^^^^^^^^
+PURELIST EXPRESSION:
+    {|[x axis] labeled `X Axis'|}
+    line 248:
+                    [x axis] labeled `X Axis',
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|[y axis] labeled `Y Axis'|}
+    line 249:
+                    [y axis] labeled `Y Axis',
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|[arc] labeled `[theta]'|}
+    line 251:
+                    [arc] labeled `[theta]' ))}}
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    ([c], {|[x axis] labeled `X Axis'|}, {|[y axis] labeled `Y Axis'|},
+     [line], {|[arc] labeled `[theta]'|})
+    lines 246-251:
+                overlap (
+                        ^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|overlap
+      ([c], {|[x axis] labeled `X Axis'|},
+       {|[y axis] labeled `Y Axis'|}, [line],
+       {|[arc] labeled `[theta]'|})|}
+    lines 246-251:
+                overlap (
+                ^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    (`Depiction of Angle [theta] = [X]',
+     {|overlap
+       ([c], {|[x axis] labeled `X Axis'|},
+        {|[y axis] labeled `Y Axis'|}, [line],
+        {|[arc] labeled `[theta]'|})|})
+    lines 244-251:
+    value = {{label (
+                    ^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {{label
+      (`Depiction of Angle [theta] = [X]',
+       {|overlap
+         ([c], {|[x axis] labeled `X Axis'|},
+          {|[y axis] labeled `Y Axis'|}, [line],
+          {|[arc] labeled `[theta]'|})|})}}
+    lines 244-251:
+    value = {{label (
+            ^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|value|}
+    line 244:
+    value = {{label (
+    ^^^^^
+BRACKETED EXPRESSION:
+    {|value|} =
+        {{label
+          (`Depiction of Angle [theta] = [X]',
+           {|overlap
+             ([c], {|[x axis] labeled `X Axis'|},
+              {|[y axis] labeled `Y Axis'|}, [line],
+              {|[arc] labeled `[theta]'|})|})}}
+    lines 244-251:
+    value = {{label (
+    ^^^^^^^^^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {&quot;&quot;: .terminator = [$ INDENTED_PARAGRAPH $], .initiator = &quot;:&quot;|
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|c|} =
+              {{circle dotted diameter 1 center ({|0|}, {|0|})}}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|x axis|} =
+              {{arrow from ({|-0.75|}, {|0|}) to ({|0.75|}, {|0|})}}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|y axis|} =
+              {{arrow from ({|0|}, {|-0.75|}) to ({|0|}, {|0.75|})}}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|line|} =
+              {{line from ({|0|}, {|0|}) to
+                [({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})]}}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|arc|} =
+              {{arc arrow from ({|0.3|}, {|0|}) to
+                [({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})]}}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|theta|} = {{Greek th}}|}
+         {&quot;&quot;: .terminator = &quot;&lt;LF&gt;&quot;, .initiator = [$ LOGICAL_LINE $]|
+              {|value|} =
+              {{label
+                (`Depiction of Angle [theta] = [X]',
+                 {|overlap
+                   ([c], {|[x axis] labeled `X Axis'|},
+                    {|[y axis] labeled `Y Axis'|}, [line],
+                    {|[arc] labeled `[theta]'|})|})}}|}|}
+    lines 235-251:
+display D &lt;-- D is a demo with angle X:
+                                      ^
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line = {{line from (0.0, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    arc = {{arc arrow from (0.3, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    theta = {{Greek th}}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{label (
+^^^^^^^^^^^^^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|display D|}
+    line 235:
+display D &lt;-- D is a demo with angle X:
+^^^^^^^^^
+PURELIST EXPRESSION:
+    {|D is a demo with angle X|}
+    line 235:
+display D &lt;-- D is a demo with angle X:
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|display D|} &lt;-- {|D is a demo with angle X|}:
+        {|c|} = {{circle dotted diameter 1 center ({|0|}, {|0|})}}
+        {|x axis|} =
+            {{arrow from ({|-0.75|}, {|0|}) to ({|0.75|}, {|0|})}}
+        {|y axis|} =
+            {{arrow from ({|0|}, {|-0.75|}) to ({|0|}, {|0.75|})}}
+        {|line|} =
+            {{line from ({|0|}, {|0|}) to
+              [({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})]}}
+        {|arc|} =
+            {{arc arrow from ({|0.3|}, {|0|}) to
+              [({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})]}}
+        {|theta|} = {{Greek th}}
+        {|value|} =
+            {{label
+              (`Depiction of Angle [theta] = [X]',
+               {|overlap
+                 ([c], {|[x axis] labeled `X Axis'|},
+                  {|[y axis] labeled `Y Axis'|}, [line],
+                  {|[arc] labeled `... ... ...'|})|})}}
+    lines 235-251:
+display D &lt;-- D is a demo with angle X:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    line = {{line from (0.0, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    arc = {{arc arrow from (0.3, 0.0)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    theta = {{Greek th}}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    value = {{label (
+^^^^^^^^^^^^^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    show x
+    line 252:
+show x
+^^^^^^
+BRACKETED EXPRESSION:
+    increment x by -15 degrees
+    line 254:
+increment x by -15 degrees
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+PURELIST EXPRESSION:
+    {|x|}
+    line 256:
+x = y + z
+^
+PURELIST EXPRESSION:
+    {|y|}
+    line 256:
+x = y + z
+    ^
+PURELIST EXPRESSION:
+    {|z|}
+    line 256:
+x = y + z
+        ^
+PURELIST EXPRESSION:
+    {|{|y|} + {|z|}|}
+    line 256:
+x = y + z
+    ^^^^^
+BRACKETED EXPRESSION:
+    {|x|} = {|{|y|} + {|z|}|}
+    line 256:
+x = y + z
+^^^^^^^^^
+WORD LEXEME:
+    u
+    line 257:
+w = {|u|} + ( v )
+    ^^^^^
+BRACKETED EXPRESSION:
+    (v)
+    line 257:
+w = {|u|} + ( v )
+            ^^^^^
+PURELIST EXPRESSION:
+    {|w|}
+    line 257:
+w = {|u|} + ( v )
+^
+PURELIST EXPRESSION:
+    {|u|}
+    line 257:
+w = {|u|} + ( v )
+    ^^^^^
+PURELIST EXPRESSION:
+    {|{|u|} + (v)|}
+    line 257:
+w = {|u|} + ( v )
+    ^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|w|} = {|{|u|} + (v)|}
+    line 257:
+w = {|u|} + ( v )
+^^^^^^^^^^^^^^^^^
