@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  5 14:55:40 EDT 2023
+// Date:	Mon Jun  5 15:38:23 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,7 +55,22 @@ int main ( int argc, const char * argv[] )
     if (    argc > 1 
          && strcmp ( argv[1], "--html" ) == 0 )
     {
-        PAR::default_parser->printer << min::output_html;
+	min::printer printer = PAR::default_parser->printer;
+	printer << min::output_html;
+	min::tag(printer) << "<!DOCTYPE html>" << std::endl
+	                  << "<html>" << std::endl
+	                  << "<body>" << std::endl
+	                  << "<pre>" << std::endl;
+
+	PAR::default_parser->trace_flags |=
+	    PAR::TRACE_PARSER_COMMANDS;
+	PAR::parse();
+
+	min::tag(printer) << "</pre>" << std::endl 
+	                  << "</body>" << std::endl
+	                  << "</html>" << std::endl;
+	                 
+	return 0;
     }
 
     PAR::default_parser->trace_flags |=
@@ -64,34 +79,3 @@ int main ( int argc, const char * argv[] )
 
     return 0;
 }
-
-# ifdef NONE_SUCH
-
-    // Since subexpressions are not being parsed, we
-    // change the gen_formats to not suppress spaces
-    // between lexemes and not quote brackets.
-    //
-    min::gen_format altered_line_gen_format =
-        * min::line_gen_format;
-    min::obj_format altered_line_obj_format =
-        * min::line_obj_format;
-    min::gen_format altered_line_element_gen_format =
-        * min::line_element_gen_format;
-    min::obj_format altered_line_element_obj_format =
-        * min::line_element_obj_format;
-
-    altered_line_gen_format.obj_format =
-        & altered_line_obj_format;
-    altered_line_obj_format.top_element_format =
-        & altered_line_element_gen_format;
-    altered_line_element_gen_format.obj_format =
-        & altered_line_element_obj_format;
-    altered_line_element_gen_format.str_format =
-        min::quote_non_graphic_str_format;
-    altered_line_element_obj_format.obj_sep =
-        (const min::ustring *) "\x01\x01" " ";
-
-    PAR::default_parser->subexpression_gen_format =
-        & altered_line_gen_format;
-
-# endif // NONE_SUCH
