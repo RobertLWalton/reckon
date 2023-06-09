@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  5 15:38:23 EDT 2023
+// Date:	Fri Jun  9 16:43:45 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,18 @@
 # define PARSTD ll::parser::standard
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
+
+const char * html_prefix[] = {
+    "<!DOCTYPE html>",
+    "<html>",
+    "<body>",
+    "<pre>",
+    NULL };
+const char * html_postfix[] = {
+    "</pre>",
+    "</body>",
+    "</html>",
+    NULL };
 
 
 int main ( int argc, const char * argv[] )
@@ -57,18 +69,15 @@ int main ( int argc, const char * argv[] )
     {
 	min::printer printer = PAR::default_parser->printer;
 	printer << min::output_html;
-	min::tag(printer) << "<!DOCTYPE html>" << std::endl
-	                  << "<html>" << std::endl
-	                  << "<body>" << std::endl
-	                  << "<pre>" << std::endl;
+	for ( const char ** p = html_prefix; * p; ++ p )
+	    min::tag(printer) << * p << std::endl;
 
 	PAR::default_parser->trace_flags |=
 	    PAR::TRACE_PARSER_COMMANDS;
 	PAR::parse();
 
-	min::tag(printer) << "</pre>" << std::endl 
-	                  << "</body>" << std::endl
-	                  << "</html>" << std::endl;
+	for ( const char ** p = html_postfix; * p; ++ p )
+	    min::tag(printer) << * p << std::endl;
 	                 
 	return 0;
     }
