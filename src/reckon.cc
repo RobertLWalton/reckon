@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  9 16:43:45 EDT 2023
+// Date:	Fri Jun  9 17:00:59 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,19 @@
 const char * html_prefix[] = {
     "<!DOCTYPE html>",
     "<html>",
+    "<head>",
+    "<style>",
+    ".MIN-LINE-GROUP {",
+    "border: dashed 2px;",
+    "}",
+    ".MIN-LINE-NUMBER {",
+    "background-color: palegreen;",
+    "}",
+    ".MIN-LINE-MARK {",
+    "background-color: thistle;",
+    "}",
+    "</style>",
+    "</head>",
     "<body>",
     "<pre>",
     NULL };
