@@ -3,19 +3,22 @@
     trace [+ subexpression lines]
     trace [+ subexpression elements]
     trace [+ subexpression details]
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ##:
+[< X 1 >]
+^^^^^^^^^
     [< X 1 >]
 !@@ := [< X 1 >]:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-    line ##:
-[< X 1 >]
-^^^^^^^^^
 ERROR: in line ##: missing operand; error operand inserted:
     < X 1 >]
             ^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: lines ##-##:
+[
+^
+    < X 1 >]
+^^^^^^^^^^^^
     [{|< X 1|} > ERROR'OPERAND]
 !@@ := @@:
            .terminator = "<LF>"
@@ -27,12 +30,9 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
 !@@ := "<" X 1:
            .position[H] = PACKED_VEC
-    lines ##-##:
-[
-^
-    < X 1 >]
-^^^^^^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ##:
+(x + y)
+^^^^^^^
     ({|x|} + {|y|})
 !@@ := @@:
            .terminator = "<LF>"
@@ -46,10 +46,9 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
 !@@ := y:
            .position[H] = PACKED_VEC
-    line ##:
-(x + y)
-^^^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ##:
+{{x + y}}
+^^^^^^^^^
     {{{|x|} + {|y|}}}
 !@@ := @@@:
            .terminator = "<LF>"
@@ -63,23 +62,21 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := y:
             .position[H] = PACKED_VEC
-    line ##:
-{{x + y}}
-^^^^^^^^^
-BRACKETED EXPRESSION:
-    X Y Z
-!@@@ := X Y Z:
-            .terminator = "<LF>"
-            .initiator = [$ LOGICAL_LINE $]
-            .position[H] = PACKED_VEC
-    lines ##-##:
+=== BRACKETED EXPRESSION: lines ##-##:
 {
 ^
     | X Y Z|
 ^^^^^^^^^^^^
     }
 ^^^^^
-BRACKETED EXPRESSION:
+    X Y Z
+!@@@ := X Y Z:
+            .terminator = "<LF>"
+            .initiator = [$ LOGICAL_LINE $]
+            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+``This is text X + Y with insert [X + Y].''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``{s: .terminator = "."|This is text X + Y with insert
           [{|X|} + {|Y|}]|s}''
 !@@@ := @@@:
@@ -102,6 +99,3 @@ BRACKETED EXPRESSION:
             .position[H] = PACKED_VEC
 !@@@ := Y:
             .position[H] = PACKED_VEC
-    line ##:
-``This is text X + Y with insert [X + Y].''
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

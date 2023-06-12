@@ -2,7 +2,9 @@
     trace [+ parser output]
     trace [+ subexpression lines]
     trace [+ subexpression details]
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: line ##:
+x + y
+^^^^^
 !@@ := @@ "+" @@:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
@@ -11,10 +13,17 @@ BRACKETED EXPRESSION:
            .position[H] = PACKED_VEC
 !@@ := y:
            .position[H] = PACKED_VEC
-    line ##:
-x + y
-^^^^^
-BRACKETED EXPRESSION:
+=== BRACKETED EXPRESSION: lines ##-##:
+min (X, Y) <--:
+^^^^^^^^^^^^^^^
+    if X > Y:
+^^^^^^^^^^^^^
+        return Y
+^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        return X
+^^^^^^^^^^^^^^^^
 !@@ := @@ "<--" @@ @@:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
@@ -66,14 +75,3 @@ BRACKETED EXPRESSION:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
-    lines ##-##:
-min (X, Y) <--:
-^^^^^^^^^^^^^^^
-    if X > Y:
-^^^^^^^^^^^^^
-        return Y
-^^^^^^^^^^^^^^^^
-    else:
-^^^^^^^^^
-        return X
-^^^^^^^^^^^^^^^^
