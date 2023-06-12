@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 17:51:31 EDT 2023
+// Date:	Mon Jun 12 15:58:53 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,6 @@ const char * html_prefix[] = {
     "</style>",
     "</head>",
     "<body>",
-    "<pre>",
     NULL };
 const char * html_postfix[] = {
     "</pre>",
@@ -85,6 +84,8 @@ int main ( int argc, const char * argv[] )
 	printer << min::output_html;
 	for ( const char ** p = html_prefix; * p; ++ p )
 	    min::tag(printer) << * p << std::endl;
+	min::tag(printer) << "<pre>";
+	    // Without std::endl.
 
 	PAR::default_parser->trace_flags |=
 	    PAR::TRACE_PARSER_COMMANDS;
