@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 12 15:58:53 EDT 2023
+// Date:	Tue Jun 13 16:42:58 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,13 +42,41 @@ const char * html_postfix[] = {
     "</html>",
     NULL };
 
+bool lexeme_test = false;
+bool output_parse = false;
+bool subexpression_parse = false;
+bool subexpression_detail = false;
+bool output_html = false;
 
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
 
-    if (    argc > 1 
-         && strcmp ( argv[1], "--lexeme-test" ) == 0 )
+    bool found_error = false;
+    for ( int i = 1; i < argc; ++ i )
+    {
+#	define TEST(x,y) \
+	    if ( strcmp ( argv[i], x ) == 0 ) \
+	        y = true; \
+	    else
+	TEST ( "--lexeme-test", lexeme_test )
+	TEST ( "--output-parse", output_parse )
+	TEST ( "--subexpression-parse",
+	       subexpression_parse )
+	TEST ( "--subexpression-detail",
+	       subexpression_detail )
+	TEST ( "--output-html", output_html )
+	{
+	    std::cerr
+	        << "ERROR: unrecognized argument "
+	        << argv[i] << std::endl;
+	    found_error = true;
+	}
+#	undef TEST
+    }
+    if ( found_error ) exit ( 1 );
+
+    if ( lexeme_test )
     {
         // We cannot use parser initialization here
 	// because that sets up different scanner
@@ -77,8 +105,7 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin,
 	  min::marked_line_format );
 
-    if (    argc > 1 
-         && strcmp ( argv[1], "--html" ) == 0 )
+    if ( output_html )
     {
 	min::printer printer = PAR::default_parser->printer;
 	printer << min::output_html;
