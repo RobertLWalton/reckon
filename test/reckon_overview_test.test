@@ -1,355 +1,3 @@
-*PARSER*:
-    trace [+ parser output]
-    trace [+ subexpression lines]
-    trace [+ subexpression elements]
-    trace [+ bracketed subexpressions]
-    trace [+ operator subexpressions]
-    print selector ""
-        block standard: data paragraph
-        block standard: math
-        block standard: text
-        block standard: label
-        block standard: code
-        block TOP LEVEL: data
-        block TOP LEVEL: LINE LEVEL
-        block TOP LEVEL: TOP LEVEL
-    print indentation mark ""
-        block standard: indentation mark ":" [data paragraph]
-                        with parsing selectors [data]
-                        with parsing options [- end at indent,
-                                              + end at le indent,
-                                              - end at lt indent,
-                                              - end at paragraph break,
-                                              + end at line separator,
-                                              + end at outer closing]
-        block standard: indentation mark ":" [text]
-                        with parsing options [- end at indent,
-                                              + end at le indent,
-                                              - end at lt indent,
-                                              - end at paragraph break,
-                                              + end at line separator,
-                                              + end at outer closing]
-                        with implied header {p}
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
-        block standard: indentation mark ":" ... ";" [code]
-                        with parsing options [- end at indent,
-                                              + end at le indent,
-                                              - end at lt indent,
-                                              - end at paragraph break,
-                                              + end at line separator,
-                                              + end at outer closing]
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
-        block TOP LEVEL: indentation mark [< "*TEXT*" ":" >] [code]
-                         with parsing selectors [text]
-        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
-                         [TOP LEVEL]
-        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
-                         [TOP LEVEL]
-                         with parsing selectors [data]
-        block reckon: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
-                      []
-                      with parsing selectors [code]
-                      with parsing options [end at le indent,
-                                            end at line separator,
-                                            end at outer closing,
-                                            enable indented paragraph,
-                                            enable header]
-                      with paragraph lexical master "PARAGRAPH-CHECK"
-                      with line lexical master "DATA-CHECK"
-        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
-                        []
-                        with parsing selectors [code]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing,
-                                              enable indented paragraph,
-                                              enable header]
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
-        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
-                         with parsing selectors []
-                         with parsing options [end at le indent,
-                                               end at line separator,
-                                               end at outer closing,
-                                               enable indented paragraph,
-                                               enable header]
-    print bracket ""
-        block standard: bracket "``" ... "''" [code, text, math]
-                        with parsing selectors [- code, + text, - math]
-                        with parsing options [+ enable table prefix]
-                        with text reformatter ( "s", ".", "?", "!", ":",
-                        ";" )
-        block TOP LEVEL: bracket "``" ... "''" [data]
-        block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
-                        [code, label, text, math]
-                        with parsing selectors [label]
-                        with label reformatter
-        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
-                         with parsing selectors [data]
-                         with label reformatter
-        block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
-                         with multivalue reformatter ( "," )
-        block standard: bracket "(" ... ")" [code, text, math]
-        block TOP LEVEL: bracket "(" ... ")" [data]
-        block reckon: bracket "[" ... "]" [label, text, math]
-                      with parsing selectors [+ code, - label, - text,
-                                              - math]
-        block standard: bracket "[" ... "]" [code, text, math]
-        block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, text, math]
-                        with parsing selectors [text]
-        block TOP LEVEL: bracket "`" ... "'" [data]
-                         with parsing selectors [data]
-        block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [code, text, math]
-                        with parsing selectors [- code, - text, + math]
-        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-        block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
-                        [code, label, text, math]
-                        with parsing selectors [data]
-                        with special reformatter
-        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
-                         with parsing selectors [data]
-                         with special reformatter
-    print bracket type ""
-        block standard: bracket type "p" [code, text]
-                        with parsing selectors [- data, - code, + text,
-                                                - math]
-                        with parsing options [- end at indent,
-                                              - end at le indent,
-                                              + end at lt indent,
-                                              + end at paragraph break,
-                                              - end at line separator,
-                                              - end at outer closing,
-                                              + enable table prefix]
-                        with group *PARAGRAPH*
-                        with implied subprefix {s}
-        block standard: bracket type "s" [text]
-                        with sentence reformatter ( ".", "?", "!" )
-        block standard: bracket type "quote" [code, text]
-                        with parsing selectors [- data, - code, + text,
-                                                - math]
-                        with parsing options [- end at indent,
-                                              - end at le indent,
-                                              + end at lt indent,
-                                              + end at paragraph break,
-                                              - end at line separator,
-                                              - end at outer closing,
-                                              + enable table prefix]
-                        with group *PARAGRAPH*
-                        with implied subprefix {s}
-        block standard: bracket type [< "*RAW*" "*DATA*" >]
-                        [TOP LEVEL, data, code, text, math]
-                        with parsing selectors [data, data paragraph]
-                        with parsing options [- enable prefix,
-                                              - enable table prefix,
-                                              - enable header]
-                        with group *LINE*
-                        with data reformatter ( "@@@@", ":=",
-                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
-        block standard: bracket type "section" [code, text]
-                        with parsing selectors [- data, - code, + text,
-                                                - math]
-                        with parsing options [- end at indent,
-                                              - end at le indent,
-                                              + end at lt indent,
-                                              + end at paragraph break,
-                                              - end at line separator,
-                                              - end at outer closing,
-                                              + enable table prefix]
-                        with group *PARAGRAPH*
-                        with implied subprefix {s}
-        block standard: bracket type "***" [TOP LEVEL, code, text]
-                        with group *RESET*
-        block standard: bracket type "table" [code, text]
-                        with parsing selectors [text]
-                        with parsing options [- end at line separator]
-                        with group *PARAGRAPH*
-                        with line lexical master "ROW-CHECK"
-        block standard: bracket type "row" [text]
-                        with group *LINE*
-        block standard: bracket type "*DATA*"
-                        [TOP LEVEL, data, code, text, math]
-                        with parsing selectors [+ data paragraph]
-                        with parsing options [- enable prefix,
-                                              - enable table prefix,
-                                              - enable header]
-                        with group *LINE*
-                        with data reformatter ( "@@@@", ":=",
-                        {|":" "::"|}, "=", "no", "[", [< "{" "*" >] )
-        block reckon: bracket type "code" [TOP LEVEL, code, text]
-                      with group *RESET*
-    print operator ""
-        block standard: operator "*" [code, math]
-                        infix
-                        with precedence 13200
-                        with infix reformatter ( "*" )
-        block standard: operator "+" [code, math]
-                        prefix
-                        with precedence 999999
-                        with unary reformatter
-        block standard: operator "+" [code, math]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "+", "-" )
-        block standard: operator "," [code, math]
-                        nofix
-                        with precedence 2000
-                        with separator reformatter
-        block standard: operator "-" [code, math]
-                        prefix
-                        with precedence 999999
-                        with unary reformatter
-        block standard: operator "-" [code, math]
-                        infix
-                        with precedence 13000
-                        with infix reformatter ( "+", "-" )
-        block standard: operator "/" [code, math]
-                        infix
-                        with precedence 13100
-                        with binary reformatter
-        block standard: operator ":" [code]
-                        right afix line
-                        with precedence 0
-        block standard: operator "<" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter
-        block standard: operator "=" [code]
-                        left line
-                        with precedence 1000
-                        with assignment reformatter
-        block standard: operator "=" [math]
-                        infix
-                        with precedence 1000
-                        with binary reformatter
-        block standard: operator ">" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter
-        block standard: operator "!=" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter
-        block reckon: operator "^" [code, math]
-                      infix
-                      with precedence 13300
-                      with binary reformatter
-        block standard: operator "do" [code]
-                        prefix line
-                        with precedence 3000
-                        with unary reformatter
-        block standard: operator "NOT" [code, math]
-                        prefix
-                        with precedence 11200
-                        with unary reformatter
-        block standard: operator [< "else" "if" >] [code]
-                        prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
-        block reckon: operator "<--" [code]
-                      nofix line
-                      with precedence 0
-                      with declare reformatter ( ":" )
-        block standard: operator "while" [code]
-                        prefix line
-                        with precedence 3000
-                        with unary reformatter
-        block standard: operator [< "BUT" "NOT" >] [code, math]
-                        infix
-                        with precedence 11000
-                        with binary reformatter
-        block standard: operator "times" [code]
-                        nofix afix line
-                        with precedence 3000
-        block standard: operator "if" [code, math]
-                        infix
-                        with precedence 10000
-                        with selector reformatter ( "if", "else" )
-        block standard: operator "if" [code]
-                        prefix line
-                        with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
-        block standard: operator "until" [code]
-                        prefix line
-                        with precedence 3000
-                        with unary reformatter
-        block standard: operator "else" [code, math]
-                        infix afix
-                        with precedence 10000
-        block standard: operator "else" [code]
-                        initial line
-                        with precedence 0
-                        with control reformatter ( ":" )
-        block standard: operator "**" [code, math]
-                        infix
-                        with precedence 13300
-                        with binary reformatter
-        block standard: operator "*=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
-        block standard: operator [< "at" "most" >] [code]
-                        prefix line
-                        with precedence 3000
-                        with iteration reformatter ( "times" )
-        block standard: operator "+=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
-        block standard: operator "<=" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter
-        block reckon: operator "=#" [code, math]
-                      left line
-                      with precedence 1000
-                      with assignment reformatter
-        block standard: operator "AND" [code, math]
-                        infix
-                        with precedence 11100
-                        with infix reformatter ( "AND" )
-        block standard: operator "repeat" [code]
-                        prefix line
-                        with precedence 3000
-                        with iteration reformatter ( "times" )
-        block standard: operator "==" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter
-        block standard: operator "-=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
-        block reckon: operator [< "for" "every" >] [code]
-                      prefix line
-                      with precedence 3000
-                      with unary reformatter
-        block standard: operator ">=" [code, math]
-                        infix
-                        with precedence 12000
-                        with infix reformatter
-        block reckon: operator "on" [code]
-                      prefix line
-                      with precedence 0
-        block standard: operator "OR" [code, math]
-                        infix
-                        with precedence 11100
-                        with infix reformatter ( "OR" )
-        block standard: operator "/=" [code]
-                        infix line
-                        with precedence 1000
-                        with binary reformatter
-        block standard: bracket ":" [code]
-                        nofix afix line
-                        with precedence 0
-        block standard: bracket ":" [code]
-                        postfix line
-                        with precedence 0
 === BRACKETED EXPRESSION: line ##:
 9
 ^
@@ -1633,91 +1281,91 @@ all ( sums from X through Y)
 all ( sums from X through Y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     all (sums from X through Y)
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     count = 0
     ^^^^^
     {|count|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     count = 0
             ^
     {|0|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     count = 0
     ^^^^^^^^^
     {|count|} = {|0|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     sum = 0
     ^^^
     {|sum|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     sum = 0
           ^
     {|0|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     sum = 0
     ^^^^^^^
     {|sum|} = {|0|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     while X != ():
                ^^
     ()
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next count = count + 1
         ^^^^^^^^^^
     {|next count|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next count = count + 1
                      ^^^^^
     {|count|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next count = count + 1
                              ^
     {|1|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next count = count + 1
                      ^^^^^^^^^
     {|{|count|} + {|1|}|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         next count = count + 1
         ^^^^^^^^^^^^^^^^^^^^^^
     {|next count|} = {|{|count|} + {|1|}|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         next sum = sum + the weight of (first X)
                                        ^^^^^^^^^
     (first X)
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next sum = sum + the weight of (first X)
         ^^^^^^^^
     {|next sum|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next sum = sum + the weight of (first X)
                    ^^^
     {|sum|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next sum = sum + the weight of (first X)
                          ^^^^^^^^^^^^^^^^^^^^^^^
     {|the weight of (first X)|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next sum = sum + the weight of (first X)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|{|sum|} + {|the weight of (first X)|}|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         next sum = sum + the weight of (first X)
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next X = rest X
         ^^^^^^
     {|next X|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         next X = rest X
                  ^^^^^^
     {|rest X|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         next X = rest X
         ^^^^^^^^^^^^^^^
     {|next X|} = {|rest X|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
     while X != ():
                  ^
         next count = count + 1
@@ -1733,19 +1381,19 @@ all ( sums from X through Y)
               {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|next X|} = {|rest X|}|}|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     while X != ():
           ^
     {|X|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     while X != ():
           ^^^^^^^
     {|{|X|} != ()|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     while X != ():
     ^^^^^^^^^^^^^
     {|while {|{|X|} != ()|}|}
-=== PURELIST EXPRESSION: lines ###-###:
+=== PURELIST EXPRESSION: lines ##-##:
     while X != ():
     ^^^^^^^^^^^^^^
         next count = count + 1
@@ -1763,7 +1411,7 @@ all ( sums from X through Y)
                 {|{|sum|} + {|the weight of (first X)|}|}|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 {|next X|} = {|rest X|}|}|}|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
     while X != ():
     ^^^^^^^^^^^^^^
         next count = count + 1
@@ -1776,28 +1424,28 @@ all ( sums from X through Y)
         {|next count|} = {|{|count|} + {|1|}|}
         {|next sum|} = {|{|sum|} + {|the weight of (first X)|}|}
         {|next X|} = {|rest X|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         value = error ``Cannot average 0 things.''
                         ^^^^^^^^^^^^^^^^^^^^^^^^
     {s: .terminator = "."|Cannot average 0 things|s}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         value = error ``Cannot average 0 things.''
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``{s: .terminator = "."|Cannot average 0 things|s}''
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         value = error ``Cannot average 0 things.''
         ^^^^^
     {|value|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         value = error ``Cannot average 0 things.''
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|error ``{s: .terminator = "."|Cannot average 0 things|s}''|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         value = error ``Cannot average 0 things.''
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|value|} =
         {|error ``{s: .terminator = "."|Cannot average 0 things|s}''|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
     if count == 0:
                  ^
         value = error ``Cannot average 0 things.''
@@ -1807,19 +1455,19 @@ all ( sums from X through Y)
               {|value|} =
               {|error
                 ``{s: .terminator = "."|Cannot average 0 things|s}''|}|}|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     if count == 0:
        ^^^^^
     {|count|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     if count == 0:
                 ^
     {|0|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
     if count == 0:
        ^^^^^^^^^^
     {|{|count|} == {|0|}|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
     if count == 0:
     ^^^^^^^^^^^^^^
         value = error ``Cannot average 0 things.''
@@ -1828,27 +1476,27 @@ all ( sums from X through Y)
         {|value|} =
             {|error
               ``{s: .terminator = "."|Cannot average 0 things|s}''|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         value = sum / count
         ^^^^^
     {|value|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         value = sum / count
                 ^^^
     {|sum|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         value = sum / count
                       ^^^^^
     {|count|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
         value = sum / count
                 ^^^^^^^^^^^
     {|{|sum|} / {|count|}|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
         value = sum / count
         ^^^^^^^^^^^^^^^^^^^
     {|value|} = {|{|sum|} / {|count|}|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
     else:
         ^
         value = sum / count
@@ -1856,14 +1504,14 @@ all ( sums from X through Y)
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
               {|value|} = {|{|sum|} / {|count|}|}|}|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
     else:
     ^^^^^
         value = sum / count
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     else:
         {|value|} = {|{|sum|} / {|count|}|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 average weight of X <-- list X of persons:
                                          ^
     count = 0
@@ -1918,15 +1566,15 @@ average weight of X <-- list X of persons:
                    {"": .terminator = "<LF>", .initiator =
                         [$ LOGICAL_LINE $]|{|value|} =
                         {|{|sum|} / {|count|}|}|}|}|}|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
 average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^
     {|average weight of X|}
-=== PURELIST EXPRESSION: line ###:
+=== PURELIST EXPRESSION: line ##:
 average weight of X <-- list X of persons:
                         ^^^^^^^^^^^^^^^^^
     {|list X of persons|}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 average weight of X <-- list X of persons:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     count = 0
@@ -1962,11 +1610,11 @@ average weight of X <-- list X of persons:
                   ``{s: .terminator = "."|Cannot average 0 things|s}''|}
         else:
             {|value|} = {|{|sum|} / {|count|}|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
 average weight of (all persons)
                   ^^^^^^^^^^^^^
     (all persons)
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
 average weight of (all persons)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     average weight of (all persons)

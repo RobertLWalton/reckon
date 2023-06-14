@@ -1,7 +1,7 @@
-*PARSER*:
-    trace [+ parser output]
-    trace [+ subexpression lines]
-    trace [+ subexpression elements]
+=== PREFIX EXPRESSION: line ##:
+{b} foo
+^^^
+    {b}
 === BRACKETED EXPRESSION: line ##:
 {b} foo
 ^^^^^^^
@@ -11,17 +11,53 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^
     {s|This is a sentence "."|s}
 === BRACKETED EXPRESSION: line ##:
+{s|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {s|This is a sentence "."|s}
+=== PREFIX EXPRESSION: line ##:
+{s}This is a sentence.
+^^^
+    {s}
+=== BRACKETED EXPRESSION: line ##:
 {s}This is a sentence.
 ^^^^^^^^^^^^^^^^^^^^^^
     {s} This is a sentence "."
+=== PREFIX EXPRESSION: line ##:
+{section|{s}Fee Fie Foe|}
+         ^^^
+    {s}
+=== BRACKETED EXPRESSION: line ##:
+{section|{s}Fee Fie Foe|}
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    {section|{s} Fee Fie Foe|section}
 === BRACKETED EXPRESSION: line ##:
 {section|{s}Fee Fie Foe|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^
     {section|{s} Fee Fie Foe|section}
 === BRACKETED EXPRESSION: line ##:
 ``{s|This is a sentence.|}''
+  ^^^^^^^^^^^^^^^^^^^^^^^^
+    {s|This is a sentence "."|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s|This is a sentence.|}''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``{s|This is a sentence "."|s}''
+=== BRACKETED EXPRESSION: line ##:
+``{s|This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s|This is a sentence "."|s}''
+=== PREFIX EXPRESSION: line ##:
+``{s}This is a sentence.''
+  ^^^
+    {s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a sentence.''
+  ^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This is a sentence|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a sentence.''
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s: .terminator = "."|This is a sentence|s}''
 === BRACKETED EXPRESSION: line ##:
 ``{s}This is a sentence.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -31,21 +67,101 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^
     {p|This is a sentence "."|p}
 === BRACKETED EXPRESSION: line ##:
+{p|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|This is a sentence "."|p}
+=== PREFIX EXPRESSION: line ##:
+{p}This is a sentence.
+^^^
+    {p}
+=== BRACKETED EXPRESSION: line ##:
+{p}This is a sentence.
+   ^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This is a sentence|s}
+=== BRACKETED EXPRESSION: line ##:
 {p}This is a sentence.
 ^^^^^^^^^^^^^^^^^^^^^^
     {p|{s: .terminator = "."|This is a sentence|s}|p}
+=== BRACKETED EXPRESSION: line ##:
+{p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^
+    {p|{s: .terminator = "."|This is a sentence|s}|p}
+=== PREFIX EXPRESSION: line ##:
+@<X> := {p}This is a sentence.
+        ^^^
+    {p}
+=== BRACKETED EXPRESSION: line ##:
+@<X> := {p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {*DATA*|{p} This is a sentence "."|*DATA*}
+=== BRACKETED EXPRESSION: line ##:
+@<X> := {p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {|{p} This is a sentence "."|}
 === BRACKETED EXPRESSION: line ##:
 ID X is @<X> // From @<X> := {p}This ...
 ^^^^^^^^^^^^
     ID X is {|{p} This is a sentence "."|}
 === BRACKETED EXPRESSION: line ##:
+!@<Y> := {p}This is a sentence.
+         ^^^
+    {p}
+=== BRACKETED EXPRESSION: line ##:
+!@<Y> := {p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {*RAW* *DATA*|{p} This is a sentence "."|*RAW* *DATA*}
+=== BRACKETED EXPRESSION: line ##:
+!@<Y> := {p}This is a sentence.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {|{p} This is a sentence "."|}
+=== BRACKETED EXPRESSION: line ##:
 ID Y is @<Y> // From !@<Y> := {p}This ...
 ^^^^^^^^^^^^
     ID Y is {|{p} This is a sentence "."|}
+=== PURELIST EXPRESSION: line ##:
+@<Z> := x + y
+        ^
+    {|x|}
+=== PURELIST EXPRESSION: line ##:
+@<Z> := x + y
+            ^
+    {|y|}
+=== BRACKETED EXPRESSION: line ##:
+@<Z> := x + y
+^^^^^^^^^^^^^
+    {*DATA*|{|x|} + {|y|}|*DATA*}
+=== BRACKETED EXPRESSION: line ##:
+@<Z> := x + y
+^^^^^^^^^^^^^
+    {|{|x|} + {|y|}|}
 === BRACKETED EXPRESSION: line ##:
 ID Z is @<Z> // From @<Z> := x + y
 ^^^^^^^^^^^^
     ID Z is {|{|x|} + {|y|}|}
+=== PREFIX EXPRESSION: line ##:
+{p}{a}B B B {b} C C C {a} D D D
+^^^
+    {p}
+=== PREFIX EXPRESSION: line ##:
+{p}{a}B B B {b} C C C {a} D D D
+   ^^^
+    {a}
+=== PREFIX EXPRESSION: line ##:
+{p}{a}B B B {b} C C C {a} D D D
+            ^^^
+    {b}
+=== PREFIX EXPRESSION: line ##:
+{p}{a}B B B {b} C C C {a} D D D
+                      ^^^
+    {a}
+=== BRACKETED EXPRESSION: line ##:
+{p}{a}B B B {b} C C C {a} D D D
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s|{a} B B B {b} C C C {a} D D D|s}
+=== BRACKETED EXPRESSION: line ##:
+{p}{a}B B B {b} C C C {a} D D D
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{s|{a} B B B {b} C C C {a} D D D|s}|p}
 === BRACKETED EXPRESSION: line ##:
 {p}{a}B B B {b} C C C {a} D D D
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,6 +170,10 @@ ID Z is @<Z> // From @<Z> := x + y
 hello there
 ^^^^^^^^^^^
     hello there
+=== PREFIX EXPRESSION: line ##:
+{p}goodbye // Preceeded by non-blank line.
+^^^
+    {p}
 ERROR: in line ##: explicit prefix separator of type `p' has *PARAGRAPH*
        group but is not at beginning of a logical line that is in
        paragraph beginning position; prefix unrecognized:
@@ -63,14 +183,69 @@ ERROR: in line ##: explicit prefix separator of type `p' has *PARAGRAPH*
 {p}goodbye // Preceeded by non-blank line.
 ^^^^^^^^^^
     {p} goodbye
+=== PREFIX EXPRESSION: line ##:
+@<X> := fee {fie} fo fum
+            ^^^^^
+    {fie}
+=== BRACKETED EXPRESSION: line ##:
+@<X> := fee {fie} fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {*DATA*|fee {fie} fo fum|*DATA*}
+=== BRACKETED EXPRESSION: line ##:
+@<X> := fee {fie} fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {|fee {fie} fo fum|}
 === BRACKETED EXPRESSION: line ##:
 ID X is @<X> // From @<X> := fee {fie} fo fum
 ^^^^^^^^^^^^
     ID X is {|fee {fie} fo fum|}
 === BRACKETED EXPRESSION: line ##:
+!@<Y> := fee {fie} fo fum
+             ^^^^^
+    {fie}
+=== BRACKETED EXPRESSION: line ##:
+!@<Y> := fee {fie} fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    {*RAW* *DATA*|fee {fie} fo fum|*RAW* *DATA*}
+=== BRACKETED EXPRESSION: line ##:
+!@<Y> := fee {fie} fo fum
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    {|fee {fie} fo fum|}
+=== BRACKETED EXPRESSION: line ##:
 ID Y is @<Y> // From !@<Y> := fee {fie} fo fum
 ^^^^^^^^^^^^
     ID Y is {|fee {fie} fo fum|}
+=== PREFIX EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+  ^^^
+    {s}
+=== PREFIX EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+                       ^^^
+    {s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+                       ^^^^^^^^^^
+    {s: .terminator = "."|I came|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+                                 ^^^^^^^
+    {s: .terminator = "."|I saw|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+                                        ^^^^^^^^^^^^^
+    {s: .terminator = "."|I conquered|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    `{s: .terminator = "."|I came|s} {s: .terminator = "."|I saw|s}
+     {s: .terminator = "."|I conquered|s}'
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This is a quote ":"
+        `{s: .terminator = "."|I came|s} {s: .terminator = "."|I saw|s}
+         {s: .terminator = "."|I conquered|s}'|s}
 === BRACKETED EXPRESSION: line ##:
 ``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,6 +253,42 @@ ID Y is @<Y> // From !@<Y> := fee {fie} fo fum
           `{s: .terminator = "."|I came|s}
            {s: .terminator = "."|I saw|s}
            {s: .terminator = "."|I conquered|s}'|s}''
+=== BRACKETED EXPRESSION: line ##:
+``{s}This is a quote: `{s}I came. I saw. I conquered.'. ''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s: .terminator = "."|This is a quote ":"
+          `{s: .terminator = "."|I came|s}
+           {s: .terminator = "."|I saw|s}
+           {s: .terminator = "."|I conquered|s}'|s}''
+=== PREFIX EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+  ^^^
+    {s}
+=== PREFIX EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+             ^^^^^^
+    {s: i}
+=== BRACKETED EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+  ^^^^^^^^^^
+    {s: .terminator = "."|I came|s}
+=== PREFIX EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+                          ^^^^^^
+    {s: b}
+=== BRACKETED EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+             ^^^^^^^^^^^^
+    {s: .terminator = ".", i|I saw|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+                          ^^^^^^^^^^^^^^^^^^
+    {s: .terminator = ".", b|I conquered|s}
+=== BRACKETED EXPRESSION: line ##:
+``{s}I came. {s: i}I saw. {s: b}I conquered. ''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s: .terminator = "."|I came|s} {s: .terminator = ".", i|I saw|s}
+      {s: .terminator = ".", b|I conquered|s}''
 === BRACKETED EXPRESSION: line ##:
 ``{s}I came. {s: i}I saw. {s: b}I conquered. ''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -88,25 +299,107 @@ ID Y is @<Y> // From !@<Y> := fee {fie} fo fum
 ^^^^^^^^^^^^^^^^^^^^^^^^
     {p|This is a sentence "."|p}
 === BRACKETED EXPRESSION: line ##:
+{p|This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|This is a sentence "."|p}
+=== PREFIX EXPRESSION: line ##:
+{p|{b}This is a sentence.|}
+   ^^^
+    {b}
+=== BRACKETED EXPRESSION: line ##:
 {p|{b}This is a sentence.|}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {p|{b} This is a sentence "."|p}
 === BRACKETED EXPRESSION: line ##:
+{p|{b}This is a sentence.|}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{b} This is a sentence "."|p}
+=== PREFIX EXPRESSION: line ##:
+``{p|{s}This is a sentence.|}''
+     ^^^
+    {s}
+=== BRACKETED EXPRESSION: line ##:
+``{p|{s}This is a sentence.|}''
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{s} This is a sentence "."|p}
+=== BRACKETED EXPRESSION: line ##:
 ``{p|{s}This is a sentence.|}''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``{p|{s} This is a sentence "."|p}''
+=== BRACKETED EXPRESSION: line ##:
+``{p|{s}This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{p|{s} This is a sentence "."|p}''
+=== PREFIX EXPRESSION: line ##:
+``{b|{s}This is a sentence.|}''
+     ^^^
+    {s}
+=== BRACKETED EXPRESSION: line ##:
+``{b|{s}This is a sentence.|}''
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {b|{s} This is a sentence "."|b}
+=== BRACKETED EXPRESSION: line ##:
+``{b|{s}This is a sentence.|}''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{b|{s} This is a sentence "."|b}''
 === BRACKETED EXPRESSION: line ##:
 ``{b|{s}This is a sentence.|}''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ``{b|{s} This is a sentence "."|b}''
 === BRACKETED EXPRESSION: line ##:
 ({table|=====|})
+ ^^^^^^^^^^^^^^
+    {table|=====|table}
+=== BRACKETED EXPRESSION: line ##:
+({table|=====|})
 ^^^^^^^^^^^^^^^^
     ({table|=====|table})
+=== BRACKETED EXPRESSION: line ##:
+({table|=====|})
+^^^^^^^^^^^^^^^^
+    ({table|=====|table})
+=== PREFIX EXPRESSION: line ##:
+{section}First Example
+^^^^^^^^^
+    {section}
+=== BRACKETED EXPRESSION: line ##:
+{section}First Example
+         ^^^^^^^^^^^^^
+    {s|First Example|s}
 === BRACKETED EXPRESSION: line ##:
 {section}First Example
 ^^^^^^^^^^^^^^^^^^^^^^
     {section|{s|First Example|s}|section}
+=== BRACKETED EXPRESSION: line ##:
+{section}First Example
+^^^^^^^^^^^^^^^^^^^^^^
+    {section|{s|First Example|s}|section}
+=== PREFIX EXPRESSION: line ##:
+{p}This is the first paragraph of the first
+^^^
+    {p}
+=== BRACKETED EXPRESSION: lines ##-##:
+{p}This is the first paragraph of the first
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        example.  And
+^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This is the first paragraph of the first
+        example|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+        example.  And
+                ^^^^^
+its second sentence.  Line indentation does not
+^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|And its second sentence|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+its second sentence.  Line indentation does not
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+matter in this paragraph, which is ended by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                next blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|Line indentation does not matter in this
+        paragraph "," which is ended by the next blank line|s}
 === BRACKETED EXPRESSION: lines ##-##:
 {p}This is the first paragraph of the first
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,6 +415,170 @@ matter in this paragraph, which is ended by the
            example|s} {s: .terminator = "."|And its second sentence|s}
        {s: .terminator = "."|Line indentation does not matter in this
            paragraph "," which is ended by the next blank line|s}|p}
+=== BRACKETED EXPRESSION: lines ##-##:
+{p}This is the first paragraph of the first
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        example.  And
+^^^^^^^^^^^^^^^^^^^^^
+its second sentence.  Line indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+matter in this paragraph, which is ended by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                next blank line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{s: .terminator = "."|This is the first paragraph of the first
+           example|s} {s: .terminator = "."|And its second sentence|s}
+       {s: .terminator = "."|Line indentation does not matter in this
+           paragraph "," which is ended by the next blank line|s}|p}
+=== PREFIX EXPRESSION: line ##:
+{p}This paragraph contains a quote:
+^^^
+    {p}
+=== PREFIX EXPRESSION: line ##:
+    {quote}
+    ^^^^^^^
+    {quote}
+=== BRACKETED EXPRESSION: lines ##-##:
+    {quote}
+           ^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|Remember to begin at the beginning and go to
+        the end|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+    the beginning and go to the end.  This quote
+                                    ^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This quote is a paragraph by itself|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+                  is a paragraph by itself.
+                                           ^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|Within the paragraph "," indentation does not
+        matter as long as it is at least the paragraph indent|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+           indent.
+                  ^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence in the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|So this is the last sentence in the
+        paragraph|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+    {quote}
+    ^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence in the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {quote|{s: .terminator = "."|Remember to begin at the beginning and
+               go to the end|s}
+           {s: .terminator = "."|This quote is a paragraph by itself|s}
+           {s: .terminator = "."|Within the paragraph "," indentation
+               does not matter as long as it is at least the paragraph
+               indent|s}
+           {s: .terminator = "."|So this is the last sentence in the
+               paragraph|s}|quote}
+=== BRACKETED EXPRESSION: lines ##-##:
+{p}This paragraph contains a quote:
+                                  ^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence in the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {quote|{s: .terminator = "."|Remember to begin at the beginning
+                    and go to the end|s}
+                {s: .terminator = "."|This quote is a paragraph by
+                    itself|s}
+                {s: .terminator = "."|Within the paragraph ","
+                    indentation does not matter as long as it is at
+                    least the paragraph indent|s}
+                {s: .terminator = "."|So this is the last sentence in
+                    the paragraph|s}|quote}|}
+=== BRACKETED EXPRESSION: lines ##-##:
+{p}This paragraph contains a quote:
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence in the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s|This paragraph contains a quote
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {quote|{s: .terminator = "."|Remember to begin at the
+                       beginning and go to the end|s}
+                   {s: .terminator = "."|This quote is a paragraph by
+                       itself|s}
+                   {s: .terminator = "."|Within the paragraph ","
+                       indentation does not matter as long as it is at
+                       least the paragraph indent|s}
+                   {s: .terminator = "."|So this is the last sentence in
+                       the paragraph|s}|quote}|}|s}
 === BRACKETED EXPRESSION: lines ##-##:
 {p}This paragraph contains a quote:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -160,7 +617,128 @@ matter in this paragraph, which is ended by the
                           at least the paragraph indent|s}
                       {s: .terminator = "."|So this is the last sentence
                           in the paragraph|s}|quote}|}|s}|p}
-=== BRACKETED EXPRESSION: lines ##-###:
+=== BRACKETED EXPRESSION: lines ##-##:
+{p}This paragraph contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // In text, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+    {quote}
+^^^^^^^^^^^
+    Remember to begin at
+^^^^^^^^^^^^^^^^^^^^^^^^
+    the beginning and go to the end.  This quote
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  is a paragraph by itself.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Within the paragraph, indentation does not
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    matter as long as it is at least the paragraph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           indent.
+^^^^^^^^^^^^^^^^^^
+    // Comments do not end the paragraph, as they
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // are not blank lines.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    So this is the last sentence in the paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{s|This paragraph contains a quote
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {quote|{s: .terminator = "."|Remember to begin at the
+                          beginning and go to the end|s}
+                      {s: .terminator = "."|This quote is a paragraph by
+                          itself|s}
+                      {s: .terminator = "."|Within the paragraph ","
+                          indentation does not matter as long as it is
+                          at least the paragraph indent|s}
+                      {s: .terminator = "."|So this is the last sentence
+                          in the paragraph|s}|quote}|}|s}|p}
+=== BRACKETED EXPRESSION: lines ##-##:
+   This is a logical code
+   ^^^^^^^^^^^^^^^^^^^^^^
+       line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This is a logical code line of the indented paragraph "."
+=== BRACKETED EXPRESSION: line ##:
+   And a second logical code line.
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    And a second logical code line "."
+=== PREFIX EXPRESSION: line ##:
+   {p}But we can have a text paragraph in an indented
+   ^^^
+    {p}
+=== BRACKETED EXPRESSION: lines ##-##:
+   {p}But we can have a text paragraph in an indented
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   code paragraph.
+^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|But we can have a text paragraph in an
+        indented code paragraph|s}
+=== BRACKETED EXPRESSION: lines ##-##:
+   {p}But we can have a text paragraph in an indented
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   code paragraph.
+^^^^^^^^^^^^^^^^^^
+    {p|{s: .terminator = "."|But we can have a text paragraph in an
+           indented code paragraph|s}|p}
+=== BRACKETED EXPRESSION: line ##:
+   This is the third logical line of code.
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This is the third logical line of code "."
+=== PREFIX EXPRESSION: line ##:
+   {p}Another piece of text.
+   ^^^
+    {p}
+=== BRACKETED EXPRESSION: line ##:
+   {p}Another piece of text.
+      ^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|Another piece of text|s}
+=== BRACKETED EXPRESSION: line ##:
+   {p}Another piece of text.
+   ^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p|{s: .terminator = "."|Another piece of text|s}|p}
+=== BRACKETED EXPRESSION: lines ##-##:
+This is a line of code:
+                      ^
+   // In code, `:' can start an indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   This is a logical code
+^^^^^^^^^^^^^^^^^^^^^^^^^
+       line of the indented paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   And a second logical code line.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+   {p}But we can have a text paragraph in an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   code paragraph.
+^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+   This is the third logical line of code.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+   {p}Another piece of text.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+              is a logical code line of the indented paragraph "."|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|And
+              a second logical code line "."|}
+         {p|{s: .terminator = "."|But we can have a text paragraph in an
+                indented code paragraph|s}|p}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This
+              is the third logical line of code "."|}
+         {p|{s: .terminator = "."|Another piece of text|s}|p}|}
+=== PURELIST EXPRESSION: line ##:
+This is a line of code:
+^^^^^^^^^^^^^^^^^^^^^^
+    {|This is a line of code|}
+=== BRACKETED EXPRESSION: lines ##-##:
 This is a line of code:
 ^^^^^^^^^^^^^^^^^^^^^^^
    // In code, `:' can start an indented paragraph.
@@ -192,16 +770,41 @@ This is a line of code:
                indented code paragraph|s}|p}
         This is the third logical line of code "."
         {p|{s: .terminator = "."|Another piece of text|s}|p}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 And a logical line of code that ends the indented
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     paragraph.
 ^^^^^^^^^^^^^^
     And a logical line of code that ends the indented paragraph "."
+=== PREFIX EXPRESSION: line ###:
+{section}Second Example
+^^^^^^^^^
+    {section}
+=== BRACKETED EXPRESSION: line ###:
+{section}Second Example
+         ^^^^^^^^^^^^^^
+    {s|Second Example|s}
 === BRACKETED EXPRESSION: line ###:
 {section}Second Example
 ^^^^^^^^^^^^^^^^^^^^^^^
     {section|{s|Second Example|s}|section}
+=== BRACKETED EXPRESSION: line ###:
+{section}Second Example
+^^^^^^^^^^^^^^^^^^^^^^^
+    {section|{s|Second Example|s}|section}
+=== PREFIX EXPRESSION: line ###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+    {p: indent = 5}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p: indent = 5}
+               ^
+This is the first paragraph of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     the second example.
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This is the first paragraph of the second
+        example|s}
 === BRACKETED EXPRESSION: lines ###-###:
 {p: indent = 5}
 ^^^^^^^^^^^^^^^
@@ -212,6 +815,70 @@ This is the first paragraph of
     {p: indent = 5|
         {s: .terminator = "."|This is the first paragraph of the second
             example|s}|p}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+This is the first paragraph of
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     the second example.
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {p: indent = 5|
+        {s: .terminator = "."|This is the first paragraph of the second
+            example|s}|p}
+=== PREFIX EXPRESSION: line ###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+    {p: indent = 5}
+=== PREFIX EXPRESSION: line ###:
+     {quote}Simplify, simplify, SMPLFY!
+     ^^^^^^^
+    {quote}
+=== BRACKETED EXPRESSION: line ###:
+     {quote}Simplify, simplify, SMPLFY!
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "!"|Simplify "," simplify "," SMPLFY|s}
+=== BRACKETED EXPRESSION: line ###:
+     {quote}Simplify, simplify, SMPLFY!
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {quote|{s: .terminator = "!"|Simplify "," simplify "," SMPLFY|s}|quote}
+=== BRACKETED EXPRESSION: lines ###-###:
+This is the next paragraph, which contains a quote:
+                                                  ^
+<BLANK-LINE>
+^^^^^^^^^^^^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                    SMPLFY|s}|quote}|}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p: indent = 5}
+               ^
+This is the next paragraph, which contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s|This is the next paragraph "," which contains a quote
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                       SMPLFY|s}|quote}|}|s}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p: indent = 5}
+^^^^^^^^^^^^^^^
+This is the next paragraph, which contains a quote:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+     {quote}Simplify, simplify, SMPLFY!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {p: indent = 5|
+        {s|This is the next paragraph "," which contains a quote
+           {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                ":"|
+                {quote|{s: .terminator = "!"|Simplify "," simplify ","
+                           SMPLFY|s}|quote}|}|s}|p}
 === BRACKETED EXPRESSION: lines ###-###:
 {p: indent = 5}
 ^^^^^^^^^^^^^^^
@@ -231,6 +898,14 @@ This is the next paragraph, which contains a quote:
 This is a line of code.
 ^^^^^^^^^^^^^^^^^^^^^^^
     This is a line of code "."
+=== PREFIX EXPRESSION: line ###:
+{table} // This is a table
+^^^^^^^
+    {table}
+=== BRACKETED EXPRESSION: line ###:
+| A | B; | C|
+^^^^^^^^^^^^^
+    {row|"|" A "|" B ";" "|" C "|"|row}
 === BRACKETED EXPRESSION: lines ###-###:
 {table} // This is a table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -240,6 +915,74 @@ X Y Z
 ^^^^^^^^^^^^^
     {table|{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|X
                 Y Z|} {row|"|" A "|" B ";" "|" C "|"|row}|table}
+=== PREFIX EXPRESSION: line ###:
+{table}
+^^^^^^^
+    {table}
+=== PREFIX EXPRESSION: line ###:
+{row}-----------------------------------------------------
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|-----------------------------------------------------|row}
+=== PREFIX EXPRESSION: line ###:
+{row}| Name   | Weight   | Height     | Age       | BMI  | /ib/
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}| Name   | Weight   | Height     | Age       | BMI  | /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" Name "|" Weight "|" Height "|" Age "|" BMI "|" /ib/|row}
+=== PREFIX EXPRESSION: line ###:
+{row}-----------------------------------------------------
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|-----------------------------------------------------|row}
+=== PREFIX EXPRESSION: line ###:
+{row}| <name> | <weight> | <height>   | <age>     | B
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}| <name> | <weight> | <height>   | <age>     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" <name> "|" <weight> "|" <height> "|" <age> "|" B|row}
+=== PREFIX EXPRESSION: line ###:
+{row}| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" /l/ "|" /U`lb'/ "|" /U`ft_in'/ "|" /u`yr'.0/ "|" /.2/|row}
+=== PREFIX EXPRESSION: line ###:
+{row}| George |    205   | 6ft 3in    | 25        |
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}| George |    205   | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" George "|" 205 "|" 6ft 3in "|" 25 "|"|row}
+=== PREFIX EXPRESSION: line ###:
+{row}| Mary   |    135   | 5ft 5in    | 26        |
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}| Mary   |    135   | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" Mary "|" 135 "|" 5ft 5in "|" 26 "|"|row}
+=== PREFIX EXPRESSION: line ###:
+{row}----------------------------------------------
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|----------------------------------------------|row}
 === BRACKETED EXPRESSION: lines ###-###:
 {table}
 ^^^^^^^
@@ -286,6 +1029,42 @@ SORT ROWS BY: name
                 ROW TYPE ":" person|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 SORT ROWS BY ":" name|}|table}
+=== BRACKETED EXPRESSION: line ###:
+-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|-----------------------------------------------------|row}
+=== BRACKETED EXPRESSION: line ###:
+-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {table|{row|-----------------------------------------------------|row}|table}
+=== BRACKETED EXPRESSION: line ###:
+| Name   | Weight   | Height     | Age       | BMI  | /ib/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" Name "|" Weight "|" Height "|" Age "|" BMI "|" /ib/|row}
+=== BRACKETED EXPRESSION: line ###:
+-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|-----------------------------------------------------|row}
+=== BRACKETED EXPRESSION: line ###:
+| <name> | <weight> | <height>   | <age>     | B
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" <name> "|" <weight> "|" <height> "|" <age> "|" B|row}
+=== BRACKETED EXPRESSION: line ###:
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" /l/ "|" /U`lb'/ "|" /U`ft_in'/ "|" /u`yr'.0/ "|" /.2/|row}
+=== BRACKETED EXPRESSION: line ###:
+| George |    205   | 6ft 3in    | 25        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" George "|" 205 "|" 6ft 3in "|" 25 "|"|row}
+=== BRACKETED EXPRESSION: line ###:
+| Mary   |    135   | 5ft 5in    | 26        |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" Mary "|" 135 "|" 5ft 5in "|" 26 "|"|row}
+=== BRACKETED EXPRESSION: line ###:
+----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|----------------------------------------------|row}
 === BRACKETED EXPRESSION: lines ###-###:
 -----------------------------------------------------
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -330,6 +1109,65 @@ SORT ROWS BY: name
                 ROW TYPE ":" person|}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
                 SORT ROWS BY ":" name|}|table}
+=== PREFIX EXPRESSION: line ###:
+{p}This is a text paragraph:
+^^^
+    {p}
+=== BRACKETED EXPRESSION: line ###:
+        =============
+        ^^^^^^^^^^^^^
+    {row|=============|row}
+=== BRACKETED EXPRESSION: line ###:
+        =============
+        ^^^^^^^^^^^^^
+    {table|{row|=============|row}|table}
+=== BRACKETED EXPRESSION: line ###:
+        | A | B | C |
+        ^^^^^^^^^^^^^
+    {row|"|" A "|" B "|" C "|"|row}
+=== BRACKETED EXPRESSION: line ###:
+        =============
+        ^^^^^^^^^^^^^
+    {row|=============|row}
+=== BRACKETED EXPRESSION: lines ###-###:
+        =============
+        ^^^^^^^^^^^^^
+        | A | B | C |
+^^^^^^^^^^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+    {table|{row|=============|row} {row|"|" A "|" B "|" C "|"|row}
+           {row|=============|row}|table}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p}This is a text paragraph:
+                           ^
+<BLANK-LINE>
+^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+        | A | B | C |
+^^^^^^^^^^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {table|{row|=============|row} {row|"|" A "|" B "|" C "|"|row}
+                {row|=============|row}|table}|}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p}This is a text paragraph:
+   ^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+        | A | B | C |
+^^^^^^^^^^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+    {s|This is a text paragraph
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {table|{row|=============|row}
+                   {row|"|" A "|" B "|" C "|"|row}
+                   {row|=============|row}|table}|}|s}
 === BRACKETED EXPRESSION: lines ###-###:
 {p}This is a text paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -346,55 +1184,88 @@ SORT ROWS BY: name
                {table|{row|=============|row}
                       {row|"|" A "|" B "|" C "|"|row}
                       {row|=============|row}|table}|}|s}|p}
-*PARSER*:
-    begin block BLOCK
-    trace [+ subexpression details]
+=== BRACKETED EXPRESSION: lines ###-###:
+{p}This is a text paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+        | A | B | C |
+^^^^^^^^^^^^^^^^^^^^^
+        =============
+^^^^^^^^^^^^^^^^^^^^^
+    {p|{s|This is a text paragraph
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {table|{row|=============|row}
+                      {row|"|" A "|" B "|" C "|"|row}
+                      {row|=============|row}|table}|}|s}|p}
+=== PREFIX EXPRESSION: line ###:
+{row}| A | B + C |
+^^^^^
+    {row}
+=== PURELIST EXPRESSION: line ###:
+{row}| A | B + C |
+^^^^^^^^^^^^
+    {|{row} "|" A "|" B|}
+=== PURELIST EXPRESSION: line ###:
+{row}| A | B + C |
+               ^^^
+    {|C "|"|}
 === BRACKETED EXPRESSION: line ###:
 {row}| A | B + C |
 ^^^^^^^^^^^^^^^^^^
     {|{row} "|" A "|" B|} + {|C "|"|}
-!@@ := @@ "+" @@:
-           .terminator = "<LF>"
-           .initiator = [$ LOGICAL_LINE $]
-           .position[H] = PACKED_VEC
-!@@ := @@ "|" A "|" B:
-           .position[H] = PACKED_VEC
-!@@ := C "|":
-           .position[H] = PACKED_VEC
-!@@ :=:
-           .type = row
-           .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ###:
 {row| "|" A "|" B "|" |}
 ^^^^^^^^^^^^^^^^^^^^^^^^
     {row|"|" A "|" B "|"|row}
-!@@ := @@:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
-!@@ := @@ A @@ B @@:
-           .type = row
-           .position[H] = PACKED_VEC
-!@@ := "|":
-           .type = "<Q>"
-!@@ := "|":
-           .type = "<Q>"
-!@@ := "|":
-           .type = "<Q>"
+=== BRACKETED EXPRESSION: line ###:
+{row| "|" A "|" B "|" |}
+^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|"|" A "|" B "|"|row}
+=== PREFIX EXPRESSION: line ###:
+{table}
+^^^^^^^
+    {table}
+=== PREFIX EXPRESSION: line ###:
+{row}| A | B + C |
+^^^^^
+    {row}
+=== BRACKETED EXPRESSION: line ###:
+{row}| A | B + C |
+^^^^^^^^^^^^^^^^^^
+    {row|"|" A "|" B + C "|"|row}
 === BRACKETED EXPRESSION: lines ###-###:
 {table}
 ^^^^^^^
 {row}| A | B + C |
 ^^^^^^^^^^^^^^^^^^
     {table|{row|"|" A "|" B + C "|"|row}|table}
-!@@@ := @@@:
-            .type = table
-            .position[H] = PACKED_VEC
-!@@@ := "|" A "|" B "+" C "|":
-            .type = row
-            .position[H] = PACKED_VEC
-*PARSER*:
-    end block BLOCK
+=== BRACKETED EXPRESSION: line ###:
+------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {row|------------------------------|row}
+=== BRACKETED EXPRESSION: line ###:
+------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {table|{row|------------------------------|row}|table}
+=== BRACKETED EXPRESSION: line ###:
+| foo
+^^^^^
+    {row|"|" foo|row}
+=== PURELIST EXPRESSION: line ###:
+A : [B + C]
+     ^
+    {|B|}
+=== PURELIST EXPRESSION: line ###:
+A : [B + C]
+         ^
+    {|C|}
+=== BRACKETED EXPRESSION: line ###:
+A : [B + C]
+    ^^^^^^^
+    [{|B|} + {|C|}]
 === BRACKETED EXPRESSION: lines ###-###:
 ------------------------------
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -405,6 +1276,41 @@ A : [B + C]
     {table|{row|------------------------------|row} {row|"|" foo|row}
            {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|A
                 ":" [{|B|} + {|C|}]|}|table}
+=== PREFIX EXPRESSION: line ###:
+{p} This is a:
+^^^
+    {p}
+=== BRACKETED EXPRESSION: line ###:
+    paragraph
+    ^^^^^^^^^
+    {s|paragraph|s}
+=== BRACKETED EXPRESSION: line ###:
+    paragraph
+    ^^^^^^^^^
+    {p|{s|paragraph|s}|p}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p} This is a:
+             ^
+    paragraph
+^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {p|{s|paragraph|s}|p}|}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p} This is a:
+    ^^^^^^^^^^
+    paragraph
+^^^^^^^^^^^^^
+    {s|This is a
+       {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+            {p|{s|paragraph|s}|p}|}|s}
+=== BRACKETED EXPRESSION: lines ###-###:
+{p} This is a:
+^^^^^^^^^^^^^^
+    paragraph
+^^^^^^^^^^^^^
+    {p|{s|This is a
+          {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+               {p|{s|paragraph|s}|p}|}|s}|p}
 === BRACKETED EXPRESSION: lines ###-###:
 {p} This is a:
 ^^^^^^^^^^^^^^

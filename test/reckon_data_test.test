@@ -1,8 +1,3 @@
-*PARSER*:
-    trace [+ parser output]
-    trace [+ subexpression lines]
-    trace [+ subexpression elements]
-    trace [+ bracketed subexpressions]
 === BRACKETED EXPRESSION: line ##:
     kind = woman
     ^^^^^^^^^^^^
@@ -677,15 +672,15 @@ INPUT ID <X2> IS @<X2>
     y[S] = A
     ^^^^^^^^
     y [S] = A
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     y    = A
     ^^^^^^^^
     y = A
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     y    = B
     ^^^^^^^^
     y = B
-=== BRACKETED EXPRESSION: lines ##-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 @<X1> :=:
         ^
     y[S] = A
@@ -705,7 +700,7 @@ INPUT ID <X2> IS @<X2>
 @<X1> :=:
 ^
     {*DATA*}
-=== BRACKETED EXPRESSION: lines ##-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 @<X1> :=:
 ^^^^^^^^^
     y[S] = A
@@ -715,23 +710,23 @@ INPUT ID <X2> IS @<X2>
     y    = B
 ^^^^^^^^^^^^
     {"": y[S] = {* B, A *}}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     y[S] = {* A, B *}
      ^^^
     [S]
-=== BRACKETABLE EXPRESSION: line ###:
+=== BRACKETABLE EXPRESSION: line ##:
     y[S] = {* A, B *}
            ^^^^^^^^^^
     {|A, B|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     y[S] = {* A, B *}
            ^^^^^^^^^^
     {* A, B *}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
     y[S] = {* A, B *}
     ^^^^^^^^^^^^^^^^^
     y [S] = {* A, B *}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 @<X2> :=:
         ^
     y[S] = {* A, B *}
@@ -739,21 +734,21 @@ INPUT ID <X2> IS @<X2>
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|y
               [S] = {* A, B *}|}|}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
 @<X2> :=:
 ^
     {*DATA*}
-=== BRACKETED EXPRESSION: lines ###-###:
+=== BRACKETED EXPRESSION: lines ##-##:
 @<X2> :=:
 ^^^^^^^^^
     y[S] = {* A, B *}
 ^^^^^^^^^^^^^^^^^^^^^
     {"": y[S] = {* B, A *}}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
 INPUT ID <X1> IS @<X1>
 ^^^^^^^^^^^^^^^^^^^^^^
     INPUT ID <X1> IS {"": y[S] = {* B, A *}}
-=== BRACKETED EXPRESSION: line ###:
+=== BRACKETED EXPRESSION: line ##:
 INPUT ID <X2> IS @<X2>
 ^^^^^^^^^^^^^^^^^^^^^^
     INPUT ID <X2> IS {"": y[S] = {* B, A *}}
@@ -861,6 +856,22 @@ INPUT ID <X2> IS @<X2>
 INPUT ID <X3> IS @<X3>
 ^^^^^^^^^^^^^^^^^^^^^^
     INPUT ID <X3> IS (C D)
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+        ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+            ^
+    {|b|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+                ^
+    {|c|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+            ^^^^^
+    {|{|b|} * {|c|}|}
 === BRACKETED EXPRESSION: line ###:
 @<X> := a + b * c
 ^^^^^^^^^^^^^^^^^
@@ -873,6 +884,22 @@ INPUT ID <X3> IS @<X3>
 INPUT ID <X> IS @<X>
 ^^^^^^^^^^^^^^^^^^^^
     INPUT ID <X> IS {|{|a|} + {|{|b|} * {|c|}|}|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+        ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+            ^
+    {|b|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+                ^
+    {|c|}
+=== PURELIST EXPRESSION: line ###:
+@<X> := a + b * c
+            ^^^^^
+    {|{|b|} * {|c|}|}
 === BRACKETED EXPRESSION: line ###:
 @<X> := a + b * c
 ^^^^^^^^^^^^^^^^^
@@ -1429,6 +1456,14 @@ INPUT ID 35 IS @@@
 INPUT ID 36 IS @@@
 ^^^^^^^^^^^^^^^^^^
     INPUT ID 36 IS {{a + b}}
+=== PURELIST EXPRESSION: line ###:
+@@@ := ( a + b )
+         ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := ( a + b )
+             ^
+    {|b|}
 === BRACKETED EXPRESSION: line ###:
 @@@ := ( a + b )
        ^^^^^^^^^
@@ -1445,6 +1480,14 @@ INPUT ID 36 IS @@@
 INPUT ID 37 IS @@@
 ^^^^^^^^^^^^^^^^^^
     INPUT ID 37 IS ({|a|} + {|b|})
+=== PURELIST EXPRESSION: line ###:
+@@@ := [ a + b ]
+         ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := [ a + b ]
+             ^
+    {|b|}
 === BRACKETED EXPRESSION: line ###:
 @@@ := [ a + b ]
        ^^^^^^^^^
@@ -1461,6 +1504,14 @@ INPUT ID 37 IS @@@
 INPUT ID 38 IS @@@
 ^^^^^^^^^^^^^^^^^^
     INPUT ID 38 IS [{|a|} + {|b|}]
+=== PURELIST EXPRESSION: line ###:
+@@@ := {{ a + b }}
+          ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := {{ a + b }}
+              ^
+    {|b|}
 === BRACKETED EXPRESSION: line ###:
 @@@ := {{ a + b }}
        ^^^^^^^^^^^
@@ -1522,6 +1573,14 @@ INPUT ID 40 IS @@@
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
               c + d|}|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := a + b:
+       ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := a + b:
+           ^
+    {|b|}
 === BRACKETED EXPRESSION: line ###:
 @@@ := a + b:
 ^^^^^^^^^^^^
@@ -1581,6 +1640,14 @@ INPUT ID 42 IS @@@
     {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|x =
               c "+" d|}|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := a + b:
+       ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@@@ := a + b:
+           ^
+    {|b|}
 === BRACKETED EXPRESSION: line ###:
 @@@ := a + b:
 ^^^^^^^^^^^^
@@ -1653,6 +1720,22 @@ INPUT ID 60 is @@@
 INPUT ID 61 is @@@
 ^^^^^^^^^^^^^^^^^^
     INPUT ID 61 is ``X Y Z''
+=== PURELIST EXPRESSION: line ###:
+@<X1> := a + b * c
+         ^
+    {|a|}
+=== PURELIST EXPRESSION: line ###:
+@<X1> := a + b * c
+             ^
+    {|b|}
+=== PURELIST EXPRESSION: line ###:
+@<X1> := a + b * c
+                 ^
+    {|c|}
+=== PURELIST EXPRESSION: line ###:
+@<X1> := a + b * c
+             ^^^^^
+    {|{|b|} * {|c|}|}
 === BRACKETED EXPRESSION: line ###:
 @<X1> := a + b * c
 ^^^^^^^^^^^^^^^^^^

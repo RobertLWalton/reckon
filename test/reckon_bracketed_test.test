@@ -1,8 +1,8 @@
-*PARSER*:
-    trace [+ parser output]
-    trace [+ subexpression lines]
-    trace [+ subexpression elements]
-    trace [+ subexpression details]
+=== DERIVED EXPRESSION: line ##:
+[< X 1 >]
+^^^^^^^^^
+    [< X 1 >]
+!@@ := [< X 1 >]
 === BRACKETED EXPRESSION: line ##:
 [< X 1 >]
 ^^^^^^^^^
@@ -11,9 +11,25 @@
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
+=== PURELIST EXPRESSION: line ##:
+    < X 1 >]
+    ^^^^^
+    {|< X 1|}
+!@@ := "<" X 1:
+           .position[H] = PACKED_VEC
 ERROR: in line ##: missing operand; error operand inserted:
     < X 1 >]
             ^
+=== BRACKETED EXPRESSION: lines ##-##:
+[
+^
+    < X 1 >]
+^^^^^^^^^^^^
+    [{|< X 1|} > ERROR'OPERAND]
+!@@ := @@ ">" ERROR'OPERAND:
+           .terminator = "]"
+           .initiator = "["
+           .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
 [
 ^
@@ -24,11 +40,25 @@ ERROR: in line ##: missing operand; error operand inserted:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-!@@ := @@ ">" ERROR'OPERAND:
-           .terminator = "]"
-           .initiator = "["
+=== PURELIST EXPRESSION: line ##:
+(x + y)
+ ^
+    {|x|}
+!@@ := x:
            .position[H] = PACKED_VEC
-!@@ := "<" X 1:
+=== PURELIST EXPRESSION: line ##:
+(x + y)
+     ^
+    {|y|}
+!@@ := y:
+           .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+(x + y)
+^^^^^^^
+    ({|x|} + {|y|})
+!@@ := @@ "+" @@:
+           .terminator = ")"
+           .initiator = "("
            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
 (x + y)
@@ -38,29 +68,43 @@ ERROR: in line ##: missing operand; error operand inserted:
            .terminator = "<LF>"
            .position[H] = PACKED_VEC
            .initiator = [$ LOGICAL_LINE $]
-!@@ := @@ "+" @@:
-           .terminator = ")"
-           .initiator = "("
-           .position[H] = PACKED_VEC
-!@@ := x:
-           .position[H] = PACKED_VEC
-!@@ := y:
-           .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+{{x + y}}
+  ^
+    {|x|}
+!@@@ := x:
+            .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+{{x + y}}
+      ^
+    {|y|}
+!@@@ := y:
+            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
 {{x + y}}
 ^^^^^^^^^
     {{{|x|} + {|y|}}}
-!@@ := @@@:
-           .terminator = "<LF>"
-           .position[H] = PACKED_VEC
-           .initiator = [$ LOGICAL_LINE $]
 !@@@ := @@@ "+" @@@:
             .terminator = [< "}" "}" >]
             .initiator = [< "{" "{" >]
             .position[H] = PACKED_VEC
-!@@@ := x:
+=== BRACKETED EXPRESSION: line ##:
+{{x + y}}
+^^^^^^^^^
+    {{{|x|} + {|y|}}}
+!@@@ := @@@:
+            .terminator = "<LF>"
             .position[H] = PACKED_VEC
-!@@@ := y:
+            .initiator = [$ LOGICAL_LINE $]
+=== PURELIST EXPRESSION: lines ##-##:
+{
+^
+    | X Y Z|
+^^^^^^^^^^^^
+    }
+^^^^^
+    {|X Y Z|}
+!@@@ := X Y Z:
             .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
 {
@@ -74,6 +118,44 @@ ERROR: in line ##: missing operand; error operand inserted:
             .terminator = "<LF>"
             .initiator = [$ LOGICAL_LINE $]
             .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+``This is text X + Y with insert [X + Y].''
+                                  ^
+    {|X|}
+!@@@ := X:
+            .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+``This is text X + Y with insert [X + Y].''
+                                      ^
+    {|Y|}
+!@@@ := Y:
+            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+``This is text X + Y with insert [X + Y].''
+                                 ^^^^^^^
+    [{|X|} + {|Y|}]
+!@@@ := @@@ "+" @@@:
+            .terminator = "]"
+            .initiator = "["
+            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+``This is text X + Y with insert [X + Y].''
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {s: .terminator = "."|This is text X + Y with insert
+        [{|X|} + {|Y|}]|s}
+!@@@ := This is text X "+" Y with insert @@@:
+            .terminator = "."
+            .position[H] = PACKED_VEC
+            .type = s
+=== BRACKETED EXPRESSION: line ##:
+``This is text X + Y with insert [X + Y].''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s: .terminator = "."|This is text X + Y with insert
+          [{|X|} + {|Y|}]|s}''
+!@@@ := @@@:
+            .terminator = "''"
+            .initiator = "``"
+            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
 ``This is text X + Y with insert [X + Y].''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -83,19 +165,3 @@ ERROR: in line ##: missing operand; error operand inserted:
             .terminator = "<LF>"
             .position[H] = PACKED_VEC
             .initiator = [$ LOGICAL_LINE $]
-!@@@ := @@@:
-            .terminator = "''"
-            .initiator = "``"
-            .position[H] = PACKED_VEC
-!@@@ := This is text X "+" Y with insert @@@:
-            .terminator = "."
-            .position[H] = PACKED_VEC
-            .type = s
-!@@@ := @@@ "+" @@@:
-            .terminator = "]"
-            .initiator = "["
-            .position[H] = PACKED_VEC
-!@@@ := X:
-            .position[H] = PACKED_VEC
-!@@@ := Y:
-            .position[H] = PACKED_VEC

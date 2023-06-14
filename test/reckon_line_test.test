@@ -1,94 +1,3 @@
-*PARSER*:
-    trace [+ parser output]
-    trace [+ subexpression lines]
-    trace [+ subexpression elements]
-    trace [+ bracketed subexpressions]
-    print top level
-        block reckon:  selectors [code]
-                       options [end at le indent, end at line separator,
-                                end at outer closing,
-                                enable indented paragraph,
-                                enable header]
-                       paragraph lexical master "PARAGRAPH-CHECK"
-                       line lexical master "DATA-CHECK"
-                       line separator ";"
-        block standard:  selectors [code]
-                         options [end at le indent,
-                                  end at line separator,
-                                  end at outer closing,
-                                  enable indented paragraph,
-                                  enable header]
-                         paragraph lexical master "PARAGRAPH-CHECK"
-                         line lexical master "DATA-CHECK"
-                         line separator ";"
-        block TOP LEVEL:  selectors []
-                          options [end at le indent,
-                                   end at line separator,
-                                   end at outer closing,
-                                   enable indented paragraph,
-                                   enable header]
-    print indentation mark ""
-        block standard: indentation mark ":" [data paragraph]
-                        with parsing selectors [data]
-                        with parsing options [- end at indent,
-                                              + end at le indent,
-                                              - end at lt indent,
-                                              - end at paragraph break,
-                                              + end at line separator,
-                                              + end at outer closing]
-        block standard: indentation mark ":" [text]
-                        with parsing options [- end at indent,
-                                              + end at le indent,
-                                              - end at lt indent,
-                                              - end at paragraph break,
-                                              + end at line separator,
-                                              + end at outer closing]
-                        with implied header {p}
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
-        block standard: indentation mark ":" ... ";" [code]
-                        with parsing options [- end at indent,
-                                              + end at le indent,
-                                              - end at lt indent,
-                                              - end at paragraph break,
-                                              + end at line separator,
-                                              + end at outer closing]
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
-        block TOP LEVEL: indentation mark [< "*TEXT*" ":" >] [code]
-                         with parsing selectors [text]
-        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
-                         [TOP LEVEL]
-        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
-                         [TOP LEVEL]
-                         with parsing selectors [data]
-        block reckon: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
-                      []
-                      with parsing selectors [code]
-                      with parsing options [end at le indent,
-                                            end at line separator,
-                                            end at outer closing,
-                                            enable indented paragraph,
-                                            enable header]
-                      with paragraph lexical master "PARAGRAPH-CHECK"
-                      with line lexical master "DATA-CHECK"
-        block standard: indentation mark [< "*TOP*" "*LEVEL*" >] ... ";"
-                        []
-                        with parsing selectors [code]
-                        with parsing options [end at le indent,
-                                              end at line separator,
-                                              end at outer closing,
-                                              enable indented paragraph,
-                                              enable header]
-                        with paragraph lexical master "PARAGRAPH-CHECK"
-                        with line lexical master "DATA-CHECK"
-        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
-                         with parsing selectors []
-                         with parsing options [end at le indent,
-                                               end at line separator,
-                                               end at outer closing,
-                                               enable indented paragraph,
-                                               enable header]
 === BRACKETED EXPRESSION: line ##:
 This is a first logical line;;; and a second
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -167,6 +76,15 @@ WARNING: in lines ##-##: comment after indent that begins non-comment
               1 of the subparagraph "."|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|Line
               2 of the subparagraph "."|}|}
+=== PURELIST EXPRESSION: lines ##-##:
+    The third logical line of the indented
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        paragraph containing an indented
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        subparagraph:
+^^^^^^^^^^^^^^^^^^^^
+    {|The third logical line of the indented paragraph containing an
+      indented subparagraph|}
 === BRACKETED EXPRESSION: lines ##-##:
     The third logical line of the indented
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,6 +181,10 @@ And a logical line ending with an indented paragraph:
                         "."|}|}|}
          {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|The
               fourth logical line of the indented paragraph "."|}|}
+=== PURELIST EXPRESSION: line ##:
+And a logical line ending with an indented paragraph:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {|And a logical line ending with an indented paragraph|}
 === BRACKETED EXPRESSION: lines ##-##:
 And a logical line ending with an indented paragraph:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -350,6 +272,16 @@ See http://forecast.weather.gov/MapClick.php?#
 "<LF>"
 ^^^^^^
     "<LF>"
+=== PURELIST EXPRESSION: line ##:
+x = "This is a long "#
+^
+    {|x|}
+=== PURELIST EXPRESSION: lines ##-##:
+x = "This is a long "#
+    ^^^^^^^^^^^^^^^^^^
+   #"sentence."
+^^^^^^^^^^^^^^^
+    {|"This is a long sentence."|}
 === BRACKETED EXPRESSION: lines ##-##:
 x = "This is a long "#
 ^^^^^^^^^^^^^^^^^^^^^^

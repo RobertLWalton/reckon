@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 14 03:23:55 EDT 2023
+// Date:	Wed Jun 14 04:04:40 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,7 +46,7 @@ const char * html_postfix[] = {
 bool lexeme_test = false;
 bool output_parse = false;
 bool subexpression_parse = false;
-bool subexpression_detail = false;
+bool parse_detail = false;
 bool output_html = false;
 
 int main ( int argc, const char * argv[] )
@@ -64,8 +64,7 @@ int main ( int argc, const char * argv[] )
 	TEST ( "--output-parse", output_parse )
 	TEST ( "--subexpression-parse",
 	       subexpression_parse )
-	TEST ( "--subexpression-detail",
-	       subexpression_detail )
+	TEST ( "--parse-detail", parse_detail )
 	TEST ( "--output-html", output_html )
 	{
 	    std::cerr
@@ -142,7 +141,7 @@ int main ( int argc, const char * argv[] )
     TAB::flags operator_subexpressions =
         1ull << trace_index;
 
-    if ( subexpression_parse || subexpression_detail )
+    if ( subexpression_parse )
 	PAR::default_parser->trace_flags |=
 	    PAR::TRACE_PARSER_OUTPUT
 	    +
@@ -152,7 +151,7 @@ int main ( int argc, const char * argv[] )
 	    +
 	    PAR::TRACE_SUBEXPRESSION_ELEMENTS;
 
-    if ( subexpression_detail )
+    if ( parse_detail )
 	PAR::default_parser->trace_flags |=
 	    PAR::TRACE_SUBEXPRESSION_DETAILS;
 

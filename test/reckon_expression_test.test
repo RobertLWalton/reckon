@@ -1,18 +1,157 @@
-*PARSER*:
-    trace [+ parser output]
-    trace [+ subexpression lines]
-    trace [+ subexpression details]
+=== PURELIST EXPRESSION: line ##:
+x + y
+^
+    {|x|}
+!@@ := x:
+           .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+x + y
+    ^
+    {|y|}
+!@@ := y:
+           .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
 x + y
 ^^^^^
+    {|x|} + {|y|}
 !@@ := @@ "+" @@:
            .terminator = "<LF>"
            .initiator = [$ LOGICAL_LINE $]
            .position[H] = PACKED_VEC
-!@@ := x:
+=== PURELIST EXPRESSION: line ##:
+min (X, Y) <--:
+     ^
+    {|X|}
+!@@ := X:
            .position[H] = PACKED_VEC
-!@@ := y:
+=== PURELIST EXPRESSION: line ##:
+min (X, Y) <--:
+        ^
+    {|Y|}
+!@@ := Y:
            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+min (X, Y) <--:
+    ^^^^^^
+    ({|X|}, {|Y|})
+!@@ := @@ @@:
+           .terminator = ")"
+           .initiator = "("
+           .separator = ","
+           .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+        return Y
+        ^^^^^^^^
+    return Y
+!@@ := return Y:
+           .terminator = "<LF>"
+           .position[H] = PACKED_VEC
+           .initiator = [$ LOGICAL_LINE $]
+=== BRACKETED EXPRESSION: lines ##-##:
+    if X > Y:
+            ^
+        return Y
+^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              return Y|}|}
+!@@ := @@:
+           .terminator = [$ INDENTED_PARAGRAPH $]
+           .position[H] = PACKED_VEC
+           .initiator = ":"
+=== PURELIST EXPRESSION: line ##:
+    if X > Y:
+       ^
+    {|X|}
+!@@ := X:
+           .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+    if X > Y:
+           ^
+    {|Y|}
+!@@@ := Y:
+            .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+    if X > Y:
+       ^^^^^
+    {|{|X|} > {|Y|}|}
+!@@@ := @@ ">" @@@:
+            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: lines ##-##:
+    if X > Y:
+    ^^^^^^^^^
+        return Y
+^^^^^^^^^^^^^^^^
+    if {|{|X|} > {|Y|}|}:
+        return Y
+!@@@ := if @@@ @@:
+            .terminator = "<LF>"
+            .initiator = [$ LOGICAL_LINE $]
+            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: line ##:
+        return X
+        ^^^^^^^^
+    return X
+!@@@ := return X:
+            .terminator = "<LF>"
+            .position[H] = PACKED_VEC
+            .initiator = [$ LOGICAL_LINE $]
+=== BRACKETED EXPRESSION: lines ##-##:
+    else:
+        ^
+        return X
+^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
+              return X|}|}
+!@@@ := @@@:
+            .terminator = [$ INDENTED_PARAGRAPH $]
+            .position[H] = PACKED_VEC
+            .initiator = ":"
+=== BRACKETED EXPRESSION: lines ##-##:
+    else:
+    ^^^^^
+        return X
+^^^^^^^^^^^^^^^^
+    else:
+        return X
+!@@@ := else @@@:
+            .terminator = "<LF>"
+            .initiator = [$ LOGICAL_LINE $]
+            .position[H] = PACKED_VEC
+=== BRACKETED EXPRESSION: lines ##-##:
+min (X, Y) <--:
+              ^
+    if X > Y:
+^^^^^^^^^^^^^
+        return Y
+^^^^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        return X
+^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|if
+              {|{|X|} > {|Y|}|}
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|return Y|}|}|}
+         {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|else
+              {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+                   ":"|
+                   {"": .terminator = "<LF>", .initiator =
+                        [$ LOGICAL_LINE $]|return X|}|}|}|}
+!@@@ := @@@ @@@:
+            .terminator = [$ INDENTED_PARAGRAPH $]
+            .position[H] = PACKED_VEC
+            .initiator = ":"
+=== PURELIST EXPRESSION: line ##:
+min (X, Y) <--:
+^^^^^^^^^^
+    {|min ({|X|}, {|Y|})|}
+!@@@ := min @@:
+            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
 min (X, Y) <--:
 ^^^^^^^^^^^^^^^
@@ -24,54 +163,14 @@ min (X, Y) <--:
 ^^^^^^^^^
         return X
 ^^^^^^^^^^^^^^^^
-!@@ := @@ "<--" @@ @@:
-           .terminator = "<LF>"
-           .initiator = [$ LOGICAL_LINE $]
-           .position[H] = PACKED_VEC
-!@@ := min @@:
-           .position[H] = PACKED_VEC
-!@@ :=:
-           .position[H] = PACKED_VEC
-!@@ := @@ @@@:
-           .terminator = [$ INDENTED_PARAGRAPH $]
-           .position[H] = PACKED_VEC
-           .initiator = ":"
-!@@ := @@@ @@@:
-           .terminator = ")"
-           .initiator = "("
-           .separator = ","
-           .position[H] = PACKED_VEC
-!@@ := if @@@ @@@:
-           .terminator = "<LF>"
-           .initiator = [$ LOGICAL_LINE $]
-           .position[H] = PACKED_VEC
-!@@@ := else @@@:
+    {|min ({|X|}, {|Y|})|} <-- {}:
+        if {|{|X|} > {|Y|}|}:
+            return Y
+        else:
+            return X
+!@@@ := @@@ "<--" @@@ @@@:
             .terminator = "<LF>"
             .initiator = [$ LOGICAL_LINE $]
             .position[H] = PACKED_VEC
-!@@@ := X:
+!@@@ :=:
             .position[H] = PACKED_VEC
-!@@@ := Y:
-            .position[H] = PACKED_VEC
-!@@@ := @@@ ">" @@@:
-            .position[H] = PACKED_VEC
-!@@@ := @@@:
-            .terminator = [$ INDENTED_PARAGRAPH $]
-            .position[H] = PACKED_VEC
-            .initiator = ":"
-!@@@ := @@@:
-            .terminator = [$ INDENTED_PARAGRAPH $]
-            .position[H] = PACKED_VEC
-            .initiator = ":"
-!@@@ := X:
-            .position[H] = PACKED_VEC
-!@@@ := Y:
-            .position[H] = PACKED_VEC
-!@@@ := return Y:
-            .terminator = "<LF>"
-            .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
-!@@@ := return X:
-            .terminator = "<LF>"
-            .position[H] = PACKED_VEC
-            .initiator = [$ LOGICAL_LINE $]
