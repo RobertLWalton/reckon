@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 13 16:42:58 EDT 2023
+// Date:	Wed Jun 14 03:23:55 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 # include <ll_parser_standard.h>
 # define REC reckon
 # define PAR ll::parser
+# define TAB ll::parser::table
 # define PARSTD ll::parser::standard
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
@@ -105,6 +106,56 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin,
 	  min::marked_line_format );
 
+    PAR::default_parser->trace_flags |=
+	PAR::TRACE_PARSER_COMMANDS
+	+
+	PAR::TRACE_SUBEXPRESSION_LINES;
+
+    if ( output_parse )
+	PAR::default_parser->trace_flags |=
+	    PAR::TRACE_PARSER_OUTPUT
+	    +
+	    PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+
+    int trace_index;
+    min::locatable_gen bracketed_subexpressions_name
+        ( min::new_lab_gen
+	      ( "bracketed", "subexpressions" ) );
+    trace_index = TAB::get_index
+	  ( PAR::default_parser->trace_flag_name_table,
+	    bracketed_subexpressions_name );
+    MIN_ASSERT ( trace_index >= 0,
+                 "no bracketed subexpressions"
+		 " trace flag" );
+    TAB::flags bracketed_subexpressions =
+        1ull << trace_index;
+
+    min::locatable_gen operator_subexpressions_name
+        ( min::new_lab_gen
+	      ( "operator", "subexpressions" ) );
+    trace_index = TAB::get_index
+	  ( PAR::default_parser->trace_flag_name_table,
+	    operator_subexpressions_name );
+    MIN_ASSERT ( trace_index >= 0,
+                 "no operator subexpressions"
+		 " trace flag" );
+    TAB::flags operator_subexpressions =
+        1ull << trace_index;
+
+    if ( subexpression_parse || subexpression_detail )
+	PAR::default_parser->trace_flags |=
+	    PAR::TRACE_PARSER_OUTPUT
+	    +
+	    bracketed_subexpressions
+	    +
+	    operator_subexpressions
+	    +
+	    PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+
+    if ( subexpression_detail )
+	PAR::default_parser->trace_flags |=
+	    PAR::TRACE_SUBEXPRESSION_DETAILS;
+
     if ( output_html )
     {
 	min::printer printer = PAR::default_parser->printer;
@@ -114,8 +165,6 @@ int main ( int argc, const char * argv[] )
 	min::tag(printer) << "<pre>";
 	    // Without std::endl.
 
-	PAR::default_parser->trace_flags |=
-	    PAR::TRACE_PARSER_COMMANDS;
 	PAR::parse();
 
 	for ( const char ** p = html_postfix; * p; ++ p )
@@ -124,8 +173,6 @@ int main ( int argc, const char * argv[] )
 	return 0;
     }
 
-    PAR::default_parser->trace_flags |=
-	PAR::TRACE_PARSER_COMMANDS;
     PAR::parse();
 
     return 0;
