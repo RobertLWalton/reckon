@@ -173,7 +173,7 @@ by teaching courses at Suffolk University with the help of
 Paul Ezust, and by the teachings of Thomas
 Cheatham and Stuart Shieber.}}
 
-\date{May 7, 2023}
+\date{June 25, 2023}
 
 \maketitle
 
@@ -301,27 +301,25 @@ You can use RECKON as a calculator by typing into it expressions to
 be evaluated, assignments of values to variables, and definitions
 of functions, predicates, and blocks.  Some examples involving numbers are:
 
-\begin{indpar}\begin{verbatim}
-> 9
-9
-> 9 + 8
-17
-> x = 9
-9
-> y = 9 + 8
-17
-> x + y
-26
-> f (B, C, X) = B * X + C
-f (B, C, X) evaluates to (B * X + C)
-> f (10, x, y)
-179
-\end{verbatim}\end{indpar}
+\newcommand{\rcode}[3]{%
+	\begin{tabular}{|r|p{5.3in}|}%
+	\hline #1: & #2 \\\hline\end{tabular}\\#3}
 
-Here the `\TT{>~}' at the beginning of some lines is the RECKON \key{prompt}
-that tells you its OK to input an expression to be evaluated.
-Except for this prompt, lines beginning with `\TT{> }' are input lines to
-a RECKON interpreter, and other lines are output lines.
+\begin{indpar}[0.2in] \tt
+\rcode{1}{9}{9} \\
+\rcode{2}{9 + 8}{17} \\
+\rcode{3}{x = 9}{9} \\
+\rcode{4}{y = 9 + 8}{17} \\
+\rcode{5}{x + y}{26} \\
+\rcode{6}{f (B, C, X) = B * X + C}%
+         {f (B, C, X) {\rm evaluates to} (B * X + C)} \\
+\rcode{7}{f (10, x, y)}{179}
+\end{indpar}
+
+This is a trace of a 7 line input file.  The input lines are in
+boxes and are preceeded by line numbers, \TT{1:}, \TT{2:}, etc.
+Unboxed lines following a boxed input line represent the output that
+results when the input line is executed.
 
 Note that in RECKON names must be separated by whitespace.  Thus
 `\TT{b * x}' names three things: the variable `\TT{b}', the
@@ -341,26 +339,32 @@ and \TT{`{}`[[g]]'{}'} would evaluate to \TT{`hello'}.  But we do the
 reverse of this, so in RECKON \TT{`{}`[g]'{}'} evaluates to \TT{`hello'}
 and \TT{`{}`[[g]]'{}'} evaluates to \TT{`[g]'}.}
 
-\begin{indpar}
-\verb|> g = `hello'| \\
-hello \\
-\verb|> `[g] there'| \\
-hello there \\
-\verb|> z = ``I thought he said `[g]'.''| \\
-I thought he said `hello'. \\
-\verb|>{p} // Introduces paragraph.| \\
-\verb|+This document is meant to be read.| \\
-\verb|+Reading this document is good, but...| \\
-\verb|+{br}{br} // {br} is a line break that ends a line.| \\
-\verb|+[z]| \\
-\verb|+// A {p} paragraph ends with a blank line.| \\
-\verb|+|
+\newenvironment{renv}%
+	{\begin{tabular}{|r|p{5.3in}|}\hline}%
+	{\hline\end{tabular}}
 
+\begin{indpar} \tt
+\rcode{~1}{g = `hello'}{{\rm hello}} \\
+\rcode{~2}{`[g] there'}{{\rm hello there}} \\
+\rcode{~3}{z = `{}`I thought he said `[g]'.'{}'}%
+         {{\rm I thought he said `hello'.}} \\
+\begin{renv}
+4: & {p} // Introduces paragraph. \\
+5: & This document is meant to be read. \\
+6: & Reading this document is good, but... \\
+7: & {br}{br} // {br} is a line break that ends a line. \\
+8: & [z] \\
+9: & // A {p} paragraph ends with a blank line. \\
+10: & \\
+\end{renv}
+
+{\rm
 This document is meant to be read.  Reading this document is good, but\ldots
 \\[2ex]
-I thought he said `hello'. \\
-\verb|> `When you add [x] and [y] you get [x + y].'| \\
-When you add 9 and 17 you get 26.
+I thought he said `hello'. 
+} \\
+\rcode{11}{`When you add [x] and [y] you get [x + y].'}%
+          {{\rm When you add 9 and 17 you get 26.}}
 \end{indpar}
 
 Modern math computes with expressions, and not just numbers.
