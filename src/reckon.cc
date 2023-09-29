@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 14 04:04:40 EDT 2023
+// Date:	Fri Sep 29 05:29:17 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,7 @@ const char * html_postfix[] = {
     NULL };
 
 bool lexeme_test = false;
+bool parse = false;
 bool output_parse = false;
 bool subexpression_parse = false;
 bool parse_detail = false;
@@ -61,6 +62,7 @@ int main ( int argc, const char * argv[] )
 	        y = true; \
 	    else
 	TEST ( "--lexeme-test", lexeme_test )
+	TEST ( "--parse", parse )
 	TEST ( "--output-parse", output_parse )
 	TEST ( "--subexpression-parse",
 	       subexpression_parse )
@@ -75,6 +77,11 @@ int main ( int argc, const char * argv[] )
 #	undef TEST
     }
     if ( found_error ) exit ( 1 );
+
+    if ( subexpression_parse )
+        output_parse = true;
+    if ( output_parse )
+        parse = true;
 
     if ( lexeme_test )
     {
@@ -105,74 +112,81 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cin,
 	  min::marked_line_format );
 
-    PAR::default_parser->trace_flags |=
-	PAR::TRACE_PARSER_COMMANDS
-	+
-	PAR::TRACE_SUBEXPRESSION_LINES;
-
-    if ( output_parse )
-	PAR::default_parser->trace_flags |=
-	    PAR::TRACE_PARSER_OUTPUT
-	    +
-	    PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-
-    int trace_index;
-    min::locatable_gen bracketed_subexpressions_name
-        ( min::new_lab_gen
-	      ( "bracketed", "subexpressions" ) );
-    trace_index = TAB::get_index
-	  ( PAR::default_parser->trace_flag_name_table,
-	    bracketed_subexpressions_name );
-    MIN_ASSERT ( trace_index >= 0,
-                 "no bracketed subexpressions"
-		 " trace flag" );
-    TAB::flags bracketed_subexpressions =
-        1ull << trace_index;
-
-    min::locatable_gen operator_subexpressions_name
-        ( min::new_lab_gen
-	      ( "operator", "subexpressions" ) );
-    trace_index = TAB::get_index
-	  ( PAR::default_parser->trace_flag_name_table,
-	    operator_subexpressions_name );
-    MIN_ASSERT ( trace_index >= 0,
-                 "no operator subexpressions"
-		 " trace flag" );
-    TAB::flags operator_subexpressions =
-        1ull << trace_index;
-
-    if ( subexpression_parse )
-	PAR::default_parser->trace_flags |=
-	    PAR::TRACE_PARSER_OUTPUT
-	    +
-	    bracketed_subexpressions
-	    +
-	    operator_subexpressions
-	    +
-	    PAR::TRACE_SUBEXPRESSION_ELEMENTS;
-
-    if ( parse_detail )
-	PAR::default_parser->trace_flags |=
-	    PAR::TRACE_SUBEXPRESSION_DETAILS;
-
     if ( output_html )
     {
-	min::printer printer = PAR::default_parser->printer;
+	min::printer printer =
+	    PAR::default_parser->printer;
 	printer << min::output_html;
 	for ( const char ** p = html_prefix; * p; ++ p )
 	    min::tag(printer) << * p << std::endl;
 	min::tag(printer) << "<pre>";
 	    // Without std::endl.
+    }
+
+    if ( parse )
+    {
+
+	PAR::default_parser->trace_flags |=
+	    PAR::TRACE_PARSER_COMMANDS
+	    +
+	    PAR::TRACE_SUBEXPRESSION_LINES;
+
+	if ( output_parse )
+	    PAR::default_parser->trace_flags |=
+		PAR::TRACE_PARSER_OUTPUT
+		+
+		PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+
+	int trace_index;
+	min::locatable_gen bracketed_subexpressions_name
+	    ( min::new_lab_gen
+		  ( "bracketed", "subexpressions" ) );
+	trace_index = TAB::get_index
+	      ( PAR::default_parser->
+	             trace_flag_name_table,
+		bracketed_subexpressions_name );
+	MIN_ASSERT ( trace_index >= 0,
+		     "no bracketed subexpressions"
+		     " trace flag" );
+	TAB::flags bracketed_subexpressions =
+	    1ull << trace_index;
+
+	min::locatable_gen operator_subexpressions_name
+	    ( min::new_lab_gen
+		  ( "operator", "subexpressions" ) );
+	trace_index = TAB::get_index
+	      ( PAR::default_parser->
+	             trace_flag_name_table,
+		operator_subexpressions_name );
+	MIN_ASSERT ( trace_index >= 0,
+		     "no operator subexpressions"
+		     " trace flag" );
+	TAB::flags operator_subexpressions =
+	    1ull << trace_index;
+
+	if ( subexpression_parse )
+	    PAR::default_parser->trace_flags |=
+		bracketed_subexpressions
+		+
+		operator_subexpressions;
+
+	if ( parse_detail )
+	    PAR::default_parser->trace_flags |=
+		PAR::TRACE_SUBEXPRESSION_DETAILS;
 
 	PAR::parse();
 
-	for ( const char ** p = html_postfix; * p; ++ p )
-	    min::tag(printer) << * p << std::endl;
-	                 
-	return 0;
     }
 
-    PAR::parse();
+    if ( output_html )
+    {
+	min::printer printer =
+	    PAR::default_parser->printer;
+
+	for ( const char ** p = html_postfix; * p;
+	                                      ++ p )
+	    min::tag(printer) << * p << std::endl;
+    }
 
     return 0;
 }
