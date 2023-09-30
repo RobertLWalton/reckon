@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 29 05:29:17 EDT 2023
+// Date:	Sat Sep 30 03:30:37 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,20 @@ bool output_parse = false;
 bool subexpression_parse = false;
 bool parse_detail = false;
 bool output_html = false;
+
+static void remove_tokens
+    ( PAR::parser parser,
+      PAR::output output )
+{
+    MIN_REQUIRE ( parser->finished_tokens == 1 );
+    parser->printer << parser->first->value << min::eol;
+    MIN_REQUIRE
+        ( parser->first->next != parser->first );
+    PAR::remove ( parser,
+                  parser->first,
+		  parser->first->next );
+    -- parser->finished_tokens;
+}
 
 int main ( int argc, const char * argv[] )
 {
@@ -176,6 +190,13 @@ int main ( int argc, const char * argv[] )
 
 	PAR::parse();
 
+    }
+    else
+    {
+        min::locatable_var<PAR::output> output;
+	PAR::init ( output, ::remove_tokens, NULL );
+	PAR::output_ref ( PAR::default_parser ) =
+	    output;
     }
 
     if ( output_html )
