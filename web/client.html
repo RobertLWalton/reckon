@@ -1,13 +1,32 @@
-<html>
-<!--
-File:   client.html
-Author: Robert L Walton <walton@acm.org>
-Date:   Mon Dec 11 14:27:15 UTC 2023
+<?php
 
-The authors have placed EPM (its files and the
-content of these files) in the public domain; they
-make no warranty and accept no liability for EPM.
--->
+// File:   client.html
+// Author: Robert L Walton <walton@acm.org>
+// Date:   Mon Dec 11 15:25:07 UTC 2023
+//
+// The authors have placed EPM (its files and the
+// content of these files) in the public domain; they
+// make no warranty and accept no liability for EPM.
+
+if ( $rec_method != 'GET' )
+    error ( "bad method: $rec_method" );
+
+if ( ! isset ( $_GET['ID'] ) )
+    error ( "ID=... not set" );
+$ID = $_GET['ID'];
+if ( $ID == '' )
+{
+    $rdesc = @fopen ( '/dev/random', 'r' );
+    if ( $rdesc === false )
+	error ( 'cannot open /dev/random for' .
+	        ' reading' );
+    $ID = bin2hex ( @fread ( $rdesc, 16 ) );
+    fclose ( $rdesc );
+}
+
+?>
+
+<html>
 <head>
 
 <meta http-equiv="Cache-Control"
@@ -137,10 +156,10 @@ The following is an 80 character long test line.
 <script>
 window.onresize = SAVE_SIZE;
 window.onunload = SAVE_SIZE;
+const storage = window.localStorage;
 
 function SAVE_SIZE ( event )
 {
-    const storage = window.localStorage;
     storage.setItem ( 'width', window.outerWidth );
     storage.setItem ( 'width', window.outerHeight );
     storage.setItem ( 'screenX', window.screenX );
@@ -154,6 +173,9 @@ var output = document.getElementById ( 'output' );
 var file = null;
 var xhttp = new XMLHttpRequest();
 var request_in_progress = false;
+
+const ID = '<?php echo ( $ID );?>';
+storage.setItem ( 'ID', ID );
 
 function PROGRAM_CHANGE ( event )
 {
@@ -194,7 +216,8 @@ function RUN ()
 	    ( "Content-Type",
 	      "application/x-www-form-urlencoded" );
 	request_in_progress = true;
-        data = 'op=run'
+	data = 'ID=' + ID
+	     + '&op=run'
              + '&filename='
 	     + encodeURIComponent (  file.name )
 	     + '&contents='
