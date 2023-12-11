@@ -2,7 +2,7 @@
 <!--
 File:   startup.html
 Author: Robert L Walton <walton@acm.org>
-Date:   Mon Dec 11 12:33:53 UTC 2023
+Date:   Mon Dec 11 13:48:15 UTC 2023
 
 The authors have placed EPM (its files and the
 content of these files) in the public domain; they
@@ -12,14 +12,26 @@ make no warranty and accept no liability for EPM.
 <script>
 var oldwin = window.open ( 'client.html', 'reckon' );
 oldwin.close();
-var width = screen.availWidth / 3;
-var height = screen.availHeight / 2;
+const storage = window.localStorage;
+var width = storage.getItem ( 'width' );
+var height = storage.getItem ( 'height' );
+var screenX = storage.getItem ( 'screenX' );
+var screenY = storage.getItem ( 'screenY' );
+
+if ( width === null )
+    width = screen.availWidth / 3;
+if ( height === null )
+    height = screen.availHeight / 2;
+if ( screenX === null )
+    screenX = screen.availWidth - width;
+if ( screenY === null )
+    screenY = screen.availHeight / 4;
 var win = window.open
     ( 'index.php?client=yes', 'reckon',
       'height=' + height + 'px,' +
       'width=' + width + 'px,' +
-      'screenX=' + 2 * width + 'px,' +
-      'screenY=' + height / 2 + 'px' );
+      'screenX=' + screenX + 'px,' +
+      'screenY=' + screenY + 'px' );
 win.focus(); // Needed for Firefox but not Chrome.
 </script>
 </head>
