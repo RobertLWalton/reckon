@@ -2,7 +2,7 @@
 <!--
 File:   client.html
 Author: Robert L Walton <walton@acm.org>
-Date:   Mon Dec 11 11:03:04 UTC 2023
+Date:   Mon Dec 11 11:42:39 UTC 2023
 
 The authors have placed EPM (its files and the
 content of these files) in the public domain; they
@@ -138,7 +138,11 @@ The following is an 80 character long test line.
 var filelist = document.getElementById ( 'filelist' );
 var choose_program = document.getElementById ( 'choose_program' );
 var output = document.getElementById ( 'output' );
+
 var file = null;
+var xhttp = new XMLHttpRequest();
+var request_in_progress = false;
+
 function PROGRAM_CHANGE ( event )
 {
     if ( filelist.files.length == 1 )
@@ -155,11 +159,38 @@ function RUN ()
 	return;
     }
 
+    xhttp.onreadystatechange = function() {
+	if ( this.readyState != XMLHttpRequest.DONE
+             ||
+	     ! request_in_progress )
+	    return;
+
+	if ( this.status != 200 )
+	{
+	    alert ( 'Bad response status ('
+		   + this.status
+		   + ') from server' );
+	    return;
+	}
+	output.innerText = this.responseText;
+    };
+
     const reader = new FileReader();
     reader.onload = (e) => {
-	output.innerText = reader.result;
+	xhttp.open ( 'POST', "index.php", true );
+	xhttp.setRequestHeader
+	    ( "Content-Type",
+	      "application/x-www-form-urlencoded" );
+	request_in_progress = true;
+        data = 'op=run'
+             + '&filename='
+	     + encodeURIComponent (  file.name )
+	     + '&contents='
+	     + encodeURIComponent ( reader.result );
+        xhttp.send ( data );
     };
     reader.readAsText ( file );
+ 
 }
 </script>
 
