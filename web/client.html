@@ -2,7 +2,7 @@
 <!--
 File:   client.html
 Author: Robert L Walton <walton@acm.org>
-Date:   Mon Dec 11 06:45:12 UTC 2023
+Date:   Mon Dec 11 11:03:04 UTC 2023
 
 The authors have placed EPM (its files and the
 content of these files) in the public domain; they
@@ -64,12 +64,15 @@ make no warranty and accept no liability for EPM.
 
     nav button {
 	font-size: var(--large-font-size);
-	padding: 0px var(--padding);
-	margin: var(--padding);
 	transition-duration: 0.4s;
     }
     nav button:hover {
 	background-color: var(--bg-very-light-red);
+    }
+
+    input {
+	visibility: hidden;
+	width: 0px;
     }
 
     section header {
@@ -102,7 +105,13 @@ RECKON
 </header>
 
 <nav>
-    <button type="button">RUN</button>
+    <input id='filelist' type='file'
+	   onchange='PROGRAM_CHANGE()'>
+    <button type="button" id='choose_program'
+            onclick='filelist.click()'>
+	PROGRAM</button>
+    <button type="button" onclick='RUN()'>
+	RUN</button>
     <button type="button">COMPILE</button>
     <button type="button">PARSE</button>
 </nav>
@@ -124,6 +133,35 @@ The following is an 80 character long test line.
 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 </pre>
 </section>
+
+<script>
+var filelist = document.getElementById ( 'filelist' );
+var choose_program = document.getElementById ( 'choose_program' );
+var output = document.getElementById ( 'output' );
+var file = null;
+function PROGRAM_CHANGE ( event )
+{
+    if ( filelist.files.length == 1 )
+    {
+	file = filelist.files[0]
+	choose_program.innerText = file.name;
+    }
+}
+function RUN ()
+{
+    if ( file === null )
+    {
+	alert ( 'No Program File Selected');
+	return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+	output.innerText = reader.result;
+    };
+    reader.readAsText ( file );
+}
+</script>
 
 </body>
 </html>
