@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Mon Dec 11 15:25:07 UTC 2023
+// Date:   Tue Dec 12 05:52:58 UTC 2023
 //
 // The authors have placed EPM (its files and the
 // content of these files) in the public domain; they
@@ -16,6 +16,20 @@ if ( ! isset ( $_GET['ID'] ) )
 $ID = $_GET['ID'];
 if ( $ID == '' )
 {
+    clearstatcache();
+    umask ( 07 );
+
+    if ( isset ( $rec_random_throttle ) )
+	$dt = $rec_random_throttle;
+    else
+	$dt = 10;
+    $t = @filemtime ( "$rec_data/random_throttle" );
+    if ( $t === false ) $t = 0;
+    $e = time() - $t;
+    if ( $e < $dt ) usleep ( ( $dt - $e ) * 1000000 );
+    @mkdir ( "$rec_data", 0770 );
+    @touch ( "$rec_data/random_throttle" );
+
     $rdesc = @fopen ( '/dev/random', 'r' );
     if ( $rdesc === false )
 	error ( 'cannot open /dev/random for' .
@@ -23,6 +37,10 @@ if ( $ID == '' )
     $ID = bin2hex ( @fread ( $rdesc, 16 ) );
     fclose ( $rdesc );
 }
+
+session_name ( $rec_session_name );
+session_start();
+$_SESSION['ID'] = $ID;
 
 ?>
 
