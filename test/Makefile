@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Sep 29 05:31:02 EDT 2023
+# Date:		Fri Dec 15 03:15:01 UTC 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -154,17 +154,17 @@ reckon:		\
 
 %.html:	%.in reckon
 	rm -f $*.html
-	${RUNENV} reckon ${TFLAGS} --output-html \
+	${RUNENV} ./reckon ${TFLAGS} --output-html \
 	          < $*.in > $*.html
 
 reckon_lexeme_test.out:	\
 	    reckon reckon_lexeme_test.in
 	rm -f $*.out
-	${RUNENV} reckon --lexeme-test < $*.in > $*.out
+	${RUNENV} ./reckon --lexeme-test < $*.in > $*.out
 
 %.out:	%.in reckon
 	rm -f $*.out
-	${RUNENV} reckon ${TFLAGS} < $*.in > $*.out
+	${RUNENV} ./reckon ${TFLAGS} < $*.in > $*.out
 
 clean:
 	rm -f ${PARSER_TESTS:=.out} reckon *.o
