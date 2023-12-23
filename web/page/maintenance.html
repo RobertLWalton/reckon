@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Dec 22 20:02:44 EST 2023
+Date:	Sat Dec 23 07:51:19 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -28,6 +28,7 @@ make no warranty and accept no liability for RECKON.
 <li><a href="#installation">Installation</a>
 <li><a href="#users">Users</a>
 <li><a href="#throttling">Throttling</a>
+<li><a href="#logging">Logging</a>
 </ul>
 
 <h2 id='directories'>Directories</h2>
@@ -36,7 +37,7 @@ make no warranty and accept no liability for RECKON.
 The following directories are created when RECKON is installed and run:
 
 <ul class='itemize'>
-<li> <b>IDIR</b> The installation directory, contining
+<li> <b>IDIR</b> The installation directory, containing
      <code>IDIR/min</code>,
      <code>IDIR/mex</code>,
      <code>IDIR/layered</code>, and
@@ -61,7 +62,6 @@ Subdirectories of <code>DDIR</code> are:
 <li> <b>IDIR/throttle</b>  Directory in which information is kept to
      throttle creation of users.  See <a href='#throttling'>Throttling</a>.
 </ul>
-
 
 <h2 id='installation'>Installation</h2>
 
@@ -160,8 +160,63 @@ during startup and loaded into the local memory by the client page.
 The first time a user submits a file to the server, the directory
 <code>DDIR/users/ID</code> is created.  Runs for the user are executed
 in this directory.
-
+<p>
 User ID's are 32 digit random hexadecimal numbers.
+</p>
+
+<h2 id='throttling'>Throttling</h2>
+
+The rate at which new user IDs can be created is limited, a process
+called <b>throttling</b>.
+
+When a new user ID needs to be created, the following steps are
+followed:
+
+<ol class='steps'>
+<li>The file <code>DDIR/log/IPADDR.log</code> is locked, where IPADDR
+is the IP address of the browser requesting an ID.  If the file does
+not exist, it is first created.
+<p> Then the file is read and the <code>throttle_limit</code> (default 4)
+entry from the end is examined to see when the ID creation it records
+happended.  If this time is less than
+<code>throttle_period</code> seconds (default 24*60*60 = 1 day),
+the request is redirected to a page that just contains the message
+<code>throttle_message</code> (default, `WAIT 24 HOURS AND TRY AGAIN'),
+and the file is unlocked.
+
+<li>The file <code>DDIR/log/id.log</code> is locked and its modification
+time is read.  If the current time minus the modification time is less
+than <code>throttle_time</code> seconds (default 10), the program sleeps
+for this difference time.
+
+<li>The ID is created by reading <code>random_device</code>
+(default <code>/dev/urandom</code>), log lines are
+written to both log files (see <a href='#logging'>logging</a>), and
+both log files are unlocked.
+</ol>
+
+<h2 id='logging'>Logging</h2>
+
+<p>
+Log entries are each single lines appended to log files.  Each
+line consists of elements separated by a single space.
+There is NO space before the first element or after the last
+element.  A missing element is indicated by consecutive single spaces.
+<p>
+The first element is always the time of day to the nearest second in
+the format <code>Y-m-d\Th:i:sT</code> where Y is the year, m the month,
+d the day, <code>\T</code> the literal character <code>T</code>,
+h the hour, i the minute, s the second, and T the time zone.  The
+time zone is the value of <code>time_zone</code>
+(default <code>'America/New_York'</code>).
+Example: <code>2023-12-23T08:07:25EST</code>.
+
+<ul class='itemize'>
+<li> <b>ID Creation Logging</b>  Log entries are written to
+<code>DDIR/log/IPADDR.log</code> and <code>DDIR/log/id.log</code>
+at times described under <a href=#throttling>throttling</a>.
+The format is:
+</ul>
 
 
 </body>
