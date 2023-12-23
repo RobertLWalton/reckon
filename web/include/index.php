@@ -2,7 +2,7 @@
 
 // File:   index.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Fri Dec 22 03:31:05 EST 2023
+// Date:   Fri Dec 22 19:59:18 EST 2023
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -12,10 +12,10 @@ $rec_session_name = "REC_765309476514";
     // Reset 12 digit number to NON-PUBLIC, SITE-
     //     // SPECIFIC 12 digit random number.
 
-$rec_reckon = "/home2/reckon/reckon";
-    // Location of cloned reckon directory.
+$IDIR = "/home2/reckon";
+    // Installation directory.
 
-$rec_data = "/home2/reckon/web-data";
+$DDIR = "/home2/reckon/web-data";
     // Location of data directory.  Should not be
     // visible to the web (i.e., should not be a
     // subdirectory of the directory containing
@@ -24,9 +24,9 @@ $rec_data = "/home2/reckon/web-data";
 $rec_method = $_SERVER['REQUEST_METHOD'];
 
 if ( $rec_method == 'POST' )
-    require "$rec_reckon/web/include/server.php";
+    require "$IDIR/reckon/web/include/server.php";
 else if ( isset ( $_GET['client'] ) )
-    require "$rec_reckon/web/include/client.html";
+    require "$IDIR/reckon/web/include/client.html";
 else
-    require "$rec_reckon/web/include/startup.html";
+    require "$IDIR/reckon/web/include/startup.html";
 ?>

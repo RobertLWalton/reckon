@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Dec 22 05:40:12 EST 2023
+Date:	Fri Dec 22 20:02:44 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -24,8 +24,44 @@ make no warranty and accept no liability for RECKON.
 <h1>RECKON Maintenance</h1>
 
 <ul id='toc'>
+<li><a href="#directories">Directories</a>
 <li><a href="#installation">Installation</a>
+<li><a href="#users">Users</a>
+<li><a href="#throttling">Throttling</a>
 </ul>
+
+<h2 id='directories'>Directories</h2>
+
+<p>
+The following directories are created when RECKON is installed and run:
+
+<ul class='itemize'>
+<li> <b>IDIR</b> The installation directory, contining
+     <code>IDIR/min</code>,
+     <code>IDIR/mex</code>,
+     <code>IDIR/layered</code>, and
+     <code>IDIR/reckon</code>.
+     Only <code>IDIR/reckon/web/page</code> is visible on the web.
+<li> <b>WDIR</b> The web directory which is the target of
+     the symbolic link <code>/var/www/html/reckon -> WDIR</code>.
+     Contains just a modified copy of
+     <code>IDIR/reckon/web/include/index.php</code>,
+     and a symbolic link <code>page -> IDIR/reckon/web/page</code>.
+<li> <b>DDIR</b> Data directory.  NOT visible on the web.
+</ul>
+
+None of these directories should be ancestors of another
+of these directories.
+
+Subdirectories of <code>DDIR</code> are:
+
+<ul class='itemize'>
+<li> <b>IDIR/users/ID</b>  Directory in which jobs for user ID are
+     run.  See <a href='#users'>Users</a>.
+<li> <b>IDIR/throttle</b>  Directory in which information is kept to
+     throttle creation of users.  See <a href='#throttling'>Throttling</a>.
+</ul>
+
 
 <h2 id='installation'>Installation</h2>
 
@@ -56,6 +92,26 @@ An exception is after
 there may be output indicating minor differences between the test
 output and the test output reference.  This is OK; it just means
 that different versions of the compiler are doing things slightly differently.
+
+<li> Install `mex' in IDIR.  Specifically:
+	<pre class='code'>
+	cd IDIR
+	git clone git@github.com:RobertLWalton/mex.git mex
+	cd mex/lib
+	make
+	</pre>
+
+If you want to test `mex', execute:
+	<pre class='code'>
+	cd IDIR/mex/test
+	make
+	make
+	</pre>
+
+The output of the <b>second</b> <code>make</code> should be nothing
+but lines beginning with `<code>DIFFING</code>'.
+An exception is that in one test some processors return
+<code>nan</code> and some return <code>-nan</code>.
 
 <li> Install `layered' in IDIR.  Specifically:
 	<pre class='code'>
@@ -94,6 +150,18 @@ The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
      
 </ol>
+
+<h2 id='users'>Users</h2>
+
+<p>
+A RECKON <b>user</b> is a browser.  The ID of the user is stored in
+the browser's local memory.  If a browser has no ID, one is created
+during startup and loaded into the local memory by the client page.
+The first time a user submits a file to the server, the directory
+<code>DDIR/users/ID</code> is created.  Runs for the user are executed
+in this directory.
+
+User ID's are 32 digit random hexadecimal numbers.
 
 
 </body>
