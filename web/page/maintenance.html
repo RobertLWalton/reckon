@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sat Dec 23 07:51:19 EST 2023
+Date:	Sat Dec 23 20:26:16 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -24,12 +24,31 @@ make no warranty and accept no liability for RECKON.
 <h1>RECKON Maintenance</h1>
 
 <ul id='toc'>
+<li><a href="#parameter-index">Parameter Index</a>
 <li><a href="#directories">Directories</a>
 <li><a href="#installation">Installation</a>
 <li><a href="#users">Users</a>
 <li><a href="#throttling">Throttling</a>
 <li><a href="#logging">Logging</a>
 </ul>
+
+<h2 id='parameter-index'>Parameter Index</h2>
+
+Parameters are set in <code>WDIR/index.php</code>, but if not
+set there are set to default values before they are used.
+
+<table class='center'>
+<tr>
+<th>Parameter</th>
+<th>Section</th>
+<th>Default Value</th>
+</tr>
+<td><b>IDIR</b></td>
+<td><a href='#directories'>Directories</td>
+<td>----------</td>
+<tr>
+</table>
+
 
 <h2 id='directories'>Directories</h2>
 
@@ -191,7 +210,7 @@ for this difference time.
 
 <li>The ID is created by reading <code>random_device</code>
 (default <code>/dev/urandom</code>), log lines are
-written to both log files (see <a href='#logging'>logging</a>), and
+written to both log files (see <a href='#logging'>Logging</a>), and
 both log files are unlocked.
 </ol>
 
@@ -215,7 +234,15 @@ Example: <code>2023-12-23T08:07:25EST</code>.
 <li> <b>ID Creation Logging</b>  Log entries are written to
 <code>DDIR/log/IPADDR.log</code> and <code>DDIR/log/id.log</code>
 at times described under <a href=#throttling>throttling</a>.
-The format is:
+The entry format is:<br>
+<code class='center'>TIME ID IPADDR BROWSER</code>
+<p>
+Here TIME is as described above, ID is the user ID being assigned,
+IPADDR is from <code>$_SESSION['IPADDR']</code> (see
+<a href='#security'>Security</a>), and BROWSER is from
+<code>$_SERVER['HTTP_USER_AGENT']</code> with `(...)'s deleted
+and horizontal spaces replaced by `;'s.
+
 </ul>
 
 
