@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sun Dec 24 01:28:13 EST 2023
+Date:	Sun Dec 24 19:28:53 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -30,6 +30,7 @@ make no warranty and accept no liability for RECKON.
 <li><a href="#users">Users</a>
 <li><a href="#throttling">Throttling</a>
 <li><a href="#logging">Logging</a>
+<li><a href="#security">Security</a>
 </ul>
 
 <h2 id='parameter-index'>Parameter Index</h2>
@@ -78,6 +79,11 @@ set there are set to default values before they are used.
 <td><a href='#throttling'>Throttling</td>
 <td><code>/dev/urandom</code></td>
 </tr>
+<tr>
+<th>ipaddr_check</th>
+<td><a href='#security'>Security</td>
+<td><code>true</code></td>
+</tr>
 </table>
 
 
@@ -117,84 +123,75 @@ Subdirectories of <code>DDIR</code> are:
 
 <ol class='steps'>
 <li> Pick an installation directory IDIR.
-<li> Install `min' in IDIR.  Specifically:<br>
+<li> Install `min' in IDIR.  Specifically:
 	<pre class='code'>
 	cd IDIR
 	git clone git@github.com:RobertLWalton/min.git min
 	cd min/lib
-	make
-	</pre>
+	make</pre>
 <p>
-If you want to test `min', execute:<br>
+If you want to test `min', execute:
 	<pre class='code'>
 	cd IDIR/min/test
 	make
-	make
-	</pre>
+	make</pre>
 <p>
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
-An exception is after:<br> 
+An exception is after:
 	<pre class='code'>
-	DIFFING min_relocation_optimization_test.test ...
-	</pre>
+	DIFFING min_relocation_optimization_test.test ...</pre>
 <p>
 there may be output indicating minor differences between the test
 output and the test output reference.  This is OK; it just means
 that different versions of the compiler are doing things slightly differently.
 
-<li> Install `mex' in IDIR.  Specifically:<br>
+<li> Install `mex' in IDIR.  Specifically:
 	<pre class='code'>
 	cd IDIR
 	git clone git@github.com:RobertLWalton/mex.git mex
 	cd mex/lib
-	make
-	</pre>
+	make</pre>
 <p>
-If you want to test `mex', execute:<br>
+If you want to test `mex', execute:
 	<pre class='code'>
 	cd IDIR/mex/test
 	make
-	make
-	</pre>
+	make</pre>
 <p>
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
 An exception is that in one test some processors return
 <code>nan</code> and some return <code>-nan</code>.
 
-<li> Install `layered' in IDIR.  Specifically:<br>
+<li> Install `layered' in IDIR.  Specifically:
 	<pre class='code'>
 	cd IDIR
 	git clone git@github.com:RobertLWalton/layered.git layered
 	cd layered/lib
-	make
-	</pre>
+	make</pre>
 <p>
-If you want to test `layered', execute:<br>
+If you want to test `layered', execute:
 	<pre class='code'>
 	cd IDIR/layered/test
 	make
-	make
-	</pre>
+	make</pre>
 <p>
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
 
-<li> Install `reckon' in IDIR.  Specifically:<br>
+<li> Install `reckon' in IDIR.  Specifically:
 	<pre class='code'>
 	cd IDIR
 	git clone git@github.com:RobertLWalton/reckon.git reckon
 	cd reckon/lib
-	make
-	</pre>
+	make</pre>
 <p>
-If you want to test `reckon', execute:<br>
+If you want to test `reckon', execute:
 	<pre class='code'>
 	cd IDIR/reckon/test
 	make
-	make
-	</pre>
+	make</pre>
 <p>
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
@@ -276,6 +273,45 @@ and horizontal spaces replaced by `;'s.
 
 </ul>
 
+<h2 id='security'>Security</h2>
+
+All HTTP requests are made to <code>WDIR/index.php</code>
+which sets parameters and passes the request on to
+a page in the <code>IDIR/include</code> directory.
+
+<ol class='steps'>
+<li> The first request is passed to <code>startup.html</code>.
+     This initiates a PHP session and stores
+     <code>$_SERVER['REMOTE_ADDR']</code> in
+     <code>$_SESSION['IPADDR']</code>.
+     <p>
+     All subsequent requests in the PHP session 
+     are required to have their 
+     <code>$_SERVER['REMOTE_ADDR']</code> match
+     <code>$_SESSION['IPADDR']</code>, unless the
+     parameter <code>ipaddr_check</code>
+     (default <code>true</code>) is <code>false</code>.
+     </p>
+
+<li> The <code>startup.html</code> browser page creates
+     a browser floating window and initializes it with
+     a second request containing any user ID stored
+     in the browser.  The second request is passed to
+     <code>client.html</code>.
+     <p>
+     This page then accepts the user ID if given or creates
+     it otherwise, and stores it in <code>$_SESSION['ID']</code>.
+     <p>
+     All subsequent requests in the PHP session are required
+     to pass a copy of the user ID that must match
+     <code>$_SESSION['ID']</code>.  This includes subsequent
+     requests to reload the floating window with
+     <code>client.html</code>.
+
+<li> The <code>client.html</code> code in the floating window
+     makes XMLHttpRequests (POSTs, not GETs) to <code>server.php</code>.
+     
+</ol>
 
 </body>
 </html>
