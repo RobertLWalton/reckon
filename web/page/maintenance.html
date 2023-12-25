@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sun Dec 24 19:28:53 EST 2023
+Date:	Mon Dec 25 06:15:48 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -261,13 +261,18 @@ Example: <code>2023-12-23T08:07:25EST</code>.
 <ul class='itemize'>
 <li> <b>ID Creation Logging</b>  Log entries are written to
 <code>DDIR/log/IPADDR.log</code> and <code>DDIR/log/id.log</code>
-at times described under <a href=#throttling>throttling</a>.
+at times described in <a href=#throttling>Throttling</a>,
+and <code>DDIR/log/ID.log</code> at a time described in
+<a href=#security>Security</a>.
 The entry format is:<br>
-<code class='center'>TIME ID IPADDR BROWSER</code>
+<code class='center'>TIME ID IPADDR HOST BROWSER</code>
 <p>
 Here TIME is as described above, ID is the user ID being assigned,
 IPADDR is from <code>$_SESSION['IPADDR']</code> (see
-<a href='#security'>Security</a>), and BROWSER is from
+<a href='#security'>Security</a>),
+HOST is from 
+<code>$_SERVER['REMOTE_HOST']</code>,
+and BROWSER is from
 <code>$_SERVER['HTTP_USER_AGENT']</code> with `(...)'s deleted
 and horizontal spaces replaced by `;'s.
 
@@ -280,7 +285,7 @@ which sets parameters and passes the request on to
 a page in the <code>IDIR/include</code> directory.
 
 <ol class='steps'>
-<li> The first request is passed to <code>startup.html</code>.
+<li> The first GET request is passed to <code>startup.html</code>.
      This initiates a PHP session and stores
      <code>$_SERVER['REMOTE_ADDR']</code> in
      <code>$_SESSION['IPADDR']</code>.
@@ -295,18 +300,28 @@ a page in the <code>IDIR/include</code> directory.
 
 <li> The <code>startup.html</code> browser page creates
      a browser floating window and initializes it with
-     a second request containing any user ID stored
+     a second GET request containing any user ID stored
      in the browser.  The second request is passed to
      <code>client.html</code>.
      <p>
-     This page then accepts the user ID if given or creates
+     <code>Client.html</code> then accepts the user ID if given or creates
      it otherwise, and stores it in <code>$_SESSION['ID']</code>.
+     It then writes a log entry to <code>DDIR/log/ID.log</code>,
+     reads the new modification time of that file, and stores it
+     in <code>$_SESSION['LOGIN_TIME']</code>.
      <p>
      All subsequent requests in the PHP session are required
      to pass a copy of the user ID that must match
-     <code>$_SESSION['ID']</code>.  This includes subsequent
-     requests to reload the floating window with
-     <code>client.html</code>.
+     <code>$_SESSION['ID']</code>.  A subsequent request
+     also requires that the current modification time of 
+     <code>DDIR/log/ID.log</code> matches
+     <code>$_SESSION['LOGIN_TIME']</code>.
+     <p>
+     Requests to reload the floating window with
+     <code>client.html</code> are detected by the fact that
+     <code>$_SESSION['LOGIN_TIME']</code> is set.  In this case
+     the matches of the last paragraph are required, and if successful
+     the floating window is reloaded without doing anything else.
 
 <li> The <code>client.html</code> code in the floating window
      makes XMLHttpRequests (POSTs, not GETs) to <code>server.php</code>.
