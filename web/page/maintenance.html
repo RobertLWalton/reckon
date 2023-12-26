@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Mon Dec 25 06:15:48 EST 2023
+Date:	Tue Dec 26 04:03:17 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -31,6 +31,7 @@ make no warranty and accept no liability for RECKON.
 <li><a href="#throttling">Throttling</a>
 <li><a href="#logging">Logging</a>
 <li><a href="#security">Security</a>
+<li><a href="#runs">Runs</a>
 </ul>
 
 <h2 id='parameter-index'>Parameter Index</h2>
@@ -47,12 +48,12 @@ set there are set to default values before they are used.
 <tr>
 <th>IDIR</th>
 <td><a href='#directories'>Directories</td>
-<td>(must set in <code>index.php</code>)</td>
+<td>(must be set in <code>index.php</code>)</td>
 </tr>
 <tr>
 <th>DDIR</th>
 <td><a href='#directories'>Directories</td>
-<td>(must set in <code>index.php</code>)</td>
+<td>(must be set in <code>index.php</code>)</td>
 </tr>
 <tr>
 <th>throttle_limit</th>
@@ -83,6 +84,11 @@ set there are set to default values before they are used.
 <th>ipaddr_check</th>
 <td><a href='#security'>Security</td>
 <td><code>true</code></td>
+</tr>
+<tr>
+<th>run_delay</th>
+<td><a href='#runs'>Runs</td>
+<td>10 ( seconds )</td>
 </tr>
 </table>
 
@@ -203,12 +209,15 @@ but lines beginning with `<code>DIFFING</code>'.
 <p>
 A RECKON <b>user</b> is a browser.  The ID of the user is stored in
 the browser's local memory.  If a browser has no ID, one is created
-during startup and loaded into the local memory by the client page.
-The first time a user submits a file to the server, the directory
-<code>DDIR/users/ID</code> is created.  Runs for the user are executed
-in this directory.
+during startup by <code>client.html</code>
+(see <a href='#security'>Security</a> for a description of startup),
+and the ID is loaded into the local memory by the client page.
+The first time a user submits run to the server, the directory
+<code>DDIR/users/ID</code> is created (see <a href='#runs'>Runs</a>).
+Runs for the user are executed in this directory.
 <p>
 User ID's are 32 digit random hexadecimal numbers.
+User ID creation is described in <a href='#throttling'>Throttling</a>.
 </p>
 
 <h2 id='throttling'>Throttling</h2>
@@ -237,7 +246,7 @@ than <code>throttle_time</code> seconds (default 10), the program sleeps
 for this difference time.
 
 <li>The ID is created by reading <code>random_device</code>
-(default <code>/dev/urandom</code>), log lines are
+(default <code>/dev/urandom</code>), a log entry is created and
 written to both log files (see <a href='#logging'>Logging</a>), and
 both log files are unlocked.
 </ol>
@@ -259,11 +268,9 @@ time zone is the value of <code>time_zone</code>
 Example: <code>2023-12-23T08:07:25EST</code>.
 
 <ul class='itemize'>
-<li> <b>ID Creation Logging</b>  Log entries are written to
+<li> <b>ID Creation Logging</b>  A log entry is written to
 <code>DDIR/log/IPADDR.log</code> and <code>DDIR/log/id.log</code>
-at times described in <a href=#throttling>Throttling</a>,
-and <code>DDIR/log/ID.log</code> at a time described in
-<a href=#security>Security</a>.
+at times described in <a href=#throttling>Throttling</a>.
 The entry format is:<br>
 <code class='center'>TIME ID IPADDR HOST BROWSER</code>
 <p>
@@ -275,6 +282,12 @@ HOST is from
 and BROWSER is from
 <code>$_SERVER['HTTP_USER_AGENT']</code> with `(...)'s deleted
 and horizontal spaces replaced by `;'s.
+
+<li> <b>Session Creation Logging</b>  A log entry is written to
+<code>DDIR/log/ID-start.log</code> and
+<code>DDIR/log/ID-run.log</code> when a session is started
+as described in <a href=#security>Security</a>
+(this occurs after ID creation if an ID must be created for the session).
 
 </ul>
 
@@ -306,15 +319,19 @@ a page in the <code>IDIR/include</code> directory.
      <p>
      <code>Client.html</code> then accepts the user ID if given or creates
      it otherwise, and stores it in <code>$_SESSION['ID']</code>.
-     It then writes a log entry to <code>DDIR/log/ID.log</code>,
-     reads the new modification time of that file, and stores it
+     It then creates a log entry and writes it
+      to <code>DDIR/log/ID-start.log</code>,
+     and <code>DDIR/log/ID-run.log</code>
+     (see <a href='#logging'>Logging</a>),
+     reads the new modification time of
+     <code>DDIR/log/ID-start.log</code>, and stores that time
      in <code>$_SESSION['LOGIN_TIME']</code>.
      <p>
      All subsequent requests in the PHP session are required
      to pass a copy of the user ID that must match
      <code>$_SESSION['ID']</code>.  A subsequent request
      also requires that the current modification time of 
-     <code>DDIR/log/ID.log</code> matches
+     <code>DDIR/log/ID-start.log</code> matches
      <code>$_SESSION['LOGIN_TIME']</code>.
      <p>
      Requests to reload the floating window with
@@ -326,6 +343,45 @@ a page in the <code>IDIR/include</code> directory.
 <li> The <code>client.html</code> code in the floating window
      makes XMLHttpRequests (POSTs, not GETs) to <code>server.php</code>.
      
+</ol>
+
+<h2 id='runs'>Runs</h2>
+
+A run is a submission of a file to the server to be parsed, compiled,
+or executed.  The file must have a name of the form
+<code>BASE.rec</code>.
+A run is executed by the following steps:
+
+<ol class='steps'>
+<li> If the directory <code>DDIR/runs/ID</code> does not exist, it is
+     created.  Otherwise all files and symbolic links
+     in the directory are removed.
+<li> The symbolic link <code>reckon -> IDIR/reckon/test/reckon</code>
+     is made in the directory.
+<li> The file <code>DDIR/runs/ID/BASE.sh</code> is created containing
+     a <code>bash</code> script that will execute the run.
+<li> The file <code>DDIR/runs/ID/BASE.status</code> is created and
+     `<code>No Status Yet</code>' is written to it.
+<li> The command:
+	<pre class='code'>
+	setsid bash BASE.sh >BASE.out 2>BASE.err &</pre>
+     is executed.  This causes the run to be done in background.
+<li> <code>BASH.sh</code> begins by writting its process ID to
+     BASE.pid.  The server waits up to 1 second for this to appear,
+     and if it does not, assumes the command did not start correctly
+     and informs the run requester of the error.
+<li> The server waits up to <code>run_delay</code> seconds
+     (default 10 seconds) for <code>BASE.exit</code> to appear.
+     If it does not appear, the server returns <code>BASE.status</code>
+     to the run requester, who may poll or abort the run.
+     <p>
+     <code>BASE.exit</code>, when it appears, contains the exit
+     status code of the run.  When it appears, <code>BASE.exit</code>,
+     <code>BASE.status</code>, <code>BASE.err</code>, and
+     <code>BASE.out</code> are returned to the run requester.
+     The server does not attempt to analyse these to determine
+     whether the run was a success.
+
 </ol>
 
 </body>
