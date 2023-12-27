@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Dec 27 00:44:19 EST 2023
+Date:	Wed Dec 27 06:50:01 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -307,9 +307,21 @@ a page in the <code>IDIR/include</code> directory.
 
 <ol class='steps'>
 <li> The first GET request is passed to <code>startup.html</code>.
-     This initiates a PHP session and stores
-     <code>$_SERVER['REMOTE_ADDR']</code> in
-     <code>$_SESSION['IPADDR']</code>.
+     If no PHP session exists for this browser, this
+     initiates a session and stores:
+     <ul>
+     <li> <code>$_SERVER['REMOTE_ADDR']</code>
+          in <code>$_SESSION['IPADDR']</code>
+     <li> <code>$_SERVER['REQUEST_TIME']</code>,
+          reformatted to a character string,
+	  in <code>$_SESSION['START_TIME']</code>
+     <li> <code>$_SERVER['REMOTE_HOST']</code>
+          in <code>$_SESSION['HOST']</code>
+     <li> <code>$_SERVER['HTTP_USER_AGENT']</code>,
+          reformatted as indicated in
+          <a href='#logging'>Logging</a>
+	  in <code>$_SESSION['BROWSER']</code>
+     </ul>
      <p>
      All subsequent requests in the PHP session 
      are required to have their 

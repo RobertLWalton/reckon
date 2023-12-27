@@ -1,7 +1,7 @@
 <?php
 // File:   startup.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Wed Dec 27 03:10:01 EST 2023
+// Date:   Wed Dec 27 06:35:29 EST 2023
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -11,15 +11,39 @@ $time_format = "Y-m-d\Th:i:sT";
 
 session_name ( $session_name );
 session_start();
-$_SESSION['IPADDR'] = $_SERVER['REMOTE_ADDR'];
-$_SESSION['START_TIME'] =
-    date ( $time_format, $_SERVER['REQUEST_TIME'] );
-$_SESSION['HOST'] = $_SERVER['REMOTE_HOST'];
-$browser = $_SERVER['HTTP_USER_AGENT'];
-$browser = preg_replace
-    ( '/\s*\([^\)]*\)\s*/', ' ', $browser );
-$browser = preg_replace ( '/\s+/', ';', $browser );
-$_SESSION['BROWSER'] = $browser;
+if ( ! isset ( $_SESSION['IPADDR'] ) )
+{
+    $_SESSION['IPADDR'] = $_SERVER['REMOTE_ADDR'];
+    $_SESSION['START_TIME'] =
+	date ( $time_format, $_SERVER['REQUEST_TIME'] );
+    $_SESSION['HOST'] = $_SERVER['REMOTE_HOST'];
+    $browser = $_SERVER['HTTP_USER_AGENT'];
+    $browser = preg_replace
+	( '/\s*\([^\)]*\)\s*/', ' ', $browser );
+    $browser = preg_replace ( '/\s+/', ';', $browser );
+    $_SESSION['BROWSER'] = $browser;
+
+    $message = 'You can close this tab.';
+}
+else
+{
+    if ( ! isset ( $ipaddr_check ) )
+	$ipaddr_check = true;
+    if (    $ipaddr_check 
+	 &&    $_SESSION['IPADDR']
+            != $_SERVER['REMOTE_ADDR'] )
+	exit ( "IPADDR does not match" );
+    $message = 'If you have MORE THAN ONE client'
+             . '  window:'
+             . '<ol>'
+             . '<li> Close all the client windows.'
+             . '<li> Reload this tab to get a single'
+             .      ' client window.'
+             . '<ol>'
+	     . '<br><br>'
+             . 'Once you have a single client'
+             . ' window, close this tab.';
+}
  
 ?>
 <html>
@@ -58,7 +82,7 @@ win.focus(); // Needed for Firefox but not Chrome.
 <body>
     <h1> <span onclick="CLEAR_LOCAL_STORAGE()">
          &nbsp;&nbsp;&nbsp;&nbsp;</span>
-         You can close this tab.</h1>
+         <?php echo $message; ?></h1>
 
 <script>
 function CLEAR_LOCAL_STORAGE()
