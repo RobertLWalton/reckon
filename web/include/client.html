@@ -2,45 +2,98 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Tue Dec 12 05:52:58 UTC 2023
+// Date:   Wed Dec 27 00:48:09 EST 2023
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
 // make no warranty and accept no liability for RECKON.
 
-if ( $rec_method != 'GET' )
-    error ( "bad method: $rec_method" );
+if ( $method != 'GET' )
+    exit ( "bad method: $method" );
+
+session_name ( $session_name );
+session_start();
+
+if ( ! isset ( $ipaddr_check ) )
+    $ipaddr_check = true;
+if (    $ipaddr_check 
+     && $_SESSION['IPADDR'] != $_SERVER['REMOTE_ADDR'] )
+    exit ( "IPADDR does not match" );
 
 if ( ! isset ( $_GET['ID'] ) )
-    error ( "ID=... not set" );
+    exit ( "Request ID=... not set" );
+
 $ID = $_GET['ID'];
+
+if ( isset ( $_SESSION['LOG_TIME'] ) )
+    goto HTML;
+
+function LOCK_SHUTDOWN()
+{
+    global $lock1, $lock2;
+
+    if ( isset ( $lock1 ) )
+        @flock ( $lock1, LOCK_UN );
+    if ( isset ( $lock2 ) )
+        @flock ( $lock2, LOCK_UN );
+}
+register_shutdown_function ( 'LOCK_SHUTDOWN' );
+
+
+// The following is skipped on reload of client.html.
+
+$TIME = $_SESSION['START_TIME'];
+$IPADDR = $_SESSION['IPADDR'];
+$HOST = $_SESSION['HOST'];
+$BROWSER = $_SESSION['BROWSER'];
+
+clearstatcache();
+umask ( 07 );
+
+@mkdir ( $DDIR );
+@mkdir ( "$DDIR/log" );
+
 if ( $ID == '' )
 {
-    clearstatcache();
-    umask ( 07 );
+    if ( ! isset ( $throttle_limit ) )
+	$throttle_limit = 4;
+    if ( ! isset ( $throttle_period ) )
+	$throttle_period = 24*60*60;
+    if ( ! isset ( $throttle_message ) )
+	$throttle_message =
+	    'WAIT 24 HOURS AND TRY AGAIN';
+    if ( ! isset ( $random_devince ) )
+	$random_devince = '/dev/urandom';
 
-    if ( isset ( $rec_random_throttle ) )
-	$dt = $rec_random_throttle;
+    $log1 = "$DDIR/log/$IPADDR.log";
+    $lock1 = $fopen ( $log1, 'c' );
+    flock ( $lock1, LOCK_EX );
+    $contents = @fread ( $lock1, filesize ( $log1 ) ); 
+    $lines = explode ( "\n", $contents );
+    
+
+    if ( isset ( $random_throttle ) )
+	$dt = $random_throttle;
     else
 	$dt = 10;
-    $t = @filemtime ( "$rec_data/random_throttle" );
+    $t = @filemtime ( "$DDIR/random_throttle" );
     if ( $t === false ) $t = 0;
     $e = time() - $t;
     if ( $e < $dt ) usleep ( ( $dt - $e ) * 1000000 );
-    @mkdir ( "$rec_data", 0770 );
-    @touch ( "$rec_data/random_throttle" );
+    @mkdir ( "$DDIR", 0770 );
+    @touch ( "$DDIR/random_throttle" );
 
     $rdesc = @fopen ( '/dev/random', 'r' );
     if ( $rdesc === false )
-	error ( 'cannot open /dev/random for' .
-	        ' reading' );
+	exit ( 'cannot open /dev/random for' .
+	       ' reading' );
     $ID = bin2hex ( @fread ( $rdesc, 16 ) );
     fclose ( $rdesc );
 }
 
-session_name ( $rec_session_name );
-session_start();
 $_SESSION['ID'] = $ID;
+
+HTML:
 
 ?>
 

@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Dec 26 04:03:17 EST 2023
+Date:	Wed Dec 27 00:44:19 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -201,6 +201,14 @@ If you want to test `reckon', execute:
 <p>
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
+
+<li> Make WDIR.
+     Make a copy of <code>IDIR/reckon/web/include/index.php</code>
+     in <code>WDIR/index.php</code>, edit the parameters in the
+     copy, and add to the copy any additional parameters from the list in
+     <a href='#parameters'>Parameters</a> that you want to set
+     to other than their default values.
+<li> Make the link <code>WDIR/page -> IDIR/reckon/web/page</code>.
      
 </ol>
 
@@ -316,8 +324,8 @@ a page in the <code>IDIR/include</code> directory.
      a second GET request containing any user ID stored
      in the browser.  The second request is passed to
      <code>client.html</code>.
-     <p>
-     <code>Client.html</code> then accepts the user ID if given or creates
+
+<li> <code>Client.html</code> then accepts the user ID if given or creates
      it otherwise, and stores it in <code>$_SESSION['ID']</code>.
      It then creates a log entry and writes it
       to <code>DDIR/log/ID-start.log</code>,
@@ -325,18 +333,18 @@ a page in the <code>IDIR/include</code> directory.
      (see <a href='#logging'>Logging</a>),
      reads the new modification time of
      <code>DDIR/log/ID-start.log</code>, and stores that time
-     in <code>$_SESSION['LOGIN_TIME']</code>.
+     in <code>$_SESSION['LOG_TIME']</code>.
      <p>
      All subsequent requests in the PHP session are required
      to pass a copy of the user ID that must match
      <code>$_SESSION['ID']</code>.  A subsequent request
      also requires that the current modification time of 
      <code>DDIR/log/ID-start.log</code> matches
-     <code>$_SESSION['LOGIN_TIME']</code>.
+     <code>$_SESSION['LOG_TIME']</code>.
      <p>
      Requests to reload the floating window with
      <code>client.html</code> are detected by the fact that
-     <code>$_SESSION['LOGIN_TIME']</code> is set.  In this case
+     <code>$_SESSION['LOG_TIME']</code> is set.  In this case
      the matches of the last paragraph are required, and if successful
      the floating window is reloaded without doing anything else.
 

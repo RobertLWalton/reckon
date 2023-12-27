@@ -2,34 +2,34 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Tue Dec 12 05:55:11 UTC 2023
+// Date:   Wed Dec 27 00:48:32 EST 2023
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
 // make no warranty and accept no liability for RECKON.
 
-if ( $rec_method != 'POST' )
-    error ( "bad method: $rec_method" );
+if ( $method != 'POST' )
+    exit ( "bad method: $method" );
 
 if ( ! isset ( $_POST['ID'] ) )
-    error ( "no ID=..." );
+    exit ( "no ID=..." );
 $ID = $_POST['ID'];
-session_name ( $rec_session_name );
+session_name ( $session_name );
 session_start();
 if ( $ID != $_SESSION['ID'] )
-    error ( "bad ID: $ID" );
+    exit ( "bad ID: $ID" );
 
 clearstatcache();
 umask ( 07 );
 
 if ( ! isset ( $_POST['op'] ) )
-    error ( "no op=..." );
+    exit ( "no op=..." );
 $op = $_POST['op'];
 if ( ! isset ( $_POST['filename'] ) )
-    error ( "no filename=..." );
+    exit ( "no filename=..." );
 $filename = $_POST['filename'];
 if ( ! isset ( $_POST['contents'] ) )
-    error ( "no contents=..." );
+    exit ( "no contents=..." );
 $contents = $_POST['contents'];
 
 echo ( "ID = $ID" . PHP_EOL );
