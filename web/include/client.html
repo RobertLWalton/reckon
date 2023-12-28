@@ -2,11 +2,13 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Wed Dec 27 03:11:32 EST 2023
+// Date:   Thu Dec 28 01:47:45 EST 2023
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
 // make no warranty and accept no liability for RECKON.
+
+$time_format = "Y-m-d\Th:i:sT";
 
 if ( $method != 'GET' )
     exit ( "bad method: $method" );
@@ -26,7 +28,19 @@ if ( ! isset ( $_GET['ID'] ) )
 $ID = $_GET['ID'];
 
 if ( isset ( $_SESSION['LOG_TIME'] ) )
+{
+    if ( $ID != $_SESSION['ID'] )
+	exit ( "bad ID: $ID" );
+    $log_time =
+	date ( $time_format,
+               filemtime
+		   ( "$DDIR/log/$ID-start.log" ) );
+    if ( $log_time != $_SESSION['LOG_TIME'] )
+	exit ( "bad log time: $log_time" );
     goto HTML;
+}
+
+// The following is skipped on reload of client.html.
 
 function LOCK_SHUTDOWN()
 {
@@ -40,8 +54,6 @@ function LOCK_SHUTDOWN()
 register_shutdown_function ( 'LOCK_SHUTDOWN' );
 
 
-// The following is skipped on reload of client.html.
-
 $TIME = $_SESSION['START_TIME'];
 $IPADDR = $_SESSION['IPADDR'];
 $HOST = $_SESSION['HOST'];
@@ -50,8 +62,9 @@ $BROWSER = $_SESSION['BROWSER'];
 clearstatcache();
 umask ( 07 );
 
-@mkdir ( $DDIR );
 @mkdir ( "$DDIR/log" );
+if ( ! is_dir ( "$DDIR/log" ) )
+    exit ( "could not make $DDIR/log" );
 
 if ( $ID == '' )
 {
@@ -113,6 +126,24 @@ else
 	"$TIME $ID $IPADDR $HOST $BROWSER" . PHP_EOL;
 
 $_SESSION['ID'] = $ID;
+
+$log1 = "$DDIR/log/$ID-start.log";
+$lock1 = fopen ( $log1, 'c' );
+flock ( $lock1, LOCK_EX );
+fseek ( $lock1, 0, SEEK_END );
+fwrite ( $lock1, $log_line );
+$_SESSION['LOG_TIME'] =
+    date ( $time_format, filemtime ( $log1 ) );
+flock ( $lock1, LOCK_UN );
+$lock1 = NULL;
+
+$log2 = "$DDIR/log/$ID-run.log";
+$lock2 = fopen ( $log2, 'c' );
+flock ( $lock2, LOCK_EX );
+fseek ( $lock2, 0, SEEK_END );
+fwrite ( $lock2, $log_line );
+flock ( $lock2, LOCK_UN );
+$lock2 = NULL;
 
 HTML:
 

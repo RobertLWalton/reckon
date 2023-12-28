@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Dec 27 06:50:01 EST 2023
+Date:	Thu Dec 28 00:49:19 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -202,13 +202,34 @@ If you want to test `reckon', execute:
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
 
-<li> Make WDIR.
-     Make a copy of <code>IDIR/reckon/web/include/index.php</code>
+<li> Let WEBGROUP be the UNIX group of the web server (e.g., apache),
+     and USERID be the UNIX user ID of your current account.
+     Add WEBGROUP to your groups using:
+	<pre class='code'>
+	sudo usermod -G WEBGROUP USERID</pre>
+
+<li> Make WDIR.  Then execute:
+	<pre class='code'>
+	chgrp WEBGROUP WDIR
+	chmod g+rx WDIR</pre>
+
+     Do the same for ancestors of WDIR, e.g. your home directory.
+
+<li> Make a copy of <code>IDIR/reckon/web/include/index.php</code>
      in <code>WDIR/index.php</code>, edit the parameters in the
      copy, and add to the copy any additional parameters from the list in
      <a href='#parameters'>Parameters</a> that you want to set
-     to other than their default values.
+     to other than their default values.  Execute:
+	<pre class='code'>
+	chgrp WEBGROUP WDIR/index.php
+	chmod g+r WDIR/index.php</pre>
+
 <li> Make the link <code>WDIR/page -> IDIR/reckon/web/page</code>.
+
+<li> Make DDIR and execute:
+	<pre class='code'>
+	chmod 0770 DDIR
+	chgrp WEBSERVER DDIR</pre>
      
 </ol>
 
@@ -357,7 +378,7 @@ a page in the <code>IDIR/include</code> directory.
      Requests to reload the floating window with
      <code>client.html</code> are detected by the fact that
      <code>$_SESSION['LOG_TIME']</code> is set.  In this case
-     the matches of the last paragraph are required, and if successful
+     IPADDR, ID, and LOG_TIME matches are required, and if successful
      the floating window is reloaded without doing anything else.
 
 <li> The <code>client.html</code> code in the floating window
