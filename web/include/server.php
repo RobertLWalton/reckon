@@ -39,6 +39,17 @@ if ( $log_time != $_SESSION['LOG_TIME'] )
 clearstatcache();
 umask ( 07 );
 
+function ERROR_HANDLER
+	( $errno, $message, $file, $line )
+{
+    echo ( "ERROR:" . PHP_EOL );
+    echo ( "  ERRNO = $errno" . PHP_EOL );
+    echo ( "  MESSAGE: $message" . PHP_EOL );
+    echo ( "  FILE = $file" . PHP_EOL );
+    echo ( "  LINE = $line" . PHP_EOL );
+}
+set_error_handler ( 'ERROR_HANDLER' );
+
 $rundir = "$DDIR/runs/$ID";
 if ( is_dir ( $rundir ) )
 {
@@ -100,7 +111,6 @@ if ( ! @file_put_contents ( "$rundir/$base.status",
                             "No Status Yet" . PHP_EOL) )
     exit ( "Could not write $base.status" );
 
-
 $script = "";
 $script .= "trap 'exit 129' HUP" . PHP_EOL;
     // If we do not do this, sending HUP
@@ -117,6 +127,7 @@ exec ( "cd $rundir; " .
        "setsid bash $base.sh " .
        ">$base.out 2>$base.err & " );
 
+sleep ( 2 );
 
 echo ( "ID = $ID" . PHP_EOL );
 echo ( "op = $op" . PHP_EOL );
@@ -124,5 +135,4 @@ echo ( "filename = $filename" . PHP_EOL );
 $f = "$rundir/$base.out";
 $c = @file_get_contents ( $f );
 echo ( $c );
-
 ?>
