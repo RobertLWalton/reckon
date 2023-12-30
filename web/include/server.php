@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Fri Dec 29 22:46:55 EST 2023
+// Date:   Sat Dec 30 04:41:16 EST 2023
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -50,55 +50,12 @@ function ERROR_HANDLER
 }
 set_error_handler ( 'ERROR_HANDLER' );
 
-$rundir = "$DDIR/runs/$ID";
-if ( is_dir ( $rundir ) )
-{
-
-    $pid = glob ( "$rundir/*.pid" );
-    if ( count ( $pid ) > 0 )
-    {
-	$pid = trim ( file_get_contents ( $pid[0] ) );
-	$count = 0;
-	while ( file_exists ( "/proc/$pid" )
-		&&
-		$count < 5 )
-	{
-		exec ( "kill KILL $pid" );
-		sleep ( 1 );
-		++ $count;
-	}
-    }
-    foreach ( scandir ( $rundir ) as $f )
-    {
-	if ( $f == "." ) continue;
-	if ( $f == ".." ) continue;
-	unlink ( "$rundir/$f" );
-    }
-    $list = scandir ( $rundir );
-    if ( count ( $list ) > 2 )
-	exit ( "could not unlink " .
-               implode ( ' ', $list ) );
-}
-else
-{
-    @mkdir ( "$DDIR/runs" );
-    @mkdir ( $rundir );
-    if ( ! is_dir ( $rundir ) )
-	exit ( "Could not make $rundir" );
-}
-
 // PHP symlink appears to fail inexplicably sometimes.
 //
 function symbolic_link ( $target, $link )
 {
     return exec ( "ln -snf $target $link 2>&1" ) == '';
 }
-
-if ( exec ( "ln -snf $IDIR/reckon/test/reckon" .
-            " $rundir/reckon 2>&1" ) != '' )
-    exit ( "could not make symbolic link to reckon" );
-if ( ! is_file ( "$rundir/reckon" ) )
-    exit ( "reckon program does not exist" );
 
 if ( ! isset ( $_POST['op'] ) )
     exit ( "no op=..." );
@@ -110,13 +67,73 @@ if ( ! isset ( $_POST['contents'] ) )
     exit ( "no contents=..." );
 $contents = $_POST['contents'];
 
-
 $pattern = '/\A([^\/.][^\/]*)\.rec\Z/';
 $r = preg_match ( $pattern, $filename, $matches );
 if ( $r !== 1 )
     exit ( "$filename is not a legal .rec file name" );
 
 $base = $matches[1];
+$rundir = "$DDIR/runs/$ID";
+
+function abort_run ( $rundir )
+{
+    $pid = glob ( "$rundir/*.pid" );
+    if ( count ( $pid ) > 0 )
+    {
+	$pid = trim
+	    ( file_get_contents ( $pid[0] ) );
+	$count = 0;
+	while ( file_exists ( "/proc/$pid" )
+		&&
+		$count < 5 )
+	{
+		exec ( "kill KILL $pid" );
+		sleep ( 1 );
+		++ $count;
+	}
+    }
+}
+
+if ( $op == 'status' || $op == 'abort' )
+{
+    if ( ! file_exists ( "$rundir/$filename" ) )
+	exit ( "$filename not running" );
+    if ( $op == 'abort' )
+	abort_run ( $rundir );
+    goto REPORT_ON_RUN;
+}
+
+// Initialize and start run.
+//
+if ( is_dir ( $rundir ) )
+{
+    abort_run ( $rundir );
+
+    foreach ( scandir ( $rundir ) as $f )
+    {
+	if ( $f == "." ) continue;
+	if ( $f == ".." ) continue;
+	unlink ( "$rundir/$f" );
+    }
+    $list = scandir ( $rundir );
+    if ( count ( $list ) > 2 )
+	exit ( "could not unlink " .
+	       implode ( ' ', $list ) );
+}
+else
+{
+    @mkdir ( "$DDIR/runs" );
+    @mkdir ( $rundir );
+    if ( ! is_dir ( $rundir ) )
+	exit ( "Could not make $rundir" );
+}
+
+if ( exec ( "ln -snf $IDIR/reckon/test/reckon" .
+	    " $rundir/reckon 2>&1" ) != '' )
+    exit ( "could not make symbolic link" .
+	   " to reckon" );
+if ( ! is_file ( "$rundir/reckon" ) )
+    exit ( "reckon program does not exist" );
 
 if ( ! @file_put_contents ( "$rundir/$filename",
                             $contents ) )
@@ -168,6 +185,8 @@ while ( true )
     if ( microtime ( true ) > $start + $run_delay )
         break;
 }
+
+REPORT_ON_RUN:
 
 if ( file_exists ( "$rundir/$base.exit" ) )
 {
