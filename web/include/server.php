@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sat Dec 30 04:41:16 EST 2023
+// Date:   Sat Dec 30 04:56:33 EST 2023
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -42,7 +42,7 @@ umask ( 07 );
 function ERROR_HANDLER
 	( $errno, $message, $file, $line )
 {
-    echo ( "ERROR:" . PHP_EOL );
+    echo ( "SYSTEM ERROR:" . PHP_EOL );
     echo ( "  ERRNO = $errno" . PHP_EOL );
     echo ( "  MESSAGE: $message" . PHP_EOL );
     echo ( "  FILE = $file" . PHP_EOL );
@@ -201,10 +201,10 @@ if ( file_exists ( "$rundir/$base.exit" ) )
          ||
          strlen ( $errors ) > 0 )
     {
-	echo ( "EXIT STATUS: $status" . PHP_EOL );
+	echo ( "ERROR: EXIT STATUS: $status" . PHP_EOL );
 	if ( strlen ( $errors ) > 0 )
 	{
-	    echo ( "ERRORS:" . PHP_EOL );
+	    echo ( "ERROR OUTPUT:" . PHP_EOL );
 	    echo ( $errors );
 	}
 	echo ( "================================" .
