@@ -3,7 +3,7 @@
 <!--
 File:	maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Dec 28 00:49:19 EST 2023
+Date:	Fri Dec 29 17:46:32 EST 2023
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -395,7 +395,8 @@ A run is executed by the following steps:
 
 <ol class='steps'>
 <li> If the directory <code>DDIR/runs/ID</code> does not exist, it is
-     created.  Otherwise all files and symbolic links
+     created.  Otherwise any <code>*.pid</code> file is used to find
+     and KILL any running process, and then all files and symbolic links
      in the directory are removed.
 <li> The symbolic link <code>reckon -> IDIR/reckon/test/reckon</code>
      is made in the directory.
@@ -407,21 +408,29 @@ A run is executed by the following steps:
 	<pre class='code'>
 	setsid bash BASE.sh >BASE.out 2>BASE.err &</pre>
      is executed.  This causes the run to be done in background.
-<li> <code>BASH.sh</code> begins by writting its process ID to
-     BASE.pid.  The server waits up to 1 second for this to appear,
-     and if it does not, assumes the command did not start correctly
-     and informs the run requester of the error.
-<li> The server waits up to <code>run_delay</code> seconds
-     (default 10 seconds) for <code>BASE.exit</code> to appear.
-     If it does not appear, the server returns <code>BASE.status</code>
-     to the run requester, who may poll or abort the run.
+<li> <code>BASE.sh</code> begins by writing its process ID to
+     BASE.pid.  When <code>BASH.sh</code> is finished, its exit
+     status is written into <code>BASE.exit</code>.  The server
+     waits up to <code>run_delay</code> seconds (default 5 seconds)
+     for the file <code>BASE.exit</code> to exist.
      <p>
-     <code>BASE.exit</code>, when it appears, contains the exit
-     status code of the run.  When it appears, <code>BASE.exit</code>,
-     <code>BASE.status</code>, <code>BASE.err</code>, and
-     <code>BASE.out</code> are returned to the run requester.
-     The server does not attempt to analyse these to determine
-     whether the run was a success.
+     If <code>BASE.exit</code> does appear, <code>BASE.out</code>
+     is returned to the client and will appear in the client output
+     area.  If in addition <code>BASE.exit</code> is not <code>0</code> or
+     <code>BASE.err</code> is not empty, the exit status and any
+     non-empty contents of <code>BASE.err</code> are prepended to
+     the output.
+     <p>
+     If after the delay
+     <code>BASE.exit</code> does not exist but
+     <code>BASE.pid</code> does exist, <code>BASE.status</code>
+     is returned to the client, along with an indication that the
+     run is still executing.  The client will sent poll operations
+     to update its status, or an abort operation to terminate the
+     run.
+     <p>
+     All other situations are errors and a report is sent to the
+     client as run output.
 
 </ol>
 

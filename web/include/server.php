@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Fri Dec 29 07:27:05 EST 2023
+// Date:   Fri Dec 29 22:46:55 EST 2023
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -53,6 +53,21 @@ set_error_handler ( 'ERROR_HANDLER' );
 $rundir = "$DDIR/runs/$ID";
 if ( is_dir ( $rundir ) )
 {
+
+    $pid = glob ( "$rundir/*.pid" );
+    if ( count ( $pid ) > 0 )
+    {
+	$pid = trim ( file_get_contents ( $pid[0] ) );
+	$count = 0;
+	while ( file_exists ( "/proc/$pid" )
+		&&
+		$count < 5 )
+	{
+		exec ( "kill KILL $pid" );
+		sleep ( 1 );
+		++ $count;
+	}
+    }
     foreach ( scandir ( $rundir ) as $f )
     {
 	if ( $f == "." ) continue;
@@ -123,16 +138,69 @@ if ( ! @file_put_contents ( "$rundir/$base.sh",
                             $script ) )
     exit ( "Could not write $base.sh" );
 
-exec ( "cd $rundir; " .
-       "setsid bash $base.sh " .
-       ">$base.out 2>$base.err & " );
+$exec = exec ( "cd $rundir; " .
+               "setsid bash $base.sh " .
+               ">$base.out 2>$base.err & ",
+               $exec_output, $exec_code );
+if ( $exec === false )
+    exit ( "could not exec" );
+elseif ( $exec_code != 0 )
+{
+    echo ( "bad exec: result code = $exec_code" .
+           " output:" . PHP_EOL );
+    echo ( join ( PHP_EOL, $exec_output ) );
+    exit ( PHP_EOL );
+}
 
-sleep ( 2 );
+if ( ! isset ( $run_delay ) )
+    $run_delay = 10;
+$start = microtime ( true );
+while ( true )
+{
+    // On a 1-CPU computer, we MUST sleep to give up
+    // the CPU to the process we have just started,
+    // otherwise the process will never create files
+    // like $base.pid, $base.out, and $base.exit.
+    //
+    time_nanosleep ( 0, 200000000 );
+    if ( file_exists ( "$rundir/$base.exit" ) )
+        break;
+    if ( microtime ( true ) > $start + $run_delay )
+        break;
+}
 
-echo ( "ID = $ID" . PHP_EOL );
-echo ( "op = $op" . PHP_EOL );
-echo ( "filename = $filename" . PHP_EOL );
-$f = "$rundir/$base.out";
-$c = @file_get_contents ( $f );
-echo ( $c );
+if ( file_exists ( "$rundir/$base.exit" ) )
+{
+    $status =
+	file_get_contents ( "$rundir/$base.exit" );
+    $status = trim ( $status );
+    $output =
+	file_get_contents ( "$rundir/$base.out" );
+    $errors =
+	file_get_contents ( "$rundir/$base.err" );
+    if ( $status != "0"
+         ||
+         strlen ( $errors ) > 0 )
+    {
+	echo ( "EXIT STATUS: $status" . PHP_EOL );
+	if ( strlen ( $errors ) > 0 )
+	{
+	    echo ( "ERRORS:" . PHP_EOL );
+	    echo ( $errors );
+	}
+	echo ( "================================" .
+	       PHP_EOL );
+    }
+    echo ( $output );
+}
+elseif ( file_exists ( "$rundir/$base.pid" ) )
+{
+    $output =
+	file_get_contents ( "$rundir/$base.status" );
+    echo ( "\0STATUS\0\n" );
+    echo ( $output );
+}
+else
+    echo ( "run failed to start (no $base.pid)" );
+
 ?>
