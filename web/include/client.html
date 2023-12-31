@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sat Dec 30 21:55:35 EST 2023
+// Date:   Sat Dec 30 22:04:29 EST 2023
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -338,24 +338,36 @@ function RUN ( op )
 	output.innerText = this.responseText;
     };
     var data = 'ID=' + ID
-	     + '&op=run'
+	     + '&op=' + op
              + '&filename='
 	     + encodeURIComponent (  file.name );
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
+    if ( op == 'abort' || op == 'status' )
+    {
 	xhttp.open ( 'POST', "index.php", true );
 	xhttp.setRequestHeader
 	    ( "Content-Type",
 	      "application/x-www-form-urlencoded" );
 	request_in_progress = true;
-	data = data
-	     + '&contents='
-	     + encodeURIComponent ( reader.result );
-	output.innerText = 'WAIT';
-        xhttp.send ( data );
-    };
-    reader.readAsText ( file );
+	xhttp.send ( data );
+    }
+    else
+    {
+	const reader = new FileReader();
+	reader.onload = (e) => {
+	    xhttp.open ( 'POST', "index.php", true );
+	    xhttp.setRequestHeader
+		( "Content-Type",
+		  "application/x-www-form-urlencoded" );
+	    request_in_progress = true;
+	    data = data
+		 + '&contents='
+		 + encodeURIComponent ( reader.result );
+	    output.innerText = 'WAIT';
+	    xhttp.send ( data );
+	};
+	reader.readAsText ( file );
+    }
  
 }
 </script>
