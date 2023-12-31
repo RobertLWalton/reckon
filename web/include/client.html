@@ -2,13 +2,16 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sun Dec 31 04:38:39 EST 2023
+// Date:   Sun Dec 31 15:45:56 EST 2023
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
 // make no warranty and accept no liability for RECKON.
 
 $time_format = "Y-m-d\Th:i:sT";
+
+if ( ! isset ( $poll_interval ) )
+    $poll_interval = 5;
 
 if ( $method != 'GET' )
     exit ( "bad method: $method" );
@@ -260,7 +263,7 @@ RECKON
             onclick="RUN('parse')">PARSE</button>
     <button type="button" id='abort'
             style='display:none'
-            onclick="RUN('abort')">ABORT</button>
+            onclick="ABORT()">ABORT</button>
 </nav>
 
 <section>
@@ -307,9 +310,15 @@ var xhttp = new XMLHttpRequest();
 var request_in_progress = false;
 var operation = '';  // Current major operation:
                      // run, compile, parse.
+var request_abort = false;
 
 const ID = '<?php echo ( $ID );?>';
 storage.setItem ( 'ID', ID );
+
+const poll_interval =
+    Math.ceil
+        ( 1000 * <?php echo ( $poll_interval );?> );
+var timeout = null;
 
 function PROGRAM_CHANGE ( event )
 {
@@ -319,12 +328,39 @@ function PROGRAM_CHANGE ( event )
 	choose_program.innerText = file.name;
     }
 }
+
+function ABORT ()
+{
+    if ( request_in_progress )
+	request_abort = true;
+    else
+    {
+	request_abort = false;
+	RUN ( 'abort' );
+    }
+}
+
+function POLL ()
+{
+    if ( timeout === null ) return;
+    timeout = null;
+
+    if ( request_in_progress ) return;
+    if ( request_abort )  ABORT();
+    else		  RUN ( 'status' );
+}
+
 function RUN ( op )
 {
     if ( file === null )
     {
 	alert ( 'No Program File Selected');
 	return;
+    }
+    if ( timeout !== null )
+    {
+	clearTimeout ( timeout );
+	timeout = null;
     }
 
     xhttp.onreadystatechange = function() {
@@ -350,6 +386,11 @@ function RUN ( op )
 	    output.innerText =
 		  this.responseText.slice ( 9 )
 		+ output.innerText;
+	    if ( request_abort )
+	        ABORT();
+	    else
+		timeout = setTimeout
+		    ( POLL, poll_interval );
 	}
 	else
 	{
@@ -360,6 +401,7 @@ function RUN ( op )
 	    compile.style.display = 'inline-block';
 	    parse.style.display = 'inline-block';
 	    abort.style.display = 'none';
+	    request_abort = false;
 	}
     };
 
