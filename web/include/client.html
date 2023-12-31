@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sat Dec 30 04:59:12 EST 2023
+// Date:   Sat Dec 30 21:55:35 EST 2023
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -252,10 +252,15 @@ RECKON
     <button type="button" id='choose_program'
             onclick='filelist.click()'>
 	PROGRAM</button>
-    <button type="button" onclick='RUN()'>
-	RUN</button>
-    <button type="button">COMPILE</button>
-    <button type="button">PARSE</button>
+    <button type="button" id='run'
+            onclick="RUN('run')">RUN</button>
+    <button type="button" id='compile'
+            onclick="RUN('compile')">COMPILE</button>
+    <button type="button" id='parse'
+            onclick="RUN('parse')">PARSE</button>
+    <button type="button" id='abort'
+            style='display:none'
+            onclick="RUN('abort')">ABORT</button>
 </nav>
 
 <section>
@@ -289,9 +294,9 @@ function SAVE_SIZE ( event )
     storage.setItem ( 'screenY', window.screenY );
 }
 
-var filelist = document.getElementById ( 'filelist' );
-var choose_program = document.getElementById ( 'choose_program' );
-var output = document.getElementById ( 'output' );
+const filelist = document.getElementById ( 'filelist' );
+const choose_program = document.getElementById ( 'choose_program' );
+const output = document.getElementById ( 'output' );
 
 var file = null;
 var xhttp = new XMLHttpRequest();
@@ -308,7 +313,7 @@ function PROGRAM_CHANGE ( event )
 	choose_program.innerText = file.name;
     }
 }
-function RUN ()
+function RUN ( op )
 {
     if ( file === null )
     {
@@ -321,6 +326,7 @@ function RUN ()
              ||
 	     ! request_in_progress )
 	    return;
+	request_in_progress = false;
 
 	if ( this.status != 200 )
 	{
@@ -331,6 +337,10 @@ function RUN ()
 	}
 	output.innerText = this.responseText;
     };
+    var data = 'ID=' + ID
+	     + '&op=run'
+             + '&filename='
+	     + encodeURIComponent (  file.name );
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -339,10 +349,7 @@ function RUN ()
 	    ( "Content-Type",
 	      "application/x-www-form-urlencoded" );
 	request_in_progress = true;
-	data = 'ID=' + ID
-	     + '&op=run'
-             + '&filename='
-	     + encodeURIComponent (  file.name )
+	data = data
 	     + '&contents='
 	     + encodeURIComponent ( reader.result );
 	output.innerText = 'WAIT';
