@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sun Dec 31 19:08:57 EST 2023
+// Date:   Mon Jan  1 02:43:29 EST 2024
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -250,10 +250,12 @@ RECKON
 </header>
 
 <nav>
+    <div id='filelist_container'>
     <input id='filelist' type='file'
 	   onchange='PROGRAM_CHANGE()'>
+    </div>
     <button type="button" id='choose_program'
-            onclick='filelist.click()'>
+            onclick='CHOOSE_PROGRAM()'>
 	PROGRAM</button>
     <button type="button" id='run'
             onclick="RUN('run')">RUN</button>
@@ -297,8 +299,11 @@ function SAVE_SIZE ( event )
     storage.setItem ( 'screenY', window.screenY );
 }
 
-const filelist = document.getElementById ( 'filelist' );
-const choose_program = document.getElementById ( 'choose_program' );
+const filelist_container =
+    document.getElementById ( 'filelist_container' );
+var filelist = document.getElementById ( 'filelist' );
+const choose_program =
+    document.getElementById ( 'choose_program' );
 const output = document.getElementById ( 'output' );
 const run = document.getElementById ( 'run' );
 const compile = document.getElementById ( 'compile' );
@@ -319,6 +324,28 @@ const poll_interval =
     Math.ceil
         ( 1000 * <?php echo ( $poll_interval );?> );
 var timeout = null;
+
+function REFRESH_CHOOSE_PROGRAM ()
+{
+    // If the file contents are changed by an editor,
+    // <input type='file' ...> does not change its
+    // files when the same file name is reselected,
+    // and leaves its file pointing at the now obsolete
+    // and unreadable pre-edit version of the file.
+    // The only fix is to completely replace 
+    // <input type='file' ...>.
+    //
+    filelist_container.innerHTML =
+	"<input id='filelist' type='file'" +
+	       "onchange='PROGRAM_CHANGE()'>";
+    choose_program.innerText = 'PROGRAM';
+    filelist = document.getElementById ( 'filelist' );
+}
+function CHOOSE_PROGRAM ( event )
+{
+    REFRESH_CHOOSE_PROGRAM();
+    filelist.click();
+}
 
 function PROGRAM_CHANGE ( event )
 {
@@ -430,6 +457,8 @@ function RUN ( op )
     else
     {
 	const reader = new FileReader();
+	reader.addEventListener
+	    ( "error", READER_ERROR );
 	reader.onload = (e) => {
 	    xhttp.open ( 'POST', "index.php", true );
 	    xhttp.setRequestHeader
@@ -445,6 +474,27 @@ function RUN ( op )
 	reader.readAsText ( file );
     }
  
+}
+
+function READER_ERROR ( event )
+{
+    if ( event.target.error.name != 'NotReadableError' )
+	alert ( event.target.error );
+    else
+	alert ( file.name + ' has been changed' +
+                ' (reselect program file)' +
+	        'or does not have read permissions' +
+	        ' (change permissions and reselect ' +
+                ' program file)' );
+
+    output.innerText = "reselect program file";
+    REFRESH_CHOOSE_PROGRAM();
+    run.style.display = 'inline-block';
+    compile.style.display = 'inline-block';
+    parse.style.display = 'inline-block';
+    abort.style.display = 'none';
+    abort.style.backgroundColor = 'buttonface';
+    request_abort = false;
 }
 </script>
 
