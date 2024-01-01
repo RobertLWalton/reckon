@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sat Dec 30 04:56:33 EST 2023
+// Date:   Sun Dec 31 19:55:54 EST 2023
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -87,7 +87,7 @@ function abort_run ( $rundir )
 		&&
 		$count < 5 )
 	{
-		exec ( "kill KILL $pid" );
+		exec ( "kill -s HUP -$pid" );
 		sleep ( 1 );
 		++ $count;
 	}
