@@ -132,6 +132,10 @@ g = `hello'
     {|g|}
 === BRACKETED EXPRESSION: line ##:
 g = `hello'
+    ^^^^^^^
+    `hello'
+=== BRACKETED EXPRESSION: line ##:
+g = `hello'
 ^^^^^^^^^^^
     {|g|} = `hello'
 === BRACKETED EXPRESSION: line ##:
@@ -166,6 +170,10 @@ z = ``I thought he said `[g]'.''
 z = ``I thought he said `[g]'.''
 ^
     {|z|}
+=== BRACKETED EXPRESSION: line ##:
+z = ``I thought he said `[g]'.''
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s: .terminator = "."|I thought he said `[g]'|s}''
 === BRACKETED EXPRESSION: line ##:
 z = ``I thought he said `[g]'.''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -239,6 +247,26 @@ notice = *TEXT*:
 notice = *TEXT*:
 ^^^^^^
     {|notice|}
+=== BRACKETED EXPRESSION: lines ##-##:
+notice = *TEXT*:
+         ^^^^^^^
+    {p} // Introduces paragraph.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This document is meant to be read.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Reading this document is good, but ...
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
+    {p}
+^^^^^^^
+    A line with an insertion [z].
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
+         [< *TEXT* ":" >]|
+         {p|{s: .terminator = "."|This document is meant to be read|s}
+            {s|Reading this document is good "," but "..."|s}|p}
+         {p|{s: .terminator = "."|A line with an insertion [z]|s}|p}|}
 === BRACKETED EXPRESSION: lines ##-##:
 notice = *TEXT*:
 ^^^^^^^^^^^^^^^^
@@ -341,6 +369,10 @@ f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 ^
     {|f|}
+=== BRACKETED EXPRESSION: line ##:
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{{|{|10|} * {|{|x|} ^ {|2|}|}|} - {|{|3.67|} * {|x|}|} - {|0.04|}}}
 === BRACKETED EXPRESSION: line ##:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -497,6 +529,10 @@ g = {{ integral (x ^ 2, dx) }}
     {|g|}
 === BRACKETED EXPRESSION: line ##:
 g = {{ integral (x ^ 2, dx) }}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{integral ({|{|x|} ^ {|2|}|}, {|dx|})}}
+=== BRACKETED EXPRESSION: line ##:
+g = {{ integral (x ^ 2, dx) }}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|g|} = {{integral ({|{|x|} ^ {|2|}|}, {|dx|})}}
 === BRACKETED EXPRESSION: line ##:
@@ -545,6 +581,10 @@ out = ``The value of [g from 1 to 5] is [v].''
     {|out|}
 === BRACKETED EXPRESSION: line ##:
 out = ``The value of [g from 1 to 5] is [v].''
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ``{s: .terminator = "."|The value of [g from 1 to 5] is [v]|s}''
+=== BRACKETED EXPRESSION: line ##:
+out = ``The value of [g from 1 to 5] is [v].''
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|out|} =
         ``{s: .terminator = "."|The value of [g from 1 to 5] is [v]|s}''
@@ -556,6 +596,10 @@ V =# {| 1 2 3 |}
 V =# {| 1 2 3 |}
 ^
     {|V|}
+=== PURELIST EXPRESSION: line ##:
+V =# {| 1 2 3 |}
+     ^^^^^^^^^^^
+    {|1 2 3|}
 === BRACKETED EXPRESSION: line ##:
 V =# {| 1 2 3 |}
 ^^^^^^^^^^^^^^^^
@@ -668,6 +712,10 @@ M * V ^ T
     {|name|}
 === BRACKETED EXPRESSION: line ##:
     name = `Jack'
+           ^^^^^^
+    `Jack'
+=== BRACKETED EXPRESSION: line ##:
+    name = `Jack'
     ^^^^^^^^^^^^^
     {|name|} = `Jack'
 === PURELIST EXPRESSION: line ##:
@@ -754,6 +802,10 @@ a person:
     name = `Jill'
     ^^^^
     {|name|}
+=== BRACKETED EXPRESSION: line ##:
+    name = `Jill'
+           ^^^^^^
+    `Jill'
 === BRACKETED EXPRESSION: line ##:
     name = `Jill'
     ^^^^^^^^^^^^^
@@ -1385,6 +1437,10 @@ all ( sums from X through Y)
     while X != ():
           ^
     {|X|}
+=== BRACKETED EXPRESSION: line ##:
+    while X != ():
+               ^^
+    ()
 === PURELIST EXPRESSION: line ##:
     while X != ():
           ^^^^^^^
@@ -1679,6 +1735,10 @@ x = (1, (2, 3), 4)
 x = (1, (2, 3), 4)
      ^
     {|1|}
+=== BRACKETED EXPRESSION: line ###:
+x = (1, (2, 3), 4)
+        ^^^^^^
+    ({|2|}, {|3|})
 === PURELIST EXPRESSION: line ###:
 x = (1, (2, 3), 4)
                 ^
@@ -1691,6 +1751,10 @@ x = (1, (2, 3), 4)
 x = (1, (2, 3), 4)
 ^
     {|x|}
+=== BRACKETED EXPRESSION: line ###:
+x = (1, (2, 3), 4)
+    ^^^^^^^^^^^^^^
+    ({|1|}, ({|2|}, {|3|}), {|4|})
 === BRACKETED EXPRESSION: line ###:
 x = (1, (2, 3), 4)
 ^^^^^^^^^^^^^^^^^^
@@ -2162,6 +2226,14 @@ C: [(0,<V>) * (@,<F>)]
     (@,<F>)
 === BRACKETED EXPRESSION: line ###:
 C: [(0,<V>) * (@,<F>)]
+    ^^^^^^^
+    (0,<V>)
+=== BRACKETED EXPRESSION: line ###:
+C: [(0,<V>) * (@,<F>)]
+              ^^^^^^^
+    (@,<F>)
+=== BRACKETED EXPRESSION: line ###:
+C: [(0,<V>) * (@,<F>)]
    ^^^^^^^^^^^^^^^^^^^
     [(0,<V>) * (@,<F>)]
 === PURELIST EXPRESSION: line ###:
@@ -2176,6 +2248,10 @@ T: [sum([<FIRST>, ..., @-1], @)]
 T: [sum([<FIRST>, ..., @-1], @)]
                        ^^^
     {|@-1|}
+=== BRACKETED EXPRESSION: line ###:
+T: [sum([<FIRST>, ..., @-1], @)]
+        ^^^^^^^^^^^^^^^^^^^
+    [{|<FIRST>|}, {|"..."|}, {|@-1|}]
 === BRACKETED EXPRESSION: line ###:
 T: [sum([<FIRST>, ..., @-1], @)]
         ^^^^^^^^^^^^^^^^^^^
@@ -2340,6 +2416,10 @@ x = {{circle 0.4}}
     {|x|}
 === BRACKETED EXPRESSION: line ###:
 x = {{circle 0.4}}
+    ^^^^^^^^^^^^^^
+    {{circle 0.4}}
+=== BRACKETED EXPRESSION: line ###:
+x = {{circle 0.4}}
 ^^^^^^^^^^^^^^^^^^
     {|x|} = {{circle 0.4}}
 === PURELIST EXPRESSION: line ###:
@@ -2364,6 +2444,10 @@ y = {{rectangle (0.4, 0.2)}}
     {|y|}
 === BRACKETED EXPRESSION: line ###:
 y = {{rectangle (0.4, 0.2)}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    {{rectangle ({|0.4|}, {|0.2|})}}
+=== BRACKETED EXPRESSION: line ###:
+y = {{rectangle (0.4, 0.2)}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|y|} = {{rectangle ({|0.4|}, {|0.2|})}}
 === BRACKETED EXPRESSION: line ###:
@@ -2382,6 +2466,10 @@ z = {{(circle 0.4) labeled `Jack'}}
 z = {{(circle 0.4) labeled `Jack'}}
 ^
     {|z|}
+=== BRACKETED EXPRESSION: line ###:
+z = {{(circle 0.4) labeled `Jack'}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{(circle 0.4) labeled `Jack'}}
 === BRACKETED EXPRESSION: line ###:
 z = {{(circle 0.4) labeled `Jack'}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2424,6 +2512,18 @@ z = {{(circle 0.4) labeled `Jack'}}
     [z]
 === BRACKETED EXPRESSION: line ###:
 {{row([x], [y], [z])}}
+      ^^^
+    [x]
+=== BRACKETED EXPRESSION: line ###:
+{{row([x], [y], [z])}}
+           ^^^
+    [y]
+=== BRACKETED EXPRESSION: line ###:
+{{row([x], [y], [z])}}
+                ^^^
+    [z]
+=== BRACKETED EXPRESSION: line ###:
+{{row([x], [y], [z])}}
      ^^^^^^^^^^^^^^^
     ([x], [y], [z])
 === BRACKETED EXPRESSION: line ###:
@@ -2448,8 +2548,32 @@ p = {{column ( row([x], [y], [z]),
     [z]
 === BRACKETED EXPRESSION: line ###:
 p = {{column ( row([x], [y], [z]),
+                   ^^^
+    [x]
+=== BRACKETED EXPRESSION: line ###:
+p = {{column ( row([x], [y], [z]),
+                        ^^^
+    [y]
+=== BRACKETED EXPRESSION: line ###:
+p = {{column ( row([x], [y], [z]),
+                             ^^^
+    [z]
+=== BRACKETED EXPRESSION: line ###:
+p = {{column ( row([x], [y], [z]),
                   ^^^^^^^^^^^^^^^
     ([x], [y], [z])
+=== BRACKETED EXPRESSION: line ###:
+               row([z], [y], [x]) )}}
+                   ^^^
+    [z]
+=== BRACKETED EXPRESSION: line ###:
+               row([z], [y], [x]) )}}
+                        ^^^
+    [y]
+=== BRACKETED EXPRESSION: line ###:
+               row([z], [y], [x]) )}}
+                             ^^^
+    [x]
 === BRACKETED EXPRESSION: line ###:
                row([z], [y], [x]) )}}
                    ^^^
@@ -2490,6 +2614,12 @@ p = {{column ( row([x], [y], [z]),
 p = {{column ( row([x], [y], [z]),
 ^
     {|p|}
+=== BRACKETED EXPRESSION: lines ###-###:
+p = {{column ( row([x], [y], [z]),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               row([z], [y], [x]) )}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{column ({|row ([x], [y], [z])|}, {|row ([z], [y], [x])|})}}
 === BRACKETED EXPRESSION: lines ###-###:
 p = {{column ( row([x], [y], [z]),
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2541,6 +2671,10 @@ display ( P ) <-- person ( P ) has name ( X ):
     value = {{oval (0.4, 0.2) labeled [X]}}
     ^^^^^
     {|value|}
+=== BRACKETED EXPRESSION: line ###:
+    value = {{oval (0.4, 0.2) labeled [X]}}
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{oval ({|0.4|}, {|0.2|}) labeled [X]}}
 === BRACKETED EXPRESSION: line ###:
     value = {{oval (0.4, 0.2) labeled [X]}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2865,6 +2999,10 @@ update x to 40 degrees
     {|c|}
 === BRACKETED EXPRESSION: line ###:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{circle dotted diameter 1 center ({|0|}, {|0|})}}
+=== BRACKETED EXPRESSION: line ###:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|c|} = {{circle dotted diameter 1 center ({|0|}, {|0|})}}
 === PURELIST EXPRESSION: line ###:
@@ -2901,6 +3039,10 @@ update x to 40 degrees
     {|x axis|}
 === BRACKETED EXPRESSION: line ###:
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{arrow from ({|-0.75|}, {|0|}) to ({|0.75|}, {|0|})}}
+=== BRACKETED EXPRESSION: line ###:
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     {|x axis|} = {{arrow from ({|-0.75|}, {|0|}) to ({|0.75|}, {|0|})}}
 === PURELIST EXPRESSION: line ###:
@@ -2935,6 +3077,10 @@ update x to 40 degrees
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
     ^^^^^^
     {|y axis|}
+=== BRACKETED EXPRESSION: line ###:
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{arrow from ({|0|}, {|-0.75|}) to ({|0|}, {|0.75|})}}
 === BRACKETED EXPRESSION: line ###:
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2998,6 +3144,13 @@ update x to 40 degrees
     line = {{line from (0.0, 0.0)
     ^^^^
     {|line|}
+=== BRACKETED EXPRESSION: lines ###-###:
+    line = {{line from (0.0, 0.0)
+           ^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{line from ({|0|}, {|0|}) to
+      [({|{|0.5|} * {|cos X|}|}, {|{|0.5|} * {|sin X|}|})]}}
 === BRACKETED EXPRESSION: lines ###-###:
     line = {{line from (0.0, 0.0)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3067,6 +3220,13 @@ update x to 40 degrees
     {|arc|}
 === BRACKETED EXPRESSION: lines ###-###:
     arc = {{arc arrow from (0.3, 0.0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{arc arrow from ({|0.3|}, {|0|}) to
+      [({|{|0.3|} * {|cos X|}|}, {|{|0.3|} * {|sin X|}|})]}}
+=== BRACKETED EXPRESSION: lines ###-###:
+    arc = {{arc arrow from (0.3, 0.0)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                   to [(0.3 * cos X, 0.3 * sin X)]}}
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3081,6 +3241,10 @@ update x to 40 degrees
     theta = {{Greek th}}
     ^^^^^
     {|theta|}
+=== BRACKETED EXPRESSION: line ###:
+    theta = {{Greek th}}
+            ^^^^^^^^^^^^
+    {{Greek th}}
 === BRACKETED EXPRESSION: line ###:
     theta = {{Greek th}}
     ^^^^^^^^^^^^^^^^^^^^
@@ -3133,6 +3297,10 @@ update x to 40 degrees
                     [arc] labeled `[theta]' ))}}
                                   ^^^^^^^^^
     `[theta]'
+=== BRACKETED EXPRESSION: line ###:
+                    [c],
+                    ^^^
+    [c]
 === PURELIST EXPRESSION: line ###:
                     [x axis] labeled `X Axis',
                     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3141,6 +3309,10 @@ update x to 40 degrees
                     [y axis] labeled `Y Axis',
                     ^^^^^^^^^^^^^^^^^^^^^^^^^
     {|[y axis] labeled `Y Axis'|}
+=== BRACKETED EXPRESSION: line ###:
+                    [line],
+                    ^^^^^^
+    [line]
 === PURELIST EXPRESSION: line ###:
                     [arc] labeled `[theta]' ))}}
                     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -3160,6 +3332,10 @@ update x to 40 degrees
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     ([c], {|[x axis] labeled `X Axis'|}, {|[y axis] labeled `Y Axis'|},
      [line], {|[arc] labeled `[theta]'|})
+=== BRACKETED EXPRESSION: line ###:
+                `Depiction of Angle [theta] = [X]',
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    `Depiction of Angle [theta] = [X]'
 === PURELIST EXPRESSION: lines ###-###:
                 overlap (
                 ^^^^^^^^^
@@ -3226,6 +3402,29 @@ update x to 40 degrees
     value = {{label (
     ^^^^^
     {|value|}
+=== BRACKETED EXPRESSION: lines ###-###:
+    value = {{label (
+            ^^^^^^^^^
+                `Depiction of Angle [theta] = [X]',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                overlap (
+^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [c],
+^^^^^^^^^^^^^^^^^^^^^^^^
+                    [x axis] labeled `X Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [y axis] labeled `Y Axis',
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [line],
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    [arc] labeled `[theta]' ))}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    {{label
+      (`Depiction of Angle [theta] = [X]',
+       {|overlap
+         ([c], {|[x axis] labeled `X Axis'|},
+          {|[y axis] labeled `Y Axis'|}, [line],
+          {|[arc] labeled `[theta]'|})|})}}
 === BRACKETED EXPRESSION: lines ###-###:
     value = {{label (
     ^^^^^^^^^^^^^^^^^
@@ -3404,10 +3603,10 @@ x = y + z
 x = y + z
 ^^^^^^^^^
     {|x|} = {|{|y|} + {|z|}|}
-=== WORD LEXEME: line ###:
+=== PURELIST EXPRESSION: line ###:
 w = {|u|} + ( v )
     ^^^^^
-    u
+    {|u|}
 === BRACKETED EXPRESSION: line ###:
 w = {|u|} + ( v )
             ^^^^^
@@ -3420,6 +3619,10 @@ w = {|u|} + ( v )
 w = {|u|} + ( v )
     ^^^^^
     {|u|}
+=== BRACKETED EXPRESSION: line ###:
+w = {|u|} + ( v )
+            ^^^^^
+    (v)
 === PURELIST EXPRESSION: line ###:
 w = {|u|} + ( v )
     ^^^^^^^^^^^^^
