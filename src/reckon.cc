@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 30 06:49:26 EDT 2023
+// Date:	Thu Jan  4 09:27:43 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,7 @@ bool output_parse = false;
 bool subexpression_parse = false;
 bool parse_detail = false;
 bool output_html = false;
+bool raw_html = false;
 
 static void remove_tokens
     ( PAR::parser parser,
@@ -86,6 +87,7 @@ int main ( int argc, const char * argv[] )
 	       subexpression_parse )
 	TEST ( "--parse-detail", parse_detail )
 	TEST ( "--output-html", output_html )
+	TEST ( "--raw-html", raw_html )
 	{
 	    std::cerr
 	        << "ERROR: unrecognized argument "
@@ -140,6 +142,9 @@ int main ( int argc, const char * argv[] )
 	min::tag(printer) << "<pre>";
 	    // Without std::endl.
     }
+    else if ( raw_html )
+	PAR::default_parser->printer
+	    << min::output_html;
 
     if ( parse )
     {
