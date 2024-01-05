@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Thu Jan  4 09:22:09 EST 2024
+// Date:   Thu Jan  4 22:58:23 EST 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -102,6 +102,14 @@ if ( $op == 'status' || $op == 'abort' )
 	abort_run ( $rundir );
     goto REPORT_ON_RUN;
 }
+elseif ( $op == 'run' )
+    exit ( 'RUN not yet implemented' );
+elseif ( $op == 'compile' )
+    exit ( 'COMPILE not yet implemented' );
+elseif ( $op == 'parse' )
+    $options = "--output-parse";
+else
+    exit ( "op is not a legal operation" );
 
 // Initialize and start run.
 //
@@ -143,8 +151,6 @@ if ( ! @file_put_contents ( "$rundir/$base.status",
                             "No Status Yet" . PHP_EOL) )
     exit ( "Could not write $base.status" );
 
-$options = "--subexpression-parse --raw-html";
-
 $script = "";
 $script .= "trap 'exit 129' HUP" . PHP_EOL;
     // If we do not do this, sending HUP
@@ -152,7 +158,8 @@ $script .= "trap 'exit 129' HUP" . PHP_EOL;
 $script .= "trap 'echo \$? >$base.exit' EXIT" . PHP_EOL;
 $script .= "echo $$ > $base.pid" . PHP_EOL;
 $script .= "set -e" . PHP_EOL;
-$script .= "./reckon $options < $filename" . PHP_EOL;
+$script .= "./reckon --raw-html $options < $filename"
+         . PHP_EOL;
 if ( ! @file_put_contents ( "$rundir/$base.sh",
                             $script ) )
     exit ( "Could not write $base.sh" );
