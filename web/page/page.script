@@ -1,0 +1,101 @@
+// File:   page.script
+// Author: Robert L Walton <walton@acm.org>
+// Date:   Fri Jan 12 05:07:46 EST 2024
+// 
+// The authors have placed RECKON (its files and the
+// content of these files) in the public domain; they
+// make no warranty and accept no liability for RECKON.
+
+// BACK and FORWARD buttons.
+
+const back_button =
+    document.getElementById ( "back-button" );
+const forward_button =
+    document.getElementById ( "forward-button" );
+var history_list = [];
+var index = 0;
+    // Index is only 0 if history_list is empty.
+    // Otherwise history_list[history_list.length+index]
+    // is an A tagged element that was clicked.
+function A_CLICK ( event )
+{
+    let a = event.target;
+    if ( a.tagName != 'A' ) return;
+    if ( a.href == '' ) return;
+    while ( index < -1 )
+    {
+        history_list.pop();
+        ++ index;
+    }
+    history_list.push ( a );
+    if ( index == 0 ) index = -1;
+    back_button.style.display = 'inline-block';
+    forward_button.style.display = 'none';
+}
+document.addEventListener ( 'click', A_CLICK );
+
+function BACK()
+{
+    if ( index + history_list.length > 0 )
+	-- index;
+    history_list[index + history_list.length].focus();
+    if ( index < -1 )
+	forward_button.style.display = 'inline-block';
+}
+function FORWARD()
+{
+    history_list[index + history_list.length].focus();
+    ++ index;
+    if ( index >= -1 )
+	forward_button.style.display = 'none';
+}
+
+// Header and switching between 'text', 'toc', and 'doc'.
+
+const toc = document.getElementById ( "toc" );
+const toc_button = document.getElementById ( "toc-button" );
+const text = document.getElementById ( "text" );
+const text_button = document.getElementById ( "text-button" );
+const text_header = document.getElementById ( "text-header" );
+function DISPLAY ( d )
+{
+    back_button.style.display = 'none';
+    forward_button.style.display = 'none';
+    toc.style.display = 'none';
+    toc_button.style.display = 'inline-block';
+    text.style.display = 'none';
+    text_button.style.display = 'inline-block';
+    text_header.style.display = 'none';
+    if ( d == 'text' )
+    {
+	text.style.display = 'block';
+	text_button.style.display = 'none';
+	text_header.style.display = 'block';
+        if ( history_list.length + index >= 0
+             &&
+	     history_list.length > 0 )
+	    back_button.style.display = 'inline-block';
+        if ( index < -1 )
+	    forward_button.style.display = 'inline-block';
+    }
+    else if ( d == 'toc' )
+    {
+	toc.style.display = 'block';
+	toc_button.style.display = 'none';
+    }
+}
+
+// Load and print state switching.
+
+window.onload = (event) => {
+    DISPLAY ( 'text' );
+}
+
+window.onbeforeprint = (event) => {
+    toc.style.display = 'block';
+    text.style.display = 'block';
+    text_header.style.display = 'none';
+}
+window.onafterprint = (event) => {
+    DISPLAY ( 'text' );
+}

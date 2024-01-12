@@ -3,7 +3,7 @@
 <!--
 File:	web_page_maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Jan 12 04:38:48 EST 2024
+Date:	Fri Jan 12 06:42:23 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -25,6 +25,10 @@ make no warranty and accept no liability for RECKON.
     Table of Contents</button>
 <button id='text-button' onclick="DISPLAY('text')">
     Back to Text</button>
+<button id='back-button' onclick="BACK()">
+    BACK</button>
+<button id='forward-button' onclick="FORWARD()">
+    FORWARD</button>
 </div>
 
 <div id="toc" onclick="DISPLAY('text')">
@@ -454,44 +458,6 @@ A run is executed by the following steps:
 
 </body>
 
-<script>
-const toc = document.getElementById ( "toc" );
-const toc_button = document.getElementById ( "toc-button" );
-const text = document.getElementById ( "text" );
-const text_button = document.getElementById ( "text-button" );
-const text_header = document.getElementById ( "text-header" );
-function DISPLAY ( d )
-{
-    toc.style.display = 'none';
-    toc_button.style.display = 'inline-block';
-    text.style.display = 'none';
-    text_button.style.display = 'inline-block';
-    text_header.style.display = 'none';
-    if ( d == 'text' )
-    {
-	text.style.display = 'block';
-	text_button.style.display = 'none';
-	text_header.style.display = 'block';
-    }
-    else if ( d == 'toc' )
-    {
-	toc.style.display = 'block';
-	toc_button.style.display = 'none';
-    }
-}
-
-window.onload = (event) => {
-    DISPLAY ( 'text' );
-}
-
-window.onbeforeprint = (event) => {
-    toc.style.display = 'block';
-    text.style.display = 'block';
-    text_header.style.display = 'none';
-}
-window.onafterprint = (event) => {
-    DISPLAY ( 'text' );
-}
-</script>
+<script src='page.script'></script>
 
 </html>
