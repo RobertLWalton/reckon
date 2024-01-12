@@ -3,7 +3,7 @@
 <!--
 File:	web_page_maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Jan 11 20:45:47 EST 2024
+Date:	Fri Jan 12 04:38:48 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -21,11 +21,19 @@ make no warranty and accept no liability for RECKON.
 <body>
 
 <div id='header'>
-<button onclick="TOC_CLICK()">Table of Contents</button>
+<button id='toc-button' onclick="DISPLAY('toc')">
+    Table of Contents</button>
+<button id='text-button' onclick="DISPLAY('text')">
+    Back to Text</button>
 </div>
 
-<div id="toc" onclick=TOC_CLICK()>
+<div id="toc" onclick="DISPLAY('text')">
 
+<h1>RECKON Web Page Maintenance</h1>
+
+<h2>Table of Contents</h2>
+
+<div id='toc-contents'>
 <a href="#parameter-index">Parameter Index</a>
 <a href="#directories">Directories</a>
 <a href="#installation">Installation</a>
@@ -34,12 +42,13 @@ make no warranty and accept no liability for RECKON.
 <a href="#logging">Logging</a>
 <a href="#security">Security</a>
 <a href="#runs">Runs</a>
+</div>
 
 </div>
 
 <div id='text'>
 
-<h1>RECKON Web Page Maintenance</h1>
+<h1 id='text-header'>RECKON Web Page Maintenance</h1>
 
 <h2 id='parameter-index'>Parameter Index</h2>
 
@@ -447,21 +456,41 @@ A run is executed by the following steps:
 
 <script>
 const toc = document.getElementById ( "toc" );
+const toc_button = document.getElementById ( "toc-button" );
 const text = document.getElementById ( "text" );
-var toc_displayed = false;
-function TOC_CLICK ( event )
+const text_button = document.getElementById ( "text-button" );
+const text_header = document.getElementById ( "text-header" );
+function DISPLAY ( d )
 {
-    toc_displayed = ! toc_displayed;
-    if ( toc_displayed )
+    toc.style.display = 'none';
+    toc_button.style.display = 'inline-block';
+    text.style.display = 'none';
+    text_button.style.display = 'inline-block';
+    text_header.style.display = 'none';
+    if ( d == 'text' )
+    {
+	text.style.display = 'block';
+	text_button.style.display = 'none';
+	text_header.style.display = 'block';
+    }
+    else if ( d == 'toc' )
     {
 	toc.style.display = 'block';
-	text.style.display = 'none';
+	toc_button.style.display = 'none';
     }
-    else
-    {
-	toc.style.display = 'none';
-	text.style.display = 'block';
-    }
+}
+
+window.onload = (event) => {
+    DISPLAY ( 'text' );
+}
+
+window.onbeforeprint = (event) => {
+    toc.style.display = 'block';
+    text.style.display = 'block';
+    text_header.style.display = 'none';
+}
+window.onafterprint = (event) => {
+    DISPLAY ( 'text' );
 }
 </script>
 
