@@ -1,6 +1,6 @@
 // File:   page.script
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Fri Jan 12 07:22:42 EST 2024
+// Date:   Fri Jan 12 19:42:25 EST 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -13,21 +13,27 @@ const back_button =
 const forward_button =
     document.getElementById ( "forward-button" );
 var history_list = [];
+    // The elements of history_list are A-tagged
+    // elements that have been clicked, in the effective
+    // order that they were clicked.
 var index = 0;
-    // Index is only 0 if history_list is empty.
-    // Otherwise history_list[history_list.length+index]
-    // is an A tagged element that was clicked.
+    // Index is not meaningful if history_list.length
+    // == 0.  Otherwise, index == 0 means we are at the
+    // target of history_list[history_list.length-1],
+    // and index < 0 means we are at the location of
+    // history_list[history_list.length+index].
+var a_click_disable = false;
 function A_CLICK ( event )
 {
+    if ( a_click_disable ) return;
     let a = event.target;
     if ( a.tagName != 'A' ) return;
     if ( a.href == '' ) return;
-    while ( index < -1 )
+    while ( index < 0 )
     {
         history_list.pop();
         ++ index;
     }
-    if ( index == 0 ) index = -1;
     history_list.push ( a );
     back_button.style.display = 'inline-block';
     forward_button.style.display = 'none';
@@ -39,11 +45,11 @@ document.addEventListener ( 'click', A_CLICK );
 
 function BACK()
 {
+    -- index;
     history_list[index + history_list.length].focus();
-    if ( index + history_list.length > 0 )
-	-- index;
-    if ( index < -1 )
-	forward_button.style.display = 'inline-block';
+    if ( index + history_list.length == 0 )
+	back_button.style.display = 'none';
+    forward_button.style.display = 'inline-block';
     console.log ( index );
     for ( var i = 0; i < history_list.length; ++ i )
 	console.log ( history_list[i] );
@@ -51,9 +57,16 @@ function BACK()
 function FORWARD()
 {
     ++ index;
-    history_list[index + history_list.length].focus();
-    if ( index >= -1 )
+    if ( index == 0 )
+    {
+	a_click_disable = true;
+	history_list[history_list.length - 1].click();
+	a_click_disable = false;
 	forward_button.style.display = 'none';
+    }
+    else
+	history_list[index + history_list.length]
+	    .focus();
     console.log ( index );
     for ( var i = 0; i < history_list.length; ++ i )
 	console.log ( history_list[i] );
