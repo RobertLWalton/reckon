@@ -1,6 +1,6 @@
 // File:   page.script
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Fri Jan 12 20:10:42 EST 2024
+// Date:   Sat Jan 13 04:56:43 EST 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -73,19 +73,31 @@ function FORWARD()
 	console.log ( history_list[i] );
 }
 
-// Header and switching between 'text', 'toc', and 'doc'.
+// Header and switching between 'text', 'toc',
+// and 'docs'.
 
-const toc = document.getElementById ( "toc" );
-const toc_button = document.getElementById ( "toc-button" );
-const text = document.getElementById ( "text" );
-const text_button = document.getElementById ( "text-button" );
-const text_header = document.getElementById ( "text-header" );
+const toc =
+    document.getElementById ( "toc" );
+const toc_button =
+    document.getElementById ( "toc-button" );
+const text =
+    document.getElementById ( "text" );
+const text_button =
+    document.getElementById ( "text-button" );
+const text_header =
+    document.getElementById ( "text-header" );
+const docs =
+    document.getElementById ( "docs" );
+const docs_button =
+    document.getElementById ( "docs-button" );
 function DISPLAY ( d )
 {
     back_button.style.display = 'none';
     forward_button.style.display = 'none';
     toc.style.display = 'none';
     toc_button.style.display = 'inline-block';
+    docs.style.display = 'none';
+    docs_button.style.display = 'inline-block';
     text.style.display = 'none';
     text_button.style.display = 'inline-block';
     text_header.style.display = 'none';
@@ -105,6 +117,13 @@ function DISPLAY ( d )
     {
 	toc.style.display = 'block';
 	toc_button.style.display = 'none';
+	docs_button.style.display = 'none';
+    }
+    else if ( d == 'docs' )
+    {
+	docs.style.display = 'block';
+	docs_button.style.display = 'none';
+	toc_button.style.display = 'none';
     }
 }
 
@@ -117,6 +136,7 @@ window.onload = (event) => {
 window.onbeforeprint = (event) => {
     toc.style.display = 'block';
     text.style.display = 'block';
+    docs.style.display = 'none';
     text_header.style.display = 'none';
 }
 window.onafterprint = (event) => {
