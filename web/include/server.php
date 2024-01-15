@@ -27,17 +27,15 @@ if ( ! isset ( $_POST['ID'] ) )
 
 $ID = $_POST['ID'];
 
-if ( ! isset ( $_SESSION['LOG_TIME'] ) )
-    exit ( "Session LOG)TIME not set" );
-$log_time =
-    date ( $time_format,
-	   filemtime
-	       ( "$DDIR/log/$ID-start.log" ) );
-if ( $log_time != $_SESSION['LOG_TIME'] )
-    exit ( "bad log time: $log_time" );
-
 clearstatcache();
 umask ( 07 );
+
+if ( ! isset ( $_SESSION['LOG_TIME'] ) )
+    exit ( "Session LOG)TIME not set" );
+$session_time = $_SESSION['LOG_TIME'];
+$log_time = filemtime ( "$DDIR/log/$ID-start.log" );
+if ( $log_time != $session_time )
+    exit ( "bad log time: $log_time != $session_time" );
 
 function ERROR_HANDLER
 	( $errno, $message, $file, $line )

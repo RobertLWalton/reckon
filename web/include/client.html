@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sun Jan 14 22:33:33 EST 2024
+// Date:   Mon Jan 15 03:54:33 EST 2024
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -39,10 +39,7 @@ if ( isset ( $_SESSION['LOG_TIME'] ) )
 {
     if ( $ID != $_SESSION['ID'] )
 	exit ( "bad ID: $ID" );
-    $log_time =
-	date ( $time_format,
-               filemtime
-		   ( "$DDIR/log/$ID-start.log" ) );
+    $log_time = filemtime ( "$DDIR/log/$ID-start.log" );
     if ( $log_time != $_SESSION['LOG_TIME'] )
 	exit ( "bad log time: $log_time" );
     goto HTML;
@@ -140,8 +137,8 @@ $lock1 = fopen ( $log1, 'c' );
 flock ( $lock1, LOCK_EX );
 fseek ( $lock1, 0, SEEK_END );
 fwrite ( $lock1, $log_line );
-$_SESSION['LOG_TIME'] =
-    date ( $time_format, filemtime ( $log1 ) );
+clearstatcache();
+$_SESSION['LOG_TIME'] = filemtime ( $log1 );
 flock ( $lock1, LOCK_UN );
 $lock1 = NULL;
 
