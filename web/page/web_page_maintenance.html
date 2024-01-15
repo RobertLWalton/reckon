@@ -3,7 +3,7 @@
 <!--
 File:	web_page_maintenance.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sat Jan 13 04:56:11 EST 2024
+Date:	Sun Jan 14 22:04:30 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -121,6 +121,11 @@ set there are set to default values before they are used.
 <td><a href='#runs'>Runs</td>
 <td>10 ( seconds )</td>
 </tr>
+<tr>
+<th>poll_interval</th>
+<td><a href='#runs'>Runs</td>
+<td>5 ( seconds )</td>
+</tr>
 </table>
 
 
@@ -150,10 +155,10 @@ of these directories.
 Subdirectories of <code>DDIR</code> are:
 
 <ul class='itemize'>
-<li> <b>IDIR/users/ID</b>  Directory in which jobs for user ID are
+<li> <b>DDIR/users/ID</b>  Directory in which jobs for user ID are
      run.  See <a href='#users'>Users</a>.
-<li> <b>IDIR/throttle</b>  Directory in which information is kept to
-     throttle creation of users.  See <a href='#throttling'>Throttling</a>.
+<li> <b>DDIR/log</b>  Directory in which log files are kept.
+     See <a href='#throttling'>Throttling</a>.
 </ul>
 
 <h2 id='installation'>Installation</h2>
@@ -233,6 +238,13 @@ If you want to test `reckon', execute:
 The output of the <b>second</b> <code>make</code> should be nothing
 but lines beginning with `<code>DIFFING</code>'.
 
+<li> If your umask is set to prevent others from accessing new
+     files, you probably need to execute:
+	<pre class='code'>
+	chmod o+x IDIR/reckon/web/page
+	chmod o+x IDIR/reckon/test/reckon
+	find IDIR/reckon/web/page -exec chmod o+r {} ';'</pre>
+
 <li> Let WEBGROUP be the UNIX group of the web server (e.g., apache),
      and USERID be the UNIX user ID of your current account.
      Add WEBGROUP to your groups using:
@@ -272,7 +284,7 @@ the browser's local memory.  If a browser has no ID, one is created
 during startup by <code>client.html</code>
 (see <a href='#security'>Security</a> for a description of startup),
 and the ID is loaded into the local memory by the client page.
-The first time a user submits run to the server, the directory
+The first time a user submits a run to the server, the directory
 <code>DDIR/users/ID</code> is created (see <a href='#runs'>Runs</a>).
 Runs for the user are executed in this directory.
 <p>
@@ -294,9 +306,10 @@ is the IP address of the browser requesting an ID.  If the file does
 not exist, it is first created.
 <p> Then the file is read and the <code>throttle_limit</code> (default 4)
 entry from the end is examined to see when the ID creation it records
-happended.  If this time is less than
+happended (see <a href='#logging'>Logging</a> for the format of the
+entry).  If this time is less than
 <code>throttle_period</code> seconds (default 24*60*60 = 1 day),
-the request is redirected to a page that just contains the message
+the request is redirected to a page that just contains the
 <code>throttle_message</code> (default, `WAIT 24 HOURS AND TRY AGAIN'),
 and the file is unlocked.
 
@@ -348,6 +361,7 @@ and horizontal spaces replaced by `;'s.
 <code>DDIR/log/ID-run.log</code> when a session is started
 as described in <a href=#security>Security</a>
 (this occurs after ID creation if an ID must be created for the session).
+The log entry has the same format as the ID Creation Logging entry.
 
 </ul>
 
@@ -421,7 +435,9 @@ a page in the <code>IDIR/include</code> directory.
 
 A run is a submission of a file to the server to be parsed, compiled,
 or executed.  The file must have a name of the form
-<code>BASE.rec</code>.
+<code>BASE.rec</code>, where <code>BASE</code> does not contain
+slashes (<code>/</code>'s) or begin with a period (<code>.</code>).
+
 A run is executed by the following steps:
 
 <ol class='steps'>
@@ -429,8 +445,9 @@ A run is executed by the following steps:
      created.  Otherwise any <code>*.pid</code> file is used to find
      and KILL any running process, and then all files and symbolic links
      in the directory are removed.
-<li> The symbolic link <code>reckon -> IDIR/reckon/test/reckon</code>
-     is made in the directory.
+<li> The symbolic link
+     <code>DDIR/runs/ID/reckon -> IDIR/reckon/test/reckon</code>
+     is made.
 <li> The file <code>DDIR/runs/ID/BASE.sh</code> is created containing
      a <code>bash</code> script that will execute the run.
 <li> The file <code>DDIR/runs/ID/BASE.status</code> is created and
@@ -456,8 +473,9 @@ A run is executed by the following steps:
      <code>BASE.exit</code> does not exist but
      <code>BASE.pid</code> does exist, <code>BASE.status</code>
      is returned to the client, along with an indication that the
-     run is still executing.  The client will sent poll operations
-     to update its status, or an abort operation to terminate the
+     run is still executing.  The client will send poll operations
+     every <code>poll_interval</code> seconds (default 5 seconds)
+     to update the run's status, or an abort operation to terminate the
      run.
      <p>
      All other situations are errors and a report is sent to the
