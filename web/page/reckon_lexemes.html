@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Jan 30 07:06:44 EST 2024
+Date:	Tue Jan 30 09:10:55 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -44,6 +44,7 @@ make no warranty and accept no liability for RECKON.
 <a href="#comments">Comments</a>
 <a href="#white-space">White Space</a>
 <a href="#illegal-characters">Illegal Characters</a>
+<a href="#lexemes">Lexemes</a>
 </div>
 
 </div>
@@ -202,7 +203,51 @@ and are illegal:
     <i>horizontal-space-character</i> other than <i>ASCII-single-space</i>
 <li><em>misplaced-vertical-space-character</em> :::=<br>
     <i>vertical-space-character</i> other than <i>line-feed</i>
+<li><em>illegal-control-character</em> :::=<br>
+    <i>control-character</i>, but <strong>not</strong> a
+    <i>space-character</i>
+<li><em>unrecognized-character</em> :::=<br>
+    character with no UNICODE category or<br>
+    with a category other than
+    <b>L</b>,
+    <b>M</b>,
+    <b>N</b>,
+    <b>P</b>,
+    <b>S</b>,
+    <b>C</b>, or
+    <b>Z</b>
 </ul>
+
+<p>
+Sequences of these characters generate warning messages, but are
+otherwise like <i>horizontal-space</i>:
+
+<ul class='syntax'>
+<li><em>misplaced-horizontal</em> :::=
+    <i>misplaced-horizontal-space-character</i>&#8314;
+<li><em>misplaced-vertical</em> :::=
+    <i>misplaced-vertical-space-character</i>&#8314;
+<li><em>illegal-control</em> :::=
+    <i>illegal-control-character</i>&#8314;
+<li><em>unrecognized</em> :::=
+    <i>unrecognized-character</i>&#8314;
+</ul>
+
+<p>
+<i>Misplaced-horizontal</i> only exists inside a <i>quoted-string</i>,
+but the other three sequences can appear anywhere.
+When they occur, these sequences generate warning messages,
+but otherwise they behave like <i>horizontal-space</i>.
+Specifically, outside <i>quoted-strings</i> and <i>comments</i>
+these sequences can be used to separate other lexemes,
+just as <i>horizontal-space</i> can be used,
+whereas inside <i>quoted-strings</i> and <i>comments</i>,
+ these sequences do nothing aside from generating warning messages.
+</p>
+
+<h2 id='lexemes'>Lexemes</h2>
+
+<p>
 
 </div>
 
