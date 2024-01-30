@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Jan 30 10:42:29 EST 2024
+Date:	Tue Jan 30 17:00:44 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -261,8 +261,9 @@ RECKON lexemes are as follows:
     </td></tr><tr><td>|</td><td>
 	<i>indent</i> | <i>line-break</i> | <i>comment</i> | <i>end-of-file</i>
     </td></tr></table>
-<li><em>strict-separator</em> ::= <i>isolated-separator-character</i> |
-				  &nbsp;&nbsp;<b>|</b>&#8314;
+<li><em>strict-separator</em> ::= <i>isolated-separator-character</i>
+				  &nbsp;&nbsp;|&nbsp;&nbsp;
+                                  <b>|</b>&#8314;
 <li><em>leading-separator</em> :::=
 	<b>`</b>&#8314; | <b>&#161;</b>&#8314; | <b>&#191;</b>&#8314;
 <li><em>trailing-separator</em> :::=
@@ -286,6 +287,31 @@ RECKON lexemes are as follows:
 <li><em>special-character-representative</em> :::=
     <b>&#60;</b> { <i>upper-case-letter</i> | <i>digit</i> }&#8314;
     <b>&#62;</b>
+<li><em>lexical-item</em> :::=
+    <i>lexical-item-character</i>&#8314; not beginning with <b>//</b>
+<li><em>lexical-item</em> :::=
+    <i>leading-separator</i>* <i>middle-lexeme</i>
+    <i>trailing-separator</i>*
+<li><em>middle-lexeme</em> :::=
+    <table>
+    <tr><td>
+    <i>lexical-item</i>
+    not beginning with a <i>leading-separator-character</i><br>
+    </td></tr><tr><td>
+    or ending with a <i>trailing-separator-character</i>
+    </td></tr></table>
+<li><em>numeric-word</em> :::= <i>sign</i>? <b>nan</b> |
+                               <i>sign</i>? <b>inf</b>
+			       &nbsp;&nbsp;&nbsp;
+                               where letters are case-insensitive
+<li><em>word</em> :::=
+    <table>
+    <tr><td>
+    <i>middle-lexeme</i> that contains a <i>letter</i> before any
+    <i>digit</i>
+    </td></tr><tr><td>
+    and is not a <i>numeric-word</i>
+    </td></tr></table>
 </ul>
 
 <p>
