@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Mon Jan 29 15:09:41 EST 2024
+Date:	Tue Jan 30 01:01:00 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -41,6 +41,9 @@ make no warranty and accept no liability for RECKON.
 
 <div id='toc-contents'>
 <a href="#characters">Characters</a>
+<a href="#comments">Comments</a>
+<a href="#white-space">White Space</a>
+<a href="#illegal-characters">Illegal Characters</a>
 </div>
 
 </div>
@@ -58,12 +61,15 @@ make no warranty and accept no liability for RECKON.
 
 <h1 id='text-header'>RECKON Lexemes</h1>
 
+<p>
 A RECKON source file is a sequence of bytes that is a UTF-8
 encoding of a sequence of UNICODE characters. This is scanned
 into a sequence of lexemes.
+</p>
 
 <h2 id='characters'>Characters</h2>
 
+<p>
 Unless otherwise specified, the term ‘character’ in this document
 means a 32-bit UNICODE character.  Characters are classified as
 follows:
@@ -91,15 +97,97 @@ follows:
 	<b>L</b>, <b>M</b>, <b>N</b>, <b>P</b>, and <b>S</b>
 <li><em>control-character</em> :::= characters in UNICODE categories
 	<b>C</b> and <b>Z</b>
-<li><em>isolated-separating-character</em> :::=<br>
+<li><em>isolated-separator-character</em> :::=<br>
     <table>
     <tr><td>characters in UNICODE categories
 	    <b>Ps</b>, <b>Pi</b>, <b>Pe</b>, and <b>Pf</b>
     </td></tr><tr><td>includes <b>{ ( [ &#171; &#187; ] ) }</b>
     </td></tr></table>
 <li><em>separating-character</em> :::=
-		<i>isolated-separating-character</i> | <b>|</b>
+		<i>isolated-separator-character</i>
+                | &nbsp;&nbsp;<b>|</b>
+<li><em>leading-separator-character</em> :::=
+	<b>`</b> | <b>&#161;</b> | <b>&#191;</b>
+<li><em>trailing-separator-character</em> :::=
+	<b>'</b> | <b>!</b> | <b>?</b> | <b>.</b> | <b>:</b> |
+	<b>,</b> | <b>;</b>
+<li><em>quoting-character</em> :::= <b>&#34;</b>
+<li><em>letter</em> :::= characters in UNICODE category <b>L</b>
+<li><em>ASCII-digit</em> :::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<li><em>digit</em> :::= characters in UNICODE category <b>Nd</b>
+                        (includes <i>ASCII-digits</i>)
+<li><em>lexical-item-character</em> :::=<br>
+    <i>graphic-character</i> other than <i>separating-character</i>
+    or <b>&#34;</b>
 </ul>
+</p>
+
+<h2 id='comments'>Comments</h2>
+
+<p>
+Comments may be placed at the ends of lines:
+
+<ul class='syntax'>
+<li><em>comment</em> :::= <b>//</b> <i>comment-character</i>*
+<li><em>comment-character</em> :::= <i>graphic-character</i> |
+                                    <i>horizontal-space-character</i>
+</ul>
+</p>
+
+<h2 id='white-space'>White Space</h2>
+
+<p>
+Lexemes may be separated by <i>white-space</i>, which is a sequence
+of <i>space-characters</i>, but with some exceptions metioned just below,
+is not itself a lexeme:
+
+<ul class='syntax'>
+<li><em>white-space</em> :::= <i>space-character</i>&#8314;
+<li><em>horizontal-space</em> :::= <i>horizontal-space-character</i>&#8314;
+<li><em>vertical-space</em> :::= <i>vertical-space-character</i>&#8314;
+</ul>
+
+<p>
+The following is a special virtual lexeme:
+
+<ul class='syntax'>
+<li><em>indent</em> :::=<br>
+     virtual lexeme inserted just before the first
+     <i>graphic-character</i> on a physical line
+</ul>
+
+<p>
+<b id='indent-lexemes'>Indent lexemes</b> have no characters,
+but do have an <b id='indent'>indent</b>, which is the indent
+of the graphic character after the indent lexeme.  The indent
+of a character is the number of columns that precede the character in the
+character's physical line.  <i>Control-characters</i> other than
+<i>horizontal-space-characters</i> take zero columns, as do characters
+of classes <b>Mn</b> (combining-marks) and <b>Me</b> (ending-marks).
+All other characters take one column, except for tabs, that
+are set every 8 columns.
+Indent lexemes are used to form
+<a href='reckon_logical_lines'>logical lines and blocks</a>.
+
+<p>
+One kind of <i>vertical-space</i> is given special distinction:
+
+<ul class='syntax'>
+<li><em>line-break</em> :::=
+     <i>vertical-space</i> containing exactly one <i>line-feed</i>
+</ul>
+
+<p>
+This is the <i>line-break</i> lexeme.
+
+<p>
+Non-<i>indent</i>, non-<i>line-break</i> <i>white-space</i>, such as
+occurs in the middle of text or code outside comments, is discarded and
+not treated as a lexeme.  Such <i>white-space</i> may be used to
+separate lexemes.
+</p>
+
+<h2 id='illegal-characters'>Illegal Characters</h2>
 
 </div>
 
