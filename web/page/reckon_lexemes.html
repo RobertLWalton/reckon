@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Jan 30 09:10:55 EST 2024
+Date:	Tue Jan 30 10:42:29 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -104,7 +104,7 @@ follows:
 	    <b>Ps</b>, <b>Pi</b>, <b>Pe</b>, and <b>Pf</b>
     </td></tr><tr><td>includes <b>{ ( [ &#171; &#187; ] ) }</b>
     </td></tr></table>
-<li><em>separating-character</em> :::=
+<li><em>separator-character</em> :::=
 		<i>isolated-separator-character</i>
                 | &nbsp;&nbsp;<b>|</b>
 <li><em>leading-separator-character</em> :::=
@@ -118,7 +118,7 @@ follows:
 <li><em>digit</em> :::= characters in UNICODE category <b>Nd</b>
                         (includes <i>ASCII-digits</i>)
 <li><em>lexical-item-character</em> :::=<br>
-    <i>graphic-character</i> other than <i>separating-character</i>
+    <i>graphic-character</i> other than <i>separator-character</i>
     or <b>&#34;</b>
 </ul>
 </p>
@@ -246,6 +246,47 @@ whereas inside <i>quoted-strings</i> and <i>comments</i>,
 </p>
 
 <h2 id='lexemes'>Lexemes</h2>
+
+<p>
+RECKON lexemes are as follows:
+
+<ul class='syntax'>
+<li><em>lexeme</em>
+    <table>
+    <tr><td>::=</td><td>
+	<i>numeric-word</i> | <i>word</i> | <i>natural</i> |
+        <i>number</i> | <i>numeric</i>
+    </td></tr><tr><td>|</td><td>
+	<i>mark</i> | <i>separator</i> | <i>quoted-string</i>
+    </td></tr><tr><td>|</td><td>
+	<i>indent</i> | <i>line-break</i> | <i>comment</i> | <i>end-of-file</i>
+    </td></tr></table>
+<li><em>strict-separator</em> ::= <i>isolated-separator-character</i> |
+				  &nbsp;&nbsp;<b>|</b>&#8314;
+<li><em>leading-separator</em> :::=
+	<b>`</b>&#8314; | <b>&#161;</b>&#8314; | <b>&#191;</b>&#8314;
+<li><em>trailing-separator</em> :::=
+	<b>'</b>&#8314; | <b>!</b>&#8314; | <b>?</b>&#8314; |
+        <b>.</b>&#8314; | <b>:</b>&#8314; |
+	<b>,</b> | <b>;</b>
+<li><em>separator</em> ::= <i>strict-separator</i> |
+                           <i>leading-separator</i> |
+                           <i>trailing-separator</i>
+<li><em>quoted-string</em> :::=
+    <b>&#34;</b> <i>character-representative</i>* <b>&#34;</b>
+<li><em>character-representative</em>
+    <table>
+    <tr><td>:::=</td><td>
+        <i>graphic-character</i> other than <b>&#34;</b>
+    </td></tr><tr><td>|</td><td>
+	<i>ASCII-single-space-character</i>
+    </td></tr><tr><td>|</td><td>
+	<i>special-character-reprentative</i>
+    </td></tr></table>
+<li><em>special-character-representative</em> :::=
+    <b>&#60;</b> { <i>upper-case-letter</i> | <i>digit</i> }&#8314;
+    <b>&#62;</b>
+</ul>
 
 <p>
 
