@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Jan 31 03:43:27 EST 2024
+Date:	Wed Jan 31 04:29:37 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -45,6 +45,8 @@ make no warranty and accept no liability for RECKON.
 <a href="#white-space">White Space</a>
 <a href="#illegal-characters">Illegal Characters</a>
 <a href="#lexemes">Lexemes</a>
+<a href="#middle-lexemes">Middle Lexemes</a>
+<a href="#numbers">Numbers</a>
 </div>
 
 </div>
@@ -318,7 +320,7 @@ RECKON lexemes are as follows:
     <i>decimal-digit</i>&#8314; not beginning with <b>0</b>
 				  &nbsp;&nbsp;|&nbsp;&nbsp; <b>0</b>
     </td></tr><tr><td>
-    [<a href='#type-change'>but lexical type may be changed: see text</a>]
+    [<a href='#numbers'>but lexical type may be changed: see text</a>]
     </td></tr></table>
 <li><em>number</em>
     <table>
@@ -329,7 +331,7 @@ RECKON lexemes are as follows:
     <i>sign</i>? <i>integer-part</i>? <i>fraction-part</i>
                                       <i>exponent-part</i>?
     </td></tr><tr><td></td><td>
-    [<a href='#type-change'>but lexical type may be changed: see text</a>]
+    [<a href='#numbers'>but lexical type may be changed: see text</a>]
     </td></tr></table>
 <li><em>integer-part</em> :::= <i>decimal-digit</i>&#8314;
 <li><em>fraction-part</em> :::= <b>.</b> <i>decimal-digit</i>&#8314;
@@ -369,7 +371,80 @@ Files are scanned into sequences of lexemes which are then divided into
 <a href='reckon_logical_lines'>logical lines</a>.
 After each logical line is formed, <i>indent</i>, <i>line-break</i>,
 and <i>end-of-file</i> lexemes are deleted from the logical line.
+</p>
 
+<h2 id='middle-lexemes'>Middle Lexemes</h2>
+
+<p>
+The definition of a <em id='middle-lexeme'>middle-lexeme</em> is unusual:
+it is what is left over after removing <i>leading-separators</i>
+and <i>trailing-separators</i> from a <i>lexical-item</i>.
+The lexical scan first scans a <i>lexical-item</i>,
+and then removes <i>leading-separators</i> and
+<i>trailing-separators</i> from it. Also <i>trailing-separators</i>
+are removed from the end of a <i>lexical-item</i> by a right-to-left scan,
+and not the usual left-to-right scan which is used for everything else.
+Thus the <i>lexical-item</i> ‘<code>¿4,987?,,::</code>’
+yields the <i>leading-separator</i> ‘<code>¿</code>’,
+the <i>middle-lexeme</i> ‘<code>4,987</code>’,
+and the four <i>trailing-separators</i>
+‘<code>?</code>’, ‘<code>,</code>’ ‘<code>,</code>’ and ‘<code>::</code>’.
+
+<p>
+<i>Words</i>, <i>numerics</i>, and <i>marks</i> in the same logical line
+are glued together if the first ends with ‘<b>#</b>’
+and the second begins with ‘<b>#</b>’. Thus
+<pre class='example'>
+This is a continued-#
+&nbsp;&nbsp;&nbsp;&nbsp;#middle# #-lexeme.
+</pre>
+is equivalent to
+<pre class='example'>
+This is a continued-middle-lexeme.
+</pre>
+
+<p>
+This gluing does <strong>not</strong> work for
+<i>numbers</i>, <i>naturals</i>, and <i>numeric-words</i>.
+
+</p>
+
+<h2 id='numbers'>Numbers</h2>
+
+<p>
+A <i>number</i>, <i>natural</i>, or <i>numeric-word</i>
+lexeme is a C/C++ constant, and conversely a C/C++
+decimal constant that does not end in a <i>decimal-point</i>
+is a <i>number</i>, <i>natural</i>, or <i>numeric-word</i>
+lexeme. All these lexemes are given an IEEE double precision
+number value after the manner
+of C/C++, and then their lexical type is changed as follows:
+
+<ul>
+<li> If the value is <strong>not</strong> a finite number,
+     the new type is <i>numeric-word</i>. For example, this
+     applies to <code>1e500</code> which converts to the
+     same value as <code>+inf</code>.
+<li> If the value is an integer in the range <code>[0, 10<sup>15</sup>)</code>
+     the new type is <i>natural</i>. For example,
+     this applies to <code>1e3</code> which converts to the same
+     value and lexical type as <code>1000</code>.
+<li> Otherwise the new type is <i>number</i>. For example,
+     this applies to <code>1e20</code> or <code>1.1</code>.
+</ul>
+
+<p>
+In contrast, a <i>numeric</i>, like <code>02/28/2022</code>,
+represents a character string and in this is like a word.
+
+<p>
+TBD
+The lexeme <code>2/3</code> is also a numeric and is not used
+to represent a number; instead the
+lexeme pair <code>D# "2/3</code>" is used to represent
+a rational number.
+
+</ul>
 
 </div>
 
