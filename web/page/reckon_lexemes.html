@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Jan 30 19:18:37 EST 2024
+Date:	Wed Jan 31 03:43:27 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -129,7 +129,7 @@ follows:
 Comments may be placed at the ends of lines:
 
 <ul class='syntax'>
-<li><em>comment</em> :::= <b>//</b> <i>comment-character</i>*
+<li><em id='comment'>comment</em> :::= <b>//</b> <i>comment-character</i>*
 <li><em>comment-character</em> :::= <i>graphic-character</i> |
                                     <i>horizontal-space-character</i>
 </ul>
@@ -152,7 +152,7 @@ is not itself a lexeme:
 The following is a special virtual lexeme:
 
 <ul class='syntax'>
-<li><em>indent</em> :::=<br>
+<li><em id='indent'>indent</em> :::=<br>
      virtual lexeme inserted just before the first
      <i>graphic-character</i> on a physical line
 </ul>
@@ -174,7 +174,7 @@ Indent lexemes are used to form
 One kind of <i>vertical-space</i> is given special distinction:
 
 <ul class='syntax'>
-<li><em>line-break</em> :::=
+<li><em id='line-break'>line-break</em> :::=
      <i>vertical-space</i> containing exactly one <i>line-feed</i>
 </ul>
 
@@ -318,7 +318,7 @@ RECKON lexemes are as follows:
     <i>decimal-digit</i>&#8314; not beginning with <b>0</b>
 				  &nbsp;&nbsp;|&nbsp;&nbsp; <b>0</b>
     </td></tr><tr><td>
-    [<a href='#type-change'>but lexical type may be changed</a>]
+    [<a href='#type-change'>but lexical type may be changed: see text</a>]
     </td></tr></table>
 <li><em>number</em>
     <table>
@@ -329,7 +329,7 @@ RECKON lexemes are as follows:
     <i>sign</i>? <i>integer-part</i>? <i>fraction-part</i>
                                       <i>exponent-part</i>?
     </td></tr><tr><td></td><td>
-    [<a href='#type-change'>but lexical type may be changed</a>]
+    [<a href='#type-change'>but lexical type may be changed: see text</a>]
     </td></tr></table>
 <li><em>integer-part</em> :::= <i>decimal-digit</i>&#8314;
 <li><em>fraction-part</em> :::= <b>.</b> <i>decimal-digit</i>&#8314;
@@ -347,9 +347,29 @@ RECKON lexemes are as follows:
     </td></tr></table>
 <li><em>mark</em> :::=
     <i>middle-lexeme</i> not containing a <i>letter</i> or a <i>digit</i>
+<li><i>indent</i> ::= see <a href='#indent'>text</a>
+<li><i>comment</i> ::= see <a href='#comment'>text</a>
+<li><i>line-break</i> ::= see <a href='#line-break'>text</a>
+<li><i>end-of-file</i> ::= see <a href='#end-of-file'>text</a>
 </ul>
 
 <p>
+Here the symbol `<b>:::=</b>' is used in syntax equations that define lexemes
+or parts of lexemes whose syntactic elements are character sequences that
+must <strong>not</strong> be separated by <i>white-space</i>.
+The symbol `<b>::=</b>' is used in syntax equations that define sequences
+of lexemes that may and sometimes must be separated by <i>white-space</i>.
+
+<p>
+There is a special <em id='end-of-file'>end-of-file</em> lexeme that
+occurs only at the end of a file.
+
+<p>
+Files are scanned into sequences of lexemes which are then divided into
+<a href='reckon_logical_lines'>logical lines</a>.
+After each logical line is formed, <i>indent</i>, <i>line-break</i>,
+and <i>end-of-file</i> lexemes are deleted from the logical line.
+
 
 </div>
 
