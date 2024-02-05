@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lexemes.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Jan 31 04:29:37 EST 2024
+Date:	Mon Feb  5 02:15:45 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -47,6 +47,7 @@ make no warranty and accept no liability for RECKON.
 <a href="#lexemes">Lexemes</a>
 <a href="#middle-lexemes">Middle Lexemes</a>
 <a href="#numbers">Numbers</a>
+<a href="#quoted-strings">Quoted Strings</a>
 </div>
 
 </div>
@@ -435,16 +436,68 @@ of C/C++, and then their lexical type is changed as follows:
 
 <p>
 In contrast, a <i>numeric</i>, like <code>02/28/2022</code>,
-represents a character string and in this is like a word.
+may represent a <a href='reckon_special_number.html'>
+special number</a>, such as a date, or may just represent a
+characters string (like <code>/.3f/</code>).
+
+</p>
+
+<h2 id='quoted-strings'>Quoted Strings</h2>
 
 <p>
-TBD
-The lexeme <code>2/3</code> is also a numeric and is not used
-to represent a number; instead the
-lexeme pair <code>D# "2/3</code>" is used to represent
-a rational number.
+A <em>quoted-string</em> represents a string of UNICODE characters.
+Each character inside the <code>"</code> quotes represents itself,
+unless that character is part of a <i>special-character-representative</i>.
 
-</ul>
+<p>
+A <em>special-character-representative</em> can consist of a
+UNICODE character name surrounded by angle brackets (<code>&lt; &gt;</code>).
+Examples are &lt;NUL&gt;, &lt;LF&gt;, &lt;SP&gt;, &lt;NBSP&gt;.
+There are three other cases: &lt;Q&gt; represents the doublequote ",
+&lt;NL&gt; (new line) represents a line feed (same as &lt;LF&gt;),
+and &lt;UUC&gt; represents the ‘unknown UNICODE character’ which in turn is
+used to represent illegal UTF-8 character encodings.
+
+<p>
+A <em>special-character-representative</em> can also consist of a
+hexadecimal UNICODE character code, which must begin with a digit.
+Thus &lt;0FF&gt; represents ÿ whereas &lt;FF&gt; represents a form feed.
+
+<p>
+<i>Quoted string</i> lexemes separated by the ‘#’ mark are glued
+together if they are in the same logical line. Thus
+<pre class='example'>
+"This is a longer sentence" #
+&nbsp;&nbsp;&nbsp;&nbsp;" than we would like."
+"And this is a second sentence."
+</pre>
+is equivalent to
+<pre class='example'>
+"This is a longer sentence than we would like."
+"And this is a second sentence."
+</pre>
+<p>
+For compatibility with <i><a href='#middle-lexemes'>middle-lexemes</a></i>,
+two consecutive ‘#’ marks may be used to glue together two quoted strings,
+as in
+<pre class='example'>
+"This is a continued-"#
+&nbsp;&nbsp;&nbsp;&nbsp;#"quoted"# #"-string".
+</pre>
+which is equivalent to
+<pre class='example'>
+"This is a continued-quoted-string".
+</pre>
+<p>
+Thus we can break long <i>quoted-string</i> lexemes across
+line continuations. However, there is an important case where there is
+not an exact equivalence between the glued and unglued versions.
+"&lt;" # "LF" # "&gt;" is not equivalent to "&lt;LF&gt;".
+The former is a 4-character quoted string, the characters being
+&lt;, L, F, and &gt;. The latter is a 1-character quoted string,
+the character being a line feed.
+
+</p>
 
 </div>
 
