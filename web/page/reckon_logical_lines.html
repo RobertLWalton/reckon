@@ -3,7 +3,7 @@
 <!--
 File:	reckon_logical_lines.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Feb  6 01:50:25 EST 2024
+Date:	Tue Feb  6 08:29:39 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -65,13 +65,13 @@ make no warranty and accept no liability for RECKON.
 <p>
 The <i><a href='reckon_lexemes.html'>lexemes</a></i>
 in a RECKON source file are organized into
-physical lines, logical lines, and blocks.
+<i>physical-lines</i>, <i>logical-lines</i>, and <i>blocks</i>.
 </p>
 
 <h2 id='physical-lines'>Physical Lines</h2>
 
 <p>
-A <u>non-blank</u> <em>physical line</em> begins with
+A <u>non-blank</u> <em>physical-line</em> begins with
 an <i>indent</i> lexeme that is followed by a lexeme
 that cannot be an <i>indent</i>, <i>line-break</i>,
 or <i>end-of-file</i>.  Every <i>physical-line</i> ends with a
@@ -80,31 +80,33 @@ contain any <i>indent</i> lexeme other than one beginning
 the <i>physical-line</i> if the latter is non-blank.
 
 <p>
-A <u>blank</u> <i>physical line</i> contains nothing but a
+A <u>blank</u> <i>physical-line</i> contains nothing but a
 <i>line-break</i> or <i>end-of-file</i> lexeme.
 
 <p>
-The indentation of a non-blank <i>physical line</i> is the indentation of
+The indentation of a non-blank <i>physical-line</i> is the indentation of
 its <i>indent</i> lexeme.
 
 <p>
 Indentation is important. A warning message is output if the
-indents of two physical lines
+indents of two <i>physical-lines</i>
 that are being compared differ by more than <b>0</b>
 and less than <b>2</b> columns.  This detects indentation
 mistakes.
 
 <p>
-The indentation of the first non-blank physical line must be <b>0</b>.
+The indentation of the first non-blank <i>physical-line</i> must be <b>0</b>.
+</p>
 
 <h2 id='logical-lines'>Logical Lines</h2>
 
+<p>
 A <em>logical-line</em> begins just after an <i>indent</i> lexeme and
 the indent of the <i>logical-line</i> is the indent of this lexeme.
 A <i>logical-line</i> ends with any of:
 <ol>
 <li> an <i>indent</i> lexeme with indent equal to or less indent than the
-     logical line beginning <i>indent</i> lexeme
+     <i>logical-line</i> beginning <i>indent</i> lexeme
 <li> just before a blank line in the context where the
      <i>logical-line</i> is also
      a <a href='reckon_text.html#text-paragraph'><i>text-paragraph</i></a>
@@ -158,7 +160,114 @@ After a <i>logical-line</i> has been formed, any <i>indent</i>,
 in the <i>logical-line</i> are removed from the <i>logical-line</i>.
 If the result is empty, e.g., the <i>logical-line</i>
 is a <i>comment-line</i>, it is discarded.
+</p>
 
+<h2 id='blocks'>Blocks</h2>
+
+<p>
+A <i>logical-line</i> may end with a <em>block</em>
+that is itself a sequence of <i>logical-lines</i> that have indents
+greater than the indent of the <i>logical-line</i>
+containing the <i>block</i>. The <i>block</i> is introduced by
+a ‘<em>:</em>’ at the end of a <i>physical-line</i>, provided the ‘:’
+is not inside brackets or quotes (e.g.,
+not inside ( ) or ‘ ’). If the first <i>indent</i> lexeme after
+the ‘:’ has an indent that is not
+greater than the indent of the <i>logical-line</i> containing
+the ‘:’, the <i>block</i> is empty. Otherwise
+the indent of this <i>indent</i> lexeme becomes the indent of
+the <i>block</i> and the indent of all the
+<i>logical-lines</i> in the <i>block</i>. The first <i>logical-line</i>
+of the <i>block</i> starts immediately after this
+indent lexeme. The <i>block</i> ends just before the first
+<i>logical-line</i> with lesser indent than the
+<i>block</i> indent, or the end of file. More specifically,
+the last <i>logical-line</i> of the <i>block</i> ends with
+an <i>indent</i> whose indent is less than the <i>block</i>
+indent, or with an <i>end-of-file</i>.
+
+<p>
+Examples of <i>blocks</i> at the ends of <i>logical-lines</i> are:
+<pre class='example'>
+this is a top level logical line ending with a block:
+    this is the first line of the block
+    this is the
+        second line of the block
+    this is the third line of the block:
+        this is the first line of a subblock
+        this is the second line
+                of the subblock:
+            this is the only line of a sub-subblock
+        this is the third line of the subblock
+    this is the fourth line
+            of the block:
+        this is the only line of the second subblock
+    this is the fifth line of the block
+        and it ends with an empty subblock:
+this is the second top level
+    logical line
+</pre>
+
+<p>
+A <i>block</i> can be ended by an insufficiently indented <i>comment-line</i>
+(i.e., <i>block</i> endings are determined before <i>comments</i> are
+discarded).
+It is an error for a <i>block</i> to be in the middle of a <i>logical-line</i>.
+This means that the first <i>indent</i>
+following the <i>block</i> must have an indent no greater than
+that of the <i>logical-line</i> containing the <i>block</i>.
+Some examples involving these rules are:
+<pre class='example'>
+// this is a logical line that is a single comment
+
+// this is a logical line that has two
+    // comments
+
+this is a logical line // with a comment
+    // and another comment
+    with three comments // and a last comment
+
+this is a logical line ending with a block:
+    First line of the block
+    Second line of the block
+// Comment that ends block
+// Comment that is in error because
+    it begins a logical line that this continues
+
+this is a logical line with a block:
+    First line of the block
+    Second line of the block
+  but the block is in error because it is before
+  this continuation of the logical line that contains
+  the block
+
+this is a logical line ending with a block:
+    First line of the block
+    Second line of the block
+  // comments that end the block, but are in error,
+  // because they continue the logical line
+  // containing the block
+</pre>
+
+</p>
+
+<h2 id='statements'>Statements</h2>
+
+<p>
+In a code file, the <i>logical-lines</i> are
+called <em>statements</em>.  Top level <I>statements</i>,
+i.e., those outside <i>blocks</i>, must have indent 0.
+
+<p>
+Therefore a code file is a sequence of top-level <i>statements</i>.
+
+<p>
+Since a <i>logical-line</i> can end with a <i>block</i> that
+itself consists of a sequence of <i>logical-lines</i>, a
+<i>statement</i> can end with a <i>block</i> that itself
+consists of a sequence of <i>statements</i>.
+
+</p>
 
 </div>
 
