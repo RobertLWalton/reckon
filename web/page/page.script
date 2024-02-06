@@ -1,6 +1,6 @@
 // File:   page.script
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Sat Jan 13 05:43:48 EST 2024
+// Date:   Tue Feb  6 00:23:46 EST 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -27,6 +27,33 @@ for ( var i = 0; i < docs_list.length; ++ i )
     docs_contents.appendChild ( new_element );
 }
 
+function A_IN_NEW_WINDOW ( a )
+{
+    const root = document.documentElement;
+    const style = window.getComputedStyle ( root );
+    const width = parseInt ( style.getPropertyValue ( 'width' ) );
+    const height = parseInt ( style.getPropertyValue ( 'height' ) );
+    var X = window.screenX;
+    var Y = window.screenY;
+    const offset = 100;
+    if (    X + width + offset
+         <= window.screen.availWidth )
+	X = X + offset;
+    else
+	X = X - offset;
+    if (    Y + width + offset
+         <= window.screen.availHeight )
+	Y = Y + offset;
+    else
+	Y = Y - offset;
+    const win = window.open
+	( a.href, a.href,
+	  'height=' + height + 'px,' +
+	  'width=' + width + 'px,' +
+	  'screenX=' + X + 'px,' +
+	  'screenY=' + Y + 'px' );
+    win.focus(); // Needed for Firefox but not Chrome.
+}
 
 // BACK and FORWARD buttons.
 
@@ -51,6 +78,12 @@ function A_CLICK ( event )
     let a = event.target;
     if ( a.tagName != 'A' ) return;
     if ( a.href == '' ) return;
+    if ( a.href[0] != '#' )
+    {
+	event.preventDefault();
+	A_IN_NEW_WINDOW ( a );
+	return;
+    }
     while ( index < 0 )
     {
         history_list.pop();
