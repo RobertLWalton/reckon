@@ -3,7 +3,7 @@
 <!--
 File:	reckon_logical_lines.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Feb  6 01:36:32 EST 2024
+Date:	Tue Feb  6 01:50:25 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -13,7 +13,7 @@ make no warranty and accept no liability for RECKON.
 <meta http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate" />
 
-<title>RECKON Logical Lines</title>
+<title>RECKON Logical Lines, Blocks, and Statements</title>
 <link href='page.css' rel='stylesheet'/>
 <link rel='icon' href='data:;base64,='>
 
@@ -36,7 +36,7 @@ make no warranty and accept no liability for RECKON.
 
 <div id="toc" onclick="DISPLAY('text')">
 
-<h1>RECKON Logical Lines</h1>
+<h1>RECKON Logical Lines, Blocks, and Statements</h1>
 
 <h2>Table of Contents</h2>
 
@@ -80,22 +80,28 @@ contain any <i>indent</i> lexeme other than one beginning
 the <i>physical-line</i> if the latter is non-blank.
 
 <p>
+A <u>blank</u> <i>physical line</i> contains nothing but a
+<i>line-break</i> or <i>end-of-file</i> lexeme.
+
+<p>
+The indentation of a non-blank <i>physical line</i> is the indentation of
+its <i>indent</i> lexeme.
+
+<p>
 Indentation is important. A warning message is output if the
-two indents that are being compared differ by more than <b>0</b>
-and less than <b>2</b> columns, in order to detect indentation
+indents of two physical lines
+that are being compared differ by more than <b>0</b>
+and less than <b>2</b> columns.  This detects indentation
 mistakes.
 
 <p>
 The indentation of the first non-blank physical line must be <b>0</b>.
 
-<p>
-Blank lines are represented by consecutive <i>line-break</i> lexemes.
-
 <h2 id='logical-lines'>Logical Lines</h2>
 
 A <em>logical-line</em> begins just after an <i>indent</i> lexeme and
 the indent of the <i>logical-line</i> is the indent of this lexeme.
-a <i>logical-line</i> ends with any of:
+A <i>logical-line</i> ends with any of:
 <ol>
 <li> an <i>indent</i> lexeme with indent equal to or less indent than the
      logical line beginning <i>indent</i> lexeme
@@ -129,7 +135,7 @@ freely in the middle of or at the end of any <i>logical-line</i>,
 or at the beginning of a <i>comment-line</i>.
 
 <p>
-Examples of <i>logical-lines</i> that are <i>code-statements<i> are:
+Examples of <i>logical-lines</i> that are <i>code-statements</i> are:
 <pre class='example'>
 This is a first logical line.
 This is a second logical line
@@ -139,12 +145,19 @@ This is a third logical line
     with an ignored blank line.
 // The third logical line is ended by this
     // comment line.  This comment line is the
-    // forth logical line, but will become an empty
+    // fourth logical line, but will become an empty
     // statement and then be ignored.
 This is the fifth logical line, but it will generate
  a warning message because this continuation line
   is insufficiently indented.
 </pre>
+
+<p>
+After a <i>logical-line</i> has been formed, any <i>indent</i>,
+<i>comment</i>, <i>line-break</i>, and <i>end-of-file</i> lexemes
+in the <i>logical-line</i> are removed from the <i>logical-line</i>.
+If the result is empty, e.g., the <i>logical-line</i>
+is a <i>comment-line</i>, it is discarded.
 
 
 </div>
