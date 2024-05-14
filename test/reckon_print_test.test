@@ -64,8 +64,9 @@
         block standard: "#"
         block TOP LEVEL: disabled
     print bracket ""
-        block standard: bracket "``" ... "''" [code, text, math]
-                        with parsing selectors [- code, + text, - math]
+        block standard: bracket "``" ... "''" [code, label, text, math]
+                        with parsing selectors [- code, - label, + text,
+                                                - math]
                         with parsing options [+ enable table prefix]
                         with text reformatter ( "s", ".", "?", "!", ":",
                         ";" )
@@ -77,26 +78,32 @@
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >] [data]
                          with parsing selectors [data]
                          with label reformatter
+        block standard: bracket [< "{" "*" >] ... [< "*" "}" >] [label]
+                        with multivalue reformatter ( "," )
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
-        block standard: bracket "(" ... ")" [code, text, math]
+        block standard: bracket "(" ... ")" [code, label, text, math]
         block TOP LEVEL: bracket "(" ... ")" [data]
         block reckon: bracket "[" ... "]" [label, text, math]
                       with parsing selectors [+ code, - label, - text,
                                               - math]
-        block standard: bracket "[" ... "]" [code, text, math]
+        block standard: bracket "[" ... "]" [code, label, text, math]
+                        with parsing selectors [+ code, - label, - text,
+                                                - math]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block standard: bracket "`" ... "'" [code, text, math]
-                        with parsing selectors [text]
+        block standard: bracket "`" ... "'" [code, label, text, math]
+                        with parsing selectors [- code, - label, + text,
+                                                - math]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [data]
         block standard: bracket [< "{" "{" >] ... [< "}" "}" >]
-                        [code, text, math]
-                        with parsing selectors [- code, - text, + math]
+                        [code, label, text, math]
+                        with parsing selectors [- code, - label, - text,
+                                                + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [code, label, text, math]
-                        with parsing selectors [data]
+                        with parsing selectors [label]
                         with special reformatter
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >] [data]
                          with parsing selectors [data]
@@ -170,8 +177,8 @@
     print typed bracket ""
         block standard: typed bracket "{" ... "|" ... "|" ... "}"
                         // "||" is also allowed.
-                        [code, text, math]
-                        with attribute selectors [data]
+                        [code, label, text, math]
+                        with attribute selectors [label]
                         with attributes ":" ... "=" ... ","
                         with attribute negator "no"
                         with attribute flags initiator "["
