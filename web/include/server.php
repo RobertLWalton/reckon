@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Thu Jan  4 22:58:23 EST 2024
+// Date:   Fri May 17 03:31:03 EDT 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -103,7 +103,8 @@ if ( $op == 'status' || $op == 'abort' )
 elseif ( $op == 'run' )
     exit ( 'RUN not yet implemented' );
 elseif ( $op == 'compile' )
-    exit ( 'COMPILE not yet implemented' );
+    $options = "";
+    // exit ( 'COMPILE not yet implemented' );
 elseif ( $op == 'parse' )
     $options = "--output-parse";
 else

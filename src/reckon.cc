@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  4 09:27:43 EST 2024
+// Date:	Fri May 17 03:29:28 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,13 +59,14 @@ static void remove_tokens
     min::print_phrase_lines
         ( parser->printer,
 	  parser->input_file,
-	  parser->first->position );
-    parser->printer << parser->first->value << min::eol;
+	  parser->first->next->position );
+    parser->printer << parser->first->next->value
+                    << min::eol;
     MIN_REQUIRE
-        ( parser->first->next != parser->first );
+        ( parser->first->next->next != parser->first );
     PAR::remove ( parser,
-                  parser->first,
-		  parser->first->next );
+                  parser->first->next,
+		  parser->first->next->next );
     -- parser->finished_tokens;
 }
 
