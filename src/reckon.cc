@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 17 03:29:28 EDT 2024
+// Date:	Sat May 18 03:50:17 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,9 +126,9 @@ int main ( int argc, const char * argv[] )
     PAR::init ( PAR::default_parser,
                   PARSTD::ALL
 		- PARSTD::BITWISE_OPERATORS );
+    REC::init_parser ( PAR::default_parser );
     PAR::init_ostream
         ( PAR::default_parser, std::cout );
-    REC::init_parser ( PAR::default_parser );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin,
 	  min::marked_line_format );
