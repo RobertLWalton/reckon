@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Dec 15 03:15:01 UTC 2023
+# Date:		Sun May 19 21:54:08 EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 # The following locates the MIN and LAYERED source code.
 #
 MIN = ~/min
+MEX = ~/mex
 LAYERED = ~/layered
 
 # The following turns on MIN debugging.
@@ -129,11 +130,14 @@ reckon_parser.o:            \
 	    ../src/reckon_parser.cc \
 	    ../include/reckon.h \
 	    ${LAYERED}/lib/liblayered.a \
+	    ${MEX}/lib/libmex.a \
 	    ${MIN}/lib/libmin.a \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
-	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -I ${LAYERED}/include \
+	    -I ${MEX}/include \
+	    -I ${MIN}/include \
 	    -c ../src/reckon_parser.cc
 
 reckon:		\
@@ -141,15 +145,19 @@ reckon:		\
 	    reckon_parser.o \
 	    ../include/reckon.h \
 	    ${LAYERED}/lib/liblayered.a \
+	    ${MEX}/lib/libmex.a \
 	    ${MIN}/lib/libmin.a \
 	    Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
-	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -I ${LAYERED}/include \
+	    -I ${MEX}/include \
+	    -I ${MIN}/include \
 	    -o $@ \
 	    ../src/reckon.cc \
 	    reckon_parser.o \
 	    ${LAYERED}/lib/liblayered.a \
+	    ${MEX}/lib/libmex.a \
 	    ${MIN}/lib/libmin.a
 
 %.html:	%.in reckon

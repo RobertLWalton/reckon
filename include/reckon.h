@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 03:42:56 EDT 2024
+// Date:	Sun May 19 21:50:03 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 # ifndef RECKON_H
 # define RECKON_H
 
+# include <mex.h>
 # include <ll_parser.h>
 
 namespace reckon {
@@ -26,9 +27,14 @@ namespace reckon {
     //
     void init_parser ( ll::parser::parser parser );
 
-    // Call to init compiler.
+    // Call to init compiler.  Parser->input_file must
+    // be set before this function is called.
     //
     void init_compiler ( ll::parser::parser parser );
+
+    // Code module produced by compilation.
+    //
+    extern mex::module mod;
 
     // Number of compile errors and warnings so far.
     //
