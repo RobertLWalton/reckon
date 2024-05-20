@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 19 21:50:03 EDT 2024
+// Date:	Sun May 19 22:12:07 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@ namespace reckon {
 
     // Code module produced by compilation.
     //
-    extern mex::module mod;
+    extern min::locatable_var<mex::module> code;
 
     // Number of compile errors and warnings so far.
     //

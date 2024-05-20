@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun May 19 21:54:08 EDT 2024
+# Date:		Sun May 19 22:18:13 EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -140,9 +140,24 @@ reckon_parser.o:            \
 	    -I ${MIN}/include \
 	    -c ../src/reckon_parser.cc
 
+reckon_compiler.o:            \
+	    ../src/reckon_compiler.cc \
+	    ../include/reckon.h \
+	    ${LAYERED}/lib/liblayered.a \
+	    ${MEX}/lib/libmex.a \
+	    ${MIN}/lib/libmin.a \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -I ${LAYERED}/include \
+	    -I ${MEX}/include \
+	    -I ${MIN}/include \
+	    -c ../src/reckon_compiler.cc
+
 reckon:		\
 	    ../src/reckon.cc \
 	    reckon_parser.o \
+	    reckon_compiler.o \
 	    ../include/reckon.h \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MEX}/lib/libmex.a \
@@ -156,6 +171,7 @@ reckon:		\
 	    -o $@ \
 	    ../src/reckon.cc \
 	    reckon_parser.o \
+	    reckon_compiler.o \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MEX}/lib/libmex.a \
 	    ${MIN}/lib/libmin.a
