@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 03:50:17 EDT 2024
+// Date:	Mon May 20 04:13:45 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,13 +43,20 @@ const char * html_postfix[] = {
     "</html>",
     NULL };
 
-bool lexeme_test = false;
+bool output_html = false;
+bool raw_html = false;
+
 bool parse = false;
+bool compile = false;
+bool run = false;
+bool trace = false;
+
+bool lexeme_test = false;
+
+bool parser_test = false;
 bool output_parse = false;
 bool subexpression_parse = false;
 bool parse_detail = false;
-bool output_html = false;
-bool raw_html = false;
 
 static void remove_tokens
     ( PAR::parser parser,
@@ -81,14 +88,19 @@ int main ( int argc, const char * argv[] )
 	    if ( strcmp ( argv[i], x ) == 0 ) \
 	        y = true; \
 	    else
-	TEST ( "--lexeme-test", lexeme_test )
+	TEST ( "--output-html", output_html )
+	TEST ( "--raw-html", raw_html )
+
 	TEST ( "--parse", parse )
+	TEST ( "--compile", compile )
+	TEST ( "--run", run )
+	TEST ( "--trace", trace )
+
+	TEST ( "--lexeme-test", lexeme_test )
 	TEST ( "--output-parse", output_parse )
 	TEST ( "--subexpression-parse",
 	       subexpression_parse )
 	TEST ( "--parse-detail", parse_detail )
-	TEST ( "--output-html", output_html )
-	TEST ( "--raw-html", raw_html )
 	{
 	    std::cerr
 	        << "ERROR: unrecognized argument "
@@ -99,10 +111,10 @@ int main ( int argc, const char * argv[] )
     }
     if ( found_error ) exit ( 1 );
 
-    if ( subexpression_parse )
+    if ( subexpression_parse || parse_detail )
         output_parse = true;
     if ( output_parse )
-        parse = true;
+        parser_test = true;
 
     if ( lexeme_test )
     {
@@ -147,7 +159,7 @@ int main ( int argc, const char * argv[] )
 	PAR::default_parser->printer
 	    << min::output_html;
 
-    if ( parse )
+    if ( parser_test )
     {
 
 	PAR::default_parser->trace_flags |=
