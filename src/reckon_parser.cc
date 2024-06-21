@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 13 02:43:31 EDT 2023
+// Date:	Fri Jun 21 05:50:46 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -105,7 +105,7 @@ void REC::init_parser ( PAR::parser parser )
 	( text_colon,
 	  min::MISSING(),
 	  code,
-	  0, PAR::top_level_position,
+	  block_level, PAR::top_level_position,
 	  PAR::parsing_selectors ( text ),
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
