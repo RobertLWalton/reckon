@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Mon May 20 04:26:03 EDT 2024
+// Date:   Tue Jul  9 05:30:54 EDT 2024
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -61,7 +61,6 @@ register_shutdown_function ( 'LOCK_SHUTDOWN' );
 
 $TIME = $_SESSION['START_TIME'];
 $IPADDR = $_SESSION['IPADDR'];
-$HOST = $_SESSION['HOST'];
 $BROWSER = $_SESSION['BROWSER'];
 
 clearstatcache();
@@ -80,13 +79,20 @@ if ( $ID == '' )
     if ( ! isset ( $throttle_message ) )
 	$throttle_message =
 	    'WAIT 24 HOURS AND TRY AGAIN';
+    if ( ! isset ( $throttle_time ) )
+	$throttle_time = 10;
     if ( ! isset ( $random_device ) )
 	$random_device = '/dev/urandom';
 
     $log1 = "$DDIR/log/$IPADDR.log";
-    $lock1 = $fopen ( $log1, 'c' );
+    $lock1 = fopen ( $log1, 'c+' );
     flock ( $lock1, LOCK_EX );
-    $contents = @fread ( $lock1, filesize ( $log1 ) ); 
+    $s = filesize ( $log1 );
+    if ( $s == 0 ) $contents = "";
+    else $contents = fread ( $lock1, $s ); 
+	// For some reason fread of 0 bytes fails,
+	// apparently by terminating process.
+	// July 9, 2024.
     $lines = explode ( "\n", $contents );
     $length = count ( $lines );
     if ( $length > $throttle_limit )
@@ -102,13 +108,16 @@ if ( $ID == '' )
     fseek ( $lock1, 0, SEEK_END );
 
     $log2 = "$DDIR/log/id.log";
-    $lock2 = $fopen ( $log2, 'c' );
+    $lock2 = fopen ( $log2, 'c' );
     flock ( $lock2, LOCK_EX );
     fseek ( $lock2, 0, SEEK_END );
+
     $last_time = filemtime ( $log2 );
-    while ( time() < $last_time + $throttle_time )
-	sleep ( 2 );
-    
+    $s = filesize ( $log2 );
+    if ( $s == 0 ) $delta = 0;
+    else $delta = $last_time + $throttle_time - time();
+    if ( $delta > 0 )
+	sleep ( $delta );
 
     $rdesc = @fopen ( $random_device, 'r' );
     if ( $rdesc === false )
@@ -118,7 +127,7 @@ if ( $ID == '' )
     fclose ( $rdesc );
 
     $log_line =
-	"$TIME $ID $IPADDR $HOST $BROWSER" . PHP_EOL;
+	"$TIME $ID $IPADDR $BROWSER" . PHP_EOL;
     fwrite ( $lock1, $log_line );
     flock ( $lock1, LOCK_UN );
     $lock1 = NULL;
@@ -128,7 +137,7 @@ if ( $ID == '' )
 }
 else
     $log_line =
-	"$TIME $ID $IPADDR $HOST $BROWSER" . PHP_EOL;
+	"$TIME $ID $IPADDR $BROWSER" . PHP_EOL;
 
 $_SESSION['ID'] = $ID;
 

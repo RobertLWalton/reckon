@@ -2,7 +2,7 @@
 
 // File:   index.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Wed Dec 27 01:02:16 EST 2023
+// Date:   Mon Jul  8 17:01:13 EDT 2024
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -22,6 +22,23 @@ $DDIR = "/home2/reckon/web-data";
     // this index.php file).
 
 $method = $_SERVER['REQUEST_METHOD'];
+
+function ERROR_HANDLER
+	( $errno, $message, $file, $line )
+{
+
+    if ( ( error_reporting() & E_WARNING ) == 0 )
+        return true;
+        // Return if @ operator has suppressed E_WARNING
+        // error handling.  Returning true suppresses
+        // normal error handling.
+
+    echo ( "SYSTEM ERROR:" . "<br>" .
+           "  ERRNO = $errno" . "<br>" .
+           "  MESSAGE: $message" . "<br>" .
+	   "  ERROR AT LINE $line IN $file" . "<br>" );
+}
+set_error_handler ( 'ERROR_HANDLER' );
 
 if ( $method == 'POST' )
     require "$IDIR/reckon/web/include/server.php";

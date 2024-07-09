@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Mon May 20 04:20:44 EDT 2024
+// Date:   Mon Jul  8 16:59:32 EDT 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -36,17 +36,6 @@ $session_time = $_SESSION['LOG_TIME'];
 $log_time = filemtime ( "$DDIR/log/$ID-start.log" );
 if ( $log_time != $session_time )
     exit ( "bad log time: $log_time != $session_time" );
-
-function ERROR_HANDLER
-	( $errno, $message, $file, $line )
-{
-    echo ( "SYSTEM ERROR:" . PHP_EOL );
-    echo ( "  ERRNO = $errno" . PHP_EOL );
-    echo ( "  MESSAGE: $message" . PHP_EOL );
-    echo ( "  FILE = $file" . PHP_EOL );
-    echo ( "  LINE = $line" . PHP_EOL );
-}
-set_error_handler ( 'ERROR_HANDLER' );
 
 // PHP symlink appears to fail inexplicably sometimes.
 //
