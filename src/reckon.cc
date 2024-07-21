@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 20 04:13:45 EDT 2024
+// Date:	Sun Jul 21 03:10:07 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,9 @@
 # include <reckon.h>
 # include <ll_lexeme_test.h>
 # include <ll_parser_standard.h>
+# include <mex.h>
+# include <mexcom.h>
+# include <mexstack.h>
 # define REC reckon
 # define PAR ll::parser
 # define TAB ll::parser::table
@@ -215,6 +218,18 @@ int main ( int argc, const char * argv[] )
     }
     else
     {
+        mex::default_printer =
+	    PAR::default_parser->printer;
+	mexcom::input_file =
+	    PAR::default_parser->input_file;
+	mexcom::output_module = (mex::module_ins)
+	    mex::create_module ( mexcom::input_file );
+	mex::module_ins m = mexcom::output_module;
+
+	mexcom::error_count = 0;
+	mexcom::warning_count = 0;
+	mexstack::init();
+
         min::locatable_var<PAR::output> output;
 	PAR::init ( output, ::remove_tokens, NULL );
 	PAR::output_ref ( PAR::default_parser ) =
