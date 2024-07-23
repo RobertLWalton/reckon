@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 21 03:10:07 AM EDT 2024
+// Date:	Tue Jul 23 02:10:52 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -218,17 +218,7 @@ int main ( int argc, const char * argv[] )
     }
     else
     {
-        mex::default_printer =
-	    PAR::default_parser->printer;
-	mexcom::input_file =
-	    PAR::default_parser->input_file;
-	mexcom::output_module = (mex::module_ins)
-	    mex::create_module ( mexcom::input_file );
-	mex::module_ins m = mexcom::output_module;
-
-	mexcom::error_count = 0;
-	mexcom::warning_count = 0;
-	mexstack::init();
+	REC::init_compiler ( PAR::default_parser );
 
         min::locatable_var<PAR::output> output;
 	PAR::init ( output, ::remove_tokens, NULL );

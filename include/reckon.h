@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 19 22:12:07 EDT 2024
+// Date:	Tue Jul 23 02:17:22 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,20 +31,6 @@ namespace reckon {
     // be set before this function is called.
     //
     void init_compiler ( ll::parser::parser parser );
-
-    // Code module produced by compilation.
-    //
-    extern min::locatable_var<mex::module> code;
-
-    // Number of compile errors and warnings so far.
-    //
-    extern min::uns64 compile_errors, compile_warnings;
-
-    // Call to compile right-side subexpression and
-    // leave results in the stack.
-    //
-    void compile_right_subexpression
-	( min::gen expression );
 }
 
 # endif // RECKON_H
