@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon May 20 04:18:32 EDT 2024
+# Date:		Tue Jul 23 16:27:27 EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -53,11 +53,11 @@ test:		${PARSER_TESTS:=.test}
 html:		${HTML_TESTS:=.html}
 
 reckon_bracketed_test.out:	\
-    TFLAGS = --subexpression-parse --parse-detail
+    TFLAGS = --subexpression-parse --detail-parse
 reckon_data_test.out:	\
     TFLAGS = --subexpression-parse
 reckon_expression_test.out:	\
-    TFLAGS = --subexpression-parse --parse-detail
+    TFLAGS = --subexpression-parse --detail-parse
 reckon_line_test.out:	\
     TFLAGS = --subexpression-parse
 reckon_overview_test.out:	\

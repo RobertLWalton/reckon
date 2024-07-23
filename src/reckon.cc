@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 23 02:10:52 EDT 2024
+// Date:	Tue Jul 23 16:40:41 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,7 +49,6 @@ const char * html_postfix[] = {
 bool output_html = false;
 bool raw_html = false;
 
-bool parse = false;
 bool compile = false;
 bool run = false;
 bool trace = false;
@@ -59,21 +58,30 @@ bool lexeme_test = false;
 bool parser_test = false;
 bool output_parse = false;
 bool subexpression_parse = false;
-bool parse_detail = false;
+bool detail_parse = false;
 
 static void remove_tokens
     ( PAR::parser parser,
       PAR::output output )
 {
-    MIN_REQUIRE ( parser->finished_tokens == 1 );
-    min::print_phrase_lines
-        ( parser->printer,
-	  parser->input_file,
-	  parser->first->next->position );
-    parser->printer << parser->first->next->value
-                    << min::eol;
     MIN_REQUIRE
         ( parser->first->next->next != parser->first );
+    MIN_REQUIRE ( parser->finished_tokens == 1 );
+
+    if ( ! compile )
+    {
+	min::print_phrase_lines
+	    ( parser->printer,
+	      parser->input_file,
+	      parser->first->next->position );
+	if ( ! run )
+	    parser->printer
+		<< parser->first->next->value
+		<< min::eol;
+    }
+    else REC::compile_statement
+	    ( parser->first->next->value );
+
     PAR::remove ( parser,
                   parser->first->next,
 		  parser->first->next->next );
@@ -94,7 +102,6 @@ int main ( int argc, const char * argv[] )
 	TEST ( "--output-html", output_html )
 	TEST ( "--raw-html", raw_html )
 
-	TEST ( "--parse", parse )
 	TEST ( "--compile", compile )
 	TEST ( "--run", run )
 	TEST ( "--trace", trace )
@@ -103,7 +110,7 @@ int main ( int argc, const char * argv[] )
 	TEST ( "--output-parse", output_parse )
 	TEST ( "--subexpression-parse",
 	       subexpression_parse )
-	TEST ( "--parse-detail", parse_detail )
+	TEST ( "--detail-parse", detail_parse )
 	{
 	    std::cerr
 	        << "ERROR: unrecognized argument "
@@ -114,10 +121,36 @@ int main ( int argc, const char * argv[] )
     }
     if ( found_error ) exit ( 1 );
 
-    if ( subexpression_parse || parse_detail )
+    if ( subexpression_parse || detail_parse )
         output_parse = true;
     if ( output_parse )
         parser_test = true;
+    if ( trace )
+	run = true;
+    if ( parser_test && ( compile || run ) )
+    {
+	std::cerr
+	    << "ERROR: --compile and --run incompatible"
+               " with --*-parse" << std::endl;
+	exit ( 1 );
+    }
+    if (    lexeme_test
+         && ( parser_test || compile || run ) )
+    {
+	std::cerr
+	    << "ERROR: --*-parse, --compile, and --run"
+               " incompatible with --lexeme-test"
+            << std::endl;
+	exit ( 1 );
+    }
+    if ( run && compile )
+    {
+	std::cerr
+	    << "ERROR: --run incompatible "
+               "  with --compile"
+            << std::endl;
+	exit ( 1 );
+    }
 
     if ( lexeme_test )
     {
@@ -209,7 +242,7 @@ int main ( int argc, const char * argv[] )
 		+
 		operator_subexpressions;
 
-	if ( parse_detail )
+	if ( detail_parse )
 	    PAR::default_parser->trace_flags |=
 		PAR::TRACE_SUBEXPRESSION_DETAILS;
 
@@ -218,7 +251,10 @@ int main ( int argc, const char * argv[] )
     }
     else
     {
-	REC::init_compiler ( PAR::default_parser );
+	REC::init_compiler
+	    ( PAR::default_parser,
+              compile ? mexstack::PRINT_WITH_SOURCE
+                      : mexstack::NO_PRINT );
 
         min::locatable_var<PAR::output> output;
 	PAR::init ( output, ::remove_tokens, NULL );

@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 23 02:09:40 EDT 2024
+// Date:	Tue Jul 23 16:40:23 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,7 +22,9 @@
 # define REC reckon
 # define PAR ll::parser
 
-void REC::init_compiler ( PAR::parser parser )
+void REC::init_compiler
+	( PAR::parser parser,
+          mexstack::print print_switch )
 {
     MIN_REQUIRE
         ( parser->input_file != min::NULL_STUB );
@@ -35,4 +37,10 @@ void REC::init_compiler ( PAR::parser parser )
     mexcom::error_count = 0;
     mexcom::warning_count = 0;
     mexstack::init();
+
+    mexstack::print_switch = print_switch;
+}
+
+void REC::compile_statement ( min::gen statement )
+{
 }
