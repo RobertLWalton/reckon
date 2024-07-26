@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Mon Jul  8 16:59:32 EDT 2024
+// Date:   Thu Jul 25 22:18:32 EDT 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -96,7 +96,7 @@ elseif ( $op == 'run' )
 elseif ( $op == 'compile' )
     $options = "--compile";
 elseif ( $op == 'parse' )
-    $options = "--parse";
+    $options = "--output-parse";
 else
     exit ( "op is not a legal operation" );
 
