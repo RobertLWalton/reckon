@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 23 16:40:23 EDT 2024
+// Date:	Thu Jul 25 22:30:27 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,4 +43,13 @@ void REC::init_compiler
 
 void REC::compile_statement ( min::gen statement )
 {
+    min::phrase_position_vec ppv =
+	min::get ( statement, min::dot_position );
+    min::phrase_position pp = ppv->position;
+    min::obj_vec_ptr vp = statement;
+    mex::instr instr =
+	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, vp[0] };
+    min::locatable_gen name
+	( min::new_str_gen ( "*" ) );
+    mexstack::push_instr ( instr, pp, name );
 }
