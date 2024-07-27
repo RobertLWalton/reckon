@@ -2,7 +2,7 @@
 
 // File:   server.php
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Thu Jul 25 22:18:32 EDT 2024
+// Date:   Fri Jul 26 21:20:28 EDT 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -62,22 +62,43 @@ if ( $r !== 1 )
 $base = $matches[1];
 $rundir = "$DDIR/runs/$ID";
 
-function abort_run ( $rundir )
+// Appends message to $rundir/debug.
+//
+function debug ( $message )
 {
+    global $rundir;
+    if ( ! @ file_put_contents
+	         ( "$rundir/debug",
+                   $message. PHP_EOL,
+		   FILE_APPEND ) )
+	exit ( "could not write $rundir/debug" );
+}
+
+function abort_run()
+{
+    global $rundir;
     $pid = glob ( "$rundir/*.pid" );
     if ( count ( $pid ) > 0 )
     {
+	$base = basename ( $pid[0], ".pid" );
+	    // An existing run may have a different
+	    // $base than global $base.
 	$pid = trim
 	    ( file_get_contents ( $pid[0] ) );
 	$count = 0;
-	while ( file_exists ( "/proc/$pid" )
-		&&
-		$count < 5 )
+	while ( $count < 5 )
 	{
-		exec ( "kill -s HUP -$pid" );
+		exec ( "kill -s KILL -$pid" );
+		    // Only KILL seems to work
+		    // (HUP, QUIT, etc. do not).
 		sleep ( 1 );
+		if ( ! file_exists ( "/proc/$pid" ) )
+		    break;
 		++ $count;
 	}
+	if ( $count != 5 )
+	    file_put_contents ( "$rundir/$base.exit",
+			        "ABORTED" . PHP_EOL );
     }
 }
 
@@ -86,7 +107,13 @@ if ( $op == 'status' || $op == 'abort' )
     if ( ! file_exists ( "$rundir/$filename" ) )
 	exit ( "$filename not running" );
     if ( $op == 'abort' )
-	abort_run ( $rundir );
+    {
+	abort_run();
+	if ( ! @file_put_contents
+                    ( "$rundir/$base.status",
+		      "Aborting" . PHP_EOL) )
+	    exit ( "Could not write $base.status" );
+    }
     goto REPORT_ON_RUN;
 }
 elseif ( $op == 'trace' )
@@ -104,7 +131,7 @@ else
 //
 if ( is_dir ( $rundir ) )
 {
-    abort_run ( $rundir );
+    abort_run();
 
     foreach ( scandir ( $rundir ) as $f )
     {
@@ -141,9 +168,6 @@ if ( ! @file_put_contents ( "$rundir/$base.status",
     exit ( "Could not write $base.status" );
 
 $script = "";
-$script .= "trap 'exit 129' HUP" . PHP_EOL;
-    // If we do not do this, sending HUP
-    // returns exit code 0.
 $script .= "trap 'echo \$? >$base.exit' EXIT" . PHP_EOL;
 $script .= "echo $$ > $base.pid" . PHP_EOL;
 $script .= "set -e" . PHP_EOL;
