@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 25 22:30:27 EDT 2024
+// Date:	Fri Jul 26 22:55:59 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,8 @@ void REC::init_compiler
 
     mex::default_printer = parser->printer;
     mexcom::input_file = parser->input_file;
+    min::init_printer
+	( mexcom::input_file, mex::default_printer );
     mexcom::output_module = (mex::module_ins)
 	mex::create_module ( mexcom::input_file );
 
