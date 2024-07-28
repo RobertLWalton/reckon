@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 26 22:55:59 EDT 2024
+// Date:	Sun Jul 28 04:32:14 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,14 @@
 # include <mexstack.h>
 # define REC reckon
 # define PAR ll::parser
+
+static min::locatable_gen opening_quote;
+
+static void initialize ( void )
+{
+    ::opening_quote = min::new_str_gen ( "`" );
+}
+static min::initializer initializer ( ::initialize );
 
 void REC::init_compiler
 	( PAR::parser parser,
@@ -43,15 +51,68 @@ void REC::init_compiler
     mexstack::print_switch = print_switch;
 }
 
+bool static compile_expression
+	( min::gen expression,
+          min::phrase_position pp );
+
 void REC::compile_statement ( min::gen statement )
 {
     min::phrase_position_vec ppv =
 	min::get ( statement, min::dot_position );
-    min::phrase_position pp = ppv->position;
     min::obj_vec_ptr vp = statement;
+
+    if ( min::size_of ( vp ) == 1
+         &&
+	 ::compile_expression ( vp[0], ppv[0] ) )
+        return;
+
+    mexcom::compile_error
+	( ppv->position, "cannot understand statement" );
+}
+
+bool static compile_constant
+	( min::gen expression,
+          min::phrase_position pp,
+          min::gen type )
+{
+    if ( type == min::doublequote )
+    {
+	expression =
+	    PAR::quoted_string_value ( expression );
+        if ( expression == min::NONE() )
+	    return false;
+    }
+
     mex::instr instr =
-	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, vp[0] };
+	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
     min::locatable_gen name
 	( min::new_str_gen ( "*" ) );
     mexstack::push_instr ( instr, pp, name );
+    return true;
+}
+
+bool static compile_expression
+	( min::gen expression,
+          min::phrase_position pp )
+{
+    min::gen type = min::get
+	( expression, min::dot_type );
+	// Returns NONE for non-objects and objects with
+	// no type.
+    if ( type != min::NONE()
+         ||
+	 min::is_num ( expression ) )
+	return ::compile_constant
+	    ( expression, pp, type );
+
+    min::gen initiator = min::get
+	( expression, min::dot_initiator );
+    if ( initiator == ::opening_quote )
+	return ::compile_constant
+	    ( expression, pp, type );
+    
+
+     // Non-constant expressions are not compiled yet.
+     //
+     return false;
 }
