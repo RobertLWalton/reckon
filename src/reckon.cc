@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 23 16:40:41 EDT 2024
+// Date:	Sun Jul 28 16:42:23 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,6 +60,8 @@ bool output_parse = false;
 bool subexpression_parse = false;
 bool detail_parse = false;
 
+static min::locatable_var<mex::process> process;
+
 static void remove_tokens
     ( PAR::parser parser,
       PAR::output output )
@@ -68,19 +70,38 @@ static void remove_tokens
         ( parser->first->next->next != parser->first );
     MIN_REQUIRE ( parser->finished_tokens == 1 );
 
-    if ( ! compile )
+    bool compile_OK = false;
+
+    if ( compile || run )
+	compile_OK = REC::compile_statement
+	    ( parser->first->next->value );
+
+    if ( ( run && compile_OK ) || output_parse )
     {
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
 	      parser->first->next->position );
-	if ( ! run )
-	    parser->printer
-		<< parser->first->next->value
-		<< min::eol;
     }
-    else REC::compile_statement
-	    ( parser->first->next->value );
+
+    if ( output_parse)
+	 parser->printer
+	    << parser->first->next->value
+	    << min::eol;
+
+    else if ( run )
+    {
+	min::uns32 length = ::process->length;
+	mex::run_process ( ::process );
+	while ( length < ::process->length )
+	    parser->printer
+		<< ::process[length++]
+		<< min::eol;
+        if ( ::process->state != mex::MODULE_END )
+	    parser->printer
+		<< "ERROR: process failed to run to"
+                   " module end" << min::eol;
+    }
 
     PAR::remove ( parser,
                   parser->first->next,
@@ -122,9 +143,10 @@ int main ( int argc, const char * argv[] )
     if ( found_error ) exit ( 1 );
 
     if ( subexpression_parse || detail_parse )
+    {
         output_parse = true;
-    if ( output_parse )
         parser_test = true;
+    }
     if ( trace )
 	run = true;
     if ( parser_test && ( compile || run ) )
@@ -255,11 +277,17 @@ int main ( int argc, const char * argv[] )
 	    ( PAR::default_parser,
               compile ? mexstack::PRINT_WITH_SOURCE
                       : mexstack::NO_PRINT );
+	if ( run )
+	{
+	    ::process = mex::init_process
+		( mexcom::output_module );
+	}
 
         min::locatable_var<PAR::output> output;
 	PAR::init ( output, ::remove_tokens, NULL );
 	PAR::output_ref ( PAR::default_parser ) =
 	    output;
+
 	PAR::parse();
     }
 

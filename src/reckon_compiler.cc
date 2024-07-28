@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 28 04:32:14 EDT 2024
+// Date:	Sun Jul 28 16:45:58 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,6 +48,7 @@ void REC::init_compiler
     mexcom::warning_count = 0;
     mexstack::init();
 
+    mexstack::init();
     mexstack::print_switch = print_switch;
 }
 
@@ -55,7 +56,7 @@ bool static compile_expression
 	( min::gen expression,
           min::phrase_position pp );
 
-void REC::compile_statement ( min::gen statement )
+bool REC::compile_statement ( min::gen statement )
 {
     min::phrase_position_vec ppv =
 	min::get ( statement, min::dot_position );
@@ -64,10 +65,11 @@ void REC::compile_statement ( min::gen statement )
     if ( min::size_of ( vp ) == 1
          &&
 	 ::compile_expression ( vp[0], ppv[0] ) )
-        return;
+        return true;
 
     mexcom::compile_error
 	( ppv->position, "cannot understand statement" );
+    return false;
 }
 
 bool static compile_constant
@@ -87,6 +89,8 @@ bool static compile_constant
 	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
     min::locatable_gen name
 	( min::new_str_gen ( "*" ) );
+    // TBD push * into compiler variable stack
+    ++ mexstack::var_stack_length;
     mexstack::push_instr ( instr, pp, name );
     return true;
 }

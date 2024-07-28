@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 23 16:41:04 EDT 2024
+// Date:	Sun Jul 28 17:37:42 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,9 +35,11 @@ namespace reckon {
 	( ll::parser::parser parser,
           mexstack::print print_switch );
 
-    // Call to compile next statement.
+    // Call to compile next statement.  Return true if
+    // no error, false if error (and print error
+    // message including source lines).
     //
-    void compile_statement ( min::gen statement );
+    bool compile_statement ( min::gen statement );
 }
 
 # endif // RECKON_H
