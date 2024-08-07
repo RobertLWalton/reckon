@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 28 16:45:58 EDT 2024
+// Date:	Wed Aug  7 18:25:35 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,10 +23,28 @@
 # define PAR ll::parser
 
 static min::locatable_gen opening_quote;
+static min::locatable_gen equal_sign;
+
+bool static compile_restricted_statement
+	( min::gen statement );
+
+bool static compile_assignment_statement
+	( min::gen left_side,
+          min::gen right_side );
+
+bool static compile_expression
+	( min::gen expression,
+          min::phrase_position pp );
+
+bool static compile_constant
+	( min::gen expression,
+          min::phrase_position pp,
+          min::gen type );
 
 static void initialize ( void )
 {
     ::opening_quote = min::new_str_gen ( "`" );
+    ::equal_sign = min::new_str_gen ( "=" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -52,47 +70,52 @@ void REC::init_compiler
     mexstack::print_switch = print_switch;
 }
 
-bool static compile_expression
-	( min::gen expression,
-          min::phrase_position pp );
-
 bool REC::compile_statement ( min::gen statement )
 {
+    if ( ::compile_restricted_statement( statement ) )
+	return true;
+
     min::phrase_position_vec ppv =
 	min::get ( statement, min::dot_position );
-    min::obj_vec_ptr vp = statement;
-
-    if ( min::size_of ( vp ) == 1
-         &&
-	 ::compile_expression ( vp[0], ppv[0] ) )
-        return true;
-
     mexcom::compile_error
 	( ppv->position, "cannot understand statement" );
     return false;
 }
 
-bool static compile_constant
-	( min::gen expression,
-          min::phrase_position pp,
-          min::gen type )
+bool static compile_restricted_statement
+	( min::gen statement )
 {
-    if ( type == min::doublequote )
-    {
-	expression =
-	    PAR::quoted_string_value ( expression );
-        if ( expression == min::NONE() )
-	    return false;
-    }
+    min::phrase_position_vec ppv =
+	min::get ( statement, min::dot_position );
+    min::obj_vec_ptr vp = statement;
 
-    mex::instr instr =
-	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
-    min::locatable_gen name
-	( min::new_str_gen ( "*" ) );
-    // TBD push * into compiler variable stack
-    ++ mexstack::var_stack_length;
-    mexstack::push_instr ( instr, pp, name );
-    return true;
+    min::uns32 vsize = min::size_of ( vp );
+
+    if ( vsize == 1
+         &&
+	 ::compile_expression ( vp[0], ppv[0] ) )
+        return true;
+
+    if ( vsize == 3
+         &&
+	 vp[1] == ::equal_sign
+	 &&
+	 ::compile_assignment_statement
+	     ( vp[0], vp[2] ) )
+	return true;
+
+    return false;
+}
+
+bool static compile_assignment_statement
+	( min::gen left_side,
+          min::gen right_side )
+{
+    min::phrase_position_vec ppv_right =
+	min::get ( right_side, min::dot_position );
+    if ( ! :: compile_expression
+	    ( right_side, ppv_right->position ) )
+	return false;
 }
 
 bool static compile_expression
@@ -119,4 +142,27 @@ bool static compile_expression
      // Non-constant expressions are not compiled yet.
      //
      return false;
+}
+
+bool static compile_constant
+	( min::gen expression,
+          min::phrase_position pp,
+          min::gen type )
+{
+    if ( type == min::doublequote )
+    {
+	expression =
+	    PAR::quoted_string_value ( expression );
+        if ( expression == min::NONE() )
+	    return false;
+    }
+
+    mex::instr instr =
+	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
+    min::locatable_gen name
+	( min::new_str_gen ( "*" ) );
+    // TBD push * into compiler variable stack
+    ++ mexstack::var_stack_length;
+    mexstack::push_instr ( instr, pp, name );
+    return true;
 }
