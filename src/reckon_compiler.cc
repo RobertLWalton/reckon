@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  7 18:25:35 EDT 2024
+// Date:	Thu Aug  8 03:44:54 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,12 +34,14 @@ bool static compile_assignment_statement
 
 bool static compile_expression
 	( min::gen expression,
-          min::phrase_position pp );
+          min::phrase_position pp,
+	  min::gen name = min::NONE() );
 
 bool static compile_constant
 	( min::gen expression,
           min::phrase_position pp,
-          min::gen type );
+          min::gen type = min::NONE(),
+	  min::gen name = min::NONE() );
 
 static void initialize ( void )
 {
@@ -120,7 +122,8 @@ bool static compile_assignment_statement
 
 bool static compile_expression
 	( min::gen expression,
-          min::phrase_position pp )
+          min::phrase_position pp,
+	  min::gen name )
 {
     min::gen type = min::get
 	( expression, min::dot_type );
@@ -128,15 +131,15 @@ bool static compile_expression
 	// no type.
     if ( type != min::NONE()
          ||
-	 min::is_num ( expression ) )
+	 ! min::is_obj ( expression ) )
 	return ::compile_constant
-	    ( expression, pp, type );
+	    ( expression, pp, type, name );
 
     min::gen initiator = min::get
 	( expression, min::dot_initiator );
     if ( initiator == ::opening_quote )
 	return ::compile_constant
-	    ( expression, pp, type );
+	    ( expression, pp, type, name );
     
 
      // Non-constant expressions are not compiled yet.
@@ -147,7 +150,8 @@ bool static compile_expression
 bool static compile_constant
 	( min::gen expression,
           min::phrase_position pp,
-          min::gen type )
+          min::gen type,
+	  min::gen name )
 {
     if ( type == min::doublequote )
     {
@@ -159,9 +163,7 @@ bool static compile_constant
 
     mex::instr instr =
 	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
-    min::locatable_gen name
-	( min::new_str_gen ( "*" ) );
-    // TBD push * into compiler variable stack
+    // TBD push name into compiler variable stack
     ++ mexstack::var_stack_length;
     mexstack::push_instr ( instr, pp, name );
     return true;
