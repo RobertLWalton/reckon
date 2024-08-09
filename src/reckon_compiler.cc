@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  8 03:44:54 EDT 2024
+// Date:	Fri Aug  9 05:35:47 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,14 +16,17 @@
 // ----- --- -----
 
 # include <reckon.h>
+# include <ll_parser_primary.h>
 # include <mex.h>
 # include <mexcom.h>
 # include <mexstack.h>
 # define REC reckon
 # define PAR ll::parser
+# define PRIM ll::parser::primary
 
 static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
+static min::locatable_gen next;
 
 bool static compile_restricted_statement
 	( min::gen statement );
@@ -47,6 +50,7 @@ static void initialize ( void )
 {
     ::opening_quote = min::new_str_gen ( "`" );
     ::equal_sign = min::new_str_gen ( "=" );
+    ::next = min::new_str_gen ( "next" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -80,7 +84,8 @@ bool REC::compile_statement ( min::gen statement )
     min::phrase_position_vec ppv =
 	min::get ( statement, min::dot_position );
     mexcom::compile_error
-	( ppv->position, "cannot understand statement" );
+	( ppv->position,
+          "cannot understand statement" );
     return false;
 }
 
@@ -113,10 +118,38 @@ bool static compile_assignment_statement
 	( min::gen left_side,
           min::gen right_side )
 {
-    min::phrase_position_vec ppv_right =
+    min::phrase_position_vec left_ppv =
+	min::get ( left_side, min::dot_position );
+    min::obj_vec_ptr left_vp = left_side;
+    MIN_REQUIRE ( left_vp != min::NULL_STUB );
+    min::uns32 s = min::size_of ( left_vp );
+    bool next_present =
+	( s >= 1 && left_vp[0] == ::next );
+    min::uns32 i = next_present;
+    if ( i >= s )
+    {
+	mexcom::compile_error
+	    ( left_ppv->position,
+              "variable name to right of `=' operator"
+              " is empty" );
+        return false;
+    }
+    min::locatable_gen var_name
+	( PRIM::scan_var_name ( left_vp, i ) );
+    if ( i < s )
+    {
+	mexcom::compile_error
+	    ( left_ppv->position,
+              "right side of `=' operator does not"
+              " have the form `next VARIABLE-NAME'" );
+        return false;
+    }
+
+
+    min::phrase_position_vec right_ppv =
 	min::get ( right_side, min::dot_position );
     if ( ! :: compile_expression
-	    ( right_side, ppv_right->position ) )
+	    ( right_side, right_ppv->position ) )
 	return false;
 }
 
@@ -125,18 +158,21 @@ bool static compile_expression
           min::phrase_position pp,
 	  min::gen name )
 {
-    min::gen type = min::get
-	( expression, min::dot_type );
-	// Returns NONE for non-objects and objects with
-	// no type.
-    if ( type != min::NONE()
-         ||
-	 ! min::is_obj ( expression ) )
+    if ( ! min::is_obj ( expression ) )
+	return ::compile_constant
+	    ( expression, pp, min::NONE(), name );
+
+    min::obj_vec_ptr vp = expression;
+    min::attr_ptr ap = vp;
+
+    min::locate ( ap, min::dot_type );
+    min::gen type = min::get ( ap );
+    if ( type != min::NONE() )
 	return ::compile_constant
 	    ( expression, pp, type, name );
 
-    min::gen initiator = min::get
-	( expression, min::dot_initiator );
+    min::locate ( ap, min::dot_initiator );
+    min::gen initiator = min::get ( ap );
     if ( initiator == ::opening_quote )
 	return ::compile_constant
 	    ( expression, pp, type, name );
