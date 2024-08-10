@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 21:55:56 EDT 2024
+// Date:	Sat Aug 10 02:14:45 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -130,6 +130,8 @@ bool static compile_assignment_statement
 	( min::gen left_side,
           min::gen right_side )
 {
+    min::uns8 level = mexstack::lexical_level;
+
     min::phrase_position_vec left_ppv =
 	min::get ( left_side, min::dot_position );
     min::obj_vec_ptr left_vp = left_side;
@@ -157,7 +159,46 @@ bool static compile_assignment_statement
         return false;
     }
 
-    min::uns8 level = mexstack::lexical_level;
+    TAB::root root = TAB::find
+	( var_name,
+	  PRIM::VAR,
+	  PAR::ALL_SELECTORS,
+	  ::symbol_table );  
+
+    bool not_hiding =
+	( root == min::NULL_STUB
+	  ||
+	  ( root->block_level >> 16 ) != level );
+
+    if ( next_present && not_hiding )
+    {
+	mexcom::compile_error
+	    ( left_ppv->position,
+              "next variable `",
+	      min::pgen_name ( var_name ),
+	      "' has no predecessor of the same"
+	      " variable name" );
+        return false;
+    }
+    else if ( ! next_present && ! not_hiding )
+    {
+	mexcom::compile_error
+	    ( left_ppv->position,
+              "NON-next variable `",
+	      min::pgen_name ( var_name ),
+	      "' has a predecessor of the same"
+	      " variable name" );
+        return false;
+    }
+
+    min::phrase_position_vec right_ppv =
+	min::get ( right_side, min::dot_position );
+    if ( ! :: compile_expression
+	    ( right_side, right_ppv->position ) )
+	return false;
+
+    // If compile_expression returns true, it has
+    // incremented var_stack_length.
 
     min::locatable_var<PRIM::var>
 	( PRIM::push_var ( var_name,
@@ -167,18 +208,11 @@ bool static compile_assignment_statement
 			   mexstack::depth[level],
 			   next_present ?
 			       PRIM::NEXT_VAR : 0,
-			   mexstack::var_stack_length,
+			   mexstack::var_stack_length - 1,
 			   min::new_stub_gen
 			     ( mexcom::output_module ),
 			   ::symbol_table ) );
-    ++ mexstack::var_stack_length;
-
-
-    min::phrase_position_vec right_ppv =
-	min::get ( right_side, min::dot_position );
-    if ( ! :: compile_expression
-	    ( right_side, right_ppv->position ) )
-	return false;
+    return true;
 }
 
 bool static compile_expression
