@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  9 05:35:47 EDT 2024
+// Date:	Fri Aug  9 21:55:56 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,11 +22,18 @@
 # include <mexstack.h>
 # define REC reckon
 # define PAR ll::parser
+# define TAB ll::parser::table
 # define PRIM ll::parser::primary
 
 static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
 static min::locatable_gen next;
+
+
+
+static min::locatable_var<PRIM::primary_pass>
+	primary_pass;
+static min::locatable_var<TAB::key_table> symbol_table;
 
 bool static compile_restricted_statement
 	( min::gen statement );
@@ -74,6 +81,11 @@ void REC::init_compiler
 
     mexstack::init();
     mexstack::print_switch = print_switch;
+
+    ::primary_pass = PRIM::init_primary ( parser );
+    ::symbol_table = ::primary_pass->primary_table;
+
+
 }
 
 bool REC::compile_statement ( min::gen statement )
@@ -144,6 +156,22 @@ bool static compile_assignment_statement
               " have the form `next VARIABLE-NAME'" );
         return false;
     }
+
+    min::uns8 level = mexstack::lexical_level;
+
+    min::locatable_var<PRIM::var>
+	( PRIM::push_var ( var_name,
+			   PAR::ALL_SELECTORS,
+			   left_ppv->position,
+			   level,
+			   mexstack::depth[level],
+			   next_present ?
+			       PRIM::NEXT_VAR : 0,
+			   mexstack::var_stack_length,
+			   min::new_stub_gen
+			     ( mexcom::output_module ),
+			   ::symbol_table ) );
+    ++ mexstack::var_stack_length;
 
 
     min::phrase_position_vec right_ppv =
