@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 02:14:45 EDT 2024
+// Date:	Sat Aug 10 17:16:23 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,6 +28,7 @@
 static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
 static min::locatable_gen next;
+static min::locatable_gen star;
 
 
 
@@ -58,6 +59,7 @@ static void initialize ( void )
     ::opening_quote = min::new_str_gen ( "`" );
     ::equal_sign = min::new_str_gen ( "=" );
     ::next = min::new_str_gen ( "next" );
+    ::star = min::new_str_gen ( "*" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -131,6 +133,7 @@ bool static compile_assignment_statement
           min::gen right_side )
 {
     min::uns8 level = mexstack::lexical_level;
+    min::uns32 depth = mexstack::depth[level];
 
     min::phrase_position_vec left_ppv =
 	min::get ( left_side, min::dot_position );
@@ -155,39 +158,62 @@ bool static compile_assignment_statement
 	mexcom::compile_error
 	    ( left_ppv->position,
               "right side of `=' operator does not"
-              " have the form `next VARIABLE-NAME'" );
+              " have the form `next? VARIABLE-NAME'" );
         return false;
     }
 
-    TAB::root root = TAB::find
+    PRIM::var var = (PRIM::var) TAB::find
 	( var_name,
 	  PRIM::VAR,
 	  PAR::ALL_SELECTORS,
 	  ::symbol_table );  
 
-    bool not_hiding =
-	( root == min::NULL_STUB
+    // At most one of the following _OK's can be true;
+    //
+    bool non_next_OK =
+	( var == min::NULL_STUB
 	  ||
-	  ( root->block_level >> 16 ) != level );
+	  ( var->block_level >> 16 ) != level );
+    bool next_OK =
+	( var != min::NULL_STUB
+	  &&
+	  ( var->block_level >> 16 ) == level
+          &&
+	  ( var->block_level & 0xFFFF ) == depth );
+    bool writable_OK =
+	( var != min::NULL_STUB
+	  &&
+	  ( var->block_level >> 16 ) == level
+          &&
+	  ( var->block_level & 0xFFFF ) != depth
+	  &&
+	  ( var->flags & PRIM::WRITABLE_VAR ) );
 
-    if ( next_present && not_hiding )
+    bool write = ( writable_OK
+                   &&
+		       ( var->flags & PRIM::NEXT_VAR )
+                   == next_present );
+
+    if ( write );
+    else if ( next_present && ! next_OK )
     {
 	mexcom::compile_error
 	    ( left_ppv->position,
               "next variable `",
 	      min::pgen_name ( var_name ),
 	      "' has no predecessor of the same"
-	      " variable name" );
+	      " variable name and lexical level"
+	      " and depth" );
         return false;
     }
-    else if ( ! next_present && ! not_hiding )
+    else if ( ! next_present && ! non_next_OK )
     {
 	mexcom::compile_error
 	    ( left_ppv->position,
               "NON-next variable `",
 	      min::pgen_name ( var_name ),
 	      "' has a predecessor of the same"
-	      " variable name" );
+	      " variable name and lexical level" );
         return false;
     }
 
@@ -200,18 +226,31 @@ bool static compile_assignment_statement
     // If compile_expression returns true, it has
     // incremented var_stack_length.
 
-    min::locatable_var<PRIM::var>
-	( PRIM::push_var ( var_name,
-			   PAR::ALL_SELECTORS,
-			   left_ppv->position,
-			   level,
-			   mexstack::depth[level],
-			   next_present ?
-			       PRIM::NEXT_VAR : 0,
-			   mexstack::var_stack_length - 1,
-			   min::new_stub_gen
-			     ( mexcom::output_module ),
-			   ::symbol_table ) );
+    if ( write )
+    {
+	mex::instr instr =
+	    { mex::POPS, mex::T_POP, 0, 0,
+                mexstack::var_stack_length - 1
+              - var->location };
+	min::gen labv[2] = { ::star, var_name };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	-- mexstack::var_stack_length;
+	mexstack::push_instr
+	    ( instr, left_ppv->position,
+	      trace_info );
+    }
+    else
+	PRIM::push_var ( var_name,
+			 PAR::ALL_SELECTORS,
+			 left_ppv->position,
+			 level, depth,
+			 next_present ?
+			     PRIM::NEXT_VAR : 0,
+			 mexstack::var_stack_length - 1,
+			 min::new_stub_gen
+			   ( mexcom::output_module ),
+			 ::symbol_table );
     return true;
 }
 
