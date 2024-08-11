@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 10 17:16:23 EDT 2024
+// Date:	Sun Aug 11 04:55:36 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,7 +45,6 @@ bool static compile_assignment_statement
 
 bool static compile_expression
 	( min::gen expression,
-          min::phrase_position pp,
 	  min::gen name = min::NONE() );
 
 bool static compile_constant
@@ -106,24 +105,18 @@ bool REC::compile_statement ( min::gen statement )
 bool static compile_restricted_statement
 	( min::gen statement )
 {
-    min::phrase_position_vec ppv =
-	min::get ( statement, min::dot_position );
     min::obj_vec_ptr vp = statement;
 
     min::uns32 vsize = min::size_of ( vp );
 
-    if ( vsize == 1
-         &&
-	 ::compile_expression ( vp[0], ppv[0] ) )
-        return true;
-
     if ( vsize == 3
          &&
-	 vp[1] == ::equal_sign
-	 &&
-	 ::compile_assignment_statement
-	     ( vp[0], vp[2] ) )
-	return true;
+	 vp[1] == ::equal_sign )
+	return ::compile_assignment_statement
+	     ( vp[0], vp[2] );
+
+    else
+	return ::compile_expression ( statement );
 
     return false;
 }
@@ -147,7 +140,7 @@ bool static compile_assignment_statement
     {
 	mexcom::compile_error
 	    ( left_ppv->position,
-              "variable name to right of `=' operator"
+              "variable name to left of `=' operator"
               " is empty" );
         return false;
     }
@@ -217,10 +210,8 @@ bool static compile_assignment_statement
         return false;
     }
 
-    min::phrase_position_vec right_ppv =
-	min::get ( right_side, min::dot_position );
     if ( ! :: compile_expression
-	    ( right_side, right_ppv->position ) )
+	    ( right_side, var_name ) )
 	return false;
 
     // If compile_expression returns true, it has
@@ -256,32 +247,95 @@ bool static compile_assignment_statement
 
 bool static compile_expression
 	( min::gen expression,
-          min::phrase_position pp,
 	  min::gen name )
 {
-    if ( ! min::is_obj ( expression ) )
-	return ::compile_constant
-	    ( expression, pp, min::NONE(), name );
-
     min::obj_vec_ptr vp = expression;
     min::attr_ptr ap = vp;
+    min::locate ( ap, min::dot_position );
+    min::phrase_position_vec ppv = min::get ( ap );
+    min::uns32 s = min::size_of ( vp );
 
-    min::locate ( ap, min::dot_type );
-    min::gen type = min::get ( ap );
-    if ( type != min::NONE() )
-	return ::compile_constant
-	    ( expression, pp, type, name );
+    if ( s == 0 )
+    {
+	mexcom::compile_error
+	    ( ppv->position, "expression is empty" );
+        return false;
+    }
 
-    min::locate ( ap, min::dot_initiator );
-    min::gen initiator = min::get ( ap );
-    if ( initiator == ::opening_quote )
-	return ::compile_constant
-	    ( expression, pp, type, name );
-    
+    if ( s >= 1 && vp[0] == ::next )
+    {
+	mexcom::compile_error
+	    ( ppv->position,
+              "expression cannot begin with `next'" );
+        return false;
+    }
+    min::uns32 i = 0;
+    min::locatable_gen var_name
+	( PRIM::scan_var_name ( vp, i ) );
 
-     // Non-constant expressions are not compiled yet.
-     //
-     return false;
+    if ( i >= s && var_name != min::NONE() )
+    {
+	PRIM::var var = (PRIM::var) TAB::find
+	    ( var_name,
+	      PRIM::VAR,
+	      PAR::ALL_SELECTORS,
+	      ::symbol_table );  
+
+	min::uns8 level = mexstack::lexical_level;
+	if ( var != min::NULL_STUB
+	     &&
+	     ( var->block_level >> 16 ) == level )
+	{
+	    if ( var->flags & PRIM::WRITABLE_VAR )
+	    {
+		mexcom::compile_error
+		    ( ppv->position,
+		      "cannot read write-only"
+                      " variable" );
+		return false;
+	    }
+
+	    mex::instr instr =
+		{ mex::PUSHS, mex::T_PUSH, 0, 0,
+                    mexstack::var_stack_length
+                  - var->location };
+	    min::gen labv[2] = { var_name, name };
+	    min::locatable_gen trace_info
+		( min::new_lab_gen ( labv, 2 ) );
+	    ++ mexstack::var_stack_length;
+	    mexstack::push_instr
+		( instr, ppv->position, trace_info );
+	    return true;
+	}
+    }
+
+    if ( s == 1 )
+    {
+	if ( ! min::is_obj ( vp[0] ) )
+	    return ::compile_constant
+		( expression, ppv[0],
+                  min::NONE(), name );
+
+	min::obj_vec_ptr vp0 = vp[0];
+	min::attr_ptr ap0 = vp0;
+
+	min::locate ( ap0, min::dot_type );
+	min::gen type = min::get ( ap0 );
+	if ( type != min::NONE() )
+	    return ::compile_constant
+		( expression, ppv[0], type, name );
+
+	min::locate ( ap0, min::dot_initiator );
+	min::gen initiator = min::get ( ap0 );
+	if ( initiator == ::opening_quote )
+	    return ::compile_constant
+		( expression, ppv[0], type, name );
+    }
+
+    mexcom::compile_error
+	( ppv->position,
+          "cannot understand expression" );
+    return false;
 }
 
 bool static compile_constant
@@ -295,12 +349,16 @@ bool static compile_constant
 	expression =
 	    PAR::quoted_string_value ( expression );
         if ( expression == min::NONE() )
+	{
+	    mexcom::compile_error
+		( pp,
+		  "cannot understand expression" );
 	    return false;
+	}
     }
 
     mex::instr instr =
 	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
-    // TBD push name into compiler variable stack
     ++ mexstack::var_stack_length;
     mexstack::push_instr ( instr, pp, name );
     return true;
