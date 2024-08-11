@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 11 04:55:36 EDT 2024
+// Date:	Sun Aug 11 14:19:47 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -288,11 +288,23 @@ bool static compile_expression
 	{
 	    if ( var->flags & PRIM::WRITABLE_VAR )
 	    {
-		mexcom::compile_error
-		    ( ppv->position,
-		      "cannot read write-only"
-                      " variable" );
-		return false;
+		if ( var->flags & PRIM::NEXT_VAR )
+		{
+		    var = TAB::find_next
+			( (TAB::root) var,
+			  PRIM::VAR,
+			  PAR::ALL_SELECTORS );
+		    MIN_REQUIRE
+			( var != min::NULL_STUB );
+		}
+		else
+		{
+		    mexcom::compile_error
+			( ppv->position,
+			  "cannot read write-only"
+			  " variable" );
+		    return false;
+		}
 	    }
 
 	    mex::instr instr =
