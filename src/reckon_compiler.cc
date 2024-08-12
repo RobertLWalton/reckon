@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 11 14:19:47 EDT 2024
+// Date:	Mon Aug 12 04:42:07 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,7 +45,7 @@ bool static compile_assignment_statement
 
 bool static compile_expression
 	( min::gen expression,
-	  min::gen name = min::NONE() );
+	  min::gen name = ::star );
 
 bool static compile_constant
 	( min::gen expression,
@@ -114,9 +114,11 @@ bool static compile_restricted_statement
 	 vp[1] == ::equal_sign )
 	return ::compile_assignment_statement
 	     ( vp[0], vp[2] );
-
     else
+    {
+	vp = min::NULL_STUB;
 	return ::compile_expression ( statement );
+    }
 
     return false;
 }
@@ -325,7 +327,7 @@ bool static compile_expression
     {
 	if ( ! min::is_obj ( vp[0] ) )
 	    return ::compile_constant
-		( expression, ppv[0],
+		( vp[0], ppv[0],
                   min::NONE(), name );
 
 	min::obj_vec_ptr vp0 = vp[0];
@@ -335,13 +337,13 @@ bool static compile_expression
 	min::gen type = min::get ( ap0 );
 	if ( type != min::NONE() )
 	    return ::compile_constant
-		( expression, ppv[0], type, name );
+		( vp[0], ppv[0], type, name );
 
 	min::locate ( ap0, min::dot_initiator );
 	min::gen initiator = min::get ( ap0 );
 	if ( initiator == ::opening_quote )
 	    return ::compile_constant
-		( expression, ppv[0], type, name );
+		( vp[0], ppv[0], type, name );
     }
 
     mexcom::compile_error
@@ -351,16 +353,16 @@ bool static compile_expression
 }
 
 bool static compile_constant
-	( min::gen expression,
+	( min::gen value,
           min::phrase_position pp,
           min::gen type,
 	  min::gen name )
 {
     if ( type == min::doublequote )
     {
-	expression =
-	    PAR::quoted_string_value ( expression );
-        if ( expression == min::NONE() )
+	value =
+	    PAR::quoted_string_value ( value );
+        if ( value == min::NONE() )
 	{
 	    mexcom::compile_error
 		( pp,
@@ -370,7 +372,7 @@ bool static compile_constant
     }
 
     mex::instr instr =
-	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, expression };
+	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, value };
     ++ mexstack::var_stack_length;
     mexstack::push_instr ( instr, pp, name );
     return true;
