@@ -33,6 +33,33 @@ all:		parse_diff compile_diff run_diff
 parse_diff:	${PARSE_TESTS:=.parse_diff}
 compile_diff:	${RUN_TESTS:=.compile_diff}
 run_diff:	${RUN_TESTS:=.run_diff}
+parse_test:	${PARSE_TESTS:=.parse_test}
+compile_test:	${RUN_TESTS:=.compile_test}
+run_test:	${RUN_TESTS:=.run_test}
+
+SED = sed \
+    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
+    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
+    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
+    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
+    -e '/line [0-9]/s//line \#/g' \
+    -e '/\(lines [0-9][0-9]*-\)[0-9]/s//\1\#/g' \
+    -e '/lines [0-9]\([0-9]*-\#\)/s//lines \#\1/g' \
+    -e '/\#[0-9]/s//\#\#/g' \
+    -e '/\#[0-9]/s//\#\#/g' \
+    -e '/\#[0-9]/s//\#\#/g' \
+    -e '/\#[0-9]/s//\#\#/g' \
+    -e '/\#[0-9]/s//\#\#/g' \
+    -e '/[0-9]\#/s//\#\#/g' \
+    -e '/[0-9]\#/s//\#\#/g' \
+    -e '/[0-9]\#/s//\#\#/g' \
+    -e '/[0-9]\#/s//\#\#/g' \
+    -e '/[0-9]\#/s//\#\#/g' \
+    -e '/@[0-9]/s//@@/g' \
+    -e '/@[0-9]/s//@@/g' \
+    -e '/@[0-9]/s//@@/g' \
+    -e '/@[0-9]/s//@@/g' \
+    -e '/@[0-9]/s//@@/g'
 
 %.parse:	../examples/%.rec Makefile $R
 	rm -f $*.parse
@@ -48,56 +75,11 @@ run_diff:	${RUN_TESTS:=.run_diff}
 
 %.parse_test:	%.parse Makefile
 	rm -f $*.parse_test
-	sed \
-	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
-	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
-	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
-	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
-	    -e '/line [0-9]/s//line #/g' \
-	    -e '/\(lines [0-9][0-9]*-\)[0-9]/s//\1#/g' \
-	    -e '/lines [0-9]\([0-9]*-#\)/s//lines #\1/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    < $*.parse > $*.parse_test
+	-@${SED} < $*.parse > $*.parse_test
 
 %.parse_diff:	%.parse Makefile
 	@echo DIFFING $*.parse_test $*.parse
-	-@sed \
-	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
-	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
-	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
-	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
-	    -e '/line [0-9]/s//line #/g' \
-	    -e '/\(lines [0-9][0-9]*-\)[0-9]/s//\1#/g' \
-	    -e '/lines [0-9]\([0-9]*-#\)/s//lines #\1/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/#[0-9]/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/[0-9]#/s//##/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
-	    -e '/@[0-9]/s//@@/g' \
+	-@${SED} \
 	    < $*.parse | diff ${DIFFOPT} $*.parse_test -
 
 clean:
