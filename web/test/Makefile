@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Aug 11 17:16:08 EDT 2024
+# Date:		Mon Aug 12 03:44:48 AM EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -36,6 +36,9 @@ run_diff:	${RUN_TESTS:=.run_diff}
 parse_test:	${PARSE_TESTS:=.parse_test}
 compile_test:	${RUN_TESTS:=.compile_test}
 run_test:	${RUN_TESTS:=.run_test}
+parse:		${PARSE_TESTS:=.parse}
+compile:	${RUN_TESTS:=.mex}
+run:		${RUN_TESTS:=.out}
 
 SED = sed \
     -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
@@ -69,18 +72,36 @@ SED = sed \
 	rm -f $*.mex
 	$R --compile <../examples/$*.rec >$*.mex
 
-%.run:	../examples/%.rec Makefile $R
+%.out:	../examples/%.rec Makefile $R
 	rm -f $*.run
-	$R --run <../examples/$*.rec >$*.run
+	$R --run <../examples/$*.rec >$*.out
 
 %.parse_test:	%.parse Makefile
 	rm -f $*.parse_test
-	-@${SED} < $*.parse > $*.parse_test
+	${SED} < $*.parse > $*.parse_test
 
 %.parse_diff:	%.parse Makefile
 	@echo DIFFING $*.parse_test $*.parse
 	-@${SED} \
 	    < $*.parse | diff ${DIFFOPT} $*.parse_test -
+
+%.compile_test:	%.mex Makefile
+	rm -f $*.compile_test
+	${SED} < $*.mex > $*.compile_test
+
+%.compile_diff:	%.mex Makefile
+	@echo DIFFING $*.compile_test $*.mex
+	-@${SED} \
+	    < $*.mex | diff ${DIFFOPT} $*.compile_test -
+
+%.run_test:	%.out Makefile
+	rm -f $*.run_test
+	${SED} < $*.out > $*.run_test
+
+%.run_diff:	%.out Makefile
+	@echo DIFFING $*.run_test $*.out
+	-@${SED} \
+	    < $*.out | diff ${DIFFOPT} $*.run_test -
 
 clean:
 	rm -f ${PARSER_TESTS:=.out} reckon *.o
