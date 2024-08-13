@@ -1,0 +1,40 @@
+X = 5
+    ^
+    [12:0;1] PUSHI T_PUSH 0 0 0 5; X
+Z = 8
+    ^
+    [13:1;2] PUSHI T_PUSH 0 0 0 8; Z
+Y = Z
+    ^
+    [14:2;3] PUSHS T_PUSH 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< Z Y >]
+next Y = Z
+         ^
+    [15:3;4] PUSHS T_PUSH 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< Z Y >]
+ERROR: in line ##: NON-next variable `Y' has a predecessor of the same
+       variable name and lexical level:
+Y = 3
+^
+ERROR: in line ##: cannot understand statement:
+Y = 3
+^^^^^
+next Y = 3
+         ^
+    [17:4;5] PUSHI T_PUSH 0 0 0 3; Y
+next X = Y
+         ^
+    [18:5;6] PUSHS T_PUSH 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< Y X >]
+X
+^
+    [19:6;7] PUSHS T_PUSH 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< X * >]
+Y
+^
+    [20:7;8] PUSHS T_PUSH 2 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< Y * >]
+Z
+^
+    [21:8;9] PUSHS T_PUSH 6 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< Z * >]
