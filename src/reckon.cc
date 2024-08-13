@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 28 16:42:23 EDT 2024
+// Date:	Mon Aug 12 20:57:54 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,10 +93,11 @@ static void remove_tokens
     {
 	min::uns32 length = ::process->length;
 	mex::run_process ( ::process );
-	while ( length < ::process->length )
-	    parser->printer
-		<< ::process[length++]
-		<< min::eol;
+	if ( ! trace )
+	    while ( length < ::process->length )
+		parser->printer
+		    << ::process[length++]
+		    << min::eol;
         if ( ::process->state != mex::MODULE_END )
 	    parser->printer
 		<< "ERROR: process failed to run to"
@@ -148,7 +149,10 @@ int main ( int argc, const char * argv[] )
         parser_test = true;
     }
     if ( trace )
+    {
 	run = true;
+	mex::run_trace_flags = 0xFFFFFFFF;
+    }
     if ( parser_test && ( compile || run ) )
     {
 	std::cerr

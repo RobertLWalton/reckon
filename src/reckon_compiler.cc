@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 12 04:42:07 EDT 2024
+// Date:	Mon Aug 12 20:38:51 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -312,7 +312,7 @@ bool static compile_expression
 	    mex::instr instr =
 		{ mex::PUSHS, mex::T_PUSH, 0, 0,
                     mexstack::var_stack_length
-                  - var->location };
+                  - var->location - 1 };
 	    min::gen labv[2] = { var_name, name };
 	    min::locatable_gen trace_info
 		( min::new_lab_gen ( labv, 2 ) );
