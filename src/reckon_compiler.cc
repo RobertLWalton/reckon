@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 12 20:38:51 EDT 2024
+// Date:	Sun Aug 18 09:31:41 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,7 @@ static min::locatable_gen star;
 static min::locatable_var<PRIM::primary_pass>
 	primary_pass;
 static min::locatable_var<TAB::key_table> symbol_table;
+static min::locatable_var<PAR::parser> parser;
 
 bool static compile_restricted_statement
 	( min::gen statement );
@@ -256,6 +257,7 @@ bool static compile_expression
     min::locate ( ap, min::dot_position );
     min::phrase_position_vec ppv = min::get ( ap );
     min::uns32 s = min::size_of ( vp );
+    min::uns8 level = mexstack::lexical_level;
 
     if ( s == 0 )
     {
@@ -271,23 +273,30 @@ bool static compile_expression
               "expression cannot begin with `next'" );
         return false;
     }
+    min::locatable_var<PRIM::argument_vector>
+        argument_vector ( min::NULL_STUB );
+    TAB::key_prefix key_prefix = min::NULL_STUB;
+
     min::uns32 i = 0;
-    min::locatable_gen var_name
-	( PRIM::scan_var_name ( vp, i ) );
+    min::uns32 quoted_i;
+    TAB::root root;
 
-    if ( i >= s && var_name != min::NONE() )
+RETRY:
+
+    if ( PRIM::scan_primary
+	    ( vp, i, ppv, ::parser, PAR::ALL_SELECTORS,
+	      key_prefix, root, quoted_i,
+	      argument_vector,
+	      ::symbol_table ) )
     {
-	PRIM::var var = (PRIM::var) TAB::find
-	    ( var_name,
-	      PRIM::VAR,
-	      PAR::ALL_SELECTORS,
-	      ::symbol_table );  
-
-	min::uns8 level = mexstack::lexical_level;
-	if ( var != min::NULL_STUB
-	     &&
-	     ( var->block_level >> 16 ) == level )
+        PRIM::var var = (PRIM::var) root;
+	if ( var != min::NULL_STUB )
 	{
+	    if ( i < s ) goto RETRY;
+	    if ( quoted_i < i ) goto RETRY;
+	    if ( ( var->block_level >> 16 ) != level )
+	        goto RETRY;
+
 	    if ( var->flags & PRIM::WRITABLE_VAR )
 	    {
 		if ( var->flags & PRIM::NEXT_VAR )
@@ -311,9 +320,9 @@ bool static compile_expression
 
 	    mex::instr instr =
 		{ mex::PUSHS, mex::T_PUSH, 0, 0,
-                    mexstack::var_stack_length
-                  - var->location - 1 };
-	    min::gen labv[2] = { var_name, name };
+		    mexstack::var_stack_length
+		  - var->location - 1 };
+	    min::gen labv[2] = { var->label, name };
 	    min::locatable_gen trace_info
 		( min::new_lab_gen ( labv, 2 ) );
 	    ++ mexstack::var_stack_length;
