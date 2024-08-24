@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 18 09:31:41 PM EDT 2024
+// Date:	Sat Aug 24 07:36:00 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -330,6 +330,67 @@ RETRY:
 		( instr, ppv->position, trace_info );
 	    return true;
 	}
+        PRIM::func func = (PRIM::func) root;
+	if ( func != min::NULL_STUB )
+	{
+	    if ( func->flags & PRIM::BUILTIN_FUNCTION )
+	    {
+	        min::uns32 jend =
+		    argument_vector->length;
+		bool OK = true;
+		for ( min::uns32 j = 0; j < jend; ++ j )
+		{
+		    if ( ! ::compile_expression
+		    		( argument_vector[j] ) )
+		        OK = false;
+		}
+		if ( ! OK ) return false;
+
+		min::uns8 op_code =
+		    (min::uns8) ( func->flags >> 24 );
+		mex::instr instr =
+		    { op_code, mex::T_AOP };
+		mexstack::var_stack_length -= jend;;
+		++ mexstack::var_stack_length;
+		mexstack::push_instr
+		    ( instr, ppv->position, ::star );
+		return true;
+	    }
+	    else if
+	        ( func->flags & PRIM::OPERATOR_CALL )
+	    {
+	        i -= 2;
+		min::uns32 s = min::size_of ( vp );
+		min::uns8 op_code_1 =
+		    (min::uns8) ( func->flags >> 24 );
+		min::uns8 op_code_2 =
+		    (min::uns8) ( func->flags >> 16 );
+		min::gen op_1 = vp[1];
+		bool OK = true;
+		{
+		    if ( ! ::compile_expression
+		    		( vp[i++] ) )
+		        OK = false;
+		}
+		while ( i < s )
+		{
+		    min::uns8 op_code =
+		        ( vp[i++] == op_1 ?
+			  op_code_1 :
+			  op_code_2 );
+		    if ( ! ::compile_expression
+		    		( vp[i++] ) )
+		        OK = false;
+		    mex::instr instr =
+			{ op_code, mex::T_AOP };
+		    -- mexstack::var_stack_length;
+		    mexstack::push_instr
+			( instr, ppv->position,
+			  ::star );
+		}
+		return OK;
+	    }
+	}
     }
 
     if ( s == 1 )
@@ -355,6 +416,7 @@ RETRY:
 		( vp[0], ppv[0], type, name );
     }
 
+    ++ mexstack::var_stack_length;
     mexcom::compile_error
 	( ppv->position,
           "cannot understand expression" );
