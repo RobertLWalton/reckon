@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 24 07:36:00 AM EDT 2024
+// Date:	Sun Aug 25 03:20:28 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Helper Functions
+//	Compile Statement
 
 // Usage and Setup
 // ----- --- -----
@@ -30,12 +32,16 @@ static min::locatable_gen equal_sign;
 static min::locatable_gen next;
 static min::locatable_gen star;
 
-
+static min::uns32 jmp_counter = 1;
 
 static min::locatable_var<PRIM::primary_pass>
 	primary_pass;
 static min::locatable_var<TAB::key_table> symbol_table;
 static min::locatable_var<PAR::parser> parser;
+static min::locatable_gen FALSE
+    ( min::new_num_gen ( 0 ) );
+static min::locatable_gen TRUE
+    ( min::new_num_gen ( 1 ) );
 
 bool static compile_restricted_statement
 	( min::gen statement );
@@ -47,6 +53,13 @@ bool static compile_assignment_statement
 bool static compile_expression
 	( min::gen expression,
 	  min::gen name = ::star );
+
+min::uns32 static compile_logical
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  PRIM::func func,
+	  min::uns32 true_jmp,
+	  min::uns32 false_jmp );
 
 bool static compile_constant
 	( min::gen expression,
@@ -89,6 +102,41 @@ void REC::init_compiler
 
 
 }
+
+
+// Helper Functions
+// ------ ---------
+
+inline void pushi ( min::gen value, 
+                    const min::phrase_position pp,
+	            min::gen name = ::star )
+{
+    mex::instr instr =
+	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, value };
+    ++ mexstack::var_stack_length;
+    mexstack::push_instr ( instr, pp, name );
+}
+
+inline void jmp ( min::uns32 target,
+                  const min::phrase_position pp,
+	          min::uns8 op_code = mex::JMP )
+{
+    mex::instr i = { op_code, mex::T_JMPS };
+    min::locatable_gen t
+        ( min::new_num_gen ( target ) );
+    mexstack::push_jmp_instr ( i, t, pp );
+}
+
+inline void label ( min::uns32 target )
+{
+    min::locatable_gen t
+        ( min::new_num_gen ( target ) );
+    mexstack::jmp_target ( t );
+}
+
+
+// Compile Statement
+// ------- ---------
 
 bool REC::compile_statement ( min::gen statement )
 {
@@ -357,6 +405,40 @@ RETRY:
 		return true;
 	    }
 	    else if
+	        ( func->flags & PRIM::LOGICAL_OPERATOR )
+	    {
+	        min::uns32 true_jmp = ::jmp_counter ++;
+	        min::uns32 false_jmp = ::jmp_counter ++;
+		min::uns32 jmp =
+		    ::compile_logical
+		        ( vp, ppv, func,
+			  true_jmp, false_jmp );
+		if ( jmp == true_jmp )
+		{
+		    ++ mexstack::var_stack_length;
+		    ::label ( true_jmp );
+		    ::pushi ( ::TRUE, ppv->position );
+		    min::uns32 finish =
+		        ::jmp_counter ++;
+		    ::jmp ( finish, ppv->position );
+		    ::label ( false_jmp );
+		    ::pushi ( ::FALSE, ppv->position );
+		    ::label ( finish );
+		}
+		else if ( jmp == false_jmp )
+		{
+		    ++ mexstack::var_stack_length;
+		    ::label ( false_jmp );
+		    ::pushi ( ::FALSE, ppv->position );
+		    min::uns32 finish =
+		        ::jmp_counter ++;
+		    ::jmp ( finish, ppv->position );
+		    ::label ( true_jmp );
+		    ::pushi ( ::TRUE, ppv->position );
+		    ::label ( finish );
+		}
+	    }
+	    else if
 	        ( func->flags & PRIM::OPERATOR_CALL )
 	    {
 	        i -= 2;
@@ -442,9 +524,17 @@ bool static compile_constant
 	}
     }
 
-    mex::instr instr =
-	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, value };
-    ++ mexstack::var_stack_length;
-    mexstack::push_instr ( instr, pp, name );
+    ::pushi ( value, pp, name );
     return true;
+}
+
+min::uns32 static compile_logical
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  PRIM::func func,
+	  min::uns32 true_jmp,
+	  min::uns32 false_jmp )
+{
+    // TBD
+    return 0;
 }
