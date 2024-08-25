@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 25 03:20:28 AM EDT 2024
+// Date:	Sun Aug 25 03:20:59 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -409,34 +409,29 @@ RETRY:
 	    {
 	        min::uns32 true_jmp = ::jmp_counter ++;
 	        min::uns32 false_jmp = ::jmp_counter ++;
+		mex::instr pop =
+		    { mex::POPS, mex::T_POP, 0, 0, 1 };
+		    // Stores top of stack in next to
+		    // top of stack and then pops stack
+		    // once.
+		::pushi ( ::FALSE, ppv->position );
 		min::uns32 jmp =
 		    ::compile_logical
 		        ( vp, ppv, func,
 			  true_jmp, false_jmp );
-		if ( jmp == true_jmp )
-		{
-		    ++ mexstack::var_stack_length;
-		    ::label ( true_jmp );
-		    ::pushi ( ::TRUE, ppv->position );
-		    min::uns32 finish =
-		        ::jmp_counter ++;
-		    ::jmp ( finish, ppv->position );
-		    ::label ( false_jmp );
-		    ::pushi ( ::FALSE, ppv->position );
-		    ::label ( finish );
-		}
+		if ( jmp == 0 ) return false;
 		else if ( jmp == false_jmp )
-		{
-		    ++ mexstack::var_stack_length;
-		    ::label ( false_jmp );
-		    ::pushi ( ::FALSE, ppv->position );
-		    min::uns32 finish =
-		        ::jmp_counter ++;
-		    ::jmp ( finish, ppv->position );
-		    ::label ( true_jmp );
-		    ::pushi ( ::TRUE, ppv->position );
-		    ::label ( finish );
-		}
+		    ::jmp ( false_jmp, ppv->position );
+
+		::label ( true_jmp );
+		++ mexstack::var_stack_length;
+		::pushi ( ::TRUE, ppv->position );
+		-- mexstack::var_stack_length;
+		mexstack::push_instr
+		    ( pop, ppv->position );
+		    // Overwrites ::FALSE in stack with
+		    // ::TRUE.
+		::label ( false_jmp );
 	    }
 	    else if
 	        ( func->flags & PRIM::OPERATOR_CALL )
