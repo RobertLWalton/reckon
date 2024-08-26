@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 25 03:20:59 PM EDT 2024
+// Date:	Mon Aug 26 04:06:30 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,8 +50,27 @@ bool static compile_assignment_statement
 	( min::gen left_side,
           min::gen right_side );
 
-bool static compile_expression
+// Compile expression.  If true_jmp == 0, generate code
+// that pushes the value of the expression to the stack.
+// In this case `name' is the variable name assigned to
+// the new top of stack, and 1 is returned on success
+// but 0 is returned if there is there has been a call
+// to compile_error.
+//
+// If true_jmp != 1, generate code that computes a
+// logical value and jumps to true_jmp if that value is
+// true and false_jmp if the value is false.  The code
+// may also fall through and not jump: if it does so
+// when a true logical value is computed, return the
+// value of the true_jmp argument, but if it does so
+// when a false logical value is computed, return the
+// value of the false_jmp argument.  Or return 0 if
+// compile_error has been called.
+//
+min::uns32 static compile_expression
 	( min::gen expression,
+	  min::uns32 true_jmp = 0,
+	  min::uns32 false_jmp = 0,
 	  min::gen name = ::star );
 
 min::uns32 static compile_logical
@@ -262,7 +281,8 @@ bool static compile_assignment_statement
     }
 
     if ( ! :: compile_expression
-	    ( right_side, var_name ) )
+	    ( right_side, 0, 0,
+	      write ? ::star : var_name ) )
 	return false;
 
     // If compile_expression returns true, it has
@@ -296,8 +316,10 @@ bool static compile_assignment_statement
     return true;
 }
 
-bool static compile_expression
+min::uns32 static compile_expression
 	( min::gen expression,
+	  min::uns32 true_jmp,
+	  min::uns32 false_jmp,
 	  min::gen name )
 {
     min::obj_vec_ptr vp = expression;
@@ -311,7 +333,7 @@ bool static compile_expression
     {
 	mexcom::compile_error
 	    ( ppv->position, "expression is empty" );
-        return false;
+        return 0;
     }
 
     if ( s >= 1 && vp[0] == ::next )
@@ -319,7 +341,7 @@ bool static compile_expression
 	mexcom::compile_error
 	    ( ppv->position,
               "expression cannot begin with `next'" );
-        return false;
+        return 0;
     }
     min::locatable_var<PRIM::argument_vector>
         argument_vector ( min::NULL_STUB );
@@ -362,7 +384,7 @@ RETRY:
 			( ppv->position,
 			  "cannot read write-only"
 			  " variable" );
-		    return false;
+		    return 0;
 		}
 	    }
 
@@ -376,7 +398,8 @@ RETRY:
 	    ++ mexstack::var_stack_length;
 	    mexstack::push_instr
 		( instr, ppv->position, trace_info );
-	    return true;
+
+	    goto RETURN_VALUE;
 	}
         PRIM::func func = (PRIM::func) root;
 	if ( func != min::NULL_STUB )
@@ -392,7 +415,7 @@ RETRY:
 		    		( argument_vector[j] ) )
 		        OK = false;
 		}
-		if ( ! OK ) return false;
+		if ( ! OK ) return 0;
 
 		min::uns8 op_code =
 		    (min::uns8) ( func->flags >> 24 );
@@ -402,36 +425,41 @@ RETRY:
 		++ mexstack::var_stack_length;
 		mexstack::push_instr
 		    ( instr, ppv->position, ::star );
-		return true;
+		goto RETURN_VALUE;
 	    }
 	    else if
 	        ( func->flags & PRIM::LOGICAL_OPERATOR )
 	    {
-	        min::uns32 true_jmp = ::jmp_counter ++;
-	        min::uns32 false_jmp = ::jmp_counter ++;
-		mex::instr pop =
-		    { mex::POPS, mex::T_POP, 0, 0, 1 };
-		    // Stores top of stack in next to
-		    // top of stack and then pops stack
-		    // once.
-		::pushi ( ::FALSE, ppv->position );
+	        bool value_requested =
+		    ( true_jmp == 0 );
+		if ( value_requested )
+		{
+		    true_jmp = ::jmp_counter ++;
+		    false_jmp = ::jmp_counter ++;
+		    ::pushi ( ::FALSE, ppv->position );
+		}
 		min::uns32 jmp =
 		    ::compile_logical
 		        ( vp, ppv, func,
 			  true_jmp, false_jmp );
-		if ( jmp == 0 ) return false;
+		if ( jmp == 0 )
+		    return 0;
+		else if ( ! value_requested )
+		    return jmp;
 		else if ( jmp == false_jmp )
 		    ::jmp ( false_jmp, ppv->position );
 
 		::label ( true_jmp );
-		++ mexstack::var_stack_length;
-		::pushi ( ::TRUE, ppv->position );
+		mex::instr pop_instr =
+		    { mex::POPS, mex::T_POP };
 		-- mexstack::var_stack_length;
 		mexstack::push_instr
-		    ( pop, ppv->position );
-		    // Overwrites ::FALSE in stack with
-		    // ::TRUE.
+		    ( pop_instr, ppv->position );
+		++ mexstack::var_stack_length;
+		::pushi ( ::TRUE, ppv->position );
 		::label ( false_jmp );
+
+		return 1;
 	    }
 	    else if
 	        ( func->flags & PRIM::OPERATOR_CALL )
@@ -465,7 +493,8 @@ RETRY:
 			( instr, ppv->position,
 			  ::star );
 		}
-		return OK;
+		if ( ! OK ) return 0;
+		else goto RETURN_VALUE;
 	    }
 	}
     }
@@ -482,22 +511,38 @@ RETRY:
 
 	min::locate ( ap0, min::dot_type );
 	min::gen type = min::get ( ap0 );
+	bool OK;
 	if ( type != min::NONE() )
-	    return ::compile_constant
+	    OK = ::compile_constant
 		( vp[0], ppv[0], type, name );
-
-	min::locate ( ap0, min::dot_initiator );
-	min::gen initiator = min::get ( ap0 );
-	if ( initiator == ::opening_quote )
-	    return ::compile_constant
-		( vp[0], ppv[0], type, name );
+	else
+	{
+	    min::locate ( ap0, min::dot_initiator );
+	    min::gen initiator = min::get ( ap0 );
+	    if ( initiator == ::opening_quote )
+		OK = ::compile_constant
+		    ( vp[0], ppv[0], type, name );
+	}
+	if ( ! OK ) return 0;
+	else goto RETURN_VALUE;
     }
 
     ++ mexstack::var_stack_length;
     mexcom::compile_error
 	( ppv->position,
           "cannot understand expression" );
-    return false;
+    return 0;
+
+RETURN_VALUE:
+    if ( true_jmp != 0 )
+    {
+	-- mexstack::var_stack_length;
+	::jmp ( false_jmp, ppv->position,
+		mex::JMPF );
+	return true_jmp;
+    }
+    else
+	return 1;
 }
 
 bool static compile_constant
