@@ -1,8 +1,8 @@
 // Reckon Compiler
 //
-// File:	reckon_compiler.cc
+// File:	Tue Aug 27 08:09:13 AM EDT 2024
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 26 04:06:30 PM EDT 2024
+// Date:	Tue Aug 27 08:35:04 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,33 +52,31 @@ bool static compile_assignment_statement
 
 // Compile expression.  If true_jmp == 0, generate code
 // that pushes the value of the expression to the stack.
-// In this case `name' is the variable name assigned to
-// the new top of stack, and 1 is returned on success
-// but 0 is returned if there is there has been a call
-// to compile_error.
+// In this case, on success 1 is returned and var_stack_
+// length is incremented, but on failure compile_error
+// is called and 0 is returned.  Here `name' is only
+// used in the trace_info of the compiled instruction
+// that pushes the expression value, and a top level
+// CALLER is expected the corresponding var into the
+// symbol_table.
 //
-// If true_jmp != 1, generate code that computes a
+// If true_jmp != 0, generate code that computes a
 // logical value and jumps to true_jmp if that value is
 // true and false_jmp if the value is false.  The code
 // may also fall through and not jump: if it does so
-// when a true logical value is computed, return the
-// value of the true_jmp argument, but if it does so
-// when a false logical value is computed, return the
-// value of the false_jmp argument.  Or return 0 if
-// compile_error has been called.
+// when a true logical value is computed, the value
+// of the true_jmp argument is returned, but if it does
+// so when a false logical value is computed, the value
+// of the false_jmp argument is returned.  0 is returned
+// if compile_error has been called.
+//
+// Note that true/false_jmp are never 0.
 //
 min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp = 0,
 	  min::uns32 false_jmp = 0,
 	  min::gen name = ::star );
-
-min::uns32 static compile_logical
-	( min::obj_vec_ptr vp,
-	  min::phrase_position_vec ppv,
-	  PRIM::func func,
-	  min::uns32 true_jmp,
-	  min::uns32 false_jmp );
 
 bool static compile_constant
 	( min::gen expression,
@@ -126,6 +124,10 @@ void REC::init_compiler
 // Helper Functions
 // ------ ---------
 
+// Call mexstack::push_instr with a PUSHI instruction
+// that pushes the indicated value and has name as
+// its trace_info.  Increments var_stack_length.
+//
 inline void pushi ( min::gen value, 
                     const min::phrase_position pp,
 	            min::gen name = ::star )
@@ -136,6 +138,8 @@ inline void pushi ( min::gen value,
     mexstack::push_instr ( instr, pp, name );
 }
 
+// Call mexstack::jmp_instr.
+//
 inline void jmp ( min::uns32 target,
                   const min::phrase_position pp,
 	          min::uns8 op_code = mex::JMP )
@@ -146,6 +150,8 @@ inline void jmp ( min::uns32 target,
     mexstack::push_jmp_instr ( i, t, pp );
 }
 
+// Call mexstack::jmp_target.
+//
 inline void label ( min::uns32 target )
 {
     min::locatable_gen t
@@ -153,21 +159,23 @@ inline void label ( min::uns32 target )
     mexstack::jmp_target ( t );
 }
 
+// The following does the work of compile_expression in
+// the case of a LOGICAL_OPERATOR.
+//
+min::uns32 static compile_logical
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  PRIM::func func,
+	  min::uns32 true_jmp,
+	  min::uns32 false_jmp );
+
 
 // Compile Statement
 // ------- ---------
 
 bool REC::compile_statement ( min::gen statement )
 {
-    if ( ::compile_restricted_statement( statement ) )
-	return true;
-
-    min::phrase_position_vec ppv =
-	min::get ( statement, min::dot_position );
-    mexcom::compile_error
-	( ppv->position,
-          "cannot understand statement" );
-    return false;
+    return ::compile_restricted_statement( statement );
 }
 
 bool static compile_restricted_statement
@@ -185,10 +193,28 @@ bool static compile_restricted_statement
     else
     {
 	vp = min::NULL_STUB;
-	return ::compile_expression ( statement );
+	min::phrase_position_vec ppv =
+	    min::get ( statement, min::dot_position );
+	min::uns8 level = mexstack::lexical_level;
+	min::uns32 depth = mexstack::depth[level];
+	if ( ::compile_expression ( statement ) )
+	{
+	    PRIM::push_var ( ::star,
+			     PAR::ALL_SELECTORS,
+			     ppv->position,
+			     level, depth,
+			     0,
+			     mexstack::var_stack_length
+			       - 1,
+			     min::new_stub_gen
+			       ( mexcom::
+			           output_module ),
+			     ::symbol_table );
+	    return true;
+	}
+	else
+	    return false;
     }
-
-    return false;
 }
 
 bool static compile_assignment_statement
@@ -377,6 +403,9 @@ RETRY:
 			  PAR::ALL_SELECTORS );
 		    MIN_REQUIRE
 			( var != min::NULL_STUB );
+		    MIN_REQUIRE
+			( ! (   var->flags
+			      & PRIM::WRITABLE_VAR ) );
 		}
 		else
 		{
@@ -465,18 +494,13 @@ RETRY:
 	        ( func->flags & PRIM::OPERATOR_CALL )
 	    {
 	        i -= 2;
-		min::uns32 s = min::size_of ( vp );
 		min::uns8 op_code_1 =
 		    (min::uns8) ( func->flags >> 24 );
 		min::uns8 op_code_2 =
 		    (min::uns8) ( func->flags >> 16 );
 		min::gen op_1 = vp[1];
-		bool OK = true;
-		{
-		    if ( ! ::compile_expression
-		    		( vp[i++] ) )
-		        OK = false;
-		}
+		bool OK =
+		    ::compile_expression ( vp[i++] );
 		while ( i < s )
 		{
 		    min::uns8 op_code =
@@ -527,7 +551,6 @@ RETRY:
 	else goto RETURN_VALUE;
     }
 
-    ++ mexstack::var_stack_length;
     mexcom::compile_error
 	( ppv->position,
           "cannot understand expression" );
