@@ -1,8 +1,8 @@
 // Reckon Compiler
 //
-// File:	Tue Aug 27 08:09:13 AM EDT 2024
+// File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 27 08:35:04 AM EDT 2024
+// Date:	Wed Aug 28 03:49:08 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,12 @@ static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
 static min::locatable_gen next;
 static min::locatable_gen star;
+static min::locatable_gen eq;
+static min::locatable_gen neq;
+static min::locatable_gen gt;
+static min::locatable_gen geq;
+static min::locatable_gen lt;
+static min::locatable_gen leq;
 
 static min::uns32 jmp_counter = 1;
 
@@ -90,6 +96,12 @@ static void initialize ( void )
     ::equal_sign = min::new_str_gen ( "=" );
     ::next = min::new_str_gen ( "next" );
     ::star = min::new_str_gen ( "*" );
+    ::eq   = min::new_str_gen ( "==" );
+    ::neq  = min::new_str_gen ( "!=" );
+    ::gt   = min::new_str_gen ( ">" );
+    ::geq  = min::new_str_gen ( ">=" );
+    ::lt   = min::new_str_gen ( "<" );
+    ::leq  = min::new_str_gen ( "<=" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -138,13 +150,15 @@ inline void pushi ( min::gen value,
     mexstack::push_instr ( instr, pp, name );
 }
 
-// Call mexstack::jmp_instr.
+// Call mexstack::push_jmp_instr.
 //
 inline void jmp ( min::uns32 target,
                   const min::phrase_position pp,
-	          min::uns8 op_code = mex::JMP )
+		  min::uns8 op_code = mex::JMP,
+		  min::uns32 immedB = 0 )
 {
-    mex::instr i = { op_code, mex::T_JMPS };
+    mex::instr i { op_code };
+    i.immedB = immedB;
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
     mexstack::push_jmp_instr ( i, t, pp );
@@ -598,6 +612,113 @@ min::uns32 static compile_logical
 	  min::uns32 true_jmp,
 	  min::uns32 false_jmp )
 {
-    // TBD
+    min::uns32 s = min::size_of ( vp );
+    MIN_REQUIRE ( s >= 2 );
+    bool OK = true;
+    switch ( func->flags >> 24 )
+    {
+    case PRIM::COMPARE:
+    {
+	MIN_REQUIRE ( ( s & 1 ) == 1 );
+	if ( ! ::compile_expression ( vp[0] ) )
+	    OK = false;
+	min::uns32 immedB = 1;
+        for ( min::uns32 i = 1; i < s; i += 2 )
+	{
+	    if ( ! ::compile_expression ( vp[i+1] ) )
+	        OK = false;
+	    min::gen op = vp[i];
+	    min::uns8 op_code =
+	        ( op == ::eq   ? mex::JMPNE :
+	          op == ::neq  ? mex::JMPEQ :
+	          op == ::gt   ? mex::JMPLEQ :
+	          op == ::geq  ? mex::JMPLT :
+	          op == ::lt   ? mex::JMPGEQ :
+	          op == ::leq  ? mex::JMPGT :
+		  0 );
+	    MIN_REQUIRE ( op_code != 0 );
+	    if ( i + 2 >= s ) immedB = 0;
+	    ::jmp
+	        ( false_jmp, ppv[i], op_code, immedB );
+	}
+	if ( OK ) return true_jmp;
+	else return 0;
+    }
+    case PRIM::AND:
+    {
+	MIN_REQUIRE ( ( s & 1 ) == 1 );
+	min::uns32 next_jmp = ::jmp_counter ++;
+	min::uns32 fallthru_jmp =
+	    ::compile_expression
+		( vp[0], next_jmp, false_jmp );
+	if ( fallthru_jmp == 0 ) OK = false;
+        for ( min::uns32 i = 1; i < s; i += 2 )
+	{
+	    if ( fallthru_jmp == false_jmp )
+		::jmp ( false_jmp, ppv[i-1] );
+	    :: label ( next_jmp );
+	    if ( i + 2 >= s )
+	        next_jmp = true_jmp;
+	    else
+	        next_jmp = ::jmp_counter ++;
+	    fallthru_jmp = compile_expression
+		     ( vp[i+1], next_jmp, false_jmp );
+	    if ( fallthru_jmp == 0 )
+	        OK = false;
+	}
+	if ( OK ) return fallthru_jmp;
+	else return 0;
+    }
+    case PRIM::OR:
+    {
+	MIN_REQUIRE ( ( s & 1 ) == 1 );
+	min::uns32 next_jmp = ::jmp_counter ++;
+	min::uns32 fallthru_jmp =
+	    ::compile_expression
+		( vp[0], true_jmp, next_jmp );
+	if ( fallthru_jmp == 0 ) OK = false;
+        for ( min::uns32 i = 1; i < s; i += 2 )
+	{
+	    if ( fallthru_jmp == true_jmp )
+		::jmp ( true_jmp, ppv[i-1] );
+	    :: label ( next_jmp );
+	    if ( i + 2 >= s )
+	        next_jmp = false_jmp;
+	    else
+	        next_jmp = ::jmp_counter ++;
+	    fallthru_jmp = compile_expression
+		     ( vp[i+1], true_jmp, next_jmp );
+	    if ( fallthru_jmp == 0 ) OK = false;
+	}
+	if ( OK ) return fallthru_jmp;
+	else return 0;
+    }
+    case PRIM::NOT:
+    {
+	MIN_REQUIRE ( s == 2 );
+	return ::compile_expression
+		     ( vp[1], false_jmp, true_jmp );
+    }
+    case PRIM::BUT_NOT:
+    {
+	MIN_REQUIRE ( s == 3 );
+	min::uns32 next_jmp = ::jmp_counter ++;
+	min::uns32 fallthru_jmp =
+	    ::compile_expression
+		( vp[0], next_jmp, false_jmp );
+	if ( fallthru_jmp == 0 ) OK = false;
+	if ( fallthru_jmp == false_jmp )
+	    ::jmp ( false_jmp, ppv[0] );
+	::label ( next_jmp );
+	fallthru_jmp = ::compile_expression
+		     ( vp[2], false_jmp, true_jmp );
+	if ( fallthru_jmp == 0 ) OK = false;
+	if ( OK ) return fallthru_jmp;
+	else return 0;
+    }
+    }
+    mexcom::compile_error
+	( ppv->position,
+	  "cannot understand expression" );
     return 0;
 }
