@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 03:18:11 AM EDT 2024
+// Date:	Thu Aug 29 11:44:24 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -171,9 +171,14 @@ inline void jmp ( min::uns32 target,
     i.immedB = immedB;
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
-    if ( op_code != mex::JMP )
+    if ( op_code == mex::JMPF
+         ||
+	 op_code == mex::JMPT )
+	-- mexstack::var_stack_length;
+    else if ( op_code != mex::JMP )
 	mexstack::var_stack_length -= 2;
     mexstack::push_jmp_instr ( i, t, pp );
+    mexstack::var_stack_length += immedB;
 }
 
 // Call mexstack::jmp_target.
@@ -564,27 +569,29 @@ RETRY:
 
     if ( s == 1 )
     {
+	bool OK;
 	if ( ! min::is_obj ( vp[0] ) )
-	    return ::compile_constant
+	    OK = ::compile_constant
 		( vp[0], ppv[0],
                   min::NONE(), name );
-
-	min::obj_vec_ptr vp0 = vp[0];
-	min::attr_ptr ap0 = vp0;
-
-	min::locate ( ap0, min::dot_type );
-	min::gen type = min::get ( ap0 );
-	bool OK;
-	if ( type != min::NONE() )
-	    OK = ::compile_constant
-		( vp[0], ppv[0], type, name );
 	else
 	{
-	    min::locate ( ap0, min::dot_initiator );
-	    min::gen initiator = min::get ( ap0 );
-	    if ( initiator == ::opening_quote )
+	    min::obj_vec_ptr vp0 = vp[0];
+	    min::attr_ptr ap0 = vp0;
+
+	    min::locate ( ap0, min::dot_type );
+	    min::gen type = min::get ( ap0 );
+	    if ( type != min::NONE() )
 		OK = ::compile_constant
 		    ( vp[0], ppv[0], type, name );
+	    else
+	    {
+		min::locate ( ap0, min::dot_initiator );
+		min::gen initiator = min::get ( ap0 );
+		if ( initiator == ::opening_quote )
+		    OK = ::compile_constant
+			( vp[0], ppv[0], type, name );
+	    }
 	}
 	if ( ! OK ) return 0;
 	else goto RETURN_VALUE;
@@ -598,7 +605,6 @@ RETRY:
 RETURN_VALUE:
     if ( true_jmp != 0 )
     {
-	-- mexstack::var_stack_length;
 	::jmp ( false_jmp, ppv->position,
 		mex::JMPF );
 	return true_jmp;
@@ -817,7 +823,7 @@ min::uns32 static compile_if_to_value
 	::label ( jmp0 );
     }
     ::pop ( ppv[s-1]);
-    if ( ::compile_expression
+    if ( ! ::compile_expression
 	     ( vp[s-1], 0, 0, name ) )
     {
 	pushi ( min::UNDEFINED(),
