@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 02:06:36 AM EDT 2024
+// Date:	Thu Aug 29 03:18:11 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -171,6 +171,8 @@ inline void jmp ( min::uns32 target,
     i.immedB = immedB;
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
+    if ( op_code != mex::JMP )
+	mexstack::var_stack_length -= 2;
     mexstack::push_jmp_instr ( i, t, pp );
 }
 
@@ -521,12 +523,7 @@ RETRY:
 		    ::jmp ( false_jmp, ppv->position );
 
 		::label ( true_jmp );
-		mex::instr pop_instr =
-		    { mex::POPS, mex::T_POP };
-		-- mexstack::var_stack_length;
-		mexstack::push_instr
-		    ( pop_instr, ppv->position );
-		++ mexstack::var_stack_length;
+		::pop ( ppv->position );
 		::pushi ( ::TRUE, ppv->position );
 		::label ( false_jmp );
 

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Aug 12 03:44:48 AM EDT 2024
+# Date:		Thu Aug 29 03:03:23 AM EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -19,7 +19,8 @@ R = ../../test/reckon
 DIFFOPT ?= -u
 
 RUN_TESTS = reckon_number_constants \
-	    reckon_assignments
+	    reckon_assignments \
+	    reckon_logical
 PARSE_TESTS = reckon_lexemes \
 	      reckon_logical_lines \
 	      ${RUN_TESTS}
