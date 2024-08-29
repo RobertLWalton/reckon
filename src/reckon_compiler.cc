@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 28 03:49:08 AM EDT 2024
+// Date:	Thu Aug 29 02:06:36 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -150,6 +150,16 @@ inline void pushi ( min::gen value,
     mexstack::push_instr ( instr, pp, name );
 }
 
+// Call mexstack::push_instr with a POPS instruction
+// that just pops the top value.
+//
+inline void pop ( const min::phrase_position pp )
+{
+    mex::instr instr = { mex::POPS };
+    -- mexstack::var_stack_length;
+    mexstack::push_instr ( instr, pp );
+}
+
 // Call mexstack::push_jmp_instr.
 //
 inline void jmp ( min::uns32 target,
@@ -174,7 +184,8 @@ inline void label ( min::uns32 target )
 }
 
 // The following does the work of compile_expression in
-// the case of a LOGICAL_OPERATOR.
+// the case of a LOGICAL_OPERATOR with a logical value
+// requested.
 //
 min::uns32 static compile_logical
 	( min::obj_vec_ptr vp,
@@ -182,6 +193,16 @@ min::uns32 static compile_logical
 	  PRIM::func func,
 	  min::uns32 true_jmp,
 	  min::uns32 false_jmp );
+
+// The following does the work of compile_expression in
+// the case of a LOGICAL_OPERATOR with IF op code and
+// a non-logical value requested.
+//
+min::uns32 static compile_if_to_value
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  PRIM::func func,
+	  min::gen name );
 
 
 // Compile Statement
@@ -475,6 +496,13 @@ RETRY:
 	    {
 	        bool value_requested =
 		    ( true_jmp == 0 );
+		if ( value_requested
+		     &&
+		     (    ( func->flags >> 24 )
+		       == PRIM::IF ) )
+		    return ::compile_if_to_value
+		        ( vp, ppv, func, name );
+
 		if ( value_requested )
 		{
 		    true_jmp = ::jmp_counter ++;
@@ -716,9 +744,89 @@ min::uns32 static compile_logical
 	if ( OK ) return fallthru_jmp;
 	else return 0;
     }
+    case PRIM::IF:
+    {
+	MIN_REQUIRE ( s >= 5 );
+	MIN_REQUIRE ( s % 4 == 1 );
+	for ( min::uns32 i = 1; i < s; i += 4 )
+	{
+	    min::uns32 jmp0 = ::jmp_counter ++;
+	    min::uns32 jmp1 = ::jmp_counter ++;
+	    min::uns32 fallthru_jmp =
+	        ::compile_expression
+		     ( vp[i+1], jmp1, jmp0 );
+	    if ( fallthru_jmp == 0 ) OK = false;
+	    else if ( fallthru_jmp == jmp0 )
+	        ::jmp ( jmp0, ppv[i+1] );
+	    ::label ( jmp1 );
+	    fallthru_jmp =
+	        ::compile_expression
+		     ( vp[i-1], true_jmp, false_jmp );
+	    if ( fallthru_jmp == 0 ) OK = false;
+	    else ::jmp ( fallthru_jmp, ppv[i-1] );
+	    ::label ( jmp0 );
+	}
+	min::uns32 fallthru_jmp =
+	    ::compile_expression
+		 ( vp[s-1], true_jmp, false_jmp );
+	if ( fallthru_jmp == 0 ) OK = false;
+	if ( ! OK ) return 0;
+	else return fallthru_jmp;
     }
-    mexcom::compile_error
-	( ppv->position,
-	  "cannot understand expression" );
-    return 0;
+    default:
+    {
+	mexcom::compile_error
+	    ( ppv->position,
+	      "cannot understand expression" );
+	return 0;
+    }
+    }
+}
+
+min::uns32 static compile_if_to_value
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  PRIM::func func,
+	  min::gen name )
+{
+    min::uns32 s = min::size_of ( vp );
+    MIN_REQUIRE ( s >= 5 );
+    MIN_REQUIRE ( s % 4 == 1 );
+    bool OK = true;
+    pushi ( min::UNDEFINED(),
+            ppv->position, name );
+        // Allocate place for result.
+    min::uns32 done = ::jmp_counter ++;
+    for ( min::uns32 i = 1; i < s; i += 4 )
+    {
+	min::uns32 jmp0 = ::jmp_counter ++;
+	min::uns32 jmp1 = ::jmp_counter ++;
+	min::uns32 fallthru_jmp =
+	    ::compile_expression
+		 ( vp[i+1], jmp1, jmp0 );
+	if ( fallthru_jmp == 0 ) OK = false;
+	else if ( fallthru_jmp == jmp0 )
+	    ::jmp ( jmp0, ppv[i+1] );
+	::label ( jmp1 );
+	::pop ( ppv[i-1]);
+	if ( ! ::compile_expression
+		 ( vp[i-1], 0, 0, name ) )
+	{
+	    pushi ( min::UNDEFINED(),
+		    ppv->position, name );
+	    OK = false;
+	}
+	jmp ( done, ppv[i-1] );
+	::label ( jmp0 );
+    }
+    ::pop ( ppv[s-1]);
+    if ( ::compile_expression
+	     ( vp[s-1], 0, 0, name ) )
+    {
+	pushi ( min::UNDEFINED(),
+		ppv->position, name );
+	OK = false;
+    }
+    ::label ( done );
+    return OK;
 }
