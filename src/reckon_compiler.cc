@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 29 11:44:24 AM EDT 2024
+// Date:	Fri Aug 30 04:07:45 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -660,7 +660,7 @@ min::uns32 static compile_logical
 	        OK = false;
 	    min::gen op = vp[i];
 	    min::uns8 op_code =
-	        ( op == ::eq   ? mex::JMPNE :
+	        ( op == ::eq   ? mex::JMPNEQ :
 	          op == ::neq  ? mex::JMPEQ :
 	          op == ::gt   ? mex::JMPLEQ :
 	          op == ::geq  ? mex::JMPLT :
