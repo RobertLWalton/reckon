@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 12 20:57:54 EDT 2024
+// Date:	Fri Aug 30 08:29:55 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -285,6 +285,9 @@ int main ( int argc, const char * argv[] )
 	{
 	    ::process = mex::init_process
 		( mexcom::output_module );
+	    mex::run_process ( ::process );
+	        // Creates builtin variables, e.g.,
+		// TRUE and FALSE.
 	}
 
         min::locatable_var<PAR::output> output;

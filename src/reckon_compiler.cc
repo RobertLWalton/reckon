@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 30 04:07:45 AM EDT 2024
+// Date:	Fri Aug 30 04:32:23 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,7 @@
 //
 //	Usage and Setup
 //	Helper Functions
+//	Init Compiler
 //	Compile Statement
 
 // Usage and Setup
@@ -37,6 +38,8 @@ static min::locatable_gen gt;
 static min::locatable_gen geq;
 static min::locatable_gen lt;
 static min::locatable_gen leq;
+static min::locatable_gen TRUE;
+static min::locatable_gen FALSE;
 
 static min::uns32 jmp_counter = 1;
 
@@ -44,10 +47,6 @@ static min::locatable_var<PRIM::primary_pass>
 	primary_pass;
 static min::locatable_var<TAB::key_table> symbol_table;
 static min::locatable_var<PAR::parser> parser;
-static min::locatable_gen FALSE
-    ( min::new_num_gen ( 0 ) );
-static min::locatable_gen TRUE
-    ( min::new_num_gen ( 1 ) );
 
 bool static compile_restricted_statement
 	( min::gen statement );
@@ -102,35 +101,10 @@ static void initialize ( void )
     ::geq  = min::new_str_gen ( ">=" );
     ::lt   = min::new_str_gen ( "<" );
     ::leq  = min::new_str_gen ( "<=" );
+    ::TRUE  = min::new_str_gen ( "TRUE" );
+    ::FALSE  = min::new_str_gen ( "FALSE" );
 }
 static min::initializer initializer ( ::initialize );
-
-void REC::init_compiler
-	( PAR::parser parser,
-          mexstack::print print_switch )
-{
-    MIN_REQUIRE
-        ( parser->input_file != min::NULL_STUB );
-
-    mex::default_printer = parser->printer;
-    mexcom::input_file = parser->input_file;
-    min::init_printer
-	( mexcom::input_file, mex::default_printer );
-    mexcom::output_module = (mex::module_ins)
-	mex::create_module ( mexcom::input_file );
-
-    mexcom::error_count = 0;
-    mexcom::warning_count = 0;
-    mexstack::init();
-
-    mexstack::init();
-    mexstack::print_switch = print_switch;
-
-    ::primary_pass = PRIM::init_primary ( parser );
-    ::symbol_table = ::primary_pass->primary_table;
-
-
-}
 
 
 // Helper Functions
@@ -142,12 +116,13 @@ void REC::init_compiler
 //
 inline void pushi ( min::gen value, 
                     const min::phrase_position pp,
-	            min::gen name = ::star )
+	            min::gen name = ::star,
+		    bool no_source = false )
 {
     mex::instr instr =
 	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, value };
     ++ mexstack::var_stack_length;
-    mexstack::push_instr ( instr, pp, name );
+    mexstack::push_instr ( instr, pp, name, no_source );
 }
 
 // Call mexstack::push_instr with a POPS instruction
@@ -210,6 +185,55 @@ min::uns32 static compile_if_to_value
 	  min::phrase_position_vec ppv,
 	  PRIM::func func,
 	  min::gen name );
+
+// Init Compiler
+// ---- --------
+
+void REC::init_compiler
+	( PAR::parser parser,
+          mexstack::print print_switch )
+{
+    MIN_REQUIRE
+        ( parser->input_file != min::NULL_STUB );
+
+    mex::default_printer = parser->printer;
+    mexcom::input_file = parser->input_file;
+    min::init_printer
+	( mexcom::input_file, mex::default_printer );
+    mexcom::output_module = (mex::module_ins)
+	mex::create_module ( mexcom::input_file );
+
+    mexcom::error_count = 0;
+    mexcom::warning_count = 0;
+    mexstack::init();
+
+    mexstack::init();
+    mexstack::print_switch = print_switch;
+
+    ::primary_pass = PRIM::init_primary ( parser );
+    ::symbol_table = ::primary_pass->primary_table;
+
+    ::pushi ( mex::FALSE, PAR::top_level_position,
+              ::FALSE, true );
+    PRIM::push_var ( ::FALSE,
+		     PAR::ALL_SELECTORS,
+		     PAR::top_level_position,
+		     0, 0, 0,
+		     mexstack::var_stack_length - 1,
+		     min::new_stub_gen
+		       ( mexcom::output_module ),
+		     ::symbol_table );
+    ::pushi ( mex::TRUE, PAR::top_level_position,
+              ::TRUE, true );
+    PRIM::push_var ( ::TRUE,
+		     PAR::ALL_SELECTORS,
+		     PAR::top_level_position,
+		     0, 0, 0,
+		     mexstack::var_stack_length - 1,
+		     min::new_stub_gen
+		       ( mexcom::output_module ),
+		     ::symbol_table );
+}
 
 
 // Compile Statement
@@ -514,7 +538,8 @@ RETRY:
 		{
 		    true_jmp = ::jmp_counter ++;
 		    false_jmp = ::jmp_counter ++;
-		    ::pushi ( ::FALSE, ppv->position );
+		    ::pushi
+		        ( mex::FALSE, ppv->position );
 		}
 		min::uns32 jmp =
 		    ::compile_logical
@@ -529,7 +554,7 @@ RETRY:
 
 		::label ( true_jmp );
 		::pop ( ppv->position );
-		::pushi ( ::TRUE, ppv->position );
+		::pushi ( mex::TRUE, ppv->position );
 		::label ( false_jmp );
 
 		return 1;
