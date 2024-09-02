@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 30 04:32:23 AM EDT 2024
+// Date:	Mon Sep  2 04:53:09 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 # include <mexstack.h>
 # define REC reckon
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define PRIM ll::parser::primary
 
@@ -49,7 +50,18 @@ static min::locatable_var<TAB::key_table> symbol_table;
 static min::locatable_var<PAR::parser> parser;
 
 bool static compile_restricted_statement
-	( min::gen statement );
+	( min::gen statement,
+	  min::obj_vec_ptr vp,
+	  min::uns32 vsize );
+
+bool inline compile_restricted_statement
+	( min::gen statement )
+{
+    min::obj_vec_ptr vp = statement;
+    min::uns32 vsize = min::size_of ( vp );
+    return ::compile_restricted_statement
+    	( statement, vp, vsize );
+}
 
 bool static compile_assignment_statement
 	( min::gen left_side,
@@ -241,16 +253,44 @@ void REC::init_compiler
 
 bool REC::compile_statement ( min::gen statement )
 {
-    return ::compile_restricted_statement( statement );
+    min::obj_vec_ptr vp = statement;
+    min::uns32 vsize = min::size_of ( vp );
+
+    if ( vsize == 2
+         &&
+	    min::get ( vp[1], min::dot_terminator )
+	 == min::INDENTED_PARAGRAPH() )
+    {
+        MIN_REQUIRE
+	    ( min::get ( vp[1], min::dot_initiator )
+	      ==
+	      PARLEX::colon );
+        min::obj_vec_ptr vp0 = vp[0];
+	if ( vp0 == min::NULL_STUB )
+	    goto COMPILE_RESTRICTED;
+	min::uns32 vsize0 = min::size_of ( vp0 );
+	if ( vsize0 == 2
+	     &&
+	     vp0[1] == PARLEX::equal )
+	{
+	    min::gen separator =
+	        min::get ( vp0[0], min::dot_separator );
+	    vp0 = vp0[0];
+
+	    // TBD
+	}
+    }
+
+COMPILE_RESTRICTED:
+    return ::compile_restricted_statement
+        ( statement, vp, vsize );
 }
 
 bool static compile_restricted_statement
-	( min::gen statement )
+	( min::gen statement,
+	  min::obj_vec_ptr vp,
+	  min::uns32 vsize )
 {
-    min::obj_vec_ptr vp = statement;
-
-    min::uns32 vsize = min::size_of ( vp );
-
     if ( vsize == 3
          &&
 	 vp[1] == ::equal_sign )
