@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  2 04:53:09 PM EDT 2024
+// Date:	Tue Sep  3 06:47:21 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -175,6 +175,126 @@ inline void label ( min::uns32 target )
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
     mexstack::jmp_target ( t );
+}
+
+// Scan the name of an assignment left side variable
+// and locate or create a var object for it.  Returns
+// the var object found or created, or returns NULL_STUB
+// if compile_error called.  If the var location is
+// 0xFFFFFFFF, the var has been created and pushed into
+// the ::symbol_table, and the caller of this function
+// should assign the var's location.  If the var
+// location is otherwise, the var was found and the
+// caller of this function should compile an instruction
+// to move the appropriate runtime value to the var's
+// location.
+//
+// The expession should be a MIN object whose elements
+// are the variable name optionally preceeded by `next'.
+//
+// The returned var should be stored immediately in a
+// min::locatable_var.
+//
+PRIM::var scan_var ( min::gen expression )
+{
+    min::uns8 level = mexstack::lexical_level;
+    min::uns32 depth = mexstack::depth[level];
+
+    min::phrase_position_vec ppv =
+	min::get ( expression, min::dot_position );
+    min::obj_vec_ptr vp = expression;
+    MIN_REQUIRE ( vp != min::NULL_STUB );
+    min::uns32 s = min::size_of ( vp );
+    bool next_present = ( s >= 1 && vp[0] == ::next );
+    min::uns32 i = next_present;
+    if ( i >= s )
+    {
+	mexcom::compile_error
+	    ( ppv->position,
+              "variable name to left of `=' operator"
+              " is empty" );
+        return min::NULL_STUB;
+    }
+    min::locatable_gen var_name
+	( PRIM::scan_var_name ( vp, i ) );
+    if ( i < s )
+    {
+	mexcom::compile_error
+	    ( ppv->position,
+              "right side of `=' operator does not"
+              " have the form `next? VARIABLE-NAME'" );
+        return min::NULL_STUB;
+    }
+
+    min::locatable_var<PRIM::var> var
+        ( (PRIM::var) TAB::find
+	      ( var_name,
+	        PRIM::VAR,
+	        PAR::ALL_SELECTORS,
+	        ::symbol_table ) );
+
+    // At most one of the following _OK's can be true;
+    //
+    bool non_next_OK =
+	( var == min::NULL_STUB
+	  ||
+	  ( var->block_level >> 16 ) != level );
+    bool next_OK =
+	( var != min::NULL_STUB
+	  &&
+	  ( var->block_level >> 16 ) == level
+          &&
+	  ( var->block_level & 0xFFFF ) == depth );
+    bool writable_OK =
+	( var != min::NULL_STUB
+	  &&
+	  ( var->block_level >> 16 ) == level
+          &&
+	  ( var->block_level & 0xFFFF ) != depth
+	  &&
+	  ( var->flags & PRIM::WRITABLE_VAR ) );
+
+    bool write = ( writable_OK
+                   &&
+		       ( var->flags & PRIM::NEXT_VAR )
+                   == next_present );
+
+    if ( write );
+    else if ( next_present && ! next_OK )
+    {
+	mexcom::compile_error
+	    ( ppv->position,
+              "next variable `",
+	      min::pgen_name ( var_name ),
+	      "' has no predecessor of the same"
+	      " variable name and lexical level"
+	      " and depth" );
+        return min::NULL_STUB;
+    }
+    else if ( ! next_present && ! non_next_OK )
+    {
+	mexcom::compile_error
+	    ( ppv->position,
+              "NON-next variable `",
+	      min::pgen_name ( var_name ),
+	      "' has a predecessor of the same"
+	      " variable name and lexical level" );
+        return min::NULL_STUB;
+    }
+    else
+	var  = PRIM::push_var ( ::star,
+			        PAR::ALL_SELECTORS,
+			        ppv->position,
+			        level, depth,
+			        next_present ?
+				    PRIM::NEXT_VAR : 0,
+			        0xFFFFFFFF,
+			        min::new_stub_gen
+			          ( mexcom::
+			              output_module ),
+			        ::symbol_table );
+
+    return var;
 }
 
 // The following does the work of compile_expression in
