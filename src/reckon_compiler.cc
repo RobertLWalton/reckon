@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep  3 06:47:21 AM EDT 2024
+// Date:	Wed Sep  4 02:57:44 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -282,17 +282,17 @@ PRIM::var scan_var ( min::gen expression )
         return min::NULL_STUB;
     }
     else
-	var  = PRIM::push_var ( ::star,
-			        PAR::ALL_SELECTORS,
-			        ppv->position,
-			        level, depth,
-			        next_present ?
-				    PRIM::NEXT_VAR : 0,
-			        0xFFFFFFFF,
-			        min::new_stub_gen
-			          ( mexcom::
-			              output_module ),
-			        ::symbol_table );
+    {
+	var = PRIM::create_var
+	    ( ::star,
+              PAR::ALL_SELECTORS,
+              ppv->position,
+              level, depth,
+              next_present ?  PRIM::NEXT_VAR : 0,
+              0xFFFFFFFF,
+              min::new_stub_gen ( mexcom:: output_module ) );
+	PRIM::push_var ( ::symbol_table, var );
+    }
 
     return var;
 }
@@ -345,26 +345,27 @@ void REC::init_compiler
     ::primary_pass = PRIM::init_primary ( parser );
     ::symbol_table = ::primary_pass->primary_table;
 
+    min::locatable_var<PRIM::var> var;
     ::pushi ( mex::FALSE, PAR::top_level_position,
               ::FALSE, true );
-    PRIM::push_var ( ::FALSE,
-		     PAR::ALL_SELECTORS,
-		     PAR::top_level_position,
-		     0, 0, 0,
-		     mexstack::var_stack_length - 1,
-		     min::new_stub_gen
-		       ( mexcom::output_module ),
-		     ::symbol_table );
+    var = PRIM::create_var
+        ( ::FALSE,
+          PAR::ALL_SELECTORS,
+          PAR::top_level_position,
+          0, 0, 0,
+          mexstack::var_stack_length - 1,
+          min::new_stub_gen ( mexcom::output_module ) );
+    PRIM::push_var ( ::symbol_table, var );
     ::pushi ( mex::TRUE, PAR::top_level_position,
               ::TRUE, true );
-    PRIM::push_var ( ::TRUE,
-		     PAR::ALL_SELECTORS,
-		     PAR::top_level_position,
-		     0, 0, 0,
-		     mexstack::var_stack_length - 1,
-		     min::new_stub_gen
-		       ( mexcom::output_module ),
-		     ::symbol_table );
+    var = PRIM::create_var
+        ( ::TRUE,
+          PAR::ALL_SELECTORS,
+          PAR::top_level_position,
+          0, 0, 0,
+          mexstack::var_stack_length - 1,
+          min::new_stub_gen ( mexcom::output_module ) );
+    PRIM::push_var ( ::symbol_table, var );
 }
 
 
@@ -425,17 +426,17 @@ bool static compile_restricted_statement
 	min::uns32 depth = mexstack::depth[level];
 	if ( ::compile_expression ( statement ) )
 	{
-	    PRIM::push_var ( ::star,
-			     PAR::ALL_SELECTORS,
-			     ppv->position,
-			     level, depth,
-			     0,
-			     mexstack::var_stack_length
-			       - 1,
-			     min::new_stub_gen
-			       ( mexcom::
-			           output_module ),
-			     ::symbol_table );
+	    min::locatable_var<PRIM::var> var;
+	    var = PRIM::create_var
+	        ( ::star,
+	          PAR::ALL_SELECTORS,
+	          ppv->position,
+	          level, depth,
+	          0,
+	          mexstack::var_stack_length - 1,
+	          min::new_stub_gen
+	            ( mexcom::output_module ) );
+	    PRIM::push_var ( ::symbol_table, var );
 	    return true;
 	}
 	else
@@ -555,16 +556,19 @@ bool static compile_assignment_statement
 	      trace_info );
     }
     else
-	PRIM::push_var ( var_name,
-			 PAR::ALL_SELECTORS,
-			 left_ppv->position,
-			 level, depth,
-			 next_present ?
-			     PRIM::NEXT_VAR : 0,
-			 mexstack::var_stack_length - 1,
-			 min::new_stub_gen
-			   ( mexcom::output_module ),
-			 ::symbol_table );
+    {
+	min::locatable_var<PRIM::var> var;
+	var = PRIM::create_var
+	    ( var_name,
+	      PAR::ALL_SELECTORS,
+	      left_ppv->position,
+	      level, depth,
+	      next_present ? PRIM::NEXT_VAR : 0,
+	      mexstack::var_stack_length - 1,
+	      min::new_stub_gen
+		( mexcom::output_module ) );
+	PRIM::push_var ( ::symbol_table, var );
+    }
     return true;
 }
 
