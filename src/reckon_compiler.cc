@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  4 02:13:42 PM EDT 2024
+// Date:	Thu Sep  5 03:05:23 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -619,7 +619,7 @@ RETRY:
 		mexstack::var_stack_length -= jend;;
 		++ mexstack::var_stack_length;
 		mexstack::push_instr
-		    ( instr, ppv->position, ::star );
+		    ( instr, ppv->position, name );
 		goto RETURN_VALUE;
 	    }
 	    else if
@@ -684,7 +684,7 @@ RETRY:
 		    -- mexstack::var_stack_length;
 		    mexstack::push_instr
 			( instr, ppv->position,
-			  ::star );
+			  i >= s ? name : ::star );
 		}
 		if ( ! OK ) return 0;
 		else goto RETURN_VALUE;
