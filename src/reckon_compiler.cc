@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep  5 03:05:23 AM EDT 2024
+// Date:	Fri Sep  6 01:57:24 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -180,12 +180,18 @@ inline void label ( min::uns32 target )
 // Scan the name of an assignment left side variable
 // and locate or create a var object for it.  Returns
 // the var object found or created, or returns NULL_STUB
-// if compile_error called.  If the var location is
-// NO_LOCATION, the var has been created, and the caller
-// of this function should assign the var's location and
-// push the var into ::symbol_table at the appropriate
-// time.  If the var location is otherwise, the var
-// was found and the caller of this function should
+// if compile_error called.  If the var does NOT have
+// the WRITABLE_VAR flag, the var has been created, and
+// the caller of this function should assign the var's
+// location and push the var into ::symbol_table at the
+// appropriate time.  In this case, the returned var->
+// location is NO_LOCATION unless the variable is a
+// next variable, in which case it is the location of
+// the predecessor of the variable.  In either case
+// var->location must be overwritten by the caller.
+//
+// If the var returned has the WRITABLE_VAR flag, the
+// var was found and the caller of this function should
 // compile an instruction to move the appropriate
 // runtime value to the var's location.
 //
@@ -241,15 +247,11 @@ PRIM::var scan_var ( min::gen expression )
 	  ||
 	  ( var->block_level >> 16 ) != level );
     bool next_OK =
-	( var != min::NULL_STUB
-	  &&
-	  ( var->block_level >> 16 ) == level
+	( ! non_next_OK
           &&
 	  ( var->block_level & 0xFFFF ) == depth );
     bool writable_OK =
-	( var != min::NULL_STUB
-	  &&
-	  ( var->block_level >> 16 ) == level
+	( ! non_next_OK
           &&
 	  ( var->block_level & 0xFFFF ) != depth
 	  &&
@@ -290,8 +292,10 @@ PRIM::var scan_var ( min::gen expression )
               ppv->position,
               level, depth,
               next_present ? PRIM::NEXT_VAR : 0,
-              NO_LOCATION,
-              min::new_stub_gen ( mexcom:: output_module ) );
+              next_present ?
+	          var->location : NO_LOCATION,
+              min::new_stub_gen
+	          ( mexcom:: output_module ) );
     }
 
     return var;
@@ -408,21 +412,61 @@ bool REC::compile_statement ( min::gen statement )
 	      PARLEX::colon );
         min::obj_vec_ptr vp0 = vp[0];
 	if ( vp0 == min::NULL_STUB )
-	    goto COMPILE_RESTRICTED;
+	{
+	    vp = min::NULL_STUB;
+	    min::phrase_position_vec ppv =
+	        min::get
+		    ( statement, min::dot_position );
+	    mexcom::compile_error
+	        ( ppv[0],
+		  "variable list expected and"
+		  " not found; statement ignored" );
+	    return false;
+	}
 	min::uns32 vsize0 = min::size_of ( vp0 );
 	if ( vsize0 == 2
 	     &&
 	     vp0[1] == PARLEX::equal )
 	{
+	    min::gen var_expressions = vp0[0];
 	    min::gen separator =
-	        min::get ( vp0[0], min::dot_separator );
-	    vp0 = vp0[0];
+	        min::get ( var_expressions,
+		           min::dot_separator );
+	    vp0 = var_expressions;
+	    min::uns32 n = 1;
+	    if ( separator == PARLEX::comma )
+	        n = min::size_of ( vp0 );
+	    min::locatable_var<PRIM::var> vars[n];
+	    bool OK = true;
+	    if ( separator != PARLEX::comma )
+	    {
+		vp0 = min::NULL_STUB;
+	        vars[0] =
+		    ::scan_var ( var_expressions );
+		if ( vars[0] == min::NULL_STUB )
+		    OK = false;
+	    }
+	    else for ( min::uns32 i = 0; i < n; ++ i )
+	    {
+	        vars[i] = ::scan_var ( vp0[i] );
+		if ( vars[0] == min::NULL_STUB )
+		    OK = false;
+	    }
+	    if ( ! OK ) return false;
 
 	    // TBD
 	}
+
+	vp = min::NULL_STUB;
+	min::phrase_position_vec ppv =
+	    min::get
+		( statement, min::dot_position );
+	mexcom::compile_error
+	    ( ppv[0], "cannot understand;"
+	              " statement ignored" );
+	return false;
     }
 
-COMPILE_RESTRICTED:
     return ::compile_restricted_statement
         ( statement, vp, vsize );
 }
@@ -479,14 +523,14 @@ bool static compile_assignment_statement
 
     if ( ! :: compile_expression
 	    ( right_side, 0, 0,
-	      var->location == NO_LOCATION ?
-	          var_name : ::star ) )
+	      var->flags & PRIM::WRITABLE_VAR ?
+	          ::star : var_name ) )
 	return false;
 
     // If compile_expression returns true, it has
     // incremented var_stack_length.
 
-    if ( var->location != NO_LOCATION )
+    if ( var->flags & PRIM::WRITABLE_VAR )
     {
 	mex::instr instr =
 	    { mex::POPS, mex::T_POP, 0, 0,
