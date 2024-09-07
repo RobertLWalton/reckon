@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  7 03:28:49 AM EDT 2024
+// Date:	Sat Sep  7 03:58:05 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,8 +47,9 @@ static min::uns32 jmp_counter = 1;
 
 static min::locatable_var<PRIM::primary_pass>
 	primary_pass;
-static min::locatable_var<TAB::key_table> symbol_table;
 static min::locatable_var<PAR::parser> parser;
+static min::locatable_var<TAB::key_table> symbol_table;
+static min::uns32 var_stack_length = 0;
 
 bool static compile_restricted_statement
 	( min::gen statement,
@@ -128,6 +129,29 @@ static min::initializer initializer ( ::initialize );
 
 // Helper Functions
 // ------ ---------
+
+// Push variable into symbol table.
+//
+inline void push_var ( PRIM::var var )
+{
+    PRIM::push_var ( ::symbol_table, var );
+    ++ ::var_stack_length;
+}
+
+void mexstack::pop_stacks ( void )
+{
+    // TBD: functions not implemented.
+
+    MIN_REQUIRE
+        (    ::var_stack_length
+	  >= mexstack::var_stack_length );
+    while (   ::var_stack_length
+            > mexstack::var_stack_length )
+    {
+        TAB::pop ( ::symbol_table );
+        -- ::var_stack_length;
+    }
+}
 
 // Call mexstack::push_instr with a PUSHI instruction
 // that pushes the indicated value and has name as
@@ -386,7 +410,7 @@ void REC::init_compiler
           0, 0, 0,
           mexstack::var_stack_length - 1,
           min::new_stub_gen ( mexcom::output_module ) );
-    PRIM::push_var ( ::symbol_table, var );
+    ::push_var ( var );
     ::pushi ( mex::TRUE, PAR::top_level_position,
               ::TRUE, true );
     var = PRIM::create_var
@@ -396,7 +420,7 @@ void REC::init_compiler
           0, 0, 0,
           mexstack::var_stack_length - 1,
           min::new_stub_gen ( mexcom::output_module ) );
-    PRIM::push_var ( ::symbol_table, var );
+    ::push_var ( var );
 }
 
 
@@ -435,7 +459,7 @@ bool REC::compile_statement ( min::gen statement )
 	    min::gen right_side =
 	        ( s0 == 3 ? vp0[2] : min::NONE() );
 	    return ::compile_block_assignment_statement
-	        ( vp0[0], right_side, vp0[s0 - 1] );
+	        ( vp0[0], right_side, vp[1] );
 	}
 
 	vp = min::NULL_STUB;
@@ -481,7 +505,7 @@ bool static compile_restricted_statement
 	          mexstack::var_stack_length - 1,
 	          min::new_stub_gen
 	            ( mexcom::output_module ) );
-	    PRIM::push_var ( ::symbol_table, var );
+	    ::push_var ( var );
 	    return true;
 	}
 	else
@@ -528,7 +552,7 @@ bool static compile_assignment_statement
     else
     {
         var->location = mexstack::var_stack_length - 1;
-	PRIM::push_var ( ::symbol_table, var );
+	::push_var ( var );
     }
     return true;
 }
@@ -560,7 +584,7 @@ bool static compile_block_assignment_statement
     else for ( min::uns32 i = 0; i < n; ++ i )
     {
 	vars[i] = ::scan_var ( vp[i] );
-	if ( vars[0] == min::NULL_STUB )
+	if ( vars[i] == min::NULL_STUB )
 	    OK = false;
     }
     if ( ! OK ) return false;
@@ -581,17 +605,17 @@ bool static compile_block_assignment_statement
 	    continue;
 	}
 	else if ( var->location == ::NO_LOCATION )
-	{
 	    ::pushi ( ZERO, var->position, var->label );
-	    var->location =
-	        mexstack::var_stack_length - 1;
-	}
 	else
+	{
+	    ++ mexstack::var_stack_length;
 	    mexstack::push_push_instr
 	        ( var->label, var->label,
 		  var->location, var->position );
+	}
+	var->location = mexstack::var_stack_length - 1;
 	var->flags |= PRIM::WRITABLE_VAR;
-	PRIM::push_var ( ::symbol_table, var );
+	::push_var ( var );
     }
 
     min::phrase_position_vec ppv =
