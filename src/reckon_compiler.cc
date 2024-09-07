@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  6 01:57:24 AM EDT 2024
+// Date:	Sat Sep  7 03:28:49 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,6 +41,7 @@ static min::locatable_gen lt;
 static min::locatable_gen leq;
 static min::locatable_gen TRUE;
 static min::locatable_gen FALSE;
+static min::locatable_gen ZERO;
 
 static min::uns32 jmp_counter = 1;
 
@@ -66,6 +67,11 @@ bool inline compile_restricted_statement
 bool static compile_assignment_statement
 	( min::gen left_side,
           min::gen right_side );
+
+bool static compile_block_assignment_statement
+	( min::gen left_side,
+          min::gen right_side,
+          min::gen block );
 
 // Compile expression.  If true_jmp == 0, generate code
 // that pushes the value of the expression to the stack.
@@ -115,6 +121,7 @@ static void initialize ( void )
     ::leq  = min::new_str_gen ( "<=" );
     ::TRUE  = min::new_str_gen ( "TRUE" );
     ::FALSE  = min::new_str_gen ( "FALSE" );
+    ::ZERO  = min::new_num_gen ( 0 );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -399,15 +406,13 @@ void REC::init_compiler
 bool REC::compile_statement ( min::gen statement )
 {
     min::obj_vec_ptr vp = statement;
-    min::uns32 vsize = min::size_of ( vp );
+    min::uns32 s = min::size_of ( vp );
 
-    if ( vsize == 2
-         &&
-	    min::get ( vp[1], min::dot_terminator )
+    if (     min::get ( vp[s-1], min::dot_terminator )
 	 == min::INDENTED_PARAGRAPH() )
     {
         MIN_REQUIRE
-	    ( min::get ( vp[1], min::dot_initiator )
+	    ( min::get ( vp[s-1], min::dot_initiator )
 	      ==
 	      PARLEX::colon );
         min::obj_vec_ptr vp0 = vp[0];
@@ -423,38 +428,14 @@ bool REC::compile_statement ( min::gen statement )
 		  " not found; statement ignored" );
 	    return false;
 	}
-	min::uns32 vsize0 = min::size_of ( vp0 );
-	if ( vsize0 == 2
-	     &&
-	     vp0[1] == PARLEX::equal )
+	min::uns32 s0 = min::size_of ( vp0 );
+	if ( s0 >= 2 && vp0[1] == PARLEX::equal )
 	{
-	    min::gen var_expressions = vp0[0];
-	    min::gen separator =
-	        min::get ( var_expressions,
-		           min::dot_separator );
-	    vp0 = var_expressions;
-	    min::uns32 n = 1;
-	    if ( separator == PARLEX::comma )
-	        n = min::size_of ( vp0 );
-	    min::locatable_var<PRIM::var> vars[n];
-	    bool OK = true;
-	    if ( separator != PARLEX::comma )
-	    {
-		vp0 = min::NULL_STUB;
-	        vars[0] =
-		    ::scan_var ( var_expressions );
-		if ( vars[0] == min::NULL_STUB )
-		    OK = false;
-	    }
-	    else for ( min::uns32 i = 0; i < n; ++ i )
-	    {
-	        vars[i] = ::scan_var ( vp0[i] );
-		if ( vars[0] == min::NULL_STUB )
-		    OK = false;
-	    }
-	    if ( ! OK ) return false;
-
-	    // TBD
+	    MIN_REQUIRE ( s0 <= 3 );
+	    min::gen right_side =
+	        ( s0 == 3 ? vp0[2] : min::NONE() );
+	    return ::compile_block_assignment_statement
+	        ( vp0[0], right_side, vp0[s0 - 1] );
 	}
 
 	vp = min::NULL_STUB;
@@ -468,7 +449,7 @@ bool REC::compile_statement ( min::gen statement )
     }
 
     return ::compile_restricted_statement
-        ( statement, vp, vsize );
+        ( statement, vp, s );
 }
 
 bool static compile_restricted_statement
@@ -550,6 +531,93 @@ bool static compile_assignment_statement
 	PRIM::push_var ( ::symbol_table, var );
     }
     return true;
+}
+
+bool static compile_block_assignment_statement
+	( min::gen left_side,
+          min::gen right_side,
+          min::gen block )
+{
+
+    MIN_ASSERT ( right_side == min::NONE(),
+                 "loops not yet supported" );
+
+    min::gen separator =
+	min::get ( left_side, min::dot_separator );
+    min::obj_vec_ptr vp = left_side;
+    min::uns32 n = 1;
+    if ( separator == PARLEX::comma )
+	n = min::size_of ( vp );
+    min::locatable_var<PRIM::var> vars[n];
+    bool OK = true;
+    if ( separator != PARLEX::comma )
+    {
+	vp = min::NULL_STUB;
+	vars[0] = ::scan_var ( left_side );
+	if ( vars[0] == min::NULL_STUB )
+	    OK = false;
+    }
+    else for ( min::uns32 i = 0; i < n; ++ i )
+    {
+	vars[i] = ::scan_var ( vp[i] );
+	if ( vars[0] == min::NULL_STUB )
+	    OK = false;
+    }
+    if ( ! OK ) return false;
+
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+        PRIM::var var = vars[i];
+	if ( var->flags & PRIM::WRITABLE_VAR )
+	{
+	    mexcom::compile_warn
+	        ( var->position,
+		  "this output variable hides previous"
+		  " output variable; this variable;"
+		  " this variable is ignored" );
+	    vars[i] = min::NULL_STUB;
+	        // To prevent clearing WRITABLE_VAR
+		// below.
+	    continue;
+	}
+	else if ( var->location == ::NO_LOCATION )
+	{
+	    ::pushi ( ZERO, var->position, var->label );
+	    var->location =
+	        mexstack::var_stack_length - 1;
+	}
+	else
+	    mexstack::push_push_instr
+	        ( var->label, var->label,
+		  var->location, var->position );
+	var->flags |= PRIM::WRITABLE_VAR;
+	PRIM::push_var ( ::symbol_table, var );
+    }
+
+    min::phrase_position_vec ppv =
+        min::get ( block, min::dot_position );
+    mex::instr beg = { mex::BEG };
+    mexstack::begx
+        ( beg, 0, 0, min::MISSING(), ppv->position );
+    vp = block;
+    min::uns32 s = min::size_of ( vp );
+    // OK == true
+    for ( min::uns32 i = 0; i < s; ++ i )
+    {
+        if ( ! REC::compile_statement ( vp[i] ) )
+	    OK = false;
+    }
+    mex::instr end = { mex::END };
+    mexstack::endx
+        ( end, 0, min::MISSING(), ppv->position );
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+        PRIM::var var = vars[i];
+	if ( var == min::NULL_STUB ) continue;
+	var->flags &= ~ PRIM::WRITABLE_VAR;
+    }
+
+    return OK;
 }
 
 min::uns32 static compile_expression
