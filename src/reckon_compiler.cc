@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  7 03:58:05 PM EDT 2024
+// Date:	Sun Sep  8 04:38:22 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,63 +50,6 @@ static min::locatable_var<PRIM::primary_pass>
 static min::locatable_var<PAR::parser> parser;
 static min::locatable_var<TAB::key_table> symbol_table;
 static min::uns32 var_stack_length = 0;
-
-bool static compile_restricted_statement
-	( min::gen statement,
-	  min::obj_vec_ptr vp,
-	  min::uns32 vsize );
-
-bool inline compile_restricted_statement
-	( min::gen statement )
-{
-    min::obj_vec_ptr vp = statement;
-    min::uns32 vsize = min::size_of ( vp );
-    return ::compile_restricted_statement
-    	( statement, vp, vsize );
-}
-
-bool static compile_assignment_statement
-	( min::gen left_side,
-          min::gen right_side );
-
-bool static compile_block_assignment_statement
-	( min::gen left_side,
-          min::gen right_side,
-          min::gen block );
-
-// Compile expression.  If true_jmp == 0, generate code
-// that pushes the value of the expression to the stack.
-// In this case, on success 1 is returned and var_stack_
-// length is incremented, but on failure compile_error
-// is called and 0 is returned.  Here `name' is only
-// used in the trace_info of the compiled instruction
-// that pushes the expression value, and a top level
-// CALLER is expected the corresponding var into the
-// symbol_table.
-//
-// If true_jmp != 0, generate code that computes a
-// logical value and jumps to true_jmp if that value is
-// true and false_jmp if the value is false.  The code
-// may also fall through and not jump: if it does so
-// when a true logical value is computed, the value
-// of the true_jmp argument is returned, but if it does
-// so when a false logical value is computed, the value
-// of the false_jmp argument is returned.  0 is returned
-// if compile_error has been called.
-//
-// Note that true/false_jmp are never 0.
-//
-min::uns32 static compile_expression
-	( min::gen expression,
-	  min::uns32 true_jmp = 0,
-	  min::uns32 false_jmp = 0,
-	  min::gen name = ::star );
-
-bool static compile_constant
-	( min::gen expression,
-          min::phrase_position pp,
-          min::gen type = min::NONE(),
-	  min::gen name = min::NONE() );
 
 static void initialize ( void )
 {
@@ -351,6 +294,56 @@ min::gen static full_var_name ( PRIM::var var )
 	( min::new_lab_gen ( labv, lablen + 1 ) );
     return var_name;
 }
+
+// Compile Functions
+// ------- ---------
+
+bool static compile_restricted_statement
+	( min::gen statement );
+
+bool static compile_expression_assignment_statement
+	( min::gen left_side,
+          min::gen right_side,
+	  bool is_restricted = false );
+
+bool static compile_block_assignment_statement
+	( min::gen left_side,
+          min::gen right_side,
+          min::gen block );
+
+// Compile expression.  If true_jmp == 0, generate code
+// that pushes the value of the expression to the stack.
+// In this case, on success 1 is returned and var_stack_
+// length is incremented, but on failure compile_error
+// is called and 0 is returned.  Here `name' is only
+// used in the trace_info of the compiled instruction
+// that pushes the expression value, and a top level
+// CALLER is expected the corresponding var into the
+// symbol_table.
+//
+// If true_jmp != 0, generate code that computes a
+// logical value and jumps to true_jmp if that value is
+// true and false_jmp if the value is false.  The code
+// may also fall through and not jump: if it does so
+// when a true logical value is computed, the value
+// of the true_jmp argument is returned, but if it does
+// so when a false logical value is computed, the value
+// of the false_jmp argument is returned.  0 is returned
+// if compile_error has been called.
+//
+// Note that true/false_jmp are never 0.
+//
+min::uns32 static compile_expression
+	( min::gen expression,
+	  min::uns32 true_jmp = 0,
+	  min::uns32 false_jmp = 0,
+	  min::gen name = ::star );
+
+bool static compile_constant
+	( min::gen expression,
+          min::phrase_position pp,
+          min::gen type = min::NONE(),
+	  min::gen name = min::NONE() );
 
 // The following does the work of compile_expression in
 // the case of a LOGICAL_OPERATOR with a logical value
@@ -461,31 +454,14 @@ bool REC::compile_statement ( min::gen statement )
 	    return ::compile_block_assignment_statement
 	        ( vp0[0], right_side, vp[1] );
 	}
-
-	vp = min::NULL_STUB;
-	min::phrase_position_vec ppv =
-	    min::get
-		( statement, min::dot_position );
-	mexcom::compile_error
-	    ( ppv[0], "cannot understand;"
-	              " statement ignored" );
-	return false;
     }
 
-    return ::compile_restricted_statement
-        ( statement, vp, s );
-}
-
-bool static compile_restricted_statement
-	( min::gen statement,
-	  min::obj_vec_ptr vp,
-	  min::uns32 vsize )
-{
-    if ( vsize == 3
-         &&
-	 vp[1] == ::equal_sign )
-	return ::compile_assignment_statement
+    else if ( s == 3
+              &&
+	      vp[1] == ::equal_sign )
+	return ::compile_expression_assignment_statement
 	     ( vp[0], vp[2] );
+
     else
     {
 	vp = min::NULL_STUB;
@@ -511,11 +487,43 @@ bool static compile_restricted_statement
 	else
 	    return false;
     }
+
+    vp = min::NULL_STUB;
+    min::phrase_position_vec ppv =
+	min::get
+	    ( statement, min::dot_position );
+    mexcom::compile_error
+	( ppv[0], "not a legal statement;"
+		  " statement ignored" );
+    return false;
 }
 
-bool static compile_assignment_statement
+bool static compile_restricted_statement
+	( min::gen statement )
+{
+    min::obj_vec_ptr vp = statement;
+    min::uns32 s = min::size_of ( vp );
+
+    if ( s == 3
+         &&
+	 vp[1] == ::equal_sign )
+	return ::compile_expression_assignment_statement
+	     ( vp[0], vp[2], true );
+
+    vp = min::NULL_STUB;
+    min::phrase_position_vec ppv =
+	min::get
+	    ( statement, min::dot_position );
+    mexcom::compile_error
+	( ppv[0], "not a legal restricted statement;"
+		  " statement ignored" );
+    return false;
+}
+
+bool static compile_expression_assignment_statement
 	( min::gen left_side,
-          min::gen right_side )
+          min::gen right_side,
+	  bool is_restricted )
 {
     min::phrase_position_vec left_ppv =
 	min::get ( left_side, min::dot_position );
