@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  8 04:38:22 AM EDT 2024
+// Date:	Mon Sep  9 04:22:39 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,9 @@ static min::locatable_gen leq;
 static min::locatable_gen TRUE;
 static min::locatable_gen FALSE;
 static min::locatable_gen ZERO;
+static min::locatable_gen IF;
+static min::locatable_gen ELSE_IF;
+static min::locatable_gen TOP;
 
 static min::uns32 jmp_counter = 1;
 
@@ -66,6 +69,9 @@ static void initialize ( void )
     ::TRUE  = min::new_str_gen ( "TRUE" );
     ::FALSE  = min::new_str_gen ( "FALSE" );
     ::ZERO  = min::new_num_gen ( 0 );
+    ::IF  = min::new_str_gen ( "if" );
+    ::ELSE_IF  = min::new_lab_gen ( "else", "if" );
+    ::TOP  = min::new_str_gen ( "TOP" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -149,6 +155,65 @@ inline void label ( min::uns32 target )
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
     mexstack::jmp_target ( t );
+}
+
+struct block_struct
+{
+    min::gen name;
+
+    min::uns32 if_next_jmp;
+    min::uns32 if_finish_jmp;
+	// If if_next_jmp is != 0 the previous statement
+	// was an if or else if statement which jumps to
+	// next_jmp if its condition is false, with
+	// previous if and else if statements in a
+	// sequence ending with the previous statement
+	// jumping to if_finish_jmp if one of there
+	// conditions is true provided if_finish_jmp is
+	// != 0.
+
+    min::phrase_position if_pp;
+        // Phrase position of last IF or ELSE-IF.
+
+    min::uns32 block_finish_jmp;
+        // If non-zero, label to be output right after
+	// END... .
+};
+
+typedef min::packed_vec_insptr<block_struct>
+    block_stack_vec;
+static ::block_stack_vec block_stack;
+static block_struct block;
+    // Copy of top of block stack.
+
+inline void push_block ( min::gen name )
+{
+    block_struct b =
+        { name, 0, 0, min::MISSING_POSITION, 0 };
+    min::push ( ::block_stack ) = b;
+    ::block = b;
+    min::unprotected::acc_write_update
+        ( ::block_stack, name );
+}
+
+inline void pop_block ( void )
+{
+    min::pop ( ::block_stack );
+    block = ::block_stack[::block_stack->length - 1];
+}
+
+inline void end_if_sequence ( void )
+{
+    if ( block.if_next_jmp != 0 )
+    {
+        ::label ( block.if_next_jmp );
+	block.if_next_jmp = 0;
+    }
+    if ( block.if_finish_jmp != 0 )
+    {
+        ::label ( block.if_finish_jmp );
+	block.if_finish_jmp = 0;
+    }
 }
 
 // Scan the name of an assignment left side variable
@@ -311,6 +376,14 @@ bool static compile_block_assignment_statement
           min::gen right_side,
           min::gen block );
 
+// If ::block.if_next_jmp == 0, compiles IF statement.
+// Otherwise compiles ELSE_IF statement.
+//
+bool static compile_if_statement
+	( min::gen condition,
+          min::gen block,
+	  bool is_restricted = false );
+
 // Compile expression.  If true_jmp == 0, generate code
 // that pushes the value of the expression to the stack.
 // In this case, on success 1 is returned and var_stack_
@@ -369,6 +442,15 @@ min::uns32 static compile_if_to_value
 // Init Compiler
 // ---- --------
 
+static min::uns32 block_stack_gen_disp[] = {
+    min::DISP ( & ::block_struct::name ),
+    min::DISP_END };
+
+static min::packed_vec<::block_struct>
+    block_stack_type
+        ( "block_stack_type",
+	  ::block_stack_gen_disp );
+
 void REC::init_compiler
 	( PAR::parser parser,
           mexstack::print print_switch )
@@ -414,6 +496,9 @@ void REC::init_compiler
           mexstack::var_stack_length - 1,
           min::new_stub_gen ( mexcom::output_module ) );
     ::push_var ( var );
+
+    ::block_stack = ::block_stack_type.new_stub ( 64 );
+    ::push_block ( ::TOP );
 }
 
 
@@ -425,6 +510,21 @@ bool REC::compile_statement ( min::gen statement )
     min::obj_vec_ptr vp = statement;
     min::uns32 s = min::size_of ( vp );
 
+    // Else-if/else statements must be first so
+    // end_if_sequence can be called for all other
+    // statements.
+
+    if ( s == 4
+         &&
+	 vp[0] == ::ELSE_IF
+	 &&
+	 vp[2] == PARLEX::colon )
+    {
+	::end_if_sequence();
+        return ::compile_if_statement
+	    ( vp[1], vp[3], true );
+    }
+
     if (     min::get ( vp[s-1], min::dot_terminator )
 	 == min::INDENTED_PARAGRAPH() )
     {
@@ -432,7 +532,34 @@ bool REC::compile_statement ( min::gen statement )
 	    ( min::get ( vp[s-1], min::dot_initiator )
 	      ==
 	      PARLEX::colon );
+
         min::obj_vec_ptr vp0 = vp[0];
+	min::uns32 s0 = min::size_of ( vp0 );
+
+	// Else-if/else statements must be first so
+	// end_if_sequence can be called for all other
+	// statements.
+
+	if ( s0 == 2
+	     &&
+	     vp0[0] == ::ELSE_IF )
+	{
+	    ::end_if_sequence();
+	    return ::compile_if_statement
+		( vp0[1], vp[1] );
+	}
+
+        end_if_sequence();
+
+	if ( s0 == 2
+	     &&
+	     vp0[0] == ::IF )
+	{
+	    ::end_if_sequence();
+	    return ::compile_if_statement
+		( vp0[1], vp[1] );
+	}
+
 	if ( vp0 == min::NULL_STUB )
 	{
 	    vp = min::NULL_STUB;
@@ -445,7 +572,6 @@ bool REC::compile_statement ( min::gen statement )
 		  " not found; statement ignored" );
 	    return false;
 	}
-	min::uns32 s0 = min::size_of ( vp0 );
 	if ( s0 >= 2 && vp0[1] == PARLEX::equal )
 	{
 	    MIN_REQUIRE ( s0 <= 3 );
@@ -455,10 +581,20 @@ bool REC::compile_statement ( min::gen statement )
 	        ( vp0[0], right_side, vp[1] );
 	}
     }
+    else
+        end_if_sequence();
 
-    else if ( s == 3
-              &&
-	      vp[1] == ::equal_sign )
+    if ( s == 4
+         &&
+	 vp[0] == ::IF
+	 &&
+	 vp[2] == PARLEX::colon )
+        return ::compile_if_statement
+	    ( vp[1], vp[3], true );
+
+    if ( s == 3
+         &&
+	 vp[1] == ::equal_sign )
 	return ::compile_expression_assignment_statement
 	     ( vp[0], vp[2] );
 
@@ -650,6 +786,43 @@ bool static compile_block_assignment_statement
     }
 
     return OK;
+}
+
+bool static compile_if_statement
+	( min::gen condition,
+          min::gen block,
+	  bool is_restricted )
+{
+    if ( ::block.if_next_jmp != 0 )
+    {
+        // Its an ELSE-IF.
+	//
+        if ( ::block.if_finish_jmp != 0 )
+	    ::block.if_finish_jmp = ::jmp_counter ++;
+	::jmp ( ::block.if_finish_jmp,
+	        ::block.if_pp );
+        ::label ( ::block.if_next_jmp );
+    }
+    min::phrase_position_vec ppv = min::get
+        ( condition, min::dot_position );
+    ::block.if_pp = ppv->position;
+    ::block.if_next_jmp = ::jmp_counter ++;
+    min::uns32 true_jmp = ::jmp_counter ++;
+    min::uns32 fallthru_jmp = ::compile_expression
+        ( condition, true_jmp, ::block.if_next_jmp );
+    if ( fallthru_jmp == 0 ) return false;
+    if ( fallthru_jmp == ::block.if_next_jmp )
+    {
+        ::jmp ( ::block.if_next_jmp, ::block.if_pp );
+	::label ( true_jmp );
+    }
+    if ( is_restricted )
+	return ::compile_restricted_statement ( block );
+    else
+    {
+	// TBD
+        return false;
+    }
 }
 
 min::uns32 static compile_expression
