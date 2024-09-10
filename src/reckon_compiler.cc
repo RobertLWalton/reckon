@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 10 02:21:19 AM EDT 2024
+// Date:	Tue Sep 10 11:49:25 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,6 +80,16 @@ static min::initializer initializer ( ::initialize );
 
 // Helper Functions
 // ------ ---------
+
+// Get dot_position given obj_vec_ptr.
+//
+static min::phrase_position_vec
+	get_position ( min::obj_vec_ptr & vp )
+{
+    min::attr_ptr ap = vp;
+    min::locate ( ap, min::dot_position );
+    return min::get ( ap );
+}
 
 // Push variable into symbol table.
 //
@@ -526,16 +536,36 @@ bool REC::compile_statement ( min::gen statement )
 	 vp[0] == ::ELSE_IF
 	 &&
 	 vp[2] == PARLEX::colon )
-        return ::compile_if_statement
+    {
+        if ( ::block.if_next_jmp == 0 )
+	{
+	    mexcom::compile_error
+	        ( ::get_position(vp)->position,
+		  " else if statement does NOT follow"
+		  " if or else if statement" );
+	    return false;
+	}
+	return ::compile_if_statement
 	    ( vp[1], vp[3], true );
+    }
 
     if ( s == 3
          &&
 	 vp[0] == ::ELSE
 	 &&
 	 vp[1] == PARLEX::colon )
+    {
+        if ( ::block.if_next_jmp == 0 )
+	{
+	    mexcom::compile_error
+	        ( ::get_position(vp)->position,
+		  " else statement does NOT follow"
+		  " if or else if statement" );
+	    return false;
+	}
         return ::compile_if_statement
 	    ( min::NONE(), vp[2], true );
+    }
 
     if (     min::get ( vp[s-1], min::dot_terminator )
 	 == min::INDENTED_PARAGRAPH() )
@@ -548,6 +578,15 @@ bool REC::compile_statement ( min::gen statement )
         min::obj_vec_ptr vp0 = vp[0];
 	min::uns32 s0 = min::size_of ( vp0 );
 
+	if ( vp0 == min::NULL_STUB )
+	{
+	    mexcom::compile_error
+	        ( ::get_position(vp)->position,
+		  "cannot understand statement"
+		  " beginning; statement ignored" );
+	    return false;
+	}
+
 	// Else-if/else statements must be first so
 	// end_if_sequence can be called for all other
 	// statements.
@@ -556,6 +595,15 @@ bool REC::compile_statement ( min::gen statement )
 	     &&
 	     vp0[0] == ::ELSE_IF )
 	{
+	    if ( ::block.if_next_jmp == 0 )
+	    {
+		mexcom::compile_error
+		    ( ::get_position(vp)->position,
+		      " else if statement does NOT"
+		      " follow if or else if"
+		      " statement" );
+		return false;
+	    }
 	    return ::compile_if_statement
 		( vp0[1], vp[1] );
 	}
@@ -564,6 +612,14 @@ bool REC::compile_statement ( min::gen statement )
 	     &&
 	     vp0[0] == ::ELSE )
 	{
+	    if ( ::block.if_next_jmp == 0 )
+	    {
+		mexcom::compile_error
+		    ( ::get_position(vp)->position,
+		      " else statement does NOT follow"
+		      " if or else if statement" );
+		return false;
+	    }
 	    return ::compile_if_statement
 		( min::NONE(), vp[1] );
 	}
@@ -576,19 +632,6 @@ bool REC::compile_statement ( min::gen statement )
 	{
 	    return ::compile_if_statement
 		( vp0[1], vp[1] );
-	}
-
-	if ( vp0 == min::NULL_STUB )
-	{
-	    vp = min::NULL_STUB;
-	    min::phrase_position_vec ppv =
-	        min::get
-		    ( statement, min::dot_position );
-	    mexcom::compile_error
-	        ( ppv[0],
-		  "variable list expected and"
-		  " not found; statement ignored" );
-	    return false;
 	}
 	if ( s0 >= 2 && vp0[1] == PARLEX::equal )
 	{
@@ -618,11 +661,11 @@ bool REC::compile_statement ( min::gen statement )
 
     else
     {
-	vp = min::NULL_STUB;
 	min::phrase_position_vec ppv =
-	    min::get ( statement, min::dot_position );
+	    ::get_position ( vp );
 	min::uns8 level = mexstack::lexical_level;
 	min::uns32 depth = mexstack::depth[level];
+	vp = min::NULL_STUB;
 	if ( ::compile_expression ( statement ) )
 	{
 	    min::locatable_var<PRIM::var> var;
@@ -642,13 +685,10 @@ bool REC::compile_statement ( min::gen statement )
 	    return false;
     }
 
-    vp = min::NULL_STUB;
-    min::phrase_position_vec ppv =
-	min::get
-	    ( statement, min::dot_position );
     mexcom::compile_error
-	( ppv[0], "not a legal statement;"
-		  " statement ignored" );
+	( ::get_position(vp)->position,
+	  "not a legal statement;"
+	  " statement ignored" );
     return false;
 }
 
@@ -664,13 +704,10 @@ bool static compile_restricted_statement
 	return ::compile_expression_assignment_statement
 	     ( vp[0], vp[2], true );
 
-    vp = min::NULL_STUB;
-    min::phrase_position_vec ppv =
-	min::get
-	    ( statement, min::dot_position );
     mexcom::compile_error
-	( ppv[0], "not a legal restricted statement;"
-		  " statement ignored" );
+	( ::get_position(vp)->position,
+	  "not a legal restricted statement;"
+	  " statement ignored" );
     return false;
 }
 
@@ -694,9 +731,6 @@ bool static compile_expression_assignment_statement
 	          ::star : var_name ) )
 	return false;
 
-    // If compile_expression returns true, it has
-    // incremented var_stack_length.
-
     if ( var->flags & PRIM::WRITABLE_VAR )
     {
 	mex::instr instr =
@@ -711,11 +745,22 @@ bool static compile_expression_assignment_statement
 	    ( instr, left_ppv->position,
 	      trace_info );
     }
-    else
+    else if ( ! is_restricted )
     {
         var->location = mexstack::var_stack_length - 1;
 	::push_var ( var );
     }
+    else
+    {
+        mexcom::compile_error
+	    ( var->position,
+	      "cannot allocate variable (",
+	      min::pgen_name ( var->label ),
+	      ") in a RESTRICTED statement" );
+	::pop ( var->position );
+	return false;
+    }
+
     return true;
 }
 
@@ -868,9 +913,8 @@ min::uns32 static compile_expression
 	  min::gen name )
 {
     min::obj_vec_ptr vp = expression;
-    min::attr_ptr ap = vp;
-    min::locate ( ap, min::dot_position );
-    min::phrase_position_vec ppv = min::get ( ap );
+    min::phrase_position_vec ppv =
+        ::get_position ( vp );
     min::uns32 s = min::size_of ( vp );
     min::uns8 level = mexstack::lexical_level;
 
