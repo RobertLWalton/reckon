@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 10 11:49:25 AM EDT 2024
+// Date:	Tue Sep 10 03:38:53 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -386,6 +386,9 @@ bool static compile_expression_assignment_statement
           min::gen right_side,
 	  bool is_restricted = false );
 
+bool static compile_block
+        ( min::gen block );
+
 bool static compile_block_assignment_statement
 	( min::gen left_side,
           min::gen right_side,
@@ -575,25 +578,13 @@ bool REC::compile_statement ( min::gen statement )
 	      ==
 	      PARLEX::colon );
 
-        min::obj_vec_ptr vp0 = vp[0];
-	min::uns32 s0 = min::size_of ( vp0 );
-
-	if ( vp0 == min::NULL_STUB )
-	{
-	    mexcom::compile_error
-	        ( ::get_position(vp)->position,
-		  "cannot understand statement"
-		  " beginning; statement ignored" );
-	    return false;
-	}
-
 	// Else-if/else statements must be first so
 	// end_if_sequence can be called for all other
 	// statements.
 
-	if ( s0 == 2
+	if ( s == 3
 	     &&
-	     vp0[0] == ::ELSE_IF )
+	     vp[0] == ::ELSE_IF )
 	{
 	    if ( ::block.if_next_jmp == 0 )
 	    {
@@ -605,12 +596,12 @@ bool REC::compile_statement ( min::gen statement )
 		return false;
 	    }
 	    return ::compile_if_statement
-		( vp0[1], vp[1] );
+		( vp[1], vp[2] );
 	}
 
-	if ( s0 == 1
+	if ( s == 2
 	     &&
-	     vp0[0] == ::ELSE )
+	     vp[0] == ::ELSE )
 	{
 	    if ( ::block.if_next_jmp == 0 )
 	    {
@@ -626,12 +617,24 @@ bool REC::compile_statement ( min::gen statement )
 
         ::end_if_sequence();
 
-	if ( s0 == 2
+	if ( s == 3
 	     &&
-	     vp0[0] == ::IF )
+	     vp[0] == ::IF )
 	{
 	    return ::compile_if_statement
-		( vp0[1], vp[1] );
+		( vp[1], vp[2] );
+	}
+
+        min::obj_vec_ptr vp0 = vp[0];
+	min::uns32 s0 = min::size_of ( vp0 );
+
+	if ( vp0 == min::NULL_STUB )
+	{
+	    mexcom::compile_error
+	        ( ::get_position(vp)->position,
+		  "cannot understand statement"
+		  " beginning; statement ignored" );
+	    return false;
 	}
 	if ( s0 >= 2 && vp0[1] == PARLEX::equal )
 	{
@@ -764,6 +767,37 @@ bool static compile_expression_assignment_statement
     return true;
 }
 
+bool static compile_block
+        ( min::gen block )
+{
+    min::phrase_position_vec ppv =
+        min::get ( block, min::dot_position );
+    mex::instr beg = { mex::BEG };
+    mexstack::begx
+        ( beg, 0, 0, min::MISSING(), ppv->position );
+    push_block ( ::star );
+
+    min::obj_vec_ptr vp = block;
+    min::uns32 s = min::size_of ( vp );
+    bool OK = true;
+    for ( min::uns32 i = 0; i < s; ++ i )
+    {
+        if ( ! REC::compile_statement ( vp[i] ) )
+	    OK = false;
+    }
+
+    ::end_if_sequence();
+
+    mex::instr end = { mex::END };
+    mexstack::endx
+        ( end, 0, min::MISSING(), ppv->position );
+    if ( ::block.block_finish_jmp != 0 )
+        ::label ( ::block.block_finish_jmp );
+    pop_block();
+
+    return OK;
+}
+
 bool static compile_block_assignment_statement
 	( min::gen left_side,
           min::gen right_side,
@@ -825,30 +859,7 @@ bool static compile_block_assignment_statement
 	::push_var ( var );
     }
 
-    min::phrase_position_vec ppv =
-        min::get ( block, min::dot_position );
-    mex::instr beg = { mex::BEG };
-    mexstack::begx
-        ( beg, 0, 0, min::MISSING(), ppv->position );
-    push_block ( ::star );
-
-    vp = block;
-    min::uns32 s = min::size_of ( vp );
-    // OK == true
-    for ( min::uns32 i = 0; i < s; ++ i )
-    {
-        if ( ! REC::compile_statement ( vp[i] ) )
-	    OK = false;
-    }
-
-    ::end_if_sequence();
-
-    mex::instr end = { mex::END };
-    mexstack::endx
-        ( end, 0, min::MISSING(), ppv->position );
-    if ( ::block.block_finish_jmp != 0 )
-        ::label ( ::block.block_finish_jmp );
-    pop_block();
+    OK = ::compile_block ( block );
 
     for ( min::uns32 i = 0; i < n; ++ i )
     {
@@ -900,10 +911,7 @@ bool static compile_if_statement
     if ( is_restricted )
 	return ::compile_restricted_statement ( block );
     else
-    {
-	// TBD
-        return false;
-    }
+        return ::compile_block ( block );
 }
 
 min::uns32 static compile_expression
