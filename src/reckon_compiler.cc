@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 10 03:38:53 PM EDT 2024
+// Date:	Thu Sep 12 02:48:25 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -381,9 +381,11 @@ min::gen static full_var_name ( PRIM::var var )
 bool static compile_restricted_statement
 	( min::gen statement );
 
+// Compile statement of form
+// 	vp[0] "=" vp[1]
+//
 bool static compile_expression_assignment_statement
-	( min::gen left_side,
-          min::gen right_side,
+	( min::obj_vec_ptr & vp,
 	  bool is_restricted = false );
 
 bool static compile_block
@@ -660,7 +662,7 @@ bool REC::compile_statement ( min::gen statement )
          &&
 	 vp[1] == ::equal_sign )
 	return ::compile_expression_assignment_statement
-	     ( vp[0], vp[2] );
+	     ( vp );
 
     else
     {
@@ -705,7 +707,7 @@ bool static compile_restricted_statement
          &&
 	 vp[1] == ::equal_sign )
 	return ::compile_expression_assignment_statement
-	     ( vp[0], vp[2], true );
+	     ( vp, true );
 
     mexcom::compile_error
 	( ::get_position(vp)->position,
@@ -715,56 +717,148 @@ bool static compile_restricted_statement
 }
 
 bool static compile_expression_assignment_statement
-	( min::gen left_side,
-          min::gen right_side,
+	( min::obj_vec_ptr & vp,
 	  bool is_restricted )
 {
-    min::phrase_position_vec left_ppv =
-	min::get ( left_side, min::dot_position );
-    min::locatable_var<PRIM::var> var
-        ( ::scan_var ( left_side ) );
-    if ( var == min::NULL_STUB ) return false;
 
-    min::locatable_gen var_name
-        ( ::full_var_name ( var ) );
+    min::gen left_separator =
+	min::get ( vp[0], min::dot_separator );
+    min::obj_vec_ptr left_vp = vp[0];
+    min::uns32 left_n = 1;
+    if ( left_separator == PARLEX::comma )
+	left_n = min::size_of ( left_vp );
 
-    if ( ! :: compile_expression
-	    ( right_side, 0, 0,
-	      var->flags & PRIM::WRITABLE_VAR ?
-	          ::star : var_name ) )
-	return false;
+    min::gen right_separator =
+	min::get ( vp[2], min::dot_separator );
+    min::obj_vec_ptr right_vp = vp[2];
+    min::uns32 right_n = 1;
+    if ( right_separator == PARLEX::comma )
+	right_n = min::size_of ( right_vp );
 
-    if ( var->flags & PRIM::WRITABLE_VAR )
-    {
-	mex::instr instr =
-	    { mex::POPS, mex::T_POP, 0, 0,
-                mexstack::var_stack_length - 1
-              - var->location };
-	min::gen labv[2] = { ::star, var_name };
-	min::locatable_gen trace_info
-	    ( min::new_lab_gen ( labv, 2 ) );
-	-- mexstack::var_stack_length;
-	mexstack::push_instr
-	    ( instr, left_ppv->position,
-	      trace_info );
-    }
-    else if ( ! is_restricted )
-    {
-        var->location = mexstack::var_stack_length - 1;
-	::push_var ( var );
-    }
-    else
+    if ( left_n != right_n )
     {
         mexcom::compile_error
-	    ( var->position,
-	      "cannot allocate variable (",
-	      min::pgen_name ( var->label ),
-	      ") in a RESTRICTED statement" );
-	::pop ( var->position );
+	    ( ::get_position(vp)->position,
+	      left_n < right_n ?
+	      "too few variables, too many expressions"
+	      " in expression assigment statement;" :
+	      "too many variables, too few expressions"
+	      " in expression assigment statement;",
+	      min::pnop,
+	      " statement ignored" );
 	return false;
     }
 
-    return true;
+    min::locatable_var<PRIM::var> vars[left_n];
+    bool OK = true;
+    if ( left_separator != PARLEX::comma )
+    {
+	left_vp = min::NULL_STUB;
+	vars[0] = ::scan_var ( vp[0] );
+	if ( vars[0] == min::NULL_STUB )
+	    OK = false;
+    }
+    else for ( min::uns32 i = 0; i < left_n; ++ i )
+    {
+	vars[i] = ::scan_var ( left_vp[i] );
+	if ( vars[i] == min::NULL_STUB )
+	    OK = false;
+    }
+    if ( ! OK )
+    {
+        mexcom::compile_error
+	    ( ::get_position ( vp )->position,
+	      "statement ignored due to previous"
+	      " errors" );
+	return false;
+    }
+
+    for ( min::uns32 i = 0; i < left_n; ++ i )
+    {
+        PRIM::var var = vars[i];
+	if ( var->flags & PRIM::WRITABLE_VAR )
+	    /* Do nothing */;
+	else if ( is_restricted )
+	{
+	    min::locatable_gen var_name
+		( ::full_var_name ( var ) );
+	    mexcom::compile_error
+		( var->position,
+		  "cannot allocate variable (",
+		  min::pgen_name ( var_name ),
+		  ") in a RESTRICTED statement;"
+		  " variable ignored" );
+	}
+	else
+	{
+	    min::locatable_gen var_name
+		( ::full_var_name ( var ) );
+	    ::pushi
+	        ( ::ZERO, var->position, var_name );
+	    var->location =
+	        mexstack::var_stack_length - 1;
+	}
+    }
+
+
+    // OK == true
+    if ( right_separator != PARLEX::comma )
+    {
+	right_vp = min::NULL_STUB;
+	if ( ! :: compile_expression ( vp[2] ) )
+	{
+	    OK = false;
+	    pushi
+	        ( min::UNDEFINED(),
+		  ::get_position(right_vp)->position );
+	}
+    }
+    else
+    for ( min::uns32 i = 0; i < right_n; ++ i )
+    {
+	if ( ! :: compile_expression ( right_vp[i] ) )
+	{
+	    OK = false;
+	    pushi ( min::UNDEFINED(),
+		    ::get_position(right_vp)[i] );
+	}
+    }
+
+    for ( min::uns32 i = left_n; 0 < i; )
+    {
+        PRIM::var var = vars[--i];
+	if ( is_restricted
+	     &&
+	     ! ( var->flags & PRIM::WRITABLE_VAR ) )
+	    ::pop ( var->position );
+	else
+	{
+	    min::locatable_gen var_name
+		( ::full_var_name ( var ) );
+	    min::gen labv[2] = { ::star, var_name };
+	    min::locatable_gen trace_info
+		( min::new_lab_gen ( labv, 2 ) );
+	    mex::instr instr =
+		{ mex::POPS, mex::T_POP, 0, 0,
+		    mexstack::var_stack_length - 1
+		  - var->location };
+	    -- mexstack::var_stack_length;
+	    mexstack::push_instr
+		( instr, var->position,
+		  trace_info );
+	}
+    }
+
+    for ( min::uns32 i = 0; i < left_n; ++ i )
+    {
+        PRIM::var var = vars[i];
+	if ( ! is_restricted
+	     &&
+	     ! ( var->flags & PRIM::WRITABLE_VAR ) )
+	    ::push_var ( var );
+    }
+
+    return OK;
 }
 
 bool static compile_block
