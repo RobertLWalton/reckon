@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 12 02:48:25 AM EDT 2024
+// Date:	Fri Sep 13 03:54:55 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,7 +83,7 @@ static min::initializer initializer ( ::initialize );
 
 // Get dot_position given obj_vec_ptr.
 //
-static min::phrase_position_vec
+inline min::phrase_position_vec
 	get_position ( min::obj_vec_ptr & vp )
 {
     min::attr_ptr ap = vp;
@@ -260,11 +260,11 @@ PRIM::var scan_var ( min::gen expression )
     min::uns8 level = mexstack::lexical_level;
     min::uns32 depth = mexstack::depth[level];
 
-    min::phrase_position_vec ppv =
-	min::get ( expression, min::dot_position );
     min::obj_vec_ptr vp = expression;
     MIN_REQUIRE ( vp != min::NULL_STUB );
     min::uns32 s = min::size_of ( vp );
+    min::phrase_position_vec ppv =
+        ::get_position ( vp );
     bool next_present = ( s >= 1 && vp[0] == ::next );
     min::uns32 i = next_present;
     if ( i >= s )
@@ -281,7 +281,7 @@ PRIM::var scan_var ( min::gen expression )
     {
 	mexcom::compile_error
 	    ( ppv->position,
-              "right side of `=' operator does not"
+              "left side of `=' operator does not"
               " have the form `next? VARIABLE-NAME'" );
         return min::NULL_STUB;
     }
@@ -373,6 +373,147 @@ min::gen static full_var_name ( PRIM::var var )
     min::locatable_gen var_name
 	( min::new_lab_gen ( labv, lablen + 1 ) );
     return var_name;
+}
+
+// Find all the expression assignment statement left-
+// side next variables in a statement or block
+// (including subblocks in both cases).  Results
+// are added to the symbol_table.  A variable V is
+// added as a WRITEABLE_VAR only if the symbol_table
+// already contains a variable V with the same level
+// and depth and without WRITABLE_VAR.
+//
+static void search_block ( min::gen statement );
+static void search_statement
+    ( min::gen statement, bool is_restricted = false );
+inline void add_next_variable
+    ( min::gen var_name, min::phrase_position pp )
+{
+
+    min::locatable_var<PRIM::var> var
+        ( (PRIM::var) TAB::find
+	      ( var_name,
+	        PRIM::VAR,
+	        PAR::ALL_SELECTORS,
+	        ::symbol_table ) );
+
+    min::uns8 level = mexstack::lexical_level;
+    min::uns32 depth = mexstack::depth[level];
+
+    if ( var == min::NULL_STUB
+	 ||
+	 ( var->block_level >> 16 ) != level
+	 ||
+	 ( var->block_level & 0xFFFF ) != depth
+         ||
+	 ( var->flags & PRIM::WRITABLE_VAR ) )
+        return;
+
+    min::locatable_var<PRIM::var> next_var =
+	PRIM::create_var
+	    ( var_name,
+              PAR::ALL_SELECTORS,
+              pp,
+              level, depth,
+              PRIM::NEXT_VAR | PRIM::WRITABLE_VAR,
+	      mexstack::var_stack_length,
+              min::new_stub_gen
+	          ( mexcom:: output_module ) );
+
+    ++ mexstack::var_stack_length;
+    mexstack::push_push_instr
+	( next_var->label, var->label,
+	  var->location, pp );
+    ::push_var ( next_var );
+}
+    
+static void search_statement
+    ( min::gen statement, bool is_restricted )
+{
+    min::obj_vec_ptr vp = statement;
+    min::uns32 s = min::size_of ( vp );
+
+    if ( s == 3
+         &&
+	 vp[1] == ::equal_sign )
+    {
+        min::gen separator =
+	    min::get ( vp[0], min::dot_separator );
+	min::obj_vec_ptr vp0 = vp[0];
+	min::uns32 s0 = min::size_of ( vp0 );
+	min::phrase_position_vec ppv0 =
+	    ::get_position ( vp0 );
+
+	if ( separator  == PARLEX::comma )
+	{
+	    for ( min::uns32 i = 0; i < s0; ++ i )
+	    {
+	        min::obj_vec_ptr vpi = vp0[i];
+		min::uns32 si = min::size_of ( vpi );
+		if ( si < 2 || vpi[0] != ::next )
+		    continue;
+		min::uns32 j = 1;
+		min::locatable_gen var_name
+		    ( PRIM::scan_var_name ( vpi, j ) );
+		if ( j < si ) continue;
+		add_next_variable ( var_name, ppv0[i] );
+	    }
+	    return;
+	}
+	else
+	{
+	    if ( s0 < 2 || vp0[0] != ::next )
+		return;
+	    min::uns32 j = 1;
+	    min::locatable_gen var_name
+		( PRIM::scan_var_name ( vp0, j ) );
+	    if ( j < s0 ) return;
+	    add_next_variable
+	        ( var_name, ppv0->position );
+	    return;
+	}
+    }
+
+    if ( is_restricted ) return;
+
+    if ( s == 4
+         &&
+	 ( vp[0] == ::IF || vp[0] == ::ELSE_IF )
+	 &&
+	 vp[2] == PARLEX::colon )
+        ::search_statement ( vp[3], true );
+    else if ( s == 3
+              &&
+	      vp[0] == ::ELSE 
+	      &&
+	      vp[1] == PARLEX::colon )
+        ::search_statement ( vp[2], true );
+    else if (    min::get
+                     ( vp[s-1], min::dot_terminator )
+	      == min::INDENTED_PARAGRAPH() )
+    {
+        if ( s == 3 && vp[0] == ::IF )
+	    ::search_block ( vp[2] );
+        else if ( s == 3 && vp[0] == ::ELSE_IF )
+	    ::search_block ( vp[2] );
+        else if ( s == 2 && vp[0] == ::ELSE )
+	    ::search_block ( vp[1] );
+	else if ( s == 2 )
+	{
+	    min::obj_vec_ptr vp0 = vp[0];
+	    min::uns32 s0 = min::size_of (vp0 );
+	    if ( s0 >= 2 && vp0[1] == ::equal_sign )
+		::search_block ( vp[1] );
+	}
+    }
+}
+
+static void search_block ( min::gen block )
+{
+    min::obj_vec_ptr vp = block;
+    min::uns32 s = min::size_of ( vp );
+    for ( min::uns32 i = 0; i < s; ++ i )
+        ::search_statement ( vp[i] );
 }
 
 // Compile Functions
