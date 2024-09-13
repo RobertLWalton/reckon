@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 13 03:54:55 AM EDT 2024
+// Date:	Fri Sep 13 04:42:42 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1067,6 +1067,8 @@ bool static compile_block_assignment_statement
 
     for ( min::uns32 i = 0; i < n; ++ i )
     {
+        // Process non-next vars.
+	//
         PRIM::var var = vars[i];
 	if ( var->flags & PRIM::WRITABLE_VAR )
 	{
@@ -1078,17 +1080,32 @@ bool static compile_block_assignment_statement
 	    vars[i] = min::NULL_STUB;
 	        // To prevent clearing WRITABLE_VAR
 		// below.
-	    continue;
 	}
 	else if ( var->location == ::NO_LOCATION )
-	    ::pushi ( ZERO, var->position, var->label );
-	else
 	{
-	    ++ mexstack::var_stack_length;
-	    mexstack::push_push_instr
-	        ( var->label, var->label,
-		  var->location, var->position );
+	    ::pushi ( ZERO, var->position, var->label );
+	    var->location =
+	        mexstack::var_stack_length - 1;
+	    var->flags |= PRIM::WRITABLE_VAR;
+	    ::push_var ( var );
 	}
+    }
+
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+        // Process next vars, so they are last in the
+	// list of processed vars.
+	//
+        PRIM::var var = vars[i];
+	if ( var == min::NULL_STUB
+	     ||
+	     var->flags & PRIM::WRITABLE_VAR )
+	    continue;
+
+	++ mexstack::var_stack_length;
+	mexstack::push_push_instr
+	    ( var->label, var->label,
+	      var->location, var->position );
 	var->location = mexstack::var_stack_length - 1;
 	var->flags |= PRIM::WRITABLE_VAR;
 	::push_var ( var );
