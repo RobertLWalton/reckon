@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 28 17:37:42 EDT 2024
+// Date:	Fri Sep 13 09:49:49 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,11 @@ namespace reckon {
         extern min::locatable_gen
 	    reckon;
     }
+
+    // If true, printer warning message when a next
+    // variable is promoted to a lesser depth.
+    //
+    extern bool warn_next_variable_promotion;
 
     // Initialize parser by adding RECKON special parser
     // table entries.  Call after ll::parser::init is

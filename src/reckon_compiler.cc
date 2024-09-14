@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 13 04:42:42 PM EDT 2024
+// Date:	Fri Sep 13 09:49:35 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -425,6 +425,12 @@ inline void add_next_variable
 	( next_var->label, var->label,
 	  var->location, pp );
     ::push_var ( next_var );
+
+    if ( REC::warn_next_variable_promotion )
+        mexcom::compile_warn
+	    ( pp,
+	      "next variable promoted to depth ",
+	      min::puns ( depth, "%u" ) );
 }
     
 static void search_statement
@@ -1110,6 +1116,8 @@ bool static compile_block_assignment_statement
 	var->flags |= PRIM::WRITABLE_VAR;
 	::push_var ( var );
     }
+
+    ::search_block ( block );
 
     OK = ::compile_block ( block );
 
