@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 15 06:39:47 AM EDT 2024
+// Date:	Tue Sep 17 06:06:40 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -166,6 +166,7 @@ inline void label ( min::uns32 target )
 {
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
+    mexstack::print_label ( t );
     mexstack::jmp_target ( t );
 }
 
