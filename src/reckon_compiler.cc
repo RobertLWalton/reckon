@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 17 06:06:40 AM EDT 2024
+// Date:	Wed Sep 18 03:45:13 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,6 +47,13 @@ static min::locatable_gen ELSE_IF;
 static min::locatable_gen ELSE;
 static min::locatable_gen TOP;
 
+static min::locatable_gen DO;
+static min::locatable_gen WHILE;
+static min::locatable_gen UNTIL;
+static min::locatable_gen REPEAT;
+static min::locatable_gen AT_MOST;
+static min::locatable_gen iteration_ops;
+
 static min::uns32 jmp_counter = 1;
 
 static min::locatable_var<PRIM::primary_pass>
@@ -74,6 +81,15 @@ static void initialize ( void )
     ::ELSE_IF  = min::new_lab_gen ( "else", "if" );
     ::ELSE  = min::new_str_gen ( "else" );
     ::TOP  = min::new_str_gen ( "TOP" );
+
+    ::DO       = min::new_str_gen ( "do" );
+    ::WHILE    = min::new_str_gen ( "while" );
+    ::UNTIL    = min::new_str_gen ( "until" );
+    ::REPEAT   = min::new_str_gen ( "repeat" );
+    ::AT_MOST  = min::new_lab_gen ( "at", "most" );
+    min::gen labv[5] =
+        { ::DO, ::WHILE, ::UNTIL, ::REPEAT, ::AT_MOST };
+    ::iteration_ops = new_lab_gen ( labv, 5 );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -728,6 +744,8 @@ bool REC::compile_statement ( min::gen statement )
 	      ==
 	      PARLEX::colon );
 
+	// : paragraph is postfix so s >= 2.
+
 	// Else-if/else statements must be first so
 	// end_if_sequence can be called for all other
 	// statements.
@@ -775,17 +793,14 @@ bool REC::compile_statement ( min::gen statement )
 		( vp[1], vp[2] );
 	}
 
-        min::obj_vec_ptr vp0 = vp[0];
-	min::uns32 s0 = min::size_of ( vp0 );
+	if ( s != 2 ) goto NOT_LEGAL_STATEMENT;
 
+        min::obj_vec_ptr vp0 = vp[0];
 	if ( vp0 == min::NULL_STUB )
-	{
-	    mexcom::compile_error
-	        ( ::get_position(vp)->position,
-		  "cannot understand statement"
-		  " beginning; statement ignored" );
-	    return false;
-	}
+	    goto NOT_LEGAL_STATEMENT;
+	min::uns32 s0 = min::size_of ( vp0 );
+	if ( s0 == 0 ) goto NOT_LEGAL_STATEMENT;
+
 	if ( s0 >= 2 && vp0[1] == PARLEX::equal )
 	{
 	    MIN_REQUIRE ( s0 <= 3 );
@@ -794,6 +809,36 @@ bool REC::compile_statement ( min::gen statement )
 	    return ::compile_block_assignment_statement
 	        ( vp0[0], right_side, vp[1] );
 	}
+
+	if (    min::labfind ( vp0[1], ::iteration_ops )
+	     != -1 )
+	{
+	    vp0 = min::NULL_STUB;
+	    return ::compile_block_assignment_statement
+	        ( min::NONE(), vp[0], vp[1] );
+	}
+
+	min::attr_ptr ap0 = vp0;
+	min::locate ( ap0, min::dot_separator );
+	if ( min::get ( ap0 ) == PARLEX::comma )
+	{
+	    min::obj_vec_ptr vp00 = vp0[0];
+	    if ( vp00 != min::NULL_STUB
+	         &&
+		 min::size_of ( vp00 ) >= 1
+		 &&
+		    min::labfind
+		        ( vp00[0], ::iteration_ops )
+		 != -1 )
+	    {
+	        vp0 = min::NULL_STUB;
+	        vp00 = min::NULL_STUB;
+		return
+		  ::compile_block_assignment_statement
+		    ( min::NONE(), vp[0], vp[1] );
+	    }
+	}
+
     }
     else
         ::end_if_sequence();
@@ -837,6 +882,8 @@ bool REC::compile_statement ( min::gen statement )
 	else
 	    return false;
     }
+
+NOT_LEGAL_STATEMENT:
 
     mexcom::compile_error
 	( ::get_position(vp)->position,
