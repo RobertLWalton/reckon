@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 18 03:45:13 AM EDT 2024
+// Date:	Sat Sep 21 01:27:20 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,9 +48,10 @@ static min::locatable_gen ELSE;
 static min::locatable_gen TOP;
 
 static min::locatable_gen DO;
+static min::locatable_gen REPEAT;
 static min::locatable_gen WHILE;
 static min::locatable_gen UNTIL;
-static min::locatable_gen REPEAT;
+static min::locatable_gen EXACTLY;
 static min::locatable_gen AT_MOST;
 static min::locatable_gen iteration_ops;
 
@@ -83,13 +84,13 @@ static void initialize ( void )
     ::TOP  = min::new_str_gen ( "TOP" );
 
     ::DO       = min::new_str_gen ( "do" );
+    ::REPEAT   = min::new_str_gen ( "repeat" );
     ::WHILE    = min::new_str_gen ( "while" );
     ::UNTIL    = min::new_str_gen ( "until" );
-    ::REPEAT   = min::new_str_gen ( "repeat" );
+    ::EXACTLY   = min::new_str_gen ( "exactly" );
     ::AT_MOST  = min::new_lab_gen ( "at", "most" );
-    min::gen labv[5] =
-        { ::DO, ::WHILE, ::UNTIL, ::REPEAT, ::AT_MOST };
-    ::iteration_ops = new_lab_gen ( labv, 5 );
+    ::iteration_ops =
+        min::new_lab_gen ( "do", "repeat" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -816,27 +817,6 @@ bool REC::compile_statement ( min::gen statement )
 	    vp0 = min::NULL_STUB;
 	    return ::compile_block_assignment_statement
 	        ( min::NONE(), vp[0], vp[1] );
-	}
-
-	min::attr_ptr ap0 = vp0;
-	min::locate ( ap0, min::dot_separator );
-	if ( min::get ( ap0 ) == PARLEX::comma )
-	{
-	    min::obj_vec_ptr vp00 = vp0[0];
-	    if ( vp00 != min::NULL_STUB
-	         &&
-		 min::size_of ( vp00 ) >= 1
-		 &&
-		    min::labfind
-		        ( vp00[0], ::iteration_ops )
-		 != -1 )
-	    {
-	        vp0 = min::NULL_STUB;
-	        vp00 = min::NULL_STUB;
-		return
-		  ::compile_block_assignment_statement
-		    ( min::NONE(), vp[0], vp[1] );
-	    }
 	}
 
     }
