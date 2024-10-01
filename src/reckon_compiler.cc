@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 21 01:27:20 AM EDT 2024
+// Date:	Tue Oct  1 02:32:09 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1099,6 +1099,8 @@ bool static compile_block_assignment_statement
     }
     if ( ! OK ) return false;
 
+    min::uns32 initial_var_stack_length =
+    	::var_stack_length;
     for ( min::uns32 i = 0; i < n; ++ i )
     {
         // Process non-next vars.
@@ -1112,8 +1114,7 @@ bool static compile_block_assignment_statement
 		  " output variable; this variable;"
 		  " this variable is ignored" );
 	    vars[i] = min::NULL_STUB;
-	        // To prevent clearing WRITABLE_VAR
-		// below.
+	        // To prevent next var check.
 	}
 	else if ( var->location == ::NO_LOCATION )
 	{
@@ -1147,13 +1148,18 @@ bool static compile_block_assignment_statement
 
     ::search_block ( block );
 
+    min::uns32 number_of_vars =
+        ::var_stack_length - initial_var_stack_length;
+
     OK = ::compile_block ( block );
 
-    for ( min::uns32 i = 0; i < n; ++ i )
+    TAB::root r = TAB::top ( ::symbol_table );
+    for ( min::uns32 i = 0; i < number_of_vars; ++ i )
     {
-        PRIM::var var = vars[i];
-	if ( var == min::NULL_STUB ) continue;
+        PRIM::var var = (PRIM::var) r;
+	MIN_REQUIRE ( var != min::NULL_STUB );
 	var->flags &= ~ PRIM::WRITABLE_VAR;
+	r = TAB::previous ( r );
     }
 
     return OK;
