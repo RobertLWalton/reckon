@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct  1 02:32:09 AM EDT 2024
+// Date:	Tue Oct  1 09:21:08 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -553,8 +553,21 @@ bool static compile_expression_assignment_statement
 	( min::obj_vec_ptr & vp,
 	  bool is_restricted = false );
 
+struct iteration
+{
+    min::gen type;	  // iteration type:
+    			  //     while, until, times
+    min::gen exp;	  // expression to compile
+    min::uns32 location;  // stack location of counter
+    			  // for times
+};
+
 bool static compile_block
-        ( min::gen block );
+        ( min::gen block,
+	  min::gen label =    // do label
+	      min::MISSING(),
+	  min::uns32 n = 0,   // number of iterations
+	  iteration * iterations = NULL );
 
 bool static compile_block_assignment_statement
 	( min::gen left_side,
@@ -1037,7 +1050,10 @@ bool static compile_expression_assignment_statement
 }
 
 bool static compile_block
-        ( min::gen block )
+        ( min::gen block,
+	  min::gen label,
+	  min::uns32 n,
+	  iteration * iterations )
 {
     min::phrase_position_vec ppv =
         min::get ( block, min::dot_position );
