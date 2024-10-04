@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct  4 02:20:12 AM EDT 2024
+// Date:	Fri Oct  4 06:46:18 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1080,16 +1080,41 @@ bool static compile_block
         ( beg, nnext, 0,
 	  min::MISSING(), ppv->position );
     push_block ( label );
-    // TBD
+    if ( label != min::MISSING()
+         ||
+	 iterations != NULL )
+        ::block.block_finish_jmp = ::jmp_counter ++;
+
+    bool OK = true;
 
     if ( iterations != NULL )
         while ( iterations->type != min::MISSING() )
     {
         if ( iterations->type == ::WHILE )
 	{
+	    min::uns32 true_jmp = ::jmp_counter ++;
+	    min::uns32 fallthru_jmp =
+	        ::compile_expression
+		    ( iterations->exp,
+		      true_jmp,
+		      ::block.block_finish_jmp );
+	    if ( fallthru_jmp == 0 ) OK = false;
+	    else if ( fallthru_jmp != true_jmp ) 
+		::jmp ( ::block.block_finish_jmp,
+		        iterations->pp );
 	}
         else if ( iterations->type == ::UNTIL )
 	{
+	    min::uns32 false_jmp = ::jmp_counter ++;
+	    min::uns32 fallthru_jmp =
+	        ::compile_expression
+		    ( iterations->exp,
+		      ::block.block_finish_jmp,
+		      false_jmp );
+	    if ( fallthru_jmp == 0 ) OK = false;
+	    else if ( fallthru_jmp != false_jmp ) 
+		::jmp ( ::block.block_finish_jmp,
+		        iterations->pp );
 	}
         else if ( iterations->type == ::AT_MOST )
 	{
@@ -1103,7 +1128,6 @@ bool static compile_block
 
     min::obj_vec_ptr vp = block;
     min::uns32 s = min::size_of ( vp );
-    bool OK = true;
     for ( min::uns32 i = 0; i < s; ++ i )
     {
         if ( ! REC::compile_statement ( vp[i] ) )
