@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct  1 09:21:08 PM EDT 2024
+// Date:	Fri Oct  4 02:20:12 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -165,16 +165,24 @@ inline void jmp ( min::uns32 target,
 {
     mex::instr i { op_code };
     i.immedB = immedB;
+    min::uns32 post_push = 0;
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
+
     if ( op_code == mex::JMPF
          ||
 	 op_code == mex::JMPT )
 	-- mexstack::var_stack_length;
-    else if ( op_code != mex::JMP )
+    else if ( op_code != mex::JMP
+              &&
+	      op_code != mex::JMPCNT )
+    {
 	mexstack::var_stack_length -= 2;
+	post_push = immedB;
+    }
+
     mexstack::push_jmp_instr ( i, t, pp );
-    mexstack::var_stack_length += immedB;
+    mexstack::var_stack_length += post_push;
 }
 
 // Call mexstack::jmp_target.
@@ -556,18 +564,26 @@ bool static compile_expression_assignment_statement
 struct iteration
 {
     min::gen type;	  // iteration type:
-    			  //     while, until, times
+    			  //     WHILE, UNTIL, AT_MOST;
+			  //     MISSING for last
+			  //     element
     min::gen exp;	  // expression to compile
+    min::phrase_position pp; // position of exp
     min::uns32 location;  // stack location of counter
     			  // for times
 };
 
+
 bool static compile_block
         ( min::gen block,
-	  min::gen label =    // do label
-	      min::MISSING(),
-	  min::uns32 n = 0,   // number of iterations
-	  iteration * iterations = NULL );
+	  min::gen label = min::MISSING(),
+	      // do label
+	  min::uns32 nnext = 0,
+	      // number `next' variables for loop;
+	      // 0 if not loop
+	  iteration * iterations = NULL
+	      // NULL if not loop
+	);
 
 bool static compile_block_assignment_statement
 	( min::gen left_side,
@@ -1052,15 +1068,38 @@ bool static compile_expression_assignment_statement
 bool static compile_block
         ( min::gen block,
 	  min::gen label,
-	  min::uns32 n,
+	  min::uns32 nnext,
 	  iteration * iterations )
 {
     min::phrase_position_vec ppv =
         min::get ( block, min::dot_position );
-    mex::instr beg = { mex::BEG };
+    mex::instr beg =
+        { iterations == NULL ?
+	  mex::BEG : mex::BEGL };
     mexstack::begx
-        ( beg, 0, 0, min::MISSING(), ppv->position );
-    push_block ( ::star );
+        ( beg, nnext, 0,
+	  min::MISSING(), ppv->position );
+    push_block ( label );
+    // TBD
+
+    if ( iterations != NULL )
+        while ( iterations->type != min::MISSING() )
+    {
+        if ( iterations->type == ::WHILE )
+	{
+	}
+        else if ( iterations->type == ::UNTIL )
+	{
+	}
+        else if ( iterations->type == ::AT_MOST )
+	{
+	    ::jmp ( ::block.block_finish_jmp,
+	            iterations->pp, mex::JMPCNT,
+		       mexstack::var_stack_length
+		     - iterations->location - 1 );
+	}
+        ++ iterations;
+    }
 
     min::obj_vec_ptr vp = block;
     min::uns32 s = min::size_of ( vp );
