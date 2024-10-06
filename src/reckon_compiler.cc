@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct  4 06:46:18 AM EDT 2024
+// Date:	Sun Oct  6 03:24:12 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,7 @@ static min::locatable_gen WHILE;
 static min::locatable_gen UNTIL;
 static min::locatable_gen EXACTLY;
 static min::locatable_gen AT_MOST;
+static min::locatable_gen TIMES;
 static min::locatable_gen iteration_ops;
 
 static min::uns32 jmp_counter = 1;
@@ -89,8 +90,11 @@ static void initialize ( void )
     ::UNTIL    = min::new_str_gen ( "until" );
     ::EXACTLY   = min::new_str_gen ( "exactly" );
     ::AT_MOST  = min::new_lab_gen ( "at", "most" );
-    ::iteration_ops =
-        min::new_lab_gen ( "do", "repeat" );
+    ::TIMES  = min::new_str_gen ( "times" );
+    min::gen labv[6] =
+        { ::DO, ::REPEAT, ::WHILE, ::UNTIL,
+	        ::EXACTLY, ::AT_MOST };
+    ::iteration_ops = min::new_lab_gen ( labv, 6 );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -564,7 +568,7 @@ bool static compile_expression_assignment_statement
 struct iteration
 {
     min::gen type;	  // iteration type:
-    			  //     WHILE, UNTIL, AT_MOST;
+    			  //     WHILE, UNTIL, TIMES;
 			  //     MISSING for last
 			  //     element
     min::gen exp;	  // expression to compile
@@ -579,8 +583,7 @@ bool static compile_block
 	  min::gen label = min::MISSING(),
 	      // do label
 	  min::uns32 nnext = 0,
-	      // number `next' variables for loop;
-	      // 0 if not loop
+	      // number `next' variables for loop
 	  iteration * iterations = NULL
 	      // NULL if not loop
 	);
@@ -620,7 +623,11 @@ bool static compile_if_statement
 // of the false_jmp argument is returned.  0 is returned
 // if compile_error has been called.
 //
-// Note that true/false_jmp are never 0.
+// Note that in this case no label for true_jmp or
+// false_jmp is output; the caller must do this.
+//
+// Note that the value of true/false_jmp is never 0, so
+// a returned value of 0 always indicates an error.
 //
 min::uns32 static compile_expression
 	( min::gen expression,
@@ -1077,13 +1084,10 @@ bool static compile_block
         { iterations == NULL ?
 	  mex::BEG : mex::BEGL };
     mexstack::begx
-        ( beg, nnext, 0,
+        ( beg, iterations != NULL ? nnext : 0, 0,
 	  min::MISSING(), ppv->position );
     push_block ( label );
-    if ( label != min::MISSING()
-         ||
-	 iterations != NULL )
-        ::block.block_finish_jmp = ::jmp_counter ++;
+    ::block.block_finish_jmp = ::jmp_counter ++;
 
     bool OK = true;
 
@@ -1102,6 +1106,7 @@ bool static compile_block
 	    else if ( fallthru_jmp != true_jmp ) 
 		::jmp ( ::block.block_finish_jmp,
 		        iterations->pp );
+	    ::label ( true_jmp );
 	}
         else if ( iterations->type == ::UNTIL )
 	{
@@ -1115,6 +1120,7 @@ bool static compile_block
 	    else if ( fallthru_jmp != false_jmp ) 
 		::jmp ( ::block.block_finish_jmp,
 		        iterations->pp );
+	    ::label ( false_jmp );
 	}
         else if ( iterations->type == ::AT_MOST )
 	{
@@ -1151,28 +1157,158 @@ bool static compile_block_assignment_statement
           min::gen right_side,
           min::gen block )
 {
+    bool OK = true;
 
-    MIN_ASSERT ( right_side == min::NONE(),
-                 "loops not yet supported" );
+    // Process right side.  Do this first to get context
+    // of `xxx times' subexpressions correct.
+    //
+    min::uns32 number_of_iterations = 0;
+    min::obj_vec_ptr right_vp = min::NULL_STUB;
+    if ( right_side != min::NONE() )
+    {
+        right_vp = right_side;
+	number_of_iterations =
+	    min::size_of ( right_vp );
+		// Overestimate
+    }
+    iteration iter[number_of_iterations];
 
+    min::locatable_gen label ( min::MISSING() );
+    iteration * iterations = NULL;
+    if ( number_of_iterations > 0 )
+    {
+	min::uns32 s = min::size_of ( right_vp );
+	min::phrase_position_vec right_ppv =
+	    ::get_position ( right_vp );
+	number_of_iterations = 0;
+	for ( min::uns32 i = 0; i < s; )
+	{
+	    min::gen op = right_vp[i++];
+	    if ( op == ::DO || op == ::REPEAT )
+	    {
+	        if ( i != 1 )
+		    mexcom::compile_warn
+			( right_ppv[i-1], "",
+			  min::pgen_name
+			      ( right_vp[i-1] ),
+			  " should be at beginning of"
+			  " iterations list" );
+		if (    i + 1 < s
+		     && right_vp[i+1] == ::TIMES )
+		    goto TIMES_FOUND;
+		if ( op == ::REPEAT )
+		    iterations = iter;
+		if (    i >= s
+		     || ! min::is_obj ( right_vp[i] ) )
+		    continue;
+		min::obj_vec_ptr labvp = right_vp[i];
+		min::uns32 j = 0;
+		label =
+		    PAR::scan_simple_name ( labvp, j );
+		if ( j < min::size_of ( labvp )
+		     ||
+		     label == min::NONE() )
+		{
+		    mexcom::compile_error
+			( right_ppv[i],
+			  "expression following ",
+			  min::pgen_name ( op ),
+			  " is not a block label" );
+		    ++ i;
+		    OK = false;
+		}
+	    }
+	    else if ( op == ::WHILE || op == ::UNTIL )
+	    {
+	        if ( i >= s )
+		{
+		    mexcom::compile_error
+			( right_ppv[i-1],
+			  "no expression after ",
+			  min::pgen_name ( op ) );
+		    OK = false;
+		    continue;
+		}
+
+	        iterations = iter;
+		iteration & it =
+		    iterations[number_of_iterations++];
+		it = { op, right_vp[i], right_ppv[i] };
+		i += 2;
+	    }
+	    else if (    op == ::EXACTLY
+	              || op == ::AT_MOST )
+	    {
+	        if ( i + 1 >= s
+		     ||
+		     right_vp[i+1] != ::TIMES )
+		{
+		    mexcom::compile_error
+			( right_ppv[i-1],
+			  "no `times' after ",
+			  min::pgen_name ( op ) );
+		    goto SKIP;
+		}
+		goto TIMES_FOUND;
+	    }
+	    else
+	    {
+		mexcom::compile_error
+		    ( right_ppv[i-1],
+		      "cannot understand ",
+		      min::pgen_name ( op ) );
+		goto SKIP;
+	    }
+
+	    continue;
+
+	SKIP:
+	    OK = false;
+	    while ( ++ i < s
+	            &&
+	               min::labfind
+		           ( right_vp[i],
+			     ::iteration_ops )
+		    == -1 );
+	    continue;
+
+
+        TIMES_FOUND:
+	    {
+	        iterations = iter;
+		iteration & it =
+		    iterations[number_of_iterations++];
+		it = { ::TIMES,
+		       right_vp[i], right_ppv[i],
+		       mexstack::var_stack_length };
+		if ( ! ::compile_expression
+		          ( right_vp[i] ) )
+		    OK = false;
+		i += 2;
+		continue;
+	    }
+	}
+    }
+
+    // Process left side.
+    //
     min::gen separator =
 	min::get ( left_side, min::dot_separator );
-    min::obj_vec_ptr vp = left_side;
+    min::obj_vec_ptr left_vp = left_side;
     min::uns32 n = 1;
     if ( separator == PARLEX::comma )
-	n = min::size_of ( vp );
+	n = min::size_of ( left_vp );
     min::locatable_var<PRIM::var> vars[n];
-    bool OK = true;
     if ( separator != PARLEX::comma )
     {
-	vp = min::NULL_STUB;
+	left_vp = min::NULL_STUB;
 	vars[0] = ::scan_var ( left_side );
 	if ( vars[0] == min::NULL_STUB )
 	    OK = false;
     }
     else for ( min::uns32 i = 0; i < n; ++ i )
     {
-	vars[i] = ::scan_var ( vp[i] );
+	vars[i] = ::scan_var ( left_vp[i] );
 	if ( vars[i] == min::NULL_STUB )
 	    OK = false;
     }
@@ -1205,6 +1341,9 @@ bool static compile_block_assignment_statement
 	}
     }
 
+    min::uns32 initial_next_var_stack_length =
+    	::var_stack_length;
+
     for ( min::uns32 i = 0; i < n; ++ i )
     {
         // Process next vars, so they are last in the
@@ -1229,8 +1368,12 @@ bool static compile_block_assignment_statement
 
     min::uns32 number_of_vars =
         ::var_stack_length - initial_var_stack_length;
+    min::uns32 nnext =
+          ::var_stack_length
+	- initial_next_var_stack_length;
 
-    OK = ::compile_block ( block );
+    OK = ::compile_block
+        ( block, label, nnext, iterations );
 
     TAB::root r = TAB::top ( ::symbol_table );
     for ( min::uns32 i = 0; i < number_of_vars; ++ i )
@@ -1272,11 +1415,9 @@ bool static compile_if_statement
 	      true_jmp, ::block.if_next_jmp );
 	if ( fallthru_jmp == 0 ) return false;
 	if ( fallthru_jmp == ::block.if_next_jmp )
-	{
 	    ::jmp
 	        ( ::block.if_next_jmp, ::block.if_pp );
-	    ::label ( true_jmp );
-	}
+	::label ( true_jmp );
     }
     else
         ::block.if_next_jmp = 0;
