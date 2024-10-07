@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct  7 05:02:50 AM EDT 2024
+// Date:	Mon Oct  7 04:38:31 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,9 +177,9 @@ inline void jmp ( min::uns32 target,
          ||
 	 op_code == mex::JMPT )
 	-- mexstack::var_stack_length;
-    else if ( op_code != mex::JMP
-              &&
-	      op_code != mex::JMPCNT )
+    else if ( op_code == mex::JMPCNT )
+        i.immedD = min::new_num_gen ( 1 );
+    else if ( op_code != mex::JMP )
     {
 	mexstack::var_stack_length -= 2;
 	post_push = immedB;
@@ -847,7 +847,7 @@ bool REC::compile_statement ( min::gen statement )
 	        ( vp0[0], right_side, vp[1] );
 	}
 
-	if (    min::labfind ( vp0[1], ::iteration_ops )
+	if (    min::labfind ( vp0[0], ::iteration_ops )
 	     != -1 )
 	{
 	    vp0 = min::NULL_STUB;
@@ -1150,7 +1150,7 @@ bool static compile_block
 		        iterations->pp );
 	    ::label ( false_jmp );
 	}
-        else if ( iterations->type == ::AT_MOST )
+        else if ( iterations->type == ::TIMES )
 	{
 	    ::jmp ( ::block.block_finish_jmp,
 	            iterations->pp, mex::JMPCNT,
@@ -1170,7 +1170,8 @@ bool static compile_block
 
     ::end_if_sequence();
 
-    mex::instr end = { mex::END };
+    mex::instr end =
+        { iterations != NULL ? mex::ENDL : mex::END };
     mexstack::endx
         ( end, 0, min::MISSING(), ppv->position );
     if ( ::block.block_finish_jmp != 0 )
@@ -1244,6 +1245,7 @@ bool static compile_block_assignment_statement
 			  " is not a block label" );
 		    goto ERROR_SKIP;
 		}
+		++ i;
 	    }
 	    else if ( op == ::WHILE || op == ::UNTIL )
 	    {
@@ -1322,77 +1324,86 @@ bool static compile_block_assignment_statement
 
     // Process left side.
     //
-    min::gen separator =
-	min::get ( left_side, min::dot_separator );
-    min::obj_vec_ptr left_vp = left_side;
-    min::uns32 n = 1;
-    if ( separator == PARLEX::comma )
-	n = min::size_of ( left_vp );
-    min::locatable_var<PRIM::var> vars[n];
-    if ( separator != PARLEX::comma )
-    {
-	left_vp = min::NULL_STUB;
-	vars[0] = ::scan_var ( left_side );
-	if ( vars[0] == min::NULL_STUB )
-	    OK = false;
-    }
-    else for ( min::uns32 i = 0; i < n; ++ i )
-    {
-	vars[i] = ::scan_var ( left_vp[i] );
-	if ( vars[i] == min::NULL_STUB )
-	    OK = false;
-    }
-
     min::uns32 initial_var_stack_length =
     	::var_stack_length;
-    for ( min::uns32 i = 0; i < n; ++ i )
-    {
-        // Process non-next vars.
-	//
-        PRIM::var var = vars[i];
-	if ( var == min::NULL_STUB ) continue;
+    min::uns32 initial_next_var_stack_length =
+        ::var_stack_length;
 
-	if ( var->flags & PRIM::WRITABLE_VAR )
+    if ( left_side != min::NONE() )
+    {
+	min::gen separator =
+	    min::get ( left_side, min::dot_separator );
+	min::obj_vec_ptr left_vp = left_side;
+	min::uns32 n = 1;
+	if ( separator == PARLEX::comma )
+	    n = min::size_of ( left_vp );
+	min::locatable_var<PRIM::var> vars[n];
+	if ( separator != PARLEX::comma )
 	{
-	    mexcom::compile_warn
-	        ( var->position,
-		  "this output variable hides previous"
-		  " output variable; this variable;"
-		  " this variable is ignored" );
-	    vars[i] = min::NULL_STUB;
-	        // To prevent next var check.
+	    left_vp = min::NULL_STUB;
+	    vars[0] = ::scan_var ( left_side );
+	    if ( vars[0] == min::NULL_STUB )
+		OK = false;
 	}
-	else if ( var->location == ::NO_LOCATION )
+	else for ( min::uns32 i = 0; i < n; ++ i )
 	{
-	    ::pushi ( ZERO, var->position, var->label );
+	    vars[i] = ::scan_var ( left_vp[i] );
+	    if ( vars[i] == min::NULL_STUB )
+		OK = false;
+	}
+
+	for ( min::uns32 i = 0; i < n; ++ i )
+	{
+	    // Process non-next vars.
+	    //
+	    PRIM::var var = vars[i];
+	    if ( var == min::NULL_STUB ) continue;
+
+	    if ( var->flags & PRIM::WRITABLE_VAR )
+	    {
+		mexcom::compile_warn
+		    ( var->position,
+		      "this output variable hides"
+		      " previous output variable;"
+		      " this variable; this variable"
+		      " is ignored" );
+		vars[i] = min::NULL_STUB;
+		    // To prevent next var check.
+	    }
+	    else if ( var->location == ::NO_LOCATION )
+	    {
+		::pushi
+		    ( ZERO, var->position, var->label );
+		var->location =
+		    mexstack::var_stack_length - 1;
+		var->flags |= PRIM::WRITABLE_VAR;
+		::push_var ( var );
+	    }
+	}
+
+	initial_next_var_stack_length =
+	    ::var_stack_length;
+
+	for ( min::uns32 i = 0; i < n; ++ i )
+	{
+	    // Process next vars, so they are last in
+	    // the list of processed vars.
+	    //
+	    PRIM::var var = vars[i];
+	    if ( var == min::NULL_STUB
+		 ||
+		 var->flags & PRIM::WRITABLE_VAR )
+		continue;
+
+	    ++ mexstack::var_stack_length;
+	    mexstack::push_push_instr
+		( var->label, var->label,
+		  var->location, var->position );
 	    var->location =
 	        mexstack::var_stack_length - 1;
 	    var->flags |= PRIM::WRITABLE_VAR;
 	    ::push_var ( var );
 	}
-    }
-
-    min::uns32 initial_next_var_stack_length =
-    	::var_stack_length;
-
-    for ( min::uns32 i = 0; i < n; ++ i )
-    {
-        // Process next vars, so they are last in the
-	// list of processed vars.
-	//
-        PRIM::var var = vars[i];
-	if ( var == min::NULL_STUB
-	     ||
-	     var->flags & PRIM::WRITABLE_VAR )
-	    continue;
-
-	++ mexstack::var_stack_length;
-	mexstack::push_push_instr
-	    ( var->label, var->label,
-	      var->location, var->position );
-	var->location = mexstack::var_stack_length - 1;
-	var->flags |= PRIM::WRITABLE_VAR;
-	::push_var ( var );
     }
 
     ::search_block ( block );
