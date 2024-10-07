@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct  6 03:24:12 AM EDT 2024
+// Date:	Mon Oct  7 05:02:50 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1078,13 +1078,41 @@ bool static compile_block
 	  min::uns32 nnext,
 	  iteration * iterations )
 {
+    if ( iterations != NULL )
+    {
+        PRIM::var vars[nnext];
+
+	TAB::root r = TAB::top ( ::symbol_table );
+	for ( min::uns32 i = nnext; 0 < i; -- i )
+	{
+	    vars[i-1] = (PRIM::var) r;
+	    MIN_REQUIRE ( vars[i-1] != min::NULL_STUB );
+	    r = TAB::previous ( r );
+	}
+	for ( min::uns32 i = 0; i < nnext; ++ i )
+	{
+	    PRIM::var var = PRIM::create_var
+		( vars[i]->label,
+		  PAR::ALL_SELECTORS,
+		  vars[i]->position,
+		  vars[i]->block_level >> 16,
+		  vars[i]->block_level & 0xFFFF,
+		  PRIM::NEXT_VAR + PRIM::WRITABLE_VAR,
+		  mexstack::var_stack_length ++,
+		  min::new_stub_gen
+		      ( mexcom:: output_module ) );
+	    vars[i]->flags &= ~ PRIM::WRITABLE_VAR;
+	    ::push_var ( var );
+	}
+    }
+
     min::phrase_position_vec ppv =
         min::get ( block, min::dot_position );
     mex::instr beg =
         { iterations == NULL ?
 	  mex::BEG : mex::BEGL };
     mexstack::begx
-        ( beg, iterations != NULL ? nnext : 0, 0,
+        ( beg, nnext, 0,
 	  min::MISSING(), ppv->position );
     push_block ( label );
     ::block.block_finish_jmp = ::jmp_counter ++;
@@ -1214,8 +1242,7 @@ bool static compile_block_assignment_statement
 			  "expression following ",
 			  min::pgen_name ( op ),
 			  " is not a block label" );
-		    ++ i;
-		    OK = false;
+		    goto ERROR_SKIP;
 		}
 	    }
 	    else if ( op == ::WHILE || op == ::UNTIL )
@@ -1247,7 +1274,7 @@ bool static compile_block_assignment_statement
 			( right_ppv[i-1],
 			  "no `times' after ",
 			  min::pgen_name ( op ) );
-		    goto SKIP;
+		    goto ERROR_SKIP;
 		}
 		goto TIMES_FOUND;
 	    }
@@ -1257,19 +1284,19 @@ bool static compile_block_assignment_statement
 		    ( right_ppv[i-1],
 		      "cannot understand ",
 		      min::pgen_name ( op ) );
-		goto SKIP;
+		goto ERROR_SKIP;
 	    }
 
 	    continue;
 
-	SKIP:
+	ERROR_SKIP:
 	    OK = false;
-	    while ( ++ i < s
+	    while ( i < s
 	            &&
 	               min::labfind
 		           ( right_vp[i],
 			     ::iteration_ops )
-		    == -1 );
+		    == -1 ) ++ i;
 	    continue;
 
 
@@ -1288,6 +1315,9 @@ bool static compile_block_assignment_statement
 		continue;
 	    }
 	}
+
+	iter[number_of_iterations].type =
+	    min::MISSING();
     }
 
     // Process left side.
@@ -1312,7 +1342,6 @@ bool static compile_block_assignment_statement
 	if ( vars[i] == min::NULL_STUB )
 	    OK = false;
     }
-    if ( ! OK ) return false;
 
     min::uns32 initial_var_stack_length =
     	::var_stack_length;
@@ -1321,6 +1350,8 @@ bool static compile_block_assignment_statement
         // Process non-next vars.
 	//
         PRIM::var var = vars[i];
+	if ( var == min::NULL_STUB ) continue;
+
 	if ( var->flags & PRIM::WRITABLE_VAR )
 	{
 	    mexcom::compile_warn
@@ -1394,7 +1425,7 @@ bool static compile_if_statement
 {
     if ( ::block.if_next_jmp != 0 )
     {
-        // Its an ELSE-IF.
+        // Its an ELSE-IF or ELSE.
 	//
         if ( ::block.if_finish_jmp == 0 )
 	    ::block.if_finish_jmp = ::jmp_counter ++;
@@ -1405,6 +1436,8 @@ bool static compile_if_statement
 
     if ( condition != min::NONE() )
     {
+        // Its an IF or ELSE-IF.
+	//
 	min::phrase_position_vec ppv = min::get
 	    ( condition, min::dot_position );
 	::block.if_pp = ppv->position;
