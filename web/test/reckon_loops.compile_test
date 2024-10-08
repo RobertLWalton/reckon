@@ -144,3 +144,95 @@ while i < 3:
     [36;10] LABEL 2
     [16:26;10] JMPGEQ T_JMPS[1] 2 0 10 [$
                UNDEFINED_GEN(0x7FF4170000000000) $]; 2
+next sum = 0
+^^^^^^^^
+    [19:36;11] PUSHI T_PUSH 0 0 0 0; [< next sum >]
+next sum = 0
+           ^
+    [19:37;12] PUSHI T_PUSH 0 0 0 0; *
+next sum = 0
+^^^^^^^^
+    [19:38;11] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; [< * [< next sum >] >]
+next i = 0
+^^^^^^
+    [20:39;12] PUSHI T_PUSH 0 0 0 0; [< next i >]
+next i = 0
+         ^
+    [20:40;13] PUSHI T_PUSH 0 0 0 0; *
+next i = 0
+^^^^^^
+    [20:41;12] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; [< * [< next i >] >]
+next i, next sum = do until i >= 2:
+^^^^^^
+    [21:42;13] PUSHS T_PUSH 0 0 0; [< i i >]
+next i, next sum = do until i >= 2:
+        ^^^^^^^^
+    [21:43;14] PUSHS T_PUSH 2 0 0; [< sum sum >]
+next i, next sum = do until i >= 2:
+                                  ^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [23:44;16] BEGL T_BEGL 0 2 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+next i, next sum = do until i >= 2:
+                            ^
+    [21:45;17] PUSHS T_PUSH 3 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; [< i * >]
+next i, next sum = do until i >= 2:
+                                 ^
+    [21:46;18] PUSHI T_PUSH 0 0 0 2; *
+next i, next sum = do until i >= 2:
+                              ^^
+    [21:47;16] JMPLT T_JMPS 0 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; 5
+next i, next sum = do until i >= 2:
+                            ^^^^^^
+    [21:48;16] JMP T_JMP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; 4
+    [49;16] LABEL 5
+    [21:47;16] JMPLT T_JMPS 0 0 2 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; 5
+    next i = i + 1
+             ^
+    [22:49;17] PUSHS T_PUSH 3 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; [< i * >]
+    next i = i + 1
+                 ^
+    [22:50;18] PUSHI T_PUSH 0 0 0 1; *
+    next i = i + 1
+             ^^^^^
+    [22:51;17] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+               *
+next i, next sum = do until i >= 2:
+^^^^^^
+    [21:52;16] POPS T_POP 2 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; [< * [< next i >] >]
+    next sum = sum + 10
+               ^^^
+    [23:53;17] PUSHS T_PUSH 2 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; [< sum * >]
+    next sum = sum + 10
+                     ^^
+    [23:54;18] PUSHI T_PUSH 0 0 0 10; *
+    next sum = sum + 10
+               ^^^^^^^^
+    [23:55;17] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+               *
+next i, next sum = do until i >= 2:
+        ^^^^^^^^
+    [21:56;16] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; [< * [< next sum >] >]
+next i, next sum = do until i >= 2:
+                                  ^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [23:57;14] ENDL T_ENDL 0 2 12 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]
+    [58;14] LABEL 4
+    [21:48;14] JMP T_JMP[1] 2 0 10 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; 4
