@@ -1,0 +1,79 @@
+* {0:0,1,1} PUSHI: FALSE <= FALSE
+* {0:1,2,2} PUSHI: TRUE <= TRUE
+X = 5
+^^^^^
+* {12:2,3,3} PUSHI: X <= 0
+* {12:3,4,4} PUSHI: * <= 5
+* {12:4,3,5} POPS: X <= * = 5
+Z = 8
+^^^^^
+* {13:5,4,6} PUSHI: Z <= 0
+* {13:6,5,7} PUSHI: * <= 8
+* {13:7,4,8} POPS: Z <= * = 8
+Y = Z
+^^^^^
+* {14:8,5,9} PUSHI: Y <= 0
+* {14:9,6,10} PUSHS: * <= Z = 8
+* {14:10,5,11} POPS: Y <= * = 8
+next Y = Z
+^^^^^^^^^^
+* {15:11,6,12} PUSHI: next Y <= 0
+* {15:12,7,13} PUSHS: * <= Z = 8
+* {15:13,6,14} POPS: next Y <= * = 8
+ERROR: in line ##: NON-next variable `Y' has a predecessor of the same
+       variable name and lexical level:
+Y = 3
+^
+ERROR: in line ##: statement ignored due to previous errors:
+Y = 3
+^^^^^
+next Y = 3
+^^^^^^^^^^
+* {17:14,7,15} PUSHI: next Y <= 0
+* {17:15,8,16} PUSHI: * <= 3
+* {17:16,7,17} POPS: next Y <= * = 3
+next X = Y
+^^^^^^^^^^
+* {18:17,8,18} PUSHI: next X <= 0
+* {18:18,9,19} PUSHS: * <= Y = 3
+* {18:19,8,20} POPS: next X <= * = 3
+X
+^
+* {19:20,9,21} PUSHS: * <= X = 3
+Y
+^
+* {20:21,10,22} PUSHS: * <= Y = 3
+Z
+^
+* {21:22,11,23} PUSHS: * <= Z = 8
+next Z = - Z
+^^^^^^^^^^^^
+* {22:23,12,24} PUSHI: next Z <= 0
+* {22:24,13,25} PUSHS: * <= Z = 8
+* {22:25,13,26} NEG: * = -8 <= - 8
+* {22:26,12,27} POPS: next Z <= * = -8
+next Z = X + Z
+^^^^^^^^^^^^^^
+* {23:27,13,28} PUSHI: next Z <= 0
+* {23:28,14,29} PUSHS: * <= X = 3
+* {23:29,15,30} PUSHS: * <= Z = -8
+* {23:30,14,31} ADD: * = -5 <= 3 + -8
+* {23:31,13,32} POPS: next Z <= * = -5
+next Z = X + Y - Z
+^^^^^^^^^^^^^^^^^^
+* {24:32,14,33} PUSHI: next Z <= 0
+* {24:33,15,34} PUSHS: * <= X = 3
+* {24:34,16,35} PUSHS: * <= Y = 3
+* {24:35,15,36} ADD: * = 6 <= 3 + 3
+* {24:36,16,37} PUSHS: * <= Z = -5
+* {24:37,15,38} SUB: * = 11 <= 6 - -5
+* {24:38,14,39} POPS: next Z <= * = 11
+next Z = X + ( Y - Z )
+^^^^^^^^^^^^^^^^^^^^^^
+* {25:39,15,40} PUSHI: next Z <= 0
+* {25:40,16,41} PUSHS: * <= X = 3
+* {25:41,17,42} PUSHS: * <= Y = 3
+* {25:42,18,43} PUSHS: * <= Z = 11
+* {25:43,17,44} SUB: * = -8 <= 3 - 11
+* {25:44,16,45} ADD: * = -5 <= 3 + -8
+* {25:45,15,46} POPS: next Z <= * = -5

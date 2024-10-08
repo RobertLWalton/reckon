@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Oct  7 02:17:45 PM EDT 2024
+# Date:		Mon Oct  7 09:09:11 PM EDT 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -39,11 +39,11 @@ all:		parse_diff compile_diff run_diff \
 parse_diff:	${PARSE_TESTS:=.parse_diff}
 compile_diff:	${RUN_TESTS:=.compile_diff}
 run_diff:	${RUN_TESTS:=.run_diff}
-trace_diff:	${TRACE_TESTS:=.trace_diff}
+trace_diff:	${RUN_TESTS:=.trace_diff}
 parse_test:	${PARSE_TESTS:=.parse_test}
 compile_test:	${RUN_TESTS:=.compile_test}
 run_test:	${RUN_TESTS:=.run_test}
-trace_test:	${TRACE_TESTS:=.trace_test}
+trace_test:	${RUN_TESTS:=.trace_test}
 parse:		${PARSE_TESTS:=.parse}
 compile:	${RUN_TESTS:=.mex}
 run:		${RUN_TESTS:=.out}

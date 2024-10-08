@@ -1,0 +1,170 @@
+* {0:0,1,1} PUSHI: FALSE <= FALSE
+* {0:1,2,2} PUSHI: TRUE <= TRUE
+X = 5
+^^^^^
+* {12:2,3,3} PUSHI: X <= 0
+* {12:3,4,4} PUSHI: * <= 5
+* {12:4,3,5} POPS: X <= * = 5
+X < 10
+^^^^^^
+* {13:5,4,6} PUSHI: * <= FALSE
+* {13:6,5,7} PUSHS: * <= X = 5
+* {13:7,6,8} PUSHI: * <= 10
+* {13:8,4,9} JMPGEQ location 11 is UNsuccessful: false <= 5 >= 10
+* {13:9,3,10} POPS: * <= * = FALSE
+* {13:10,4,11} PUSHI: * <= TRUE
+X < 2
+^^^^^
+* {14:11,5,12} PUSHI: * <= FALSE
+* {14:12,6,13} PUSHS: * <= X = 5
+* {14:13,7,14} PUSHI: * <= 2
+* {14:14,5,15} JMPGEQ location 17 is successful: true <= 5 >= 2
+2 < X < 10
+^^^^^^^^^^
+* {15:17,6,16} PUSHI: * <= FALSE
+* {15:18,7,17} PUSHI: * <= 2
+* {15:19,8,18} PUSHS: * <= X = 5
+* {15:20,7,19} JMPGEQ* location 25 is UNsuccessful: false <= 2 >= 5
+* {15:21,8,20} PUSHI: * <= 10
+* {15:22,6,21} JMPGEQ location 25 is UNsuccessful: false <= 5 >= 10
+* {15:23,5,22} POPS: * <= * = FALSE
+* {15:24,6,23} PUSHI: * <= TRUE
+next X = 13
+^^^^^^^^^^^
+* {16:25,7,24} PUSHI: next X <= 0
+* {16:26,8,25} PUSHI: * <= 13
+* {16:27,7,26} POPS: next X <= * = 13
+2 < X < 10
+^^^^^^^^^^
+* {17:28,8,27} PUSHI: * <= FALSE
+* {17:29,9,28} PUSHI: * <= 2
+* {17:30,10,29} PUSHS: * <= X = 13
+* {17:31,9,30} JMPGEQ* location 36 is UNsuccessful: false <= 2 >= 13
+* {17:32,10,31} PUSHI: * <= 10
+* {17:33,8,32} JMPGEQ location 36 is successful: true <= 13 >= 10
+111 if X < 10 else 222 if X < 20 else 333
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* {18:36,9,33} PUSHI: * <= [$ UNDEFINED $]
+* {18:37,10,34} PUSHS: * <= X = 13
+* {18:38,11,35} PUSHI: * <= 10
+* {18:39,9,36} JMPGEQ location 43 is successful: true <= 13 >= 10
+* {18:43,10,37} PUSHS: * <= X = 13
+* {18:44,11,38} PUSHI: * <= 20
+* {18:45,9,39} JMPGEQ location 49 is UNsuccessful: false <= 13 >= 20
+* {18:46,8,40} POPS: * <= * = [$ UNDEFINED $]
+* {18:47,9,41} PUSHI: * <= 222
+* {18:48,9,42} JMP location 51
+next X = 34
+^^^^^^^^^^^
+* {19:51,10,43} PUSHI: next X <= 0
+* {19:52,11,44} PUSHI: * <= 34
+* {19:53,10,45} POPS: next X <= * = 34
+111 if X < 10 else 222 if X < 20 else 333
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* {20:54,11,46} PUSHI: * <= [$ UNDEFINED $]
+* {20:55,12,47} PUSHS: * <= X = 34
+* {20:56,13,48} PUSHI: * <= 10
+* {20:57,11,49} JMPGEQ location 61 is successful: true <= 34 >= 10
+* {20:61,12,50} PUSHS: * <= X = 34
+* {20:62,13,51} PUSHI: * <= 20
+* {20:63,11,52} JMPGEQ location 67 is successful: true <= 34 >= 20
+* {20:67,10,53} POPS: * <= * = [$ UNDEFINED $]
+* {20:68,11,54} PUSHI: * <= 333
+FALSE OR FALSE
+^^^^^^^^^^^^^^
+* {21:69,12,55} PUSHI: * <= FALSE
+* {21:70,13,56} PUSHS: * <= FALSE = FALSE
+* {21:71,12,57} JMPF location 73 is successful: true <= FALSE
+* {21:73,13,58} PUSHS: * <= FALSE = FALSE
+* {21:74,12,59} JMPF location 77 is successful: true <= FALSE
+FALSE OR TRUE
+^^^^^^^^^^^^^
+* {22:77,13,60} PUSHI: * <= FALSE
+* {22:78,14,61} PUSHS: * <= FALSE = FALSE
+* {22:79,13,62} JMPF location 81 is successful: true <= FALSE
+* {22:81,14,63} PUSHS: * <= TRUE = TRUE
+* {22:82,13,64} JMPF location 85 is UNsuccessful: false <= TRUE
+* {22:83,12,65} POPS: * <= * = FALSE
+* {22:84,13,66} PUSHI: * <= TRUE
+TRUE OR FALSE
+^^^^^^^^^^^^^
+* {23:85,14,67} PUSHI: * <= FALSE
+* {23:86,15,68} PUSHS: * <= TRUE = TRUE
+* {23:87,14,69} JMPF location 89 is UNsuccessful: false <= TRUE
+* {23:88,14,70} JMP location 91
+* {23:91,13,71} POPS: * <= * = FALSE
+* {23:92,14,72} PUSHI: * <= TRUE
+TRUE OR TRUE
+^^^^^^^^^^^^
+* {24:93,15,73} PUSHI: * <= FALSE
+* {24:94,16,74} PUSHS: * <= TRUE = TRUE
+* {24:95,15,75} JMPF location 97 is UNsuccessful: false <= TRUE
+* {24:96,15,76} JMP location 99
+* {24:99,14,77} POPS: * <= * = FALSE
+* {24:100,15,78} PUSHI: * <= TRUE
+FALSE AND FALSE
+^^^^^^^^^^^^^^^
+* {25:101,16,79} PUSHI: * <= FALSE
+* {25:102,17,80} PUSHS: * <= FALSE = FALSE
+* {25:103,16,81} JMPF location 108 is successful: true <= FALSE
+FALSE AND TRUE
+^^^^^^^^^^^^^^
+* {26:108,17,82} PUSHI: * <= FALSE
+* {26:109,18,83} PUSHS: * <= FALSE = FALSE
+* {26:110,17,84} JMPF location 115 is successful: true <= FALSE
+TRUE AND FALSE
+^^^^^^^^^^^^^^
+* {27:115,18,85} PUSHI: * <= FALSE
+* {27:116,19,86} PUSHS: * <= TRUE = TRUE
+* {27:117,18,87} JMPF location 122 is UNsuccessful: false <= TRUE
+* {27:118,19,88} PUSHS: * <= FALSE = FALSE
+* {27:119,18,89} JMPF location 122 is successful: true <= FALSE
+TRUE AND TRUE
+^^^^^^^^^^^^^
+* {28:122,19,90} PUSHI: * <= FALSE
+* {28:123,20,91} PUSHS: * <= TRUE = TRUE
+* {28:124,19,92} JMPF location 129 is UNsuccessful: false <= TRUE
+* {28:125,20,93} PUSHS: * <= TRUE = TRUE
+* {28:126,19,94} JMPF location 129 is UNsuccessful: false <= TRUE
+* {28:127,18,95} POPS: * <= * = FALSE
+* {28:128,19,96} PUSHI: * <= TRUE
+NOT FALSE
+^^^^^^^^^
+* {29:129,20,97} PUSHI: * <= FALSE
+* {29:130,21,98} PUSHS: * <= FALSE = FALSE
+* {29:131,20,99} JMPF location 133 is successful: true <= FALSE
+* {29:133,19,100} POPS: * <= * = FALSE
+* {29:134,20,101} PUSHI: * <= TRUE
+NOT TRUE
+^^^^^^^^
+* {30:135,21,102} PUSHI: * <= FALSE
+* {30:136,22,103} PUSHS: * <= TRUE = TRUE
+* {30:137,21,104} JMPF location 139 is UNsuccessful: false <= TRUE
+* {30:138,21,105} JMP location 141
+FALSE BUT NOT FALSE
+^^^^^^^^^^^^^^^^^^^
+* {31:141,22,106} PUSHI: * <= FALSE
+* {31:142,23,107} PUSHS: * <= FALSE = FALSE
+* {31:143,22,108} JMPF location 149 is successful: true <= FALSE
+TRUE BUT NOT FALSE
+^^^^^^^^^^^^^^^^^^
+* {32:149,23,109} PUSHI: * <= FALSE
+* {32:150,24,110} PUSHS: * <= TRUE = TRUE
+* {32:151,23,111} JMPF location 157 is UNsuccessful: false <= TRUE
+* {32:152,24,112} PUSHS: * <= FALSE = FALSE
+* {32:153,23,113} JMPF location 155 is successful: true <= FALSE
+* {32:155,22,114} POPS: * <= * = FALSE
+* {32:156,23,115} PUSHI: * <= TRUE
+FALSE BUT NOT TRUE
+^^^^^^^^^^^^^^^^^^
+* {33:157,24,116} PUSHI: * <= FALSE
+* {33:158,25,117} PUSHS: * <= FALSE = FALSE
+* {33:159,24,118} JMPF location 165 is successful: true <= FALSE
+TRUE BUT NOT TRUE
+^^^^^^^^^^^^^^^^^
+* {34:165,25,119} PUSHI: * <= FALSE
+* {34:166,26,120} PUSHS: * <= TRUE = TRUE
+* {34:167,25,121} JMPF location 173 is UNsuccessful: false <= TRUE
+* {34:168,26,122} PUSHS: * <= TRUE = TRUE
+* {34:169,25,123} JMPF location 171 is UNsuccessful: false <= TRUE
+* {34:170,25,124} JMP location 173
