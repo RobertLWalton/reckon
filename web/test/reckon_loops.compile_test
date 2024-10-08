@@ -1,0 +1,146 @@
+    [0:0;1] PUSHI T_PUSH 0 0 0 FALSE; FALSE
+    [0:1;2] PUSHI T_PUSH 0 0 0 TRUE; TRUE
+sum = 0
+^^^
+    [10:2;3] PUSHI T_PUSH 0 0 0 0; sum
+sum = 0
+      ^
+    [10:3;4] PUSHI T_PUSH 0 0 0 0; *
+sum = 0
+^^^
+    [10:4;3] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< * sum >]
+do 5 times:
+   ^
+    [11:5;4] PUSHI T_PUSH 0 0 0 5; *
+    next sum = sum + 10
+    ^^^^^^^^
+    [12:6;5] PUSHS T_PUSH 1 0 0; [< sum sum >]
+WARNING: in line ##: next variable promoted to depth 0:
+    next sum = sum + 10
+    ^^^^^^^^
+do 5 times:
+          ^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [12:7;6] BEGL T_BEGL 0 1 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+do 5 times:
+   ^
+    [11:8;6] JMPCNT T_JMPS 0 2 0 1; 1
+    next sum = sum + 10
+               ^^^
+    [12:9;7] PUSHS T_PUSH 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+             ; [< sum * >]
+    next sum = sum + 10
+                     ^^
+    [12:10;8] PUSHI T_PUSH 0 0 0 10; *
+    next sum = sum + 10
+               ^^^^^^^^
+    [12:11;7] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]; *
+    next sum = sum + 10
+    ^^^^^^^^
+    [12:12;6] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+              ; [< * [< next sum >] >]
+do 5 times:
+          ^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [12:13;5] ENDL T_ENDL 0 1 5 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+    [14;5] LABEL 1
+    [11:8;5] JMPCNT T_JMPS[1] 1 2 6 1; 1
+sum
+^^^
+    [13:14;6] PUSHS T_PUSH 4294967295 0 0 [$
+              UNDEFINED_GEN(0x7FF4170000000000) $]; [< sum * >]
+next sum = 0
+^^^^^^^^
+    [14:15;7] PUSHI T_PUSH 0 0 0 0; [< next sum >]
+next sum = 0
+           ^
+    [14:16;8] PUSHI T_PUSH 0 0 0 0; *
+next sum = 0
+^^^^^^^^
+    [14:17;7] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+              ; [< * [< next sum >] >]
+i = 0
+^
+    [15:18;8] PUSHI T_PUSH 0 0 0 0; i
+i = 0
+    ^
+    [15:19;9] PUSHI T_PUSH 0 0 0 0; *
+i = 0
+^
+    [15:20;8] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+              ; [< * i >]
+    next i = i + 1
+    ^^^^^^
+    [17:21;9] PUSHS T_PUSH 0 0 0; [< i i >]
+WARNING: in line ##: next variable promoted to depth 0:
+    next i = i + 1
+    ^^^^^^
+    next sum = sum + 10
+    ^^^^^^^^
+    [18:22;10] PUSHS T_PUSH 2 0 0; [< sum sum >]
+WARNING: in line ##: next variable promoted to depth 0:
+    next sum = sum + 10
+    ^^^^^^^^
+while i < 3:
+           ^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [18:23;12] BEGL T_BEGL 0 2 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+while i < 3:
+      ^
+    [16:24;13] PUSHS T_PUSH 3 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; [< i * >]
+while i < 3:
+          ^
+    [16:25;14] PUSHI T_PUSH 0 0 0 3; *
+while i < 3:
+        ^
+    [16:26;12] JMPGEQ T_JMPS 0 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; 2
+    [27;12] LABEL 3
+    next i = i + 1
+             ^
+    [17:27;13] PUSHS T_PUSH 3 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; [< i * >]
+    next i = i + 1
+                 ^
+    [17:28;14] PUSHI T_PUSH 0 0 0 1; *
+    next i = i + 1
+             ^^^^^
+    [17:29;13] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+               *
+    next i = i + 1
+    ^^^^^^
+    [17:30;12] POPS T_POP 2 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; [< * [< next i >] >]
+    next sum = sum + 10
+               ^^^
+    [18:31;13] PUSHS T_PUSH 2 0 0 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; [< sum * >]
+    next sum = sum + 10
+                     ^^
+    [18:32;14] PUSHI T_PUSH 0 0 0 10; *
+    next sum = sum + 10
+               ^^^^^^^^
+    [18:33;13] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+               *
+    next sum = sum + 10
+    ^^^^^^^^
+    [18:34;12] POPS T_POP 1 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+               ; [< * [< next sum >] >]
+while i < 3:
+           ^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [18:35;10] ENDL T_ENDL 0 2 11 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]
+    [36;10] LABEL 2
+    [16:26;10] JMPGEQ T_JMPS[1] 2 0 10 [$
+               UNDEFINED_GEN(0x7FF4170000000000) $]; 2
