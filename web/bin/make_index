@@ -1,0 +1,135 @@
+#! /bin/php
+<?php  // Program to make ../page/index.html
+
+// File:	make_index
+// Author:	Robert L Walton <walton@acm.org>
+// Date:	Wed Oct  9 02:35:22 EDT 2024
+
+// The authors have placed EPM (its files and the
+// content of these files) in the public domain;
+// they make no warranty and accept no liability
+// for EPM.
+
+$document = <<<'EOT'
+make_index
+
+Makes ../page/index.html from the files listed in
+../page/index_list.  The format of this last is
+
+	* <section-header>
+	<file-basename>
+	...
+	* <section-header>
+	<file-basename>
+	...
+
+Each <file-basename> names the file:
+
+	../page/<file-basename>.html
+
+Lines beginning with // are comments.
+
+EOT;
+
+if ( $argc >= 2 && preg_match ( '/^-doc/', $argv[1] ) )
+{
+    print ( $document );
+    exit ( 0 );
+}
+
+// Resulting ../page/index.html file is in $r.
+//
+$r = <<<EOT
+<html>
+<head>
+<!-- This file is generated automatically by
+     reckon/web/bin/make_index.
+-->
+
+<meta http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate" />
+
+<title>RECKON Index</title>
+
+<link href='page.css' rel='stylesheet'/>
+<link rel='icon' href='data:;base64,='>
+
+</head>
+
+<body>
+
+<h1>RECKON Index</h1>
+
+EOT;
+
+// Read and process ../page/index_list, adding to $r.
+//
+$index_list =
+    @file_get_contents ( "../page/index_list" );
+if ( $index_list === false )
+{
+    print ( "cannot read ../page/index_list" .
+            PHP_EOL );
+    exit ( 1 );
+}
+$index_list = explode ( "\n", $index_list );
+$index_length = count ( $index_list );
+$i = 0;
+while ( $i < $index_length )
+{
+    $line = $index_list[$i++];
+    if ( preg_match ( '/^\s*\/\//', $line ) )
+	continue;
+    $line = trim ( $line );
+    if ( $line == '' )
+	continue;
+    if ( $line[0] == '*' )
+    {
+	$line = substr ( $line, 1 );
+	$line = trim ( $line );
+	$r .= "<h2>$line</h2>" . PHP_EOL;
+    }
+    else
+    {
+	$file = "../page/$line.html";
+	$c = @file_get_contents ( $file );
+	if ( $c === false )
+	{
+	    print ( "cannot read $file" .  PHP_EOL );
+	    exit ( 1 );
+	}
+	$c = explode ( "\n", $c );
+	$length = count ( $c );
+	$j = 0;
+	while ( $j < $length )
+	{
+	    $line = $c[$j++];
+	    if ( ! preg_match
+                     ( '/^\s*<h2\s+id=/', $line ) )
+		continue;
+	    $k = $j;
+	    $line2 = $c[$k-1];
+	    while
+	      ( ! preg_match ( '/<\/h2>/', $line2 ) )
+	    {
+		if ( $k >= $length )
+		{
+		    print ( "no </h2> for: $line" .
+			    PHP_EOL );
+		    exit ( 1 );
+		}
+		$line2 = $c[$k++];
+	    }
+	    $line = implode
+		( ' ',
+                  array_slice
+		      ( $c, $j - 1, $k - $j + 1 ) );
+	    print ( $line . PHP_EOL );
+	}
+
+    }
+}
+
+print ( $r . PHP_EOL );
+
+?>
