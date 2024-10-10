@@ -1,33 +1,13 @@
 // File:   page.script
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Tue Feb  6 00:23:46 EST 2024
+// Date:   Thu Oct 10 06:47:15 EDT 2024
 // 
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
 // make no warranty and accept no liability for RECKON.
 
-// Document List Construction
 
-const docs_contents =
-    document.getElementById ( "docs-contents" );
-for ( var i = 0; i < docs_list.length; ++ i )
-{
-    const e = docs_list[i];
-    var new_element;
-    if ( e[0] == 'h2' )
-	new_element = document.createElement ( 'h2' );
-    else
-    {
-	new_element =
-	    document.createElement ( 'a');
-	new_element.setAttribute ( 'href', e[0] );
-    }
-    const t = document.createTextNode ( e[1] );
-    new_element.appendChild ( t );
-    docs_contents.appendChild ( new_element );
-}
-
-function A_IN_NEW_WINDOW ( a )
+function NEW_WINDOW ( url )
 {
     const root = document.documentElement;
     const style = window.getComputedStyle ( root );
@@ -47,153 +27,10 @@ function A_IN_NEW_WINDOW ( a )
     else
 	Y = Y - offset;
     const win = window.open
-	( a.href, a.href,
+	( url, '_blank',
 	  'height=' + height + 'px,' +
 	  'width=' + width + 'px,' +
 	  'screenX=' + X + 'px,' +
 	  'screenY=' + Y + 'px' );
     win.focus(); // Needed for Firefox but not Chrome.
-}
-
-// BACK and FORWARD buttons.
-
-const back_button =
-    document.getElementById ( "back-button" );
-const forward_button =
-    document.getElementById ( "forward-button" );
-var history_list = [];
-    // The elements of history_list are A-tagged
-    // elements that have been clicked, in the effective
-    // order that they were clicked.
-var index = 0;
-    // Index is not meaningful if history_list.length
-    // == 0.  Otherwise, index == 0 means we are at the
-    // target of history_list[history_list.length-1],
-    // and index < 0 means we are at the location of
-    // history_list[history_list.length+index].
-var a_click_disable = false;
-function A_CLICK ( event )
-{
-    if ( a_click_disable ) return;
-    let a = event.target;
-    if ( a.tagName != 'A' ) return;
-    if ( a.href == '' ) return;
-    if ( a.href[0] != '#' )
-    {
-	event.preventDefault();
-	A_IN_NEW_WINDOW ( a );
-	return;
-    }
-    while ( index < 0 )
-    {
-        history_list.pop();
-        ++ index;
-    }
-    history_list.push ( a );
-    back_button.style.display = 'inline-block';
-    forward_button.style.display = 'none';
-    console.log ( index );
-    for ( var i = 0; i < history_list.length; ++ i )
-	console.log ( history_list[i] );
-}
-document.addEventListener ( 'click', A_CLICK );
-
-function BACK()
-{
-    -- index;
-    history_list[index + history_list.length].focus();
-    if ( index + history_list.length == 0 )
-	back_button.style.display = 'none';
-    forward_button.style.display = 'inline-block';
-    console.log ( index );
-    for ( var i = 0; i < history_list.length; ++ i )
-	console.log ( history_list[i] );
-}
-function FORWARD()
-{
-    ++ index;
-    if ( index == 0 )
-    {
-	a_click_disable = true;
-	history_list[history_list.length - 1].click();
-	a_click_disable = false;
-	forward_button.style.display = 'none';
-    }
-    else
-	history_list[index + history_list.length]
-	    .focus();
-    back_button.style.display = 'inline-block';
-    console.log ( index );
-    for ( var i = 0; i < history_list.length; ++ i )
-	console.log ( history_list[i] );
-}
-
-// Header and switching between 'text', 'toc',
-// and 'docs'.
-
-const toc =
-    document.getElementById ( "toc" );
-const toc_button =
-    document.getElementById ( "toc-button" );
-const text =
-    document.getElementById ( "text" );
-const text_button =
-    document.getElementById ( "text-button" );
-const text_header =
-    document.getElementById ( "text-header" );
-const docs =
-    document.getElementById ( "docs" );
-const docs_button =
-    document.getElementById ( "docs-button" );
-function DISPLAY ( d )
-{
-    back_button.style.display = 'none';
-    forward_button.style.display = 'none';
-    toc.style.display = 'none';
-    toc_button.style.display = 'inline-block';
-    docs.style.display = 'none';
-    docs_button.style.display = 'inline-block';
-    text.style.display = 'none';
-    text_button.style.display = 'inline-block';
-    text_header.style.display = 'none';
-    if ( d == 'text' )
-    {
-	text.style.display = 'block';
-	text_button.style.display = 'none';
-	text_header.style.display = 'block';
-        if ( history_list.length + index > 0
-             &&
-	     history_list.length > 0 )
-	    back_button.style.display = 'inline-block';
-        if ( index < 0 )
-	    forward_button.style.display = 'inline-block';
-    }
-    else if ( d == 'toc' )
-    {
-	toc.style.display = 'block';
-	toc_button.style.display = 'none';
-	docs_button.style.display = 'none';
-    }
-    else if ( d == 'docs' )
-    {
-	docs.style.display = 'block';
-	docs_button.style.display = 'none';
-	toc_button.style.display = 'none';
-    }
-}
-
-// Load and print state switching.
-
-window.onload = (event) => {
-    DISPLAY ( 'text' );
-}
-
-window.onbeforeprint = (event) => {
-    toc.style.display = 'block';
-    text.style.display = 'block';
-    docs.style.display = 'none';
-    text_header.style.display = 'none';
-}
-window.onafterprint = (event) => {
-    DISPLAY ( 'text' );
 }
