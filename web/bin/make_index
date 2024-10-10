@@ -3,7 +3,7 @@
 
 // File:	make_index
 // Author:	Robert L Walton <walton@acm.org>
-// Date:	Wed Oct  9 02:35:22 EDT 2024
+// Date:	Thu Oct 10 02:29:42 EDT 2024
 
 // The authors have placed EPM (its files and the
 // content of these files) in the public domain;
@@ -37,9 +37,10 @@ if ( $argc >= 2 && preg_match ( '/^-doc/', $argv[1] ) )
     exit ( 0 );
 }
 
-// Resulting ../page/index.html file is in $r.
+// For resulting ../page/index.html the header is in $h
+// and the rest is in $r.
 //
-$r = <<<EOT
+$h = <<<EOT
 <html>
 <head>
 <!-- This file is generated automatically by
@@ -60,9 +61,14 @@ $r = <<<EOT
 
 <h1>RECKON Index</h1>
 
+<ol>
+
 EOT;
 
-// Read and process ../page/index_list, adding to $r.
+$r = '';
+
+// Read and process ../page/index_list, adding to $h
+// and $r.
 //
 $index_list =
     @file_get_contents ( "../page/index_list" );
@@ -77,6 +83,7 @@ $index_length = count ( $index_list );
 $i = 0;
 while ( $i < $index_length )
 {
+    $found = false;  // <h2 id='...'... found
     $line = $index_list[$i++];
     if ( preg_match ( '/^\s*\/\//', $line ) )
 	continue;
@@ -87,15 +94,16 @@ while ( $i < $index_length )
     {
 	$line = substr ( $line, 1 );
 	$line = trim ( $line );
-	$r .= "<h2>$line</h2>" . PHP_EOL;
+	$r .= "<h1>$line</h1>" . PHP_EOL;
     }
     else
     {
-	$file = "../page/$line.html";
-	$c = @file_get_contents ( $file );
+	$file = "$line.html";
+	$c = @file_get_contents ( "../page/$file" );
 	if ( $c === false )
 	{
-	    print ( "cannot read $file" .  PHP_EOL );
+	    print ( "cannot read ../page/$file"
+                    . PHP_EOL );
 	    exit ( 1 );
 	}
 	$c = explode ( "\n", $c );
@@ -104,6 +112,18 @@ while ( $i < $index_length )
 	while ( $j < $length )
 	{
 	    $line = $c[$j++];
+	    if ( preg_match
+		     ( '/<title>([^<]+)<\/title>/',
+                       $line, $matches ) )
+	    {
+		$title = $matches[1];
+		$h .= "<li><a href='#$file'>" .
+                      "$title</a>" . PHP_EOL;
+		$r .= "<h2 id='$file'>" .
+		      "<a href='$file'>$title</a>" .
+		      "</h2>" .  PHP_EOL;
+		continue;
+	    }
 	    if ( ! preg_match
                      ( '/^\s*<h2\s+id=/', $line ) )
 		continue;
@@ -124,12 +144,40 @@ while ( $i < $index_length )
 		( ' ',
                   array_slice
 		      ( $c, $j - 1, $k - $j + 1 ) );
-	    print ( $line . PHP_EOL );
-	}
+	    $j = $k;
+	    if ( ! preg_match
+		     ( '/<h2\s+id=\'([^\']+)\'[^>]*>' .
+                       '([^<]+)<\/h2>/',
+		       $line, $matches ) )
+	    {
+		print ( "BADLY FORMED LINE: $line" .
+                        PHP_EOL );
+		continue;
+	    }
+	    $location = $matches[1];
+	    $name = $matches[2];
 
+	    if ( ! $found )
+	    {
+		$r .= "<ol>" . PHP_EOL;
+		$found = true;
+	    }
+	    $r .= "<li><a href='$file#$location'>" .
+                  "$name</a>" . PHP_EOL;
+	}
+	if ( $found ) $r .= "</ol>" . PHP_EOL;
     }
 }
 
-print ( $r . PHP_EOL );
+$h .= "</ol>" . PHP_EOL;
+
+$result = @file_put_contents
+	       ( "../page/index.html", $h . $r );
+if ( $result === false )
+{
+    print ( "cannot write ../page/index.html" .
+            PHP_EOL );
+    exit ( 1 );
+}
 
 ?>
