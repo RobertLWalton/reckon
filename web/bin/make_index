@@ -3,7 +3,7 @@
 
 // File:	make_index
 // Author:	Robert L Walton <walton@acm.org>
-// Date:	Thu Oct 10 03:13:14 EDT 2024
+// Date:	Sat Oct 12 00:22:40 EDT 2024
 
 // The authors have placed EPM (its files and the
 // content of these files) in the public domain;
@@ -100,7 +100,8 @@ while ( $i < $index_length )
     }
     else
     {
-	$file = "$line.html";
+	$base = $line;
+	$file = "$base.html";
 	$c = @file_get_contents ( "../page/$file" );
 	if ( $c === false )
 	{
@@ -119,9 +120,9 @@ while ( $i < $index_length )
                        $line, $matches ) )
 	    {
 		$title = $matches[1];
-		$h .= "<li><a href='#$file'>" .
+		$h .= "<li><a href='#$base'>" .
                       "$title</a>" . PHP_EOL;
-		$r .= "<h2 id='$file'>" .
+		$r .= "<h2 id='$base'>" .
 		      "<a href='$file'>$title</a>" .
 		      "</h2>" .  PHP_EOL;
 		continue;
