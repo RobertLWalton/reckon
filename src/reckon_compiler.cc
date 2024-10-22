@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 20 03:37:38 AM EDT 2024
+// Date:	Tue Oct 22 03:29:54 PM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,7 @@ static min::locatable_gen leq;
 static min::locatable_gen TRUE;
 static min::locatable_gen FALSE;
 static min::locatable_gen ZERO;
+static min::locatable_gen ONE;
 static min::locatable_gen IF;
 static min::locatable_gen ELSE_IF;
 static min::locatable_gen ELSE;
@@ -79,6 +80,7 @@ static void initialize ( void )
     ::TRUE  = min::new_str_gen ( "TRUE" );
     ::FALSE  = min::new_str_gen ( "FALSE" );
     ::ZERO  = min::new_num_gen ( 0 );
+    ::ONE  = min::new_num_gen ( 1 );
     ::IF  = min::new_str_gen ( "if" );
     ::ELSE_IF  = min::new_lab_gen ( "else", "if" );
     ::ELSE  = min::new_str_gen ( "else" );
@@ -165,28 +167,14 @@ inline void pop ( const min::phrase_position pp )
 inline void jmp ( min::uns32 target,
                   const min::phrase_position pp,
 		  min::uns8 op_code = mex::JMP,
-		  min::uns32 immedB = 0 )
+		  min::uns32 immedB = 0,
+		  min::gen immedD = ::ZERO )
 {
-    mex::instr i { op_code };
-    i.immedB = immedB;
-    min::uns32 post_push = 0;
+    mex::instr i
+        { op_code, 0, 0, 0, 0, immedB, 0, immedD };
     min::locatable_gen t
         ( min::new_num_gen ( target ) );
-
-    if ( op_code == mex::JMPFALSE
-         ||
-	 op_code == mex::JMPTRUE )
-	-- mexstack::var_stack_length;
-    else if ( op_code == mex::JMPCNT )
-        i.immedD = min::new_num_gen ( 1 );
-    else if ( op_code != mex::JMP )
-    {
-	mexstack::var_stack_length -= 2;
-	post_push = immedB;
-    }
-
     mexstack::push_jmp_instr ( i, t, pp );
-    mexstack::var_stack_length += post_push;
 }
 
 // Call mexstack::jmp_target.
@@ -1154,8 +1142,9 @@ bool static compile_block
 	{
 	    ::jmp ( ::block.block_finish_jmp,
 	            iterations->pp, mex::JMPCNT,
-		       mexstack::var_stack_length
-		     - iterations->location - 1 );
+		      mexstack::var_stack_length
+		    - iterations->location - 1,
+		    ::ONE );
 	}
         ++ iterations;
     }
@@ -1693,6 +1682,7 @@ RETRY:
 RETURN_VALUE:
     if ( true_jmp != 0 )
     {
+	-- mexstack::var_stack_length;
 	::jmp ( false_jmp, ppv->position,
 		mex::JMPFALSE );
 	return true_jmp;
@@ -1757,8 +1747,11 @@ min::uns32 static compile_logical
 		  0 );
 	    MIN_REQUIRE ( op_code != 0 );
 	    if ( i + 2 >= s ) immedB = 0;
+	    mexstack::var_stack_length -= 2;
 	    ::jmp
 	        ( false_jmp, ppv[i], op_code, immedB );
+	    if ( immedB != 0 )
+		++ mexstack::var_stack_length;
 	}
 	if ( OK ) return true_jmp;
 	else return 0;
@@ -1863,6 +1856,9 @@ min::uns32 static compile_logical
 	if ( fallthru_jmp == 0 ) OK = false;
 	if ( ! OK ) return 0;
 	else return fallthru_jmp;
+    }
+    case PRIM::JMP:
+    {
     }
     default:
     {
