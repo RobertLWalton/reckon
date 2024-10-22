@@ -1623,7 +1623,7 @@ RETRY:
 		return 1;
 	    }
 	    else if
-	        ( func->flags & PRIM::OPERATOR_CALL )
+	        ( func->flags & PRIM::VALUE_OPERATOR )
 	    {
 	        i -= 2;
 		min::uns8 op_code_1 =
