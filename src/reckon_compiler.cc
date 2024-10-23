@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 22 03:29:54 PM EDT 2024
+// Date:	Wed Oct 23 03:26:55 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -162,7 +162,11 @@ inline void pop ( const min::phrase_position pp )
     mexstack::push_instr ( instr, pp );
 }
 
-// Call mexstack::push_jmp_instr.
+// Call mexstack::push_jmp_instr.  Adjust mexstack::
+// var_stack_length BEFORE calling this function to
+// be correct if the jump is taken.  Re-adjust AFTER
+// the call to this function to be correct if the
+// jump is NOT taken.
 //
 inline void jmp ( min::uns32 target,
                   const min::phrase_position pp,
@@ -1859,6 +1863,12 @@ min::uns32 static compile_logical
     }
     case PRIM::JMP:
     {
+	MIN_REQUIRE ( s == 2 );
+        if ( ! ::compile_expression ( vp[0] ) )
+	    return 0;
+        -- mexstack::var_stack_length;
+	::jmp ( true_jmp, ppv->position );
+	return false_jmp;
     }
     default:
     {
