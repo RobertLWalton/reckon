@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 23 03:26:55 AM EDT 2024
+// Date:	Wed Oct 23 04:10:59 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1864,10 +1864,12 @@ min::uns32 static compile_logical
     case PRIM::JMP:
     {
 	MIN_REQUIRE ( s == 2 );
+	min::uns8 jmp_op =
+	    ( 0xFF & ( func->flags >> 16 ) );
         if ( ! ::compile_expression ( vp[0] ) )
 	    return 0;
         -- mexstack::var_stack_length;
-	::jmp ( true_jmp, ppv->position );
+	::jmp ( true_jmp, ppv->position, jmp_op );
 	return false_jmp;
     }
     default:
