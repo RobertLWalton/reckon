@@ -1,64 +1,55 @@
+// Reckon Language Logical Line Test Data
+//
+// File:        reckon_logical_lines.rec
+// Author:      Bob Walton (walton@acm.org)
+// Date:        Fri May 10 02:51:34 EDT 2024
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
 This is a first logical line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This is a
      first logical line "."|}
 This is a second logical line
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     with a continuation line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This is a
      second logical line with a continuation line "."|}
 This is a third logical line
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<BLANK-LINE>
-^^^^^^^^^^^^
+
     with an ignored blank line.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|This is a
      third logical line with an ignored blank line "."|}
 WARNING: in line ##: lexeme indent 1 too near paragraph indent 0:
  a warning message because this continuation line
  ^
+// The third logical line is ended by this
+    // comment line.  This comment line is the
+    // fourth logical line, but will become an empty
+    // statement and then be ignored.
 This is the fifth logical line, but it will generate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  a warning message because this continuation line
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   is insufficiently indented.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $], .separator =
      ","|{|This is the fifth logical line|}
      {|but it will generate a warning message because this continuation
        line is insufficiently indented "."|}|}
+
 this is a top level logical line ending with a block:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     this is the first line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     this is the
-^^^^^^^^^^^^^^^
         second line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     this is the third line of the block:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         this is the first line of a subblock
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         this is the second line
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 of the subblock:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             this is the only line of a sub-subblock
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         this is the third line of the subblock
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     this is the fourth line
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
             of the block:
-^^^^^^^^^^^^^^^^^^^^^^^^^
         this is the only line of the second subblock
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     this is the fifth line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         and it ends with an empty subblock:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|this is a top level logical line ending with a block|}
      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
@@ -97,25 +88,24 @@ this is a top level logical line ending with a block:
                {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator =
                     ":"}|}|}|}
 this is the second top level
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     logical line
-^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this is the
      second top level logical line|}
+
+// this is a logical line that is a single comment
+
+// this is a logical line that has two
+    // comments
+
 this is a logical line // with a comment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // and another comment
-^^^^^^^^^^^^^^^^^^^^^^^^^^
     with three comments // and a last comment
-^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|this is a
      logical line with three comments|}
+
 this is a logical line ending with a block:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     First line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Second line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|this is a logical line ending with a block|}
      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
@@ -127,26 +117,22 @@ WARNING: in line ##: comment after indent that begins non-comment
          logical line:
 // Comment that is in error because
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Comment that ends block
+// Comment that is in error because
     it begins a logical line that this continues
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|it begins a
      logical line that this continues|}
 ERROR: in line ##: missing operator; nofix error operator of precedence
        -1000001 inserted:
   but the block is in error because it is before
   ^^^
+
 this is a logical line with a block:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     First line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Second line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   but the block is in error because it is before
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   this continuation of the logical line that contains
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   the block
-^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|{|this is a logical line with a block|}
        {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
@@ -156,12 +142,10 @@ this is a logical line with a block:
                  Second line of the block|}|}|} ERROR'OPERATOR
      {|but the block is in error because it is before this continuation
        of the logical line that contains the block|}|}
+
 this is a logical line ending with a block:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     First line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
     Second line of the block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|this is a logical line ending with a block|}
      {"": .terminator = [$ INDENTED_PARAGRAPH $], .initiator = ":"|
