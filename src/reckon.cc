@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 14 01:45:58 AM EDT 2024
+// Date:	Fri Oct 25 02:40:24 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,8 @@ bool detail_parse = false;
 
 static min::locatable_var<mex::process> process;
 
+static min::phrase_position last_position =
+    { { 0, 0 }, { 0, 0 } };
 static void remove_tokens
     ( PAR::parser parser,
       PAR::output output )
@@ -80,10 +82,17 @@ static void remove_tokens
 
     if ( ( run && compile_OK ) || output_parse )
     {
+        last_position.begin = last_position.end;
+	last_position.end =
+	    parser->first->next->position.end;
+	if ( last_position.end.offset > 0 )
+	    last_position.end =
+	        { last_position.end.line + 1, 0 };
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
-	      parser->first->next->position );
+	      last_position,
+	      min::standard_line_format );
     }
 
     if ( output_parse)
