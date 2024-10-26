@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 23 04:10:59 AM EDT 2024
+// Date:	Sat Oct 26 02:04:57 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -627,7 +627,7 @@ min::uns32 static compile_expression
 	  min::uns32 false_jmp = 0,
 	  min::gen name = ::star );
 
-bool static compile_constant
+min::uns32 static compile_constant
 	( min::gen expression,
           min::phrase_position pp,
           min::gen type = min::NONE(),
@@ -1650,12 +1650,12 @@ RETRY:
 
     if ( s == 1 )
     {
-	bool OK;
-	if ( ! min::is_obj ( vp[0] ) )
+	bool OK = false;
+	if ( min::is_num ( vp[0] ) )
 	    OK = ::compile_constant
 		( vp[0], ppv[0],
                   min::NONE(), name );
-	else
+	else if ( min::is_obj ( vp[0] ) )
 	{
 	    min::obj_vec_ptr vp0 = vp[0];
 	    min::attr_ptr ap0 = vp0;
@@ -1672,7 +1672,22 @@ RETRY:
 		if ( initiator == ::opening_quote )
 		    OK = ::compile_constant
 			( vp[0], ppv[0], type, name );
+		else
+		{
+		    mexcom::compile_error
+			( ppv[0],
+			  "cannot understand"
+			  " expression" );
+		    return 0;
+		}
 	    }
+	}
+	else
+	{
+	    mexcom::compile_error
+		( ppv[0],
+		  "cannot understand expression" );
+	    return 0;
 	}
 	if ( ! OK ) return 0;
 	else goto RETURN_VALUE;
@@ -1695,7 +1710,7 @@ RETURN_VALUE:
 	return 1;
 }
 
-bool static compile_constant
+min::uns32 static compile_constant
 	( min::gen value,
           min::phrase_position pp,
           min::gen type,
@@ -1710,12 +1725,12 @@ bool static compile_constant
 	    mexcom::compile_error
 		( pp,
 		  "cannot understand expression" );
-	    return false;
+	    return 0;
 	}
     }
 
     ::pushi ( value, pp, name );
-    return true;
+    return 1;
 }
 
 min::uns32 static compile_logical
