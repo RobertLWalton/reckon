@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 25 02:40:24 AM EDT 2024
+// Date:	Sat Oct 26 02:32:59 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,20 +74,14 @@ static void remove_tokens
         ( parser->first->next->next != parser->first );
     MIN_REQUIRE ( parser->finished_tokens == 1 );
 
-    bool compile_OK = false;
-
-    if ( compile || run )
-	compile_OK = REC::compile_statement
-	    ( parser->first->next->value );
-
-    if ( ( run && compile_OK ) || output_parse )
+    if ( ! compile )
     {
-        last_position.begin = last_position.end;
+	last_position.begin = last_position.end;
 	last_position.end =
 	    parser->first->next->position.end;
 	if ( last_position.end.offset > 0 )
 	    last_position.end =
-	        { last_position.end.line + 1, 0 };
+		{ last_position.end.line + 1, 0 };
 	min::print_phrase_lines
 	    ( parser->printer,
 	      parser->input_file,
@@ -95,11 +89,31 @@ static void remove_tokens
 	      min::standard_line_format );
     }
 
+    bool compile_OK = false;
+
+    if ( compile || run )
+    {
+	min::uns32 code_length =
+	    mexcom::output_module->length;
+	compile_OK = REC::compile_statement
+	    ( parser->first->next->value );
+	if ( ! compile_OK )
+	    min::pop ( mexcom::output_module,
+	                 mexcom::output_module->length
+		       - code_length );
+    }
+
     if ( output_parse)
 	 parser->printer
 	    << parser->first->next->value
 	    << min::eol;
 
+    else if ( run & ! compile_OK )
+    {
+        parser->printer
+	    << "[no output due to compile error]"
+	    << min::eol;
+    }
     else if ( run )
     {
 	min::uns32 length = ::process->length;
