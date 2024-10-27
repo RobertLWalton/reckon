@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 27 02:58:16 AM EDT 2024
+// Date:	Sun Oct 27 03:20:27 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -66,6 +66,7 @@ static min::locatable_var<mex::process> process;
 
 static min::phrase_position last_position =
     { { 0, 0 }, { 0, 0 } };
+static min::uns64 parse_error_count = 0;
 static void remove_tokens
     ( PAR::parser parser,
       PAR::output output )
@@ -74,7 +75,11 @@ static void remove_tokens
         ( parser->first->next->next != parser->first );
     MIN_REQUIRE ( parser->finished_tokens == 1 );
 
-    if ( ! compile )
+    bool parse_OK =
+        ( parse_error_count == parser->error_count );
+    parse_error_count = parser->error_count;
+
+    if ( ! compile || ! parse_OK )
     {
 	last_position.begin = last_position.end;
 	last_position.end =
@@ -91,7 +96,7 @@ static void remove_tokens
 
     bool compile_OK = false;
 
-    if ( compile || run )
+    if ( parse_OK && ( compile || run ) )
     {
 	min::uns32 code_length =
 	    mexcom::output_module->length;
@@ -103,9 +108,14 @@ static void remove_tokens
 		       - code_length );
     }
 
-    if ( output_parse)
+    if ( output_parse )
 	 parser->printer
 	    << parser->first->next->value
+	    << min::eol;
+
+    else if ( ! parse_OK )
+        parser->printer
+	    << "[no output due to above parse errors]"
 	    << min::eol;
 
     else if ( run & ! compile_OK )
