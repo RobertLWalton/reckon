@@ -4,7 +4,7 @@
 //
 // File:        reckon_numerics.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Thu Oct 24 02:01:41 AM EDT 2024
+// Date:        Sun Oct 27 02:09:59 AM EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -160,25 +160,74 @@
 * {42:127,31,115} PUSHI: * <= 1
 * {42:128,29,116} JMPNEQ location 131 is successful: true
                   <= 1.00000000000001 != 1
++0
+* {43:131,30,117} PUSHI: * <= 0
+-0
+* {44:132,31,118} PUSHI: * <= -0
++0 == -0
+* {45:133,32,119} PUSHI: * <= FALSE
+* {45:134,33,120} PUSHI: * <= 0
+* {45:135,34,121} PUSHI: * <= -0
+* {45:136,32,122} JMPNEQ location 139 is UNsuccessful: false <= 0 != -0
+* {45:137,31,123} POPS: * <= * = FALSE
+* {45:138,32,124} PUSHI: * <= TRUE
 
-
-// Special Numbers
+// Infinities
 //
 inf
-* {47:131,30,117} PUSHI: * <= inf
+* {49:139,33,125} PUSHI: * <= inf
 Inf
-* {48:132,31,118} PUSHI: * <= inf
--inf
-* {49:133,32,119} PUSHI: * <= -inf
--Inf
-* {50:134,33,120} PUSHI: * <= -inf
+* {50:140,34,126} PUSHI: * <= inf
+-INF
+* {51:141,35,127} PUSHI: * <= -inf
 -1e500
-* {51:135,34,121} PUSHI: * <= -inf
+* {52:142,36,128} PUSHI: * <= -inf
++inf + +inf
+* {53:143,37,129} PUSHI: * <= inf
+* {53:144,38,130} PUSHI: * <= inf
+* {53:145,37,131} ADD: * = inf <= inf + inf
++inf + -inf
+* {54:146,38,132} PUSHI: * <= inf
+* {54:147,39,133} PUSHI: * <= -inf
+!!! ERROR: invalid operand(s)
+* {54:148,38,134} ADD: * = -nan <= inf + -inf
++inf * -inf
+* {55:149,39,135} PUSHI: * <= inf
+* {55:150,40,136} PUSHI: * <= -inf
+* {55:151,39,137} MUL: * = -inf <= inf * -inf
++inf / +inf
+* {56:152,40,138} PUSHI: * <= inf
+* {56:153,41,139} PUSHI: * <= inf
+!!! ERROR: invalid operand(s)
+* {56:154,40,140} DIV: * = -nan <= inf / inf
+1 / +0
+* {57:155,41,141} PUSHI: * <= 1
+* {57:156,42,142} PUSHI: * <= 0
+!!! ERROR: divide by zero
+* {57:157,41,143} DIV: * = inf <= 1 / 0
+1 / -0
+* {58:158,42,144} PUSHI: * <= 1
+* {58:159,43,145} PUSHI: * <= -0
+!!! ERROR: divide by zero
+* {58:160,42,146} DIV: * = -inf <= 1 / -0
++inf == +inf
+* {59:161,43,147} PUSHI: * <= FALSE
+* {59:162,44,148} PUSHI: * <= inf
+* {59:163,45,149} PUSHI: * <= inf
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {59:164,43,150} JMPNEQ location 167 with invalid operand(s)
+[no output due to run-time error]
++inf == -inf
+* {60:167,46,150} PUSHI: * <= FALSE
+* {60:168,47,151} PUSHI: * <= inf
+* {60:169,48,152} PUSHI: * <= -inf
+* {60:170,46,153} JMPNEQ location 173 is successful: true <= inf != -inf
+
+// Not-A-Numbers
+//
 nan
-* {52:136,35,122} PUSHI: * <= nan
+* {64:173,47,154} PUSHI: * <= nan
 NaN
-* {53:137,36,123} PUSHI: * <= nan
-+NaN
-* {54:138,37,124} PUSHI: * <= nan
+* {65:174,48,155} PUSHI: * <= nan
 -Nan
-* {55:139,38,125} PUSHI: * <= -nan
+* {66:175,49,156} PUSHI: * <= -nan

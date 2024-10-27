@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 02:32:59 AM EDT 2024
+// Date:	Sun Oct 27 02:58:16 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,15 +118,24 @@ static void remove_tokens
     {
 	min::uns32 length = ::process->length;
 	mex::run_process ( ::process );
+        if ( ::process->state != mex::MODULE_END )
+	{
+	    // Set pc to module end.
+	    //
+	    mex::pc pc = ::process->pc;
+	    pc.index = mexcom::output_module->length;
+	    mex::set_pc ( ::process, pc );
+	    length = ::process->length;
+	        // Suppresses folloiwng value printing.
+	    parser->printer
+		<< "[no output due to run-time error]"
+		<< min::eol;
+	}
 	if ( ! trace )
 	    while ( length < ::process->length )
 		parser->printer
 		    << ::process[length++]
 		    << min::eol;
-        if ( ::process->state != mex::MODULE_END )
-	    parser->printer
-		<< "ERROR: process failed to run to"
-                   " module end" << min::eol;
     }
 
     PAR::remove ( parser,
