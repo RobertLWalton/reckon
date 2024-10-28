@@ -2,7 +2,7 @@
 
 // File:   client.html
 // Author: Robert L Walton <walton@acm.org>
-// Date:   Tue Jul  9 05:30:54 EDT 2024
+// Date:   Sun Oct 27 21:19:56 EDT 2024
 //
 // The authors have placed RECKON (its files and the
 // content of these files) in the public domain; they
@@ -180,7 +180,7 @@ HTML:
 	font-family: Arial, Helvetica, sans-serif;
 	--font-size: 2vw;
 	--large-font-size: 2vw;
-	--very-large-font-size: 4vw;
+	--very-large-font-size: 3vw;
 	--padding; 2vw;
 	/* Background Colors (Light)
 	 */
@@ -215,7 +215,7 @@ HTML:
     nav {
 	background-color: var(--bg-blue);
 	text-align: center;
-	padding: 1%;
+	padding: var(--padding);
     }
 
     nav button {
@@ -240,13 +240,20 @@ HTML:
 	padding: var(--padding);
     }
 
+    nav div {
+	display: none;
+    }
+
     section pre {
 	background-color: white;
 	padding: 0px;
 	font-family: monospace;
 	font-size: var(--font-size);
 	color: black;
-	height: 80%;
+	height: 85%;
+	display: block;
+	overflow-x: hidden;
+	overflow-y: scroll;
     }
     table.MIN-LINE-TABLE {
 	border: dashed 2px;
@@ -295,6 +302,9 @@ RECKON
     <button type="button" id='abort'
             style='display:none'
             onclick="ABORT()">ABORT</button>
+    <button type="button"
+            onclick='NEW_WINDOW("page/index.html")'
+            >DOCUMENTS</button>
 </nav>
 
 <section>
@@ -526,6 +536,36 @@ function READER_ERROR ( event )
     abort.style.backgroundColor = 'buttonface';
     request_abort = false;
 }
+
+
+function NEW_WINDOW ( url )
+{
+    const root = document.documentElement;
+    const style = window.getComputedStyle ( root );
+    const width = parseInt ( style.getPropertyValue ( 'width' ) );
+    const height = parseInt ( style.getPropertyValue ( 'height' ) );
+    var X = window.screenX;
+    var Y = window.screenY;
+    const offset = 100;
+    if (    X + width + offset
+         <= window.screen.availWidth )
+	X = X + offset;
+    else
+	X = X - offset;
+    if (    Y + width + offset
+         <= window.screen.availHeight )
+	Y = Y + offset;
+    else
+	Y = Y - offset;
+    const win = window.open
+	( url, '_blank',
+	  'height=' + height + 'px,' +
+	  'width=' + width + 'px,' +
+	  'screenX=' + X + 'px,' +
+	  'screenY=' + Y + 'px' );
+    win.focus(); // Needed for Firefox but not Chrome.
+}
+
 </script>
 
 </body>
