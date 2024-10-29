@@ -1,9 +1,9 @@
 <html>
 <head>
 <!--
-File:	reckon_numerics.html
+File:	reckon_numbers.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Oct 24 02:30:38 EDT 2024
+Date:	Tue Oct 29 04:34:20 EDT 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -13,7 +13,7 @@ make no warranty and accept no liability for RECKON.
 <meta http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate" />
 
-<title>RECKON Numerics</title>
+<title>RECKON Numbers</title>
 <link href='page.css' rel='stylesheet'/>
 <link rel='icon' href='data:;base64,='>
 
@@ -25,7 +25,7 @@ make no warranty and accept no liability for RECKON.
 
 
 <div id='header'>
-<form method='GET' action='index.html#reckon_numerics'>
+<form method='GET' action='index.html#reckon_numbers'>
 <button type='submit'>INDEX</button></form>
 
 <button type='button' onclick='NEW_WINDOW("index.html")'>
@@ -34,21 +34,30 @@ NEW WINDOW</button>
 
 <div id='text'>
 
-<h1 id='text-header'>RECKON Numerics</h1>
+<h1 id='text-header'>RECKON Numbers</h1>
 
 <p>
 There are several types of numbers, including:
 <table class='td-extra-space'>
 <tr><th>Integers</th><td>0 1 -1 100 -1e2 e50</td></tr>
-<tr><th>Floating Point</th><td>3.141529 -0.5 1.498e-6</td></tr>
+<tr><th>Finites</th><td>3.141529 -0.5 1.498e-6</td></tr>
+<tr><th>Infinities</th><td>+inf -inf</td></tr>
+<tr><th>NaNs</th><td>nan</td></tr>
 <tr><th>Measures</th><td>4ft 155lb 8ft/sec</td></tr>
 <tr><th>Dates</th><td>5may1946 jan2539 06/25/1938</td></tr>
 </table>
-</p>
 
+Integers and finites are represented by
+<em>number</em> lexemes.  Infinities and NaNs (Not-A-Numbers)
+are represented by <em>numeric-word</em> lexemes.
+See <a href="reckon_lexemes.html#lexemes">Lexemes</a>.
+<p>
+Numbers are stored in IEEE 64-bit format, except that
+measures and dates add a unit to the number.
+<p>
 Examples for this page are in
-<a href='../examples/reckon_numerics.rec' download>
-<code>reckon_numerics.rec </code></a>.
+<a href='../examples/reckon_numbers.rec' download>
+<code>reckon_numbers.rec </code></a>.
 
 <h2 id='integers'>Integers</h2>
 
@@ -76,14 +85,21 @@ right; but if the integer is negative (<code>-</code> sign), the shift is
 to the left.  Thus <code>1230</code>, <code>123e1</code>,
 and <code>12300e-1</code> all represent the same integer.
 <p>
-Integers are stored in computer memory in the IEEE floating point
+A number lexeme with a decimal point represent an integer if it has an
+exponent that shifts the decimal point far enough to the right.
+This <code>1.23e2</code> and <code>123</code> represent the same
+integer.
+<p>
+Integers are stored in computer memory in the IEEE 64-bit floating point
 format.  This format will faithfully store integers in the range
 <code>(-1e15,+1e15)</code>.
 <p>
-A number with a decimal point may be an integer if it has an
-exponent that shifts the decimal point far enough to the right.
-This <code>1.23e2</code> and <code>123</code> represent the same
-integer number.
+Integers are just finites that have a zero fraction part
+and which are in the range
+<code>(-1e15,+1e15)</code>.
+Finites outside this range are not considered to be integers,
+even if they have a zero fraction part, because such numbers
+are not precisely represented in computer memory.
 <p>
 Some examples are:
 <pre class='example'>
@@ -91,12 +107,12 @@ Some examples are:
 <div class='line'>456 is integer</div>TRUE
 <div class='line'>4.56e2</div>456
 <div class='line'>4.56e2 is integer</div>TRUE
-<div class='line'>456 == 4.56e2</div>TRUE
-<div class='line'>    // x == y tests whether x equals y</div>
+<div class='line'>456 == 4.56e2
+    // x == y tests whether x equals y</div>TRUE
 <div class='line'>-456 == -45.6e1</div>TRUE
 <div class='line'>123 == 12300e-2</div>TRUE
-<div class='line'>1e20 is integer</div>FALSE
-<div class='line'>    // FALSE because 1e20 is not in range (-1e15,+1e15)</div>FALSE
+<div class='line'>1e20 is integer
+    // FALSE because 1e20 is not in range (-1e15,+1e15)</div>FALSE
 <div class='line'>9 / 2 is integer</div>FALSE
 <div class='line'>4.5 is integer</div>FALSE
 <div class='line'>9 / 3 is integer</div>TRUE
@@ -126,12 +142,6 @@ significant digit is only partly stored, resulting in anomalies
 involving the 16'th place.  Thus <code>1 + 1e-15</code>,
 which differs from <code>1</code> in the 16'th place,
 prints as <code>1</code> but does not actually equal <code>1</code>.
-
-</p>
-
-<h2 id='numeric-operators'>Numeric Operators</h2>
-
-<p>
 
 </p>
 
