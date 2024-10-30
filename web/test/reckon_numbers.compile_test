@@ -1,0 +1,798 @@
+    [0:0;1] PUSHI T_PUSH 0 0 0 FALSE; FALSE
+    [0:1;2] PUSHI T_PUSH 0 0 0 TRUE; TRUE
+456
+^^^
+    [12:2;3] PUSHI T_PUSH 0 0 0 456; *
+456 is integer
+^^^^^^^^^^^^^^
+    [13:3;4] PUSHI T_PUSH 0 0 0 FALSE; *
+456 is integer
+^^^
+    [13:4;5] PUSHI T_PUSH 0 0 0 456; *
+456 is integer
+^^^^^^^^^^^^^^
+    [13:5;4] JMPINT T_JMPS 0 0 0 0; 1
+456 is integer
+^^^^^^^^^^^^^^
+    [13:6;4] JMP T_JMP 0 0 0 0; 2
+    [7;4] LABEL 1
+    [13:5;4] JMPINT T_JMPS 0 0 2 0; 1
+456 is integer
+^^^^^^^^^^^^^^
+    [13:7;3] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+456 is integer
+^^^^^^^^^^^^^^
+    [13:8;4] PUSHI T_PUSH 0 0 0 TRUE; *
+    [9;4] LABEL 2
+    [13:6;4] JMP T_JMP 0 0 3 0; 2
+4.56e2
+^^^^^^
+    [14:9;5] PUSHI T_PUSH 0 0 0 456; *
+4.56e2 is integer
+^^^^^^^^^^^^^^^^^
+    [15:10;6] PUSHI T_PUSH 0 0 0 FALSE; *
+4.56e2 is integer
+^^^^^^
+    [15:11;7] PUSHI T_PUSH 0 0 0 456; *
+4.56e2 is integer
+^^^^^^^^^^^^^^^^^
+    [15:12;6] JMPINT T_JMPS 0 0 0 0; 3
+4.56e2 is integer
+^^^^^^^^^^^^^^^^^
+    [15:13;6] JMP T_JMP 0 0 0 0; 4
+    [14;6] LABEL 3
+    [15:12;6] JMPINT T_JMPS 0 0 2 0; 3
+4.56e2 is integer
+^^^^^^^^^^^^^^^^^
+    [15:14;5] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+4.56e2 is integer
+^^^^^^^^^^^^^^^^^
+    [15:15;6] PUSHI T_PUSH 0 0 0 TRUE; *
+    [16;6] LABEL 4
+    [15:13;6] JMP T_JMP 0 0 3 0; 4
+456 == 4.56e2
+^^^^^^^^^^^^^
+    // x == y tests whether x equals y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [17:16;7] PUSHI T_PUSH 0 0 0 FALSE; *
+456 == 4.56e2
+^^^
+    [16:17;8] PUSHI T_PUSH 0 0 0 456; *
+456 == 4.56e2
+       ^^^^^^
+    [16:18;9] PUSHI T_PUSH 0 0 0 456; *
+456 == 4.56e2
+    ^^
+    [16:19;7] JMPNEQ T_JMPS 0 0 0 0; 6
+    [20;7] LABEL 5
+456 == 4.56e2
+^^^^^^^^^^^^^
+    // x == y tests whether x equals y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [17:20;6] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+456 == 4.56e2
+^^^^^^^^^^^^^
+    // x == y tests whether x equals y
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [17:21;7] PUSHI T_PUSH 0 0 0 TRUE; *
+    [22;7] LABEL 6
+    [16:19;7] JMPNEQ T_JMPS 0 0 3 0; 6
+-456 == -45.6e1
+^^^^^^^^^^^^^^^
+    [18:22;8] PUSHI T_PUSH 0 0 0 FALSE; *
+-456 == -45.6e1
+^^^^
+    [18:23;9] PUSHI T_PUSH 0 0 0 -456; *
+-456 == -45.6e1
+        ^^^^^^^
+    [18:24;10] PUSHI T_PUSH 0 0 0 -456; *
+-456 == -45.6e1
+     ^^
+    [18:25;8] JMPNEQ T_JMPS 0 0 0 0; 8
+    [26;8] LABEL 7
+-456 == -45.6e1
+^^^^^^^^^^^^^^^
+    [18:26;7] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+-456 == -45.6e1
+^^^^^^^^^^^^^^^
+    [18:27;8] PUSHI T_PUSH 0 0 0 TRUE; *
+    [28;8] LABEL 8
+    [18:25;8] JMPNEQ T_JMPS 0 0 3 0; 8
+123 == 12300e-2
+^^^^^^^^^^^^^^^
+    [19:28;9] PUSHI T_PUSH 0 0 0 FALSE; *
+123 == 12300e-2
+^^^
+    [19:29;10] PUSHI T_PUSH 0 0 0 123; *
+123 == 12300e-2
+       ^^^^^^^^
+    [19:30;11] PUSHI T_PUSH 0 0 0 123; *
+123 == 12300e-2
+    ^^
+    [19:31;9] JMPNEQ T_JMPS 0 0 0 0; 10
+    [32;9] LABEL 9
+123 == 12300e-2
+^^^^^^^^^^^^^^^
+    [19:32;8] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+123 == 12300e-2
+^^^^^^^^^^^^^^^
+    [19:33;9] PUSHI T_PUSH 0 0 0 TRUE; *
+    [34;9] LABEL 10
+    [19:31;9] JMPNEQ T_JMPS 0 0 3 0; 10
+1e20 is integer
+^^^^^^^^^^^^^^^
+    // FALSE because value not in range (-1e15,+1e15)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [21:34;10] PUSHI T_PUSH 0 0 0 FALSE; *
+1e20 is integer
+^^^^
+    [20:35;11] PUSHI T_PUSH 0 0 0 1e+20; *
+1e20 is integer
+^^^^^^^^^^^^^^^
+    // FALSE because value not in range (-1e15,+1e15)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [21:36;10] JMPINT T_JMPS 0 0 0 0; 11
+1e20 is integer
+^^^^^^^^^^^^^^^
+    // FALSE because value not in range (-1e15,+1e15)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [21:37;10] JMP T_JMP 0 0 0 0; 12
+    [38;10] LABEL 11
+    [21:36;10] JMPINT T_JMPS 0 0 2 0; 11
+1e20 is integer
+^^^^^^^^^^^^^^^
+    // FALSE because value not in range (-1e15,+1e15)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [21:38;9] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+1e20 is integer
+^^^^^^^^^^^^^^^
+    // FALSE because value not in range (-1e15,+1e15)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [21:39;10] PUSHI T_PUSH 0 0 0 TRUE; *
+    [40;10] LABEL 12
+    [21:37;10] JMP T_JMP 0 0 3 0; 12
+9 / 2 is integer
+^^^^^^^^^^^^^^^^
+    [22:40;11] PUSHI T_PUSH 0 0 0 FALSE; *
+9 / 2 is integer
+^
+    [22:41;12] PUSHI T_PUSH 0 0 0 9; *
+9 / 2 is integer
+    ^
+    [22:42;13] PUSHI T_PUSH 0 0 0 2; *
+9 / 2 is integer
+^^^^^
+    [22:43;12] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+               *
+9 / 2 is integer
+^^^^^^^^^^^^^^^^
+    [22:44;11] JMPINT T_JMPS 0 0 0 0; 13
+9 / 2 is integer
+^^^^^^^^^^^^^^^^
+    [22:45;11] JMP T_JMP 0 0 0 0; 14
+    [46;11] LABEL 13
+    [22:44;11] JMPINT T_JMPS 0 0 2 0; 13
+9 / 2 is integer
+^^^^^^^^^^^^^^^^
+    [22:46;10] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+9 / 2 is integer
+^^^^^^^^^^^^^^^^
+    [22:47;11] PUSHI T_PUSH 0 0 0 TRUE; *
+    [48;11] LABEL 14
+    [22:45;11] JMP T_JMP 0 0 3 0; 14
+4.5 is integer
+^^^^^^^^^^^^^^
+    [23:48;12] PUSHI T_PUSH 0 0 0 FALSE; *
+4.5 is integer
+^^^
+    [23:49;13] PUSHI T_PUSH 0 0 0 4.5; *
+4.5 is integer
+^^^^^^^^^^^^^^
+    [23:50;12] JMPINT T_JMPS 0 0 0 0; 15
+4.5 is integer
+^^^^^^^^^^^^^^
+    [23:51;12] JMP T_JMP 0 0 0 0; 16
+    [52;12] LABEL 15
+    [23:50;12] JMPINT T_JMPS 0 0 2 0; 15
+4.5 is integer
+^^^^^^^^^^^^^^
+    [23:52;11] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+4.5 is integer
+^^^^^^^^^^^^^^
+    [23:53;12] PUSHI T_PUSH 0 0 0 TRUE; *
+    [54;12] LABEL 16
+    [23:51;12] JMP T_JMP 0 0 3 0; 16
+9 / 3 is integer
+^^^^^^^^^^^^^^^^
+    [24:54;13] PUSHI T_PUSH 0 0 0 FALSE; *
+9 / 3 is integer
+^
+    [24:55;14] PUSHI T_PUSH 0 0 0 9; *
+9 / 3 is integer
+    ^
+    [24:56;15] PUSHI T_PUSH 0 0 0 3; *
+9 / 3 is integer
+^^^^^
+    [24:57;14] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+               *
+9 / 3 is integer
+^^^^^^^^^^^^^^^^
+    [24:58;13] JMPINT T_JMPS 0 0 0 0; 17
+9 / 3 is integer
+^^^^^^^^^^^^^^^^
+    [24:59;13] JMP T_JMP 0 0 0 0; 18
+    [60;13] LABEL 17
+    [24:58;13] JMPINT T_JMPS 0 0 2 0; 17
+9 / 3 is integer
+^^^^^^^^^^^^^^^^
+    [24:60;12] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+9 / 3 is integer
+^^^^^^^^^^^^^^^^
+    [24:61;13] PUSHI T_PUSH 0 0 0 TRUE; *
+    [62;13] LABEL 18
+    [24:59;13] JMP T_JMP 0 0 3 0; 18
+-0 == +0
+^^^^^^^^
+    [25:62;14] PUSHI T_PUSH 0 0 0 FALSE; *
+-0 == +0
+^^
+    [25:63;15] PUSHI T_PUSH 0 0 0 -0; *
+-0 == +0
+      ^^
+    [25:64;16] PUSHI T_PUSH 0 0 0 0; *
+-0 == +0
+   ^^
+    [25:65;14] JMPNEQ T_JMPS 0 0 0 0; 20
+    [66;14] LABEL 19
+-0 == +0
+^^^^^^^^
+    [25:66;13] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+-0 == +0
+^^^^^^^^
+    [25:67;14] PUSHI T_PUSH 0 0 0 TRUE; *
+    [68;14] LABEL 20
+    [25:65;14] JMPNEQ T_JMPS 0 0 3 0; 20
+-1 == +1
+^^^^^^^^
+    [26:68;15] PUSHI T_PUSH 0 0 0 FALSE; *
+-1 == +1
+^^
+    [26:69;16] PUSHI T_PUSH 0 0 0 -1; *
+-1 == +1
+      ^^
+    [26:70;17] PUSHI T_PUSH 0 0 0 1; *
+-1 == +1
+   ^^
+    [26:71;15] JMPNEQ T_JMPS 0 0 0 0; 22
+    [72;15] LABEL 21
+-1 == +1
+^^^^^^^^
+    [26:72;14] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+-1 == +1
+^^^^^^^^
+    [26:73;15] PUSHI T_PUSH 0 0 0 TRUE; *
+    [74;15] LABEL 22
+    [26:71;15] JMPNEQ T_JMPS 0 0 3 0; 22
+3.14
+^^^^
+    [30:74;16] PUSHI T_PUSH 0 0 0 3.14; *
+3.14 is finite
+^^^^^^^^^^^^^^
+    [31:75;17] PUSHI T_PUSH 0 0 0 FALSE; *
+3.14 is finite
+^^^^
+    [31:76;18] PUSHI T_PUSH 0 0 0 3.14; *
+3.14 is finite
+^^^^^^^^^^^^^^
+    [31:77;17] JMPFIN T_JMPS 0 0 0 0; 23
+3.14 is finite
+^^^^^^^^^^^^^^
+    [31:78;17] JMP T_JMP 0 0 0 0; 24
+    [79;17] LABEL 23
+    [31:77;17] JMPFIN T_JMPS 0 0 2 0; 23
+3.14 is finite
+^^^^^^^^^^^^^^
+    [31:79;16] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+3.14 is finite
+^^^^^^^^^^^^^^
+    [31:80;17] PUSHI T_PUSH 0 0 0 TRUE; *
+    [81;17] LABEL 24
+    [31:78;17] JMP T_JMP 0 0 3 0; 24
+-3.14 is finite
+^^^^^^^^^^^^^^^
+    [32:81;18] PUSHI T_PUSH 0 0 0 FALSE; *
+-3.14 is finite
+^^^^^
+    [32:82;19] PUSHI T_PUSH 0 0 0 -3.14; *
+-3.14 is finite
+^^^^^^^^^^^^^^^
+    [32:83;18] JMPFIN T_JMPS 0 0 0 0; 25
+-3.14 is finite
+^^^^^^^^^^^^^^^
+    [32:84;18] JMP T_JMP 0 0 0 0; 26
+    [85;18] LABEL 25
+    [32:83;18] JMPFIN T_JMPS 0 0 2 0; 25
+-3.14 is finite
+^^^^^^^^^^^^^^^
+    [32:85;17] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+-3.14 is finite
+^^^^^^^^^^^^^^^
+    [32:86;18] PUSHI T_PUSH 0 0 0 TRUE; *
+    [87;18] LABEL 26
+    [32:84;18] JMP T_JMP 0 0 3 0; 26
+314e-2 is finite
+^^^^^^^^^^^^^^^^
+    [33:87;19] PUSHI T_PUSH 0 0 0 FALSE; *
+314e-2 is finite
+^^^^^^
+    [33:88;20] PUSHI T_PUSH 0 0 0 3.14; *
+314e-2 is finite
+^^^^^^^^^^^^^^^^
+    [33:89;19] JMPFIN T_JMPS 0 0 0 0; 27
+314e-2 is finite
+^^^^^^^^^^^^^^^^
+    [33:90;19] JMP T_JMP 0 0 0 0; 28
+    [91;19] LABEL 27
+    [33:89;19] JMPFIN T_JMPS 0 0 2 0; 27
+314e-2 is finite
+^^^^^^^^^^^^^^^^
+    [33:91;18] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+314e-2 is finite
+^^^^^^^^^^^^^^^^
+    [33:92;19] PUSHI T_PUSH 0 0 0 TRUE; *
+    [93;19] LABEL 28
+    [33:90;19] JMP T_JMP 0 0 3 0; 28
+3.14 == 314e-2
+^^^^^^^^^^^^^^
+    [34:93;20] PUSHI T_PUSH 0 0 0 FALSE; *
+3.14 == 314e-2
+^^^^
+    [34:94;21] PUSHI T_PUSH 0 0 0 3.14; *
+3.14 == 314e-2
+        ^^^^^^
+    [34:95;22] PUSHI T_PUSH 0 0 0 3.14; *
+3.14 == 314e-2
+     ^^
+    [34:96;20] JMPNEQ T_JMPS 0 0 0 0; 30
+    [97;20] LABEL 29
+3.14 == 314e-2
+^^^^^^^^^^^^^^
+    [34:97;19] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+3.14 == 314e-2
+^^^^^^^^^^^^^^
+    [34:98;20] PUSHI T_PUSH 0 0 0 TRUE; *
+    [99;20] LABEL 30
+    [34:96;20] JMPNEQ T_JMPS 0 0 3 0; 30
+3 is finite
+^^^^^^^^^^^
+    // integers are also finites
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [36:99;21] PUSHI T_PUSH 0 0 0 FALSE; *
+3 is finite
+^
+    [35:100;22] PUSHI T_PUSH 0 0 0 3; *
+3 is finite
+^^^^^^^^^^^
+    // integers are also finites
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [36:101;21] JMPFIN T_JMPS 0 0 0 0; 31
+3 is finite
+^^^^^^^^^^^
+    // integers are also finites
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [36:102;21] JMP T_JMP 0 0 0 0; 32
+    [103;21] LABEL 31
+    [36:101;21] JMPFIN T_JMPS 0 0 2 0; 31
+3 is finite
+^^^^^^^^^^^
+    // integers are also finites
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [36:103;20] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+3 is finite
+^^^^^^^^^^^
+    // integers are also finites
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [36:104;21] PUSHI T_PUSH 0 0 0 TRUE; *
+    [105;21] LABEL 32
+    [36:102;21] JMP T_JMP 0 0 3 0; 32
+5.7e-4
+^^^^^^
+    [37:105;22] PUSHI T_PUSH 0 0 0 0.00057; *
+123 / 1000 == 0.123
+^^^^^^^^^^^^^^^^^^^
+    [38:106;23] PUSHI T_PUSH 0 0 0 FALSE; *
+123 / 1000 == 0.123
+^^^
+    [38:107;24] PUSHI T_PUSH 0 0 0 123; *
+123 / 1000 == 0.123
+      ^^^^
+    [38:108;25] PUSHI T_PUSH 0 0 0 1000; *
+123 / 1000 == 0.123
+^^^^^^^^^^
+    [38:109;24] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+123 / 1000 == 0.123
+              ^^^^^
+    [38:110;25] PUSHI T_PUSH 0 0 0 0.123; *
+123 / 1000 == 0.123
+           ^^
+    [38:111;23] JMPNEQ T_JMPS 0 0 0 0; 34
+    [112;23] LABEL 33
+123 / 1000 == 0.123
+^^^^^^^^^^^^^^^^^^^
+    [38:112;22] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+123 / 1000 == 0.123
+^^^^^^^^^^^^^^^^^^^
+    [38:113;23] PUSHI T_PUSH 0 0 0 TRUE; *
+    [114;23] LABEL 34
+    [38:111;23] JMPNEQ T_JMPS 0 0 3 0; 34
+1 + 1e-16
+^
+    [39:114;24] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-16
+    ^^^^^
+    [39:115;25] PUSHI T_PUSH 0 0 0 1e-16; *
+1 + 1e-16
+^^^^^^^^^
+    // Sum differs from 1 in 17'th place which is not stored
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [40:116;24] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-16 == 1
+^^^^^^^^^^^^^^
+    [41:117;25] PUSHI T_PUSH 0 0 0 FALSE; *
+1 + 1e-16 == 1
+^
+    [41:118;26] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-16 == 1
+    ^^^^^
+    [41:119;27] PUSHI T_PUSH 0 0 0 1e-16; *
+1 + 1e-16 == 1
+^^^^^^^^^
+    [41:120;26] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-16 == 1
+             ^
+    [41:121;27] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-16 == 1
+          ^^
+    [41:122;25] JMPNEQ T_JMPS 0 0 0 0; 36
+    [123;25] LABEL 35
+1 + 1e-16 == 1
+^^^^^^^^^^^^^^
+    [41:123;24] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+1 + 1e-16 == 1
+^^^^^^^^^^^^^^
+    [41:124;25] PUSHI T_PUSH 0 0 0 TRUE; *
+    [125;25] LABEL 36
+    [41:122;25] JMPNEQ T_JMPS 0 0 3 0; 36
+1 + 1e-15
+^
+    [42:125;26] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-15
+    ^^^^^
+    [42:126;27] PUSHI T_PUSH 0 0 0 1e-15; *
+1 + 1e-15
+^^^^^^^^^
+    // Sum differs from 1 in 16'th place which is stored in
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // part but is not output
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [44:127;26] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-15 == 1
+^^^^^^^^^^^^^^
+    [45:128;27] PUSHI T_PUSH 0 0 0 FALSE; *
+1 + 1e-15 == 1
+^
+    [45:129;28] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-15 == 1
+    ^^^^^
+    [45:130;29] PUSHI T_PUSH 0 0 0 1e-15; *
+1 + 1e-15 == 1
+^^^^^^^^^
+    [45:131;28] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-15 == 1
+             ^
+    [45:132;29] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-15 == 1
+          ^^
+    [45:133;27] JMPNEQ T_JMPS 0 0 0 0; 38
+    [134;27] LABEL 37
+1 + 1e-15 == 1
+^^^^^^^^^^^^^^
+    [45:134;26] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+1 + 1e-15 == 1
+^^^^^^^^^^^^^^
+    [45:135;27] PUSHI T_PUSH 0 0 0 TRUE; *
+    [136;27] LABEL 38
+    [45:133;27] JMPNEQ T_JMPS 0 0 3 0; 38
+1 + 4e-15
+^
+    [46:136;28] PUSHI T_PUSH 0 0 0 1; *
+1 + 4e-15
+    ^^^^^
+    [46:137;29] PUSHI T_PUSH 0 0 0 4e-15; *
+1 + 4e-15
+^^^^^^^^^
+    [46:138;28] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 5e-15
+^
+    [47:139;29] PUSHI T_PUSH 0 0 0 1; *
+1 + 5e-15
+    ^^^^^
+    [47:140;30] PUSHI T_PUSH 0 0 0 5e-15; *
+1 + 5e-15
+^^^^^^^^^
+    // Sum differs from 1 in 15'th place which is stored
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [48:141;29] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-14
+^
+    [49:142;30] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-14
+    ^^^^^
+    [49:143;31] PUSHI T_PUSH 0 0 0 1e-14; *
+1 + 1e-14
+^^^^^^^^^
+    [49:144;30] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-14 == 1
+^^^^^^^^^^^^^^
+    [50:145;31] PUSHI T_PUSH 0 0 0 FALSE; *
+1 + 1e-14 == 1
+^
+    [50:146;32] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-14 == 1
+    ^^^^^
+    [50:147;33] PUSHI T_PUSH 0 0 0 1e-14; *
+1 + 1e-14 == 1
+^^^^^^^^^
+    [50:148;32] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 + 1e-14 == 1
+             ^
+    [50:149;33] PUSHI T_PUSH 0 0 0 1; *
+1 + 1e-14 == 1
+          ^^
+    [50:150;31] JMPNEQ T_JMPS 0 0 0 0; 40
+    [151;31] LABEL 39
+1 + 1e-14 == 1
+^^^^^^^^^^^^^^
+    [50:151;30] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+1 + 1e-14 == 1
+^^^^^^^^^^^^^^
+    [50:152;31] PUSHI T_PUSH 0 0 0 TRUE; *
+    [153;31] LABEL 40
+    [50:150;31] JMPNEQ T_JMPS 0 0 3 0; 40
++0
+^^
+    [51:153;32] PUSHI T_PUSH 0 0 0 0; *
+-0
+^^
+    [52:154;33] PUSHI T_PUSH 0 0 0 -0; *
++0 == -0
+^^^^^^^^
+    // In IEEE format, +0 and -0 are different values,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // But they are equal.
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [55:155;34] PUSHI T_PUSH 0 0 0 FALSE; *
++0 == -0
+^^
+    [53:156;35] PUSHI T_PUSH 0 0 0 0; *
++0 == -0
+      ^^
+    [53:157;36] PUSHI T_PUSH 0 0 0 -0; *
++0 == -0
+   ^^
+    [53:158;34] JMPNEQ T_JMPS 0 0 0 0; 42
+    [159;34] LABEL 41
++0 == -0
+^^^^^^^^
+    // In IEEE format, +0 and -0 are different values,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // But they are equal.
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [55:159;33] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
++0 == -0
+^^^^^^^^
+    // In IEEE format, +0 and -0 are different values,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // But they are equal.
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [55:160;34] PUSHI T_PUSH 0 0 0 TRUE; *
+    [161;34] LABEL 42
+    [53:158;34] JMPNEQ T_JMPS 0 0 3 0; 42
+1e309 is finite
+^^^^^^^^^^^^^^^
+    // Outside the range of a finite, i.e., outside
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // (-1e308.+1e308).
+^^^^^^^^^^^^^^^^^^^^^^^
+    [58:161;35] PUSHI T_PUSH 0 0 0 FALSE; *
+1e309 is finite
+^^^^^
+    [56:162;36] PUSHI T_PUSH 0 0 0 inf; *
+1e309 is finite
+^^^^^^^^^^^^^^^
+    // Outside the range of a finite, i.e., outside
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // (-1e308.+1e308).
+^^^^^^^^^^^^^^^^^^^^^^^
+    [58:163;35] JMPFIN T_JMPS 0 0 0 0; 43
+1e309 is finite
+^^^^^^^^^^^^^^^
+    // Outside the range of a finite, i.e., outside
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // (-1e308.+1e308).
+^^^^^^^^^^^^^^^^^^^^^^^
+    [58:164;35] JMP T_JMP 0 0 0 0; 44
+    [165;35] LABEL 43
+    [58:163;35] JMPFIN T_JMPS 0 0 2 0; 43
+1e309 is finite
+^^^^^^^^^^^^^^^
+    // Outside the range of a finite, i.e., outside
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // (-1e308.+1e308).
+^^^^^^^^^^^^^^^^^^^^^^^
+    [58:165;34] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+1e309 is finite
+^^^^^^^^^^^^^^^
+    // Outside the range of a finite, i.e., outside
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // (-1e308.+1e308).
+^^^^^^^^^^^^^^^^^^^^^^^
+    [58:166;35] PUSHI T_PUSH 0 0 0 TRUE; *
+    [167;35] LABEL 44
+    [58:164;35] JMP T_JMP 0 0 3 0; 44
+inf
+^^^
+    [62:167;36] PUSHI T_PUSH 0 0 0 inf; *
+Inf
+^^^
+    [63:168;37] PUSHI T_PUSH 0 0 0 inf; *
+-INF
+^^^^
+    [64:169;38] PUSHI T_PUSH 0 0 0 -inf; *
+-1e500
+^^^^^^
+    [65:170;39] PUSHI T_PUSH 0 0 0 -inf; *
++inf + +inf
+^^^^
+    [66:171;40] PUSHI T_PUSH 0 0 0 inf; *
++inf + +inf
+       ^^^^
+    [66:172;41] PUSHI T_PUSH 0 0 0 inf; *
++inf + +inf
+^^^^^^^^^^^
+    // Sum of two large unknown numbers is a large unknown number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [67:173;40] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
++inf + -inf
+^^^^
+    [68:174;41] PUSHI T_PUSH 0 0 0 inf; *
++inf + -inf
+       ^^^^
+    [68:175;42] PUSHI T_PUSH 0 0 0 -inf; *
++inf + -inf
+^^^^^^^^^^^
+    // Difference of two large unknown numbers is unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [69:176;41] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
++inf * -inf
+^^^^
+    [70:177;42] PUSHI T_PUSH 0 0 0 inf; *
++inf * -inf
+       ^^^^
+    [70:178;43] PUSHI T_PUSH 0 0 0 -inf; *
++inf * -inf
+^^^^^^^^^^^
+    // Product of two large unknown numbers is a large unknown number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [71:179;42] MUL T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
++inf / +inf
+^^^^
+    [72:180;43] PUSHI T_PUSH 0 0 0 inf; *
++inf / +inf
+       ^^^^
+    [72:181;44] PUSHI T_PUSH 0 0 0 inf; *
++inf / +inf
+^^^^^^^^^^^
+    // Ratio of two large unknown numbers is unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [73:182;43] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 / +0
+^
+    [74:183;44] PUSHI T_PUSH 0 0 0 1; *
+1 / +0
+    ^^
+    [74:184;45] PUSHI T_PUSH 0 0 0 0; *
+1 / +0
+^^^^^^
+    // Finite number divided by very small but unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // number is a large unknown number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [76:185;44] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 / -0
+^
+    [77:186;45] PUSHI T_PUSH 0 0 0 1; *
+1 / -0
+    ^^
+    [77:187;46] PUSHI T_PUSH 0 0 0 -0; *
+1 / -0
+^^^^^^
+    [77:188;45] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
++inf == +inf
+^^^^^^^^^^^^
+    // Equality of two large unknown numbers is unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:189;46] PUSHI T_PUSH 0 0 0 FALSE; *
++inf == +inf
+^^^^
+    [78:190;47] PUSHI T_PUSH 0 0 0 inf; *
++inf == +inf
+        ^^^^
+    [78:191;48] PUSHI T_PUSH 0 0 0 inf; *
++inf == +inf
+     ^^
+    [78:192;46] JMPNEQ T_JMPS 0 0 0 0; 46
+    [193;46] LABEL 45
++inf == +inf
+^^^^^^^^^^^^
+    // Equality of two large unknown numbers is unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:193;45] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
++inf == +inf
+^^^^^^^^^^^^
+    // Equality of two large unknown numbers is unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:194;46] PUSHI T_PUSH 0 0 0 TRUE; *
+    [195;46] LABEL 46
+    [78:192;46] JMPNEQ T_JMPS 0 0 3 0; 46
++inf == -inf
+^^^^^^^^^^^^
+    // Two large unknown numbers of different signs are not equal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [81:195;47] PUSHI T_PUSH 0 0 0 FALSE; *
++inf == -inf
+^^^^
+    [80:196;48] PUSHI T_PUSH 0 0 0 inf; *
++inf == -inf
+        ^^^^
+    [80:197;49] PUSHI T_PUSH 0 0 0 -inf; *
++inf == -inf
+     ^^
+    [80:198;47] JMPNEQ T_JMPS 0 0 0 0; 48
+    [199;47] LABEL 47
++inf == -inf
+^^^^^^^^^^^^
+    // Two large unknown numbers of different signs are not equal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [81:199;46] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
++inf == -inf
+^^^^^^^^^^^^
+    // Two large unknown numbers of different signs are not equal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [81:200;47] PUSHI T_PUSH 0 0 0 TRUE; *
+    [201;47] LABEL 48
+    [80:198;47] JMPNEQ T_JMPS 0 0 3 0; 48
+nan
+^^^
+    [87:201;48] PUSHI T_PUSH 0 0 0 nan; *
+NaN
+^^^
+    [88:202;49] PUSHI T_PUSH 0 0 0 nan; *
+-Nan
+^^^^
+    [89:203;50] PUSHI T_PUSH 0 0 0 -nan; *

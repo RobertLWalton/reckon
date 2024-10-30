@@ -1,8 +1,8 @@
-// Reckon Language Numerics Test Data
+// Reckon Language Numbers Test Data
 //
-// File:        reckon_numerics.rec
+// File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sun Oct 27 02:09:59 AM EDT 2024
+// Date:        Wed Oct 30 03:03:26 AM EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -21,6 +21,7 @@
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|456|}
      [< is integer >]|}
 456 == 4.56e2
+    // x == y tests whether x equals y
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|456|} ==
      {|456|}|}
 -456 == -45.6e1
@@ -30,9 +31,9 @@
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|123|} ==
      {|123|}|}
 1e20 is integer
+    // FALSE because value not in range (-1e15,+1e15)
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1e+20|}
      [< is integer >]|}
-    // FALSE because value not in range (-1e15,+1e15)
 9 / 2 is integer
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|{|9|} / {|2|}|} [< is integer >]|}
@@ -49,29 +50,41 @@
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|-1|} ==
      {|1|}|}
 
-// Floating Point Numbers
+// Finites
 //
 3.14
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|3.14|}
--3.14
-{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|-3.14|}
-314e-2
-{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|3.14|}
+3.14 is finite
+{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|3.14|}
+     [< is finite >]|}
+-3.14 is finite
+{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|-3.14|}
+     [< is finite >]|}
+314e-2 is finite
+{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|3.14|}
+     [< is finite >]|}
 3.14 == 314e-2
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|3.14|} ==
      {|3.14|}|}
+3 is finite
+    // integers are also finites
+{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|3|}
+     [< is finite >]|}
 5.7e-4
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|0.00057|}
 123 / 1000 == 0.123
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|{|123|} / {|1000|}|} == {|0.123|}|}
 1 + 1e-16
+    // Sum differs from 1 in 17'th place which is not stored
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1|} +
      {|1e-16|}|}
 1 + 1e-16 == 1
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|
      {|{|1|} + {|1e-16|}|} == {|1|}|}
 1 + 1e-15
+    // Sum differs from 1 in 16'th place which is stored in
+    // part but is not output
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1|} +
      {|1e-15|}|}
 1 + 1e-15 == 1
@@ -81,6 +94,7 @@
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1|} +
      {|4e-15|}|}
 1 + 5e-15
+    // Sum differs from 1 in 15'th place which is stored
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1|} +
      {|5e-15|}|}
 1 + 1e-14
@@ -94,8 +108,15 @@
 -0
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|-0|}
 +0 == -0
+    // In IEEE format, +0 and -0 are different values,
+    // But they are equal.
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|0|} ==
      {|-0|}|}
+1e309 is finite
+    // Outside the range of a finite, i.e., outside
+    // (-1e308.+1e308).
+{"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|}
+     [< is finite >]|}
 
 // Infinities
 //
@@ -108,31 +129,41 @@ Inf
 -1e500
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|-inf|}
 +inf + +inf
+    // Sum of two large unknown numbers is a large unknown number
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|} +
      {|inf|}|}
 +inf + -inf
+    // Difference of two large unknown numbers is unknown
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|} +
      {|-inf|}|}
 +inf * -inf
+    // Product of two large unknown numbers is a large unknown number
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|} *
      {|-inf|}|}
 +inf / +inf
+    // Ratio of two large unknown numbers is unknown
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|} /
      {|inf|}|}
 1 / +0
+    // Finite number divided by very small but unknown
+    // number is a large unknown number
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1|} /
      {|0|}|}
 1 / -0
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|1|} /
      {|-0|}|}
 +inf == +inf
+    // Equality of two large unknown numbers is unknown
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|} ==
      {|inf|}|}
 +inf == -inf
+    // Two large unknown numbers of different signs are not equal
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|{|inf|} ==
      {|-inf|}|}
 
-// Not-A-Numbers
+// Not-A-Numbers (more properly, unknown or uncomputable numbers)
+//
+// Also see +inf + -inf and +inf / +inf above
 //
 nan
 {"": .terminator = "<LF>", .initiator = [$ LOGICAL_LINE $]|nan|}
