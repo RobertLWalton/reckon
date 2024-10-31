@@ -4,7 +4,7 @@
 //
 // File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Oct 30 03:03:26 AM EDT 2024
+// Date:        Wed Oct 30 03:44:24 AM EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -170,13 +170,13 @@
 * {46:137,29,121} PUSHI: * <= 4e-15
 * {46:138,28,122} ADD: * = 1 <= 1 + 4e-15
 1 + 5e-15
-    // Sum differs from 1 in 15'th place which is stored
 * {47:139,29,123} PUSHI: * <= 1
 * {47:140,30,124} PUSHI: * <= 5e-15
-* {48:141,29,125} ADD: * = 1.00000000000001 <= 1 + 5e-15
+* {47:141,29,125} ADD: * = 1.00000000000001 <= 1 + 5e-15
 1 + 1e-14
-* {49:142,30,126} PUSHI: * <= 1
-* {49:143,31,127} PUSHI: * <= 1e-14
+    // Sum differs from 1 in 15'th place which is stored
+* {48:142,30,126} PUSHI: * <= 1
+* {48:143,31,127} PUSHI: * <= 1e-14
 * {49:144,30,128} ADD: * = 1.00000000000001 <= 1 + 1e-14
 1 + 1e-14 == 1
 * {50:145,31,129} PUSHI: * <= FALSE
@@ -276,3 +276,37 @@ NaN
 * {88:202,51,177} PUSHI: * <= nan
 -Nan
 * {89:203,52,178} PUSHI: * <= -nan
+1 + nan
+* {90:204,53,179} PUSHI: * <= 1
+* {90:205,54,180} PUSHI: * <= nan
+* {90:206,53,181} ADD: * = nan <= 1 + nan
+nan + 1
+* {91:207,54,182} PUSHI: * <= nan
+* {91:208,55,183} PUSHI: * <= 1
+* {91:209,54,184} ADD: * = nan <= nan + 1
+5 * nan
+* {92:210,55,185} PUSHI: * <= 5
+* {92:211,56,186} PUSHI: * <= nan
+* {92:212,55,187} MUL: * = nan <= 5 * nan
+1 / nan
+* {93:213,56,188} PUSHI: * <= 1
+* {93:214,57,189} PUSHI: * <= nan
+* {93:215,56,190} DIV: * = nan <= 1 / nan
+nan / 5
+* {94:216,57,191} PUSHI: * <= nan
+* {94:217,58,192} PUSHI: * <= 5
+* {94:218,57,193} DIV: * = nan <= nan / 5
+nan == 8
+* {95:219,58,194} PUSHI: * <= FALSE
+* {95:220,59,195} PUSHI: * <= nan
+* {95:221,60,196} PUSHI: * <= 8
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {95:222,58,197} JMPNEQ location 225 with invalid operand(s)
+[no output due to run-time error]
+2 < nan
+* {96:225,61,197} PUSHI: * <= FALSE
+* {96:226,62,198} PUSHI: * <= 2
+* {96:227,63,199} PUSHI: * <= nan
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {96:228,61,200} JMPGEQ location 231 with invalid operand(s)
+[no output due to run-time error]

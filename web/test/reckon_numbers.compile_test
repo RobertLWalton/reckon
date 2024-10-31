@@ -526,18 +526,18 @@
     [47:140;30] PUSHI T_PUSH 0 0 0 5e-15; *
 1 + 5e-15
 ^^^^^^^^^
-    // Sum differs from 1 in 15'th place which is stored
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [48:141;29] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    [47:141;29] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 1 + 1e-14
 ^
-    [49:142;30] PUSHI T_PUSH 0 0 0 1; *
+    [48:142;30] PUSHI T_PUSH 0 0 0 1; *
 1 + 1e-14
     ^^^^^
-    [49:143;31] PUSHI T_PUSH 0 0 0 1e-14; *
+    [48:143;31] PUSHI T_PUSH 0 0 0 1e-14; *
 1 + 1e-14
 ^^^^^^^^^
+    // Sum differs from 1 in 15'th place which is stored
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     [49:144;30] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 1 + 1e-14 == 1
@@ -796,3 +796,95 @@ NaN
 -Nan
 ^^^^
     [89:203;50] PUSHI T_PUSH 0 0 0 -nan; *
+1 + nan
+^
+    [90:204;51] PUSHI T_PUSH 0 0 0 1; *
+1 + nan
+    ^^^
+    [90:205;52] PUSHI T_PUSH 0 0 0 nan; *
+1 + nan
+^^^^^^^
+    [90:206;51] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+nan + 1
+^^^
+    [91:207;52] PUSHI T_PUSH 0 0 0 nan; *
+nan + 1
+      ^
+    [91:208;53] PUSHI T_PUSH 0 0 0 1; *
+nan + 1
+^^^^^^^
+    [91:209;52] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+5 * nan
+^
+    [92:210;53] PUSHI T_PUSH 0 0 0 5; *
+5 * nan
+    ^^^
+    [92:211;54] PUSHI T_PUSH 0 0 0 nan; *
+5 * nan
+^^^^^^^
+    [92:212;53] MUL T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+1 / nan
+^
+    [93:213;54] PUSHI T_PUSH 0 0 0 1; *
+1 / nan
+    ^^^
+    [93:214;55] PUSHI T_PUSH 0 0 0 nan; *
+1 / nan
+^^^^^^^
+    [93:215;54] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+nan / 5
+^^^
+    [94:216;55] PUSHI T_PUSH 0 0 0 nan; *
+nan / 5
+      ^
+    [94:217;56] PUSHI T_PUSH 0 0 0 5; *
+nan / 5
+^^^^^^^
+    [94:218;55] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+                *
+nan == 8
+^^^^^^^^
+    [95:219;56] PUSHI T_PUSH 0 0 0 FALSE; *
+nan == 8
+^^^
+    [95:220;57] PUSHI T_PUSH 0 0 0 nan; *
+nan == 8
+       ^
+    [95:221;58] PUSHI T_PUSH 0 0 0 8; *
+nan == 8
+    ^^
+    [95:222;56] JMPNEQ T_JMPS 0 0 0 0; 50
+    [223;56] LABEL 49
+nan == 8
+^^^^^^^^
+    [95:223;55] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+nan == 8
+^^^^^^^^
+    [95:224;56] PUSHI T_PUSH 0 0 0 TRUE; *
+    [225;56] LABEL 50
+    [95:222;56] JMPNEQ T_JMPS 0 0 3 0; 50
+2 < nan
+^^^^^^^
+    [96:225;57] PUSHI T_PUSH 0 0 0 FALSE; *
+2 < nan
+^
+    [96:226;58] PUSHI T_PUSH 0 0 0 2; *
+2 < nan
+    ^^^
+    [96:227;59] PUSHI T_PUSH 0 0 0 nan; *
+2 < nan
+  ^
+    [96:228;57] JMPGEQ T_JMPS 0 0 0 0; 52
+    [229;57] LABEL 51
+2 < nan
+^^^^^^^
+    [96:229;56] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+2 < nan
+^^^^^^^
+    [96:230;57] PUSHI T_PUSH 0 0 0 TRUE; *
+    [231;57] LABEL 52
+    [96:228;57] JMPGEQ T_JMPS 0 0 3 0; 52
