@@ -3,7 +3,7 @@
 <!--
 File:	reckon_numbers.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Oct 29 04:34:20 EDT 2024
+Date:	Fri Nov  1 02:34:31 EDT 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -39,15 +39,16 @@ NEW WINDOW</button>
 <p>
 There are several types of numbers, including:
 <table class='td-extra-space'>
-<tr><th>Integers</th><td>0 1 -1 100 -1e2 e50</td></tr>
-<tr><th>Finites</th><td>3.141529 -0.5 1.498e-6</td></tr>
-<tr><th>Infinities</th><td>+inf -inf</td></tr>
-<tr><th>NaNs</th><td>nan</td></tr>
-<tr><th>Measures</th><td>4ft 155lb 8ft/sec</td></tr>
-<tr><th>Dates</th><td>5may1946 jan2539 06/25/1938</td></tr>
+<tr><th><a href='#integers'>Integers</a></th><td>0 1 -1 100 -1e2 e50</td></tr>
+<tr><th><a href='#finite-numbers'>Finite Numbers</a></th><td>3.141529 -0.5 1.498e-6</td></tr>
+<tr><th><a href='#infinities'>Infinities</a></th><td>+inf -inf</td></tr>
+<tr><th><a href='#nans'>NaNs</a></th><td>nan</td></tr>
+<tr><th><a href='#measures'>Measures</a></th><td>4ft 155lb 8ft/sec</td></tr>
+<tr><th><a href='#dates'>Dates</a></th><td>5may1946 jan2539 06/25/1938</td></tr>
+<tr><th><a href='#times'>Times</a></th><td>3:00pm 1946-05-05T15:00EST</td></tr>
 </table>
 
-Integers and finites are represented by
+Integers and finite numbers are represented by
 <em>number</em> lexemes.  Infinities and NaNs (Not-A-Numbers)
 are represented by <em>numeric-word</em> lexemes.
 See <a href="reckon_lexemes.html#lexemes">Lexemes</a>.
@@ -121,27 +122,62 @@ Some examples are:
 </pre>
 </p>
 
-<h2 id='floating-point-numbers'>Floating Point Numbers</h2>
+<h2 id='finite-numbers'>Finite Numbers</h2>
 
 <p>
-Floating point numbers are similar to integers except that they have
-non-zero fraction digits.  E.g., <code>3.14</code> is floating
-point while <code>314</code> and <code>3.00</code> are integers.
-Other examples of floating point numbers are <code>314e-2</code>
+A finite number is similar to an integer except that it may have
+non-zero fraction digits.  Integers are also finite numbers.
+E.g., <code>3.14</code> is a finite number
+while <code>314</code> and <code>3.00</code> are integer finite numbers.
+Other examples of finite numbers are <code>314e-2</code>
 and <code>5.7e-4</code>.
 <p>
-Actually integers are just floating point numbers with zero
-fractional part (and range limited to <code>(-1e15,+1e15)</code>).
+Integers are just finite numbers with zero
+fractional part and range limited to <code>(-1e15,+1e15)</code>.
 <p>
-Only a bit more than 15 significant digits of a floating point number
+Only slightly more than 15 significant digits of finite number
 are actually stored.  Thus <code>1 + 1e-16 == 1</code> because the two
 sides of the inequality differ in the 17'th decimal place, while
-<code>1 + 1e-14 == 1.00000000000001</code>.  However, floating point
+<code>1 + 1e-14 == 1.00000000000001</code>.  However, finite
 numbers are actually stored in a binary representation, so the 16'th
 significant digit is only partly stored, resulting in anomalies
 involving the 16'th place.  Thus <code>1 + 1e-15</code>,
 which differs from <code>1</code> in the 16'th place,
-prints as <code>1</code> but does not actually equal <code>1</code>.
+prints as <code>1</code> but does not <code> == 1</code>.
+<p>
+Some examples are:
+<pre class='example'>
+<div class='line'>3.14</div>3.14
+<div class='line'>3.14 is finite</div>TRUE
+<div class='line'>-3.14 is finite</div>TRUE
+<div class='line'>314e-2 is finite</div>TRUE
+<div class='line'>3.14 == 314e-2</div>TRUE
+<div class='line'>3 is finite
+    // integers are also finite numbers</div>TRUE
+<div class='line'>5.7e-4</div>0.00057
+<div class='line'>123 / 1000 == 0.123</div>TRUE
+<div class='line'>1 + 1e-16
+    // Sum differs from 1 in 17'th place which is not stored</div>1
+<div class='line'>1 + 1e-16 == 1</div>TRUE
+<div class='line'>1 + 1e-15
+    // Sum differs from 1 in 16'th place which is stored in
+    // part but is not output</div>1
+<div class='line'>1 + 1e-15 == 1</div>FALSE
+<div class='line'>1 + 4e-15</div>1
+<div class='line'>1 + 5e-15</div>1.00000000000001
+<div class='line'>1 + 1e-14
+    // Sum differs from 1 in 15'th place which is stored</div>1.00000000000001
+<div class='line'>1 + 1e-14 == 1</div>FALSE
+<div class='line'>+0</div>0
+<div class='line'>-0</div>-0
+<div class='line'>+0 == -0
+    // +0 and -0 are stored as different values,
+    // But they are equal.</div>TRUE
+<div class='line'>1e309 is finite
+    // Outside the range of a finite, i.e., outside
+    // (-1e308.+1e308).</div>FALSE
+</pre>
+
 
 </p>
 
