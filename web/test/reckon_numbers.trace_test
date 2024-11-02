@@ -4,7 +4,7 @@
 //
 // File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Fri Nov  1 02:36:00 AM EDT 2024
+// Date:        Sat Nov  2 05:49:09 EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -240,73 +240,75 @@ Inf
 !!! ERROR: invalid operand(s)
 * {73:182,43,162} DIV: * = -nan <= inf / inf
 1 / +0
-    // Finite number divided by very small but unknown
-    // number is a large unknown number
+    // Positive finite number divided by very small but unknown
+    // positive number is a large unknown positive number
 * {74:183,44,163} PUSHI: * <= 1
 * {74:184,45,164} PUSHI: * <= 0
 !!! ERROR: divide by zero
 * {76:185,44,165} DIV: * = inf <= 1 / 0
 1 / -0
+    // Positive finite number divided by very small but unknown
+    // negative number is a large unknown negative number
 * {77:186,45,166} PUSHI: * <= 1
 * {77:187,46,167} PUSHI: * <= -0
 !!! ERROR: divide by zero
-* {77:188,45,168} DIV: * = -inf <= 1 / -0
+* {79:188,45,168} DIV: * = -inf <= 1 / -0
 +inf == +inf
     // Equality of two large unknown numbers is unknown
-* {79:189,46,169} PUSHI: * <= FALSE
-* {78:190,47,170} PUSHI: * <= inf
-* {78:191,48,171} PUSHI: * <= inf
+* {81:189,46,169} PUSHI: * <= FALSE
+* {80:190,47,170} PUSHI: * <= inf
+* {80:191,48,171} PUSHI: * <= inf
 !!! FATAL ERROR:  invalid operands to a conditional jump instruction
-* {78:192,46,172} JMPNEQ location 195 with invalid operand(s)
+* {80:192,46,172} JMPNEQ location 195 with invalid operand(s)
 [no output due to run-time error]
 +inf == -inf
     // Two large unknown numbers of different signs are not equal
-* {81:195,49,172} PUSHI: * <= FALSE
-* {80:196,50,173} PUSHI: * <= inf
-* {80:197,51,174} PUSHI: * <= -inf
-* {80:198,49,175} JMPNEQ location 201 is successful: true <= inf != -inf
+* {83:195,49,172} PUSHI: * <= FALSE
+* {82:196,50,173} PUSHI: * <= inf
+* {82:197,51,174} PUSHI: * <= -inf
+* {82:198,49,175} JMPNEQ location 201 is successful: true <= inf != -inf
 
 // Not-A-Numbers (more properly, unknown or uncomputable numbers)
 //
 // Also see +inf + -inf and +inf / +inf above
 //
 nan
-* {87:201,50,176} PUSHI: * <= nan
+* {89:201,50,176} PUSHI: * <= nan
 NaN
-* {88:202,51,177} PUSHI: * <= nan
+* {90:202,51,177} PUSHI: * <= nan
 -Nan
-* {89:203,52,178} PUSHI: * <= -nan
+* {91:203,52,178} PUSHI: * <= -nan
 1 + nan
-* {90:204,53,179} PUSHI: * <= 1
-* {90:205,54,180} PUSHI: * <= nan
-* {90:206,53,181} ADD: * = nan <= 1 + nan
+* {92:204,53,179} PUSHI: * <= 1
+* {92:205,54,180} PUSHI: * <= nan
+* {92:206,53,181} ADD: * = nan <= 1 + nan
 nan + 1
-* {91:207,54,182} PUSHI: * <= nan
-* {91:208,55,183} PUSHI: * <= 1
-* {91:209,54,184} ADD: * = nan <= nan + 1
+* {93:207,54,182} PUSHI: * <= nan
+* {93:208,55,183} PUSHI: * <= 1
+* {93:209,54,184} ADD: * = nan <= nan + 1
 5 * nan
-* {92:210,55,185} PUSHI: * <= 5
-* {92:211,56,186} PUSHI: * <= nan
-* {92:212,55,187} MUL: * = nan <= 5 * nan
+* {94:210,55,185} PUSHI: * <= 5
+* {94:211,56,186} PUSHI: * <= nan
+* {94:212,55,187} MUL: * = nan <= 5 * nan
 1 / nan
-* {93:213,56,188} PUSHI: * <= 1
-* {93:214,57,189} PUSHI: * <= nan
-* {93:215,56,190} DIV: * = nan <= 1 / nan
+* {95:213,56,188} PUSHI: * <= 1
+* {95:214,57,189} PUSHI: * <= nan
+* {95:215,56,190} DIV: * = nan <= 1 / nan
 nan / 5
-* {94:216,57,191} PUSHI: * <= nan
-* {94:217,58,192} PUSHI: * <= 5
-* {94:218,57,193} DIV: * = nan <= nan / 5
+* {96:216,57,191} PUSHI: * <= nan
+* {96:217,58,192} PUSHI: * <= 5
+* {96:218,57,193} DIV: * = nan <= nan / 5
 nan == 8
-* {95:219,58,194} PUSHI: * <= FALSE
-* {95:220,59,195} PUSHI: * <= nan
-* {95:221,60,196} PUSHI: * <= 8
+* {97:219,58,194} PUSHI: * <= FALSE
+* {97:220,59,195} PUSHI: * <= nan
+* {97:221,60,196} PUSHI: * <= 8
 !!! FATAL ERROR:  invalid operands to a conditional jump instruction
-* {95:222,58,197} JMPNEQ location 225 with invalid operand(s)
+* {97:222,58,197} JMPNEQ location 225 with invalid operand(s)
 [no output due to run-time error]
 2 < nan
-* {96:225,61,197} PUSHI: * <= FALSE
-* {96:226,62,198} PUSHI: * <= 2
-* {96:227,63,199} PUSHI: * <= nan
+* {98:225,61,197} PUSHI: * <= FALSE
+* {98:226,62,198} PUSHI: * <= 2
+* {98:227,63,199} PUSHI: * <= nan
 !!! FATAL ERROR:  invalid operands to a conditional jump instruction
-* {96:228,61,200} JMPGEQ location 231 with invalid operand(s)
+* {98:228,61,200} JMPGEQ location 231 with invalid operand(s)
 [no output due to run-time error]

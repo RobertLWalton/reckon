@@ -717,10 +717,10 @@ Inf
     [74:184;45] PUSHI T_PUSH 0 0 0 0; *
 1 / +0
 ^^^^^^
-    // Finite number divided by very small but unknown
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // number is a large unknown number
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Positive finite number divided by very small but unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // positive number is a large unknown positive number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     [76:185;44] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 1 / -0
@@ -731,160 +731,164 @@ Inf
     [77:187;46] PUSHI T_PUSH 0 0 0 -0; *
 1 / -0
 ^^^^^^
-    [77:188;45] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    // Positive finite number divided by very small but unknown
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // negative number is a large unknown negative number
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:188;45] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 +inf == +inf
 ^^^^^^^^^^^^
     // Equality of two large unknown numbers is unknown
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [79:189;46] PUSHI T_PUSH 0 0 0 FALSE; *
+    [81:189;46] PUSHI T_PUSH 0 0 0 FALSE; *
 +inf == +inf
 ^^^^
-    [78:190;47] PUSHI T_PUSH 0 0 0 inf; *
+    [80:190;47] PUSHI T_PUSH 0 0 0 inf; *
 +inf == +inf
         ^^^^
-    [78:191;48] PUSHI T_PUSH 0 0 0 inf; *
+    [80:191;48] PUSHI T_PUSH 0 0 0 inf; *
 +inf == +inf
      ^^
-    [78:192;46] JMPNEQ T_JMPS 0 0 0 0; 46
+    [80:192;46] JMPNEQ T_JMPS 0 0 0 0; 46
     [193;46] LABEL 45
 +inf == +inf
 ^^^^^^^^^^^^
     // Equality of two large unknown numbers is unknown
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [79:193;45] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+    [81:193;45] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
 +inf == +inf
 ^^^^^^^^^^^^
     // Equality of two large unknown numbers is unknown
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [79:194;46] PUSHI T_PUSH 0 0 0 TRUE; *
+    [81:194;46] PUSHI T_PUSH 0 0 0 TRUE; *
     [195;46] LABEL 46
-    [78:192;46] JMPNEQ T_JMPS 0 0 3 0; 46
+    [80:192;46] JMPNEQ T_JMPS 0 0 3 0; 46
 +inf == -inf
 ^^^^^^^^^^^^
     // Two large unknown numbers of different signs are not equal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [81:195;47] PUSHI T_PUSH 0 0 0 FALSE; *
+    [83:195;47] PUSHI T_PUSH 0 0 0 FALSE; *
 +inf == -inf
 ^^^^
-    [80:196;48] PUSHI T_PUSH 0 0 0 inf; *
+    [82:196;48] PUSHI T_PUSH 0 0 0 inf; *
 +inf == -inf
         ^^^^
-    [80:197;49] PUSHI T_PUSH 0 0 0 -inf; *
+    [82:197;49] PUSHI T_PUSH 0 0 0 -inf; *
 +inf == -inf
      ^^
-    [80:198;47] JMPNEQ T_JMPS 0 0 0 0; 48
+    [82:198;47] JMPNEQ T_JMPS 0 0 0 0; 48
     [199;47] LABEL 47
 +inf == -inf
 ^^^^^^^^^^^^
     // Two large unknown numbers of different signs are not equal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [81:199;46] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+    [83:199;46] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
 +inf == -inf
 ^^^^^^^^^^^^
     // Two large unknown numbers of different signs are not equal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [81:200;47] PUSHI T_PUSH 0 0 0 TRUE; *
+    [83:200;47] PUSHI T_PUSH 0 0 0 TRUE; *
     [201;47] LABEL 48
-    [80:198;47] JMPNEQ T_JMPS 0 0 3 0; 48
+    [82:198;47] JMPNEQ T_JMPS 0 0 3 0; 48
 nan
 ^^^
-    [87:201;48] PUSHI T_PUSH 0 0 0 nan; *
+    [89:201;48] PUSHI T_PUSH 0 0 0 nan; *
 NaN
 ^^^
-    [88:202;49] PUSHI T_PUSH 0 0 0 nan; *
+    [90:202;49] PUSHI T_PUSH 0 0 0 nan; *
 -Nan
 ^^^^
-    [89:203;50] PUSHI T_PUSH 0 0 0 -nan; *
+    [91:203;50] PUSHI T_PUSH 0 0 0 -nan; *
 1 + nan
 ^
-    [90:204;51] PUSHI T_PUSH 0 0 0 1; *
+    [92:204;51] PUSHI T_PUSH 0 0 0 1; *
 1 + nan
     ^^^
-    [90:205;52] PUSHI T_PUSH 0 0 0 nan; *
+    [92:205;52] PUSHI T_PUSH 0 0 0 nan; *
 1 + nan
 ^^^^^^^
-    [90:206;51] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    [92:206;51] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 nan + 1
 ^^^
-    [91:207;52] PUSHI T_PUSH 0 0 0 nan; *
+    [93:207;52] PUSHI T_PUSH 0 0 0 nan; *
 nan + 1
       ^
-    [91:208;53] PUSHI T_PUSH 0 0 0 1; *
+    [93:208;53] PUSHI T_PUSH 0 0 0 1; *
 nan + 1
 ^^^^^^^
-    [91:209;52] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    [93:209;52] ADD T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 5 * nan
 ^
-    [92:210;53] PUSHI T_PUSH 0 0 0 5; *
+    [94:210;53] PUSHI T_PUSH 0 0 0 5; *
 5 * nan
     ^^^
-    [92:211;54] PUSHI T_PUSH 0 0 0 nan; *
+    [94:211;54] PUSHI T_PUSH 0 0 0 nan; *
 5 * nan
 ^^^^^^^
-    [92:212;53] MUL T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    [94:212;53] MUL T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 1 / nan
 ^
-    [93:213;54] PUSHI T_PUSH 0 0 0 1; *
+    [95:213;54] PUSHI T_PUSH 0 0 0 1; *
 1 / nan
     ^^^
-    [93:214;55] PUSHI T_PUSH 0 0 0 nan; *
+    [95:214;55] PUSHI T_PUSH 0 0 0 nan; *
 1 / nan
 ^^^^^^^
-    [93:215;54] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    [95:215;54] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 nan / 5
 ^^^
-    [94:216;55] PUSHI T_PUSH 0 0 0 nan; *
+    [96:216;55] PUSHI T_PUSH 0 0 0 nan; *
 nan / 5
       ^
-    [94:217;56] PUSHI T_PUSH 0 0 0 5; *
+    [96:217;56] PUSHI T_PUSH 0 0 0 5; *
 nan / 5
 ^^^^^^^
-    [94:218;55] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
+    [96:218;55] DIV T_AOP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $];
                 *
 nan == 8
 ^^^^^^^^
-    [95:219;56] PUSHI T_PUSH 0 0 0 FALSE; *
+    [97:219;56] PUSHI T_PUSH 0 0 0 FALSE; *
 nan == 8
 ^^^
-    [95:220;57] PUSHI T_PUSH 0 0 0 nan; *
+    [97:220;57] PUSHI T_PUSH 0 0 0 nan; *
 nan == 8
        ^
-    [95:221;58] PUSHI T_PUSH 0 0 0 8; *
+    [97:221;58] PUSHI T_PUSH 0 0 0 8; *
 nan == 8
     ^^
-    [95:222;56] JMPNEQ T_JMPS 0 0 0 0; 50
+    [97:222;56] JMPNEQ T_JMPS 0 0 0 0; 50
     [223;56] LABEL 49
 nan == 8
 ^^^^^^^^
-    [95:223;55] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+    [97:223;55] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
 nan == 8
 ^^^^^^^^
-    [95:224;56] PUSHI T_PUSH 0 0 0 TRUE; *
+    [97:224;56] PUSHI T_PUSH 0 0 0 TRUE; *
     [225;56] LABEL 50
-    [95:222;56] JMPNEQ T_JMPS 0 0 3 0; 50
+    [97:222;56] JMPNEQ T_JMPS 0 0 3 0; 50
 2 < nan
 ^^^^^^^
-    [96:225;57] PUSHI T_PUSH 0 0 0 FALSE; *
+    [98:225;57] PUSHI T_PUSH 0 0 0 FALSE; *
 2 < nan
 ^
-    [96:226;58] PUSHI T_PUSH 0 0 0 2; *
+    [98:226;58] PUSHI T_PUSH 0 0 0 2; *
 2 < nan
     ^^^
-    [96:227;59] PUSHI T_PUSH 0 0 0 nan; *
+    [98:227;59] PUSHI T_PUSH 0 0 0 nan; *
 2 < nan
   ^
-    [96:228;57] JMPGEQ T_JMPS 0 0 0 0; 52
+    [98:228;57] JMPGEQ T_JMPS 0 0 0 0; 52
     [229;57] LABEL 51
 2 < nan
 ^^^^^^^
-    [96:229;56] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
+    [98:229;56] POPS T_POP 0 0 0 [$ UNDEFINED_GEN(0x7FF4170000000000) $]
 2 < nan
 ^^^^^^^
-    [96:230;57] PUSHI T_PUSH 0 0 0 TRUE; *
+    [98:230;57] PUSHI T_PUSH 0 0 0 TRUE; *
     [231;57] LABEL 52
-    [96:228;57] JMPGEQ T_JMPS 0 0 3 0; 52
+    [98:228;57] JMPGEQ T_JMPS 0 0 3 0; 52
