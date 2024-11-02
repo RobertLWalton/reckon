@@ -3,7 +3,7 @@
 <!--
 File:	reckon_numbers.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Nov  1 02:37:26 AM EDT 2024
+Date:	Sat Nov  2 03:25:25 EDT 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -178,6 +178,63 @@ Some examples are:
     // (-1e308.+1e308).</div>FALSE
 </pre>
 
+</p>
+
+<h2 id='infinities'>Infinities</h2>
+
+<p>
+In addition to finite numbers there are two infinite `numbers',
+<code>+inf</code> and <code>-inf</code>.  These are represented by
+<em>numeric-word</em> lexemes, which allow letters to be capitalized
+and the <code>+</code> sign to be omitted.  Thus
+<code>+inf</code> and <code>Inf</code> represent the same value.
+<p>
+<code>+Inf</code> is interpreted as an `unboundedly large unknown
+positive number'.
+Thus <code>inf + 5 == inf</code> and <code>0.000001 * inf == inf</code>.
+<code>-Inf</code> is in interpreted as an `unboundedly large unknown
+negative number'.
+Thus <code>-inf + 5 == -inf</code> and <code>0.000001 * -inf == -inf</code>.
+However <code>+inf + -inf</code> cannot be computed; computing it causes
+an error message and returns a <code>nan</code> value (see below)
+that represents an uncomputable number.
+<p>
+Some examples are:
+<pre class='example'>
+<div class='line'>inf</div>inf
+<div class='line'>Inf</div>inf
+<div class='line'>-INF</div>-inf
+<div class='line'>-1e500</div>-inf
+<div class='line'>+inf + +inf
+    // Sum of two large unknown numbers is a large unknown
+    // number</div>inf
+<div class='line'>+inf + -inf
+    // Difference of two large unknown numbers is unknown</div>!!! ERROR: invalid operand(s)
+* {69:176,41,156} ADD: * = -nan <= inf + -inf
+-nan
+<div class='line'>+inf * -inf
+    // Product of two large unknown numbers is a large
+    // unknown number</div>-inf
+<div class='line'>+inf / +inf
+    // Ratio of two large unknown numbers is unknown</div>!!! ERROR: invalid operand(s)
+* {73:182,43,162} DIV: * = -nan <= inf / inf
+-nan
+<div class='line'>1 / +0
+    // Finite number divided by very small but unknown
+    // number is a large unknown number</div>!!! ERROR: divide by zero
+* {76:185,44,165} DIV: * = inf <= 1 / 0
+inf
+<div class='line'>1 / -0</div>!!! ERROR: divide by zero
+* {77:188,45,168} DIV: * = -inf <= 1 / -0
+-inf
+<div class='line'>+inf == +inf
+    // Equality of two large unknown numbers is unknown</div>!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {78:192,46,172} JMPNEQ location 195 with invalid operand(s)
+[no output due to run-time error]
+<div class='line'>+inf == -inf
+    // Two large unknown numbers of different signs
+    // are not equal</div>FALSE
+</pre>
 
 </p>
 
