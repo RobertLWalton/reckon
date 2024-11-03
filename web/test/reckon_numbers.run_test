@@ -2,11 +2,22 @@
 //
 // File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Nov  2 05:49:09 EDT 2024
+// Date:        Sat Nov  2 02:22:16 PM EDT 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
+
+// Numbers
+//
+100 is number
+TRUE
+3.141529 is number
+TRUE
++inf is number
+TRUE
+nan is number
+TRUE
 
 // Integers
 //
@@ -93,13 +104,15 @@ FALSE
 
 // Infinities
 //
-inf
-inf
-Inf
-inf
--INF
--inf
+inf is infinite
+TRUE
+Inf is infinite
+TRUE
+-INF is infinite
+TRUE
 -1e500
+    // If a number is too large to store, it is changed
+    // to an infinity.
 -inf
 +inf + +inf
     // Sum of two large unknown numbers is a large unknown number
@@ -107,7 +120,7 @@ inf
 +inf + -inf
     // Difference of two large unknown numbers is unknown
 !!! ERROR: invalid operand(s)
-* {69:176,41,156} ADD: * = -nan <= inf + -inf
+* {78:215,45,188} ADD: * = -nan <= inf + -inf
 -nan
 +inf * -inf
     // Product of two large unknown numbers is a large unknown number
@@ -115,24 +128,24 @@ inf
 +inf / +inf
     // Ratio of two large unknown numbers is unknown
 !!! ERROR: invalid operand(s)
-* {73:182,43,162} DIV: * = -nan <= inf / inf
+* {82:221,47,194} DIV: * = -nan <= inf / inf
 -nan
 1 / +0
     // Positive finite number divided by very small but unknown
     // positive number is a large unknown positive number
 !!! ERROR: divide by zero
-* {76:185,44,165} DIV: * = inf <= 1 / 0
+* {85:224,48,197} DIV: * = inf <= 1 / 0
 inf
 1 / -0
     // Positive finite number divided by very small but unknown
     // negative number is a large unknown negative number
 !!! ERROR: divide by zero
-* {79:188,45,168} DIV: * = -inf <= 1 / -0
+* {88:227,49,200} DIV: * = -inf <= 1 / -0
 -inf
 +inf == +inf
     // Equality of two large unknown numbers is unknown
 !!! FATAL ERROR:  invalid operands to a conditional jump instruction
-* {80:192,46,172} JMPNEQ location 195 with invalid operand(s)
+* {89:231,50,204} JMPNEQ location 234 with invalid operand(s)
 [no output due to run-time error]
 +inf == -inf
     // Two large unknown numbers of different signs are not equal
@@ -142,12 +155,12 @@ FALSE
 //
 // Also see +inf + -inf and +inf / +inf above
 //
-nan
-nan
-NaN
-nan
--Nan
--nan
+nan is number
+TRUE
+NaN is number
+TRUE
+-Nan is number
+TRUE
 1 + nan
 nan
 nan + 1
@@ -160,9 +173,9 @@ nan / 5
 nan
 nan == 8
 !!! FATAL ERROR:  invalid operands to a conditional jump instruction
-* {97:222,58,197} JMPNEQ location 225 with invalid operand(s)
+* {106:276,62,241} JMPNEQ location 279 with invalid operand(s)
 [no output due to run-time error]
 2 < nan
 !!! FATAL ERROR:  invalid operands to a conditional jump instruction
-* {98:228,61,200} JMPGEQ location 231 with invalid operand(s)
+* {107:282,65,244} JMPGEQ location 285 with invalid operand(s)
 [no output due to run-time error]
