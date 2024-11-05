@@ -3,7 +3,7 @@
 <!--
 File:	reckon_numbers.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sat Nov  2 05:46:27 EDT 2024
+Date:	Tue Nov  5 01:40:02 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -54,9 +54,20 @@ are represented by <em>numeric-word</em> lexemes.
 See <a href="reckon_lexemes.html#lexemes">Lexemes</a>.
 <p>
 Numbers are stored in IEEE 64-bit format, except that
-measures and dates add a unit to the number.
+measures, dates, and times add a unit to the number.
 <p>
-Examples for this page are in
+Some examples are:
+<pre class='example'>
+
+<div class='line'>// Numbers
+//
+100 is number</div>TRUE
+<div class='line'>3.141529 is number</div>TRUE
+<div class='line'>+inf is number</div>TRUE
+<div class='line'>nan is number</div>TRUE
+</pre>
+<p>
+A complete set of all the examples for this page is in
 <a href='../examples/reckon_numbers.rec' download>
 <code>reckon_numbers.rec </code></a>.
 
@@ -237,6 +248,35 @@ inf
     // Two large unknown numbers of different signs
     // are not equal</div>FALSE
 </pre>
+
+</p>
+
+<h2 id='nans'>NaNs</h2>
+
+<p>
+IEEE <em>NaNs</em>, a.k.a. Not a Numbers, are RECKON numbers.
+They are best thought of as `unknown numbers that cannot be computed'.
+For example, <code>+inf + -inf == nan</code>.
+<p>
+Some examples are:
+<pre class='example'>
+<div class='line'>nan is number</div>TRUE
+<div class='line'>NaN is number</div>TRUE
+<div class='line'>-Nan is number</div>TRUE
+<div class='line'>1 + nan</div>nan
+<div class='line'>nan + 1</div>nan
+<div class='line'>5 * nan</div>nan
+<div class='line'>1 / nan</div>nan
+<div class='line'>nan / 5</div>nan
+<div class='line'>nan == 8</div>!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {106:276,62,241} JMPNEQ location 279 with invalid operand(s)
+[no output due to run-time error]
+<div class='line'>2 < nan</div>!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {107:282,65,244} JMPGEQ location 285 with invalid operand(s)
+[no output due to run-time error]
+</pre>
+
+
 
 </p>
 
