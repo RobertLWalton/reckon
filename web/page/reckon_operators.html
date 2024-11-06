@@ -3,7 +3,7 @@
 <!--
 File:	reckon_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Nov  5 01:40:02 EST 2024
+Date:	Wed Nov  6 06:18:29 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -159,6 +159,60 @@ and <b>&gt;=</b>.
 <b>+</b> and <b>-</b>.
 <li> <sup>5</sup>The only operator allowed is <b>*</b>.
 </ul>
+
+</p>
+
+<h2 id='precedence'>Precedence</h2>
+
+<p>
+A <em>P-operator</em> is an operator of precedence <em>P</em>.
+For example, <code>=</code> is a 1000-operator and
+<code>while</code> is a 3000-operator.
+<p>
+A <em>P-expression</em> is an expression not containing any
+operators of precedence greater than <em>P</em> outside
+parentheses and brackets.  For example,
+<code>x + y * z</code> is a 13000-expression and
+<code>y * z</code> is a 13100-expression.
+A <em>P-expression</em>
+need not contain a <em>P-operator</em>, so
+both these
+expressions are also 12000-expressions.
+<p>
+A <em>P-expression</em> that does contain a <em>P-operator</em>
+consists of a sequence of <em>P-operators</em> and
+<em>(P+1)-expressions</em>.  The <em>(P+1)-expressions</em> serve
+as operands to the <em>P-operators</em>.  Thus
+<code>x + y * z</code> is a 13000-expression with 13000-operator
+<code>+</code> and operands that are the 13001-expressions 
+<code>x</code> and <code>y * z</code>.  Two operands CANNOT appear
+next to each other but two <em>P-operators</em> can appear next to each other
+(as in <code>x, y,, z</code> where <code>,</code> is a 2000-operator).
+<p>
+In a <em>P-expression</em>, operands are evaluated BEFORE the
+<em>P-expression</em> is evaluated.  Thus in <code>x + y * z</code>,
+the operand <code>y * z</code> is evaluated before the <code>+</code> operator
+is used to evaluate the entire expression.  However, not all operators
+are evaluatable: the comma operator <code>,</code> is not -- it is used
+to group sub-expressions, and the line operators
+(see <a href='#line-operators'>Line Operators</a>) are not evaluatable
+in the sense that <code>+</code> is.
+<p>
+Operator precedences are in the range <em>L</em> = -1,000,000 through
+<em>H</em> = +1,000,000.  By convention, precedence <em>H</em> is
+reserved for postfix operators and <em>H-1</em> is reserved for
+prefix operators (see <a href='#fixity'>Fixity</a>), but not all
+prefix or postfix operators have these precedences.  Thus
+prefix <code>+</code> has precedence <em>H-1</em> but prefix <code>NOT</code>
+has precedence 11200.  (Precedence <em>L-1</em> is used by an
+`error operator' inserted by the parser to fix up parsing errors.)
+
+
+</p>
+
+<h2 id='fixity'>Fixity</h2>
+
+<p>
 
 
 </p>
