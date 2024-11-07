@@ -1,0 +1,168 @@
+<html>
+<head>
+<!--
+File:	reckon_arithmetic_operators.html
+Author:	Robert L Walton <walton@acm.org>
+Date:	Thu Nov  7 01:46:26 EST 2024
+
+The authors have placed RECKON (its files and the
+content of these files) in the public domain; they
+make no warranty and accept no liability for RECKON.
+-->
+
+<meta http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate" />
+
+<title>RECKON Arithmetic Operators</title>
+<link href='page.css' rel='stylesheet'/>
+<link rel='icon' href='data:;base64,='>
+
+<script src='page.script'></script>
+
+</head>
+
+<body>
+
+
+<div id='header'>
+<form method='GET' action='index.html#reckon_arithmetic_operators'>
+<button type='submit'>INDEX</button></form>
+
+<button type='button' onclick='NEW_WINDOW("index.html")'>
+NEW WINDOW</button>
+</div>
+
+<div id='text'>
+
+<h1 id='text-header'>RECKON Arithmetic Operators</h1>
+
+<p>
+</p>
+
+<h2 id='arithmetic-operators'>Arithmetic Operators</h2>
+
+<table class='top borders'>
+<tr><th>Operator</th><th>Meaning</th><th>Fixity</th><th>Format</th>
+                     <th>Precedence</th></tr>
+<tr><th>==</th><td>is equal</td><td>infix</td>
+                  <td>infix<sup>3</sup></td><td>12000</td><tr>
+<tr><th>!=</th><td>is not equal</td><td>infix</td>
+                  <td>infix<sup>3</sup></td><td>12000</td><tr>
+<tr><th>&lt;</th><td>is less than</td><td>infix</td>
+                  <td>infix<sup>3</sup></td><td>12000</td><tr>
+<tr><th>&lt;=</th><td>is less than<br>or equal</td><td>infix</td>
+                  <td>infix<sup>3</sup></td><td>12000</td><tr>
+<tr><th>&gt;</th><td>is greater than</td><td>infix</td>
+                  <td>infix<sup>3</sup></td><td>12000</td><tr>
+<tr><th>&gt;=</th><td>is greater than<br>or equal</td><td>infix</td>
+                  <td>infix<sup>3</sup></td><td>12000</td><tr>
+<tr><th>is integer</th><td>is integer</td><td>posfix</td>
+                  <td>unary posfix</td><td>12000</td><tr>
+<tr><th>is finite</th><td>is finite</td><td>posfix</td>
+                  <td>unary posfix</td><td>12000</td><tr>
+<tr><th>is infinite</th><td>is infinite</td><td>posfix</td>
+                  <td>unary posfix</td><td>12000</td><tr>
+<tr><th>is nan</th><td>is nan</td><td>posfix</td>
+                  <td>unary posfix</td><td>12000</td><tr>
+<tr><th>is number</th><td>is number</td><td>posfix</td>
+                  <td>unary posfix</td><td>12000</td><tr>
+<tr><th>+</th><td>addition</td><td>infix</td>
+                  <td>infix<sup>4</sup></td><td>13000</td><tr>
+<tr><th>-</th><td>subtraction</td><td>infix</td>
+                  <td>infix<sup>4</sup></td><td>13000</td><tr>
+<tr><th>/</th><td>division</td><td>infix</td>
+                  <td>binary</td><td>13100</td><tr>
+<tr><th>*</th><td>multiplication</td><td>infix</td>
+                  <td>infix<sup>5</sup></td><td>13200</td><tr>
+<tr><th>^</th><td>exponentiation</td><td>infix</td>
+                  <td>binary</td><td>13300</td><tr>
+<tr><th>+</th><td>no operation</td><td>prefix</td>
+                  <td>unary prefix</td><td>H-1</td><tr>
+<tr><th>-</th><td>negation</td><td>prefix</td>
+                  <td>unary prefix</td><td>H-1</td><tr>
+</table>
+
+<p>
+<ul class='notes'>
+<li> <sup>3</sup>The only operators allowed are
+<b>==</b>, <b>!=</b>, <b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>,
+and <b>&gt;=</b>.
+<li> <sup>4</sup>The only operators allowed are
+<b>+</b> and <b>-</b>.
+<li> <sup>5</sup>The only operator allowed is <b>*</b>.
+</ul>
+
+<p>
+For a full table of RECKON operators and a complete explanation of
+fixity, format, and precedence see
+<a href='reckon_operators.html'>RECKON Operators</a>.
+
+<p>
+Higher precedence operators are evaluated before lower precedence
+operators.  For example, in <code>x + y * z</code>, the subexpression
+<code>y * z</code> is evaluated first and then the <code>+</code>
+is evaluated.
+
+</p>
+
+<h2 id='arithmetic-expression-evaluation'>Arithmetic Expression Evaluation</h2>
+
+<p>
+Arithmetic expressions are evaluated according to the operators in them:
+
+<dl class='space-title-words'>
+<dt>== != &lt; &lt;= &gt; &gt;=</dt>
+<dd>The expression consists of an alternating sequence of operators
+and operands beginning and ending with an operand.  Example:
+<code>5 &lt; x &lt;= z</code>.  Evaluation is left to right and
+stops as soon as a comparison evaluations to <code>FALSE</code>.
+If no comparison is false, the expression evaluates to <code>TRUE</code>.
+<br><br>
+Operands not needed for the evaluation are not evaluated (e.g.,
+in the example, if <code>5 &lt; x</code> is <code>FALSE</code>,
+<code>z</code> is not evaluated).  Operands
+shared by two operators (e.g. <code>x</code> in the example) are
+only evaluated once.
+<br><br>
+It is a run-time error if an attempt is made to compare a <code>nan</code>,
+to compare infinities for equality,
+of to compare two infinities of like sign.
+</dd>
+<br>
+<dt><code>is integer</code> <code>is finite</code>
+    <code>is infinite</code> <code>is nan</code>
+    <code>is number</code></dt>
+<dd>
+The expression consists of just an operand followed by an operator.
+The operand is evaluated and tested by the operator which returns
+<code>TRUE</code> or <code>FALSE</code>.
+<br><br>
+The operand is a number if it is a finite (includes integers),
+infinite, or nan.
+</dd>
+<br>
+<dt>infix+ infix-</dt>
+<dd>
+<dd>The expression consists of an alternating sequence of operators
+and operands beginning and ending with an operand.  Example:
+<code>5 + x - z</code>.  Evaluation is left to right (e.g.,
+<code>5 + x</code> is evaluated first and then <code>z</code>
+is subtraced from the result).
+<br><br>
+A <code>nan</code> operand, or both operands being infinities
+of opposite signed for <code>+</code> or the same sign for
+<code>-</code>, produce a <code>nan</code> result and an error message.
+</dd>
+</dl>
+
+</p>
+
+</div>
+
+</body>
+
+</html>
+
+
+
+
