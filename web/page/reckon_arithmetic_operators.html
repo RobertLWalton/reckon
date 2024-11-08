@@ -3,7 +3,7 @@
 <!--
 File:	reckon_arithmetic_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Nov  8 01:29:06 EST 2024
+Date:	Fri Nov  8 14:08:25 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -63,7 +63,7 @@ NEW WINDOW</button>
                   <td>unary posfix</td><td>12000</td><tr>
 <tr><th>is infinite</th><td>is infinite</td><td>posfix</td>
                   <td>unary posfix</td><td>12000</td><tr>
-<tr><th>is nan</th><td>is nan</td><td>posfix</td>
+<tr><th>is undefined<br> number</th><td>is nan</td><td>posfix</td>
                   <td>unary posfix</td><td>12000</td><tr>
 <tr><th>is number</th><td>is number</td><td>posfix</td>
                   <td>unary posfix</td><td>12000</td><tr>
@@ -112,6 +112,10 @@ is evaluated.
 Whenever an arithmetic operation produces a finite number too
 large to be stored, that number is converted to the corresponding
 infinity and NO error message is output.
+<p>
+When an arithmetic operation that should produce a number has a
+<code>nan</code> operand, the operation produces a <code>nan</code>
+result but NO error message is output.
 
 <p>
 Arithmetic expressions are evaluated according to the operators in them:
@@ -142,7 +146,7 @@ to compare a <code>nan</code>.
 </dd>
 <br>
 <dt><code>is integer</code> <code>is finite</code>
-    <code>is infinite</code> <code>is nan</code>
+    <code>is infinite</code> <code>is undefined number</code><br>
     <code>is number</code></dt>
 <dd>
 The expression consists of just an operand followed by an operator.
@@ -150,7 +154,7 @@ The operand is evaluated and tested by the operator which returns
 <code>TRUE</code> or <code>FALSE</code>.
 <br><br>
 The operand is a number if it is a finite (includes integers),
-infinite, or nan.
+infinite, or undefined number (nan).
 </dd>
 <br>
 <dt class='pagebreak'>infix+ infix-</dt>
@@ -161,9 +165,9 @@ and operands beginning and ending with an operand.  Example:
 <code>5 + x</code> is evaluated first and then <code>z</code>
 is subtraced from the result).
 <br><br>
-A <code>nan</code> operand, or both operands being infinities
+Both operands being infinities
 of opposite signed for <code>+</code> or the same sign for
-<code>-</code>, produce a <code>nan</code> result and an error message.
+<code>-</code> produce a <code>nan</code> result and an error message.
 </dd>
 <br>
 <dt>/ (division)</dt>
@@ -186,8 +190,8 @@ Zeroes are signed and treated as if they were unknowably small numbers of
 their given sign, allowing the sign of the resulting infinity to be
 computed.
 <br><br>
-A <code>nan</code> operand, or both operands being infinities,
-or both operands being zeros,
+Both operands being infinities
+or both being zeros
 produces a <code>nan</code> result and an error message.
 </dd>
 <br>
@@ -197,8 +201,21 @@ produces a <code>nan</code> result and an error message.
 sequence of operands and <code>*</code>
 multiplication operators beginning and ending with an operand.
 <br><br>
-A <code>nan</code> operand, or one operand being a zero and the
-other an infinity,
+One operand being a zero and the
+other an infinity
+produces a <code>nan</code> result and an error message.
+</dd>
+<br>
+<dt>^ (exponentiation)</dt>
+<dd>
+<dd>The expression consists the operand to be raised to a power
+followed by the <code>^</code> operator followed by the power
+operand.
+<br><br>
+<code>x ^ 0 == 1</code> (even for <code> x == 0</code>),
+TBD.
+<br><br>
+The first operand being strictly negative
 produces a <code>nan</code> result and an error message.
 </dd>
 </dl>
