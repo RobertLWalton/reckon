@@ -3,7 +3,7 @@
 <!--
 File:	reckon_arithmetic_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Nov  7 08:40:09 EST 2024
+Date:	Fri Nov  8 01:29:06 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -109,6 +109,11 @@ is evaluated.
 <h2 id='arithmetic-expression-evaluation'>Arithmetic Expression Evaluation</h2>
 
 <p>
+Whenever an arithmetic operation produces a finite number too
+large to be stored, that number is converted to the corresponding
+infinity and NO error message is output.
+
+<p>
 Arithmetic expressions are evaluated according to the operators in them:
 
 <dl class='space-title-words'>
@@ -125,9 +130,15 @@ in the example, if <code>5 &lt; x</code> is <code>FALSE</code>,
 shared by two operators (e.g. <code>x</code> in the example) are
 only evaluated once.
 <br><br>
-It is a run-time error if an attempt is made to compare a <code>nan</code>,
-to compare infinities for equality,
-of to compare two infinities of like sign.
+Zeroes are signed and treated by other arithmetic operations as
+being unknowably small numbers of their given sign, but for comparisons
+both signed zeroes are treated as absolute zero.
+<br><br>
+Infinities are assumed to have absolute value larger than any finite number.
+It is a run-time error if an attempt is made
+to compare two infinities for equality,
+to compare two infinities of like sign, or
+to compare a <code>nan</code>.
 </dd>
 <br>
 <dt><code>is integer</code> <code>is finite</code>
@@ -142,7 +153,7 @@ The operand is a number if it is a finite (includes integers),
 infinite, or nan.
 </dd>
 <br>
-<dt>infix+ infix-</dt>
+<dt class='pagebreak'>infix+ infix-</dt>
 <dd>
 <dd>The expression consists of an alternating sequence of operators
 and operands beginning and ending with an operand.  Example:
@@ -153,6 +164,42 @@ is subtraced from the result).
 A <code>nan</code> operand, or both operands being infinities
 of opposite signed for <code>+</code> or the same sign for
 <code>-</code>, produce a <code>nan</code> result and an error message.
+</dd>
+<br>
+<dt>/ (division)</dt>
+<dd>
+<dd>The expression consists of a dividend operand followed by the <code>/</code>
+division operator followed by a divisor operand.  Division of integers
+may produce a fraction (e.g., <code>9 / 2 == 4.5</code>).
+<br><br>
+Only two operands are allowed in a division expressions (e.g.,
+<code>x / y / z</code> is not allowed).
+<br><br>
+Division has lower precedence than multiplication, so that, for example,<br>
+<code>x * y / z * w == (x * y) / (z * w)</code>.
+<br><br>
+Division of a finite number by an infinity produces a signed zero which
+represents a unknowably small number with the given sign.
+<br><br>
+Division of a non-zero by a zero produces an infinity and an error message.
+Zeroes are signed and treated as if they were unknowably small numbers of
+their given sign, allowing the sign of the resulting infinity to be
+computed.
+<br><br>
+A <code>nan</code> operand, or both operands being infinities,
+or both operands being zeros,
+produces a <code>nan</code> result and an error message.
+</dd>
+<br>
+<dt>* (multiplication)</dt>
+<dd>
+<dd>The expression consists an alternating
+sequence of operands and <code>*</code>
+multiplication operators beginning and ending with an operand.
+<br><br>
+A <code>nan</code> operand, or one operand being a zero and the
+other an infinity,
+produces a <code>nan</code> result and an error message.
 </dd>
 </dl>
 
