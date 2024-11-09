@@ -1,0 +1,116 @@
+// Reckon Language Arithmetic Operators Test Data
+//
+// File:        reckon_arithmetic_operators.rec
+// Author:      Bob Walton (walton@acm.org)
+// Date:        Sat Nov  9 03:29:19 AM EST 2024
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+// comparisons: ==  !=  <  <=  >  >=
+//
+1 == 1
+TRUE
+1 == 2
+FALSE
+1 != 2
+TRUE
+1 < 2 <= 3 > -1 >= -1
+TRUE
++0 == -0
+TRUE
++0 != -0
+FALSE
+1 < +inf
+TRUE
+-inf < 1
+TRUE
+-inf < +inf
+TRUE
++inf == +inf
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {21:65,12,62} JMPNEQ location 68 with invalid operand(s)
+[no output due to run-time error]
++inf < +inf
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {22:71,15,65} JMPGEQ location 74 with invalid operand(s)
+[no output due to run-time error]
+2 < nan
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {23:77,18,68} JMPGEQ location 80 with invalid operand(s)
+[no output due to run-time error]
+nan == nan
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {24:83,21,71} JMPNEQ location 86 with invalid operand(s)
+[no output due to run-time error]
+
+// is integer  is finite  is infinite  is undefined number
+// is number
+//
+1 is integer
+TRUE
+1.5 is integer
+FALSE
+1 is finite
+TRUE
+1.5 is finite
+TRUE
+1 is infinite
+FALSE
+-inf is infinite
+TRUE
+1 is undefined number
+FALSE
+nan is undefined number
+TRUE
+1 is number
+TRUE
+"hello" is number
+FALSE
+
+// infix+ and infix-
+//
+1 + 2
+3
+1 + 2 - 3 + 4 - 5
+-1
++inf + 2
+inf
+-inf + 2
+-inf
++inf + +inf
+inf
++inf + -inf
+!!! ERROR: invalid operand(s)
+* {47:169,39,140} ADD: * = -nan <= inf + -inf
+-nan
++inf - +inf
+!!! ERROR: invalid operand(s)
+* {48:172,40,143} SUB: * = -nan <= inf - inf
+-nan
+nan + 2
+nan
+
+// ^ (exponent)
+//
+2 ^ 10
+1024
+10 ^ -3
+0.001
+2 ^ 0
+1
+0 ^ 0
+1
+-5 ^ 2
+25
+-5 ^ 2.5
+!!! ERROR: invalid operand(s)
+* {58:193,47,164} POW: * = -nan <= -5 pow 2.5
+-nan
+2 ^ -3
+0.125
+0 ^ -3
+!!! ERROR: divide by zero
+* {60:199,49,170} POW: * = inf <= 0 pow -3
+inf

@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 26 02:04:57 AM EDT 2024
+// Date:	Fri Nov  8 07:58:26 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1663,15 +1663,21 @@ RETRY:
 	    min::locate ( ap0, min::dot_type );
 	    min::gen type = min::get ( ap0 );
 	    if ( type != min::NONE() )
+	    {
+	        vp0 = min::NULL_STUB;
 		OK = ::compile_constant
 		    ( vp[0], ppv[0], type, name );
+	    }
 	    else
 	    {
 		min::locate ( ap0, min::dot_initiator );
 		min::gen initiator = min::get ( ap0 );
 		if ( initiator == ::opening_quote )
+		{
+		    vp0 = min::NULL_STUB;
 		    OK = ::compile_constant
 			( vp[0], ppv[0], type, name );
+		}
 		else
 		{
 		    mexcom::compile_error

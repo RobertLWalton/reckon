@@ -1,0 +1,247 @@
+* {0:0,1,1} PUSHI: FALSE <= FALSE
+* {0:1,2,2} PUSHI: TRUE <= TRUE
+// Reckon Language Arithmetic Operators Test Data
+//
+// File:        reckon_arithmetic_operators.rec
+// Author:      Bob Walton (walton@acm.org)
+// Date:        Sat Nov  9 03:29:19 AM EST 2024
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+// comparisons: ==  !=  <  <=  >  >=
+//
+1 == 1
+* {12:2,3,3} PUSHI: * <= FALSE
+* {12:3,4,4} PUSHI: * <= 1
+* {12:4,5,5} PUSHI: * <= 1
+* {12:5,3,6} JMPNEQ location 8 is UNsuccessful: false <= 1 != 1
+* {12:6,2,7} POPS: * <= * = FALSE
+* {12:7,3,8} PUSHI: * <= TRUE
+1 == 2
+* {13:8,4,9} PUSHI: * <= FALSE
+* {13:9,5,10} PUSHI: * <= 1
+* {13:10,6,11} PUSHI: * <= 2
+* {13:11,4,12} JMPNEQ location 14 is successful: true <= 1 != 2
+1 != 2
+* {14:14,5,13} PUSHI: * <= FALSE
+* {14:15,6,14} PUSHI: * <= 1
+* {14:16,7,15} PUSHI: * <= 2
+* {14:17,5,16} JMPEQ location 20 is UNsuccessful: false <= 1 == 2
+* {14:18,4,17} POPS: * <= * = FALSE
+* {14:19,5,18} PUSHI: * <= TRUE
+1 < 2 <= 3 > -1 >= -1
+* {15:20,6,19} PUSHI: * <= FALSE
+* {15:21,7,20} PUSHI: * <= 1
+* {15:22,8,21} PUSHI: * <= 2
+* {15:23,7,22} JMPGEQ* location 32 is UNsuccessful: false <= 1 >= 2
+* {15:24,8,23} PUSHI: * <= 3
+* {15:25,7,24} JMPGT* location 32 is UNsuccessful: false <= 2 > 3
+* {15:26,8,25} PUSHI: * <= -1
+* {15:27,7,26} JMPLEQ* location 32 is UNsuccessful: false <= 3 <= -1
+* {15:28,8,27} PUSHI: * <= -1
+* {15:29,6,28} JMPLT location 32 is UNsuccessful: false <= -1 < -1
+* {15:30,5,29} POPS: * <= * = FALSE
+* {15:31,6,30} PUSHI: * <= TRUE
++0 == -0
+* {16:32,7,31} PUSHI: * <= FALSE
+* {16:33,8,32} PUSHI: * <= 0
+* {16:34,9,33} PUSHI: * <= -0
+* {16:35,7,34} JMPNEQ location 38 is UNsuccessful: false <= 0 != -0
+* {16:36,6,35} POPS: * <= * = FALSE
+* {16:37,7,36} PUSHI: * <= TRUE
++0 != -0
+* {17:38,8,37} PUSHI: * <= FALSE
+* {17:39,9,38} PUSHI: * <= 0
+* {17:40,10,39} PUSHI: * <= -0
+* {17:41,8,40} JMPEQ location 44 is successful: true <= 0 == -0
+1 < +inf
+* {18:44,9,41} PUSHI: * <= FALSE
+* {18:45,10,42} PUSHI: * <= 1
+* {18:46,11,43} PUSHI: * <= inf
+* {18:47,9,44} JMPGEQ location 50 is UNsuccessful: false <= 1 >= inf
+* {18:48,8,45} POPS: * <= * = FALSE
+* {18:49,9,46} PUSHI: * <= TRUE
+-inf < 1
+* {19:50,10,47} PUSHI: * <= FALSE
+* {19:51,11,48} PUSHI: * <= -inf
+* {19:52,12,49} PUSHI: * <= 1
+* {19:53,10,50} JMPGEQ location 56 is UNsuccessful: false <= -inf >= 1
+* {19:54,9,51} POPS: * <= * = FALSE
+* {19:55,10,52} PUSHI: * <= TRUE
+-inf < +inf
+* {20:56,11,53} PUSHI: * <= FALSE
+* {20:57,12,54} PUSHI: * <= -inf
+* {20:58,13,55} PUSHI: * <= inf
+* {20:59,11,56} JMPGEQ location 62 is UNsuccessful: false <= -inf >= inf
+* {20:60,10,57} POPS: * <= * = FALSE
+* {20:61,11,58} PUSHI: * <= TRUE
++inf == +inf
+* {21:62,12,59} PUSHI: * <= FALSE
+* {21:63,13,60} PUSHI: * <= inf
+* {21:64,14,61} PUSHI: * <= inf
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {21:65,12,62} JMPNEQ location 68 with invalid operand(s)
+[no output due to run-time error]
++inf < +inf
+* {22:68,15,62} PUSHI: * <= FALSE
+* {22:69,16,63} PUSHI: * <= inf
+* {22:70,17,64} PUSHI: * <= inf
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {22:71,15,65} JMPGEQ location 74 with invalid operand(s)
+[no output due to run-time error]
+2 < nan
+* {23:74,18,65} PUSHI: * <= FALSE
+* {23:75,19,66} PUSHI: * <= 2
+* {23:76,20,67} PUSHI: * <= nan
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {23:77,18,68} JMPGEQ location 80 with invalid operand(s)
+[no output due to run-time error]
+nan == nan
+* {24:80,21,68} PUSHI: * <= FALSE
+* {24:81,22,69} PUSHI: * <= nan
+* {24:82,23,70} PUSHI: * <= nan
+!!! FATAL ERROR:  invalid operands to a conditional jump instruction
+* {24:83,21,71} JMPNEQ location 86 with invalid operand(s)
+[no output due to run-time error]
+
+// is integer  is finite  is infinite  is undefined number
+// is number
+//
+1 is integer
+* {29:86,24,71} PUSHI: * <= FALSE
+* {29:87,25,72} PUSHI: * <= 1
+* {29:88,24,73} JMPINT location 90 is successful: true <= 1
+* {29:90,23,74} POPS: * <= * = FALSE
+* {29:91,24,75} PUSHI: * <= TRUE
+1.5 is integer
+* {30:92,25,76} PUSHI: * <= FALSE
+* {30:93,26,77} PUSHI: * <= 1.5
+* {30:94,25,78} JMPINT location 96 is UNsuccessful: false <= 1.5
+* {30:95,25,79} JMP location 98
+1 is finite
+* {31:98,26,80} PUSHI: * <= FALSE
+* {31:99,27,81} PUSHI: * <= 1
+* {31:100,26,82} JMPFIN location 102 is successful: true <= 1
+* {31:102,25,83} POPS: * <= * = FALSE
+* {31:103,26,84} PUSHI: * <= TRUE
+1.5 is finite
+* {32:104,27,85} PUSHI: * <= FALSE
+* {32:105,28,86} PUSHI: * <= 1.5
+* {32:106,27,87} JMPFIN location 108 is successful: true <= 1.5
+* {32:108,26,88} POPS: * <= * = FALSE
+* {32:109,27,89} PUSHI: * <= TRUE
+1 is infinite
+* {33:110,28,90} PUSHI: * <= FALSE
+* {33:111,29,91} PUSHI: * <= 1
+* {33:112,28,92} JMPINF location 114 is UNsuccessful: false <= 1
+* {33:113,28,93} JMP location 116
+-inf is infinite
+* {34:116,29,94} PUSHI: * <= FALSE
+* {34:117,30,95} PUSHI: * <= -inf
+* {34:118,29,96} JMPINF location 120 is successful: true <= -inf
+* {34:120,28,97} POPS: * <= * = FALSE
+* {34:121,29,98} PUSHI: * <= TRUE
+1 is undefined number
+* {35:122,30,99} PUSHI: * <= FALSE
+* {35:123,31,100} PUSHI: * <= 1
+* {35:124,30,101} JMPNAN location 126 is UNsuccessful: false <= 1
+* {35:125,30,102} JMP location 128
+nan is undefined number
+* {36:128,31,103} PUSHI: * <= FALSE
+* {36:129,32,104} PUSHI: * <= nan
+* {36:130,31,105} JMPNAN location 132 is successful: true <= nan
+* {36:132,30,106} POPS: * <= * = FALSE
+* {36:133,31,107} PUSHI: * <= TRUE
+1 is number
+* {37:134,32,108} PUSHI: * <= FALSE
+* {37:135,33,109} PUSHI: * <= 1
+* {37:136,32,110} JMPNUM location 138 is successful: true <= 1
+* {37:138,31,111} POPS: * <= * = FALSE
+* {37:139,32,112} PUSHI: * <= TRUE
+"hello" is number
+* {38:140,33,113} PUSHI: * <= FALSE
+* {38:141,34,114} PUSHI: * <= hello
+* {38:142,33,115} JMPNUM location 144 is UNsuccessful: false <= hello
+* {38:143,33,116} JMP location 146
+
+// infix+ and infix-
+//
+1 + 2
+* {42:146,34,117} PUSHI: * <= 1
+* {42:147,35,118} PUSHI: * <= 2
+* {42:148,34,119} ADD: * = 3 <= 1 + 2
+1 + 2 - 3 + 4 - 5
+* {43:149,35,120} PUSHI: * <= 1
+* {43:150,36,121} PUSHI: * <= 2
+* {43:151,35,122} ADD: * = 3 <= 1 + 2
+* {43:152,36,123} PUSHI: * <= 3
+* {43:153,35,124} SUB: * = 0 <= 3 - 3
+* {43:154,36,125} PUSHI: * <= 4
+* {43:155,35,126} ADD: * = 4 <= 0 + 4
+* {43:156,36,127} PUSHI: * <= 5
+* {43:157,35,128} SUB: * = -1 <= 4 - 5
++inf + 2
+* {44:158,36,129} PUSHI: * <= inf
+* {44:159,37,130} PUSHI: * <= 2
+* {44:160,36,131} ADD: * = inf <= inf + 2
+-inf + 2
+* {45:161,37,132} PUSHI: * <= -inf
+* {45:162,38,133} PUSHI: * <= 2
+* {45:163,37,134} ADD: * = -inf <= -inf + 2
++inf + +inf
+* {46:164,38,135} PUSHI: * <= inf
+* {46:165,39,136} PUSHI: * <= inf
+* {46:166,38,137} ADD: * = inf <= inf + inf
++inf + -inf
+* {47:167,39,138} PUSHI: * <= inf
+* {47:168,40,139} PUSHI: * <= -inf
+!!! ERROR: invalid operand(s)
+* {47:169,39,140} ADD: * = -nan <= inf + -inf
++inf - +inf
+* {48:170,40,141} PUSHI: * <= inf
+* {48:171,41,142} PUSHI: * <= inf
+!!! ERROR: invalid operand(s)
+* {48:172,40,143} SUB: * = -nan <= inf - inf
+nan + 2
+* {49:173,41,144} PUSHI: * <= nan
+* {49:174,42,145} PUSHI: * <= 2
+* {49:175,41,146} ADD: * = nan <= nan + 2
+
+// ^ (exponent)
+//
+2 ^ 10
+* {53:176,42,147} PUSHI: * <= 2
+* {53:177,43,148} PUSHI: * <= 10
+* {53:178,42,149} POW: * = 1024 <= 2 pow 10
+10 ^ -3
+* {54:179,43,150} PUSHI: * <= 10
+* {54:180,44,151} PUSHI: * <= -3
+* {54:181,43,152} POW: * = 0.001 <= 10 pow -3
+2 ^ 0
+* {55:182,44,153} PUSHI: * <= 2
+* {55:183,45,154} PUSHI: * <= 0
+* {55:184,44,155} POW: * = 1 <= 2 pow 0
+0 ^ 0
+* {56:185,45,156} PUSHI: * <= 0
+* {56:186,46,157} PUSHI: * <= 0
+* {56:187,45,158} POW: * = 1 <= 0 pow 0
+-5 ^ 2
+* {57:188,46,159} PUSHI: * <= -5
+* {57:189,47,160} PUSHI: * <= 2
+* {57:190,46,161} POW: * = 25 <= -5 pow 2
+-5 ^ 2.5
+* {58:191,47,162} PUSHI: * <= -5
+* {58:192,48,163} PUSHI: * <= 2.5
+!!! ERROR: invalid operand(s)
+* {58:193,47,164} POW: * = -nan <= -5 pow 2.5
+2 ^ -3
+* {59:194,48,165} PUSHI: * <= 2
+* {59:195,49,166} PUSHI: * <= -3
+* {59:196,48,167} POW: * = 0.125 <= 2 pow -3
+0 ^ -3
+* {60:197,49,168} PUSHI: * <= 0
+* {60:198,50,169} PUSHI: * <= -3
+!!! ERROR: divide by zero
+* {60:199,49,170} POW: * = inf <= 0 pow -3
