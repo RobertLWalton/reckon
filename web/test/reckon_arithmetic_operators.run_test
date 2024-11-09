@@ -2,7 +2,7 @@
 //
 // File:        reckon_arithmetic_operators.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Nov  9 03:29:19 AM EST 2024
+// Date:        Sat Nov  9 06:38:00 EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -91,6 +91,8 @@ inf
 -nan
 nan + 2
 nan
+2e308 + 2e308
+inf
 
 // ^ (exponent)
 //
@@ -102,15 +104,29 @@ nan
 1
 0 ^ 0
 1
+1.5 ^ 0
+1
+-1.5 ^ 0
+1
 -5 ^ 2
 25
 -5 ^ 2.5
 !!! ERROR: invalid operand(s)
-* {58:193,47,164} POW: * = -nan <= -5 pow 2.5
+* {61:202,50,173} POW: * = -nan <= -5 pow 2.5
 -nan
+-1 ^ 1e15
+1
+-2 ^ 1e15
+!!! ERROR: numeric overflow
+* {63:208,52,179} POW: * = inf <= -2 pow 1e+15
+inf
+-2 ^ 1e15
+!!! ERROR: numeric overflow
+* {64:211,53,182} POW: * = inf <= -2 pow 1e+15
+inf
 2 ^ -3
 0.125
 0 ^ -3
 !!! ERROR: divide by zero
-* {60:199,49,170} POW: * = inf <= 0 pow -3
+* {66:217,55,188} POW: * = inf <= 0 pow -3
 inf
