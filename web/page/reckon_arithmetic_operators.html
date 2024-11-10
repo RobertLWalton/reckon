@@ -3,7 +3,7 @@
 <!--
 File:	reckon_arithmetic_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Nov  8 14:08:25 EST 2024
+Date:	Sat Nov  9 19:49:13 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -111,7 +111,7 @@ is evaluated.
 <p>
 Whenever an arithmetic operation produces a finite number too
 large to be stored, that number is converted to the corresponding
-infinity and NO error message is output.
+infinity and a numeric overflow error message is output.
 <p>
 When an arithmetic operation that should produce a number has a
 <code>nan</code> operand, the operation produces a <code>nan</code>
@@ -155,6 +155,8 @@ The operand is evaluated and tested by the operator which returns
 <br><br>
 The operand is a number if it is a finite (includes integers),
 infinite, or undefined number (nan).
+<br><br>
+Zeroes, although signed, are treated as integers.
 </dd>
 <br>
 <dt class='pagebreak'>infix+ infix-</dt>
@@ -165,9 +167,10 @@ and operands beginning and ending with an operand.  Example:
 <code>5 + x</code> is evaluated first and then <code>z</code>
 is subtraced from the result).
 <br><br>
-Both operands being infinities
-of opposite signed for <code>+</code> or the same sign for
-<code>-</code> produce a <code>nan</code> result and an error message.
+If both operands are infinities
+of opposite signed for <code>+</code>, or the same sign for
+<code>-</code>, a <code>nan</code> result is produced
+along with an invalid operand error message.
 </dd>
 <br>
 <dt>/ (division)</dt>
@@ -176,7 +179,7 @@ of opposite signed for <code>+</code> or the same sign for
 division operator followed by a divisor operand.  Division of integers
 may produce a fraction (e.g., <code>9 / 2 == 4.5</code>).
 <br><br>
-Only two operands are allowed in a division expressions (e.g.,
+Only two operands are allowed in a division expression (e.g.,
 <code>x / y / z</code> is not allowed).
 <br><br>
 Division has lower precedence than multiplication, so that, for example,<br>
@@ -184,36 +187,41 @@ Division has lower precedence than multiplication, so that, for example,<br>
 <br><br>
 Division of a finite number by an infinity produces a signed zero which
 represents a unknowably small number with the given sign.
+NO error message is produced.
 <br><br>
-Division of a non-zero by a zero produces an infinity and an error message.
+Division of a non-zero by a zero produces an infinity.
 Zeroes are signed and treated as if they were unknowably small numbers of
 their given sign, allowing the sign of the resulting infinity to be
-computed.
+computed.  An divide by zero error message
+is also output unless the dividend being divided is an infinity.
 <br><br>
-Both operands being infinities
-or both being zeros
-produces a <code>nan</code> result and an error message.
+If operands being infinities
+or both being zeros,
+a <code>nan</code> result is produced along with an invalid operand
+error message.
 </dd>
 <br>
 <dt>* (multiplication)</dt>
 <dd>
 <dd>The expression consists an alternating
-sequence of operands and <code>*</code>
-multiplication operators beginning and ending with an operand.
+sequence of factor operands and <code>*</code>
+multiplication operators beginning and ending with a factor operand.
+There may be more than two factor operands.
 <br><br>
-One operand being a zero and the
+One factor operand being a zero and the
 other an infinity
 produces a <code>nan</code> result and an error message.
 </dd>
 <br>
 <dt>^ (exponentiation)</dt>
 <dd>
-<dd>The expression consists the operand to be raised to a power
+<dd>The expression consists a basis operand
 followed by the <code>^</code> operator followed by the power
 operand.
 <br><br>
-<code>x ^ 0 == 1</code> (even for <code> x == 0</code>),
-TBD.
+For all numbers <code>x</code>, <code>x ^ 0 == 1</code>,
+even for <code>x</code> equal to a zero, infinity, or nan
+(i.e., <code>nan ^ 0 == 1</code>).
 <br><br>
 The first operand being strictly negative
 produces a <code>nan</code> result and an error message.
