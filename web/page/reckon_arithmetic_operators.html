@@ -3,7 +3,7 @@
 <!--
 File:	reckon_arithmetic_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sat Nov  9 19:49:13 EST 2024
+Date:	Sun Nov 10 02:37:46 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -173,6 +173,18 @@ of opposite signed for <code>+</code>, or the same sign for
 along with an invalid operand error message.
 </dd>
 <br>
+<dt>* (multiplication)</dt>
+<dd>
+<dd>The expression consists an alternating
+sequence of factor operands and <code>*</code>
+multiplication operators beginning and ending with a factor operand.
+There may be more than two factor operands.
+<br><br>
+If one factor operand is zero and the
+other is an infinity,
+a <code>nan</code> is produced along with an error message.
+</dd>
+<br>
 <dt>/ (division)</dt>
 <dd>
 <dd>The expression consists of a dividend operand followed by the <code>/</code>
@@ -201,30 +213,25 @@ a <code>nan</code> result is produced along with an invalid operand
 error message.
 </dd>
 <br>
-<dt>* (multiplication)</dt>
-<dd>
-<dd>The expression consists an alternating
-sequence of factor operands and <code>*</code>
-multiplication operators beginning and ending with a factor operand.
-There may be more than two factor operands.
-<br><br>
-One factor operand being a zero and the
-other an infinity
-produces a <code>nan</code> result and an error message.
-</dd>
-<br>
 <dt>^ (exponentiation)</dt>
 <dd>
 <dd>The expression consists a basis operand
 followed by the <code>^</code> operator followed by the power
 operand.
 <br><br>
-For all numbers <code>x</code>, <code>x ^ 0 == 1</code>,
-even for <code>x</code> equal to a zero, infinity, or nan
-(i.e., <code>nan ^ 0 == 1</code>).
+For all integers <code>y</code>, and all numbers <code>x</code>
+(including <code>nan</code>), <code>x ^ y</code> is defined by
 <br><br>
-The first operand being strictly negative
-produces a <code>nan</code> result and an error message.
+<div class='center'><code>x ^ 0 = 1</code></div>
+<div class='center'><code>x ^ y = x * x ^ ( y - 1 )   if y &gt; 0</code></div>
+<div class='center'><code>x ^ y = x ^ ( y + 1 ) / x   if y &lt; 0</code></div>
+<br>
+Numeric overflow and divide by zero errors happen when dictated
+by these equations.
+<br><br>
+Otherwise if the power operand is not an integer and the base operand is
+strictly negative a <code>nan</code> results along with an invalid
+operand error message.
 </dd>
 </dl>
 

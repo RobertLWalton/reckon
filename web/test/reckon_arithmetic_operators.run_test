@@ -2,7 +2,7 @@
 //
 // File:        reckon_arithmetic_operators.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Nov  9 20:31:08 EST 2024
+// Date:        Sun Nov 10 02:36:22 EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -106,6 +106,10 @@ inf
 !!! ERROR: numeric overflow
 * {56:187,45,158} MUL: * = inf <= 1e+200 * 1e+200
 inf
++0 * -inf
+!!! ERROR: invalid operand(s)
+* {57:190,46,161} MUL: * = -nan <= 0 * -inf
+-nan
 
 // / (division)
 //
@@ -121,17 +125,17 @@ inf
 -0
 5 / -0
 !!! ERROR: divide by zero
-* {65:205,51,176} DIV: * = -inf <= 5 / -0
+* {66:208,52,179} DIV: * = -inf <= 5 / -0
 -inf
 -inf / -0
 inf
 +inf / +inf
 !!! ERROR: invalid operand(s)
-* {67:211,53,182} DIV: * = -nan <= inf / inf
+* {68:214,54,185} DIV: * = -nan <= inf / inf
 -nan
 -0 / +0
 !!! ERROR: invalid operand(s)
-* {68:214,54,185} DIV: * = -nan <= -0 / 0
+* {69:217,55,188} DIV: * = -nan <= -0 / 0
 -nan
 
 // ^ (exponent)
@@ -154,25 +158,39 @@ inf
 1
 nan ^ 0
 1
+-1.5 ^ 5
+-7.59375
++inf ^ 5
+inf
+-inf ^ 5
+-inf
+nan ^ 5
+nan
 -5 ^ 2
 25
--5 ^ 2.5
-!!! ERROR: invalid operand(s)
-* {82:247,65,218} POW: * = -nan <= -5 pow 2.5
--nan
 -1 ^ 1e15
 1
 -2 ^ 1e15
 !!! ERROR: numeric overflow
-* {84:253,67,224} POW: * = inf <= -2 pow 1e+15
-inf
--2 ^ 1e15
-!!! ERROR: numeric overflow
-* {85:256,68,227} POW: * = inf <= -2 pow 1e+15
+* {88:265,71,236} POW: * = inf <= -2 pow 1e+15
 inf
 2 ^ -3
 0.125
 0 ^ -3
 !!! ERROR: divide by zero
-* {87:262,70,233} POW: * = inf <= 0 pow -3
+* {90:271,73,242} POW: * = inf <= 0 pow -3
 inf
+-inf ^ -3
+-0
+nan ^ -3
+nan
+2 ^ 0.5
+1.4142135623731
+-2 ^ 0.5
+!!! ERROR: invalid operand(s)
+* {94:283,77,254} POW: * = -nan <= -2 pow 0.5
+-nan
+0 ^ 0.5
+0
+1e-200 ^ 0.5
+1e-100
