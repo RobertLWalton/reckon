@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  8 07:58:26 PM EST 2024
+// Date:	Sun Nov 10 03:18:11 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1571,7 +1571,8 @@ RETRY:
 		min::uns8 op_code =
 		    (min::uns8) ( func->flags >> 24 );
 		mex::instr instr =
-		    { op_code, mex::T_AOP };
+		    { op_code, mex::T_AOP, 0, 0,
+                      0, 0, 0, ::ZERO };
 		mexstack::var_stack_length -= jend;;
 		++ mexstack::var_stack_length;
 		mexstack::push_instr
