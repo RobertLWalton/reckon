@@ -3,7 +3,7 @@
 <!--
 File:	reckon_numbers.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Mon Nov 11 12:37:12 EST 2024
+Date:	Mon Nov 11 17:40:48 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -216,6 +216,13 @@ However <code>+inf + -inf</code> cannot be computed; computing it causes
 an error message and returns a <code>nan</code> value (see below)
 that represents an uncomputable number.
 <p>
+Number lexemes representing numbers too large to be stored represent
+infinities.  The range of storeable finite numbers is only slightly larger
+than (-1e308, +1e308).  Thus <code>+1e309 == +inf</code> and
+<code>-1e309 == -inf</code>.  An arithmetic operation with finite
+operands cannot have an infinite result without producing
+either a numeric overflow or divide by zero error message.
+<p>
 Some examples are:
 <pre class='example'>
 <div class='line'>inf</div>inf
@@ -262,9 +269,14 @@ inf
 <p>
 IEEE <em>NaNs</em>, a.k.a. Not a Numbers, are RECKON numbers.
 They are best thought of as outputs of impossible arithmetic computations
-and we call them `undefined numbers'.
+and we call them `undefined numbers'.  They are represented by
+the numeric word lexemes <code>nan</code>, <code>+nan</code>,
+and <code>-nan</code>.
 <p>
-For example, <code>+inf + -inf == nan</code>.
+A <code>nan</code> operand to a comparison operator produces a
+run-time error.  This includes the case <code>nan == nan</code>.
+<p>
+For example, <code>+inf + -inf</code> produces a <code>-nan</code> result.
 <p>
 Some examples are:
 <pre class='example'>
