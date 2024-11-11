@@ -3,7 +3,7 @@
 <!--
 File:	reckon_arithmetic_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sun Nov 10 06:52:03 EST 2024
+Date:	Mon Nov 11 07:43:52 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -118,9 +118,10 @@ fixity, format, and precedence see
 
 <p>
 Higher precedence operators are evaluated before lower precedence
-operators.  For example, in <code>x + y * z</code>, the subexpression
-<code>y * z</code> is evaluated first and then the <code>+</code>
-is evaluated.
+operators.  For example, in <code>x + y * z</code>,
+the higher precedence <code>*</code> in the subexpression
+<code>y * z</code> is evaluated first and then the lower precedence
+<code>+</code> is evaluated.
 <p>
 A complete set of all the examples for this page is in
 <a href='../examples/reckon_arithmetic_operators.rec' download>
@@ -143,18 +144,18 @@ result but NO error message is output.
 Arithmetic expressions are evaluated according to the operators in them:
 
 <dl class='space-title-words'>
-<dt id='comparisons'>== != &lt; &lt;= &gt; &gt;=</dt>
+<dt id='comparisons'>== != &lt; &lt;= &gt; &gt;= (comparisons)</dt>
 <dd>The expression consists of an alternating sequence of operators
 and operands beginning and ending with an operand.  Example:
-<code>5 &lt; x &lt;= z</code>.  Evaluation is left to right and
+<code>5 &lt; 2 * x &lt;= z + 3</code>.  Evaluation is left to right and
 stops as soon as a comparison evaluations to <code>FALSE</code>.
 If no comparison is false, the expression evaluates to <code>TRUE</code>.
 <br><br>
 Operands not needed for the evaluation are not evaluated (e.g.,
-in the example, if <code>5 &lt; x</code> is <code>FALSE</code>,
-<code>z</code> is not evaluated).  Operands
-shared by two operators (e.g. <code>x</code> in the example) are
-only evaluated once.
+in the example, if <code>5 &lt; 2 * x</code> is <code>FALSE</code>,
+<code>z + 3</code> is not evaluated).  Operands
+shared by two operators (e.g. <code>2 * x</code> in the example) are
+evaluated at most once.
 <br><br>
 Zeroes are signed and treated by other arithmetic operations as
 being unknowably small numbers of their given sign, but for comparisons
@@ -222,12 +223,12 @@ Some examples are:
 </pre>
 </dd>
 <br>
-<dt id='sums'>infix+ infix-</dt>
-<dd>The expression consists of an alternating sequence of operators
+<dt id='sums'>infix+ infix- (summation)</dt>
+<dd>The expression consists of an alternating sequence of summation operators
 and operands beginning and ending with an operand.  Example:
 <code>5 + x - z</code>.  Evaluation is left to right (e.g.,
 <code>5 + x</code> is evaluated first and then <code>z</code>
-is subtraced from the result).
+is subtracted from the result).
 <br><br>
 If both operands are infinities
 of opposite signed for <code>+</code>, or the same sign for
@@ -273,11 +274,11 @@ NO error message is produced.
 Division of a non-zero by a zero produces an infinity.
 Zeroes are signed and treated as if they were unknowably small numbers of
 their given sign, allowing the sign of the resulting infinity to be
-computed.  An divide by zero error message
+computed.  A divide by zero error message
 is also output unless the dividend being divided is an infinity.
 <br><br>
-If operands being infinities
-or both being zeros,
+If the operands are BOTH infinities
+or BOTH zeros,
 a <code>nan</code> result is produced along with an invalid operand
 error message.
 <br><br>
@@ -297,7 +298,8 @@ Some examples are:
 -nan
 <div class='line'>-0 / +0</div>!!! ERROR: invalid operand(s)
 * {69:217,55,188} DIV: * = -nan <= -0 / 0
--nan
+-nan<div class='error-line'>ERROR: in line 65: extra stuff at end of expression; deleted:</div>3 / 2 <div class='error-highlight'>/ 2</div>
+<div class='line'>3 / 2 / 2</div>[no output due to above parse errors]
 </pre>
 </dd>
 <br>
@@ -307,6 +309,7 @@ Some examples are:
 sequence of factor operands and <code>*</code>
 multiplication operators beginning and ending with a factor operand.
 There may be more than two factor operands.
+The expression is evaluated left to right.
 <br><br>
 If one factor operand is zero and the
 other is an infinity,
@@ -328,7 +331,7 @@ inf
 <dt id='exponentiation'>^ (exponentiation)</dt>
 <dd>
 <dd>The expression consists a basis operand
-followed by the <code>^</code> operator followed by the power
+followed by the <code>^</code> operator followed by a power
 operand.  Example: <code>2 ^ 4 == 2 * 2 * 2 * 2 == 64</code>.
 <br><br>
 For all integers <code>y</code>, and all numbers <code>x</code>
@@ -363,6 +366,7 @@ Some examples are:
 <div class='line'>nan ^ 5</div>nan
 <div class='line'>-5 ^ 2</div>25
 <div class='line'>-1 ^ 1e15</div>1
+<div class='line'>-1 ^ ( 1e15 + 1 )</div>-1
 <div class='line'>-2 ^ 1e15</div>!!! ERROR: numeric overflow
 * {89:271,72,241} POW: * = inf <= -2 pow 1e+15
 inf
@@ -381,7 +385,7 @@ inf
 </pre>
 </dd>
 <br>
-<dt id='negation' class='pagebreak'>prefix+ prefix-</dt>
+<dt id='negation' class='pagebreak'>prefix+ prefix- (negation)</dt>
 <dd>
 <dd>The expression consists of an operator followed by an operand.
 <br><br>
