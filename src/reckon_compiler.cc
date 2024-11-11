@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 10 03:18:11 EST 2024
+// Date:	Mon Nov 11 02:06:12 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1678,6 +1678,14 @@ RETRY:
 		    vp0 = min::NULL_STUB;
 		    OK = ::compile_constant
 			( vp[0], ppv[0], type, name );
+		}
+		else if (    initiator
+		          == PARLEX::left_parenthesis )
+		{
+		    vp0 = min::NULL_STUB;
+		    OK = ::compile_expression
+			( vp[0], true_jmp, false_jmp,
+			         name );
 		}
 		else
 		{
