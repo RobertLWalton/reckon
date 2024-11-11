@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 27 03:20:27 AM EDT 2024
+// Date:	Mon Nov 11 02:28:56 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,7 +115,13 @@ static void remove_tokens
 
     else if ( ! parse_OK )
         parser->printer
-	    << "[no output due to above parse errors]"
+	    << "[no "
+	    << ( compile && run ?
+                    "compilation or run output" :
+                 compile ?
+                    "compilation" :
+		    "output" )
+	    << " due to above parse errors]"
 	    << min::eol;
 
     else if ( run & ! compile_OK )
@@ -197,7 +203,7 @@ int main ( int argc, const char * argv[] )
 	run = true;
 	mex::run_trace_flags = 0xFFFFFFFF;
     }
-    if ( parser_test && ( compile || run ) )
+    if ( output_parse && ( compile || run ) )
     {
 	std::cerr
 	    << "ERROR: --compile and --run incompatible"
@@ -205,7 +211,7 @@ int main ( int argc, const char * argv[] )
 	exit ( 1 );
     }
     if (    lexeme_test
-         && ( parser_test || compile || run ) )
+         && ( output_parse || compile || run ) )
     {
 	std::cerr
 	    << "ERROR: --*-parse, --compile, and --run"
@@ -321,10 +327,11 @@ int main ( int argc, const char * argv[] )
     }
     else
     {
-	REC::init_compiler
-	    ( PAR::default_parser,
-              compile ? mexstack::PRINT_WITH_SOURCE
-                      : mexstack::NO_PRINT );
+	if ( compile || run )
+	    REC::init_compiler
+		( PAR::default_parser,
+		  compile ? mexstack::PRINT_WITH_SOURCE
+			  : mexstack::NO_PRINT );
 	if ( run )
 	{
 	    ::process = mex::init_process
