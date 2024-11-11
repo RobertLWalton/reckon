@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 02:28:56 EST 2024
+// Date:	Mon Nov 11 02:46:40 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,7 +79,7 @@ static void remove_tokens
         ( parse_error_count == parser->error_count );
     parse_error_count = parser->error_count;
 
-    if ( ! compile || ! parse_OK )
+    if ( ! compile )
     {
 	last_position.begin = last_position.end;
 	last_position.end =
