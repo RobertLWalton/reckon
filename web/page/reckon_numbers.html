@@ -3,7 +3,7 @@
 <!--
 File:	reckon_numbers.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sun Nov 10 06:28:23 EST 2024
+Date:	Mon Nov 11 12:37:12 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -39,13 +39,14 @@ NEW WINDOW</button>
 <p>
 There are several types of numbers, including:
 <table class='td-extra-space'>
-<tr><th><a href='#integers'>Integers</a></th><td>0 1 -1 100 -1e2 e50</td></tr>
+<tr><th><a href='#integers'>Integers</a></th><td>0 1 -1 100 -1e2 1e14</td></tr>
 <tr><th><a href='#finite-numbers'>Finite Numbers</a></th><td>3.141529 -0.5 1.498e-6</td></tr>
 <tr><th><a href='#infinities'>Infinities</a></th><td>+inf -inf</td></tr>
 <tr><th><a href='#undefined-numbers'>Undefined Numbers</a></th><td>nan</td></tr>
 <tr><th><a href='#measures'>Measures</a></th><td>4ft 155lb 8ft/sec</td></tr>
 <tr><th><a href='#dates'>Dates</a></th><td>5may1946 jan2539 06/25/1938</td></tr>
-<tr><th><a href='#times'>Times</a></th><td>3:00pm 1946-05-05T15:00EST</td></tr>
+<tr><th><a href='#times-of-day'>Times of Day</a></th><td>3:00pm 12noon</td></tr>
+<tr><th><a href='#times'>Times</a></th><td>1946-05-05T15:00EST</td></tr>
 </table>
 
 Integers and finite numbers are represented by
@@ -59,7 +60,6 @@ measures, dates, and times add a unit to the number.
 <p>
 Some examples are:
 <pre class='example'>
-
 <div class='line'>100 is number</div>TRUE
 <div class='line'>3.141529 is number</div>TRUE
 <div class='line'>+inf is number</div>TRUE
@@ -105,10 +105,10 @@ Integers are stored in computer memory in the IEEE 64-bit floating point
 format.  This format will faithfully store integers in the range
 <code>(-1e15,+1e15)</code>.
 <p>
-Integers are just finite numbers that have a zero fraction part
+RECKON integers are just finite numbers that have a zero fraction part
 and which are in the range
 <code>(-1e15,+1e15)</code>.
-Finite numbers outside this range are not considered to be integers,
+Finite numbers outside this range are not considered to be RECKON integers,
 even if they have a zero fraction part, because such numbers
 are not precisely represented in computer memory.
 <p>
@@ -154,6 +154,13 @@ significant digit is only partly stored, resulting in anomalies
 involving the 16'th place.  Thus <code>1 + 1e-15</code>,
 which differs from <code>1</code> in the 16'th place,
 prints as <code>1</code> but does not <code> == 1</code>.
+<p>
+The finite numbers <code>+0</code> and <code>-0</code> are
+treated as unknowably small numbers with the given sign
+by multiplications and divisions, and by additions of two zeros with
+the same sign, but in all other cases (e.g., comparisons, addition of
+two zeroes with opposite signed), <code>-0</code> is treated as
+equal to <code>+0</code>.
 <p>
 Some examples are:
 <pre class='example'>
