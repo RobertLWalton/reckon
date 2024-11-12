@@ -3,7 +3,7 @@
 <!--
 File:	reckon_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Nov 12 01:58:15 EST 2024
+Date:	Tue Nov 12 06:21:24 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -204,8 +204,10 @@ reserved for postfix operators and <em>H-1</em> is reserved for
 prefix operators (see <a href='#fixity'>Fixity</a>), but not all
 prefix or postfix operators have these precedences.  Thus
 prefix <code>+</code> has precedence <em>H-1</em> but prefix <code>NOT</code>
-has precedence 11200.  (Precedence <em>L-1</em> is used by an
-`error operator' inserted by the parser to fix up parsing errors.)
+has precedence 11200.  Precedence <em>L-1</em> is used by an
+`error operator' inserted by the parser to fix up parsing errors.
+An <em>(H+1)-expression</em> is just an expression (used as an operand)
+that contains NO operators.
 
 
 </p>
@@ -276,6 +278,13 @@ and this specifies that <code> x + y - z</code> consists of
 alternating operands and operators, begins and ends with an operand,
 and all the operators are <code>+</code> or <code>-</code>.
 <p>
+A subblock that ends a statement
+(see <a href='reckon_logical_lines.html#blocks'>
+RECKON Logical Lines - Blocks</a> ) can itself be an operator.
+<p>
+A format error is a parsing error.
+Statements that have a parsing error are not compiled or executed.
+<p>
 The operator formats are:
 </p>
 <dl>
@@ -290,19 +299,21 @@ as an operand to a precedence 0000 operator.
 </dd>
 <br>
 <dt>terminating control</dt>
-<dd>Ditto but he condition operand is omitted (the control operator
+<dd>Ditto but the condition operand is omitted (the control operator
 is <code>else</code>).
 </dd>
 <br>
 <dt>assignment</dt>
-<dd>The <em>P-expression</em> is either binary or unary posfix.  Specifically,
-it consists of an operand (the locations to be assigned) followed
-by an assignment operator (i.e., <code>=</code>) optionally followed
+<dd>The <em>P-expression</em> is either binary or unary posfix.
+<br><br>
+In the binary case the <em>P-expression</em>
+consists of an operand (the locations to be assigned) followed
+by an assignment operator (i.e., <code>=</code>) followed
 by another operand (computing the values to be assigned to the
 variables).
 <br><br>
-In the postfix case, it is expected that
-the <em>P-expression</em> will itself be the operand of a postfix
+In the postfix case the second operand is omitted and
+the <em>P-expression</em> itself must be the operand of a postfix
 subblock operator that computes the values to be assigned.
 </dd>
 <br>
@@ -310,11 +321,12 @@ subblock operator that computes the values to be assigned.
 <dd>The <em>P-expression</em> is sequence of nofix separating operators
 (e.g., <code>","</code>) and operands
 constrained only in that all operators must be the same
-(some CANNOT be <code>","</code> while others are <code>";"</code>).
+(if one is <code>","</code> the others must be <code>","</code>).
 Two operands must be separated by an operator, but operators may be
 adjacent and at the beginning or end of the <em>P-expression</em>.
 <br><br>
-Empty list operands (i.e., <code>{}</code>) are inserted
+The <em>P-expression</em> is reformatted as follows.
+First empty list operands (i.e., <code>{}</code>) are inserted
 so that the <em>P-expression</em> is an alternating sequence of operators
 and operands beginning and ending with an operand.  Then the operators
 are removed and a <code>.separator</code> attribute equal to the operator
@@ -353,7 +365,7 @@ There are exactly two operands in the <em>P-expression</em>.
 <dt>infix</dt>
 <dd>The <em>P-expression</em> is an alternating sequence of infix operators
 and operands beginning and ending with an operand.  The operators
-are constrained to be those of a list of operators associated with the
+are constrained to be those in a list of operators associated with the
 particular <em>infix</em> format.
 <br><br>
 For example: the infix format for the <code>+</code> and <code>-</code>
