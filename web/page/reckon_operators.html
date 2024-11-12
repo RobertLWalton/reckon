@@ -3,7 +3,7 @@
 <!--
 File:	reckon_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Nov  7 12:50:25 EST 2024
+Date:	Tue Nov 12 01:58:15 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -47,15 +47,15 @@ Line operators can only occur outside parentheses and brackets.
 <table class='top borders'>
 <tr><th>Operator</th><th>Meaning</th><th>Fixity</th><th>Format</th>
                      <th>Precedence</th></tr>
-<tr><th>if</th><td>conditional</td><td>prefix</td><td>conditional</td>
+<tr><th>if</th><td>control</td><td>prefix</td><td>control</td>
                      <td>0000</td><tr>
-<tr><th>else if</th><td>conditional</td><td>prefix</td><td>conditional</td>
+<tr><th>else if</th><td>control</td><td>prefix</td><td>control</td>
                      <td>0000</td><tr>
-<tr><th>else</th><td>terminating<br>conditional</td><td>initial</td>
-                 <td>terminating<br>conditional</td><td>0000</td><tr>
-<tr><th>:</th><td>conditional<br>completion</td><td>afix<br>right</td>
+<tr><th>else</th><td>terminating<br>control</td><td>initial</td>
+                 <td>terminating<br>control</td><td>0000</td><tr>
+<tr><th>:</th><td>control<br>completion</td><td>afix<br>right</td>
                  <td>(none)</td><td>0000</td><tr>
-<tr><th>(subblock)</th><td>conditional or<br>declaration<br>completion</td>
+<tr><th>(subblock)</th><td>control or<br>declaration<br>completion</td>
                  <td>afix</td><td>(none)</td><td>0000</td><tr>
 <tr><th>(subblock)</th><td>assignment or<br>loop</td>
                  <td>postfix</td><td>postfix</td><td>0000</td><tr>
@@ -103,7 +103,7 @@ Non-line operators can occur either inside or outside parentheses and brackets.
 <tr><th>OR</th><td>logical<br>or</td><td>infix</td>
                   <td>infix<sup>2</sup></td><td>11100</td><tr>
 <tr><th>NOT</th><td>logical<br>not</td><td>prefix</td>
-                  <td>unary</td><td>11200</td><tr>
+                  <td>unary prefix</td><td>11200</td><tr>
 <tr><th>==</th><td>is equal</td><td>infix</td>
                   <td>infix<sup>3</sup></td><td>12000</td><tr>
 <tr><th>!=</th><td>is not equal</td><td>infix</td>
@@ -279,8 +279,97 @@ and all the operators are <code>+</code> or <code>-</code>.
 The operator formats are:
 </p>
 <dl>
-<dt>conditional</dt>
-<dd>The <em>P-exression</em> has either the form
+<dt>control</dt>
+<dd>The <em>P-expression</em> consists of a precedence 0000 control operator
+(i.e., <code>if</code> or <code>else if</code>) followed by
+a condition operand followed by either a colon subblock operator
+or by a single colon afix operator that is followed by a restricted statement
+operand.  A restricted statement is a statement not containing
+any operator of precedence 0000, and is thus suitable for use
+as an operand to a precedence 0000 operator.
+</dd>
+<br>
+<dt>terminating control</dt>
+<dd>Ditto but he condition operand is omitted (the control operator
+is <code>else</code>).
+</dd>
+<br>
+<dt>assignment</dt>
+<dd>The <em>P-expression</em> is either binary or unary posfix.  Specifically,
+it consists of an operand (the locations to be assigned) followed
+by an assignment operator (i.e., <code>=</code>) optionally followed
+by another operand (computing the values to be assigned to the
+variables).
+<br><br>
+In the postfix case, it is expected that
+the <em>P-expression</em> will itself be the operand of a postfix
+subblock operator that computes the values to be assigned.
+</dd>
+<br>
+<dt>separator</dt>
+<dd>The <em>P-expression</em> is sequence of nofix separating operators
+(e.g., <code>","</code>) and operands
+constrained only in that all operators must be the same
+(some CANNOT be <code>","</code> while others are <code>";"</code>).
+Two operands must be separated by an operator, but operators may be
+adjacent and at the beginning or end of the <em>P-expression</em>.
+<br><br>
+Empty list operands (i.e., <code>{}</code>) are inserted
+so that the <em>P-expression</em> is an alternating sequence of operators
+and operands beginning and ending with an operand.  Then the operators
+are removed and a <code>.separator</code> attribute equal to the operator
+is added to the <em>P-expression</em>.
+<br><br>
+Examples with <code>","</code> as the operator:
+<table class='center'>
+<tr><th><em>P-expression</em></th><th>Is Reformated To</th><tr>
+<tr><td><code>x, y</code></td><td><code>{| x y | .separator = "," |}</code>
+    </td></tr>
+<tr><td><code>, y</code></td><td><code>{| {} y | .separator = "," |}</code>
+    </td></tr>
+<tr><td><code>x,</code></td><td><code>{| x {} | .separator = "," |}</code>
+    </td></tr>
+<tr><td><code>x,, y</code></td><td><code>{| x {} y | .separator = "," |}</code>
+    </td></tr>
+</table>
+</dd>
+<br>
+<dt>selector</dt>
+<dd>The <em>P-expression</em> is an alternating sequence of operators
+and operands beginning and ending with an operand.  The first operator
+is <code>IF</code>, the second is <code>ELSE</code> (there must be at least
+two operators and three operands), and thereafter these two operators
+alternate.  There must be an even number of operators and an odd number
+of operands.
+</dd>
+<br>
+<dt>binary</dt>
+<dd>The <em>P-expression</em> consists of an operand followed
+by a binary operator (e.g., <code>+=</code> or <code>/</code> or <code>^</code>)
+followed by an operand.
+There are exactly two operands in the <em>P-expression</em>.
+</dd>
+<br>
+<dt>infix</dt>
+<dd>The <em>P-expression</em> is an alternating sequence of infix operators
+and operands beginning and ending with an operand.  The operators
+are constrained to be those of a list of operators associated with the
+particular <em>infix</em> format.
+<br><br>
+For example: the infix format for the <code>+</code> and <code>-</code>
+operators constrains the operators in the <em>P-expression</em> to be
+either <code>+</code> or <code>-</code>.
+</dd>
+<br>
+<dt>unary prefix</dt>
+<dd>The <em>P-expression</em> consists of an operator followed by a
+single operand.
+</dd>
+<br>
+<dt>unary postfix</dt>
+<dd>The <em>P-expression</em> consists of a single operand followed by
+an operator.
+</dd>
 </dl>
 
 </p>
