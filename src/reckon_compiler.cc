@@ -77,8 +77,8 @@ static void initialize ( void )
     ::geq  = min::new_str_gen ( ">=" );
     ::lt   = min::new_str_gen ( "<" );
     ::leq  = min::new_str_gen ( "<=" );
-    ::TRUE  = min::new_str_gen ( "TRUE" );
-    ::FALSE  = min::new_str_gen ( "FALSE" );
+    ::TRUE  = min::new_str_gen ( "*TRUE*" );
+    ::FALSE  = min::new_str_gen ( "*FALSE*" );
     ::ZERO  = min::new_num_gen ( 0 );
     ::ONE  = min::new_num_gen ( 1 );
     ::IF  = min::new_str_gen ( "if" );
