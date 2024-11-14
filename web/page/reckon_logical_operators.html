@@ -3,7 +3,7 @@
 <!--
 File:	reckon_logical_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Nov 12 11:35:54 EST 2024
+Date:	Wed Nov 13 19:44:11 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -58,7 +58,7 @@ NEW WINDOW</button>
     <td>logical<br>or</td><td>infix</td><td>infix<sup>2</sup></td>
     <td>11100</td><tr>
 <tr><th><a href='#not'><code>NOT</code></a></th><td>logical<br>not</td>
-    <td>prefix</td>
+    <td>prefix</td><td>unary prefix</td><td>11200</td></tr>
 </table>
 
 <p>
@@ -88,16 +88,51 @@ A complete set of all the examples for this page is in
 <h2 id='logical-expression-evaluation'>Logical Expression Evaluation</h2>
 
 <p>
-TBD
+Logical operators deal with the `truth values' `true' and `false'.  These
+are special values that are NOT numbers or strings or objects.
+The true special value prints as <code>*TRUE*</code>, and a global variable is
+defined with the name <code>*TRUE*</code> whose value is the true
+special value.
+Similarly the false special value prints as <code>*FALSE*</code> and
+has a global variable of the same name whose value is the false
+special value.
+
+
 
 <p>
 Logical expressions are evaluated according to the operators in them:
 
 <dl class='space-title-words'>
-<dt id='selectors'>IF ELSE (selectors)</dt>
-<dd>The expression consists of an alternating sequence of operators
+<dt id='selectors'><code>IF  ELSE</code> (selectors)</dt>
+<dd>The <em>P-expression</em> consists of an alternating sequence
+of selection operators
 and operands beginning and ending with an operand.
-TBD
+The <code>IF</code> and <code>ELSE</code> operators alternate, with
+<code>IF</code> being first and <code>ELSE</code> being last.
+Thus there are an even number of operators and an odd number of
+operands.
+<br><br>
+The <em>P-expression</em> begins with a sequence of
+clauses of the form
+<div class='center'>
+    value-operand&nbsp;<code>IF</code>&nbsp;condition-operand</div>
+that are separated by <code>ELSE</code> operators, with each such
+clause
+associating a value-operand with a condition-operand.
+This sequence if followed by a <em>P-expression</em> end clause of the form
+<div class='center'><code>ELSE</code>&nbsp; value-operand</div>
+<br>
+Evaluation proceeds by evaluating condition-operands left to right in
+order to select a value-operand which is evaluated to produce the
+value of the <em>P-expression</em>.  The first condition-operand to
+evaluate to <code>*TRUE*</code> selects its associated value-operand.
+If no condition expression evaluates to <code>*TRUE*</code>, the
+end clause value-operand is selected.
+<br><br>
+For example:
+<br><br>
+<div class='center'><code>"less" IF x &lt; y ELSE "more" IF x > y
+		    ELSE "equal"</code></div>
 </dd>
 <br>
 <dt id='and'>AND</dt>
