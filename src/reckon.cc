@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 11 02:46:40 EST 2024
+// Date:	Thu Nov 14 06:53:36 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -150,7 +150,8 @@ static void remove_tokens
 	if ( ! trace )
 	    while ( length < ::process->length )
 		parser->printer
-		    << ::process[length++]
+		    << min::pgen_quote
+		           ( ::process[length++] )
 		    << min::eol;
     }
 
