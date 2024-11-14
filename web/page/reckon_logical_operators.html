@@ -3,7 +3,7 @@
 <!--
 File:	reckon_logical_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Nov 13 19:44:11 EST 2024
+Date:	Thu Nov 14 03:09:19 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -94,7 +94,7 @@ The true special value prints as <code>*TRUE*</code>, and a global variable is
 defined with the name <code>*TRUE*</code> whose value is the true
 special value.
 Similarly the false special value prints as <code>*FALSE*</code> and
-has a global variable of the same name whose value is the false
+there is a global variable of the same name whose value is the false
 special value.
 
 
@@ -103,8 +103,11 @@ special value.
 Logical expressions are evaluated according to the operators in them:
 
 <dl class='space-title-words'>
-<dt id='selectors'><code>IF  ELSE</code> (selectors)</dt>
-<dd>The <em>P-expression</em> consists of an alternating sequence
+<dt id='selectors'><code>IF</code>  <code>ELSE</code> (selectors)</dt>
+<dd>Example:
+<div class='center vspace'><code>"less" IF x &lt; y ELSE "more" IF x > y
+		    ELSE "equal"</code></div>
+The <em>P-expression</em> consists of an alternating sequence
 of selection operators
 and operands beginning and ending with an operand.
 The <code>IF</code> and <code>ELSE</code> operators alternate, with
@@ -114,30 +117,65 @@ operands.
 <br><br>
 The <em>P-expression</em> begins with a sequence of
 clauses of the form
-<div class='center'>
+<div class='center vspace'>
     value-operand&nbsp;<code>IF</code>&nbsp;condition-operand</div>
 that are separated by <code>ELSE</code> operators, with each such
 clause
 associating a value-operand with a condition-operand.
 This sequence if followed by a <em>P-expression</em> end clause of the form
-<div class='center'><code>ELSE</code>&nbsp; value-operand</div>
-<br>
-Evaluation proceeds by evaluating condition-operands left to right in
-order to select a value-operand which is evaluated to produce the
+<div class='center vspace'><code>ELSE</code>&nbsp; value-operand</div>
+Evaluation proceeds by evaluating the condition-operands left to right
+to truth values
+in order to select a value-operand which is evaluated to produce the
 value of the <em>P-expression</em>.  The first condition-operand to
 evaluate to <code>*TRUE*</code> selects its associated value-operand.
 If no condition expression evaluates to <code>*TRUE*</code>, the
-end clause value-operand is selected.
-<br><br>
-For example:
-<br><br>
-<div class='center'><code>"less" IF x &lt; y ELSE "more" IF x > y
-		    ELSE "equal"</code></div>
+end clause value-operand is selected.  Only one value-operand is
+evaluated.
 </dd>
 <br>
-<dt id='and'>AND</dt>
-<dd>The expression consists of an alternating sequence of operators
+<dt id='but-not'><code>BUT NOT</code></dt>
+<dd>Example:
+<div class='center vspace'><code>
+    x &lt; y OR x &lt; z BUT NOT x &lt; y AND x &lt; z</code></div>
+The <em>P-expression</em> consists of an operand followed by an
+operator (i.e., <code>BUT NOT</code>) followed by an operand.  Note
+that <code>BUT NOT</code> has lower precedence than <code>AND</code>
+or <code>OR</code> so the latter can be included in un-parenthesized
+operands.
+<br><br>
+The first operand is evaluated to a truth value.  If that is
+<code>*FALSE*</code>, evaluation stops and the value of the
+<em>P-expression</em> is <code>*FALSE*</code>.  Otherwise
+the second operand is evaluated to a truth value and the value
+of the <em>P-expression</em> is the NEGATION of the second
+operand's value.
+</dd>
+<br>
+<dt id='and'><code>AND</code></dt>
+<dd>Example:
+<div class='center vspace'><code>x &lt; y AND x &lt; z AND x &lt; w</code></div>
+The <em>P-expression</em> consists of an alternating sequence of operators
 and operands beginning and ending with an operand.
+All the operators must be <code>AND</code>.
+<br><br>
+The operands are evaluated left to right to truth values until one fails to
+evaluate to <code>*TRUE*</code>.  If this happens the value of
+the <em>P-expression</em> is <code>*FALSE*</code>
+and subsequent operands are NOT
+evaluated.  Otherwise, if all operands evaluate to <code>*TRUE*</code>,
+the value of the <em>P-expression</em> is <code>*TRUE*</code>.
+</dd>
+<br>
+<dt id='or'><code>OR</code></dt>
+<dd>Example:
+<div class='center vspace'><code>x &lt; y OR x &lt; z OR x &lt; w</code></div>
+Same as <code>AND</code> except the operators are <code>OR</code>
+and evaluation stops at the first operand that evaluates to <code>*TRUE*</code>.
+If evaluation so stops the value of
+the <em>P-expression</em> is <code>*TRUE*</code>, but if NO operands
+evaluate to <code>*TRUE*</code>,
+the value of the <em>P-expression</em> is <code>*FALSE*</code>.
 </dd>
 </dl>
 
