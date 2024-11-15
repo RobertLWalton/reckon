@@ -3,7 +3,7 @@
 <!--
 File:	reckon_logical_operators.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Nov 14 03:09:19 EST 2024
+Date:	Fri Nov 15 06:56:45 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -132,6 +132,16 @@ evaluate to <code>*TRUE*</code> selects its associated value-operand.
 If no condition expression evaluates to <code>*TRUE*</code>, the
 end clause value-operand is selected.  Only one value-operand is
 evaluated.
+<br><br>
+More examples:
+<pre class='example'>
+<div class='line'>x = 25</div>25
+<div class='line'>"less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"</div>"less"
+<div class='line'>next x = 30</div>30
+<div class='line'>"less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"</div>"equal"
+<div class='line'>next x = 35</div>35
+<div class='line'>"less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"</div>"more"
+</pre>
 </dd>
 <br>
 <dt id='but-not'><code>BUT NOT</code></dt>
@@ -150,6 +160,15 @@ The first operand is evaluated to a truth value.  If that is
 the second operand is evaluated to a truth value and the value
 of the <em>P-expression</em> is the NEGATION of the second
 operand's value.
+<br><br>
+More examples:
+<pre class='example'>
+<div class='line'>x = 25</div>25
+<div class='line'>x &lt; 40 BUT NOT 30 &lt; x</div>*TRUE*
+<div class='line'>x &lt; 20 BUT NOT 30 &lt; x</div>*FALSE*
+<div class='line'>x &lt; 40 BUT NOT 20 &lt; x</div>*FALSE*
+<div class='line'>x &lt; 20 BUT NOT 20 &lt; x</div>*FALSE*
+</pre>
 </dd>
 <br>
 <dt id='and'><code>AND</code></dt>
@@ -165,6 +184,15 @@ the <em>P-expression</em> is <code>*FALSE*</code>
 and subsequent operands are NOT
 evaluated.  Otherwise, if all operands evaluate to <code>*TRUE*</code>,
 the value of the <em>P-expression</em> is <code>*TRUE*</code>.
+<br><br>
+More examples:
+<pre class='example'>
+<div class='line'>x = 25</div>25
+<div class='line'>x &lt; 40 AND x &lt; 30</div>*TRUE*
+<div class='line'>x &lt; 20 AND x &lt; 30</div>*FALSE*
+<div class='line'>x &lt; 40 AND x &lt; 20</div>*FALSE*
+<div class='line'>x &lt; 10 AND x &lt; 20</div>*FALSE*
+</pre>
 </dd>
 <br>
 <dt id='or'><code>OR</code></dt>
@@ -176,6 +204,32 @@ If evaluation so stops the value of
 the <em>P-expression</em> is <code>*TRUE*</code>, but if NO operands
 evaluate to <code>*TRUE*</code>,
 the value of the <em>P-expression</em> is <code>*FALSE*</code>.
+<br><br>
+More examples:
+<pre class='example'>
+<div class='line'>x = 25</div>25
+<div class='line'>x &lt; 40 OR x &lt; 30</div>*TRUE*
+<div class='line'>x &lt; 20 OR x &lt; 30</div>*TRUE*
+<div class='line'>x &lt; 40 OR x &lt; 20</div>*TRUE*
+<div class='line'>x &lt; 10 OR x &lt; 20</div>*FALSE*
+</pre>
+</dd>
+<br>
+<dt id='not'><code>NOT</code></dt>
+<dd>Example:
+<div class='center vspace'><code>NOT x &lt; y</code></div>
+The <em>P-expression</em> consists of an operator (i.e., <code>NOT</code>)
+followed by a single operand.
+<br<br>
+The operand is evaluated to a truth value and the NEGATION of that value is
+the value of the <em>P-expression</em>.
+<br><br>
+More examples:
+<pre class='example'>
+<div class='line'>x = 25</div>25
+<div class='line'>NOT x &lt; 20</div>*TRUE*
+<div class='line'>NOT x &lt; 30</div>*FALSE*
+</pre>
 </dd>
 </dl>
 
