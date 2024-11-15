@@ -1,0 +1,98 @@
+// Reckon Language Logical Operators Test Data
+//
+// File:        reckon_logical_operators.rec
+// Author:      Bob Walton (walton@acm.org)
+// Date:        Fri Nov 15 03:25:51 AM EST 2024
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+// selectors
+//
+x = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|x|} = {|25|}|}
+"less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|"less"|} IF
+     {|{|x|} < {|30|}|} ELSE {|"more"|} IF {|{|x|} > {|30|}|} ELSE
+     {|"equal"|}|}
+next x = 30
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next x|} =
+     {|30|}|}
+"less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|"less"|} IF
+     {|{|x|} < {|30|}|} ELSE {|"more"|} IF {|{|x|} > {|30|}|} ELSE
+     {|"equal"|}|}
+next x = 35
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next x|} =
+     {|35|}|}
+"less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|"less"|} IF
+     {|{|x|} < {|30|}|} ELSE {|"more"|} IF {|{|x|} > {|30|}|} ELSE
+     {|"equal"|}|}
+
+// BUT NOT
+//
+next x = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next x|} =
+     {|25|}|}
+x < 40 BUT NOT 30 < x
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|40|}|} [< BUT NOT >] {|{|30|} < {|x|}|}|}
+x < 20 BUT NOT 30 < x
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|20|}|} [< BUT NOT >] {|{|30|} < {|x|}|}|}
+x < 40 BUT NOT 20 < x
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|40|}|} [< BUT NOT >] {|{|20|} < {|x|}|}|}
+x < 20 BUT NOT 20 < x
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|20|}|} [< BUT NOT >] {|{|20|} < {|x|}|}|}
+
+// AND
+//
+next x = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next x|} =
+     {|25|}|}
+x < 40 AND x < 30
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|40|}|} AND {|{|x|} < {|30|}|}|}
+x < 20 AND x < 30
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|20|}|} AND {|{|x|} < {|30|}|}|}
+x < 40 AND x < 20
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|40|}|} AND {|{|x|} < {|20|}|}|}
+x < 10 AND x < 20
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|10|}|} AND {|{|x|} < {|20|}|}|}
+
+// OR
+//
+next x = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next x|} =
+     {|25|}|}
+x < 40 OR x < 30
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|40|}|} OR {|{|x|} < {|30|}|}|}
+x < 20 OR x < 30
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|20|}|} OR {|{|x|} < {|30|}|}|}
+x < 40 OR x < 20
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|40|}|} OR {|{|x|} < {|20|}|}|}
+x < 10 OR x < 20
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|x|} < {|10|}|} OR {|{|x|} < {|20|}|}|}
+
+// NOT
+//
+next x = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next x|} =
+     {|25|}|}
+NOT x < 20
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|NOT
+     {|{|x|} < {|20|}|}|}
+NOT x < 30
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|NOT
+     {|{|x|} < {|30|}|}|}
