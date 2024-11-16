@@ -4,170 +4,195 @@
 //
 // File:        reckon_logical_operators.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Fri Nov 15 03:25:51 AM EST 2024
+// Date:        Sat Nov 16 06:42:17 PM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
+// truth values
+//
+*TRUE* is truth value
+* {12:2,3,3} PUSHI: * <= *FALSE*
+* {12:3,4,4} PUSHS: * <= *TRUE* = *TRUE*
+* {12:4,3,5} JMPTRUTH location 6 is successful: true <= *TRUE*
+* {12:6,2,6} POPS: * <= * = *FALSE*
+* {12:7,3,7} PUSHI: * <= *TRUE*
+*FALSE* is truth value
+* {13:8,4,8} PUSHI: * <= *FALSE*
+* {13:9,5,9} PUSHS: * <= *FALSE* = *FALSE*
+* {13:10,4,10} JMPTRUTH location 12 is successful: true <= *FALSE*
+* {13:12,3,11} POPS: * <= * = *FALSE*
+* {13:13,4,12} PUSHI: * <= *TRUE*
+0 is truth value
+* {14:14,5,13} PUSHI: * <= *FALSE*
+* {14:15,6,14} PUSHI: * <= 0
+* {14:16,5,15} JMPTRUTH location 18 is UNsuccessful: false <= 0
+* {14:17,5,16} JMP location 20
+"TRUE" is truth value
+* {15:20,6,17} PUSHI: * <= *FALSE*
+* {15:21,7,18} PUSHI: * <= "TRUE"
+* {15:22,6,19} JMPTRUTH location 24 is UNsuccessful: false <= "TRUE"
+* {15:23,6,20} JMP location 26
+
 // selectors
 //
 x = 25
-* {12:2,3,3} PUSHI: x <= 25
+* {19:26,7,21} PUSHI: x <= 25
 "less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"
-* {13:3,4,4} PUSHI: * <= *UNDEFINED*
-* {13:4,5,5} PUSHS: * <= x = 25
-* {13:5,6,6} PUSHI: * <= 30
-* {13:6,4,7} JMPGEQ location 10 is UNsuccessful: false <= 25 >= 30
-* {13:7,3,8} POPS: * <= * = *UNDEFINED*
-* {13:8,4,9} PUSHI: * <= "less"
-* {13:9,4,10} JMP location 18
+* {20:27,8,22} PUSHI: * <= *UNDEFINED*
+* {20:28,9,23} PUSHS: * <= x = 25
+* {20:29,10,24} PUSHI: * <= 30
+* {20:30,8,25} JMPGEQ location 34 is UNsuccessful: false <= 25 >= 30
+* {20:31,7,26} POPS: * <= * = *UNDEFINED*
+* {20:32,8,27} PUSHI: * <= "less"
+* {20:33,8,28} JMP location 42
 next x = 30
-* {14:18,5,11} PUSHI: next x <= 30
+* {21:42,9,29} PUSHI: next x <= 30
 "less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"
-* {15:19,6,12} PUSHI: * <= *UNDEFINED*
-* {15:20,7,13} PUSHS: * <= x = 30
-* {15:21,8,14} PUSHI: * <= 30
-* {15:22,6,15} JMPGEQ location 26 is successful: true <= 30 >= 30
-* {15:26,7,16} PUSHS: * <= x = 30
-* {15:27,8,17} PUSHI: * <= 30
-* {15:28,6,18} JMPLEQ location 32 is successful: true <= 30 <= 30
-* {15:32,5,19} POPS: * <= * = *UNDEFINED*
-* {15:33,6,20} PUSHI: * <= "equal"
+* {22:43,10,30} PUSHI: * <= *UNDEFINED*
+* {22:44,11,31} PUSHS: * <= x = 30
+* {22:45,12,32} PUSHI: * <= 30
+* {22:46,10,33} JMPGEQ location 50 is successful: true <= 30 >= 30
+* {22:50,11,34} PUSHS: * <= x = 30
+* {22:51,12,35} PUSHI: * <= 30
+* {22:52,10,36} JMPLEQ location 56 is successful: true <= 30 <= 30
+* {22:56,9,37} POPS: * <= * = *UNDEFINED*
+* {22:57,10,38} PUSHI: * <= "equal"
 next x = 35
-* {16:34,7,21} PUSHI: next x <= 35
+* {23:58,11,39} PUSHI: next x <= 35
 "less" IF x < 30 ELSE "more" IF x > 30 ELSE "equal"
-* {17:35,8,22} PUSHI: * <= *UNDEFINED*
-* {17:36,9,23} PUSHS: * <= x = 35
-* {17:37,10,24} PUSHI: * <= 30
-* {17:38,8,25} JMPGEQ location 42 is successful: true <= 35 >= 30
-* {17:42,9,26} PUSHS: * <= x = 35
-* {17:43,10,27} PUSHI: * <= 30
-* {17:44,8,28} JMPLEQ location 48 is UNsuccessful: false <= 35 <= 30
-* {17:45,7,29} POPS: * <= * = *UNDEFINED*
-* {17:46,8,30} PUSHI: * <= "more"
-* {17:47,8,31} JMP location 50
+* {24:59,12,40} PUSHI: * <= *UNDEFINED*
+* {24:60,13,41} PUSHS: * <= x = 35
+* {24:61,14,42} PUSHI: * <= 30
+* {24:62,12,43} JMPGEQ location 66 is successful: true <= 35 >= 30
+* {24:66,13,44} PUSHS: * <= x = 35
+* {24:67,14,45} PUSHI: * <= 30
+* {24:68,12,46} JMPLEQ location 72 is UNsuccessful: false <= 35 <= 30
+* {24:69,11,47} POPS: * <= * = *UNDEFINED*
+* {24:70,12,48} PUSHI: * <= "more"
+* {24:71,12,49} JMP location 74
 
 // BUT NOT
 //
 next x = 25
-* {21:50,9,32} PUSHI: next x <= 25
+* {28:74,13,50} PUSHI: next x <= 25
 x < 40 BUT NOT 30 < x
-* {22:51,10,33} PUSHI: * <= *FALSE*
-* {22:52,11,34} PUSHS: * <= x = 25
-* {22:53,12,35} PUSHI: * <= 40
-* {22:54,10,36} JMPGEQ location 61 is UNsuccessful: false <= 25 >= 40
-* {22:55,11,37} PUSHI: * <= 30
-* {22:56,12,38} PUSHS: * <= x = 25
-* {22:57,10,39} JMPGEQ location 59 is successful: true <= 30 >= 25
-* {22:59,9,40} POPS: * <= * = *FALSE*
-* {22:60,10,41} PUSHI: * <= *TRUE*
+* {29:75,14,51} PUSHI: * <= *FALSE*
+* {29:76,15,52} PUSHS: * <= x = 25
+* {29:77,16,53} PUSHI: * <= 40
+* {29:78,14,54} JMPGEQ location 85 is UNsuccessful: false <= 25 >= 40
+* {29:79,15,55} PUSHI: * <= 30
+* {29:80,16,56} PUSHS: * <= x = 25
+* {29:81,14,57} JMPGEQ location 83 is successful: true <= 30 >= 25
+* {29:83,13,58} POPS: * <= * = *FALSE*
+* {29:84,14,59} PUSHI: * <= *TRUE*
 x < 20 BUT NOT 30 < x
-* {23:61,11,42} PUSHI: * <= *FALSE*
-* {23:62,12,43} PUSHS: * <= x = 25
-* {23:63,13,44} PUSHI: * <= 20
-* {23:64,11,45} JMPGEQ location 71 is successful: true <= 25 >= 20
+* {30:85,15,60} PUSHI: * <= *FALSE*
+* {30:86,16,61} PUSHS: * <= x = 25
+* {30:87,17,62} PUSHI: * <= 20
+* {30:88,15,63} JMPGEQ location 95 is successful: true <= 25 >= 20
 x < 40 BUT NOT 20 < x
-* {24:71,12,46} PUSHI: * <= *FALSE*
-* {24:72,13,47} PUSHS: * <= x = 25
-* {24:73,14,48} PUSHI: * <= 40
-* {24:74,12,49} JMPGEQ location 81 is UNsuccessful: false <= 25 >= 40
-* {24:75,13,50} PUSHI: * <= 20
-* {24:76,14,51} PUSHS: * <= x = 25
-* {24:77,12,52} JMPGEQ location 79 is UNsuccessful: false <= 20 >= 25
-* {24:78,12,53} JMP location 81
+* {31:95,16,64} PUSHI: * <= *FALSE*
+* {31:96,17,65} PUSHS: * <= x = 25
+* {31:97,18,66} PUSHI: * <= 40
+* {31:98,16,67} JMPGEQ location 105 is UNsuccessful: false <= 25 >= 40
+* {31:99,17,68} PUSHI: * <= 20
+* {31:100,18,69} PUSHS: * <= x = 25
+* {31:101,16,70} JMPGEQ location 103 is UNsuccessful: false <= 20 >= 25
+* {31:102,16,71} JMP location 105
 x < 20 BUT NOT 20 < x
-* {25:81,13,54} PUSHI: * <= *FALSE*
-* {25:82,14,55} PUSHS: * <= x = 25
-* {25:83,15,56} PUSHI: * <= 20
-* {25:84,13,57} JMPGEQ location 91 is successful: true <= 25 >= 20
+* {32:105,17,72} PUSHI: * <= *FALSE*
+* {32:106,18,73} PUSHS: * <= x = 25
+* {32:107,19,74} PUSHI: * <= 20
+* {32:108,17,75} JMPGEQ location 115 is successful: true <= 25 >= 20
 
 // AND
 //
 next x = 25
-* {29:91,14,58} PUSHI: next x <= 25
+* {36:115,18,76} PUSHI: next x <= 25
 x < 40 AND x < 30
-* {30:92,15,59} PUSHI: * <= *FALSE*
-* {30:93,16,60} PUSHS: * <= x = 25
-* {30:94,17,61} PUSHI: * <= 40
-* {30:95,15,62} JMPGEQ location 101 is UNsuccessful: false <= 25 >= 40
-* {30:96,16,63} PUSHS: * <= x = 25
-* {30:97,17,64} PUSHI: * <= 30
-* {30:98,15,65} JMPGEQ location 101 is UNsuccessful: false <= 25 >= 30
-* {30:99,14,66} POPS: * <= * = *FALSE*
-* {30:100,15,67} PUSHI: * <= *TRUE*
+* {37:116,19,77} PUSHI: * <= *FALSE*
+* {37:117,20,78} PUSHS: * <= x = 25
+* {37:118,21,79} PUSHI: * <= 40
+* {37:119,19,80} JMPGEQ location 125 is UNsuccessful: false <= 25 >= 40
+* {37:120,20,81} PUSHS: * <= x = 25
+* {37:121,21,82} PUSHI: * <= 30
+* {37:122,19,83} JMPGEQ location 125 is UNsuccessful: false <= 25 >= 30
+* {37:123,18,84} POPS: * <= * = *FALSE*
+* {37:124,19,85} PUSHI: * <= *TRUE*
 x < 20 AND x < 30
-* {31:101,16,68} PUSHI: * <= *FALSE*
-* {31:102,17,69} PUSHS: * <= x = 25
-* {31:103,18,70} PUSHI: * <= 20
-* {31:104,16,71} JMPGEQ location 110 is successful: true <= 25 >= 20
+* {38:125,20,86} PUSHI: * <= *FALSE*
+* {38:126,21,87} PUSHS: * <= x = 25
+* {38:127,22,88} PUSHI: * <= 20
+* {38:128,20,89} JMPGEQ location 134 is successful: true <= 25 >= 20
 x < 40 AND x < 20
-* {32:110,17,72} PUSHI: * <= *FALSE*
-* {32:111,18,73} PUSHS: * <= x = 25
-* {32:112,19,74} PUSHI: * <= 40
-* {32:113,17,75} JMPGEQ location 119 is UNsuccessful: false <= 25 >= 40
-* {32:114,18,76} PUSHS: * <= x = 25
-* {32:115,19,77} PUSHI: * <= 20
-* {32:116,17,78} JMPGEQ location 119 is successful: true <= 25 >= 20
+* {39:134,21,90} PUSHI: * <= *FALSE*
+* {39:135,22,91} PUSHS: * <= x = 25
+* {39:136,23,92} PUSHI: * <= 40
+* {39:137,21,93} JMPGEQ location 143 is UNsuccessful: false <= 25 >= 40
+* {39:138,22,94} PUSHS: * <= x = 25
+* {39:139,23,95} PUSHI: * <= 20
+* {39:140,21,96} JMPGEQ location 143 is successful: true <= 25 >= 20
 x < 10 AND x < 20
-* {33:119,18,79} PUSHI: * <= *FALSE*
-* {33:120,19,80} PUSHS: * <= x = 25
-* {33:121,20,81} PUSHI: * <= 10
-* {33:122,18,82} JMPGEQ location 128 is successful: true <= 25 >= 10
+* {40:143,22,97} PUSHI: * <= *FALSE*
+* {40:144,23,98} PUSHS: * <= x = 25
+* {40:145,24,99} PUSHI: * <= 10
+* {40:146,22,100} JMPGEQ location 152 is successful: true <= 25 >= 10
 
 // OR
 //
 next x = 25
-* {37:128,19,83} PUSHI: next x <= 25
+* {44:152,23,101} PUSHI: next x <= 25
 x < 40 OR x < 30
-* {38:129,20,84} PUSHI: * <= *FALSE*
-* {38:130,21,85} PUSHS: * <= x = 25
-* {38:131,22,86} PUSHI: * <= 40
-* {38:132,20,87} JMPGEQ location 134 is UNsuccessful: false <= 25 >= 40
-* {38:133,20,88} JMP location 137
-* {38:137,19,89} POPS: * <= * = *FALSE*
-* {38:138,20,90} PUSHI: * <= *TRUE*
+* {45:153,24,102} PUSHI: * <= *FALSE*
+* {45:154,25,103} PUSHS: * <= x = 25
+* {45:155,26,104} PUSHI: * <= 40
+* {45:156,24,105} JMPGEQ location 158 is UNsuccessful: false <= 25 >= 40
+* {45:157,24,106} JMP location 161
+* {45:161,23,107} POPS: * <= * = *FALSE*
+* {45:162,24,108} PUSHI: * <= *TRUE*
 x < 20 OR x < 30
-* {39:139,21,91} PUSHI: * <= *FALSE*
-* {39:140,22,92} PUSHS: * <= x = 25
-* {39:141,23,93} PUSHI: * <= 20
-* {39:142,21,94} JMPGEQ location 144 is successful: true <= 25 >= 20
-* {39:144,22,95} PUSHS: * <= x = 25
-* {39:145,23,96} PUSHI: * <= 30
-* {39:146,21,97} JMPGEQ location 149 is UNsuccessful: false <= 25 >= 30
-* {39:147,20,98} POPS: * <= * = *FALSE*
-* {39:148,21,99} PUSHI: * <= *TRUE*
+* {46:163,25,109} PUSHI: * <= *FALSE*
+* {46:164,26,110} PUSHS: * <= x = 25
+* {46:165,27,111} PUSHI: * <= 20
+* {46:166,25,112} JMPGEQ location 168 is successful: true <= 25 >= 20
+* {46:168,26,113} PUSHS: * <= x = 25
+* {46:169,27,114} PUSHI: * <= 30
+* {46:170,25,115} JMPGEQ location 173 is UNsuccessful: false <= 25 >= 30
+* {46:171,24,116} POPS: * <= * = *FALSE*
+* {46:172,25,117} PUSHI: * <= *TRUE*
 x < 40 OR x < 20
-* {40:149,22,100} PUSHI: * <= *FALSE*
-* {40:150,23,101} PUSHS: * <= x = 25
-* {40:151,24,102} PUSHI: * <= 40
-* {40:152,22,103} JMPGEQ location 154 is UNsuccessful: false <= 25 >= 40
-* {40:153,22,104} JMP location 157
-* {40:157,21,105} POPS: * <= * = *FALSE*
-* {40:158,22,106} PUSHI: * <= *TRUE*
+* {47:173,26,118} PUSHI: * <= *FALSE*
+* {47:174,27,119} PUSHS: * <= x = 25
+* {47:175,28,120} PUSHI: * <= 40
+* {47:176,26,121} JMPGEQ location 178 is UNsuccessful: false <= 25 >= 40
+* {47:177,26,122} JMP location 181
+* {47:181,25,123} POPS: * <= * = *FALSE*
+* {47:182,26,124} PUSHI: * <= *TRUE*
 x < 10 OR x < 20
-* {41:159,23,107} PUSHI: * <= *FALSE*
-* {41:160,24,108} PUSHS: * <= x = 25
-* {41:161,25,109} PUSHI: * <= 10
-* {41:162,23,110} JMPGEQ location 164 is successful: true <= 25 >= 10
-* {41:164,24,111} PUSHS: * <= x = 25
-* {41:165,25,112} PUSHI: * <= 20
-* {41:166,23,113} JMPGEQ location 169 is successful: true <= 25 >= 20
+* {48:183,27,125} PUSHI: * <= *FALSE*
+* {48:184,28,126} PUSHS: * <= x = 25
+* {48:185,29,127} PUSHI: * <= 10
+* {48:186,27,128} JMPGEQ location 188 is successful: true <= 25 >= 10
+* {48:188,28,129} PUSHS: * <= x = 25
+* {48:189,29,130} PUSHI: * <= 20
+* {48:190,27,131} JMPGEQ location 193 is successful: true <= 25 >= 20
 
 // NOT
 //
 next x = 25
-* {45:169,24,114} PUSHI: next x <= 25
+* {52:193,28,132} PUSHI: next x <= 25
 NOT x < 20
-* {46:170,25,115} PUSHI: * <= *FALSE*
-* {46:171,26,116} PUSHS: * <= x = 25
-* {46:172,27,117} PUSHI: * <= 20
-* {46:173,25,118} JMPGEQ location 175 is successful: true <= 25 >= 20
-* {46:175,24,119} POPS: * <= * = *FALSE*
-* {46:176,25,120} PUSHI: * <= *TRUE*
+* {53:194,29,133} PUSHI: * <= *FALSE*
+* {53:195,30,134} PUSHS: * <= x = 25
+* {53:196,31,135} PUSHI: * <= 20
+* {53:197,29,136} JMPGEQ location 199 is successful: true <= 25 >= 20
+* {53:199,28,137} POPS: * <= * = *FALSE*
+* {53:200,29,138} PUSHI: * <= *TRUE*
 NOT x < 30
-* {47:177,26,121} PUSHI: * <= *FALSE*
-* {47:178,27,122} PUSHS: * <= x = 25
-* {47:179,28,123} PUSHI: * <= 30
-* {47:180,26,124} JMPGEQ location 182 is UNsuccessful: false <= 25 >= 30
-* {47:181,26,125} JMP location 184
+* {54:201,30,139} PUSHI: * <= *FALSE*
+* {54:202,31,140} PUSHS: * <= x = 25
+* {54:203,32,141} PUSHI: * <= 30
+* {54:204,30,142} JMPGEQ location 206 is UNsuccessful: false <= 25 >= 30
+* {54:205,30,143} JMP location 208
