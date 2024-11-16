@@ -326,12 +326,14 @@ J, K =:
 next E = 25
          ^^
     [65:63;32] PUSHI T_PUSH 0 0 0 0; [< next E >]
-SIGN E =:
+SIGN E = do:
 ^^^^^^
     [66:64;30] JMPNEQ T_JMPS 0 0 0 0; [< SIGN E >]
     [65;30] LABEL 9
-SIGN E =:
-        ^
+SIGN E = do:
+           ^
+    // The `do' here is cosmetic and has no effect.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     if E < 0: SIGN E = -1
 ^^^^^^^^^^^^^^^^^^^^^^^^^
         // SIGN E = -1 is a restricted statement (it
@@ -346,53 +348,53 @@ SIGN E =:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     else: SIGN E = +1
 ^^^^^^^^^^^^^^^^^^^^^
-    [73:65;31] PUSHI T_PUSH 0 0 0 0
+    [74:65;31] PUSHI T_PUSH 0 0 0 0
     if E < 0: SIGN E = -1
        ^
-    [67:66;30] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [68:66;30] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                E * >]
     if E < 0: SIGN E = -1
            ^
-    [67:67;30] JMP T_JMP 0 0 0 0; *
+    [68:67;30] JMP T_JMP 0 0 0 0; *
     [68;30] LABEL 8
     [66:64;30] JMPNEQ T_JMPS 0 0 4 0; [< SIGN E >]
     if E < 0: SIGN E = -1
          ^
-    [67:68;31] PUSHI T_PUSH 0 0 0 1; 5
+    [68:68;31] PUSHI T_PUSH 0 0 0 1; 5
     if E < 0: SIGN E = -1
                        ^^
-    [67:69;30] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [68:69;30] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                SIGN E >]
     [70;30] LABEL 7
-    [67:67;30] JMP T_JMP 0 0 3 0; *
+    [68:67;30] JMP T_JMP 0 0 3 0; *
     [58:61;30] JMP T_JMP 0 0 9 0; [< * K >]
-SIGN E =:
+SIGN E = do:
 ^^^^^^
     [66:70;30] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                * [< SIGN E >] >]
     [71;30] LABEL 4
     if E < 0: SIGN E = -1
        ^^^^^
-    [67:71;31] PUSHS T_PUSH 1 0 0; 7
+    [68:71;31] PUSHS T_PUSH 1 0 0; 7
     else if E == 0: SIGN E = 0
             ^
-    [72:72;31] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [< E
+    [73:72;31] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [< E
                * >]
     else if E == 0: SIGN E = 0
                  ^
-    [72:73;32] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+    [73:73;32] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
     else if E == 0: SIGN E = 0
               ^^
-    [72:74;33] PUSHI T_PUSH 0 0 0 10; 8
+    [73:74;33] PUSHI T_PUSH 0 0 0 10; 8
     else if E == 0: SIGN E = 0
                              ^
-    [72:75;32] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [73:75;32] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                SIGN E >]
-SIGN E =:
+SIGN E = do:
 ^^^^^^
     [66:76;31] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                * [< SIGN E >] >]
     else if E == 0: SIGN E = 0
             ^^^^^^
-    [72:77;31] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; 7
+    [73:77;31] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; 7
     [78;31] LABEL 10
