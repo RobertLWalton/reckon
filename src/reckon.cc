@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 06:53:36 PM EST 2024
+// Date:	Sat Nov 16 03:29:14 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,7 +21,7 @@
 # define LEX ll::lexeme
 # define LEXSTD ll::lexeme::standard
 
-bool REC::warn_next_variable_promotion = true;
+bool REC::warn_next_variable_promotion = false;
 
 const char * html_prefix[] = {
     "<!DOCTYPE html>",
@@ -61,6 +61,7 @@ bool parser_test = false;
 bool output_parse = false;
 bool subexpression_parse = false;
 bool detail_parse = false;
+bool warn = false;
 
 static min::locatable_var<mex::process> process;
 
@@ -184,6 +185,8 @@ int main ( int argc, const char * argv[] )
 	TEST ( "--subexpression-parse",
 	       subexpression_parse )
 	TEST ( "--detail-parse", detail_parse )
+	TEST ( "--warn", warn )
+
 	{
 	    std::cerr
 	        << "ERROR: unrecognized argument "
@@ -227,6 +230,11 @@ int main ( int argc, const char * argv[] )
                "  with --compile"
             << std::endl;
 	exit ( 1 );
+    }
+
+    if ( warn )
+    {
+	REC::warn_next_variable_promotion = true;
     }
 
     if ( lexeme_test )
