@@ -2,13 +2,13 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Thu Sep  5 03:12:49 AM EDT 2024
+// Date:        Sat Nov 16 02:18:11 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-// simple expression assignment
+// Simple Expression Assignments
 //
 X = 5
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X|} = {|5|}|}
@@ -16,23 +16,15 @@ Z = 8
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Z|} = {|8|}|}
 Y = Z
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Y|} = {|Z|}|}
-next Y = Z
+
+Y = 10
+    // It is illegal to reassign Y.
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Y|} = {|10|}|}
+next Y = 10
+    // It is legal to assign a next Y.
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Y|} =
-     {|Z|}|}
-Y = 3
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Y|} = {|3|}|}
-next Y = 3
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Y|} =
-     {|3|}|}
-next X = Y
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
-     {|Y|}|}
-X
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
-Y
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Y|}
-Z
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Z|}
+     {|10|}|}
+
 next Z = - Z
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
      {|- {|Z|}|}|}
@@ -45,3 +37,96 @@ next Z = X + Y - Z
 next Z = X + ( Y - Z )
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
      {|{|X|} + ({|Y|} - {|Z|})|}|}
+
+// Multi-Variable Expression Assignments
+//
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Y|}
+
+next X, next Y = Y, X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|next X|}, {|next Y|}|} = {|{|Y|}, {|X|}|}|}
+
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Y|}
+
+P, Q = X * Y, X + Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|{|P|}, {|Q|}|}
+     = {|{|{|X|} * {|Y|}|}, {|{|X|} + {|Y|}|}|}|}
+
+// Block Assignments
+//
+E, F =:
+    E = 25
+    F = -25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|{|E|}, {|F|}|} =|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|E|} =
+               {|25|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|F|} =
+               {|-25|}|}|}|}
+
+E
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|E|}
+F
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|F|}
+
+next E, next F =:
+    next E = 35
+       // This does not take effect until after
+       // this subblock has executed
+    next F = E
+       // The value of E is the value before the
+       // subblock executes
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|{|next E|}, {|next F|}|} =|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next E|} = {|35|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next F|} = {|E|}|}|}|}
+
+E
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|E|}
+F
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|F|}
+
+J, K =:
+    J = E
+    K = J + 1
+        // J is write-only inside this subblock
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|{|J|}, {|K|}|} =|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|J|} =
+               {|E|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|K|} =
+               {|{|J|} + {|1|}|}|}|}|}
+
+// Use of if. else if, else inside subblock
+//
+next E = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next E|} =
+     {|25|}|}
+SIGN E =:
+    if E < 0: SIGN E = -1
+        // SIGN E = -1 is a restricted statement (it
+        // is an operand of `if ... : ...') that
+        // cannot allocate new variables, but it can
+        // write write-only variables.
+    else if E == 0: SIGN E = 0
+    else: SIGN E = +1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|{|SIGN E|} =|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|if
+               {|{|E|} < {|0|}|} ":" {|{|SIGN E|} = {|-1|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               [< else if >] {|{|E|} == {|0|}|} ":"
+               {|{|SIGN E|} = {|0|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|else
+               ":" {|{|SIGN E|} = {|1|}|}|}|}|}

@@ -2,26 +2,73 @@
 //
 // File:	reckon_assignments.rec
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep  5 03:12:49 AM EDT 2024
+// Date:	Sat Nov 16 02:18:11 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-// simple expression assignment
+// Simple Expression Assignments
 //
 X = 5
 Z = 8
 Y = Z
-next Y = Z
-Y = 3
-next Y = 3
-next X = Y
-X
-Y
-Z
+
+Y = 10
+    // It is illegal to reassign Y.
+next Y = 10
+    // It is legal to assign a next Y.
+
 next Z = - Z
 next Z = X + Z
 next Z = X + Y - Z
 next Z = X + ( Y - Z )
 
+// Multi-Variable Expression Assignments
+//
+X
+Y
+
+next X, next Y = Y, X
+
+X
+Y
+
+P, Q = X * Y, X + Y
+
+// Block Assignments
+//
+E, F =:
+    E = 25
+    F = -25
+
+E
+F
+
+next E, next F =:
+    next E = 35
+       // This does not take effect until after
+       // this subblock has executed
+    next F = E
+       // The value of E is the value before the
+       // subblock executes
+
+E
+F
+
+J, K =:
+    J = E
+    K = J + 1
+        // J is write-only inside this subblock
+
+// Use of if. else if, else inside subblock
+//
+next E = 25
+SIGN E =:
+    if E < 0: SIGN E = -1
+        // SIGN E = -1 is a restricted statement (it
+	// is an operand of `if ... : ...') that
+	// cannot allocate new variables, but it can
+	// write write-only variables.
+    else if E == 0: SIGN E = 0
+    else: SIGN E = +1

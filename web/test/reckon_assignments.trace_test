@@ -4,13 +4,13 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Thu Sep  5 03:12:49 AM EDT 2024
+// Date:        Sat Nov 16 02:18:11 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-// simple expression assignment
+// Simple Expression Assignments
 //
 X = 5
 * {12:2,3,3} PUSHI: X <= 5
@@ -18,43 +18,136 @@ Z = 8
 * {13:3,4,4} PUSHI: Z <= 8
 Y = Z
 * {14:4,5,5} PUSHS: Y <= Z = 8
-next Y = Z
-* {15:5,6,6} PUSHS: next Y <= Z = 8
-Y = 3
+
+Y = 10
+    // It is illegal to reassign Y.
 ERROR: in line ##: NON-next variable `Y' has a predecessor of the same
        variable name and lexical level:
-Y = 3
+Y = 10
 ^
-ERROR: in line ##: statement ignored due to previous errors:
-Y = 3
-^^^^^
+ERROR: in lines ##-##: statement ignored due to previous errors:
+Y = 10
+^^^^^^
+    // It is illegal to reassign Y.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [no output due to compile error]
-next Y = 3
-* {17:6,7,7} PUSHI: next Y <= 3
-next X = Y
-* {18:7,8,8} PUSHS: next X <= Y = 3
-X
-* {19:8,9,9} PUSHS: * <= X = 3
-Y
-* {20:9,10,10} PUSHS: * <= Y = 3
-Z
-* {21:10,11,11} PUSHS: * <= Z = 8
+next Y = 10
+    // It is legal to assign a next Y.
+* {18:5,6,6} PUSHI: next Y <= 10
+
 next Z = - Z
-* {22:11,12,12} PUSHS: * <= Z = 8
-* {22:12,12,13} NEG: next Z = -8 <= - 8
+* {21:6,7,7} PUSHS: * <= Z = 8
+* {21:7,7,8} NEG: next Z = -8 <= - 8
 next Z = X + Z
-* {23:13,13,14} PUSHS: * <= X = 3
-* {23:14,14,15} PUSHS: * <= Z = -8
-* {23:15,13,16} ADD: next Z = -5 <= 3 + -8
+* {22:8,8,9} PUSHS: * <= X = 5
+* {22:9,9,10} PUSHS: * <= Z = -8
+* {22:10,8,11} ADD: next Z = -3 <= 5 + -8
 next Z = X + Y - Z
-* {24:16,14,17} PUSHS: * <= X = 3
-* {24:17,15,18} PUSHS: * <= Y = 3
-* {24:18,14,19} ADD: * = 6 <= 3 + 3
-* {24:19,15,20} PUSHS: * <= Z = -5
-* {24:20,14,21} SUB: next Z = 11 <= 6 - -5
+* {23:11,9,12} PUSHS: * <= X = 5
+* {23:12,10,13} PUSHS: * <= Y = 10
+* {23:13,9,14} ADD: * = 15 <= 5 + 10
+* {23:14,10,15} PUSHS: * <= Z = -3
+* {23:15,9,16} SUB: next Z = 18 <= 15 - -3
 next Z = X + ( Y - Z )
-* {25:21,15,22} PUSHS: * <= X = 3
-* {25:22,16,23} PUSHS: * <= Y = 3
-* {25:23,17,24} PUSHS: * <= Z = 11
-* {25:24,16,25} SUB: * = -8 <= 3 - 11
-* {25:25,15,26} ADD: next Z = -5 <= 3 + -8
+* {24:16,10,17} PUSHS: * <= X = 5
+* {24:17,11,18} PUSHS: * <= Y = 10
+* {24:18,12,19} PUSHS: * <= Z = 18
+* {24:19,11,20} SUB: * = -8 <= 10 - 18
+* {24:20,10,21} ADD: next Z = -3 <= 5 + -8
+
+// Multi-Variable Expression Assignments
+//
+X
+* {28:21,11,22} PUSHS: * <= X = 5
+Y
+* {29:22,12,23} PUSHS: * <= Y = 10
+
+next X, next Y = Y, X
+* {31:23,13,24} PUSHS: next X <= Y = 10
+* {31:24,14,25} PUSHS: next Y <= X = 5
+
+X
+* {33:25,15,26} PUSHS: * <= X = 10
+Y
+* {34:26,16,27} PUSHS: * <= Y = 5
+
+P, Q = X * Y, X + Y
+* {36:27,17,28} PUSHS: * <= X = 10
+* {36:28,18,29} PUSHS: * <= Y = 5
+* {36:29,17,30} MUL: P = 50 <= 10 * 5
+* {36:30,18,31} PUSHS: * <= X = 10
+* {36:31,19,32} PUSHS: * <= Y = 5
+* {36:32,18,33} ADD: Q = 15 <= 10 + 5
+
+// Block Assignments
+//
+E, F =:
+    E = 25
+    F = -25
+* {40:33,19,34} PUSHI: E <= 0
+* {40:34,20,35} PUSHI: F <= 0
+* {42:35,20,36} BEG
+*** {41:36,21,37} PUSHI: E <= 25
+*** {40:37,20,38} POPS: E <= * = 25
+*** {42:38,21,39} PUSHI: F <= -25
+*** {40:39,20,40} POPS: F <= * = -25
+*** {42:40,20,41} END
+
+E
+* {44:41,21,42} PUSHS: * <= E = 25
+F
+* {45:42,22,43} PUSHS: * <= F = -25
+
+next E, next F =:
+    next E = 35
+       // This does not take effect until after
+       // this subblock has executed
+    next F = E
+       // The value of E is the value before the
+       // subblock executes
+* {47:43,23,44} PUSHS: E <= E = 25
+* {47:44,24,45} PUSHS: F <= F = -25
+* {53:45,24,46} BEG
+*** {48:46,25,47} PUSHI: next E <= 35
+*** {47:47,24,48} POPS: next E <= * = 35
+*** {51:48,25,49} PUSHS: next F <= E = 25
+*** {47:49,24,50} POPS: next F <= * = 25
+*** {53:50,24,51} END
+
+E
+* {55:51,25,52} PUSHS: * <= E = 35
+F
+* {56:52,26,53} PUSHS: * <= F = 25
+
+J, K =:
+    J = E
+    K = J + 1
+        // J is write-only inside this subblock
+ERROR: in line ##: cannot read write-only variable:
+    K = J + 1
+        ^
+[no output due to compile error]
+
+// Use of if. else if, else inside subblock
+//
+next E = 25
+* {58:53,27,54} PUSHI: J <= 25
+SIGN E =:
+    if E < 0: SIGN E = -1
+        // SIGN E = -1 is a restricted statement (it
+        // is an operand of `if ... : ...') that
+        // cannot allocate new variables, but it can
+        // write write-only variables.
+    else if E == 0: SIGN E = 0
+    else: SIGN E = +1
+* {58:54,28,55} PUSHI: K <= 0
+* {61:55,28,56} BEG
+*** {59:56,29,57} PUSHS: J <= E = 25
+*** {58:57,30,58} PUSHI: "*" J <= 0
+*** {60:58,28,59} JMPGEQ * is successful: true <= 25 >= 0
+*** {61:62,29,60} PUSHS: * <= * = 25
+*** {65:63,30,61} PUSHI: next E <= 0
+*** {66:64,28,62} JMPNEQ SIGN E is successful: true <= 25 != 0
+*** {67:68,29,63} PUSHI: 5 <= 1
+*** {67:69,28,64} POPS: E <= SIGN = 1
+*** {66:70,28,65} END: *, SIGN E=1
