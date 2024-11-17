@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 21 05:50:46 EDT 2024
+// Date:	Sun Nov 17 02:11:30 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,15 +126,13 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  bracketed_pass->bracket_type_table );
 
-    min::locatable_gen equal
-        ( min::new_str_gen ( "=" ) );
     min::locatable_gen equal_number_sign
         ( min::new_str_gen ( "=#" ) );
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
-    min::locatable_gen circumflex
-        ( min::new_str_gen ( "^" ) );
 
+    min::locatable_gen exit_name
+        ( min::new_str_gen ( "exit" ) );
     min::locatable_gen on_name
         ( min::new_str_gen ( "on" ) );
     min::locatable_gen for_every
@@ -160,19 +158,12 @@ void REC::init_parser ( PAR::parser parser )
 	    ( assignment,
 	      OP::reformatter_stack );
 
-    min::locatable_gen unary
-        ( min::new_str_gen ( "unary" ) );
+    min::locatable_gen unary_prefix
+        ( min::new_lab_gen ( "unary", "prefix" ) );
 
-    PAR::reformatter unary_reformatter =
+    PAR::reformatter unary_prefix_reformatter =
         PAR::find_reformatter
-	    ( unary, OP::reformatter_stack );
-
-    min::locatable_gen binary
-        ( min::new_str_gen ( "binary" ) );
-
-    PAR::reformatter binary_reformatter =
-        PAR::find_reformatter
-	    ( binary, OP::reformatter_stack );
+	    ( unary_prefix, OP::reformatter_stack );
 
     OP::push_oper
         ( equal_number_sign,
@@ -190,7 +181,17 @@ void REC::init_parser ( PAR::parser parser )
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::LINE,
-	  3000, unary_reformatter,
+	  3000, unary_prefix_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( exit_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  0, unary_prefix_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -213,17 +214,6 @@ void REC::init_parser ( PAR::parser parser )
 	  0, declare_reformatter,
 	  declare_arguments,
 	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( circumflex,
-	  min::MISSING(),
-	  code + math,
-	  block_level, PAR::top_level_position,
-	  OP::INFIX,
-	  13300, binary_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-
 }
 
 # ifdef TBD
