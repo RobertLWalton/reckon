@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 17 07:30:49 PM EST 2024
+// Date:	Mon Nov 18 05:55:35 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1072,21 +1072,15 @@ bool static compile_expression_assignment_statement
 	    OK = false;
 	exps[i] = right_vp[i];
     }
-    if ( ! OK )
-    {
-        mexcom::compile_error
-	    ( ::get_position ( vp )->position,
-	      "statement ignored due to previous"
-	      " errors" );
-	return false;
-    }
 
     for ( min::uns32 i = 0; i < left_n; ++ i )
     {
         PRIM::var var = vars[i];
 	min::gen exp = exps[i];
 	min::locatable_gen var_name
-	    ( ::full_var_name ( var ) );
+	    ( var != min::NULL_STUB ?
+	      ::full_var_name ( var ) :
+	      ::star );
 
 	if ( ! :: compile_expression
 		( exp, 0, 0, var_name ) )
@@ -1097,6 +1091,14 @@ bool static compile_expression_assignment_statement
 	    pushi ( min::UNDEFINED(),
 		    ppv->position,
 		    var_name );
+	}
+
+	if ( var == min::NULL_STUB )
+	{
+	    min::phrase_position_vec ppv = min::get
+		( exp, min::dot_position );
+	    ::pop ( ppv->position );
+	    continue;
 	}
 
 	if ( var->flags & PRIM::WRITABLE_VAR )
@@ -1122,6 +1124,7 @@ bool static compile_expression_assignment_statement
 		  " variable ignored" );
 	    ::pop ( var->position );
 	    vars[i] = min::NULL_STUB;
+	    OK = false;
 	}
 	else
 	    var->location =
