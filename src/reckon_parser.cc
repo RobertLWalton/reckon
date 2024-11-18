@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 17 06:36:51 AM EST 2024
+// Date:	Sun Nov 17 07:21:06 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -190,17 +190,7 @@ void REC::init_parser ( PAR::parser parser )
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::PREFIX + OP::LINE,
-	  0, unary_prefix_reformatter,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-
-    OP::push_oper
-        ( exit_name,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::INITIAL + OP::FINAL + OP::LINE,
+	  OP::INITIAL + OP::LINE,
 	  0, min::NULL_STUB,
 	  min::MISSING(),
 	  oper_pass->oper_table );

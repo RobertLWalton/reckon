@@ -2,7 +2,7 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Nov 16 03:47:01 AM EST 2024
+// Date:        Sun Nov 17 07:21:59 PM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -143,3 +143,51 @@ do:
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
                {|next E|} = {|{|E|} + {|10|}|}|}|}|}
+
+// Exit statements
+//
+exit
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|exit|}
+
+X1 =:
+    X1 = 5
+    X1 = 15
+    exit
+    X1 = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|{|X1|} =|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X1|}
+               = {|5|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X1|}
+               = {|15|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|exit|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X1|}
+               = {|25|}|}|}|}
+
+X1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X1|}
+
+X2 = do BLOCK2:
+    X2 = 5
+    X2 = 15
+    do BLOCK3:
+        exit BLOCK2
+    X2 = 25
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|X2|} = {|do {|BLOCK2|}|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X2|}
+               = {|5|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X2|}
+               = {|15|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|do {|BLOCK3|}|}
+               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
+                    ":"|
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|exit {|BLOCK2|}|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X2|}
+               = {|25|}|}|}|}
+
+X2
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X2|}

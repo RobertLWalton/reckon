@@ -398,3 +398,143 @@ SIGN E = do:
             ^^^^^^
     [73:77;31] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; 7
     [78;31] LABEL 10
+ERROR: in line ##: exit not inside block; statement ignored:
+exit
+^^^^
+    else: SIGN E = +1
+                   ^^
+    [74:78;32] PUSHI T_PUSH 0 0 0 0; [< SIGN E >]
+SIGN E = do:
+^^^^^^
+    [66:79;32] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               * [< SIGN E >] >]
+SIGN E = do:
+           ^
+    // The `do' here is cosmetic and has no effect.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if E < 0: SIGN E = -1
+^^^^^^^^^^^^^^^^^^^^^^^^^
+        // SIGN E = -1 is a restricted statement (it
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // is an operand of `if ... : ...') that
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // cannot allocate new variables, but it can
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // write write-only variables.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else if E == 0: SIGN E = 0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    else: SIGN E = +1
+^^^^^^^^^^^^^^^^^^^^^
+    [74:80;33] PUSHI T_PUSH 0 0 0 5
+    next E = E + 10
+    ^^^^^^
+    [79:81;32] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               E E >]
+do:
+  ^
+    next E = E + 10
+^^^^^^^^^^^^^^^^^^^
+        // next E is promoted replacing `do' by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // `next E = do'.
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    [81:82;33] PUSHI T_PUSH 0 0 0 15
+    next E = E + 10
+             ^
+    [79:83;32] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               E * >]
+    next E = E + 10
+                 ^^
+    [79:84;32] JMP T_JMP 0 0 0 0; *
+    next E = E + 10
+             ^^^^^^
+    [79:85;33] PUSHI T_PUSH 0 0 0 25; [< next E >]
+    next E = E + 10
+    ^^^^^^
+    [79:86;32] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               * [< next E >] >]
+do:
+  ^
+    next E = E + 10
+^^^^^^^^^^^^^^^^^^^
+        // next E is promoted replacing `do' by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // `next E = do'.
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    [81:87;32] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [88;32] LABEL 11
+    [79:84;32] JMP T_JMP[1] 0 0 4 0; *
+X1 =:
+^^
+    [87:88;33] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
+               X1
+X1 =:
+    ^
+    X1 = 5
+^^^^^^^^^^
+    X1 = 15
+^^^^^^^^^^^
+    exit
+^^^^^^^^
+    X1 = 25
+^^^^^^^^^^^
+    [91:89;34] PUSHI T_PUSH 0 0 0 0
+    X1 = 5
+         ^
+    [88:90;34] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
+X1 =:
+^^
+    [87:91;35] PUSHI T_PUSH 0 0 0 5; [< * X1 >]
+    X1 = 15
+         ^^
+    [89:92;34] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
+X1 =:
+^^
+    [87:93;35] PUSHI T_PUSH 0 0 0 15; [< * X1 >]
+    exit
+    ^^^^
+    [90:94;34] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; 11
+    X1 = 25
+         ^^
+    [91:95;34] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
+X1 =:
+^^
+    [87:96;34] JMP T_JMP 0 0 0 0; [< * X1 >]
+X1 =:
+    ^
+    X1 = 5
+^^^^^^^^^^
+    X1 = 15
+^^^^^^^^^^^
+    exit
+^^^^^^^^
+    X1 = 25
+^^^^^^^^^^^
+    [91:97;34] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [98;34] LABEL 13
+X1
+^^
+    [93:98;35] PUSHI T_PUSH 0 0 0 25; [< X1 * >]
+X2 = do BLOCK2:
+^^
+    [95:99;34] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X2
+X2 = do BLOCK2:
+              ^
+    X2 = 5
+^^^^^^^^^^
+    X2 = 15
+^^^^^^^^^^^
+    do BLOCK3:
+^^^^^^^^^^^^^^
+        exit BLOCK2
+^^^^^^^^^^^^^^^^^^^
+    X2 = 25
+^^^^^^^^^^^
+    [100:100;34] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [101;34] LABEL 12
+    [87:96;34] JMP T_JMP[2] 0 0 5 0; [< * X1 >]
+    X2 = 5
+         ^
+    [96:101;35] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
+                X2

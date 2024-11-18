@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 15 05:20:12 PM EST 2024
+// Date:	Sun Nov 17 07:30:49 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,7 +46,7 @@ static min::locatable_gen ONE;
 static min::locatable_gen IF;
 static min::locatable_gen ELSE_IF;
 static min::locatable_gen ELSE;
-static min::locatable_gen TOP;
+static min::locatable_gen EXIT;
 
 static min::locatable_gen DO;
 static min::locatable_gen REPEAT;
@@ -84,7 +84,7 @@ static void initialize ( void )
     ::IF  = min::new_str_gen ( "if" );
     ::ELSE_IF  = min::new_lab_gen ( "else", "if" );
     ::ELSE  = min::new_str_gen ( "else" );
-    ::TOP  = min::new_str_gen ( "TOP" );
+    ::EXIT  = min::new_str_gen ( "exit" );
 
     ::DO       = min::new_str_gen ( "do" );
     ::REPEAT   = min::new_str_gen ( "repeat" );
@@ -211,7 +211,9 @@ struct block_struct
 
     min::uns32 block_finish_jmp;
         // If non-zero, label to be output right after
-	// END... .
+	// END... .  All actual blocks has this
+	// non-zero.  The bottom of the stack represents
+	// top level and has this zero.
 };
 
 typedef min::packed_vec_insptr<block_struct>
@@ -219,23 +221,28 @@ typedef min::packed_vec_insptr<block_struct>
 static min::locatable_var<::block_stack_vec>
     block_stack;
 static block_struct block;
-    // Copy of top of block stack.  ::block.name is
-    // protected from gc because it is in block stack.
+    // Top of block stack.  ::block.name is protected
+    // from gc because it is equal to ::block_name.
+static min::locatable_gen block_name;
 
 inline void push_block ( min::gen name )
 {
-    block_struct b =
-        { name, 0, 0, min::MISSING_POSITION, 0 };
-    min::push ( ::block_stack ) = b;
-    ::block = b;
+    min::push ( ::block_stack ) = ::block;
     min::unprotected::acc_write_update
-        ( ::block_stack, name );
+        ( ::block_stack, ::block.name );
+
+    ::block =
+        { name, 0, 0, min::MISSING_POSITION, 0 };
+    ::block.block_finish_jmp = ::jmp_counter ++;
+        // C++ does not correctly compile
+	// ::jmp_counter ++ as part of { ... }.
+    ::block_name = ::block.name;
 }
 
 inline void pop_block ( void )
 {
-    min::pop ( ::block_stack );
-    ::block = ::block_stack[::block_stack->length - 1];
+    ::block = min::pop ( ::block_stack );
+    ::block_name = ::block.name;
 }
 
 inline void end_if_sequence ( void )
@@ -713,7 +720,9 @@ void REC::init_compiler
     ::push_var ( var );
 
     ::block_stack = ::block_stack_type.new_stub ( 64 );
-    ::push_block ( ::TOP );
+    ::block  = { min::MISSING(), 0, 0,
+                 min::MISSING_POSITION, 0 };
+    ::block_name = ::block.name;
 }
 
 
@@ -865,8 +874,88 @@ bool REC::compile_statement ( min::gen statement )
 	return ::compile_expression_assignment_statement
 	     ( vp );
 
-    else
+    if ( s == 1
+         &&
+	 vp[0] == ::EXIT )
     {
+	min::phrase_position_vec ppv =
+	    ::get_position ( vp );
+    	if ( ::block.block_finish_jmp != 0 )
+	{
+	    ::jmp ( ::block.block_finish_jmp,
+	            ppv->position );
+	    return true;
+	}
+	else
+	{
+	    mexcom::compile_error
+		( ppv->position,
+		  "exit not inside block;"
+		  " statement ignored" );
+	    return false;
+	}
+    }
+
+    if ( s == 2
+         &&
+	 vp[0] == ::EXIT )
+    {
+	min::phrase_position_vec ppv =
+	    ::get_position ( vp );
+	min::obj_vec_ptr vp1 = vp[1];
+	min::locatable_gen name;
+	const char * message = NULL;
+	min::uns32 jmp = 0;
+	if ( vp1 == min::NULL_STUB )
+	    message = "not a block name";
+	else
+	{
+	    min::uns32 i1 = 0;
+	    name = PRIM::scan_var_name ( vp1, i1 );
+	    if ( name == min::NONE()
+	         ||
+		 i1 != min::size_of ( vp1 ))
+	        message = "not a block name";
+	    else
+	    {
+		min::uns32 j = ::block_stack->length;
+		if ( j == 0 )
+		    message = "exit statement is"
+			      " not in a block";
+		else if ( name == ::block.name )
+		    jmp = ::block.block_finish_jmp;
+		else while ( j != 0 )
+		{
+		    min::ptr<::block_struct> p =
+			::block_stack + -- j;
+		    if ( p->name != name )
+			continue;
+		    jmp = p->block_finish_jmp;
+		    break;
+		}
+		if ( jmp == 0 )
+		    message = "exit statement is"
+			      " not in a block"
+			      " with the given name";
+	    }
+	}
+	if ( message != NULL )
+	{
+	    mexcom::compile_error
+		( ppv[1], message, min::pnop,
+		  "; statement ignored" );
+	    return false;
+	}
+	else
+	{
+	    ::jmp ( jmp, ppv->position );
+	    return true;
+	}
+    }
+
+    {
+        // Bracketed to allow goto NOT_LEGAL_STATEMENT.
+
 	min::phrase_position_vec ppv =
 	    ::get_position ( vp );
 	min::uns8 level = mexstack::lexical_level;
@@ -1096,7 +1185,6 @@ bool static compile_block
         ( beg, nnext, 0,
 	  min::MISSING(), ppv->position );
     push_block ( label );
-    ::block.block_finish_jmp = ::jmp_counter ++;
 
     bool OK = true;
 

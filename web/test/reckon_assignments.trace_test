@@ -4,7 +4,7 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Nov 16 03:47:01 AM EST 2024
+// Date:        Sun Nov 17 07:21:59 PM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -166,3 +166,45 @@ do:
 *** {73:75,30,70} ADD: SIGN E = 35 <= 25 + 10
 *** {66:76,29,71} POPS: SIGN E <= * = 35
 *** {73:77,29,72} END
+
+// Exit statements
+//
+exit
+ERROR: in line ##: exit not inside block; statement ignored:
+exit
+^^^^
+[no output due to compile error]
+
+X1 =:
+    X1 = 5
+    X1 = 15
+    exit
+    X1 = 25
+* {74:78,30,73} PUSHI: SIGN E <= 0
+* {66:79,30,74} BEG: *, SIGN E=0
+*** {74:80,31,75} PUSHI: *MISSING* <= 5
+*** {79:81,30,76} POPS: E <= E = 5
+*** {81:82,31,77} PUSHI: *MISSING* <= 15
+*** {79:83,30,78} POPS: * <= E = 15
+*** {79:84,30,79} JMP *
+
+X1
+* {87:88,31,80} PUSHS: * <= * = 15
+
+X2 = do BLOCK2:
+    X2 = 5
+    X2 = 15
+    do BLOCK3:
+        exit BLOCK2
+    X2 = 25
+* {91:89,32,81} PUSHI: *MISSING* <= 0
+* {88:90,32,82} BEG
+*** {87:91,33,83} PUSHI: "*" X1 <= 5
+*** {89:92,32,84} POPS: * <= * = 5
+*** {87:93,33,85} PUSHI: "*" X1 <= 15
+*** {90:94,32,86} POPS: * <= * = 15
+*** {91:95,32,87} BEG
+***** {87:96,32,88} JMP "*" X1
+
+X2
+* {96:101,33,89} PUSHS: * <= * = 15
