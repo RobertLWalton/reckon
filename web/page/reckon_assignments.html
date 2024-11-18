@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Mon Nov 18 01:28:32 EST 2024
+Date:	Mon Nov 18 05:30:15 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -39,7 +39,8 @@ NEW WINDOW</button>
 <p>
 </p>
 
-<h2 id='simple-expression-assignments'>Simple Expression Assignments</h2>
+<h2 id='single-variable-expression-assignments'>
+    Single Variable Expression Assignments</h2>
 
 <p>
 Examples:
@@ -54,7 +55,10 @@ followed by the assignment operator (i.e., <code>=</code>)
 followed by an expression (e.g., <code>25</code> or <code>X + 1</code>).
 Storage for the variable named is allocated,
 the expression is evaluated, and the expression value is store in the
-variable storage.
+variable storage.  The name of the newly allocated variable does not
+become visible until after the statement (i.e., in <code>X + 10</code>
+above, <code>X</code> refers to the variable allocated by
+<code>X = 25</code>).
 <p>
 The value of a variable cannot be changed.  But a new variable
 of the same name can be created, and this will hide the old variable.
@@ -87,6 +91,48 @@ next Z = - Z</div>-8
     Multi-Variable Expression Assignments</h2>
 
 <p>
+Examples:
+<pre class='example'>
+<div class='line'>X, Y = 5, 10</div>5
+10
+<div class='line'>next X, next Y = X + Y, X * Y</div>15
+50
+</pre>
+<p>
+A multi-variable expression assignment statement consists of
+a comma-separated list of variable names (e.g., <code>X, Y</code>)
+followed by the assignment operator (i.e., <code>=</code>)
+followed by a comma-separated list of expressions.  The number
+of variables must equal the number of expressions.  Storage is
+allocated for the variables, then the expressions are evaulated,
+and then the expression values are stored in the variable storage.
+The value of the first expression is stored in the first variable,
+the value of the second expression is stored in the second variable,
+and so forth.
+The names of the newly allocated variables do not
+become visible until after the statement (i.e., in <code>X + Y</code>
+and <code>X * Y</code> above,
+<code>X</code> and <code>Y</code> refer to the variables allocated by
+<code>X, Y = 5, 10</code>).
+<p>
+Just as in the single variable case, the
+values of variables cannot be changed, but new variables
+of the same name can be created and hide the old variables
+using <code>next</code>.
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>M, N = 5, 10
+    // The values of M and N are printed in order
+    // after the statement</div>5
+10
+<div class='line'>next M, next N = N, M</div>10
+5
+<div class='line'>P, Q = M * N, M + N</div>50
+15
+<div class='line'>R, next P = P / Q, P + 1</div>3.33333333333333
+51
+</pre>
 </p>
 
 <h2 id='block-assignments'>Block Assignments</h2>
