@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sun Nov 17 23:36:19 EST 2024
+Date:	Mon Nov 18 01:28:32 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -42,6 +42,45 @@ NEW WINDOW</button>
 <h2 id='simple-expression-assignments'>Simple Expression Assignments</h2>
 
 <p>
+Examples:
+<pre class='example'>
+<div class='line'>X = 25</div>25
+<div class='line'>next X = X + 10</div>35
+<div class='line'>X</div>35
+</pre>
+<p>
+A simple assignment consists of a variable name (e.g., <code>X</code>)
+followed by the assignment operator (i.e., <code>=</code>)
+followed by an expression (e.g., <code>25</code> or <code>X + 1</code>).
+Storage for the variable named is allocated,
+the expression is evaluated, and the expression value is store in the
+variable storage.
+<p>
+The value of a variable cannot be changed.  But a new variable
+of the same name can be created, and this will hide the old variable.
+To do this, the variable name must be preceded by <code>next</code>
+in the assignment for the new variable (e.g., <code>next X</code>).
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>X = 5</div>5
+<div class='line'>Z = 8</div>8
+<div class='line'>Y = Z</div>8
+<div class='line'>
+Y = 10
+    // It is illegal to reassign Y.</div><div class='error-line'>ERROR: in line 17: NON-next variable `Y' has a predecessor of the same
+       variable name and lexical level:</div><div class='error-highlight'>Y</div> = 10
+<div class='error-line'>ERROR: in lines 17-18: statement ignored due to previous errors:</div><div class='error-highlight'>Y = 10
+    // It is illegal to reassign Y.</div>
+[no output due to compile error]
+<div class='line'>next Y = 10
+    // It is legal to assign a next Y.</div>10
+<div class='line'>
+next Z = - Z</div>-8
+<div class='line'>next Z = X + Z</div>-3
+<div class='line'>next Z = X + Y - Z</div>18
+<div class='line'>next Z = X + ( Y - Z )</div>-3
+</pre>
 </p>
 
 <h2 id='multi-variable-expression-assignments'>
