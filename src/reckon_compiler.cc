@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 18 05:55:35 AM EST 2024
+// Date:	Tue Nov 19 12:41:55 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -729,10 +729,49 @@ void REC::init_compiler
 // Compile Statement
 // ------- ---------
 
+bool static compile_statement_expression
+	( min::gen expression )
+{
+    min::phrase_position_vec ppv =
+	min::get ( expression, min::dot_position );
+    min::uns8 level = mexstack::lexical_level;
+    min::uns32 depth = mexstack::depth[level];
+    if ( ::compile_expression ( expression ) )
+    {
+	min::locatable_var<PRIM::var> var;
+	var = PRIM::create_var
+	    ( ::star,
+	      PAR::ALL_SELECTORS,
+	      ppv->position,
+	      level, depth,
+	      0,
+	      mexstack::var_stack_length - 1,
+	      min::new_stub_gen
+		( mexcom::output_module ) );
+	::push_var ( var );
+	return true;
+    }
+    else
+	return false;
+}
+
 bool REC::compile_statement ( min::gen statement )
 {
     min::obj_vec_ptr vp = statement;
     min::uns32 s = min::size_of ( vp );
+    min::attr_ptr ap = vp;
+    min::locate ( ap, min::dot_separator );
+    if ( min::get ( ap ) == PARLEX::comma )
+    {
+	bool OK = true;
+        for ( min::uns32 i = 0; i < s; ++ i )
+	{
+	    if ( ! ::compile_statement_expression
+	               ( vp[i] ) )
+		OK = false;
+	}
+	return OK;
+    }
 
     // Else-if/else statements must be first so
     // end_if_sequence can be called for all other
@@ -953,32 +992,8 @@ bool REC::compile_statement ( min::gen statement )
 	}
     }
 
-    {
-        // Bracketed to allow goto NOT_LEGAL_STATEMENT.
-
-	min::phrase_position_vec ppv =
-	    ::get_position ( vp );
-	min::uns8 level = mexstack::lexical_level;
-	min::uns32 depth = mexstack::depth[level];
-	vp = min::NULL_STUB;
-	if ( ::compile_expression ( statement ) )
-	{
-	    min::locatable_var<PRIM::var> var;
-	    var = PRIM::create_var
-	        ( ::star,
-	          PAR::ALL_SELECTORS,
-	          ppv->position,
-	          level, depth,
-	          0,
-	          mexstack::var_stack_length - 1,
-	          min::new_stub_gen
-	            ( mexcom::output_module ) );
-	    ::push_var ( var );
-	    return true;
-	}
-	else
-	    return false;
-    }
+    vp = min::NULL_STUB;
+    return compile_statement_expression ( statement );
 
 NOT_LEGAL_STATEMENT:
 
