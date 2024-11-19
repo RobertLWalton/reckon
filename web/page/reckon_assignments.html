@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Nov 19 01:30:45 EST 2024
+Date:	Tue Nov 19 06:12:06 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -53,14 +53,17 @@ Examples:
 A simple assignment consists of a variable name (e.g., <code>X</code>)
 followed by the assignment operator (i.e., <code>=</code>)
 followed by an expression (e.g., <code>25</code> or <code>X + 1</code>).
-Storage for the variable named is allocated,
-the expression is evaluated, and the expression value is store in the
-variable storage.  The name of the newly allocated variable does not
+Storage for the variable named, which is called the
+<b>assignment variable</b>, is allocated,
+the expression, which is called the <b>assignment expression</b>,
+is evaluated, and the expression value is store in the
+variable storage.  The name of the newly allocated assignment variable does not
 become visible until after the statement (i.e., in <code>X + 10</code>
 above, <code>X</code> refers to the variable allocated by
 <code>X = 25</code>).
 <p>
-The value of a variable cannot be changed.  But a new variable
+The value of an assignment variable cannot be changed by later
+statements.  But a new variable
 of the same name can be created, and this will hide the old variable.
 To do this, the variable name must be preceded by <code>next</code>
 in the assignment for the new variable (e.g., <code>next X</code>).
@@ -98,24 +101,25 @@ Examples:
 </pre>
 <p>
 A multi-variable expression assignment statement consists of
-a comma-separated list of variable names (e.g., <code>X, Y</code>)
+a comma-separated list of assignment variable names (e.g., <code>X, Y</code>)
 followed by the assignment operator (i.e., <code>=</code>)
-followed by a comma-separated list of expressions.  The number
-of variables must equal the number of expressions.  Storage is
-allocated for the variables, then the expressions are evaulated,
+followed by a comma-separated list of assignment expressions.  The number
+of assignment variables must equal the number of assignment expressions.
+ Storage is allocated for the assignment variables,
+then the assignment expressions are evaulated,
 and then the expression values are stored in the variable storage.
 The value of the first expression is stored in the first variable,
 the value of the second expression is stored in the second variable,
 and so forth.
-The names of the newly allocated variables do not
+The names of the newly allocated assignment variables do not
 become visible until after the statement (i.e., in <code>X + Y</code>
 and <code>X * Y</code> above,
 <code>X</code> and <code>Y</code> refer to the variables allocated by
 <code>X, Y = 5, 10</code>).
 <p>
 Just as in the single variable case, the
-values of variables cannot be changed, but new variables
-of the same name can be created and hide the old variables
+values of assignment variables cannot be changed by subsequent,
+but new variables of the same name can be created and hide the old variables
 using <code>next</code>.
 <p>
 More Examples:
@@ -145,16 +149,35 @@ Example:
 </pre>
 <p>
 A block assignment is like a single variable or multi-variable
-expression assignment except that the expressions to the right of
+expression assignment except that the assignment expressions to the right of
 the <code>=</code> are replace by a
 <a href='reckon_logical_lines.html#blocks'>block</a>.
 <p>
-The variables on the left side of the <code>=</code>
+The assignment variables on the left side of the <code>=</code>
 (e.g., <code>E</code> and <code>F</code>) are allocated
 and made write-only inside the block.  Statements inside the block
 (e.g., <code>E = 25</code> and <code>F = -25</code>)
 can then write values into these variable.  However these
-values cannot be read by statements inside the block.
+values cannot be read by statements inside the block.  Statements
+subsequent to the block assignment statement cannot change the
+values of these variables.
+<p>
+If <code>next V</code> is an assignment variable of a block assignment
+statement, then inside the block <code>V</code> can be read and refers to
+the value of <code>V</code> just before the block assignment statement
+starts to execute.
+<p>
+The initial value of a non-<code>next</code> assignment variable
+is zero, so if the variable is not written in the block its value will
+be zero.  The initial value of a <code>next</code> assignment variable
+is the value of the variable of the same name before the block
+assignment statement starts to execute, and so if the variable is not
+written in the block, the effect is to not change the value of the variable.
+<p>
+An assigment variable of a block assignment statement can be written
+more than once by statements in the block.  The last write is the one
+that determines the variable value after the block assignment statement
+finishes.
 <p>
 More Examples:
 <pre class='example'>
@@ -181,21 +204,10 @@ E, F</div>35
 J, K =:
     J = E
     K = J + 1
-        // J is write-only inside this block</div><div class='error-line'>ERROR: in line 60: cannot read write-only variable:</div>    K = <div class='error-highlight'>J</div> + 1
+        // J is write-only inside this block</div><div class='error-line'
+>ERROR: in line 60: cannot read write-only variable:</div
+>    K = <div class='error-highlight'>J</div> + 1
 [no output due to compile error]
-<div class='line'>
-// Use of if. else if, else inside block
-//
-next E = 25</div>25
-<div class='line'>SIGN E = do:
-    // The `do' here is cosmetic and has no effect.
-    if E &lt; 0: SIGN E = -1
-        // SIGN E = -1 is a restricted statement (it
-        // is an operand of `if ... : ...') that
-        // cannot allocate new variables, but it can
-        // write write-only variables.
-    else if E == 0: SIGN E = 0
-    else: SIGN E = +1</div>1
 </pre>
 </p>
 
