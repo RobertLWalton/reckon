@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Mon Nov 18 06:07:01 EST 2024
+Date:	Tue Nov 19 01:30:45 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -65,7 +65,7 @@ of the same name can be created, and this will hide the old variable.
 To do this, the variable name must be preceded by <code>next</code>
 in the assignment for the new variable (e.g., <code>next X</code>).
 <p>
-Examples:
+More Examples:
 <pre class='example'>
 <div class='line'>X = 5</div>5
 <div class='line'>Z = 8</div>8
@@ -118,7 +118,7 @@ values of variables cannot be changed, but new variables
 of the same name can be created and hide the old variables
 using <code>next</code>.
 <p>
-Examples:
+More Examples:
 <pre class='example'>
 <div class='line'>M, N = 5, 10
     // The values of M and N are printed in order
@@ -136,6 +136,67 @@ Examples:
 <h2 id='block-assignments'>Block Assignments</h2>
 
 <p>
+Example:
+<pre class='example'>
+<div class='line'>E, F =:
+    E = 25
+    F = -25</div>25
+-25
+</pre>
+<p>
+A block assignment is like a single variable or multi-variable
+expression assignment except that the expressions to the right of
+the <code>=</code> are replace by a
+<a href='reckon_logical_lines.html#blocks'>block</a>.
+<p>
+The variables on the left side of the <code>=</code>
+(e.g., <code>E</code> and <code>F</code>) are allocated
+and made write-only inside the block.  Statements inside the block
+(e.g., <code>E = 25</code> and <code>F = -25</code>)
+can then write values into these variable.  However these
+values cannot be read by statements inside the block.
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>E, F =:
+    E = 25
+    F = -25</div>25
+-25
+<div class='line'>
+E, F // Outputs first the value of E and then the value of F.</div>25
+-25
+<div class='line'>
+next E, next F =:
+    next E = 35
+       // This does not take effect until after
+       // this block has executed
+    next F = E
+       // The value of E is the value before the
+       // block executes</div>35
+25
+<div class='line'>
+E, F</div>35
+25
+<div class='line'>
+J, K =:
+    J = E
+    K = J + 1
+        // J is write-only inside this block</div><div class='error-line'>ERROR: in line 60: cannot read write-only variable:</div>    K = <div class='error-highlight'>J</div> + 1
+[no output due to compile error]
+<div class='line'>
+// Use of if. else if, else inside block
+//
+next E = 25</div>25
+<div class='line'>SIGN E = do:
+    // The `do' here is cosmetic and has no effect.
+    if E &lt; 0: SIGN E = -1
+        // SIGN E = -1 is a restricted statement (it
+        // is an operand of `if ... : ...') that
+        // cannot allocate new variables, but it can
+        // write write-only variables.
+    else if E == 0: SIGN E = 0
+    else: SIGN E = +1</div>1
+</pre>
 </p>
 
 <h2 id='next-variable-promotion'>Next Variable Promotion</h2>
