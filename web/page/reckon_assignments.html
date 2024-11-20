@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Nov 19 06:12:06 EST 2024
+Date:	Wed Nov 20 01:54:06 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -214,6 +214,42 @@ J, K =:
 <h2 id='if-statements'>If Statements</h2>
 
 <p>
+<p>
+More examples:
+<pre class='example'>
+<div class='line'>S = 25</div>25
+<div class='line'>next S =:
+    if S > 20: next S = 20
+        // S = 20 is a restricted statement.  It is an
+        // operand of `if ... : ... ' and cannot have
+        // operators with precedence 0000.  It cannot
+        // allocate variables, but can write variables
+        // that are write-only.</div>20
+<div class='line'>S</div>20
+<div class='line'>
+T = 25</div>25
+<div class='line'>SIGN T = do:
+    // The `do' here is cosmetic and has no effect.
+    if T < 0: SIGN T = -1
+    else if T == 0: SIGN T = 0
+    else: SIGN T = +1</div>1
+<div class='line'>SIGN T</div>1
+<div class='line'>
+next T = do:
+    if T < -20:
+        JX = 5        // Allocates JX to block.
+        next T = -20   // Just writes next SIGN T.
+        // JX is deallocated here (end of its block)
+    else if T > 20:
+        JX = 6
+        next T = 20</div>20
+<div class='line'>T</div>20
+<div class='line'>JX    // JX has been deallocated.</div
+><div class='error-line'
+>ERROR: in line 91: cannot understand expression:</div
+><div class='error-highlight'>JX</div>    // JX has been deallocated.
+[no output due to compile error]
+</pre>
 </p>
 
 <h2 id='next-variable-promotion'>Next Variable Promotion</h2>
