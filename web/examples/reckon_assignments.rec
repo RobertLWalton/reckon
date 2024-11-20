@@ -2,7 +2,7 @@
 //
 // File:	reckon_assignments.rec
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 19 07:05:53 PM EST 2024
+// Date:	Wed Nov 20 01:32:40 EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -47,12 +47,11 @@ E, F // Outputs first the value of E and then the value of F.
 
 next E, next F =:
     next E = 35
-       // This does not take effect until after
-       // this subblock has executed
+        // This does not take effect until after
+        // this subblock has executed
     next F = E
-       // The value of E is the value before the
-       // subblock executes
-
+        // The value of E is the value before the
+        // subblock executes
 E, F
 
 J, K =:
@@ -62,32 +61,39 @@ J, K =:
 
 // If statements in blocks.
 //
-next E = 25
-SIGN E = do:
-    // The `do' here is cosmetic and has no effect.
-    if E < 0: SIGN E = -1
-        // SIGN E = -1 is a restricted statement (it
-        // is an operand of `if ... : ...') that
-        // cannot allocate new variables, but it can
-        // write write-only variables.
-    else if E == 0: SIGN E = 0
-    else: SIGN E = +1
+S = 25
+next S =:
+    if S > 20: next S = 20
+        // S = 20 is a restricted statement.  It is an
+        // operand of `if ... : ... ' and cannot have
+        // operators with precedence 0000.  It cannot
+        // allocate variables, but can write variables
+        // that are write-only.
+S
 
-do:
-    if E < 20:
-    	JX = 5
-	next E = -1
-    else if E < 40:
-    	JX = 6
-	next E = 0
-    else:
-    	JX = 7
-	next E = +1
-E, JX
+T = 25
+SIGN T = do:
+    // The `do' here is cosmetic and has no effect.
+    if T < 0: SIGN T = -1
+    else if T == 0: SIGN T = 0
+    else: SIGN T = +1
+SIGN T
+
+next T = do:
+    if T < -20:
+        JX = 5        // Allocates JX to block.
+        next T = -20   // Just writes next SIGN T.
+        // JX is deallocated here (end of its block)
+    else if T > 20:
+        JX = 6
+        next T = 20
+T
+JX    // JX has been deallocated.
 
 
 // Next variable promotion
 //
+E
 do:
     next E = E + 10
         // next E is promoted replacing `do' by

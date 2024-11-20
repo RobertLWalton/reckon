@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 16 03:29:14 AM EST 2024
+// Date:	Wed Nov 20 01:25:57 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,12 +101,19 @@ static void remove_tokens
     {
 	min::uns32 code_length =
 	    mexcom::output_module->length;
+	min::uns32 var_stack_length =
+	    mexstack::var_stack_length;
 	compile_OK = REC::compile_statement
 	    ( parser->first->next->value );
 	if ( ! compile_OK )
+	{
 	    min::pop ( mexcom::output_module,
 	                 mexcom::output_module->length
 		       - code_length );
+	    mexstack::var_stack_length =
+		var_stack_length;
+	    mexstack::pop_stacks();
+	}
     }
 
     if ( output_parse )
