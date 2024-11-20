@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Nov 20 01:54:06 EST 2024
+Date:	Wed Nov 20 06:57:47 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -214,6 +214,46 @@ J, K =:
 <h2 id='if-statements'>If Statements</h2>
 
 <p>
+An example:
+<pre class='example'>
+<div class='line'>S = 25</div>25
+<div class='line'>next S =:
+    if S > 20: next S = 20</div>20
+<div class='line'>S</div>20
+</pre>
+<p>
+The first form of if-statement is a control operator
+(<code>if</code>, <code>else if</code>, or <code>else</code>)
+followed by a condition operand (<code>S &gt; 20</code> in the example;
+omitted in the case of <code>else</code>)
+followed by a colon operator (<code>:</code>) followed by a
+restricted statement (<code>next S = 20</code> in the example).
+ The condition operand is evaluated to a truth
+value (see <a href='reckon_logical_operators.html'>Logical Operators</a>)
+and if <code>*TRUE*</code> the restricted statement is executed.
+<p>
+Restricted statements cannot have operators of precedence 0000
+(e.g., cannot be if-statements) and cannot allocate variables to
+storage.  Because of the latter, most restricted statements must be
+in blocks so they can write write-only variables (<code>next S</code>
+in the example).
+<p>
+If-statements may be grouped as follows.
+The group begins with a statement with operator <code>if</code>.
+This is followed by zero or more statements with
+operator <code>else if</code>, and these are followed optionally by a
+statement with operator <code>else</code>.  If the condition
+operand of one of these statements evaluates to <code>*TRUE*</code>,
+the remaining statements in the group are skipped and not executed.
+If no condition operand evaluates to <code>*TRUE*</code>, the
+restricted statement in the <code>else</code> statement ending
+the group executes (if there is a group ending <code>else</code>
+statement).
+<p>
+In the second form of if-statement the the colon operator and
+restricted statement are replaced by a block.  The block is executed
+only if the condition operand evaluated to <code>*TRUE*</code>,
+or if it ends an <code>else</code> statement that is executed.
 <p>
 More examples:
 <pre class='example'>
