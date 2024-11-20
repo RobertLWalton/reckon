@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Nov 20 06:57:47 EST 2024
+Date:	Wed Nov 20 17:37:22 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -189,7 +189,8 @@ More Examples:
 E, F // Outputs first the value of E and then the value of F.</div>25
 -25
 <div class='line'>
-next E, next F =:
+next E, next F do:
+    // The `do' here is cosmetic and has no effect.
     next E = 35
        // This does not take effect until after
        // this block has executed
@@ -201,7 +202,7 @@ next E, next F =:
 E, F</div>35
 25
 <div class='line'>
-J, K =:
+J, K = do:
     J = E
     K = J + 1
         // J is write-only inside this block</div><div class='error-line'
@@ -236,7 +237,7 @@ Restricted statements cannot have operators of precedence 0000
 (e.g., cannot be if-statements) and cannot allocate variables to
 storage.  Because of the latter, most restricted statements must be
 in blocks so they can write write-only variables (<code>next S</code>
-in the example).
+in the example).  It implies that if-statements must be in blocks.
 <p>
 If-statements may be grouped as follows.
 The group begins with a statement with operator <code>if</code>.
@@ -247,13 +248,15 @@ operand of one of these statements evaluates to <code>*TRUE*</code>,
 the remaining statements in the group are skipped and not executed.
 If no condition operand evaluates to <code>*TRUE*</code>, the
 restricted statement in the <code>else</code> statement ending
-the group executes (if there is a group ending <code>else</code>
+the group executes (that is, if group actually ends with an <code>else</code>
 statement).
 <p>
-In the second form of if-statement the the colon operator and
-restricted statement are replaced by a block.  The block is executed
-only if the condition operand evaluated to <code>*TRUE*</code>,
-or if it ends an <code>else</code> statement that is executed.
+In the second form of if-statement the colon operator and
+restricted statement are replaced by a
+<a href='reckon_logical_lines.html#blocks'>block</a>.
+ The block is executed
+only if the condition operand evaluates to <code>*TRUE*</code>,
+or if the block ends an <code>else</code> statement that is executed.
 <p>
 More examples:
 <pre class='example'>
@@ -269,7 +272,6 @@ More examples:
 <div class='line'>
 T = 25</div>25
 <div class='line'>SIGN T = do:
-    // The `do' here is cosmetic and has no effect.
     if T < 0: SIGN T = -1
     else if T == 0: SIGN T = 0
     else: SIGN T = +1</div>1
