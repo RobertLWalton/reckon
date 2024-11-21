@@ -2,7 +2,7 @@
 //
 // File:	reckon_assignments.rec
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 02:37:40 AM EST 2024
+// Date:	Thu Nov 21 04:01:52 EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -91,23 +91,25 @@ T
 JX    // JX has been deallocated.
 
 
-// Next variable promotion
+// Next variable implication
 //
 D = 95
 do:
+    // In `next D = do' the next D is implied by the
+    // following statement.
     next D = D + 10
-        // next D is promoted replacing `do' by
-        // `next D = do'.
 D
 do:
+    // In `next D = do' the next D is implied by the
+    // statement `next D = 33'.
+
     JX = 50
     do:
+        // In `next JX = do' the next JX is implied by
+        // the statement `next JX = 60'.
+
         next D = 33
-            // next D is promoted where D was
-            // allocated, the outermost do.
         next JX = 60
-            // next JX is promoted to the
-            // innermost do
     // JX is deallocated here
 D
 

@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Wed Nov 20 17:37:22 EST 2024
+Date:	Thu Nov 21 03:27:04 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -294,9 +294,49 @@ next T = do:
 </pre>
 </p>
 
-<h2 id='next-variable-promotion'>Next Variable Promotion</h2>
+<h2 id='next-variable-implication'>Next Variable Implication</h2>
 
 <p>
+Example:
+<pre class='example'>
+<div class='line'>next D = do:
+    next D = D + 10
+</pre>
+<p>
+is equivalent to:
+<pre class='example'>
+<div class='line'>do:
+    next D = D + 10
+</pre>
+<p>
+The use of <code>next V</code> as an assignment variable of a
+block assignment statement can be implied by its use as an
+assignment variable of any statement inside the block, for
+any variable <code>V</code>.
+<p>
+More examples:
+<pre class='example'>
+<div class='line'>D = 95</div>95
+<div class='line'>do:
+    // In `next D = do' the next D is implied by the
+    // following statement.
+    next D = D + 10</div>105
+<div class='line'>D</div>105
+<div class='line'>do:
+    // In `next D = do' the next D is implied by the
+    // statement `next D = 33'.
+
+    JX = 50
+    do:
+        // In `next JX = do' the next JX is implied by
+        // the statement `next JX = 60'.
+
+        next D = 33
+        next JX = 60
+    // JX is deallocated here</div>33
+<div class='line'>D</div>33
+</pre>
+
 </p>
 
 <h2 id='exit-statements'>Exit Statements</h2>

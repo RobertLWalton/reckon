@@ -611,41 +611,41 @@ D = 95
     [95:119;40] PUSHS T_PUSH 0 0 0; D
     next D = D + 10
     ^^^^^^
-    [97:120;40] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [99:120;40] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 D D >]
 do:
   ^
+    // In `next D = do' the next D is implied by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // following statement.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
     next D = D + 10
 ^^^^^^^^^^^^^^^^^^^
-        // next D is promoted replacing `do' by
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // `next D = do'.
-^^^^^^^^^^^^^^^^^^^^^^^^^
     [99:121;41] PUSHI T_PUSH 0 0 0 33
     next D = D + 10
              ^
-    [97:122;40] POPS T_POP 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [99:122;40] POPS T_POP 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 D * >]
     next D = D + 10
                  ^^
-    [97:123;41] PUSHI T_PUSH 0 0 0 60; *
+    [99:123;41] PUSHI T_PUSH 0 0 0 60; *
     next D = D + 10
              ^^^^^^
-    [97:124;40] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [99:124;40] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 next D >]
     next D = D + 10
     ^^^^^^
-    [97:125;40] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [99:125;40] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next D >] >]
     [126;40] LABEL 23
 do:
   ^
+    // In `next D = do' the next D is implied by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // following statement.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
     next D = D + 10
 ^^^^^^^^^^^^^^^^^^^
-        // next D is promoted replacing `do' by
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // `next D = do'.
-^^^^^^^^^^^^^^^^^^^^^^^^^
     [99:126;38] END T_END 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     [127;38] LABEL 22
 D
@@ -657,105 +657,109 @@ exit
 ^^^^
         next D = 33
         ^^^^^^
-    [104:128;40] PUSHI T_PUSH 0 0 0 0; [< D D >]
+    [110:128;40] PUSHI T_PUSH 0 0 0 0; [< D D >]
 do:
   ^
+    // In `next D = do' the next D is implied by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // statement `next D = 33'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
     JX = 50
 ^^^^^^^^^^^
     do:
 ^^^^^^^
+        // In `next JX = do' the next JX is implied by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // the statement `next JX = 60'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
         next D = 33
 ^^^^^^^^^^^^^^^^^^^
-            // next D is promoted where D was
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // allocated, the outermost do.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next JX = 60
 ^^^^^^^^^^^^^^^^^^^^
-            // next JX is promoted to the
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // innermost do
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [109:129;40] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [111:129;40] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     JX = 50
          ^^
-    [102:130;41] PUSHI T_PUSH 0 0 0 5; JX
+    [105:130;41] PUSHI T_PUSH 0 0 0 5; JX
         next JX = 60
         ^^^^^^^
-    [107:131;40] POPS T_POP 1 0 0 *
+    [111:131;40] POPS T_POP 1 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< JX JX >]
     do:
       ^
+        // In `next JX = do' the next JX is implied by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // the statement `next JX = 60'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
         next D = 33
 ^^^^^^^^^^^^^^^^^^^
-            // next D is promoted where D was
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // allocated, the outermost do.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next JX = 60
 ^^^^^^^^^^^^^^^^^^^^
-            // next JX is promoted to the
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // innermost do
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [109:132;41] PUSHI T_PUSH 0 0 0 15
+    [111:132;41] PUSHI T_PUSH 0 0 0 15
         next D = 33
                  ^^
-    [104:133;40] POPS T_POP 1 0 0 *
+    [110:133;40] POPS T_POP 1 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< next D >]
         next D = 33
         ^^^^^^
-    [104:134;40] JMP T_JMP 0 0 0 0; [< * [< next D >] >]
+    [110:134;40] JMP T_JMP 0 0 0 0; [< * [< next D >] >]
         next JX = 60
                   ^^
-    [107:135;41] PUSHI T_PUSH 0 0 0 25; [< next JX >]
+    [111:135;41] PUSHI T_PUSH 0 0 0 25; [< next JX >]
         next JX = 60
         ^^^^^^^
-    [107:136;40] POPS T_POP 1 0 0 *
+    [111:136;40] POPS T_POP 1 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
                  JX >] >]
     do:
       ^
+        // In `next JX = do' the next JX is implied by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // the statement `next JX = 60'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
         next D = 33
 ^^^^^^^^^^^^^^^^^^^
-            // next D is promoted where D was
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // allocated, the outermost do.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next JX = 60
 ^^^^^^^^^^^^^^^^^^^^
-            // next JX is promoted to the
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // innermost do
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [109:137;40] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [111:137;40] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     [138;40] LABEL 24
-    [104:134;40] JMP T_JMP[1] 0 0 4 0; [< * [< next D >] >]
+    [110:134;40] JMP T_JMP[1] 0 0 4 0; [< * [< next D >] >]
 do:
   ^
+    // In `next D = do' the next D is implied by the
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // statement `next D = 33'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
     JX = 50
 ^^^^^^^^^^^
     do:
 ^^^^^^^
+        // In `next JX = do' the next JX is implied by
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // the statement `next JX = 60'.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<BLANK-LINE>
+^^^^^^^^^^^^
         next D = 33
 ^^^^^^^^^^^^^^^^^^^
-            // next D is promoted where D was
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // allocated, the outermost do.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next JX = 60
 ^^^^^^^^^^^^^^^^^^^^
-            // next JX is promoted to the
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            // innermost do
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [109:138;41] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [111:138;41] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 D
 ^
-    [111:139;42] PUSHI T_PUSH 0 0 0 0; [< D * >]
+    [113:139;42] PUSHI T_PUSH 0 0 0 0; [< D * >]
 X1 =:
 ^^
-    [117:140;42] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
+    [119:140;42] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
 X1 =:
     ^
     X1 = 5
@@ -766,32 +770,32 @@ X1 =:
 ^^^^^^^^
     X1 = 25
 ^^^^^^^^^^^
-    [121:141;43] PUSHI T_PUSH 0 0 0 5
+    [123:141;43] PUSHI T_PUSH 0 0 0 5
     X1 = 5
          ^
-    [118:142;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
+    [120:142;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
                  X1
 X1 =:
 ^^
-    [117:143;43] PUSHI T_PUSH 0 0 0 15; [< * X1 >]
+    [119:143;43] PUSHI T_PUSH 0 0 0 15; [< * X1 >]
     X1 = 15
          ^^
-    [119:144;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
+    [121:144;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
                  X1
 X1 =:
 ^^
-    [117:145;42] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [119:145;42] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  * X1 >]
     exit
     ^^^^
-    [120:146;42] JMP T_JMP 0 0 0 0; 24
+    [122:146;42] JMP T_JMP 0 0 0 0; 24
     X1 = 25
          ^^
-    [121:147;42] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
+    [123:147;42] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; X1
     [148;42] LABEL 26
 X1 =:
 ^^
-    [117:148;43] PUSHI T_PUSH 0 0 0 25; [< * X1 >]
+    [119:148;43] PUSHI T_PUSH 0 0 0 25; [< * X1 >]
 X1 =:
     ^
     X1 = 5
@@ -802,14 +806,14 @@ X1 =:
 ^^^^^^^^
     X1 = 25
 ^^^^^^^^^^^
-    [121:149;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [123:149;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X1
 ^^
-    [123:150;42] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [125:150;42] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  X1 * >]
     [151;42] LABEL 25
-    [120:146;42] JMP T_JMP[2] 0 0 5 0; 24
+    [122:146;42] JMP T_JMP[2] 0 0 5 0; 24
 X2 = do BLOCK2:
 ^^
-    [125:151;43] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
+    [127:151;43] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*;
                  X2
