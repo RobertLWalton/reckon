@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 02:52:53 AM EST 2024
+// Date:	Thu Nov 21 06:13:35 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -533,6 +533,8 @@ static void search_statement
         if ( s == 3 && vp[0] == ::IF )
 	    ::search_block ( vp[2] );
         else if ( s == 3 && vp[0] == ::ELSE_IF )
+	    ::search_block ( vp[2] );
+        else if ( s == 3 && vp[1] == ::equal_sign )
 	    ::search_block ( vp[2] );
         else if ( s == 2 && vp[0] == ::ELSE )
 	    ::search_block ( vp[1] );
