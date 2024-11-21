@@ -2,7 +2,7 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Nov 20 17:46:30 EST 2024
+// Date:        Thu Nov 21 02:37:40 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -179,16 +179,41 @@ JX    // JX has been deallocated.
 
 // Next variable promotion
 //
-E
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|E|}
+D = 95
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|D|} = {|95|}|}
 do:
-    next E = E + 10
-        // next E is promoted replacing `do' by
-        // `next E = do'.
+    next D = D + 10
+        // next D is promoted replacing `do' by
+        // `next D = do'.
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|do|}
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-               {|next E|} = {|{|E|} + {|10|}|}|}|}|}
+               {|next D|} = {|{|D|} + {|10|}|}|}|}|}
+D
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|D|}
+do:
+    JX = 50
+    do:
+        next D = 33
+            // next D is promoted where D was
+            // allocated, the outermost do.
+        next JX = 60
+            // next JX is promoted to the
+            // innermost do
+    // JX is deallocated here
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|do|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|JX|}
+               = {|50|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|do|}
+               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
+                    ":"|
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|{|next D|} = {|33|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|{|next JX|} = {|60|}|}|}|}|}|}
+D
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|D|}
 
 // Exit statements in blocks.
 //

@@ -2,7 +2,7 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Nov 20 17:46:30 EST 2024
+// Date:        Thu Nov 21 02:37:40 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -138,13 +138,28 @@ JX    // JX has been deallocated.
 
 // Next variable promotion
 //
-E
-35
+D = 95
+95
 do:
-    next E = E + 10
-        // next E is promoted replacing `do' by
-        // `next E = do'.
-45
+    next D = D + 10
+        // next D is promoted replacing `do' by
+        // `next D = do'.
+105
+D
+105
+do:
+    JX = 50
+    do:
+        next D = 33
+            // next D is promoted where D was
+            // allocated, the outermost do.
+        next JX = 60
+            // next JX is promoted to the
+            // innermost do
+    // JX is deallocated here
+33
+D
+33
 
 // Exit statements in blocks.
 //

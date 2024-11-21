@@ -4,7 +4,7 @@
 //
 // File:        reckon_assignments.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Nov 20 17:46:30 EST 2024
+// Date:        Thu Nov 21 02:37:40 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -201,19 +201,44 @@ JX    // JX has been deallocated.
 
 // Next variable promotion
 //
-E
-* {84:107,35,96} PUSHS: * <= * = 35
+D = 95
+* {84:107,35,96} PUSHI: *MISSING* <= 95
 do:
-    next E = E + 10
-        // next E is promoted replacing `do' by
-        // `next E = do'.
-* {82:108,36,97} PUSHS: * <= * = 35
-* {86:109,36,98} BEG: T, *=35
-*** {86:110,37,99} PUSHS: * <= * = 35
+    next D = D + 10
+        // next D is promoted replacing `do' by
+        // `next D = do'.
+* {82:108,36,97} PUSHS: * <= * = 95
+* {86:109,36,98} BEG: T, *=95
+*** {86:110,37,99} PUSHS: * <= * = 95
 *** {86:111,38,100} PUSHI: 18 <= 10
-*** {88:112,37,101} ADD: *MISSING* = 45 <= 35 + 10
-*** {87:113,36,102} POPS: * <= * = 45
-*** {88:114,36,103} END: next, T=45
+*** {88:112,37,101} ADD: *MISSING* = 105 <= 95 + 10
+*** {87:113,36,102} POPS: * <= * = 105
+*** {88:114,36,103} END: next, T=105
+D
+* {81:115,37,104} PUSHS: next T <= * = 105
+do:
+    JX = 50
+    do:
+        next D = 33
+            // next D is promoted where D was
+            // allocated, the outermost do.
+        next JX = 60
+            // next JX is promoted to the
+            // innermost do
+    // JX is deallocated here
+* {88:116,38,105} PUSHS: * <= * = 105
+* {88:117,38,106} BEG
+*** {89:118,39,107} PUSHI: T "*" <= 50
+*** {95:119,40,108} PUSHS: * <= * = 50
+*** {97:120,40,109} BEG: D, D=50
+***** {99:121,41,110} PUSHI: *MISSING* <= 33
+***** {97:122,40,111} POPS: * <= D = 33
+***** {97:123,41,112} PUSHI: * <= 60
+***** {97:124,40,113} POPS: D <= next = 60
+***** {97:125,40,114} END: *, next D=60
+*** {99:126,38,115} END
+D
+* {100:127,39,116} PUSHS: * <= D = 33
 
 // Exit statements in blocks.
 //
@@ -228,16 +253,16 @@ X1 =:
     X1 = 15
     exit
     X1 = 25
-* {81:115,37,104} PUSHI: "*" next T <= 0
-* {88:116,37,105} BEG
-*** {88:117,38,106} PUSHI: *MISSING* <= 5
-*** {89:118,37,107} POPS: * <= T = 5
-*** {95:119,38,108} PUSHI: E "*" <= 15
-*** {97:120,37,109} POPS: E <= E = 15
-*** {99:121,37,110} JMP location 125
+* {104:128,40,117} PUSHI: D D <= 0
+* {109:129,40,118} BEG
+*** {102:130,41,119} PUSHI: JX <= 5
+*** {107:131,40,120} POPS: JX <= JX = 5
+*** {109:132,41,121} PUSHI: *MISSING* <= 15
+*** {104:133,40,122} POPS: D <= next = 15
+*** {104:134,40,123} JMP "*" next D
 
 X1
-* {97:125,38,111} PUSHS: next E <= * = 15
+* {109:138,41,124} PUSHS: * <= * = 15
 
 X2 = do BLOCK2:
     X2 = 5
@@ -245,14 +270,14 @@ X2 = do BLOCK2:
     do BLOCK3:
         exit BLOCK2
     X2 = 25
-* {99:126,39,112} PUSHI: *MISSING* <= 0
-* {105:127,39,113} BEG
-*** {109:128,40,114} PUSHI: *MISSING* <= 5
-*** {106:129,39,115} POPS: * <= * = 5
-*** {105:130,40,116} PUSHI: "*" X1 <= 15
-*** {107:131,39,117} POPS: * <= * = 15
-*** {105:132,39,118} BEG: *, X1=15
-***** {108:133,39,119} JMP location 138
+* {111:139,42,125} PUSHI: D "*" <= 0
+* {117:140,42,126} BEG
+*** {121:141,43,127} PUSHI: *MISSING* <= 5
+*** {118:142,42,128} POPS: * <= * = 5
+*** {117:143,43,129} PUSHI: "*" X1 <= 15
+*** {119:144,42,130} POPS: * <= * = 15
+*** {117:145,42,131} BEG: *, X1=15
+***** {120:146,42,132} JMP location 151
 
 X2
-* {113:138,40,120} PUSHS: * <= * = 15
+* {125:151,43,133} PUSHS: * <= * = 15
