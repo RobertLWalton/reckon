@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 06:13:35 AM EST 2024
+// Date:	Sat Nov 23 04:42:58 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,7 @@ static min::locatable_var<PRIM::primary_pass>
 static min::locatable_var<PAR::parser> parser;
 static min::locatable_var<TAB::key_table> symbol_table;
 static min::uns32 var_stack_length = 0;
+static min::gen modifying_ops;
 
 static void initialize ( void )
 {
@@ -559,11 +560,19 @@ bool static compile_restricted_statement
 	( min::gen statement );
 
 // Compile statement of form
-// 	vp[0] "=" vp[1]
+// 	vp[0] "=" vp[2]
 //
 bool static compile_expression_assignment_statement
 	( min::obj_vec_ptr & vp,
 	  bool is_restricted = false );
+
+// Compile statement of form
+// 	vp[0] OP vp[2]
+// where OP is the mex opcode of the instruction to
+// perform the modification (e.g., mex::DIV).
+//
+bool static compile_modifying_statement
+	( min::obj_vec_ptr & vp, min::gen op );
 
 struct iteration
 {
@@ -697,6 +706,7 @@ void REC::init_compiler
 
     ::primary_pass = PRIM::init_primary ( parser );
     ::symbol_table = ::primary_pass->primary_table;
+    ::modifying_ops = ::primary_pass->modifying_ops;
 
     min::locatable_var<PRIM::var> var;
     ::pushi ( mex::FALSE, PAR::top_level_position,
@@ -908,11 +918,19 @@ bool REC::compile_statement ( min::gen statement )
         return ::compile_if_statement
 	    ( vp[1], vp[3], true );
 
-    if ( s == 3
-         &&
-	 vp[1] == ::equal_sign )
-	return ::compile_expression_assignment_statement
-	     ( vp );
+    if ( s == 3 )
+    {
+        if ( vp[1] == ::equal_sign )
+	    return
+	      ::compile_expression_assignment_statement
+	          ( vp );
+	min::gen op = min::get
+	    ( ::modifying_ops, vp[1] );
+	if ( op != min::NONE() )
+	    return
+	       ::compile_modifying_statement
+		   ( vp, op );
+    }
 
     if ( s == 1
          &&
@@ -1011,11 +1029,19 @@ bool static compile_restricted_statement
     min::obj_vec_ptr vp = statement;
     min::uns32 s = min::size_of ( vp );
 
-    if ( s == 3
-         &&
-	 vp[1] == ::equal_sign )
-	return ::compile_expression_assignment_statement
-	     ( vp, true );
+    if ( s == 3 )
+    {
+	if ( vp[1] == ::equal_sign )
+	    return
+	      ::compile_expression_assignment_statement
+	          ( vp, true );
+	min::gen op =
+	    min::get ( ::modifying_ops, vp[1] );
+	if ( op != min::NONE() )
+	    return
+	       ::compile_modifying_statement
+	           ( vp, op );
+    }
 
     mexcom::compile_error
 	( ::get_position(vp)->position,
@@ -1159,6 +1185,70 @@ bool static compile_expression_assignment_statement
     }
 
     return OK;
+}
+
+bool static compile_modifying_statement
+	( min::obj_vec_ptr & vp, min::gen op )
+{
+    PRIM::var var = ::scan_var ( vp[0] );
+    min::locatable_gen var_name;
+    if ( var != min::NULL_STUB )
+    {
+	var_name = ::full_var_name ( var );
+	min::gen labv[2] = { var_name, ::star };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	mex::instr instr =
+	    { mex::PUSHS, 0, 0, 0,
+		mexstack::var_stack_length - 1
+	      - var->location };
+	++ mexstack::var_stack_length;
+	mexstack::push_instr
+	    ( instr, var->position, trace_info );
+    }
+    if ( ! ::compile_expression ( vp[2] ) )
+    {
+        if ( var != min::NULL_STUB )
+	    ::pop ( var->position );
+	return false;
+    }
+    else if ( var == min::NULL_STUB )
+    {
+        min::phrase_position_vec ppv =
+            min::get ( vp[2], min::dot_position );
+	::pop ( ppv->position );
+	return false;
+    }
+    else if ( (   var->flags
+                & PRIM::WRITABLE_VAR ) == 0 )
+    {
+	mexcom::compile_error
+	    ( var->position,
+	      "cannot modify NON-write-only"
+	      " variable" );
+        min::phrase_position_vec ppv =
+            min::get ( vp[2], min::dot_position );
+        ::pop ( ppv->position );
+	::pop ( var->position );
+	return false;
+    }
+    mex::instr instr =
+        { (min::uns8) min::direct_float_of ( op ) };
+    -- mexstack::var_stack_length;
+    mexstack::push_instr
+        ( instr, ::get_position(vp)->position );
+
+    min::gen labv[2] = { ::star, var_name };
+    min::locatable_gen trace_info
+	( min::new_lab_gen ( labv, 2 ) );
+    instr =
+	{ mex::POPS, 0, 0, 0,
+	    mexstack::var_stack_length - 1
+	  - var->location };
+    -- mexstack::var_stack_length;
+    mexstack::push_instr
+	( instr, var->position, trace_info );
+    return true;
 }
 
 bool static compile_block
