@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 23 04:42:58 AM EST 2024
+// Date:	Sun Nov 24 06:32:40 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -508,6 +508,28 @@ static void search_statement
 	        ( var_name, ppv0->position );
 	    return;
 	}
+    }
+    else if ( s == 3
+    	      &&
+	      min::is_name ( vp[1] )
+              &&
+	         min::get ( ::modifying_ops, vp[1] )
+	      != min::NONE() )
+    {
+	min::obj_vec_ptr vp0 = vp[0];
+	min::uns32 s0 = min::size_of ( vp0 );
+	min::phrase_position_vec ppv0 =
+	    ::get_position ( vp0 );
+
+	if ( s0 < 2 || vp0[0] != ::next )
+	    return;
+	min::uns32 j = 1;
+	min::locatable_gen var_name
+	    ( PRIM::scan_var_name ( vp0, j ) );
+	if ( j < s0 ) return;
+	add_next_variable
+	    ( var_name, ppv0->position );
+	return;
     }
 
     if ( is_restricted ) return;
