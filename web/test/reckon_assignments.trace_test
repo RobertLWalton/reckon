@@ -13,11 +13,11 @@
 // Single Variable Expression Assignments
 //
 X = 5
-* {12:2,3,3} PUSHI: X <= 5
+* {13:2,3,3} PUSHI: X <= 5
 Z = 8
-* {13:3,4,4} PUSHI: Z <= 8
+* {14:3,4,4} PUSHI: Z <= 8
 Y = Z
-* {14:4,5,5} PUSHS: Y <= Z = 8
+* {15:4,5,5} PUSHS: Y <= Z = 8
 
 Y = 10
     // It is illegal to reassign Y.
@@ -28,74 +28,74 @@ Y = 10
 [no output due to compile error]
 next Y = 10
     // It is legal to assign a next Y.
-* {18:5,6,6} PUSHI: next Y <= 10
+* {19:5,6,6} PUSHI: next Y <= 10
 
 next Z = - Z
-* {21:6,7,7} PUSHS: * <= Z = 8
-* {21:7,7,8} NEG: next Z = -8 <= - 8
+* {22:6,7,7} PUSHS: * <= Z = 8
+* {22:7,7,8} NEG: next Z = -8 <= - 8
 next Z = X + Z
-* {22:8,8,9} PUSHS: * <= X = 5
-* {22:9,9,10} PUSHS: * <= Z = -8
-* {22:10,8,11} ADD: next Z = -3 <= 5 + -8
+* {23:8,8,9} PUSHS: * <= X = 5
+* {23:9,9,10} PUSHS: * <= Z = -8
+* {23:10,8,11} ADD: next Z = -3 <= 5 + -8
 next Z = X + Y - Z
-* {23:11,9,12} PUSHS: * <= X = 5
-* {23:12,10,13} PUSHS: * <= Y = 10
-* {23:13,9,14} ADD: * = 15 <= 5 + 10
-* {23:14,10,15} PUSHS: * <= Z = -3
-* {23:15,9,16} SUB: next Z = 18 <= 15 - -3
+* {24:11,9,12} PUSHS: * <= X = 5
+* {24:12,10,13} PUSHS: * <= Y = 10
+* {24:13,9,14} ADD: * = 15 <= 5 + 10
+* {24:14,10,15} PUSHS: * <= Z = -3
+* {24:15,9,16} SUB: next Z = 18 <= 15 - -3
 next Z = X + ( Y - Z )
-* {24:16,10,17} PUSHS: * <= X = 5
-* {24:17,11,18} PUSHS: * <= Y = 10
-* {24:18,12,19} PUSHS: * <= Z = 18
-* {24:19,11,20} SUB: * = -8 <= 10 - 18
-* {24:20,10,21} ADD: next Z = -3 <= 5 + -8
+* {25:16,10,17} PUSHS: * <= X = 5
+* {25:17,11,18} PUSHS: * <= Y = 10
+* {25:18,12,19} PUSHS: * <= Z = 18
+* {25:19,11,20} SUB: * = -8 <= 10 - 18
+* {25:20,10,21} ADD: next Z = -3 <= 5 + -8
 
 // Multi-Variable Expression Assignments
 //
 M, N = 5, 10
     // The values of M and N are printed in order
     // after the statement
-* {28:21,11,22} PUSHI: M <= 5
-* {28:22,12,23} PUSHI: N <= 10
+* {29:21,11,22} PUSHI: M <= 5
+* {29:22,12,23} PUSHI: N <= 10
 
 next M, next N = N, M
-* {32:23,13,24} PUSHS: next M <= N = 10
-* {32:24,14,25} PUSHS: next N <= M = 5
+* {33:23,13,24} PUSHS: next M <= N = 10
+* {33:24,14,25} PUSHS: next N <= M = 5
 
 
 P, Q = M * N, M + N
-* {35:25,15,26} PUSHS: * <= M = 10
-* {35:26,16,27} PUSHS: * <= N = 5
-* {35:27,15,28} MUL: P = 50 <= 10 * 5
-* {35:28,16,29} PUSHS: * <= M = 10
-* {35:29,17,30} PUSHS: * <= N = 5
-* {35:30,16,31} ADD: Q = 15 <= 10 + 5
+* {36:25,15,26} PUSHS: * <= M = 10
+* {36:26,16,27} PUSHS: * <= N = 5
+* {36:27,15,28} MUL: P = 50 <= 10 * 5
+* {36:28,16,29} PUSHS: * <= M = 10
+* {36:29,17,30} PUSHS: * <= N = 5
+* {36:30,16,31} ADD: Q = 15 <= 10 + 5
 
 R, next P = P / Q, P + 1
-* {37:31,17,32} PUSHS: * <= P = 50
-* {37:32,18,33} PUSHS: * <= Q = 15
-* {37:33,17,34} DIV: R = 3.33333333333333 <= 50 / 15
-* {37:34,18,35} PUSHS: * <= P = 50
-* {37:35,19,36} PUSHI: * <= 1
-* {37:36,18,37} ADD: next P = 51 <= 50 + 1
+* {38:31,17,32} PUSHS: * <= P = 50
+* {38:32,18,33} PUSHS: * <= Q = 15
+* {38:33,17,34} DIV: R = 3.33333333333333 <= 50 / 15
+* {38:34,18,35} PUSHS: * <= P = 50
+* {38:35,19,36} PUSHI: * <= 1
+* {38:36,18,37} ADD: next P = 51 <= 50 + 1
 
 // Block Assignments
 //
 E, F =:
     E = 25
     F = -25
-* {41:37,19,38} PUSHI: E <= 0
-* {41:38,20,39} PUSHI: F <= 0
-* {43:39,20,40} BEG
-*** {42:40,21,41} PUSHI: E <= 25
-*** {41:41,20,42} POPS: E <= * = 25
-*** {43:42,21,43} PUSHI: F <= -25
-*** {41:43,20,44} POPS: F <= * = -25
-*** {43:44,20,45} END
+* {42:37,19,38} PUSHI: E <= 0
+* {42:38,20,39} PUSHI: F <= 0
+* {44:39,20,40} BEG
+*** {43:40,21,41} PUSHI: E <= 25
+*** {42:41,20,42} POPS: E <= * = 25
+*** {44:42,21,43} PUSHI: F <= -25
+*** {42:43,20,44} POPS: F <= * = -25
+*** {44:44,20,45} END
 
 E, F // Outputs first the value of E and then the value of F.
-* {45:45,21,46} PUSHS: * <= E = 25
-* {45:46,22,47} PUSHS: * <= F = -25
+* {46:45,21,46} PUSHS: * <= E = 25
+* {46:46,22,47} PUSHS: * <= F = -25
 
 next E, next F = do:
     // The `do' here is cosmetic and has no effect.
@@ -105,17 +105,17 @@ next E, next F = do:
     next F = E
         // The value of E is the value before the
         // subblock executes
-* {47:47,23,48} PUSHS: E <= E = 25
-* {47:48,24,49} PUSHS: F <= F = -25
-* {54:49,24,50} BEG
-*** {49:50,25,51} PUSHI: next E <= 35
-*** {47:51,24,52} POPS: next E <= * = 35
-*** {52:52,25,53} PUSHS: next F <= E = 25
-*** {47:53,24,54} POPS: next F <= * = 25
-*** {54:54,24,55} END
+* {48:47,23,48} PUSHS: E <= E = 25
+* {48:48,24,49} PUSHS: F <= F = -25
+* {55:49,24,50} BEG
+*** {50:50,25,51} PUSHI: next E <= 35
+*** {48:51,24,52} POPS: next E <= * = 35
+*** {53:52,25,53} PUSHS: next F <= E = 25
+*** {48:53,24,54} POPS: next F <= * = 25
+*** {55:54,24,55} END
 E, F
-* {55:55,25,56} PUSHS: * <= E = 35
-* {55:56,26,57} PUSHS: * <= F = 25
+* {56:55,25,56} PUSHS: * <= E = 35
+* {56:56,26,57} PUSHS: * <= F = 25
 
 J, K = do:
     J = E
@@ -129,7 +129,7 @@ ERROR: in line ##: cannot read write-only variable:
 // If statements in blocks.
 //
 S = 25
-* {64:57,27,58} PUSHI: S <= 25
+* {65:57,27,58} PUSHI: S <= 25
 next S =:
     if S > 20: next S = 20
         // S = 20 is a restricted statement.  It is an
@@ -137,36 +137,36 @@ next S =:
         // operators with precedence 0000.  It cannot
         // allocate variables, but can write variables
         // that are write-only.
-* {65:58,28,59} PUSHS: S <= S = 25
-* {71:59,28,60} BEG
-*** {66:60,29,61} PUSHS: * <= S = 25
-*** {66:61,30,62} PUSHI: * <= 20
-*** {66:62,28,63} JMPLEQ location 65 is UNsuccessful: false <= 25 <= 20
-*** {66:63,29,64} PUSHI: next S <= 20
-*** {65:64,28,65} POPS: next S <= * = 20
-*** {71:65,28,66} END
+* {66:58,28,59} PUSHS: S <= S = 25
+* {72:59,28,60} BEG
+*** {67:60,29,61} PUSHS: * <= S = 25
+*** {67:61,30,62} PUSHI: * <= 20
+*** {67:62,28,63} JMPLEQ location 65 is UNsuccessful: false <= 25 <= 20
+*** {67:63,29,64} PUSHI: next S <= 20
+*** {66:64,28,65} POPS: next S <= * = 20
+*** {72:65,28,66} END
 S
-* {72:66,29,67} PUSHS: * <= S = 20
+* {73:66,29,67} PUSHS: * <= S = 20
 
 T = 25
-* {74:67,30,68} PUSHI: T <= 25
+* {75:67,30,68} PUSHI: T <= 25
 SIGN T = do:
     if T < 0: SIGN T = -1
     else if T == 0: SIGN T = 0
     else: SIGN T = +1
-* {75:68,31,69} PUSHI: SIGN T <= 0
-* {78:69,31,70} BEG
-*** {76:70,32,71} PUSHS: * <= T = 25
-*** {76:71,33,72} PUSHI: * <= 0
-*** {76:72,31,73} JMPGEQ location 76 is successful: true <= 25 >= 0
-*** {77:76,32,74} PUSHS: * <= T = 25
-*** {77:77,33,75} PUSHI: * <= 0
-*** {77:78,31,76} JMPNEQ location 82 is successful: true <= 25 != 0
-*** {78:82,32,77} PUSHI: SIGN T <= 1
-*** {75:83,31,78} POPS: SIGN T <= * = 1
-*** {78:84,31,79} END
+* {76:68,31,69} PUSHI: SIGN T <= 0
+* {79:69,31,70} BEG
+*** {77:70,32,71} PUSHS: * <= T = 25
+*** {77:71,33,72} PUSHI: * <= 0
+*** {77:72,31,73} JMPGEQ location 76 is successful: true <= 25 >= 0
+*** {78:76,32,74} PUSHS: * <= T = 25
+*** {78:77,33,75} PUSHI: * <= 0
+*** {78:78,31,76} JMPNEQ location 82 is successful: true <= 25 != 0
+*** {79:82,32,77} PUSHI: SIGN T <= 1
+*** {76:83,31,78} POPS: SIGN T <= * = 1
+*** {79:84,31,79} END
 SIGN T
-* {79:85,32,80} PUSHS: * <= SIGN T = 1
+* {80:85,32,80} PUSHS: * <= SIGN T = 1
 
 next T = do:
     if T < -20:
@@ -176,22 +176,22 @@ next T = do:
     else if T > 20:
         JX = 6
         next T = 20
-* {81:86,33,81} PUSHS: T <= T = 25
-* {88:87,33,82} BEG
-*** {82:88,34,83} PUSHS: * <= T = 25
-*** {82:89,35,84} PUSHI: * <= -20
-*** {82:90,33,85} JMPGEQ location 97 is successful: true <= 25 >= -20
-*** {86:97,34,86} PUSHS: * <= T = 25
-*** {86:98,35,87} PUSHI: * <= 20
-*** {86:99,33,88} JMPLEQ location 105 is UNsuccessful: false <= 25 <= 20
-*** {88:100,33,89} BEG
-***** {87:101,34,90} PUSHI: JX <= 6
-***** {88:102,35,91} PUSHI: next T <= 20
-***** {81:103,34,92} POPS: next T <= * = 20
-***** {88:104,33,93} END
-*** {88:105,33,94} END
+* {82:86,33,81} PUSHS: T <= T = 25
+* {89:87,33,82} BEG
+*** {83:88,34,83} PUSHS: * <= T = 25
+*** {83:89,35,84} PUSHI: * <= -20
+*** {83:90,33,85} JMPGEQ location 97 is successful: true <= 25 >= -20
+*** {87:97,34,86} PUSHS: * <= T = 25
+*** {87:98,35,87} PUSHI: * <= 20
+*** {87:99,33,88} JMPLEQ location 105 is UNsuccessful: false <= 25 <= 20
+*** {89:100,33,89} BEG
+***** {88:101,34,90} PUSHI: JX <= 6
+***** {89:102,35,91} PUSHI: next T <= 20
+***** {82:103,34,92} POPS: next T <= * = 20
+***** {89:104,33,93} END
+*** {89:105,33,94} END
 T
-* {89:106,34,95} PUSHS: * <= T = 20
+* {90:106,34,95} PUSHS: * <= T = 20
 JX    // JX has been deallocated.
 ERROR: in line ##: cannot understand expression:
 JX    // JX has been deallocated.
@@ -202,20 +202,20 @@ JX    // JX has been deallocated.
 // Next variable implication
 //
 D = 95
-* {95:107,35,96} PUSHI: D <= 95
+* {96:107,35,96} PUSHI: D <= 95
 do:
     // In `next D = do' the next D is implied by the
     // following statement.
     next D = D + 10
-* {99:108,36,97} PUSHS: D <= D = 95
-* {99:109,36,98} BEG
-*** {99:110,37,99} PUSHS: * <= D = 95
-*** {99:111,38,100} PUSHI: * <= 10
-*** {99:112,37,101} ADD: next D = 105 <= 95 + 10
-*** {99:113,36,102} POPS: next D <= * = 105
-*** {99:114,36,103} END
+* {100:108,36,97} PUSHS: D <= D = 95
+* {100:109,36,98} BEG
+*** {100:110,37,99} PUSHS: * <= D = 95
+*** {100:111,38,100} PUSHI: * <= 10
+*** {100:112,37,101} ADD: next D = 105 <= 95 + 10
+*** {100:113,36,102} POPS: next D <= * = 105
+*** {100:114,36,103} END
 D
-* {100:115,37,104} PUSHS: * <= D = 105
+* {101:115,37,104} PUSHS: * <= D = 105
 do:
     // In `next D = do' the next D is implied by the
     // statement `next D = 33'.
@@ -228,56 +228,56 @@ do:
         next D = 33
         next JX = 60
     // JX is deallocated here
-* {110:116,38,105} PUSHS: D <= D = 105
-* {111:117,38,106} BEG
-*** {105:118,39,107} PUSHI: JX <= 50
-*** {111:119,40,108} PUSHS: JX <= JX = 50
-*** {111:120,40,109} BEG
-***** {110:121,41,110} PUSHI: next D <= 33
-***** {110:122,40,111} POPS: next D <= * = 33
-***** {111:123,41,112} PUSHI: next JX <= 60
-***** {111:124,40,113} POPS: next JX <= * = 60
-***** {111:125,40,114} END
-*** {111:126,38,115} END
+* {111:116,38,105} PUSHS: D <= D = 105
+* {112:117,38,106} BEG
+*** {106:118,39,107} PUSHI: JX <= 50
+*** {112:119,40,108} PUSHS: JX <= JX = 50
+*** {112:120,40,109} BEG
+***** {111:121,41,110} PUSHI: next D <= 33
+***** {111:122,40,111} POPS: next D <= * = 33
+***** {112:123,41,112} PUSHI: next JX <= 60
+***** {112:124,40,113} POPS: next JX <= * = 60
+***** {112:125,40,114} END
+*** {112:126,38,115} END
 D
-* {113:127,39,116} PUSHS: * <= D = 33
+* {114:127,39,116} PUSHS: * <= D = 33
 
 // Variable modifying statements
 //
 W = 13
-* {117:128,40,117} PUSHI: W <= 13
+* {118:128,40,117} PUSHI: W <= 13
 next W =:
     next W + = 4
-* {118:129,41,118} PUSHS: W <= W = 13
-* {119:130,41,119} BEG
-*** {118:131,42,120} PUSHS: * <= next W = 13
-*** {119:132,43,121} PUSHI: * <= 4
-*** {119:133,42,122} ADD: *MISSING* = 17 <= 13 + 4
-*** {118:134,41,123} POPS: next W <= * = 17
-*** {119:135,41,124} END
+* {119:129,41,118} PUSHS: W <= W = 13
+* {120:130,41,119} BEG
+*** {119:131,42,120} PUSHS: * <= next W = 13
+*** {120:132,43,121} PUSHI: * <= 4
+*** {120:133,42,122} ADD: *MISSING* = 17 <= 13 + 4
+*** {119:134,41,123} POPS: next W <= * = 17
+*** {120:135,41,124} END
 next W =:
     next W * = 10
-* {120:136,42,125} PUSHS: W <= W = 17
-* {121:137,42,126} BEG
-*** {120:138,43,127} PUSHS: * <= next W = 17
-*** {121:139,44,128} PUSHI: * <= 10
-*** {121:140,43,129} MUL: *MISSING* = 170 <= 17 * 10
-*** {120:141,42,130} POPS: next W <= * = 170
-*** {121:142,42,131} END
+* {121:136,42,125} PUSHS: W <= W = 17
+* {122:137,42,126} BEG
+*** {121:138,43,127} PUSHS: * <= next W = 17
+*** {122:139,44,128} PUSHI: * <= 10
+*** {122:140,43,129} MUL: *MISSING* = 170 <= 17 * 10
+*** {121:141,42,130} POPS: next W <= * = 170
+*** {122:142,42,131} END
 next W =:
     next W / = 10
     next W - = 4
-* {122:143,43,132} PUSHS: W <= W = 170
-* {124:144,43,133} BEG
-*** {122:145,44,134} PUSHS: * <= next W = 170
-*** {123:146,45,135} PUSHI: * <= 10
-*** {123:147,44,136} DIV: *MISSING* = 17 <= 170 / 10
-*** {122:148,43,137} POPS: next W <= * = 17
-*** {122:149,44,138} PUSHS: * <= next W = 17
-*** {124:150,45,139} PUSHI: * <= 4
-*** {124:151,44,140} SUB: *MISSING* = 13 <= 17 - 4
-*** {122:152,43,141} POPS: next W <= * = 13
-*** {124:153,43,142} END
+* {123:143,43,132} PUSHS: W <= W = 170
+* {125:144,43,133} BEG
+*** {123:145,44,134} PUSHS: * <= next W = 170
+*** {124:146,45,135} PUSHI: * <= 10
+*** {124:147,44,136} DIV: *MISSING* = 17 <= 170 / 10
+*** {123:148,43,137} POPS: next W <= * = 17
+*** {123:149,44,138} PUSHS: * <= next W = 17
+*** {125:150,45,139} PUSHI: * <= 4
+*** {125:151,44,140} SUB: *MISSING* = 13 <= 17 - 4
+*** {123:152,43,141} POPS: next W <= * = 13
+*** {125:153,43,142} END
 
 // Exit statements in blocks.
 //
@@ -292,16 +292,16 @@ X1 =:
     X1 = 15
     exit
     X1 = 25
-* {130:154,44,143} PUSHI: X1 <= 0
-* {134:155,44,144} BEG
-*** {131:156,45,145} PUSHI: X1 <= 5
-*** {130:157,44,146} POPS: X1 <= * = 5
-*** {132:158,45,147} PUSHI: X1 <= 15
-*** {130:159,44,148} POPS: X1 <= * = 15
-*** {133:160,44,149} JMP location 164
+* {131:154,44,143} PUSHI: X1 <= 0
+* {135:155,44,144} BEG
+*** {132:156,45,145} PUSHI: X1 <= 5
+*** {131:157,44,146} POPS: X1 <= * = 5
+*** {133:158,45,147} PUSHI: X1 <= 15
+*** {131:159,44,148} POPS: X1 <= * = 15
+*** {134:160,44,149} JMP location 164
 
 X1
-* {136:164,45,150} PUSHS: * <= X1 = 15
+* {137:164,45,150} PUSHS: * <= X1 = 15
 
 X2 = do BLOCK2:
     X2 = 5
@@ -309,14 +309,14 @@ X2 = do BLOCK2:
     do BLOCK3:
         exit BLOCK2
     X2 = 25
-* {138:165,46,151} PUSHI: X2 <= 0
-* {143:166,46,152} BEG
-*** {139:167,47,153} PUSHI: X2 <= 5
-*** {138:168,46,154} POPS: X2 <= * = 5
-*** {140:169,47,155} PUSHI: X2 <= 15
-*** {138:170,46,156} POPS: X2 <= * = 15
-*** {142:171,46,157} BEG
-***** {142:172,46,158} JMP location 177
+* {139:165,46,151} PUSHI: X2 <= 0
+* {144:166,46,152} BEG
+*** {140:167,47,153} PUSHI: X2 <= 5
+*** {139:168,46,154} POPS: X2 <= * = 5
+*** {141:169,47,155} PUSHI: X2 <= 15
+*** {139:170,46,156} POPS: X2 <= * = 15
+*** {143:171,46,157} BEG
+***** {143:172,46,158} JMP location 177
 
 X2
-* {145:177,47,159} PUSHS: * <= X2 = 15
+* {146:177,47,159} PUSHS: * <= X2 = 15
