@@ -3,7 +3,7 @@
 <!--
 File:	reckon_assignments.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Nov 21 03:27:04 EST 2024
+Date:	Sun Nov 24 23:35:40 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -37,6 +37,11 @@ NEW WINDOW</button>
 <h1 id='text-header'>RECKON Assignments</h1>
 
 <p>
+Assignment statements create variables and give them values.
+A complete set of all the examples for this page is in
+<a href='../examples/reckon_assignments.rec' download>
+<code>reckon_assignments.rec </code></a>.
+
 </p>
 
 <h2 id='single-variable-expression-assignments'>
@@ -52,7 +57,7 @@ Examples:
 <p>
 A simple assignment consists of a variable name (e.g., <code>X</code>)
 followed by the assignment operator (i.e., <code>=</code>)
-followed by an expression (e.g., <code>25</code> or <code>X + 1</code>).
+followed by an expression (e.g., <code>25</code> or <code>X + 10</code>).
 Storage for the variable named, which is called the
 <b>assignment variable</b>, is allocated,
 the expression, which is called the <b>assignment expression</b>,
@@ -65,7 +70,7 @@ above, <code>X</code> refers to the variable allocated by
 The value of an assignment variable cannot be changed by later
 statements.  But a new variable
 of the same name can be created, and this will hide the old variable.
-To do this, the variable name must be preceded by <code>next</code>
+To do this, the variable name must be preceded by `<code>next</code>'
 in the assignment for the new variable (e.g., <code>next X</code>).
 <p>
 More Examples:
@@ -103,7 +108,8 @@ Examples:
 A multi-variable expression assignment statement consists of
 a comma-separated list of assignment variable names (e.g., <code>X, Y</code>)
 followed by the assignment operator (i.e., <code>=</code>)
-followed by a comma-separated list of assignment expressions.  The number
+followed by a comma-separated list of assignment expressions
+(e.g., <code>5, 10</code> or <code>X + Y, X * Y</code>).  The number
 of assignment variables must equal the number of assignment expressions.
  Storage is allocated for the assignment variables,
 then the assignment expressions are evaulated,
@@ -118,9 +124,9 @@ and <code>X * Y</code> above,
 <code>X, Y = 5, 10</code>).
 <p>
 Just as in the single variable case, the
-values of assignment variables cannot be changed by subsequent,
+values of assignment variables cannot be changed by subsequent statements,
 but new variables of the same name can be created and hide the old variables
-using <code>next</code>.
+using `<code>next</code>'.
 <p>
 More Examples:
 <pre class='example'>
@@ -189,7 +195,7 @@ More Examples:
 E, F // Outputs first the value of E and then the value of F.</div>25
 -25
 <div class='line'>
-next E, next F do:
+next E, next F = do:
     // The `do' here is cosmetic and has no effect.
     next E = 35
        // This does not take effect until after
@@ -231,13 +237,14 @@ followed by a colon operator (<code>:</code>) followed by a
 restricted statement (<code>next S = 20</code> in the example).
  The condition operand is evaluated to a truth
 value (see <a href='reckon_logical_operators.html'>Logical Operators</a>)
-and if <code>*TRUE*</code> the restricted statement is executed.
+and the restricted statement is executed if and only if the truth value
+is <code>*TRUE*</code>.
 <p>
 Restricted statements cannot have operators of precedence 0000
 (e.g., cannot be if-statements) and cannot allocate variables to
 storage.  Because of the latter, most restricted statements must be
 in blocks so they can write write-only variables (<code>next S</code>
-in the example).  It implies that if-statements must be in blocks.
+in the example).  This implies that if-statements must be in blocks.
 <p>
 If-statements may be grouped as follows.
 The group begins with a statement with operator <code>if</code>.
@@ -254,7 +261,7 @@ statement).
 In the second form of if-statement the colon operator and
 restricted statement are replaced by a
 <a href='reckon_logical_lines.html#blocks'>block</a>.
- The block is executed
+ The block is executed if and
 only if the condition operand evaluates to <code>*TRUE*</code>,
 or if the block ends an <code>else</code> statement that is executed.
 <p>
@@ -339,9 +346,105 @@ More examples:
 
 </p>
 
+<h2 id='modifying-assignments'>Modifying Assignments</h2>
+
+<p>
+Example:
+<pre class='example'>
+<div class='line'>W = 13</div>13
+<div class='line'>next W =:
+    next W + = 4</div>17
+</pre>
+<p>
+A <b id='modifying-assignment'>modifying assignment</b> consists
+of a variable name followed by a modifying operator (e.g., <code>+ =</code>)
+followed by an expression.  The variable named must be write-only
+and is modified by applying the ordinary operator (e.g., <code>+</code>)
+that is the first part of the modifying operator to the current value of
+the write-only variable and the value of the expression and then copying the
+result back into the write-only variable.
+<p>
+More examples:
+<pre class='example'>
+<div class='line'>W = 13</div>13
+<div class='line'>next W =:
+    next W + = 4</div>17
+<div class='line'>next W =:
+    next W * = 10</div>170
+<div class='line'>W</div>170
+
+<div class='line'>do:
+    next W / = 10
+    next W - = 4</div>13
+
+<div class='line'>do:
+    next W = 1
+    do:
+        next W &lt;&lt; = 10</div>1024
+
+<div class='line'>do:
+    next W &gt;&gt; = 10</div>1
+
+<div class='line'>next W = 13</div>13
+<div class='line'>do:
+    if W &lt; 20: next W + = 7
+    // Here W == 13 and next W == 20
+    if W &lt; 20: next W + = 20</div>40
+</pre>
+
+</p>
+
 <h2 id='exit-statements'>Exit Statements</h2>
 
 <p>
+Example:
+<pre class='example'>
+<div class='line'>X1 =:
+    X1 = 5
+    X1 = 15
+    exit
+    X1 = 25</div>15
+</pre>
+<p>
+An exit-statement consists of the `<code`>exit</code>' operator
+followed by an optional block name.  Without a block name the
+exit-statement exits the block it is in, i.e., it jumps
+to the end of the block.  In the example, <code>X1 = 5</code>
+is executed followed by <code>X1 = 15</code>, but then
+<code>exit</code> is executed and jumps to the end of the block,
+so <code>X1 = 25</code> is never executed.
+<p>
+If a block name is given in an exit-statement, the statement jumps
+to the end of the named block.  In this case the exit-statement must
+be somewhere inside the named block.  Blocks can be given names by placing
+the name after `<code>do</code>' at the beginning of the block.
+<p>
+More examples:
+<pre class='example'>
+<div class='line'>W = 13</div>13
+<div class='line'>exit</div
+><div class='error-line'
+>ERROR: in line 145: exit not inside block; statement ignored:</div
+><div class='error-highlight'>exit</div>
+[no output due to compile error]
+<div class='line'>
+X1 =:
+    X1 = 5
+    X1 = 15
+    exit
+    X1 = 25</div>15
+<div class='line'>
+X1</div>15
+<div class='line'>
+X2 = do BLOCK2:
+    X2 = 5
+    X2 = 15
+    do BLOCK3:
+        exit BLOCK2
+    X2 = 25</div>15
+<div class='line'>
+X2</div>15
+</pre>
 </p>
 
 </div>
