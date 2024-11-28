@@ -2,13 +2,32 @@
 //
 // File:        reckon_loops.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Oct  8 02:33:36 AM EDT 2024
+// Date:        Thu Nov 28 01:02:15 PM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-sum = 0
+power = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|power|} =
+     {|1|}|}
+i = 0
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|i|} = {|0|}|}
+next power, next i = repeat:
+    if i >= 10: exit
+    next power * = 2
+    next i + = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|{|next power|}, {|next i|}|} = {|repeat|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|if
+               {|{|i|} >= {|10|}|} ":" {|exit|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next power|} [< * = >] {|2|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next i|} [< + = >] {|1|}|}|}|}
+
+sum  = 0
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|sum|} = {|0|}|}
 do 5 times:
     next sum = sum + 10
@@ -22,8 +41,10 @@ sum
 next sum = 0
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next sum|} =
      {|0|}|}
-i = 0
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|i|} = {|0|}|}
+
+next i = 0
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next i|} =
+     {|0|}|}
 while i < 3:
     next i = i + 1
     next sum = sum + 10

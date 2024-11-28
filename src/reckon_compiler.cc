@@ -596,6 +596,9 @@ bool static compile_expression_assignment_statement
 bool static compile_modifying_statement
 	( min::obj_vec_ptr & vp, min::gen op );
 
+bool static compile_exit_statement
+	( min::obj_vec_ptr & vp, min::uns32 s );
+
 struct iteration
 {
     min::gen type;	  // iteration type:
@@ -954,84 +957,8 @@ bool REC::compile_statement ( min::gen statement )
 		   ( vp, op );
     }
 
-    if ( s == 1
-         &&
-	 vp[0] == ::EXIT )
-    {
-	min::phrase_position_vec ppv =
-	    ::get_position ( vp );
-    	if ( ::block.block_finish_jmp != 0 )
-	{
-	    ::jmp ( ::block.block_finish_jmp,
-	            ppv->position );
-	    return true;
-	}
-	else
-	{
-	    mexcom::compile_error
-		( ppv->position,
-		  "exit not inside block;"
-		  " statement ignored" );
-	    return false;
-	}
-    }
-
-    if ( s == 2
-         &&
-	 vp[0] == ::EXIT )
-    {
-	min::phrase_position_vec ppv =
-	    ::get_position ( vp );
-	min::obj_vec_ptr vp1 = vp[1];
-	min::locatable_gen name;
-	const char * message = NULL;
-	min::uns32 jmp = 0;
-	if ( vp1 == min::NULL_STUB )
-	    message = "not a block name";
-	else
-	{
-	    min::uns32 i1 = 0;
-	    name = PRIM::scan_var_name ( vp1, i1 );
-	    if ( name == min::NONE()
-	         ||
-		 i1 != min::size_of ( vp1 ))
-	        message = "not a block name";
-	    else
-	    {
-		min::uns32 j = ::block_stack->length;
-		if ( j == 0 )
-		    message = "exit statement is"
-			      " not in a block";
-		else if ( name == ::block.name )
-		    jmp = ::block.block_finish_jmp;
-		else while ( j != 0 )
-		{
-		    min::ptr<::block_struct> p =
-			::block_stack + -- j;
-		    if ( p->name != name )
-			continue;
-		    jmp = p->block_finish_jmp;
-		    break;
-		}
-		if ( jmp == 0 )
-		    message = "exit statement is"
-			      " not in a block"
-			      " with the given name";
-	    }
-	}
-	if ( message != NULL )
-	{
-	    mexcom::compile_error
-		( ppv[1], message, min::pnop,
-		  "; statement ignored" );
-	    return false;
-	}
-	else
-	{
-	    ::jmp ( jmp, ppv->position );
-	    return true;
-	}
-    }
+    if ( vp[0] == ::EXIT )
+        return ::compile_exit_statement( vp, s );
 
     vp = min::NULL_STUB;
     return compile_statement_expression ( statement );
@@ -1064,6 +991,9 @@ bool static compile_restricted_statement
 	       ::compile_modifying_statement
 	           ( vp, op );
     }
+
+    if ( vp[0] == ::EXIT )
+        return ::compile_exit_statement( vp, s );
 
     mexcom::compile_error
 	( ::get_position(vp)->position,
@@ -1271,6 +1201,89 @@ bool static compile_modifying_statement
     mexstack::push_instr
 	( instr, var->position, trace_info );
     return true;
+}
+
+bool static compile_exit_statement
+	( min::obj_vec_ptr & vp, min::uns32 s )
+{
+    min::phrase_position_vec ppv =
+	::get_position ( vp );
+    const char * message = NULL;
+    min::phrase_position pp = ppv->position;;
+
+    if ( s == 1 )
+    {
+    	if ( ::block.block_finish_jmp != 0 )
+	{
+	    ::jmp ( ::block.block_finish_jmp,
+	            ppv->position );
+	    return true;
+	}
+	else
+	    message = "exit not inside block";
+    }
+
+    else if ( s == 2 )
+    {
+	min::obj_vec_ptr vp1 = vp[1];
+	pp = ppv[1];
+	min::locatable_gen name;
+	min::uns32 jmp = 0;
+	if ( vp1 == min::NULL_STUB )
+	    message = "not a block name";
+	else
+	{
+	    min::uns32 i1 = 0;
+	    name = PRIM::scan_var_name ( vp1, i1 );
+	    if ( name == min::NONE()
+	         ||
+		 i1 != min::size_of ( vp1 ))
+	        message = "not a block name";
+	    else
+	    {
+		min::uns32 j = ::block_stack->length;
+		if ( j == 0 )
+		{
+		    message = "exit statement is"
+			      " not in a block";
+		    pp = ppv->position;
+		}
+		else if ( name == ::block.name )
+		    jmp = ::block.block_finish_jmp;
+		else while ( j != 0 )
+		{
+		    min::ptr<::block_struct> p =
+			::block_stack + -- j;
+		    if ( p->name != name )
+			continue;
+		    jmp = p->block_finish_jmp;
+		    break;
+		}
+		if ( jmp == 0 )
+		{
+		    message = "exit statement is"
+			      " not in a block"
+			      " with the given name";
+		    pp = ppv->position;
+		}
+	    }
+	}
+	if ( message == NULL )
+	{
+	    ::jmp ( jmp, ppv->position );
+	    return true;
+	}
+    }
+    else
+    {
+        message = "extra stuff after";
+	pp = ppv[1];
+    }
+
+    mexcom::compile_error
+	( pp, message, min::pnop,
+	  "; statement ignored" );
+    return false;
 }
 
 bool static compile_block

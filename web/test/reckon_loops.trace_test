@@ -4,136 +4,273 @@
 //
 // File:        reckon_loops.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Oct  8 02:33:36 AM EDT 2024
+// Date:        Thu Nov 28 01:02:15 PM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
-sum = 0
-* {11:2,3,3} PUSHI: sum <= 0
+power = 1
+* {11:2,3,3} PUSHI: power <= 1
+i = 0
+* {12:3,4,4} PUSHI: i <= 0
+next power, next i = repeat:
+    if i >= 10: exit
+    next power * = 2
+    next i + = 1
+* {13:4,5,5} PUSHS: power <= power = 1
+* {13:5,6,6} PUSHS: i <= i = 0
+* {16:6,8,7} BEGL
+*** {14:7,9,8} PUSHS: * <= i = 0
+*** {14:8,10,9} PUSHI: * <= 10
+*** {14:9,8,10} JMPLT location 11 is successful: true <= 0 < 10
+*** {13:11,9,11} PUSHS: * <= next power = 1
+*** {15:12,10,12} PUSHI: * <= 2
+*** {15:13,9,13} MUL: *MISSING* = 2 <= 1 * 2
+*** {13:14,8,14} POPS: next power <= * = 2
+*** {13:15,9,15} PUSHS: * <= next i = 0
+*** {16:16,10,16} PUSHI: * <= 1
+*** {16:17,9,17} ADD: *MISSING* = 1 <= 0 + 1
+*** {13:18,8,18} POPS: next i <= * = 1
+*** {16:19,8,19} ENDL
+*** {14:7,9,20} PUSHS: * <= i = 1
+*** {14:8,10,21} PUSHI: * <= 10
+*** {14:9,8,22} JMPLT location 11 is successful: true <= 1 < 10
+*** {13:11,9,23} PUSHS: * <= next power = 2
+*** {15:12,10,24} PUSHI: * <= 2
+*** {15:13,9,25} MUL: *MISSING* = 4 <= 2 * 2
+*** {13:14,8,26} POPS: next power <= * = 4
+*** {13:15,9,27} PUSHS: * <= next i = 1
+*** {16:16,10,28} PUSHI: * <= 1
+*** {16:17,9,29} ADD: *MISSING* = 2 <= 1 + 1
+*** {13:18,8,30} POPS: next i <= * = 2
+*** {16:19,8,31} ENDL
+*** {14:7,9,32} PUSHS: * <= i = 2
+*** {14:8,10,33} PUSHI: * <= 10
+*** {14:9,8,34} JMPLT location 11 is successful: true <= 2 < 10
+*** {13:11,9,35} PUSHS: * <= next power = 4
+*** {15:12,10,36} PUSHI: * <= 2
+*** {15:13,9,37} MUL: *MISSING* = 8 <= 4 * 2
+*** {13:14,8,38} POPS: next power <= * = 8
+*** {13:15,9,39} PUSHS: * <= next i = 2
+*** {16:16,10,40} PUSHI: * <= 1
+*** {16:17,9,41} ADD: *MISSING* = 3 <= 2 + 1
+*** {13:18,8,42} POPS: next i <= * = 3
+*** {16:19,8,43} ENDL
+*** {14:7,9,44} PUSHS: * <= i = 3
+*** {14:8,10,45} PUSHI: * <= 10
+*** {14:9,8,46} JMPLT location 11 is successful: true <= 3 < 10
+*** {13:11,9,47} PUSHS: * <= next power = 8
+*** {15:12,10,48} PUSHI: * <= 2
+*** {15:13,9,49} MUL: *MISSING* = 16 <= 8 * 2
+*** {13:14,8,50} POPS: next power <= * = 16
+*** {13:15,9,51} PUSHS: * <= next i = 3
+*** {16:16,10,52} PUSHI: * <= 1
+*** {16:17,9,53} ADD: *MISSING* = 4 <= 3 + 1
+*** {13:18,8,54} POPS: next i <= * = 4
+*** {16:19,8,55} ENDL
+*** {14:7,9,56} PUSHS: * <= i = 4
+*** {14:8,10,57} PUSHI: * <= 10
+*** {14:9,8,58} JMPLT location 11 is successful: true <= 4 < 10
+*** {13:11,9,59} PUSHS: * <= next power = 16
+*** {15:12,10,60} PUSHI: * <= 2
+*** {15:13,9,61} MUL: *MISSING* = 32 <= 16 * 2
+*** {13:14,8,62} POPS: next power <= * = 32
+*** {13:15,9,63} PUSHS: * <= next i = 4
+*** {16:16,10,64} PUSHI: * <= 1
+*** {16:17,9,65} ADD: *MISSING* = 5 <= 4 + 1
+*** {13:18,8,66} POPS: next i <= * = 5
+*** {16:19,8,67} ENDL
+*** {14:7,9,68} PUSHS: * <= i = 5
+*** {14:8,10,69} PUSHI: * <= 10
+*** {14:9,8,70} JMPLT location 11 is successful: true <= 5 < 10
+*** {13:11,9,71} PUSHS: * <= next power = 32
+*** {15:12,10,72} PUSHI: * <= 2
+*** {15:13,9,73} MUL: *MISSING* = 64 <= 32 * 2
+*** {13:14,8,74} POPS: next power <= * = 64
+*** {13:15,9,75} PUSHS: * <= next i = 5
+*** {16:16,10,76} PUSHI: * <= 1
+*** {16:17,9,77} ADD: *MISSING* = 6 <= 5 + 1
+*** {13:18,8,78} POPS: next i <= * = 6
+*** {16:19,8,79} ENDL
+*** {14:7,9,80} PUSHS: * <= i = 6
+*** {14:8,10,81} PUSHI: * <= 10
+*** {14:9,8,82} JMPLT location 11 is successful: true <= 6 < 10
+*** {13:11,9,83} PUSHS: * <= next power = 64
+*** {15:12,10,84} PUSHI: * <= 2
+*** {15:13,9,85} MUL: *MISSING* = 128 <= 64 * 2
+*** {13:14,8,86} POPS: next power <= * = 128
+*** {13:15,9,87} PUSHS: * <= next i = 6
+*** {16:16,10,88} PUSHI: * <= 1
+*** {16:17,9,89} ADD: *MISSING* = 7 <= 6 + 1
+*** {13:18,8,90} POPS: next i <= * = 7
+*** {16:19,8,91} ENDL
+*** {14:7,9,92} PUSHS: * <= i = 7
+*** {14:8,10,93} PUSHI: * <= 10
+*** {14:9,8,94} JMPLT location 11 is successful: true <= 7 < 10
+*** {13:11,9,95} PUSHS: * <= next power = 128
+*** {15:12,10,96} PUSHI: * <= 2
+*** {15:13,9,97} MUL: *MISSING* = 256 <= 128 * 2
+*** {13:14,8,98} POPS: next power <= * = 256
+*** {13:15,9,99} PUSHS: * <= next i = 7
+*** {16:16,10,100} PUSHI: * <= 1
+*** {16:17,9,101} ADD: *MISSING* = 8 <= 7 + 1
+*** {13:18,8,102} POPS: next i <= * = 8
+*** {16:19,8,103} ENDL
+*** {14:7,9,104} PUSHS: * <= i = 8
+*** {14:8,10,105} PUSHI: * <= 10
+*** {14:9,8,106} JMPLT location 11 is successful: true <= 8 < 10
+*** {13:11,9,107} PUSHS: * <= next power = 256
+*** {15:12,10,108} PUSHI: * <= 2
+*** {15:13,9,109} MUL: *MISSING* = 512 <= 256 * 2
+*** {13:14,8,110} POPS: next power <= * = 512
+*** {13:15,9,111} PUSHS: * <= next i = 8
+*** {16:16,10,112} PUSHI: * <= 1
+*** {16:17,9,113} ADD: *MISSING* = 9 <= 8 + 1
+*** {13:18,8,114} POPS: next i <= * = 9
+*** {16:19,8,115} ENDL
+*** {14:7,9,116} PUSHS: * <= i = 9
+*** {14:8,10,117} PUSHI: * <= 10
+*** {14:9,8,118} JMPLT location 11 is successful: true <= 9 < 10
+*** {13:11,9,119} PUSHS: * <= next power = 512
+*** {15:12,10,120} PUSHI: * <= 2
+*** {15:13,9,121} MUL: *MISSING* = 1024 <= 512 * 2
+*** {13:14,8,122} POPS: next power <= * = 1024
+*** {13:15,9,123} PUSHS: * <= next i = 9
+*** {16:16,10,124} PUSHI: * <= 1
+*** {16:17,9,125} ADD: *MISSING* = 10 <= 9 + 1
+*** {13:18,8,126} POPS: next i <= * = 10
+*** {16:19,8,127} ENDL
+*** {14:7,9,128} PUSHS: * <= i = 10
+*** {14:8,10,129} PUSHI: * <= 10
+*** {14:9,8,130} JMPLT location 11 is UNsuccessful: false <= 10 < 10
+*** {14:10,6,131} JMP location 20
+
+sum  = 0
+* {18:20,7,132} PUSHI: sum <= 0
 do 5 times:
     next sum = sum + 10
-* {12:3,4,4} PUSHI: * <= 5
-* {13:4,5,5} PUSHS: sum <= sum = 0
-* {13:5,6,6} BEGL
-*** {12:6,6,7} JMPCNT* location 12 is UNsuccessful: false <= 5 <= 0
-*** {13:7,7,8} PUSHS: * <= sum = 0
-*** {13:8,8,9} PUSHI: * <= 10
-*** {13:9,7,10} ADD: next sum = 10 <= 0 + 10
-*** {13:10,6,11} POPS: next sum <= * = 10
-*** {13:11,6,12} ENDL
-*** {12:6,6,13} JMPCNT* location 12 is UNsuccessful: false <= 4 <= 0
-*** {13:7,7,14} PUSHS: * <= sum = 10
-*** {13:8,8,15} PUSHI: * <= 10
-*** {13:9,7,16} ADD: next sum = 20 <= 10 + 10
-*** {13:10,6,17} POPS: next sum <= * = 20
-*** {13:11,6,18} ENDL
-*** {12:6,6,19} JMPCNT* location 12 is UNsuccessful: false <= 3 <= 0
-*** {13:7,7,20} PUSHS: * <= sum = 20
-*** {13:8,8,21} PUSHI: * <= 10
-*** {13:9,7,22} ADD: next sum = 30 <= 20 + 10
-*** {13:10,6,23} POPS: next sum <= * = 30
-*** {13:11,6,24} ENDL
-*** {12:6,6,25} JMPCNT* location 12 is UNsuccessful: false <= 2 <= 0
-*** {13:7,7,26} PUSHS: * <= sum = 30
-*** {13:8,8,27} PUSHI: * <= 10
-*** {13:9,7,28} ADD: next sum = 40 <= 30 + 10
-*** {13:10,6,29} POPS: next sum <= * = 40
-*** {13:11,6,30} ENDL
-*** {12:6,6,31} JMPCNT* location 12 is UNsuccessful: false <= 1 <= 0
-*** {13:7,7,32} PUSHS: * <= sum = 40
-*** {13:8,8,33} PUSHI: * <= 10
-*** {13:9,7,34} ADD: next sum = 50 <= 40 + 10
-*** {13:10,6,35} POPS: next sum <= * = 50
-*** {13:11,6,36} ENDL
-*** {12:6,5,37} JMPCNT* location 12 is successful: true <= 0 <= 0
+* {19:21,8,133} PUSHI: * <= 5
+* {20:22,9,134} PUSHS: sum <= sum = 0
+* {20:23,10,135} BEGL
+*** {19:24,10,136} JMPCNT* location 30 is UNsuccessful: false <= 5 <= 0
+*** {20:25,11,137} PUSHS: * <= sum = 0
+*** {20:26,12,138} PUSHI: * <= 10
+*** {20:27,11,139} ADD: next sum = 10 <= 0 + 10
+*** {20:28,10,140} POPS: next sum <= * = 10
+*** {20:29,10,141} ENDL
+*** {19:24,10,142} JMPCNT* location 30 is UNsuccessful: false <= 4 <= 0
+*** {20:25,11,143} PUSHS: * <= sum = 10
+*** {20:26,12,144} PUSHI: * <= 10
+*** {20:27,11,145} ADD: next sum = 20 <= 10 + 10
+*** {20:28,10,146} POPS: next sum <= * = 20
+*** {20:29,10,147} ENDL
+*** {19:24,10,148} JMPCNT* location 30 is UNsuccessful: false <= 3 <= 0
+*** {20:25,11,149} PUSHS: * <= sum = 20
+*** {20:26,12,150} PUSHI: * <= 10
+*** {20:27,11,151} ADD: next sum = 30 <= 20 + 10
+*** {20:28,10,152} POPS: next sum <= * = 30
+*** {20:29,10,153} ENDL
+*** {19:24,10,154} JMPCNT* location 30 is UNsuccessful: false <= 2 <= 0
+*** {20:25,11,155} PUSHS: * <= sum = 30
+*** {20:26,12,156} PUSHI: * <= 10
+*** {20:27,11,157} ADD: next sum = 40 <= 30 + 10
+*** {20:28,10,158} POPS: next sum <= * = 40
+*** {20:29,10,159} ENDL
+*** {19:24,10,160} JMPCNT* location 30 is UNsuccessful: false <= 1 <= 0
+*** {20:25,11,161} PUSHS: * <= sum = 40
+*** {20:26,12,162} PUSHI: * <= 10
+*** {20:27,11,163} ADD: next sum = 50 <= 40 + 10
+*** {20:28,10,164} POPS: next sum <= * = 50
+*** {20:29,10,165} ENDL
+*** {19:24,9,166} JMPCNT* location 30 is successful: true <= 0 <= 0
 sum
-* {14:12,6,38} PUSHS: * <= sum = 50
+* {21:30,10,167} PUSHS: * <= sum = 50
 next sum = 0
-* {15:13,7,39} PUSHI: next sum <= 0
-i = 0
-* {16:14,8,40} PUSHI: i <= 0
+* {22:31,11,168} PUSHI: next sum <= 0
+
+next i = 0
+* {24:32,12,169} PUSHI: next i <= 0
 while i < 3:
     next i = i + 1
     next sum = sum + 10
-* {18:15,9,41} PUSHS: i <= i = 0
-* {19:16,10,42} PUSHS: sum <= sum = 0
-* {19:17,12,43} BEGL
-*** {17:18,13,44} PUSHS: * <= i = 0
-*** {17:19,14,45} PUSHI: * <= 3
-*** {17:20,12,46} JMPGEQ location 30 is UNsuccessful: false <= 0 >= 3
-*** {18:21,13,47} PUSHS: * <= i = 0
-*** {18:22,14,48} PUSHI: * <= 1
-*** {18:23,13,49} ADD: next i = 1 <= 0 + 1
-*** {18:24,12,50} POPS: next i <= * = 1
-*** {19:25,13,51} PUSHS: * <= sum = 0
-*** {19:26,14,52} PUSHI: * <= 10
-*** {19:27,13,53} ADD: next sum = 10 <= 0 + 10
-*** {19:28,12,54} POPS: next sum <= * = 10
-*** {19:29,12,55} ENDL
-*** {17:18,13,56} PUSHS: * <= i = 1
-*** {17:19,14,57} PUSHI: * <= 3
-*** {17:20,12,58} JMPGEQ location 30 is UNsuccessful: false <= 1 >= 3
-*** {18:21,13,59} PUSHS: * <= i = 1
-*** {18:22,14,60} PUSHI: * <= 1
-*** {18:23,13,61} ADD: next i = 2 <= 1 + 1
-*** {18:24,12,62} POPS: next i <= * = 2
-*** {19:25,13,63} PUSHS: * <= sum = 10
-*** {19:26,14,64} PUSHI: * <= 10
-*** {19:27,13,65} ADD: next sum = 20 <= 10 + 10
-*** {19:28,12,66} POPS: next sum <= * = 20
-*** {19:29,12,67} ENDL
-*** {17:18,13,68} PUSHS: * <= i = 2
-*** {17:19,14,69} PUSHI: * <= 3
-*** {17:20,12,70} JMPGEQ location 30 is UNsuccessful: false <= 2 >= 3
-*** {18:21,13,71} PUSHS: * <= i = 2
-*** {18:22,14,72} PUSHI: * <= 1
-*** {18:23,13,73} ADD: next i = 3 <= 2 + 1
-*** {18:24,12,74} POPS: next i <= * = 3
-*** {19:25,13,75} PUSHS: * <= sum = 20
-*** {19:26,14,76} PUSHI: * <= 10
-*** {19:27,13,77} ADD: next sum = 30 <= 20 + 10
-*** {19:28,12,78} POPS: next sum <= * = 30
-*** {19:29,12,79} ENDL
-*** {17:18,13,80} PUSHS: * <= i = 3
-*** {17:19,14,81} PUSHI: * <= 3
-*** {17:20,10,82} JMPGEQ location 30 is successful: true <= 3 >= 3
+* {26:33,13,170} PUSHS: i <= i = 0
+* {27:34,14,171} PUSHS: sum <= sum = 0
+* {27:35,16,172} BEGL
+*** {25:36,17,173} PUSHS: * <= i = 0
+*** {25:37,18,174} PUSHI: * <= 3
+*** {25:38,16,175} JMPGEQ location 48 is UNsuccessful: false <= 0 >= 3
+*** {26:39,17,176} PUSHS: * <= i = 0
+*** {26:40,18,177} PUSHI: * <= 1
+*** {26:41,17,178} ADD: next i = 1 <= 0 + 1
+*** {26:42,16,179} POPS: next i <= * = 1
+*** {27:43,17,180} PUSHS: * <= sum = 0
+*** {27:44,18,181} PUSHI: * <= 10
+*** {27:45,17,182} ADD: next sum = 10 <= 0 + 10
+*** {27:46,16,183} POPS: next sum <= * = 10
+*** {27:47,16,184} ENDL
+*** {25:36,17,185} PUSHS: * <= i = 1
+*** {25:37,18,186} PUSHI: * <= 3
+*** {25:38,16,187} JMPGEQ location 48 is UNsuccessful: false <= 1 >= 3
+*** {26:39,17,188} PUSHS: * <= i = 1
+*** {26:40,18,189} PUSHI: * <= 1
+*** {26:41,17,190} ADD: next i = 2 <= 1 + 1
+*** {26:42,16,191} POPS: next i <= * = 2
+*** {27:43,17,192} PUSHS: * <= sum = 10
+*** {27:44,18,193} PUSHI: * <= 10
+*** {27:45,17,194} ADD: next sum = 20 <= 10 + 10
+*** {27:46,16,195} POPS: next sum <= * = 20
+*** {27:47,16,196} ENDL
+*** {25:36,17,197} PUSHS: * <= i = 2
+*** {25:37,18,198} PUSHI: * <= 3
+*** {25:38,16,199} JMPGEQ location 48 is UNsuccessful: false <= 2 >= 3
+*** {26:39,17,200} PUSHS: * <= i = 2
+*** {26:40,18,201} PUSHI: * <= 1
+*** {26:41,17,202} ADD: next i = 3 <= 2 + 1
+*** {26:42,16,203} POPS: next i <= * = 3
+*** {27:43,17,204} PUSHS: * <= sum = 20
+*** {27:44,18,205} PUSHI: * <= 10
+*** {27:45,17,206} ADD: next sum = 30 <= 20 + 10
+*** {27:46,16,207} POPS: next sum <= * = 30
+*** {27:47,16,208} ENDL
+*** {25:36,17,209} PUSHS: * <= i = 3
+*** {25:37,18,210} PUSHI: * <= 3
+*** {25:38,14,211} JMPGEQ location 48 is successful: true <= 3 >= 3
 next sum = 0
-* {20:30,11,83} PUSHI: next sum <= 0
+* {28:48,15,212} PUSHI: next sum <= 0
 next i = 0
-* {21:31,12,84} PUSHI: next i <= 0
+* {29:49,16,213} PUSHI: next i <= 0
 next i, next sum = do until i >= 2:
     next i = i + 1
     next sum = sum + 10
-* {22:32,13,85} PUSHS: i <= i = 0
-* {22:33,14,86} PUSHS: sum <= sum = 0
-* {24:34,16,87} BEGL
-*** {22:35,17,88} PUSHS: * <= i = 0
-*** {22:36,18,89} PUSHI: * <= 2
-*** {22:37,16,90} JMPLT location 39 is successful: true <= 0 < 2
-*** {23:39,17,91} PUSHS: * <= i = 0
-*** {23:40,18,92} PUSHI: * <= 1
-*** {23:41,17,93} ADD: next i = 1 <= 0 + 1
-*** {22:42,16,94} POPS: next i <= * = 1
-*** {24:43,17,95} PUSHS: * <= sum = 0
-*** {24:44,18,96} PUSHI: * <= 10
-*** {24:45,17,97} ADD: next sum = 10 <= 0 + 10
-*** {22:46,16,98} POPS: next sum <= * = 10
-*** {24:47,16,99} ENDL
-*** {22:35,17,100} PUSHS: * <= i = 1
-*** {22:36,18,101} PUSHI: * <= 2
-*** {22:37,16,102} JMPLT location 39 is successful: true <= 1 < 2
-*** {23:39,17,103} PUSHS: * <= i = 1
-*** {23:40,18,104} PUSHI: * <= 1
-*** {23:41,17,105} ADD: next i = 2 <= 1 + 1
-*** {22:42,16,106} POPS: next i <= * = 2
-*** {24:43,17,107} PUSHS: * <= sum = 10
-*** {24:44,18,108} PUSHI: * <= 10
-*** {24:45,17,109} ADD: next sum = 20 <= 10 + 10
-*** {22:46,16,110} POPS: next sum <= * = 20
-*** {24:47,16,111} ENDL
-*** {22:35,17,112} PUSHS: * <= i = 2
-*** {22:36,18,113} PUSHI: * <= 2
-*** {22:37,16,114} JMPLT location 39 is UNsuccessful: false <= 2 < 2
-*** {22:38,14,115} JMP location 48
+* {30:50,17,214} PUSHS: i <= i = 0
+* {30:51,18,215} PUSHS: sum <= sum = 0
+* {32:52,20,216} BEGL
+*** {30:53,21,217} PUSHS: * <= i = 0
+*** {30:54,22,218} PUSHI: * <= 2
+*** {30:55,20,219} JMPLT location 57 is successful: true <= 0 < 2
+*** {31:57,21,220} PUSHS: * <= i = 0
+*** {31:58,22,221} PUSHI: * <= 1
+*** {31:59,21,222} ADD: next i = 1 <= 0 + 1
+*** {30:60,20,223} POPS: next i <= * = 1
+*** {32:61,21,224} PUSHS: * <= sum = 0
+*** {32:62,22,225} PUSHI: * <= 10
+*** {32:63,21,226} ADD: next sum = 10 <= 0 + 10
+*** {30:64,20,227} POPS: next sum <= * = 10
+*** {32:65,20,228} ENDL
+*** {30:53,21,229} PUSHS: * <= i = 1
+*** {30:54,22,230} PUSHI: * <= 2
+*** {30:55,20,231} JMPLT location 57 is successful: true <= 1 < 2
+*** {31:57,21,232} PUSHS: * <= i = 1
+*** {31:58,22,233} PUSHI: * <= 1
+*** {31:59,21,234} ADD: next i = 2 <= 1 + 1
+*** {30:60,20,235} POPS: next i <= * = 2
+*** {32:61,21,236} PUSHS: * <= sum = 10
+*** {32:62,22,237} PUSHI: * <= 10
+*** {32:63,21,238} ADD: next sum = 20 <= 10 + 10
+*** {30:64,20,239} POPS: next sum <= * = 20
+*** {32:65,20,240} ENDL
+*** {30:53,21,241} PUSHS: * <= i = 2
+*** {30:54,22,242} PUSHI: * <= 2
+*** {30:55,20,243} JMPLT location 57 is UNsuccessful: false <= 2 < 2
+*** {30:56,18,244} JMP location 66

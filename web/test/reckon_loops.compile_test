@@ -1,107 +1,184 @@
     [0:0;1] PUSHI T_PUSH 0 0 0 *FALSE*; *FALSE*
     [0:1;2] PUSHI T_PUSH 0 0 0 *TRUE*; *TRUE*
-sum = 0
-      ^
-    [11:2;3] PUSHI T_PUSH 0 0 0 0; sum
-do 5 times:
-   ^
-    [12:3;4] PUSHI T_PUSH 0 0 0 5; *
-    next sum = sum + 10
-    ^^^^^^^^
-    [13:4;5] PUSHS T_PUSH 1 0 0; [< sum sum >]
-do 5 times:
-          ^
-    next sum = sum + 10
-^^^^^^^^^^^^^^^^^^^^^^^
-    [13:5;6] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
-do 5 times:
-   ^
-    [12:6;6] JMPCNT T_JMPS 0 2 0 1; 1
-    next sum = sum + 10
-               ^^^
-    [13:7;7] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
-             sum * >]
-    next sum = sum + 10
-                     ^^
-    [13:8;8] PUSHI T_PUSH 0 0 0 10; *
-    next sum = sum + 10
-               ^^^^^^^^
-    [13:9;7] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
-             next sum >]
-    next sum = sum + 10
-    ^^^^^^^^
-    [13:10;6] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
-              * [< next sum >] >]
-do 5 times:
-          ^
-    next sum = sum + 10
-^^^^^^^^^^^^^^^^^^^^^^^
-    [13:11;5] ENDL T_ENDL 0 1 5 *UNDEFINED_GEN(0x7FF4170000000000)*
-    [12;5] LABEL 1
-    [12:6;5] JMPCNT T_JMPS[1] 1 2 6 1; 1
-sum
-^^^
-    [14:12;6] PUSHS T_PUSH 4294967295 0 0 *
-              UNDEFINED_GEN(0x7FF4170000000000)*; [< sum * >]
-next sum = 0
-           ^
-    [15:13;7] PUSHI T_PUSH 0 0 0 0; [< next sum >]
+power = 1
+        ^
+    [11:2;3] PUSHI T_PUSH 0 0 0 1; power
 i = 0
     ^
-    [16:14;8] PUSHI T_PUSH 0 0 0 0; i
-    next i = i + 1
-    ^^^^^^
-    [18:15;9] PUSHS T_PUSH 0 0 0; [< i i >]
+    [12:3;4] PUSHI T_PUSH 0 0 0 0; i
+next power, next i = repeat:
+^^^^^^^^^^
+    [13:4;5] PUSHS T_PUSH 1 0 0; [< power power >]
+next power, next i = repeat:
+            ^^^^^^
+    [13:5;6] PUSHS T_PUSH 1 0 0; [< i i >]
+next power, next i = repeat:
+                           ^
+    if i >= 10: exit
+^^^^^^^^^^^^^^^^^^^^
+    next power * = 2
+^^^^^^^^^^^^^^^^^^^^
+    next i + = 1
+^^^^^^^^^^^^^^^^
+    [16:6;8] BEGL T_BEGL 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    if i >= 10: exit
+       ^
+    [14:7;9] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+             i * >]
+    if i >= 10: exit
+            ^^
+    [14:8;10] PUSHI T_PUSH 0 0 0 10; *
+    if i >= 10: exit
+         ^^
+    [14:9;8] JMPLT T_JMPS 0 0 0 0; 2
+    [10;8] LABEL 3
+    if i >= 10: exit
+                ^^^^
+    [14:10;8] JMP T_JMP 0 0 0 0; 1
+    [11;8] LABEL 2
+    [14:9;8] JMPLT T_JMPS 0 0 2 0; 2
+next power, next i = repeat:
+^^^^^^^^^^
+    [13:11;9] PUSHS T_PUSH 1 0 0 *
+              UNDEFINED_GEN(0x7FF4170000000000)*; [< [< next power >]
+              * >]
+    next power * = 2
+                   ^
+    [15:12;10] PUSHI T_PUSH 0 0 0 2; *
+    next power * = 2
+    ^^^^^^^^^^^^^^^^
+    [15:13;9] MUL T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+next power, next i = repeat:
+^^^^^^^^^^
+    [13:14;8] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+              * [< next power >] >]
+next power, next i = repeat:
+            ^^^^^^
+    [13:15;9] PUSHS T_PUSH 0 0 0 *
+              UNDEFINED_GEN(0x7FF4170000000000)*; [< [< next i >] * >]
+    next i + = 1
+               ^
+    [16:16;10] PUSHI T_PUSH 0 0 0 1; *
+    next i + = 1
+    ^^^^^^^^^^^^
+    [16:17;9] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+next power, next i = repeat:
+            ^^^^^^
+    [13:18;8] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+              * [< next i >] >]
+next power, next i = repeat:
+                           ^
+    if i >= 10: exit
+^^^^^^^^^^^^^^^^^^^^
+    next power * = 2
+^^^^^^^^^^^^^^^^^^^^
+    next i + = 1
+^^^^^^^^^^^^^^^^
+    [16:19;6] ENDL T_ENDL 0 2 12 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [20;6] LABEL 1
+    [14:10;6] JMP T_JMP[1] 2 0 10 0; 1
+sum  = 0
+       ^
+    [18:20;7] PUSHI T_PUSH 0 0 0 0; sum
+do 5 times:
+   ^
+    [19:21;8] PUSHI T_PUSH 0 0 0 5; *
     next sum = sum + 10
     ^^^^^^^^
-    [19:16;10] PUSHS T_PUSH 2 0 0; [< sum sum >]
+    [20:22;9] PUSHS T_PUSH 1 0 0; [< sum sum >]
+do 5 times:
+          ^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [20:23;10] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+do 5 times:
+   ^
+    [19:24;10] JMPCNT T_JMPS 0 2 0 1; 4
+    next sum = sum + 10
+               ^^^
+    [20:25;11] PUSHS T_PUSH 1 0 0 *
+               UNDEFINED_GEN(0x7FF4170000000000)*; [< sum * >]
+    next sum = sum + 10
+                     ^^
+    [20:26;12] PUSHI T_PUSH 0 0 0 10; *
+    next sum = sum + 10
+               ^^^^^^^^
+    [20:27;11] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               next sum >]
+    next sum = sum + 10
+    ^^^^^^^^
+    [20:28;10] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               * [< next sum >] >]
+do 5 times:
+          ^
+    next sum = sum + 10
+^^^^^^^^^^^^^^^^^^^^^^^
+    [20:29;9] ENDL T_ENDL 0 1 5 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [30;9] LABEL 4
+    [19:24;9] JMPCNT T_JMPS[1] 1 2 6 1; 4
+sum
+^^^
+    [21:30;10] PUSHS T_PUSH 4294967295 0 0 *
+               UNDEFINED_GEN(0x7FF4170000000000)*; [< sum * >]
+next sum = 0
+           ^
+    [22:31;11] PUSHI T_PUSH 0 0 0 0; [< next sum >]
+next i = 0
+         ^
+    [24:32;12] PUSHI T_PUSH 0 0 0 0; [< next i >]
+    next i = i + 1
+    ^^^^^^
+    [26:33;13] PUSHS T_PUSH 0 0 0; [< i i >]
+    next sum = sum + 10
+    ^^^^^^^^
+    [27:34;14] PUSHS T_PUSH 2 0 0; [< sum sum >]
 while i < 3:
            ^
     next i = i + 1
 ^^^^^^^^^^^^^^^^^^
     next sum = sum + 10
 ^^^^^^^^^^^^^^^^^^^^^^^
-    [19:17;12] BEGL T_BEGL 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [27:35;16] BEGL T_BEGL 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 while i < 3:
       ^
-    [17:18;13] PUSHS T_PUSH 3 0 0 *
+    [25:36;17] PUSHS T_PUSH 3 0 0 *
                UNDEFINED_GEN(0x7FF4170000000000)*; [< i * >]
 while i < 3:
           ^
-    [17:19;14] PUSHI T_PUSH 0 0 0 3; *
+    [25:37;18] PUSHI T_PUSH 0 0 0 3; *
 while i < 3:
         ^
-    [17:20;12] JMPGEQ T_JMPS 0 0 0 0; 2
-    [21;12] LABEL 3
+    [25:38;16] JMPGEQ T_JMPS 0 0 0 0; 5
+    [39;16] LABEL 6
     next i = i + 1
              ^
-    [18:21;13] PUSHS T_PUSH 3 0 0 *
+    [26:39;17] PUSHS T_PUSH 3 0 0 *
                UNDEFINED_GEN(0x7FF4170000000000)*; [< i * >]
     next i = i + 1
                  ^
-    [18:22;14] PUSHI T_PUSH 0 0 0 1; *
+    [26:40;18] PUSHI T_PUSH 0 0 0 1; *
     next i = i + 1
              ^^^^^
-    [18:23;13] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [26:41;17] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                next i >]
     next i = i + 1
     ^^^^^^
-    [18:24;12] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [26:42;16] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                * [< next i >] >]
     next sum = sum + 10
                ^^^
-    [19:25;13] PUSHS T_PUSH 2 0 0 *
+    [27:43;17] PUSHS T_PUSH 2 0 0 *
                UNDEFINED_GEN(0x7FF4170000000000)*; [< sum * >]
     next sum = sum + 10
                      ^^
-    [19:26;14] PUSHI T_PUSH 0 0 0 10; *
+    [27:44;18] PUSHI T_PUSH 0 0 0 10; *
     next sum = sum + 10
                ^^^^^^^^
-    [19:27;13] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [27:45;17] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                next sum >]
     next sum = sum + 10
     ^^^^^^^^
-    [19:28;12] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [27:46;16] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                * [< next sum >] >]
 while i < 3:
            ^
@@ -109,72 +186,72 @@ while i < 3:
 ^^^^^^^^^^^^^^^^^^
     next sum = sum + 10
 ^^^^^^^^^^^^^^^^^^^^^^^
-    [19:29;10] ENDL T_ENDL 0 2 11 *UNDEFINED_GEN(0x7FF4170000000000)*
-    [30;10] LABEL 2
-    [17:20;10] JMPGEQ T_JMPS[1] 2 0 10 0; 2
+    [27:47;14] ENDL T_ENDL 0 2 11 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [48;14] LABEL 5
+    [25:38;14] JMPGEQ T_JMPS[1] 2 0 10 0; 5
 next sum = 0
            ^
-    [20:30;11] PUSHI T_PUSH 0 0 0 0; [< next sum >]
+    [28:48;15] PUSHI T_PUSH 0 0 0 0; [< next sum >]
 next i = 0
          ^
-    [21:31;12] PUSHI T_PUSH 0 0 0 0; [< next i >]
+    [29:49;16] PUSHI T_PUSH 0 0 0 0; [< next i >]
 next i, next sum = do until i >= 2:
 ^^^^^^
-    [22:32;13] PUSHS T_PUSH 0 0 0; [< i i >]
+    [30:50;17] PUSHS T_PUSH 0 0 0; [< i i >]
 next i, next sum = do until i >= 2:
         ^^^^^^^^
-    [22:33;14] PUSHS T_PUSH 2 0 0; [< sum sum >]
+    [30:51;18] PUSHS T_PUSH 2 0 0; [< sum sum >]
 next i, next sum = do until i >= 2:
                                   ^
     next i = i + 1
 ^^^^^^^^^^^^^^^^^^
     next sum = sum + 10
 ^^^^^^^^^^^^^^^^^^^^^^^
-    [24:34;16] BEGL T_BEGL 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [32:52;20] BEGL T_BEGL 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 next i, next sum = do until i >= 2:
                             ^
-    [22:35;17] PUSHS T_PUSH 3 0 0 *
+    [30:53;21] PUSHS T_PUSH 3 0 0 *
                UNDEFINED_GEN(0x7FF4170000000000)*; [< i * >]
 next i, next sum = do until i >= 2:
                                  ^
-    [22:36;18] PUSHI T_PUSH 0 0 0 2; *
+    [30:54;22] PUSHI T_PUSH 0 0 0 2; *
 next i, next sum = do until i >= 2:
                               ^^
-    [22:37;16] JMPLT T_JMPS 0 0 0 0; 5
+    [30:55;20] JMPLT T_JMPS 0 0 0 0; 8
 next i, next sum = do until i >= 2:
                             ^^^^^^
-    [22:38;16] JMP T_JMP 0 0 0 0; 4
-    [39;16] LABEL 5
-    [22:37;16] JMPLT T_JMPS 0 0 2 0; 5
+    [30:56;20] JMP T_JMP 0 0 0 0; 7
+    [57;20] LABEL 8
+    [30:55;20] JMPLT T_JMPS 0 0 2 0; 8
     next i = i + 1
              ^
-    [23:39;17] PUSHS T_PUSH 3 0 0 *
+    [31:57;21] PUSHS T_PUSH 3 0 0 *
                UNDEFINED_GEN(0x7FF4170000000000)*; [< i * >]
     next i = i + 1
                  ^
-    [23:40;18] PUSHI T_PUSH 0 0 0 1; *
+    [31:58;22] PUSHI T_PUSH 0 0 0 1; *
     next i = i + 1
              ^^^^^
-    [23:41;17] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [31:59;21] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                next i >]
 next i, next sum = do until i >= 2:
 ^^^^^^
-    [22:42;16] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [30:60;20] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                * [< next i >] >]
     next sum = sum + 10
                ^^^
-    [24:43;17] PUSHS T_PUSH 2 0 0 *
+    [32:61;21] PUSHS T_PUSH 2 0 0 *
                UNDEFINED_GEN(0x7FF4170000000000)*; [< sum * >]
     next sum = sum + 10
                      ^^
-    [24:44;18] PUSHI T_PUSH 0 0 0 10; *
+    [32:62;22] PUSHI T_PUSH 0 0 0 10; *
     next sum = sum + 10
                ^^^^^^^^
-    [24:45;17] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [32:63;21] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                next sum >]
 next i, next sum = do until i >= 2:
         ^^^^^^^^
-    [22:46;16] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [30:64;20] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                * [< next sum >] >]
 next i, next sum = do until i >= 2:
                                   ^
@@ -182,6 +259,6 @@ next i, next sum = do until i >= 2:
 ^^^^^^^^^^^^^^^^^^
     next sum = sum + 10
 ^^^^^^^^^^^^^^^^^^^^^^^
-    [24:47;14] ENDL T_ENDL 0 2 12 *UNDEFINED_GEN(0x7FF4170000000000)*
-    [48;14] LABEL 4
-    [22:38;14] JMP T_JMP[1] 2 0 10 0; 4
+    [32:65;18] ENDL T_ENDL 0 2 12 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [66;18] LABEL 7
+    [30:56;18] JMP T_JMP[1] 2 0 10 0; 7
