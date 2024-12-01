@@ -1,0 +1,157 @@
+<html>
+<head>
+<!--
+File:	reckon_loops.html
+Author:	Robert L Walton <walton@acm.org>
+Date:	Sun Dec  1 03:42:19 EST 2024
+
+The authors have placed RECKON (its files and the
+content of these files) in the public domain; they
+make no warranty and accept no liability for RECKON.
+-->
+
+<meta http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate" />
+
+<title>RECKON Loops</title>
+<link href='page.css' rel='stylesheet'/>
+<link rel='icon' href='data:;base64,='>
+
+<script src='page.script'></script>
+
+</head>
+
+<body>
+
+
+<div id='header'>
+<form method='GET' action='index.html#reckon_loops'>
+<button type='submit'>INDEX</button></form>
+
+<button type='button' onclick='NEW_WINDOW("index.html")'>
+NEW WINDOW</button>
+</div>
+
+<div id='text'>
+
+<h1 id='text-header'>RECKON Loops</h1>
+
+<p>
+Loop statements are like block assignment statements in
+which the block is executed many times.
+A complete set of all the examples for this page is in
+<a href='../examples/reckon_loops.rec' download>
+<code>reckon_loops.rec </code></a>.
+
+</p>
+
+<h2 id='loop-statements'>
+    Loop Statements</h2>
+
+<p>
+Example:
+<pre class='example'>
+<div class='line'>power = 1</div>1
+<div class='line'>i = 0</div>0
+<div class='line'>next power, next i = repeat:
+    if i >= 10: exit
+    next power * = 2
+    next i + = 1</div>1024
+10
+</pre>
+<p>
+A loop statement is like a
+<a href='reckon_assignments.html#block-assignments'>
+block assignment statement</a> with two diffferences.
+<p>
+The first difference is that the block is repeated, or
+more specifically, at the end of the block execution
+jumps backwards to the beginning of the block.
+Each execution of the block is known as an
+<b id='iteration'>iteration</b>.
+The block can only be terminated by an
+<a href='reckon_assignments.html#exit-statements'>
+exit statement</a>.
+<p>
+The second difference regards the handling of <code>next</code>
+variables.  If the loop has a `<code>next V</code> assignment
+variable, then before the first execution of the loop's block
+two variables are allocated both of which are initialized
+to the value of <code>V</code> at the beginning of the 
+loop statement.  Inside the loop's block the first of these
+is known as <code>V</code> and is read-only, while the second
+is known as <code>next V</code> and is write-only.  At the
+end of the block the value of <code>next V</code> is copied
+into <code>V</code> in preparation for the next iteration.
+At this point <code>V</code> and <code>next V</code>
+hold the same value.
+<p>
+When the block is exited, the value of <code>next V</code>
+becomes the value of <code>V</code> seen by the statement after
+the loop statement.
+<p>
+Just as for block assignment statements, the <code>next</code>
+assignment variables of a loop statement are implied if they
+appear as assignment variables inside the loop statement block.
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>power = 1</div>1
+<div class='line'>i = 0</div>0
+<div class='line'>next power, next i = repeat:
+    if i >= 10: exit
+    next power * = 2
+    next i + = 1</div>1024
+10
+<div class='line'>
+next power = 1</div>1
+<div class='line'>next i = 0</div>0
+<div class='line'>repeat:
+    if i >= 10: exit
+    next power * = 2
+    next i + = 1</div>1024
+10
+</pre>
+</p>
+
+<h2 id='iterators'>Iterators</h2>
+
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>X, Y = 5, 10</div>5
+</pre>
+<p>
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>M, N = 5, 10</div>5
+</pre>
+</p>
+
+<h2 id='continue-statements'>Continue Statements</h2>
+
+<p>
+Example:
+<pre class='example'>
+<div class='line'>E, F =:</div>25
+</pre>
+<p>
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>E, F =:</div>25
+</pre>
+</p>
+
+</div>
+
+</body>
+
+</html>
+
+
+
+
+
+

@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 24 06:32:40 AM EST 2024
+// Date:	Sun Dec  1 03:26:51 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1477,7 +1477,7 @@ bool static compile_block_assignment_statement
 		iteration & it =
 		    iterations[number_of_iterations++];
 		it = { op, right_vp[i], right_ppv[i] };
-		i += 2;
+		++ i;
 	    }
 	    else if (    op == ::EXACTLY
 	              || op == ::AT_MOST )
