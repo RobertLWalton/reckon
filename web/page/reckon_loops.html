@@ -3,7 +3,7 @@
 <!--
 File:	reckon_loops.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sun Dec  1 04:47:07 EST 2024
+Date:	Mon Dec  2 07:41:11 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -90,7 +90,15 @@ When the loop statement block exits, the value of <code>V</code>
 seen by the statement after the loop statement is the
 the value of <code>V</code> in the loop statement block,
 <b>not</b> the value of <code>next V</code> in the
-loop statement block.
+loop statement block.  This differs from non-iterating
+<a href="reckon_assignments.html#block-assignments">
+block assignment statements</a>,
+in which the last value stored in <code>next V</code>
+is retained (see examples below).
+<p>
+As a consequence of the last paragraph, <code>exit</code> statements
+should be placed at the beginning of a loop statement block,
+but can be place anywhere in a block assignment statement block.
 <p>
 Just as for block assignment statements, the <code>next</code>
 assignment variables of a loop statement are implied if they
@@ -117,24 +125,124 @@ next power = 1</div>1
 j = 1</div>1
 <div class='line'>repeat:
     next j = 0
+        // This is discarded when iteration exits.
     exit</div>1
 <div class='line'>
 j</div>1
+<div class='line'>
+do:
+    next j = 0
+        // This is retained when block exits.
+    exit</div>0
+<div class='line'>
+j</div>0
 </pre>
 </p>
 
 <h2 id='iterators'>Iterators</h2>
 
 <p>
-Examples:
+Example:
 <pre class='example'>
-<div class='line'>X, Y = 5, 10</div>5
+<div class='line'>power = 1</div>1
+<div class='line'>i = 0</div>0
+<div class='line'>repeat while i &lt; 6:
+    next power * = 2
+    next i + = 1</div>64
+6
 </pre>
 <p>
+The word <code>repeat</code> at the beginning of a loop statement
+can be followed by <b id='iterator'>iterators</b> that insert
+conditional <code>exit</code> statements at the beginning of the
+loop statement block.  In the above example, the iterator
+`<code>while i &lt; 6</code>' inserts
+<div class='center vspace'><code>if NOT i &lt; 6: exit</code></div>
+<p>
+The same effect can be achieved by the iterator
+`<code>until i &gt;= 6</code>' which inserts
+<div class='center vspace'><code>if i &gt;= 6: exit</code></div>
+<p>
+In these iterators, expressions such as <code>i &lt; 6</code> can be
+replace by arbitrary expressions that evaluate to <code>*TRUE*</code>
+or <code>*FALSE*</code>.
+<p>
+The other iterators are `<code>exactly 6 times</code>' and
+`<code>at most 6 times</code>' which both insert a hidden counter
+with initial value 6 and the statements
+<div class='center vspace'><code>if hidden counter &lt;= 0: exit<br>
+                                 next hidden counter - = 1</code></div>
+<p>
+Here <code>6</code> can be replaced by any expression evaluating to a number
+(if it evaluates to a fraction like <code>5.5</code> it counts down
+6 times before it exits).  Also the phrases
+`<code>exactly</code>' and `<code>at most</code>' are RECKON
+synonyms.
+<p>
+If an iterator is used, <code>repeat</code> may be replaced by
+<code>do</code>.  But without any iterator, a statement with <code>do</code>
+is a
+<a href="reckon_assignments.html#block-assignments">
+block assignment statement</a>,
+and NOT a loop statement.
+When there are iterators, `<code>repeat</code>' and `<code>do</code>'
+are RECKON synonyms.
+<p>
+There can be more than one iterator in a loop statement.  If the first
+begins with <code>while</code> or <code>until</code>, a previous
+<code>repeat</code> or <code>do</code> may be omitted.
+<p>
+Lastly the idiom `<code>do N times</code>' abbreviates
+`<code>do exactly N times</code>, and similarly for <code>repeat</code>.
+
 <p>
 More Examples:
 <pre class='example'>
-<div class='line'>M, N = 5, 10</div>5
+<div class='line'>power = 1</div>1
+<div class='line'>i = 0</div>0
+<div class='line'>repeat while i &lt; 6:
+    next power * = 2
+    next i + = 1</div>64
+6
+<div class='line'>
+next power = 1</div>1
+<div class='line'>next i = 0</div>0
+<div class='line'>do while i &lt; 6:
+    next power * = 2
+    next i + = 1</div>64
+6
+<div class='line'>
+next power = 1</div>1
+<div class='line'>next i = 0</div>0
+<div class='line'>while i &lt; 6:
+    next power * = 2
+    next i + = 1</div>64
+6
+<div class='line'>
+next power = 1</div>1
+<div class='line'>next i = 0</div>0
+<div class='line'>until i &gt;= 6:
+    next power * = 2
+    next i + = 1</div>64
+6
+<div class='line'>
+next power = 1</div>1
+<div class='line'>next i = 0</div>0
+<div class='line'>while i &lt; 6 at most 5 times:
+    next power * = 2
+    next i + = 1</div>0
+32
+5
+<div class='line'>
+next power = 1</div>1
+<div class='line'>do exactly 4 times:
+    next power * = 2</div>0
+16
+<div class='line'>
+next power = 1</div>1
+<div class='line'>do 4 times:
+    next power * = 2</div>0
+16
 </pre>
 </p>
 

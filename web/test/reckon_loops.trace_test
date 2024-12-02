@@ -4,7 +4,7 @@
 //
 // File:        reckon_loops.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sun Dec  1 04:42:21 EST 2024
+// Date:        Mon Dec  2 07:38:57 EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -288,519 +288,534 @@ j = 1
 * {27:38,11,261} PUSHI: j <= 1
 repeat:
     next j = 0
+        // This is discarded when iteration exits.
     exit
 * {29:39,12,262} PUSHS: j <= j = 1
-* {30:40,13,263} BEGL
+* {31:40,13,263} BEGL
 *** {29:41,14,264} PUSHI: next j <= 0
 *** {29:42,13,265} POPS: next j <= * = 0
-*** {30:43,12,266} JMP location 45
+*** {31:43,12,266} JMP location 45
 
 j
-* {32:45,13,267} PUSHS: * <= j = 1
+* {33:45,13,267} PUSHS: * <= j = 1
+
+do:
+    next j = 0
+        // This is retained when block exits.
+    exit
+* {36:46,14,268} PUSHS: j <= j = 1
+* {38:47,14,269} BEG
+*** {36:48,15,270} PUSHI: next j <= 0
+*** {36:49,14,271} POPS: next j <= * = 0
+*** {38:50,14,272} JMP location 52
+
+j
+* {40:52,15,273} PUSHS: * <= j = 0
+
 
 // Iterators
 //
 next power = 1
-* {36:46,14,268} PUSHI: next power <= 1
+* {45:53,16,274} PUSHI: next power <= 1
 next i = 0
-* {37:47,15,269} PUSHI: next i <= 0
+* {46:54,17,275} PUSHI: next i <= 0
 repeat while i < 6:
     next power * = 2
     next i + = 1
-* {39:48,16,270} PUSHS: power <= power = 1
-* {40:49,17,271} PUSHS: i <= i = 0
-* {40:50,19,272} BEGL
-*** {38:51,20,273} PUSHS: * <= i = 0
-*** {38:52,21,274} PUSHI: * <= 6
-*** {38:53,19,275} JMPGEQ location 63 is UNsuccessful: false <= 0 >= 6
-*** {39:54,20,276} PUSHS: * <= next power = 1
-*** {39:55,21,277} PUSHI: * <= 2
-*** {39:56,20,278} MUL: *MISSING* = 2 <= 1 * 2
-*** {39:57,19,279} POPS: next power <= * = 2
-*** {40:58,20,280} PUSHS: * <= next i = 0
-*** {40:59,21,281} PUSHI: * <= 1
-*** {40:60,20,282} ADD: *MISSING* = 1 <= 0 + 1
-*** {40:61,19,283} POPS: next i <= * = 1
-*** {40:62,19,284} ENDL
-*** {38:51,20,285} PUSHS: * <= i = 1
-*** {38:52,21,286} PUSHI: * <= 6
-*** {38:53,19,287} JMPGEQ location 63 is UNsuccessful: false <= 1 >= 6
-*** {39:54,20,288} PUSHS: * <= next power = 2
-*** {39:55,21,289} PUSHI: * <= 2
-*** {39:56,20,290} MUL: *MISSING* = 4 <= 2 * 2
-*** {39:57,19,291} POPS: next power <= * = 4
-*** {40:58,20,292} PUSHS: * <= next i = 1
-*** {40:59,21,293} PUSHI: * <= 1
-*** {40:60,20,294} ADD: *MISSING* = 2 <= 1 + 1
-*** {40:61,19,295} POPS: next i <= * = 2
-*** {40:62,19,296} ENDL
-*** {38:51,20,297} PUSHS: * <= i = 2
-*** {38:52,21,298} PUSHI: * <= 6
-*** {38:53,19,299} JMPGEQ location 63 is UNsuccessful: false <= 2 >= 6
-*** {39:54,20,300} PUSHS: * <= next power = 4
-*** {39:55,21,301} PUSHI: * <= 2
-*** {39:56,20,302} MUL: *MISSING* = 8 <= 4 * 2
-*** {39:57,19,303} POPS: next power <= * = 8
-*** {40:58,20,304} PUSHS: * <= next i = 2
-*** {40:59,21,305} PUSHI: * <= 1
-*** {40:60,20,306} ADD: *MISSING* = 3 <= 2 + 1
-*** {40:61,19,307} POPS: next i <= * = 3
-*** {40:62,19,308} ENDL
-*** {38:51,20,309} PUSHS: * <= i = 3
-*** {38:52,21,310} PUSHI: * <= 6
-*** {38:53,19,311} JMPGEQ location 63 is UNsuccessful: false <= 3 >= 6
-*** {39:54,20,312} PUSHS: * <= next power = 8
-*** {39:55,21,313} PUSHI: * <= 2
-*** {39:56,20,314} MUL: *MISSING* = 16 <= 8 * 2
-*** {39:57,19,315} POPS: next power <= * = 16
-*** {40:58,20,316} PUSHS: * <= next i = 3
-*** {40:59,21,317} PUSHI: * <= 1
-*** {40:60,20,318} ADD: *MISSING* = 4 <= 3 + 1
-*** {40:61,19,319} POPS: next i <= * = 4
-*** {40:62,19,320} ENDL
-*** {38:51,20,321} PUSHS: * <= i = 4
-*** {38:52,21,322} PUSHI: * <= 6
-*** {38:53,19,323} JMPGEQ location 63 is UNsuccessful: false <= 4 >= 6
-*** {39:54,20,324} PUSHS: * <= next power = 16
-*** {39:55,21,325} PUSHI: * <= 2
-*** {39:56,20,326} MUL: *MISSING* = 32 <= 16 * 2
-*** {39:57,19,327} POPS: next power <= * = 32
-*** {40:58,20,328} PUSHS: * <= next i = 4
-*** {40:59,21,329} PUSHI: * <= 1
-*** {40:60,20,330} ADD: *MISSING* = 5 <= 4 + 1
-*** {40:61,19,331} POPS: next i <= * = 5
-*** {40:62,19,332} ENDL
-*** {38:51,20,333} PUSHS: * <= i = 5
-*** {38:52,21,334} PUSHI: * <= 6
-*** {38:53,19,335} JMPGEQ location 63 is UNsuccessful: false <= 5 >= 6
-*** {39:54,20,336} PUSHS: * <= next power = 32
-*** {39:55,21,337} PUSHI: * <= 2
-*** {39:56,20,338} MUL: *MISSING* = 64 <= 32 * 2
-*** {39:57,19,339} POPS: next power <= * = 64
-*** {40:58,20,340} PUSHS: * <= next i = 5
-*** {40:59,21,341} PUSHI: * <= 1
-*** {40:60,20,342} ADD: *MISSING* = 6 <= 5 + 1
-*** {40:61,19,343} POPS: next i <= * = 6
-*** {40:62,19,344} ENDL
-*** {38:51,20,345} PUSHS: * <= i = 6
-*** {38:52,21,346} PUSHI: * <= 6
-*** {38:53,17,347} JMPGEQ location 63 is successful: true <= 6 >= 6
+* {48:55,18,276} PUSHS: power <= power = 1
+* {49:56,19,277} PUSHS: i <= i = 0
+* {49:57,21,278} BEGL
+*** {47:58,22,279} PUSHS: * <= i = 0
+*** {47:59,23,280} PUSHI: * <= 6
+*** {47:60,21,281} JMPGEQ location 70 is UNsuccessful: false <= 0 >= 6
+*** {48:61,22,282} PUSHS: * <= next power = 1
+*** {48:62,23,283} PUSHI: * <= 2
+*** {48:63,22,284} MUL: *MISSING* = 2 <= 1 * 2
+*** {48:64,21,285} POPS: next power <= * = 2
+*** {49:65,22,286} PUSHS: * <= next i = 0
+*** {49:66,23,287} PUSHI: * <= 1
+*** {49:67,22,288} ADD: *MISSING* = 1 <= 0 + 1
+*** {49:68,21,289} POPS: next i <= * = 1
+*** {49:69,21,290} ENDL
+*** {47:58,22,291} PUSHS: * <= i = 1
+*** {47:59,23,292} PUSHI: * <= 6
+*** {47:60,21,293} JMPGEQ location 70 is UNsuccessful: false <= 1 >= 6
+*** {48:61,22,294} PUSHS: * <= next power = 2
+*** {48:62,23,295} PUSHI: * <= 2
+*** {48:63,22,296} MUL: *MISSING* = 4 <= 2 * 2
+*** {48:64,21,297} POPS: next power <= * = 4
+*** {49:65,22,298} PUSHS: * <= next i = 1
+*** {49:66,23,299} PUSHI: * <= 1
+*** {49:67,22,300} ADD: *MISSING* = 2 <= 1 + 1
+*** {49:68,21,301} POPS: next i <= * = 2
+*** {49:69,21,302} ENDL
+*** {47:58,22,303} PUSHS: * <= i = 2
+*** {47:59,23,304} PUSHI: * <= 6
+*** {47:60,21,305} JMPGEQ location 70 is UNsuccessful: false <= 2 >= 6
+*** {48:61,22,306} PUSHS: * <= next power = 4
+*** {48:62,23,307} PUSHI: * <= 2
+*** {48:63,22,308} MUL: *MISSING* = 8 <= 4 * 2
+*** {48:64,21,309} POPS: next power <= * = 8
+*** {49:65,22,310} PUSHS: * <= next i = 2
+*** {49:66,23,311} PUSHI: * <= 1
+*** {49:67,22,312} ADD: *MISSING* = 3 <= 2 + 1
+*** {49:68,21,313} POPS: next i <= * = 3
+*** {49:69,21,314} ENDL
+*** {47:58,22,315} PUSHS: * <= i = 3
+*** {47:59,23,316} PUSHI: * <= 6
+*** {47:60,21,317} JMPGEQ location 70 is UNsuccessful: false <= 3 >= 6
+*** {48:61,22,318} PUSHS: * <= next power = 8
+*** {48:62,23,319} PUSHI: * <= 2
+*** {48:63,22,320} MUL: *MISSING* = 16 <= 8 * 2
+*** {48:64,21,321} POPS: next power <= * = 16
+*** {49:65,22,322} PUSHS: * <= next i = 3
+*** {49:66,23,323} PUSHI: * <= 1
+*** {49:67,22,324} ADD: *MISSING* = 4 <= 3 + 1
+*** {49:68,21,325} POPS: next i <= * = 4
+*** {49:69,21,326} ENDL
+*** {47:58,22,327} PUSHS: * <= i = 4
+*** {47:59,23,328} PUSHI: * <= 6
+*** {47:60,21,329} JMPGEQ location 70 is UNsuccessful: false <= 4 >= 6
+*** {48:61,22,330} PUSHS: * <= next power = 16
+*** {48:62,23,331} PUSHI: * <= 2
+*** {48:63,22,332} MUL: *MISSING* = 32 <= 16 * 2
+*** {48:64,21,333} POPS: next power <= * = 32
+*** {49:65,22,334} PUSHS: * <= next i = 4
+*** {49:66,23,335} PUSHI: * <= 1
+*** {49:67,22,336} ADD: *MISSING* = 5 <= 4 + 1
+*** {49:68,21,337} POPS: next i <= * = 5
+*** {49:69,21,338} ENDL
+*** {47:58,22,339} PUSHS: * <= i = 5
+*** {47:59,23,340} PUSHI: * <= 6
+*** {47:60,21,341} JMPGEQ location 70 is UNsuccessful: false <= 5 >= 6
+*** {48:61,22,342} PUSHS: * <= next power = 32
+*** {48:62,23,343} PUSHI: * <= 2
+*** {48:63,22,344} MUL: *MISSING* = 64 <= 32 * 2
+*** {48:64,21,345} POPS: next power <= * = 64
+*** {49:65,22,346} PUSHS: * <= next i = 5
+*** {49:66,23,347} PUSHI: * <= 1
+*** {49:67,22,348} ADD: *MISSING* = 6 <= 5 + 1
+*** {49:68,21,349} POPS: next i <= * = 6
+*** {49:69,21,350} ENDL
+*** {47:58,22,351} PUSHS: * <= i = 6
+*** {47:59,23,352} PUSHI: * <= 6
+*** {47:60,19,353} JMPGEQ location 70 is successful: true <= 6 >= 6
 
 next power = 1
-* {42:63,18,348} PUSHI: next power <= 1
+* {51:70,20,354} PUSHI: next power <= 1
 next i = 0
-* {43:64,19,349} PUSHI: next i <= 0
+* {52:71,21,355} PUSHI: next i <= 0
 do while i < 6:
     next power * = 2
     next i + = 1
-* {45:65,20,350} PUSHS: power <= power = 1
-* {46:66,21,351} PUSHS: i <= i = 0
-* {46:67,23,352} BEGL
-*** {44:68,24,353} PUSHS: * <= i = 0
-*** {44:69,25,354} PUSHI: * <= 6
-*** {44:70,23,355} JMPGEQ location 80 is UNsuccessful: false <= 0 >= 6
-*** {45:71,24,356} PUSHS: * <= next power = 1
-*** {45:72,25,357} PUSHI: * <= 2
-*** {45:73,24,358} MUL: *MISSING* = 2 <= 1 * 2
-*** {45:74,23,359} POPS: next power <= * = 2
-*** {46:75,24,360} PUSHS: * <= next i = 0
-*** {46:76,25,361} PUSHI: * <= 1
-*** {46:77,24,362} ADD: *MISSING* = 1 <= 0 + 1
-*** {46:78,23,363} POPS: next i <= * = 1
-*** {46:79,23,364} ENDL
-*** {44:68,24,365} PUSHS: * <= i = 1
-*** {44:69,25,366} PUSHI: * <= 6
-*** {44:70,23,367} JMPGEQ location 80 is UNsuccessful: false <= 1 >= 6
-*** {45:71,24,368} PUSHS: * <= next power = 2
-*** {45:72,25,369} PUSHI: * <= 2
-*** {45:73,24,370} MUL: *MISSING* = 4 <= 2 * 2
-*** {45:74,23,371} POPS: next power <= * = 4
-*** {46:75,24,372} PUSHS: * <= next i = 1
-*** {46:76,25,373} PUSHI: * <= 1
-*** {46:77,24,374} ADD: *MISSING* = 2 <= 1 + 1
-*** {46:78,23,375} POPS: next i <= * = 2
-*** {46:79,23,376} ENDL
-*** {44:68,24,377} PUSHS: * <= i = 2
-*** {44:69,25,378} PUSHI: * <= 6
-*** {44:70,23,379} JMPGEQ location 80 is UNsuccessful: false <= 2 >= 6
-*** {45:71,24,380} PUSHS: * <= next power = 4
-*** {45:72,25,381} PUSHI: * <= 2
-*** {45:73,24,382} MUL: *MISSING* = 8 <= 4 * 2
-*** {45:74,23,383} POPS: next power <= * = 8
-*** {46:75,24,384} PUSHS: * <= next i = 2
-*** {46:76,25,385} PUSHI: * <= 1
-*** {46:77,24,386} ADD: *MISSING* = 3 <= 2 + 1
-*** {46:78,23,387} POPS: next i <= * = 3
-*** {46:79,23,388} ENDL
-*** {44:68,24,389} PUSHS: * <= i = 3
-*** {44:69,25,390} PUSHI: * <= 6
-*** {44:70,23,391} JMPGEQ location 80 is UNsuccessful: false <= 3 >= 6
-*** {45:71,24,392} PUSHS: * <= next power = 8
-*** {45:72,25,393} PUSHI: * <= 2
-*** {45:73,24,394} MUL: *MISSING* = 16 <= 8 * 2
-*** {45:74,23,395} POPS: next power <= * = 16
-*** {46:75,24,396} PUSHS: * <= next i = 3
-*** {46:76,25,397} PUSHI: * <= 1
-*** {46:77,24,398} ADD: *MISSING* = 4 <= 3 + 1
-*** {46:78,23,399} POPS: next i <= * = 4
-*** {46:79,23,400} ENDL
-*** {44:68,24,401} PUSHS: * <= i = 4
-*** {44:69,25,402} PUSHI: * <= 6
-*** {44:70,23,403} JMPGEQ location 80 is UNsuccessful: false <= 4 >= 6
-*** {45:71,24,404} PUSHS: * <= next power = 16
-*** {45:72,25,405} PUSHI: * <= 2
-*** {45:73,24,406} MUL: *MISSING* = 32 <= 16 * 2
-*** {45:74,23,407} POPS: next power <= * = 32
-*** {46:75,24,408} PUSHS: * <= next i = 4
-*** {46:76,25,409} PUSHI: * <= 1
-*** {46:77,24,410} ADD: *MISSING* = 5 <= 4 + 1
-*** {46:78,23,411} POPS: next i <= * = 5
-*** {46:79,23,412} ENDL
-*** {44:68,24,413} PUSHS: * <= i = 5
-*** {44:69,25,414} PUSHI: * <= 6
-*** {44:70,23,415} JMPGEQ location 80 is UNsuccessful: false <= 5 >= 6
-*** {45:71,24,416} PUSHS: * <= next power = 32
-*** {45:72,25,417} PUSHI: * <= 2
-*** {45:73,24,418} MUL: *MISSING* = 64 <= 32 * 2
-*** {45:74,23,419} POPS: next power <= * = 64
-*** {46:75,24,420} PUSHS: * <= next i = 5
-*** {46:76,25,421} PUSHI: * <= 1
-*** {46:77,24,422} ADD: *MISSING* = 6 <= 5 + 1
-*** {46:78,23,423} POPS: next i <= * = 6
-*** {46:79,23,424} ENDL
-*** {44:68,24,425} PUSHS: * <= i = 6
-*** {44:69,25,426} PUSHI: * <= 6
-*** {44:70,21,427} JMPGEQ location 80 is successful: true <= 6 >= 6
+* {54:72,22,356} PUSHS: power <= power = 1
+* {55:73,23,357} PUSHS: i <= i = 0
+* {55:74,25,358} BEGL
+*** {53:75,26,359} PUSHS: * <= i = 0
+*** {53:76,27,360} PUSHI: * <= 6
+*** {53:77,25,361} JMPGEQ location 87 is UNsuccessful: false <= 0 >= 6
+*** {54:78,26,362} PUSHS: * <= next power = 1
+*** {54:79,27,363} PUSHI: * <= 2
+*** {54:80,26,364} MUL: *MISSING* = 2 <= 1 * 2
+*** {54:81,25,365} POPS: next power <= * = 2
+*** {55:82,26,366} PUSHS: * <= next i = 0
+*** {55:83,27,367} PUSHI: * <= 1
+*** {55:84,26,368} ADD: *MISSING* = 1 <= 0 + 1
+*** {55:85,25,369} POPS: next i <= * = 1
+*** {55:86,25,370} ENDL
+*** {53:75,26,371} PUSHS: * <= i = 1
+*** {53:76,27,372} PUSHI: * <= 6
+*** {53:77,25,373} JMPGEQ location 87 is UNsuccessful: false <= 1 >= 6
+*** {54:78,26,374} PUSHS: * <= next power = 2
+*** {54:79,27,375} PUSHI: * <= 2
+*** {54:80,26,376} MUL: *MISSING* = 4 <= 2 * 2
+*** {54:81,25,377} POPS: next power <= * = 4
+*** {55:82,26,378} PUSHS: * <= next i = 1
+*** {55:83,27,379} PUSHI: * <= 1
+*** {55:84,26,380} ADD: *MISSING* = 2 <= 1 + 1
+*** {55:85,25,381} POPS: next i <= * = 2
+*** {55:86,25,382} ENDL
+*** {53:75,26,383} PUSHS: * <= i = 2
+*** {53:76,27,384} PUSHI: * <= 6
+*** {53:77,25,385} JMPGEQ location 87 is UNsuccessful: false <= 2 >= 6
+*** {54:78,26,386} PUSHS: * <= next power = 4
+*** {54:79,27,387} PUSHI: * <= 2
+*** {54:80,26,388} MUL: *MISSING* = 8 <= 4 * 2
+*** {54:81,25,389} POPS: next power <= * = 8
+*** {55:82,26,390} PUSHS: * <= next i = 2
+*** {55:83,27,391} PUSHI: * <= 1
+*** {55:84,26,392} ADD: *MISSING* = 3 <= 2 + 1
+*** {55:85,25,393} POPS: next i <= * = 3
+*** {55:86,25,394} ENDL
+*** {53:75,26,395} PUSHS: * <= i = 3
+*** {53:76,27,396} PUSHI: * <= 6
+*** {53:77,25,397} JMPGEQ location 87 is UNsuccessful: false <= 3 >= 6
+*** {54:78,26,398} PUSHS: * <= next power = 8
+*** {54:79,27,399} PUSHI: * <= 2
+*** {54:80,26,400} MUL: *MISSING* = 16 <= 8 * 2
+*** {54:81,25,401} POPS: next power <= * = 16
+*** {55:82,26,402} PUSHS: * <= next i = 3
+*** {55:83,27,403} PUSHI: * <= 1
+*** {55:84,26,404} ADD: *MISSING* = 4 <= 3 + 1
+*** {55:85,25,405} POPS: next i <= * = 4
+*** {55:86,25,406} ENDL
+*** {53:75,26,407} PUSHS: * <= i = 4
+*** {53:76,27,408} PUSHI: * <= 6
+*** {53:77,25,409} JMPGEQ location 87 is UNsuccessful: false <= 4 >= 6
+*** {54:78,26,410} PUSHS: * <= next power = 16
+*** {54:79,27,411} PUSHI: * <= 2
+*** {54:80,26,412} MUL: *MISSING* = 32 <= 16 * 2
+*** {54:81,25,413} POPS: next power <= * = 32
+*** {55:82,26,414} PUSHS: * <= next i = 4
+*** {55:83,27,415} PUSHI: * <= 1
+*** {55:84,26,416} ADD: *MISSING* = 5 <= 4 + 1
+*** {55:85,25,417} POPS: next i <= * = 5
+*** {55:86,25,418} ENDL
+*** {53:75,26,419} PUSHS: * <= i = 5
+*** {53:76,27,420} PUSHI: * <= 6
+*** {53:77,25,421} JMPGEQ location 87 is UNsuccessful: false <= 5 >= 6
+*** {54:78,26,422} PUSHS: * <= next power = 32
+*** {54:79,27,423} PUSHI: * <= 2
+*** {54:80,26,424} MUL: *MISSING* = 64 <= 32 * 2
+*** {54:81,25,425} POPS: next power <= * = 64
+*** {55:82,26,426} PUSHS: * <= next i = 5
+*** {55:83,27,427} PUSHI: * <= 1
+*** {55:84,26,428} ADD: *MISSING* = 6 <= 5 + 1
+*** {55:85,25,429} POPS: next i <= * = 6
+*** {55:86,25,430} ENDL
+*** {53:75,26,431} PUSHS: * <= i = 6
+*** {53:76,27,432} PUSHI: * <= 6
+*** {53:77,23,433} JMPGEQ location 87 is successful: true <= 6 >= 6
 
 next power = 1
-* {48:80,22,428} PUSHI: next power <= 1
+* {57:87,24,434} PUSHI: next power <= 1
 next i = 0
-* {49:81,23,429} PUSHI: next i <= 0
+* {58:88,25,435} PUSHI: next i <= 0
 while i < 6:
     next power * = 2
     next i + = 1
-* {51:82,24,430} PUSHS: power <= power = 1
-* {52:83,25,431} PUSHS: i <= i = 0
-* {52:84,27,432} BEGL
-*** {50:85,28,433} PUSHS: * <= i = 0
-*** {50:86,29,434} PUSHI: * <= 6
-*** {50:87,27,435} JMPGEQ location 97 is UNsuccessful: false <= 0 >= 6
-*** {51:88,28,436} PUSHS: * <= next power = 1
-*** {51:89,29,437} PUSHI: * <= 2
-*** {51:90,28,438} MUL: *MISSING* = 2 <= 1 * 2
-*** {51:91,27,439} POPS: next power <= * = 2
-*** {52:92,28,440} PUSHS: * <= next i = 0
-*** {52:93,29,441} PUSHI: * <= 1
-*** {52:94,28,442} ADD: *MISSING* = 1 <= 0 + 1
-*** {52:95,27,443} POPS: next i <= * = 1
-*** {52:96,27,444} ENDL
-*** {50:85,28,445} PUSHS: * <= i = 1
-*** {50:86,29,446} PUSHI: * <= 6
-*** {50:87,27,447} JMPGEQ location 97 is UNsuccessful: false <= 1 >= 6
-*** {51:88,28,448} PUSHS: * <= next power = 2
-*** {51:89,29,449} PUSHI: * <= 2
-*** {51:90,28,450} MUL: *MISSING* = 4 <= 2 * 2
-*** {51:91,27,451} POPS: next power <= * = 4
-*** {52:92,28,452} PUSHS: * <= next i = 1
-*** {52:93,29,453} PUSHI: * <= 1
-*** {52:94,28,454} ADD: *MISSING* = 2 <= 1 + 1
-*** {52:95,27,455} POPS: next i <= * = 2
-*** {52:96,27,456} ENDL
-*** {50:85,28,457} PUSHS: * <= i = 2
-*** {50:86,29,458} PUSHI: * <= 6
-*** {50:87,27,459} JMPGEQ location 97 is UNsuccessful: false <= 2 >= 6
-*** {51:88,28,460} PUSHS: * <= next power = 4
-*** {51:89,29,461} PUSHI: * <= 2
-*** {51:90,28,462} MUL: *MISSING* = 8 <= 4 * 2
-*** {51:91,27,463} POPS: next power <= * = 8
-*** {52:92,28,464} PUSHS: * <= next i = 2
-*** {52:93,29,465} PUSHI: * <= 1
-*** {52:94,28,466} ADD: *MISSING* = 3 <= 2 + 1
-*** {52:95,27,467} POPS: next i <= * = 3
-*** {52:96,27,468} ENDL
-*** {50:85,28,469} PUSHS: * <= i = 3
-*** {50:86,29,470} PUSHI: * <= 6
-*** {50:87,27,471} JMPGEQ location 97 is UNsuccessful: false <= 3 >= 6
-*** {51:88,28,472} PUSHS: * <= next power = 8
-*** {51:89,29,473} PUSHI: * <= 2
-*** {51:90,28,474} MUL: *MISSING* = 16 <= 8 * 2
-*** {51:91,27,475} POPS: next power <= * = 16
-*** {52:92,28,476} PUSHS: * <= next i = 3
-*** {52:93,29,477} PUSHI: * <= 1
-*** {52:94,28,478} ADD: *MISSING* = 4 <= 3 + 1
-*** {52:95,27,479} POPS: next i <= * = 4
-*** {52:96,27,480} ENDL
-*** {50:85,28,481} PUSHS: * <= i = 4
-*** {50:86,29,482} PUSHI: * <= 6
-*** {50:87,27,483} JMPGEQ location 97 is UNsuccessful: false <= 4 >= 6
-*** {51:88,28,484} PUSHS: * <= next power = 16
-*** {51:89,29,485} PUSHI: * <= 2
-*** {51:90,28,486} MUL: *MISSING* = 32 <= 16 * 2
-*** {51:91,27,487} POPS: next power <= * = 32
-*** {52:92,28,488} PUSHS: * <= next i = 4
-*** {52:93,29,489} PUSHI: * <= 1
-*** {52:94,28,490} ADD: *MISSING* = 5 <= 4 + 1
-*** {52:95,27,491} POPS: next i <= * = 5
-*** {52:96,27,492} ENDL
-*** {50:85,28,493} PUSHS: * <= i = 5
-*** {50:86,29,494} PUSHI: * <= 6
-*** {50:87,27,495} JMPGEQ location 97 is UNsuccessful: false <= 5 >= 6
-*** {51:88,28,496} PUSHS: * <= next power = 32
-*** {51:89,29,497} PUSHI: * <= 2
-*** {51:90,28,498} MUL: *MISSING* = 64 <= 32 * 2
-*** {51:91,27,499} POPS: next power <= * = 64
-*** {52:92,28,500} PUSHS: * <= next i = 5
-*** {52:93,29,501} PUSHI: * <= 1
-*** {52:94,28,502} ADD: *MISSING* = 6 <= 5 + 1
-*** {52:95,27,503} POPS: next i <= * = 6
-*** {52:96,27,504} ENDL
-*** {50:85,28,505} PUSHS: * <= i = 6
-*** {50:86,29,506} PUSHI: * <= 6
-*** {50:87,25,507} JMPGEQ location 97 is successful: true <= 6 >= 6
+* {60:89,26,436} PUSHS: power <= power = 1
+* {61:90,27,437} PUSHS: i <= i = 0
+* {61:91,29,438} BEGL
+*** {59:92,30,439} PUSHS: * <= i = 0
+*** {59:93,31,440} PUSHI: * <= 6
+*** {59:94,29,441} JMPGEQ location 104 is UNsuccessful: false <= 0 >= 6
+*** {60:95,30,442} PUSHS: * <= next power = 1
+*** {60:96,31,443} PUSHI: * <= 2
+*** {60:97,30,444} MUL: *MISSING* = 2 <= 1 * 2
+*** {60:98,29,445} POPS: next power <= * = 2
+*** {61:99,30,446} PUSHS: * <= next i = 0
+*** {61:100,31,447} PUSHI: * <= 1
+*** {61:101,30,448} ADD: *MISSING* = 1 <= 0 + 1
+*** {61:102,29,449} POPS: next i <= * = 1
+*** {61:103,29,450} ENDL
+*** {59:92,30,451} PUSHS: * <= i = 1
+*** {59:93,31,452} PUSHI: * <= 6
+*** {59:94,29,453} JMPGEQ location 104 is UNsuccessful: false <= 1 >= 6
+*** {60:95,30,454} PUSHS: * <= next power = 2
+*** {60:96,31,455} PUSHI: * <= 2
+*** {60:97,30,456} MUL: *MISSING* = 4 <= 2 * 2
+*** {60:98,29,457} POPS: next power <= * = 4
+*** {61:99,30,458} PUSHS: * <= next i = 1
+*** {61:100,31,459} PUSHI: * <= 1
+*** {61:101,30,460} ADD: *MISSING* = 2 <= 1 + 1
+*** {61:102,29,461} POPS: next i <= * = 2
+*** {61:103,29,462} ENDL
+*** {59:92,30,463} PUSHS: * <= i = 2
+*** {59:93,31,464} PUSHI: * <= 6
+*** {59:94,29,465} JMPGEQ location 104 is UNsuccessful: false <= 2 >= 6
+*** {60:95,30,466} PUSHS: * <= next power = 4
+*** {60:96,31,467} PUSHI: * <= 2
+*** {60:97,30,468} MUL: *MISSING* = 8 <= 4 * 2
+*** {60:98,29,469} POPS: next power <= * = 8
+*** {61:99,30,470} PUSHS: * <= next i = 2
+*** {61:100,31,471} PUSHI: * <= 1
+*** {61:101,30,472} ADD: *MISSING* = 3 <= 2 + 1
+*** {61:102,29,473} POPS: next i <= * = 3
+*** {61:103,29,474} ENDL
+*** {59:92,30,475} PUSHS: * <= i = 3
+*** {59:93,31,476} PUSHI: * <= 6
+*** {59:94,29,477} JMPGEQ location 104 is UNsuccessful: false <= 3 >= 6
+*** {60:95,30,478} PUSHS: * <= next power = 8
+*** {60:96,31,479} PUSHI: * <= 2
+*** {60:97,30,480} MUL: *MISSING* = 16 <= 8 * 2
+*** {60:98,29,481} POPS: next power <= * = 16
+*** {61:99,30,482} PUSHS: * <= next i = 3
+*** {61:100,31,483} PUSHI: * <= 1
+*** {61:101,30,484} ADD: *MISSING* = 4 <= 3 + 1
+*** {61:102,29,485} POPS: next i <= * = 4
+*** {61:103,29,486} ENDL
+*** {59:92,30,487} PUSHS: * <= i = 4
+*** {59:93,31,488} PUSHI: * <= 6
+*** {59:94,29,489} JMPGEQ location 104 is UNsuccessful: false <= 4 >= 6
+*** {60:95,30,490} PUSHS: * <= next power = 16
+*** {60:96,31,491} PUSHI: * <= 2
+*** {60:97,30,492} MUL: *MISSING* = 32 <= 16 * 2
+*** {60:98,29,493} POPS: next power <= * = 32
+*** {61:99,30,494} PUSHS: * <= next i = 4
+*** {61:100,31,495} PUSHI: * <= 1
+*** {61:101,30,496} ADD: *MISSING* = 5 <= 4 + 1
+*** {61:102,29,497} POPS: next i <= * = 5
+*** {61:103,29,498} ENDL
+*** {59:92,30,499} PUSHS: * <= i = 5
+*** {59:93,31,500} PUSHI: * <= 6
+*** {59:94,29,501} JMPGEQ location 104 is UNsuccessful: false <= 5 >= 6
+*** {60:95,30,502} PUSHS: * <= next power = 32
+*** {60:96,31,503} PUSHI: * <= 2
+*** {60:97,30,504} MUL: *MISSING* = 64 <= 32 * 2
+*** {60:98,29,505} POPS: next power <= * = 64
+*** {61:99,30,506} PUSHS: * <= next i = 5
+*** {61:100,31,507} PUSHI: * <= 1
+*** {61:101,30,508} ADD: *MISSING* = 6 <= 5 + 1
+*** {61:102,29,509} POPS: next i <= * = 6
+*** {61:103,29,510} ENDL
+*** {59:92,30,511} PUSHS: * <= i = 6
+*** {59:93,31,512} PUSHI: * <= 6
+*** {59:94,27,513} JMPGEQ location 104 is successful: true <= 6 >= 6
 
 next power = 1
-* {54:97,26,508} PUSHI: next power <= 1
+* {63:104,28,514} PUSHI: next power <= 1
 next i = 0
-* {55:98,27,509} PUSHI: next i <= 0
+* {64:105,29,515} PUSHI: next i <= 0
 until i >= 6:
     next power * = 2
     next i + = 1
-* {57:99,28,510} PUSHS: power <= power = 1
-* {58:100,29,511} PUSHS: i <= i = 0
-* {58:101,31,512} BEGL
-*** {56:102,32,513} PUSHS: * <= i = 0
-*** {56:103,33,514} PUSHI: * <= 6
-*** {56:104,31,515} JMPLT location 106 is successful: true <= 0 < 6
-*** {57:106,32,516} PUSHS: * <= next power = 1
-*** {57:107,33,517} PUSHI: * <= 2
-*** {57:108,32,518} MUL: *MISSING* = 2 <= 1 * 2
-*** {57:109,31,519} POPS: next power <= * = 2
-*** {58:110,32,520} PUSHS: * <= next i = 0
-*** {58:111,33,521} PUSHI: * <= 1
-*** {58:112,32,522} ADD: *MISSING* = 1 <= 0 + 1
-*** {58:113,31,523} POPS: next i <= * = 1
-*** {58:114,31,524} ENDL
-*** {56:102,32,525} PUSHS: * <= i = 1
-*** {56:103,33,526} PUSHI: * <= 6
-*** {56:104,31,527} JMPLT location 106 is successful: true <= 1 < 6
-*** {57:106,32,528} PUSHS: * <= next power = 2
-*** {57:107,33,529} PUSHI: * <= 2
-*** {57:108,32,530} MUL: *MISSING* = 4 <= 2 * 2
-*** {57:109,31,531} POPS: next power <= * = 4
-*** {58:110,32,532} PUSHS: * <= next i = 1
-*** {58:111,33,533} PUSHI: * <= 1
-*** {58:112,32,534} ADD: *MISSING* = 2 <= 1 + 1
-*** {58:113,31,535} POPS: next i <= * = 2
-*** {58:114,31,536} ENDL
-*** {56:102,32,537} PUSHS: * <= i = 2
-*** {56:103,33,538} PUSHI: * <= 6
-*** {56:104,31,539} JMPLT location 106 is successful: true <= 2 < 6
-*** {57:106,32,540} PUSHS: * <= next power = 4
-*** {57:107,33,541} PUSHI: * <= 2
-*** {57:108,32,542} MUL: *MISSING* = 8 <= 4 * 2
-*** {57:109,31,543} POPS: next power <= * = 8
-*** {58:110,32,544} PUSHS: * <= next i = 2
-*** {58:111,33,545} PUSHI: * <= 1
-*** {58:112,32,546} ADD: *MISSING* = 3 <= 2 + 1
-*** {58:113,31,547} POPS: next i <= * = 3
-*** {58:114,31,548} ENDL
-*** {56:102,32,549} PUSHS: * <= i = 3
-*** {56:103,33,550} PUSHI: * <= 6
-*** {56:104,31,551} JMPLT location 106 is successful: true <= 3 < 6
-*** {57:106,32,552} PUSHS: * <= next power = 8
-*** {57:107,33,553} PUSHI: * <= 2
-*** {57:108,32,554} MUL: *MISSING* = 16 <= 8 * 2
-*** {57:109,31,555} POPS: next power <= * = 16
-*** {58:110,32,556} PUSHS: * <= next i = 3
-*** {58:111,33,557} PUSHI: * <= 1
-*** {58:112,32,558} ADD: *MISSING* = 4 <= 3 + 1
-*** {58:113,31,559} POPS: next i <= * = 4
-*** {58:114,31,560} ENDL
-*** {56:102,32,561} PUSHS: * <= i = 4
-*** {56:103,33,562} PUSHI: * <= 6
-*** {56:104,31,563} JMPLT location 106 is successful: true <= 4 < 6
-*** {57:106,32,564} PUSHS: * <= next power = 16
-*** {57:107,33,565} PUSHI: * <= 2
-*** {57:108,32,566} MUL: *MISSING* = 32 <= 16 * 2
-*** {57:109,31,567} POPS: next power <= * = 32
-*** {58:110,32,568} PUSHS: * <= next i = 4
-*** {58:111,33,569} PUSHI: * <= 1
-*** {58:112,32,570} ADD: *MISSING* = 5 <= 4 + 1
-*** {58:113,31,571} POPS: next i <= * = 5
-*** {58:114,31,572} ENDL
-*** {56:102,32,573} PUSHS: * <= i = 5
-*** {56:103,33,574} PUSHI: * <= 6
-*** {56:104,31,575} JMPLT location 106 is successful: true <= 5 < 6
-*** {57:106,32,576} PUSHS: * <= next power = 32
-*** {57:107,33,577} PUSHI: * <= 2
-*** {57:108,32,578} MUL: *MISSING* = 64 <= 32 * 2
-*** {57:109,31,579} POPS: next power <= * = 64
-*** {58:110,32,580} PUSHS: * <= next i = 5
-*** {58:111,33,581} PUSHI: * <= 1
-*** {58:112,32,582} ADD: *MISSING* = 6 <= 5 + 1
-*** {58:113,31,583} POPS: next i <= * = 6
-*** {58:114,31,584} ENDL
-*** {56:102,32,585} PUSHS: * <= i = 6
-*** {56:103,33,586} PUSHI: * <= 6
-*** {56:104,31,587} JMPLT location 106 is UNsuccessful: false <= 6 < 6
-*** {56:105,29,588} JMP location 115
+* {66:106,30,516} PUSHS: power <= power = 1
+* {67:107,31,517} PUSHS: i <= i = 0
+* {67:108,33,518} BEGL
+*** {65:109,34,519} PUSHS: * <= i = 0
+*** {65:110,35,520} PUSHI: * <= 6
+*** {65:111,33,521} JMPLT location 113 is successful: true <= 0 < 6
+*** {66:113,34,522} PUSHS: * <= next power = 1
+*** {66:114,35,523} PUSHI: * <= 2
+*** {66:115,34,524} MUL: *MISSING* = 2 <= 1 * 2
+*** {66:116,33,525} POPS: next power <= * = 2
+*** {67:117,34,526} PUSHS: * <= next i = 0
+*** {67:118,35,527} PUSHI: * <= 1
+*** {67:119,34,528} ADD: *MISSING* = 1 <= 0 + 1
+*** {67:120,33,529} POPS: next i <= * = 1
+*** {67:121,33,530} ENDL
+*** {65:109,34,531} PUSHS: * <= i = 1
+*** {65:110,35,532} PUSHI: * <= 6
+*** {65:111,33,533} JMPLT location 113 is successful: true <= 1 < 6
+*** {66:113,34,534} PUSHS: * <= next power = 2
+*** {66:114,35,535} PUSHI: * <= 2
+*** {66:115,34,536} MUL: *MISSING* = 4 <= 2 * 2
+*** {66:116,33,537} POPS: next power <= * = 4
+*** {67:117,34,538} PUSHS: * <= next i = 1
+*** {67:118,35,539} PUSHI: * <= 1
+*** {67:119,34,540} ADD: *MISSING* = 2 <= 1 + 1
+*** {67:120,33,541} POPS: next i <= * = 2
+*** {67:121,33,542} ENDL
+*** {65:109,34,543} PUSHS: * <= i = 2
+*** {65:110,35,544} PUSHI: * <= 6
+*** {65:111,33,545} JMPLT location 113 is successful: true <= 2 < 6
+*** {66:113,34,546} PUSHS: * <= next power = 4
+*** {66:114,35,547} PUSHI: * <= 2
+*** {66:115,34,548} MUL: *MISSING* = 8 <= 4 * 2
+*** {66:116,33,549} POPS: next power <= * = 8
+*** {67:117,34,550} PUSHS: * <= next i = 2
+*** {67:118,35,551} PUSHI: * <= 1
+*** {67:119,34,552} ADD: *MISSING* = 3 <= 2 + 1
+*** {67:120,33,553} POPS: next i <= * = 3
+*** {67:121,33,554} ENDL
+*** {65:109,34,555} PUSHS: * <= i = 3
+*** {65:110,35,556} PUSHI: * <= 6
+*** {65:111,33,557} JMPLT location 113 is successful: true <= 3 < 6
+*** {66:113,34,558} PUSHS: * <= next power = 8
+*** {66:114,35,559} PUSHI: * <= 2
+*** {66:115,34,560} MUL: *MISSING* = 16 <= 8 * 2
+*** {66:116,33,561} POPS: next power <= * = 16
+*** {67:117,34,562} PUSHS: * <= next i = 3
+*** {67:118,35,563} PUSHI: * <= 1
+*** {67:119,34,564} ADD: *MISSING* = 4 <= 3 + 1
+*** {67:120,33,565} POPS: next i <= * = 4
+*** {67:121,33,566} ENDL
+*** {65:109,34,567} PUSHS: * <= i = 4
+*** {65:110,35,568} PUSHI: * <= 6
+*** {65:111,33,569} JMPLT location 113 is successful: true <= 4 < 6
+*** {66:113,34,570} PUSHS: * <= next power = 16
+*** {66:114,35,571} PUSHI: * <= 2
+*** {66:115,34,572} MUL: *MISSING* = 32 <= 16 * 2
+*** {66:116,33,573} POPS: next power <= * = 32
+*** {67:117,34,574} PUSHS: * <= next i = 4
+*** {67:118,35,575} PUSHI: * <= 1
+*** {67:119,34,576} ADD: *MISSING* = 5 <= 4 + 1
+*** {67:120,33,577} POPS: next i <= * = 5
+*** {67:121,33,578} ENDL
+*** {65:109,34,579} PUSHS: * <= i = 5
+*** {65:110,35,580} PUSHI: * <= 6
+*** {65:111,33,581} JMPLT location 113 is successful: true <= 5 < 6
+*** {66:113,34,582} PUSHS: * <= next power = 32
+*** {66:114,35,583} PUSHI: * <= 2
+*** {66:115,34,584} MUL: *MISSING* = 64 <= 32 * 2
+*** {66:116,33,585} POPS: next power <= * = 64
+*** {67:117,34,586} PUSHS: * <= next i = 5
+*** {67:118,35,587} PUSHI: * <= 1
+*** {67:119,34,588} ADD: *MISSING* = 6 <= 5 + 1
+*** {67:120,33,589} POPS: next i <= * = 6
+*** {67:121,33,590} ENDL
+*** {65:109,34,591} PUSHS: * <= i = 6
+*** {65:110,35,592} PUSHI: * <= 6
+*** {65:111,33,593} JMPLT location 113 is UNsuccessful: false <= 6 < 6
+*** {65:112,31,594} JMP location 122
 
 next power = 1
-* {60:115,30,589} PUSHI: next power <= 1
+* {69:122,32,595} PUSHI: next power <= 1
 next i = 0
-* {61:116,31,590} PUSHI: next i <= 0
+* {70:123,33,596} PUSHI: next i <= 0
 while i < 6 at most 5 times:
     next power * = 2
     next i + = 1
-* {62:117,32,591} PUSHI: * <= 5
-* {63:118,33,592} PUSHS: power <= power = 1
-* {64:119,34,593} PUSHS: i <= i = 0
-* {64:120,36,594} BEGL
-*** {62:121,37,595} PUSHS: * <= i = 0
-*** {62:122,38,596} PUSHI: * <= 6
-*** {62:123,36,597} JMPGEQ location 134 is UNsuccessful: false <= 0 >= 6
-*** {62:124,36,598} JMPCNT* location 134 is UNsuccessful: false <= 5 <=
+* {71:124,34,597} PUSHI: * <= 5
+* {72:125,35,598} PUSHS: power <= power = 1
+* {73:126,36,599} PUSHS: i <= i = 0
+* {73:127,38,600} BEGL
+*** {71:128,39,601} PUSHS: * <= i = 0
+*** {71:129,40,602} PUSHI: * <= 6
+*** {71:130,38,603} JMPGEQ location 141 is UNsuccessful: false <= 0 >= 6
+*** {71:131,38,604} JMPCNT* location 141 is UNsuccessful: false <= 5 <=
                     0
-*** {63:125,37,599} PUSHS: * <= next power = 1
-*** {63:126,38,600} PUSHI: * <= 2
-*** {63:127,37,601} MUL: *MISSING* = 2 <= 1 * 2
-*** {63:128,36,602} POPS: next power <= * = 2
-*** {64:129,37,603} PUSHS: * <= next i = 0
-*** {64:130,38,604} PUSHI: * <= 1
-*** {64:131,37,605} ADD: *MISSING* = 1 <= 0 + 1
-*** {64:132,36,606} POPS: next i <= * = 1
-*** {64:133,36,607} ENDL
-*** {62:121,37,608} PUSHS: * <= i = 1
-*** {62:122,38,609} PUSHI: * <= 6
-*** {62:123,36,610} JMPGEQ location 134 is UNsuccessful: false <= 1 >= 6
-*** {62:124,36,611} JMPCNT* location 134 is UNsuccessful: false <= 4 <=
+*** {72:132,39,605} PUSHS: * <= next power = 1
+*** {72:133,40,606} PUSHI: * <= 2
+*** {72:134,39,607} MUL: *MISSING* = 2 <= 1 * 2
+*** {72:135,38,608} POPS: next power <= * = 2
+*** {73:136,39,609} PUSHS: * <= next i = 0
+*** {73:137,40,610} PUSHI: * <= 1
+*** {73:138,39,611} ADD: *MISSING* = 1 <= 0 + 1
+*** {73:139,38,612} POPS: next i <= * = 1
+*** {73:140,38,613} ENDL
+*** {71:128,39,614} PUSHS: * <= i = 1
+*** {71:129,40,615} PUSHI: * <= 6
+*** {71:130,38,616} JMPGEQ location 141 is UNsuccessful: false <= 1 >= 6
+*** {71:131,38,617} JMPCNT* location 141 is UNsuccessful: false <= 4 <=
                     0
-*** {63:125,37,612} PUSHS: * <= next power = 2
-*** {63:126,38,613} PUSHI: * <= 2
-*** {63:127,37,614} MUL: *MISSING* = 4 <= 2 * 2
-*** {63:128,36,615} POPS: next power <= * = 4
-*** {64:129,37,616} PUSHS: * <= next i = 1
-*** {64:130,38,617} PUSHI: * <= 1
-*** {64:131,37,618} ADD: *MISSING* = 2 <= 1 + 1
-*** {64:132,36,619} POPS: next i <= * = 2
-*** {64:133,36,620} ENDL
-*** {62:121,37,621} PUSHS: * <= i = 2
-*** {62:122,38,622} PUSHI: * <= 6
-*** {62:123,36,623} JMPGEQ location 134 is UNsuccessful: false <= 2 >= 6
-*** {62:124,36,624} JMPCNT* location 134 is UNsuccessful: false <= 3 <=
+*** {72:132,39,618} PUSHS: * <= next power = 2
+*** {72:133,40,619} PUSHI: * <= 2
+*** {72:134,39,620} MUL: *MISSING* = 4 <= 2 * 2
+*** {72:135,38,621} POPS: next power <= * = 4
+*** {73:136,39,622} PUSHS: * <= next i = 1
+*** {73:137,40,623} PUSHI: * <= 1
+*** {73:138,39,624} ADD: *MISSING* = 2 <= 1 + 1
+*** {73:139,38,625} POPS: next i <= * = 2
+*** {73:140,38,626} ENDL
+*** {71:128,39,627} PUSHS: * <= i = 2
+*** {71:129,40,628} PUSHI: * <= 6
+*** {71:130,38,629} JMPGEQ location 141 is UNsuccessful: false <= 2 >= 6
+*** {71:131,38,630} JMPCNT* location 141 is UNsuccessful: false <= 3 <=
                     0
-*** {63:125,37,625} PUSHS: * <= next power = 4
-*** {63:126,38,626} PUSHI: * <= 2
-*** {63:127,37,627} MUL: *MISSING* = 8 <= 4 * 2
-*** {63:128,36,628} POPS: next power <= * = 8
-*** {64:129,37,629} PUSHS: * <= next i = 2
-*** {64:130,38,630} PUSHI: * <= 1
-*** {64:131,37,631} ADD: *MISSING* = 3 <= 2 + 1
-*** {64:132,36,632} POPS: next i <= * = 3
-*** {64:133,36,633} ENDL
-*** {62:121,37,634} PUSHS: * <= i = 3
-*** {62:122,38,635} PUSHI: * <= 6
-*** {62:123,36,636} JMPGEQ location 134 is UNsuccessful: false <= 3 >= 6
-*** {62:124,36,637} JMPCNT* location 134 is UNsuccessful: false <= 2 <=
+*** {72:132,39,631} PUSHS: * <= next power = 4
+*** {72:133,40,632} PUSHI: * <= 2
+*** {72:134,39,633} MUL: *MISSING* = 8 <= 4 * 2
+*** {72:135,38,634} POPS: next power <= * = 8
+*** {73:136,39,635} PUSHS: * <= next i = 2
+*** {73:137,40,636} PUSHI: * <= 1
+*** {73:138,39,637} ADD: *MISSING* = 3 <= 2 + 1
+*** {73:139,38,638} POPS: next i <= * = 3
+*** {73:140,38,639} ENDL
+*** {71:128,39,640} PUSHS: * <= i = 3
+*** {71:129,40,641} PUSHI: * <= 6
+*** {71:130,38,642} JMPGEQ location 141 is UNsuccessful: false <= 3 >= 6
+*** {71:131,38,643} JMPCNT* location 141 is UNsuccessful: false <= 2 <=
                     0
-*** {63:125,37,638} PUSHS: * <= next power = 8
-*** {63:126,38,639} PUSHI: * <= 2
-*** {63:127,37,640} MUL: *MISSING* = 16 <= 8 * 2
-*** {63:128,36,641} POPS: next power <= * = 16
-*** {64:129,37,642} PUSHS: * <= next i = 3
-*** {64:130,38,643} PUSHI: * <= 1
-*** {64:131,37,644} ADD: *MISSING* = 4 <= 3 + 1
-*** {64:132,36,645} POPS: next i <= * = 4
-*** {64:133,36,646} ENDL
-*** {62:121,37,647} PUSHS: * <= i = 4
-*** {62:122,38,648} PUSHI: * <= 6
-*** {62:123,36,649} JMPGEQ location 134 is UNsuccessful: false <= 4 >= 6
-*** {62:124,36,650} JMPCNT* location 134 is UNsuccessful: false <= 1 <=
+*** {72:132,39,644} PUSHS: * <= next power = 8
+*** {72:133,40,645} PUSHI: * <= 2
+*** {72:134,39,646} MUL: *MISSING* = 16 <= 8 * 2
+*** {72:135,38,647} POPS: next power <= * = 16
+*** {73:136,39,648} PUSHS: * <= next i = 3
+*** {73:137,40,649} PUSHI: * <= 1
+*** {73:138,39,650} ADD: *MISSING* = 4 <= 3 + 1
+*** {73:139,38,651} POPS: next i <= * = 4
+*** {73:140,38,652} ENDL
+*** {71:128,39,653} PUSHS: * <= i = 4
+*** {71:129,40,654} PUSHI: * <= 6
+*** {71:130,38,655} JMPGEQ location 141 is UNsuccessful: false <= 4 >= 6
+*** {71:131,38,656} JMPCNT* location 141 is UNsuccessful: false <= 1 <=
                     0
-*** {63:125,37,651} PUSHS: * <= next power = 16
-*** {63:126,38,652} PUSHI: * <= 2
-*** {63:127,37,653} MUL: *MISSING* = 32 <= 16 * 2
-*** {63:128,36,654} POPS: next power <= * = 32
-*** {64:129,37,655} PUSHS: * <= next i = 4
-*** {64:130,38,656} PUSHI: * <= 1
-*** {64:131,37,657} ADD: *MISSING* = 5 <= 4 + 1
-*** {64:132,36,658} POPS: next i <= * = 5
-*** {64:133,36,659} ENDL
-*** {62:121,37,660} PUSHS: * <= i = 5
-*** {62:122,38,661} PUSHI: * <= 6
-*** {62:123,36,662} JMPGEQ location 134 is UNsuccessful: false <= 5 >= 6
-*** {62:124,34,663} JMPCNT* location 134 is successful: true <= 0 <= 0
+*** {72:132,39,657} PUSHS: * <= next power = 16
+*** {72:133,40,658} PUSHI: * <= 2
+*** {72:134,39,659} MUL: *MISSING* = 32 <= 16 * 2
+*** {72:135,38,660} POPS: next power <= * = 32
+*** {73:136,39,661} PUSHS: * <= next i = 4
+*** {73:137,40,662} PUSHI: * <= 1
+*** {73:138,39,663} ADD: *MISSING* = 5 <= 4 + 1
+*** {73:139,38,664} POPS: next i <= * = 5
+*** {73:140,38,665} ENDL
+*** {71:128,39,666} PUSHS: * <= i = 5
+*** {71:129,40,667} PUSHI: * <= 6
+*** {71:130,38,668} JMPGEQ location 141 is UNsuccessful: false <= 5 >= 6
+*** {71:131,36,669} JMPCNT* location 141 is successful: true <= 0 <= 0
 
 next power = 1
-* {66:134,35,664} PUSHI: next power <= 1
+* {75:141,37,670} PUSHI: next power <= 1
 do exactly 4 times:
     next power * = 2
-* {67:135,36,665} PUSHI: * <= 4
-* {68:136,37,666} PUSHS: power <= power = 1
-* {68:137,38,667} BEGL
-*** {67:138,38,668} JMPCNT* location 144 is UNsuccessful: false <= 4 <=
+* {76:142,38,671} PUSHI: * <= 4
+* {77:143,39,672} PUSHS: power <= power = 1
+* {77:144,40,673} BEGL
+*** {76:145,40,674} JMPCNT* location 151 is UNsuccessful: false <= 4 <=
                     0
-*** {68:139,39,669} PUSHS: * <= next power = 1
-*** {68:140,40,670} PUSHI: * <= 2
-*** {68:141,39,671} MUL: *MISSING* = 2 <= 1 * 2
-*** {68:142,38,672} POPS: next power <= * = 2
-*** {68:143,38,673} ENDL
-*** {67:138,38,674} JMPCNT* location 144 is UNsuccessful: false <= 3 <=
+*** {77:146,41,675} PUSHS: * <= next power = 1
+*** {77:147,42,676} PUSHI: * <= 2
+*** {77:148,41,677} MUL: *MISSING* = 2 <= 1 * 2
+*** {77:149,40,678} POPS: next power <= * = 2
+*** {77:150,40,679} ENDL
+*** {76:145,40,680} JMPCNT* location 151 is UNsuccessful: false <= 3 <=
                     0
-*** {68:139,39,675} PUSHS: * <= next power = 2
-*** {68:140,40,676} PUSHI: * <= 2
-*** {68:141,39,677} MUL: *MISSING* = 4 <= 2 * 2
-*** {68:142,38,678} POPS: next power <= * = 4
-*** {68:143,38,679} ENDL
-*** {67:138,38,680} JMPCNT* location 144 is UNsuccessful: false <= 2 <=
+*** {77:146,41,681} PUSHS: * <= next power = 2
+*** {77:147,42,682} PUSHI: * <= 2
+*** {77:148,41,683} MUL: *MISSING* = 4 <= 2 * 2
+*** {77:149,40,684} POPS: next power <= * = 4
+*** {77:150,40,685} ENDL
+*** {76:145,40,686} JMPCNT* location 151 is UNsuccessful: false <= 2 <=
                     0
-*** {68:139,39,681} PUSHS: * <= next power = 4
-*** {68:140,40,682} PUSHI: * <= 2
-*** {68:141,39,683} MUL: *MISSING* = 8 <= 4 * 2
-*** {68:142,38,684} POPS: next power <= * = 8
-*** {68:143,38,685} ENDL
-*** {67:138,38,686} JMPCNT* location 144 is UNsuccessful: false <= 1 <=
+*** {77:146,41,687} PUSHS: * <= next power = 4
+*** {77:147,42,688} PUSHI: * <= 2
+*** {77:148,41,689} MUL: *MISSING* = 8 <= 4 * 2
+*** {77:149,40,690} POPS: next power <= * = 8
+*** {77:150,40,691} ENDL
+*** {76:145,40,692} JMPCNT* location 151 is UNsuccessful: false <= 1 <=
                     0
-*** {68:139,39,687} PUSHS: * <= next power = 8
-*** {68:140,40,688} PUSHI: * <= 2
-*** {68:141,39,689} MUL: *MISSING* = 16 <= 8 * 2
-*** {68:142,38,690} POPS: next power <= * = 16
-*** {68:143,38,691} ENDL
-*** {67:138,37,692} JMPCNT* location 144 is successful: true <= 0 <= 0
+*** {77:146,41,693} PUSHS: * <= next power = 8
+*** {77:147,42,694} PUSHI: * <= 2
+*** {77:148,41,695} MUL: *MISSING* = 16 <= 8 * 2
+*** {77:149,40,696} POPS: next power <= * = 16
+*** {77:150,40,697} ENDL
+*** {76:145,39,698} JMPCNT* location 151 is successful: true <= 0 <= 0
 
 next power = 1
-* {70:144,38,693} PUSHI: next power <= 1
+* {79:151,40,699} PUSHI: next power <= 1
 do 4 times:
     next power * = 2
-* {71:145,39,694} PUSHI: * <= 4
-* {72:146,40,695} PUSHS: power <= power = 1
-* {72:147,41,696} BEGL
-*** {71:148,41,697} JMPCNT* location 154 is UNsuccessful: false <= 4 <=
+* {80:152,41,700} PUSHI: * <= 4
+* {81:153,42,701} PUSHS: power <= power = 1
+* {81:154,43,702} BEGL
+*** {80:155,43,703} JMPCNT* location 161 is UNsuccessful: false <= 4 <=
                     0
-*** {72:149,42,698} PUSHS: * <= next power = 1
-*** {72:150,43,699} PUSHI: * <= 2
-*** {72:151,42,700} MUL: *MISSING* = 2 <= 1 * 2
-*** {72:152,41,701} POPS: next power <= * = 2
-*** {72:153,41,702} ENDL
-*** {71:148,41,703} JMPCNT* location 154 is UNsuccessful: false <= 3 <=
+*** {81:156,44,704} PUSHS: * <= next power = 1
+*** {81:157,45,705} PUSHI: * <= 2
+*** {81:158,44,706} MUL: *MISSING* = 2 <= 1 * 2
+*** {81:159,43,707} POPS: next power <= * = 2
+*** {81:160,43,708} ENDL
+*** {80:155,43,709} JMPCNT* location 161 is UNsuccessful: false <= 3 <=
                     0
-*** {72:149,42,704} PUSHS: * <= next power = 2
-*** {72:150,43,705} PUSHI: * <= 2
-*** {72:151,42,706} MUL: *MISSING* = 4 <= 2 * 2
-*** {72:152,41,707} POPS: next power <= * = 4
-*** {72:153,41,708} ENDL
-*** {71:148,41,709} JMPCNT* location 154 is UNsuccessful: false <= 2 <=
+*** {81:156,44,710} PUSHS: * <= next power = 2
+*** {81:157,45,711} PUSHI: * <= 2
+*** {81:158,44,712} MUL: *MISSING* = 4 <= 2 * 2
+*** {81:159,43,713} POPS: next power <= * = 4
+*** {81:160,43,714} ENDL
+*** {80:155,43,715} JMPCNT* location 161 is UNsuccessful: false <= 2 <=
                     0
-*** {72:149,42,710} PUSHS: * <= next power = 4
-*** {72:150,43,711} PUSHI: * <= 2
-*** {72:151,42,712} MUL: *MISSING* = 8 <= 4 * 2
-*** {72:152,41,713} POPS: next power <= * = 8
-*** {72:153,41,714} ENDL
-*** {71:148,41,715} JMPCNT* location 154 is UNsuccessful: false <= 1 <=
+*** {81:156,44,716} PUSHS: * <= next power = 4
+*** {81:157,45,717} PUSHI: * <= 2
+*** {81:158,44,718} MUL: *MISSING* = 8 <= 4 * 2
+*** {81:159,43,719} POPS: next power <= * = 8
+*** {81:160,43,720} ENDL
+*** {80:155,43,721} JMPCNT* location 161 is UNsuccessful: false <= 1 <=
                     0
-*** {72:149,42,716} PUSHS: * <= next power = 8
-*** {72:150,43,717} PUSHI: * <= 2
-*** {72:151,42,718} MUL: *MISSING* = 16 <= 8 * 2
-*** {72:152,41,719} POPS: next power <= * = 16
-*** {72:153,41,720} ENDL
-*** {71:148,40,721} JMPCNT* location 154 is successful: true <= 0 <= 0
+*** {81:156,44,722} PUSHS: * <= next power = 8
+*** {81:157,45,723} PUSHI: * <= 2
+*** {81:158,44,724} MUL: *MISSING* = 16 <= 8 * 2
+*** {81:159,43,725} POPS: next power <= * = 16
+*** {81:160,43,726} ENDL
+*** {80:155,42,727} JMPCNT* location 161 is successful: true <= 0 <= 0
