@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  1 03:26:51 EST 2024
+// Date:	Tue Dec  3 01:45:58 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,6 +47,7 @@ static min::locatable_gen IF;
 static min::locatable_gen ELSE_IF;
 static min::locatable_gen ELSE;
 static min::locatable_gen EXIT;
+static min::locatable_gen CONTINUE;
 
 static min::locatable_gen DO;
 static min::locatable_gen REPEAT;
@@ -86,6 +87,7 @@ static void initialize ( void )
     ::ELSE_IF  = min::new_lab_gen ( "else", "if" );
     ::ELSE  = min::new_str_gen ( "else" );
     ::EXIT  = min::new_str_gen ( "exit" );
+    ::CONTINUE  = min::new_str_gen ( "continue" );
 
     ::DO       = min::new_str_gen ( "do" );
     ::REPEAT   = min::new_str_gen ( "repeat" );
@@ -215,6 +217,10 @@ struct block_struct
 	// END... .  All actual blocks has this
 	// non-zero.  The bottom of the stack represents
 	// top level and has this zero.
+
+    bool is_loop;
+        // True for loop block, false for non-loop
+	// block.
 };
 
 typedef min::packed_vec_insptr<block_struct>
@@ -226,14 +232,16 @@ static block_struct block;
     // from gc because it is equal to ::block_name.
 static min::locatable_gen block_name;
 
-inline void push_block ( min::gen name )
+inline void push_block
+	( min::gen name, bool is_loop = false )
 {
     min::push ( ::block_stack ) = ::block;
     min::unprotected::acc_write_update
         ( ::block_stack, ::block.name );
 
     ::block =
-        { name, 0, 0, min::MISSING_POSITION, 0 };
+        { name, 0, 0, min::MISSING_POSITION, 0,
+	  is_loop };
     ::block.block_finish_jmp = ::jmp_counter ++;
         // C++ does not correctly compile
 	// ::jmp_counter ++ as part of { ... }.
@@ -599,6 +607,9 @@ bool static compile_modifying_statement
 bool static compile_exit_statement
 	( min::obj_vec_ptr & vp, min::uns32 s );
 
+bool static compile_continue_statement
+	( min::obj_vec_ptr & vp, min::uns32 s );
+
 struct iteration
 {
     min::gen type;	  // iteration type:
@@ -959,6 +970,8 @@ bool REC::compile_statement ( min::gen statement )
 
     if ( vp[0] == ::EXIT )
         return ::compile_exit_statement( vp, s );
+    if ( vp[0] == ::CONTINUE )
+        return ::compile_continue_statement( vp, s );
 
     vp = min::NULL_STUB;
     return compile_statement_expression ( statement );
@@ -994,6 +1007,8 @@ bool static compile_restricted_statement
 
     if ( vp[0] == ::EXIT )
         return ::compile_exit_statement( vp, s );
+    if ( vp[0] == ::CONTINUE )
+        return ::compile_continue_statement( vp, s );
 
     mexcom::compile_error
 	( ::get_position(vp)->position,
@@ -1286,6 +1301,97 @@ bool static compile_exit_statement
     return false;
 }
 
+bool static compile_continue_statement
+	( min::obj_vec_ptr & vp, min::uns32 s )
+{
+    min::phrase_position_vec ppv =
+	::get_position ( vp );
+    const char * message = NULL;
+    min::phrase_position pp = ppv->position;;
+
+    min::uns32 loop_depth;
+    mex::instr instr = { mex::CONT };
+
+    if ( s == 1 )
+    {
+        if ( mexstack::cont
+	         ( instr, 1, 0,
+	           min::MISSING(), ppv->position ) )
+	    return true;
+	message = "continue statement is not in a loop";
+    }
+
+    else if ( s == 2 )
+    {
+	min::obj_vec_ptr vp1 = vp[1];
+	pp = ppv[1];
+	min::locatable_gen name;
+	if ( vp1 == min::NULL_STUB )
+	    message = "not a block name";
+	else
+	{
+	    min::uns32 i1 = 0;
+	    name = PRIM::scan_var_name ( vp1, i1 );
+	    if ( name == min::NONE()
+	         ||
+		 i1 != min::size_of ( vp1 ))
+	        message = "not a block name";
+	    else if ( name == ::block.name )
+	    {
+		if ( ! ::block.is_loop )
+		    message =
+		        "named block is not loop block";
+		else
+		    loop_depth = 1;
+	    }
+	    else
+	    {
+	        loop_depth = ::block.is_loop;
+		min::uns32 j = ::block_stack->length;
+		message =
+		    "block with given name"
+		    " does not exist";
+		while ( j != 0 )
+		{
+		    min::ptr<::block_struct> p =
+			::block_stack + -- j;
+		    if ( p->is_loop ) ++ loop_depth;
+		    if ( p->name != name )
+			continue;
+		    if ( p->is_loop )
+		        message = NULL;
+		    else
+		        message =
+			    "named block is not"
+			    " a loop block";
+		    break;
+		}
+	    }
+	}
+
+	if ( message == NULL )
+	{
+	    MIN_ASSERT
+	        ( mexstack::cont
+	              ( instr, loop_depth, 0,
+		        min::MISSING(), ppv->position ),
+		  "mexstack::cont failed;"
+		  " mismatched block stacks" );
+	    return true;
+	}
+    }
+    else
+    {
+        message = "extra stuff after";
+	pp = ppv[1];
+    }
+
+    mexcom::compile_error
+	( pp, message, min::pnop,
+	  "; statement ignored" );
+    return false;
+}
+
 bool static compile_block
         ( min::gen block,
 	  min::gen label,
@@ -1328,7 +1434,7 @@ bool static compile_block
     mexstack::begx
         ( beg, nnext, 0,
 	  min::MISSING(), ppv->position );
-    push_block ( label );
+    push_block ( label, iterations != NULL );
 
     bool OK = true;
 
