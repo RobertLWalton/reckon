@@ -727,26 +727,28 @@ next i = 0
     next i + = 1
     ^^^^^^
     [93:176;46] PUSHS T_PUSH 0 0 0; [< i i >]
-do OUTER LOOP while i < 6:
-                         ^
+while i < 6:
+           ^
     next i + = 1
 ^^^^^^^^^^^^^^^^
-    repeat INNER LOOP:
-^^^^^^^^^^^^^^^^^^^^^^
-        continue OUTER LOOP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    do:             // This is NOT a loop block.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        continue
+^^^^^^^^^^^^^^^^
         next i = 0  // This is never executed.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [96:177;47] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
-do OUTER LOOP while i < 6:
-                    ^
+    next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [97:177;47] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+while i < 6:
+      ^
     [92:178;48] PUSHS T_PUSH 1 0 0 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; [< i * >]
-do OUTER LOOP while i < 6:
-                        ^
+while i < 6:
+          ^
     [92:179;49] PUSHI T_PUSH 0 0 0 6; *
-do OUTER LOOP while i < 6:
-                      ^
+while i < 6:
+        ^
     [92:180;47] JMPGEQ T_JMPS 0 0 0 0; 23
     [181;47] LABEL 24
     next i + = 1
@@ -763,15 +765,15 @@ do OUTER LOOP while i < 6:
     ^^^^^^
     [93:184;47] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next i >] >]
-    repeat INNER LOOP:
-                     ^
-        continue OUTER LOOP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    do:             // This is NOT a loop block.
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        continue
+^^^^^^^^^^^^^^^^
         next i = 0  // This is never executed.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [96:185;47] BEGL T_BEGL 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
-        continue OUTER LOOP
-        ^^^^^^^^^^^^^^^^^^^
+    [96:185;47] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        continue
+        ^^^^^^^^
     [95:186;47] CONT T_CONT[1] 0 1 8 *UNDEFINED_GEN(0x7FF4170000000000)*
         next i = 0  // This is never executed.
                  ^
@@ -780,14 +782,42 @@ do OUTER LOOP while i < 6:
     ^^^^^^
     [93:188;47] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next i >] >]
-    repeat INNER LOOP:
-                     ^
-        continue OUTER LOOP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    do:             // This is NOT a loop block.
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        continue
+^^^^^^^^^^^^^^^^
         next i = 0  // This is never executed.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [96:189;47] ENDL T_ENDL 0 0 3 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [96:189;47] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     [190;47] LABEL 25
+    next i = 0  // This is never executed.
+             ^
+    [97:190;48] PUSHI T_PUSH 0 0 0 0; [< next i >]
+    next i + = 1
+    ^^^^^^
+    [93:191;47] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                * [< next i >] >]
+while i < 6:
+           ^
+    next i + = 1
+^^^^^^^^^^^^^^^^
+    do:             // This is NOT a loop block.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        continue
+^^^^^^^^^^^^^^^^
+        next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [97:192;46] ENDL T_ENDL 0 1 14 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [193;46] LABEL 23
+    [92:180;46] JMPGEQ T_JMPS[1] 1 0 13 0; 23
+next i = 0
+         ^
+    [99:193;47] PUSHI T_PUSH 0 0 0 0; [< next i >]
+    next i + = 1
+    ^^^^^^
+    [101:194;48] PUSHS T_PUSH 0 0 0; [< i i >]
 do OUTER LOOP while i < 6:
                          ^
     next i + = 1
@@ -798,6 +828,83 @@ do OUTER LOOP while i < 6:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         next i = 0  // This is never executed.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [96:190;46] ENDL T_ENDL 0 1 12 *UNDEFINED_GEN(0x7FF4170000000000)*
-    [191;46] LABEL 23
-    [92:180;46] JMPGEQ T_JMPS[1] 1 0 11 0; 23
+    next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [105:195;49] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+do OUTER LOOP while i < 6:
+                    ^
+    [100:196;50] PUSHS T_PUSH 1 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< i * >]
+do OUTER LOOP while i < 6:
+                        ^
+    [100:197;51] PUSHI T_PUSH 0 0 0 6; *
+do OUTER LOOP while i < 6:
+                      ^
+    [100:198;49] JMPGEQ T_JMPS 0 0 0 0; 26
+    [199;49] LABEL 27
+    next i + = 1
+    ^^^^^^
+    [101:199;50] PUSHS T_PUSH 0 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< [< next i >]
+                 * >]
+    next i + = 1
+               ^
+    [101:200;51] PUSHI T_PUSH 0 0 0 1; *
+    next i + = 1
+    ^^^^^^^^^^^^
+    [101:201;50] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    next i + = 1
+    ^^^^^^
+    [101:202;49] POPS T_POP 1 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
+                 i >] >]
+    repeat INNER LOOP:
+                     ^
+        continue OUTER LOOP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [104:203;49] BEGL T_BEGL 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        continue OUTER LOOP
+        ^^^^^^^^^^^^^^^^^^^
+    [103:204;49] CONT T_CONT[1] 0 1 8 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*
+        next i = 0  // This is never executed.
+                 ^
+    [104:205;50] PUSHI T_PUSH 0 0 0 0; [< next i >]
+    next i + = 1
+    ^^^^^^
+    [101:206;49] POPS T_POP 1 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
+                 i >] >]
+    repeat INNER LOOP:
+                     ^
+        continue OUTER LOOP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [104:207;49] ENDL T_ENDL 0 0 3 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [208;49] LABEL 28
+    next i = 0  // This is never executed.
+             ^
+    [105:208;50] PUSHI T_PUSH 0 0 0 0; [< next i >]
+    next i + = 1
+    ^^^^^^
+    [101:209;49] POPS T_POP 1 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
+                 i >] >]
+do OUTER LOOP while i < 6:
+                         ^
+    next i + = 1
+^^^^^^^^^^^^^^^^
+    repeat INNER LOOP:
+^^^^^^^^^^^^^^^^^^^^^^
+        continue OUTER LOOP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    next i = 0  // This is never executed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [105:210;48] ENDL T_ENDL 0 1 14 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [211;48] LABEL 26
+    [100:198;48] JMPGEQ T_JMPS[1] 1 0 13 0; 26

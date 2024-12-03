@@ -3,7 +3,7 @@
 <!--
 File:	reckon_loops.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Mon Dec  2 07:41:11 EST 2024
+Date:	Tue Dec  3 18:24:03 EST 2024
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -251,13 +251,41 @@ next power = 1</div>1
 <p>
 Example:
 <pre class='example'>
-<div class='line'>E, F =:</div>25
+<div class='line'>next i = 0</div>0
+<div class='line'>while i &lt; 6:
+    next i + = 1
+    continue
+    next i = 0  // This is never executed.</div>6
 </pre>
 <p>
+A continue-statement consists of the `<code>continue</code>'
+operator followed by an optional block name.
+Without a block name,
+a continue-statement terminates the current iteration
+of the innermost loop-statement containing the
+continue-statement and begins a new iteration of that loop-statement.
+<p>
+If a block name is given, it must name a loop-statement,
+the current iteration of that loop-statement is terminated,
+and a new iteration of that loop-statement is begun.
 <p>
 More Examples:
 <pre class='example'>
-<div class='line'>E, F =:</div>25
+<div class='line'>next i = 0</div>0
+<div class='line'>while i &lt; 6:
+    next i + = 1
+    do:             // This is NOT a loop block.
+        continue
+        next i = 0  // This is never executed.
+    next i = 0  // This is never executed.</div>6
+<div class='line'>
+next i = 0</div>0
+<div class='line'>do OUTER LOOP while i &lt; 6:
+    next i + = 1
+    repeat INNER LOOP:
+        continue OUTER LOOP
+        next i = 0  // This is never executed.
+    next i = 0  // This is never executed.</div>6
 </pre>
 </p>
 

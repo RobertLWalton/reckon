@@ -4,7 +4,7 @@
 //
 // File:        reckon_loops.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Dec  3 08:29:51 EST 2024
+// Date:        Tue Dec  3 18:06:40 EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -884,67 +884,142 @@ while i < 6:
 
 next i = 0
 * {91:175,45,782} PUSHI: next i <= 0
+while i < 6:
+    next i + = 1
+    do:             // This is NOT a loop block.
+        continue
+        next i = 0  // This is never executed.
+    next i = 0  // This is never executed.
+* {93:176,46,783} PUSHS: i <= i = 0
+* {97:177,47,784} BEGL
+*** {92:178,48,785} PUSHS: * <= i = 0
+*** {92:179,49,786} PUSHI: * <= 6
+*** {92:180,47,787} JMPGEQ location 193 is UNsuccessful: false <= 0 >= 6
+*** {93:181,48,788} PUSHS: * <= next i = 0
+*** {93:182,49,789} PUSHI: * <= 1
+*** {93:183,48,790} ADD: *MISSING* = 1 <= 0 + 1
+*** {93:184,47,791} POPS: next i <= * = 1
+*** {96:185,47,792} BEG
+***** {95:186,47,793} CONT
+*** {92:178,48,794} PUSHS: * <= i = 1
+*** {92:179,49,795} PUSHI: * <= 6
+*** {92:180,47,796} JMPGEQ location 193 is UNsuccessful: false <= 1 >= 6
+*** {93:181,48,797} PUSHS: * <= next i = 1
+*** {93:182,49,798} PUSHI: * <= 1
+*** {93:183,48,799} ADD: *MISSING* = 2 <= 1 + 1
+*** {93:184,47,800} POPS: next i <= * = 2
+*** {96:185,47,801} BEG
+***** {95:186,47,802} CONT
+*** {92:178,48,803} PUSHS: * <= i = 2
+*** {92:179,49,804} PUSHI: * <= 6
+*** {92:180,47,805} JMPGEQ location 193 is UNsuccessful: false <= 2 >= 6
+*** {93:181,48,806} PUSHS: * <= next i = 2
+*** {93:182,49,807} PUSHI: * <= 1
+*** {93:183,48,808} ADD: *MISSING* = 3 <= 2 + 1
+*** {93:184,47,809} POPS: next i <= * = 3
+*** {96:185,47,810} BEG
+***** {95:186,47,811} CONT
+*** {92:178,48,812} PUSHS: * <= i = 3
+*** {92:179,49,813} PUSHI: * <= 6
+*** {92:180,47,814} JMPGEQ location 193 is UNsuccessful: false <= 3 >= 6
+*** {93:181,48,815} PUSHS: * <= next i = 3
+*** {93:182,49,816} PUSHI: * <= 1
+*** {93:183,48,817} ADD: *MISSING* = 4 <= 3 + 1
+*** {93:184,47,818} POPS: next i <= * = 4
+*** {96:185,47,819} BEG
+***** {95:186,47,820} CONT
+*** {92:178,48,821} PUSHS: * <= i = 4
+*** {92:179,49,822} PUSHI: * <= 6
+*** {92:180,47,823} JMPGEQ location 193 is UNsuccessful: false <= 4 >= 6
+*** {93:181,48,824} PUSHS: * <= next i = 4
+*** {93:182,49,825} PUSHI: * <= 1
+*** {93:183,48,826} ADD: *MISSING* = 5 <= 4 + 1
+*** {93:184,47,827} POPS: next i <= * = 5
+*** {96:185,47,828} BEG
+***** {95:186,47,829} CONT
+*** {92:178,48,830} PUSHS: * <= i = 5
+*** {92:179,49,831} PUSHI: * <= 6
+*** {92:180,47,832} JMPGEQ location 193 is UNsuccessful: false <= 5 >= 6
+*** {93:181,48,833} PUSHS: * <= next i = 5
+*** {93:182,49,834} PUSHI: * <= 1
+*** {93:183,48,835} ADD: *MISSING* = 6 <= 5 + 1
+*** {93:184,47,836} POPS: next i <= * = 6
+*** {96:185,47,837} BEG
+***** {95:186,47,838} CONT
+*** {92:178,48,839} PUSHS: * <= i = 6
+*** {92:179,49,840} PUSHI: * <= 6
+*** {92:180,46,841} JMPGEQ location 193 is successful: true <= 6 >= 6
+
+next i = 0
+* {99:193,47,842} PUSHI: next i <= 0
 do OUTER LOOP while i < 6:
     next i + = 1
     repeat INNER LOOP:
         continue OUTER LOOP
         next i = 0  // This is never executed.
-* {93:176,46,783} PUSHS: i <= i = 0
-* {96:177,47,784} BEGL
-*** {92:178,48,785} PUSHS: * <= i = 0
-*** {92:179,49,786} PUSHI: * <= 6
-*** {92:180,47,787} JMPGEQ location 191 is UNsuccessful: false <= 0 >= 6
-*** {93:181,48,788} PUSHS: * <= next i = 0
-*** {93:182,49,789} PUSHI: * <= 1
-*** {93:183,48,790} ADD: *MISSING* = 1 <= 0 + 1
-*** {93:184,47,791} POPS: next i <= * = 1
-*** {96:185,47,792} BEGL
-***** {95:186,47,793} CONT
-*** {92:178,48,794} PUSHS: * <= i = 1
-*** {92:179,49,795} PUSHI: * <= 6
-*** {92:180,47,796} JMPGEQ location 191 is UNsuccessful: false <= 1 >= 6
-*** {93:181,48,797} PUSHS: * <= next i = 1
-*** {93:182,49,798} PUSHI: * <= 1
-*** {93:183,48,799} ADD: *MISSING* = 2 <= 1 + 1
-*** {93:184,47,800} POPS: next i <= * = 2
-*** {96:185,47,801} BEGL
-***** {95:186,47,802} CONT
-*** {92:178,48,803} PUSHS: * <= i = 2
-*** {92:179,49,804} PUSHI: * <= 6
-*** {92:180,47,805} JMPGEQ location 191 is UNsuccessful: false <= 2 >= 6
-*** {93:181,48,806} PUSHS: * <= next i = 2
-*** {93:182,49,807} PUSHI: * <= 1
-*** {93:183,48,808} ADD: *MISSING* = 3 <= 2 + 1
-*** {93:184,47,809} POPS: next i <= * = 3
-*** {96:185,47,810} BEGL
-***** {95:186,47,811} CONT
-*** {92:178,48,812} PUSHS: * <= i = 3
-*** {92:179,49,813} PUSHI: * <= 6
-*** {92:180,47,814} JMPGEQ location 191 is UNsuccessful: false <= 3 >= 6
-*** {93:181,48,815} PUSHS: * <= next i = 3
-*** {93:182,49,816} PUSHI: * <= 1
-*** {93:183,48,817} ADD: *MISSING* = 4 <= 3 + 1
-*** {93:184,47,818} POPS: next i <= * = 4
-*** {96:185,47,819} BEGL
-***** {95:186,47,820} CONT
-*** {92:178,48,821} PUSHS: * <= i = 4
-*** {92:179,49,822} PUSHI: * <= 6
-*** {92:180,47,823} JMPGEQ location 191 is UNsuccessful: false <= 4 >= 6
-*** {93:181,48,824} PUSHS: * <= next i = 4
-*** {93:182,49,825} PUSHI: * <= 1
-*** {93:183,48,826} ADD: *MISSING* = 5 <= 4 + 1
-*** {93:184,47,827} POPS: next i <= * = 5
-*** {96:185,47,828} BEGL
-***** {95:186,47,829} CONT
-*** {92:178,48,830} PUSHS: * <= i = 5
-*** {92:179,49,831} PUSHI: * <= 6
-*** {92:180,47,832} JMPGEQ location 191 is UNsuccessful: false <= 5 >= 6
-*** {93:181,48,833} PUSHS: * <= next i = 5
-*** {93:182,49,834} PUSHI: * <= 1
-*** {93:183,48,835} ADD: *MISSING* = 6 <= 5 + 1
-*** {93:184,47,836} POPS: next i <= * = 6
-*** {96:185,47,837} BEGL
-***** {95:186,47,838} CONT
-*** {92:178,48,839} PUSHS: * <= i = 6
-*** {92:179,49,840} PUSHI: * <= 6
-*** {92:180,46,841} JMPGEQ location 191 is successful: true <= 6 >= 6
+    next i = 0  // This is never executed.
+* {101:194,48,843} PUSHS: i <= i = 0
+* {105:195,49,844} BEGL
+*** {100:196,50,845} PUSHS: * <= i = 0
+*** {100:197,51,846} PUSHI: * <= 6
+*** {100:198,49,847} JMPGEQ location 211 is UNsuccessful: false <= 0
+                     >= 6
+*** {101:199,50,848} PUSHS: * <= next i = 0
+*** {101:200,51,849} PUSHI: * <= 1
+*** {101:201,50,850} ADD: *MISSING* = 1 <= 0 + 1
+*** {101:202,49,851} POPS: next i <= * = 1
+*** {104:203,49,852} BEGL
+***** {103:204,49,853} CONT
+*** {100:196,50,854} PUSHS: * <= i = 1
+*** {100:197,51,855} PUSHI: * <= 6
+*** {100:198,49,856} JMPGEQ location 211 is UNsuccessful: false <= 1
+                     >= 6
+*** {101:199,50,857} PUSHS: * <= next i = 1
+*** {101:200,51,858} PUSHI: * <= 1
+*** {101:201,50,859} ADD: *MISSING* = 2 <= 1 + 1
+*** {101:202,49,860} POPS: next i <= * = 2
+*** {104:203,49,861} BEGL
+***** {103:204,49,862} CONT
+*** {100:196,50,863} PUSHS: * <= i = 2
+*** {100:197,51,864} PUSHI: * <= 6
+*** {100:198,49,865} JMPGEQ location 211 is UNsuccessful: false <= 2
+                     >= 6
+*** {101:199,50,866} PUSHS: * <= next i = 2
+*** {101:200,51,867} PUSHI: * <= 1
+*** {101:201,50,868} ADD: *MISSING* = 3 <= 2 + 1
+*** {101:202,49,869} POPS: next i <= * = 3
+*** {104:203,49,870} BEGL
+***** {103:204,49,871} CONT
+*** {100:196,50,872} PUSHS: * <= i = 3
+*** {100:197,51,873} PUSHI: * <= 6
+*** {100:198,49,874} JMPGEQ location 211 is UNsuccessful: false <= 3
+                     >= 6
+*** {101:199,50,875} PUSHS: * <= next i = 3
+*** {101:200,51,876} PUSHI: * <= 1
+*** {101:201,50,877} ADD: *MISSING* = 4 <= 3 + 1
+*** {101:202,49,878} POPS: next i <= * = 4
+*** {104:203,49,879} BEGL
+***** {103:204,49,880} CONT
+*** {100:196,50,881} PUSHS: * <= i = 4
+*** {100:197,51,882} PUSHI: * <= 6
+*** {100:198,49,883} JMPGEQ location 211 is UNsuccessful: false <= 4
+                     >= 6
+*** {101:199,50,884} PUSHS: * <= next i = 4
+*** {101:200,51,885} PUSHI: * <= 1
+*** {101:201,50,886} ADD: *MISSING* = 5 <= 4 + 1
+*** {101:202,49,887} POPS: next i <= * = 5
+*** {104:203,49,888} BEGL
+***** {103:204,49,889} CONT
+*** {100:196,50,890} PUSHS: * <= i = 5
+*** {100:197,51,891} PUSHI: * <= 6
+*** {100:198,49,892} JMPGEQ location 211 is UNsuccessful: false <= 5
+                     >= 6
+*** {101:199,50,893} PUSHS: * <= next i = 5
+*** {101:200,51,894} PUSHI: * <= 1
+*** {101:201,50,895} ADD: *MISSING* = 6 <= 5 + 1
+*** {101:202,49,896} POPS: next i <= * = 6
+*** {104:203,49,897} BEGL
+***** {103:204,49,898} CONT
+*** {100:196,50,899} PUSHS: * <= i = 6
+*** {100:197,51,900} PUSHI: * <= 6
+*** {100:198,48,901} JMPGEQ location 211 is successful: true <= 6 >= 6
