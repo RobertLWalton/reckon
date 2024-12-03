@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  3 01:45:58 AM EST 2024
+// Date:	Tue Dec  3 08:26:27 EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -240,8 +240,10 @@ inline void push_block
         ( ::block_stack, ::block.name );
 
     ::block =
-        { name, 0, 0, min::MISSING_POSITION, 0,
-	  is_loop };
+        { name, 0, 0, min::MISSING_POSITION, 0 };
+	// is_loop cannot be set by this statement;
+	// might be a C++ compiler bug.
+    ::block.is_loop = is_loop;
     ::block.block_finish_jmp = ::jmp_counter ++;
         // C++ does not correctly compile
 	// ::jmp_counter ++ as part of { ... }.
