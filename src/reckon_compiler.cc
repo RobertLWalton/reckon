@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  3 08:26:27 EST 2024
+// Date:	Fri Dec  6 01:29:28 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -708,6 +708,18 @@ min::uns32 static compile_if_to_value
 	  min::phrase_position_vec ppv,
 	  PRIM::func func,
 	  min::gen name );
+
+// The following does the work of compile_expression in
+// the case that the expression has an initiator other
+// then NONE, "(", or LOGICAL_LINE.  Pushes a value into
+// the stack and returns 1, or outputs an error message
+// and returns 0.
+//
+min::uns32 static compile_bracketed_expression
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  min::gen initiator,
+	  min::gen name = ::star );
 
 // Init Compiler
 // ---- --------
@@ -1794,6 +1806,22 @@ bool static compile_if_statement
         return ::compile_block ( block );
 }
 
+
+inline min::uns32 return_value
+    ( min::phrase_position pp,
+      min::uns32 true_jmp,
+      min::uns32 false_jmp )
+{
+    if ( true_jmp != 0 )
+    {
+	-- mexstack::var_stack_length;
+	::jmp ( false_jmp, pp, mex::JMPFALSE );
+	return true_jmp;
+    }
+    else
+	return 1;
+}
+
 min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp,
@@ -1805,6 +1833,22 @@ min::uns32 static compile_expression
         ::get_position ( vp );
     min::uns32 s = min::size_of ( vp );
     min::uns8 level = mexstack::lexical_level;
+
+    min::attr_ptr ap = vp;
+    min::locate ( ap, min::dot_initiator );
+    min::gen initiator = min::get ( ap );
+    if ( initiator != min::NONE()
+         &&
+	 initiator != PARLEX::left_parenthesis
+         &&
+	 initiator != min::LOGICAL_LINE() )
+    {
+        min::uns32 OK = ::compile_bracketed_expression
+	    ( vp, ppv, initiator, name );
+	if ( OK == 0 ) return 0;
+	else return return_value
+	    ( ppv->position, true_jmp, false_jmp );
+    }
 
     if ( s == 0 )
     {
@@ -1879,7 +1923,8 @@ RETRY:
 	    mexstack::push_instr
 		( instr, ppv->position, trace_info );
 
-	    goto RETURN_VALUE;
+	    return ::return_value
+		( ppv->position, true_jmp, false_jmp );
 	}
         PRIM::func func = (PRIM::func) root;
 	if ( func != min::NULL_STUB )
@@ -1906,7 +1951,9 @@ RETRY:
 		++ mexstack::var_stack_length;
 		mexstack::push_instr
 		    ( instr, ppv->position, name );
-		goto RETURN_VALUE;
+		return ::return_value
+		    ( ppv->position,
+		      true_jmp, false_jmp );
 	    }
 	    else if
 	        ( func->flags & PRIM::LOGICAL_OPERATOR )
@@ -1973,7 +2020,9 @@ RETRY:
 			  i >= s ? name : ::star );
 		}
 		if ( ! OK ) return 0;
-		else goto RETURN_VALUE;
+		return ::return_value
+		    ( ppv->position,
+		      true_jmp, false_jmp );
 	    }
 	}
     }
@@ -2034,24 +2083,14 @@ RETRY:
 	    return 0;
 	}
 	if ( ! OK ) return 0;
-	else goto RETURN_VALUE;
+	else return ::return_value
+	    ( ppv->position, true_jmp, false_jmp );
     }
 
     mexcom::compile_error
 	( ppv->position,
           "cannot understand expression" );
     return 0;
-
-RETURN_VALUE:
-    if ( true_jmp != 0 )
-    {
-	-- mexstack::var_stack_length;
-	::jmp ( false_jmp, ppv->position,
-		mex::JMPFALSE );
-	return true_jmp;
-    }
-    else
-	return 1;
 }
 
 min::uns32 static compile_constant
@@ -2287,4 +2326,16 @@ min::uns32 static compile_if_to_value
     }
     ::label ( done );
     return OK;
+}
+
+min::uns32 static compile_bracketed_expression
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  min::gen initiator,
+	  min::gen name )
+{
+    const min::stub * stub = (const min::stub *) vp;
+    ::pushi ( min::new_stub_gen ( stub ), ppv->position,
+    	      name );
+    return 1;
 }
