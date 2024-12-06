@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  6 01:29:28 AM EST 2024
+// Date:	Fri Dec  6 06:27:41 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1036,9 +1036,23 @@ bool static compile_expression_assignment_statement
 	  bool is_restricted )
 {
 
-    min::gen left_separator =
-	min::get ( vp[0], min::dot_separator );
     min::obj_vec_ptr left_vp = vp[0];
+    min::attr_ptr left_ap = left_vp;
+    min::locate ( left_ap, min::dot_initiator );
+    min::gen left_initiator = min::get ( left_ap );
+    min::locate ( left_ap, min::dot_separator );
+    min::gen left_separator = min::get ( left_ap );
+    if ( left_initiator != min::NONE() )
+    {
+        min::phrase_position_vec left_ppv =
+	    ::get_position ( left_vp );
+	mexcom::compile_error
+	    ( left_ppv->position,
+	      "cannot understand left side of =;"
+	      "statement ignored" );
+	return false;
+    }
+
     min::uns32 left_n = 1;
     if ( left_separator == PARLEX::comma )
     {
@@ -1049,11 +1063,20 @@ bool static compile_expression_assignment_statement
 	      " than 2 elements" );
     }
 
-    min::gen right_separator =
-	min::get ( vp[2], min::dot_separator );
     min::obj_vec_ptr right_vp = vp[2];
+    min::attr_ptr right_ap = right_vp;
+    min::locate ( right_ap, min::dot_initiator );
+    min::gen right_initiator = min::get ( right_ap );
+    min::locate ( right_ap, min::dot_separator );
+    min::gen right_separator = min::get ( right_ap );
+
+    bool right_is_list =
+        ( right_initiator == min::NONE()
+	  &&
+	  right_separator == PARLEX::comma );
+
     min::uns32 right_n = 1;
-    if ( right_separator == PARLEX::comma )
+    if ( right_is_list )
     {
 	right_n = min::size_of ( right_vp );
 	MIN_ASSERT
@@ -2051,14 +2074,8 @@ RETRY:
 	    {
 		min::locate ( ap0, min::dot_initiator );
 		min::gen initiator = min::get ( ap0 );
-		if ( initiator == ::opening_quote )
-		{
-		    vp0 = min::NULL_STUB;
-		    OK = ::compile_constant
-			( vp[0], ppv[0], type, name );
-		}
-		else if (    initiator
-		          == PARLEX::left_parenthesis )
+		if (    initiator
+		     == PARLEX::left_parenthesis )
 		{
 		    vp0 = min::NULL_STUB;
 		    OK = ::compile_expression
