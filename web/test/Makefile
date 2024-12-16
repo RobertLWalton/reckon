@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Nov 17 23:52:54 EST 2024
+# Date:		Mon Dec 16 07:25:23 AM EST 2024
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -24,6 +24,7 @@ RUN_TESTS = reckon_numbers \
 	    reckon_logical_operators \
 	    reckon_assignments \
 	    reckon_loops \
+	    reckon_lists \
 	    reckon_errors
 PARSE_TESTS = reckon_lexemes \
 	      reckon_logical_lines \

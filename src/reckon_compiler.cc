@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 16 01:49:18 AM EST 2024
+// Date:	Mon Dec 16 07:18:53 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2082,8 +2082,7 @@ RETRY:
 	    {
 		min::locate ( ap0, min::dot_initiator );
 		min::gen initiator = min::get ( ap0 );
-		if (    initiator
-		     == PARLEX::left_parenthesis )
+		if ( initiator != min::NONE() )
 		{
 		    vp0 = min::NULL_STUB;
 		    OK = ::compile_expression
@@ -2377,7 +2376,7 @@ min::uns32 static compile_bracketed_expression
 	mexstack::push_instr
 	    ( i1, ppv->position, name );
 
-	min::gen labbuf[2] = { name, ::star };
+	min::gen labbuf[2] = { ::star, name };
 	min::locatable_gen trace_info
 	    ( min::new_lab_gen ( labbuf, 2 ) );
 
@@ -2388,13 +2387,13 @@ min::uns32 static compile_bracketed_expression
 	      min::dot_initiator };
 	-- mexstack::var_stack_length;
 	mexstack::push_instr
-	    ( i2, ppv->position, trace_info );
+	    ( i2, ppv->position, trace_info, true );
 	::pushi ( PARLEX::right_square,
 	          ppv->position, ::star, true );
 	i2.immedD = min::dot_terminator;
 	-- mexstack::var_stack_length;
 	mexstack::push_instr
-	    ( i2, ppv->position, trace_info );
+	    ( i2, ppv->position, trace_info, true );
 
 	mex::instr i3 =
 	    { mex::VPUSH, 0, 0, 0, 1, 0, 0,
