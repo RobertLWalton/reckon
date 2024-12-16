@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  6 06:27:41 AM EST 2024
+// Date:	Mon Dec 16 01:49:18 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -676,11 +676,16 @@ bool static compile_if_statement
 // Note that the value of true/false_jmp is never 0, so
 // a returned value of 0 always indicates an error.
 //
+// If ignore_initiator is true, any .initiator of the
+// expression should be ignored as if it did not exist
+// (or was '(').
+//
 min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp = 0,
 	  min::uns32 false_jmp = 0,
-	  min::gen name = ::star );
+	  min::gen name = ::star,
+	  bool ignore_initiator = false );
 
 min::uns32 static compile_constant
 	( min::gen expression,
@@ -716,7 +721,7 @@ min::uns32 static compile_if_to_value
 // and returns 0.
 //
 min::uns32 static compile_bracketed_expression
-	( min::obj_vec_ptr vp,
+	( min::obj_vec_ptr & vp,
 	  min::phrase_position_vec ppv,
 	  min::gen initiator,
 	  min::gen name = ::star );
@@ -1849,7 +1854,8 @@ min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp,
 	  min::uns32 false_jmp,
-	  min::gen name )
+	  min::gen name,
+	  bool ignore_initiator )
 {
     min::obj_vec_ptr vp = expression;
     min::phrase_position_vec ppv =
@@ -1860,7 +1866,9 @@ min::uns32 static compile_expression
     min::attr_ptr ap = vp;
     min::locate ( ap, min::dot_initiator );
     min::gen initiator = min::get ( ap );
-    if ( initiator != min::NONE()
+    if ( ! ignore_initiator
+         &&
+	 initiator != min::NONE()
          &&
 	 initiator != PARLEX::left_parenthesis
          &&
@@ -2346,11 +2354,87 @@ min::uns32 static compile_if_to_value
 }
 
 min::uns32 static compile_bracketed_expression
-	( min::obj_vec_ptr vp,
+	( min::obj_vec_ptr & vp,
 	  min::phrase_position_vec ppv,
 	  min::gen initiator,
 	  min::gen name )
 {
+    if ( initiator == PARLEX::left_square )
+    {
+        min::attr_ptr ap = vp;
+	min::locate ( ap, min::dot_separator );
+	min::gen separator = min::get ( ap );
+	min::uns32 n = 1;
+	if ( separator == PARLEX::comma )
+	    n = min::size_of ( vp );
+
+	// Create empty [] list with room for n vector
+	// elements and .initiator and .terminator.
+	//
+	mex::instr i1 =
+	    { mex::PUSHOBJ, 0, 0, 0, n+10, 0, 2 };
+	++ mexstack::var_stack_length;
+	mexstack::push_instr
+	    ( i1, ppv->position, name );
+
+	min::gen labbuf[2] = { name, ::star };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labbuf, 2 ) );
+
+	::pushi ( PARLEX::left_square,
+	          ppv->position, ::star, true );
+	mex::instr i2 =
+	    { mex::SETI, 0, 0, 0, 1, 0, 0,
+	      min::dot_initiator };
+	-- mexstack::var_stack_length;
+	mexstack::push_instr
+	    ( i2, ppv->position, trace_info );
+	::pushi ( PARLEX::right_square,
+	          ppv->position, ::star, true );
+	i2.immedD = min::dot_terminator;
+	-- mexstack::var_stack_length;
+	mexstack::push_instr
+	    ( i2, ppv->position, trace_info );
+
+	mex::instr i3 =
+	    { mex::VPUSH, 0, 0, 0, 1, 0, 0,
+	      PARLEX::left_square };
+
+	if ( separator != PARLEX::comma )
+	{
+	    const min::stub * stub =
+	        (const min::stub *) vp;
+	    min::gen exp = min::new_stub_gen ( stub );
+	    vp =  min::NULL_STUB;
+	    if ( ! ::compile_expression 
+	               ( exp, 0, 0, ::star, true ) ) 
+	        return 0;
+	    -- mexstack::var_stack_length;
+	    mexstack::push_instr
+		( i3, ppv->position, trace_info, true );
+
+	    return 1;
+	}
+	else
+	{
+	    min::uns32 s = min::size_of ( vp );
+	    min::uns32 OK = 1;
+	    for ( min::uns32 i = 0; i < s; ++ i )
+	    {
+	        if ( ! ::compile_expression ( vp[i] ) )
+		    OK = 0;
+		else
+		{
+		    -- mexstack::var_stack_length;
+		    mexstack::push_instr
+			( i3, ppv->position, trace_info,
+			      true );
+		}
+	    }
+	    return OK;
+	}
+
+    }
     const min::stub * stub = (const min::stub *) vp;
     ::pushi ( min::new_stub_gen ( stub ), ppv->position,
     	      name );
