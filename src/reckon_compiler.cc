@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 19 06:59:41 PM EST 2024
+// Date:	Fri Dec 20 12:54:34 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -270,11 +270,56 @@ inline void end_if_sequence ( void )
     }
 }
 
-// Scan the name of an assignment left side variable
+struct set_data {
+    min::uns32 nlabels;	// Number of labels at end of
+    			// refexp.
+    min::gen refexp;	// Reference expression.
+    min::uns32 base;	// Location of base object
+    			// in mexstack variable stack.
+    min::uns32 label;	// Location of label in mexstack
+    			// variable stack, or
+			// NO_LOCATION if label is
+			// immedD.
+    min::gen immedD;    // Label if it is in immedD.
+    min::uns32 value;	// Location of value in variable
+    			// stack.
+};
+
+static ::set_data null_set_data = { 0 };
+
+// Scan a reference expression on the left side of '='.
 // and locate or create a var object for it.  Returns
 // the var object found or created, or returns NULL_STUB
-// if compile_error called.  If the var does NOT have
-// the WRITABLE_VAR flag, the var has been created, and
+// if compile_error called.  If no error, also returns
+// information in set_data.
+//
+// The expression should be a MIN object whose elements
+// are the variable name optionally preceeded by `next',
+// and if not preceeded by `next', optionally followed
+// by [] bracketed label expressions.
+//
+// If there is no error, a PRIM::var is returned.  This
+// should be stored immediately in a min::locatable_var.
+// If there is an error, NULL_STUB is returned.
+//
+// If the variable name beginning the reference
+// expression is followed by [] bracketed label
+// expressions, set_data.nlabels is set to the number
+// of these label expressions and set_data.refexp is set
+// to expression.  Otherwise set_data.nlabels is set to
+// 0.
+//
+// If nlabels > 0 and there is no error, the var
+// returned is for the readable variable whose value is
+// the base of the first label index subexpression.
+//
+// Otherwise, if the var returned has the WRITABLE_VAR
+// flag, the var was found and the caller of this
+// function should compile an instruction to move the
+// appropriate runtime value to the var's location.
+//
+// But if nlabels == 0 and the var returned has no
+// WRITABLE_VAR flag, the var has been created, and
 // the caller of this function should assign the var's
 // location and push the var into ::symbol_table at the
 // appropriate time.  In this case, the returned var->
@@ -283,19 +328,10 @@ inline void end_if_sequence ( void )
 // the predecessor of the variable.  In either case
 // var->location must be overwritten by the caller.
 //
-// If the var returned has the WRITABLE_VAR flag, the
-// var was found and the caller of this function should
-// compile an instruction to move the appropriate
-// runtime value to the var's location.
-//
-// The expession should be a MIN object whose elements
-// are the variable name optionally preceeded by `next'.
-//
-// The returned var should be stored immediately in a
-// min::locatable_var.
-//
 const min::uns32 NO_LOCATION = 0xFFFFFFFF;
-PRIM::var scan_var ( min::gen expression )
+PRIM::var scan_var
+	( min::gen expression,
+	  ::set_data & set_data = null_set_data )
 {
     min::uns8 level = mexstack::lexical_level;
     min::uns32 depth = mexstack::depth[level];
@@ -317,14 +353,38 @@ PRIM::var scan_var ( min::gen expression )
     }
     min::locatable_gen var_name
 	( PRIM::scan_var_name ( vp, i ) );
+
+    set_data.nlabels = s - i;
     if ( i < s )
     {
-	mexcom::compile_error
-	    ( ppv->position,
-              "left side of `=' operator does not"
-              " have the form `next? VARIABLE-NAME'" );
-        return min::NULL_STUB;
+	while ( i < s )
+	{
+	    if (    min::get
+	                ( vp[i], min::dot_initiator )
+		 != PARLEX::left_square )
+	        break;
+	    ++ i;
+	}
+	if ( i < s )
+	{
+	    mexcom::compile_error
+		( ppv->position,
+		  "left side of `=' operator does not"
+		  " have the form `next? VARIABLE-NAME'"
+		  " or VARIABLE-NAME[LABEL]..." );
+	    return min::NULL_STUB;
+	}
+	if ( next_present )
+	{
+	    mexcom::compile_error
+		( ppv->position,
+		  "reference expression with labels"
+		  " cannot begin with `next'" );
+	    return min::NULL_STUB;
+	}
+	set_data.refexp = expression;
     }
+        
 
     min::locatable_var<PRIM::var> var
         ( (PRIM::var) TAB::find
@@ -332,6 +392,35 @@ PRIM::var scan_var ( min::gen expression )
 	        PRIM::VAR,
 	        PAR::ALL_SELECTORS,
 	        ::symbol_table ) );
+
+    if ( set_data.nlabels > 0 )
+    {
+	if ( var->flags & PRIM::WRITABLE_VAR )
+	{
+	    if ( var->flags & PRIM::NEXT_VAR )
+	    {
+		var = (PRIM::var) TAB::find_next
+		    ( (TAB::root) var,
+		      PRIM::VAR,
+		      PAR::ALL_SELECTORS );
+		MIN_REQUIRE
+		    ( var != min::NULL_STUB );
+		MIN_REQUIRE
+		    ( ! (   var->flags
+			  & PRIM::WRITABLE_VAR ) );
+	    }
+	    else
+	    {
+		mexcom::compile_error
+		    ( ppv->position,
+		      "cannot read write-only"
+		      " variable" );
+		return min::NULL_STUB;
+	    }
+	}
+
+	return var;
+    }
 
     // At most one of the following _OK's can be true;
     //
@@ -2464,6 +2553,12 @@ min::uns32 static compile_bracketed_expression
 	::pushi ( PARLEX::right_square,
 	          ppv->position, ::star, true );
 	i2.immedD = min::dot_terminator;
+	-- mexstack::var_stack_length;
+	mexstack::push_instr
+	    ( i2, ppv->position, trace_info, true );
+	::pushi ( PARLEX::comma,
+	          ppv->position, ::star, true );
+	i2.immedD = min::dot_separator;
 	-- mexstack::var_stack_length;
 	mexstack::push_instr
 	    ( i2, ppv->position, trace_info, true );
