@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 16 07:18:53 AM EST 2024
+// Date:	Thu Dec 19 06:59:41 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1943,16 +1943,89 @@ RETRY:
 		}
 	    }
 
-	    mex::instr instr =
-		{ mex::PUSHS, mex::T_PUSH, 0, 0,
-		    mexstack::var_stack_length
-		  - var->location - 1 };
-	    min::gen labv[2] = { var->label, name };
-	    min::locatable_gen trace_info
-		( min::new_lab_gen ( labv, 2 ) );
-	    ++ mexstack::var_stack_length;
-	    mexstack::push_instr
-		( instr, ppv->position, trace_info );
+	    if ( argument_vector->length == 0 )
+	    {
+		mex::instr instr =
+		    { mex::PUSHS, mex::T_PUSH, 0, 0,
+			mexstack::var_stack_length
+		      - var->location - 1 };
+		min::gen labv[2] = { var->label, name };
+		min::locatable_gen trace_info
+		    ( min::new_lab_gen ( labv, 2 ) );
+		++ mexstack::var_stack_length;
+		mexstack::push_instr
+		    ( instr, ppv->position,
+		      trace_info );
+	    }
+	    else
+	    {
+	        bool OK = true;
+		min::gen from = var->label;
+		min::gen to =
+		    ( argument_vector->length == 1 ?
+		      name : ::star );
+		min::uns32 offset =
+		      min::size_of ( vp )
+		    - argument_vector->length;
+		min::phrase_position pp = ppv->position;
+		pp.end = (& ppv[offset+0])->end;
+		if ( ! ::compile_expression
+		             ( argument_vector[0],
+			       0, 0, ::star, true ) )
+		{
+		    ::pushi ( min::MISSING(),
+		              ppv[offset] );
+		    OK = false;
+		}
+		mex::instr get_instr =
+		    { mex::GET, 0, 0, 0,
+		        mexstack::var_stack_length
+		      - var->location - 1,
+		      1, 0 };
+		min::gen labv[2] = { from, to };
+		min::locatable_gen trace_info
+		    ( min::new_lab_gen ( labv, 2 ) );
+		mexstack::push_instr
+		    ( get_instr, pp, trace_info );
+
+		for ( min::uns32 i = 1;
+		      i < argument_vector->length;
+		      ++ i )
+		{
+		    if ( ! ::compile_expression
+				 ( argument_vector[i],
+				   0, 0, ::star,
+				   true ) )
+		    {
+			::pushi ( min::MISSING(),
+				  ppv[offset+i] );
+			OK = false;
+		    }
+		    if ( i ==   argument_vector->length
+		              - 1 )
+		        to = name;
+		    min::gen labv[2] = { ::star, to };
+		    min::locatable_gen trace_info
+			( min::new_lab_gen
+			      ( labv, 2 ) );
+		    get_instr.immedA = 1;
+		    pp.end = (& ppv[offset+i])->end;
+		    mexstack::push_instr
+			( get_instr, pp, trace_info );
+		    min::gen pop_labv[2] = { to, to };
+		    min::locatable_gen pop_trace_info
+			( min::new_lab_gen
+			      ( pop_labv, 2 ) );
+
+		    mex::instr pop_instr =
+		        { mex::POPS };
+		    -- mexstack::var_stack_length;
+		    mexstack::push_instr
+			( pop_instr, pp,
+			             pop_trace_info );
+		}
+		if ( ! OK ) return 0;
+	    }
 
 	    return ::return_value
 		( ppv->position, true_jmp, false_jmp );
