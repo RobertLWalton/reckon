@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 20 12:54:34 AM EST 2024
+// Date:	Sat Dec 21 07:29:24 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,6 +57,7 @@ static min::locatable_gen EXACTLY;
 static min::locatable_gen AT_MOST;
 static min::locatable_gen TIMES;
 static min::locatable_gen iteration_ops;
+static min::locatable_gen HIDDEN_COUNTER;
 
 static min::uns32 jmp_counter = 1;
 
@@ -100,6 +101,8 @@ static void initialize ( void )
         { ::DO, ::REPEAT, ::WHILE, ::UNTIL,
 	        ::EXACTLY, ::AT_MOST };
     ::iteration_ops = min::new_lab_gen ( labv, 6 );
+    ::HIDDEN_COUNTER =
+        min::new_str_gen ( "*HIDDEN*COUNTER*" );
 }
 static min::initializer initializer ( ::initialize );
 
@@ -1765,6 +1768,24 @@ bool static compile_block_assignment_statement
 		          ( right_vp[i] ) )
 		    OK = false;
 		i += 2;
+		if ( ! OK ) continue;
+
+		min::uns8 level =
+		    mexstack::lexical_level;
+		min::uns32 depth =
+		    mexstack::depth[level];
+
+		min::locatable_var<PRIM::var> var;
+		var = PRIM::create_var
+		    ( ::HIDDEN_COUNTER,
+		      PAR::ALL_SELECTORS,
+		      right_ppv[i-2],
+		      level, depth,
+		      0,
+		      mexstack::var_stack_length - 1,
+		      min::new_stub_gen
+			( mexcom::output_module ) );
+		PRIM::push_var ( ::symbol_table, var );
 		continue;
 	    }
 	}
