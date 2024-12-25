@@ -515,7 +515,7 @@ next i = 0
     [70:123;33] PUSHI T_PUSH 0 0 0 0; [< next i >]
 while i < 6 at most 5 times:
                     ^
-    [71:124;34] PUSHI T_PUSH 0 0 0 5; *
+    [71:124;34] PUSHI T_PUSH 0 0 0 5; *HIDDEN*COUNTER*
     next power * = 2
     ^^^^^^^^^^
     [72:125;35] PUSHS T_PUSH 2 0 0; [< power power >]
@@ -587,7 +587,7 @@ next power = 1
     [75:141;37] PUSHI T_PUSH 0 0 0 1; [< next power >]
 do exactly 4 times:
            ^
-    [76:142;38] PUSHI T_PUSH 0 0 0 4; *
+    [76:142;38] PUSHI T_PUSH 0 0 0 4; *HIDDEN*COUNTER*
     next power * = 2
     ^^^^^^^^^^
     [77:143;39] PUSHS T_PUSH 1 0 0; [< power power >]
@@ -626,7 +626,7 @@ next power = 1
     [79:151;40] PUSHI T_PUSH 0 0 0 1; [< next power >]
 do 4 times:
    ^
-    [80:152;41] PUSHI T_PUSH 0 0 0 4; *
+    [80:152;41] PUSHI T_PUSH 0 0 0 4; *HIDDEN*COUNTER*
     next power * = 2
     ^^^^^^^^^^
     [81:153;42] PUSHS T_PUSH 1 0 0; [< power power >]
@@ -908,3 +908,68 @@ do OUTER LOOP while i < 6:
     [105:210;48] ENDL T_ENDL 0 1 14 *UNDEFINED_GEN(0x7FF4170000000000)*
     [211;48] LABEL 26
     [100:198;48] JMPGEQ T_JMPS[1] 1 0 13 0; 26
+Q = 5555
+    ^^^^
+    [107:211;49] PUSHI T_PUSH 0 0 0 5555; Q
+next Q = do:
+^^^^^^
+    [108:212;50] PUSHS T_PUSH 0 0 0; [< Q Q >]
+next Q = do:
+           ^
+    X = 1
+^^^^^^^^^
+    do 3 times:
+^^^^^^^^^^^^^^^
+        Y = 2
+^^^^^^^^^^^^^
+    next Q = 6666
+^^^^^^^^^^^^^^^^^
+    [112:213;50] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    X = 1
+        ^
+    [109:214;51] PUSHI T_PUSH 0 0 0 1; X
+    do 3 times:
+       ^
+    [110:215;52] PUSHI T_PUSH 0 0 0 3; *HIDDEN*COUNTER*
+    do 3 times:
+              ^
+        Y = 2
+^^^^^^^^^^^^^
+    [111:216;52] BEGL T_BEGL 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    do 3 times:
+       ^
+    [110:217;52] JMPCNT T_JMPS 0 0 0 1; 30
+        Y = 2
+            ^
+    [111:218;53] PUSHI T_PUSH 0 0 0 2; Y
+    do 3 times:
+              ^
+        Y = 2
+^^^^^^^^^^^^^
+    [111:219;52] ENDL T_ENDL 1 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [220;52] LABEL 30
+    [110:217;52] JMPCNT T_JMPS[1] 0 0 3 1; 30
+    next Q = 6666
+             ^^^^
+    [112:220;53] PUSHI T_PUSH 0 0 0 6666; [< next Q >]
+next Q = do:
+^^^^^^
+    [108:221;52] POPS T_POP 3 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
+                 Q >] >]
+next Q = do:
+           ^
+    X = 1
+^^^^^^^^^
+    do 3 times:
+^^^^^^^^^^^^^^^
+        Y = 2
+^^^^^^^^^^^^^
+    next Q = 6666
+^^^^^^^^^^^^^^^^^
+    [112:222;50] END T_END 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [223;50] LABEL 29
+Q
+^
+    [113:223;51] PUSHS T_PUSH 0 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< Q * >]

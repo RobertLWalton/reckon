@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 13 09:49:49 PM EDT 2024
+// Date:	Tue Dec 24 07:40:10 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,12 @@ namespace reckon {
     void init_compiler
 	( ll::parser::parser parser,
           mexstack::print print_switch );
+
+    // Set by init_complier to symbol table.
+    //
+    extern min::locatable_var
+           <ll::parser::table::key_table>
+	   symbol_table;
 
     // Call to compile next statement.  Return true if
     // no error, false if error (and print error
