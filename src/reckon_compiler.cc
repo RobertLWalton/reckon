@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 24 01:19:04 PM EST 2024
+// Date:	Fri Dec 27 07:06:24 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -750,6 +750,20 @@ bool static compile_exit_statement
 bool static compile_continue_statement
 	( min::obj_vec_ptr & vp, min::uns32 s );
 
+// Compile set data base and label in preparation
+// for a SET instruction.  Data.base and data.label
+// are set after the appropriate subexpressions
+// are compiled.  All data.nlabel subexpressions
+// are compiled.  It is up to the caller of this
+// function to set the data.value field after reserving
+// a stack place for the value, or instead to compile
+// the value and execute the SET.
+//
+bool static compile_set_data
+	( PRIM::var var, ::set_data * data );
+
+// Compile a *VARIABLES* or *FUNCTIONS* statement.
+//
 bool static compile_symbols_statement
 	( min::obj_vec_ptr & vp, min::uns32 s );
 
@@ -827,6 +841,13 @@ min::uns32 static compile_expression
 	  min::uns32 false_jmp = 0,
 	  min::gen name = ::star,
 	  bool ignore_initiator = false );
+
+min::uns32 static compile_label
+	( min::gen expression )
+{
+    return ::compile_expression
+        ( expression, 0, 0, ::star, true );
+}
 
 min::uns32 static compile_constant
 	( min::gen expression,
@@ -1578,6 +1599,45 @@ bool static compile_continue_statement
     return false;
 }
 
+bool static compile_set_data
+	( PRIM::var var, ::set_data * data )
+{
+    min::obj_vec_ptr vp = data->refexp;
+    min::uns32 s = min::size_of ( vp );
+    min::phrase_position_vec ppv =
+        ::get_position ( vp );
+    min::uns32 i = s - data->nlabels;
+    data->base = var->location;
+    bool OK = true;
+    min::gen from = var->label;
+    min::phrase_position pp = ppv->position;
+    while ( i < s )
+    {
+        if ( ! ::compile_label ( vp[i] ) )
+	{
+	    OK = false;
+	    ::pushi ( ::ZERO, ppv[i] );
+	}
+	if ( ++ i == s ) break;
+	
+	mex::instr get_instr =
+	    { mex::GET, 0, 0, 0,
+		mexstack::run_stack_length
+	      - data->base - 1,
+	      1, 0 };
+	min::gen labv[2] = { from, ::star };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	pp.end = (& ppv[i])->end;
+	mexstack::push_instr
+	    ( get_instr, pp, trace_info );
+	data->base = mexstack::run_stack_length - 1;
+	from = ::star;
+    }
+    data->label = mexstack::run_stack_length - 1;
+    return OK;
+}
+
 bool static compile_symbols_statement
 	( min::obj_vec_ptr & vp, min::uns32 s )
 {
@@ -1923,7 +1983,8 @@ bool static compile_block_assignment_statement
 	    else if ( var->location == ::NO_LOCATION )
 	    {
 		::pushi
-		    ( ZERO, var->position, var->label );
+		    ( ::ZERO, var->position,
+		              var->label );
 		var->location =
 		    mexstack::run_stack_length - 1;
 		var->flags |= PRIM::WRITABLE_VAR;
@@ -2158,9 +2219,8 @@ RETRY:
 		    - argument_vector->length;
 		min::phrase_position pp = ppv->position;
 		pp.end = (& ppv[offset+0])->end;
-		if ( ! ::compile_expression
-		             ( argument_vector[0],
-			       0, 0, ::star, true ) )
+		if ( ! ::compile_label
+		             ( argument_vector[0] ) )
 		{
 		    ::pushi ( min::MISSING(),
 		              ppv[offset] );
@@ -2181,10 +2241,8 @@ RETRY:
 		      i < argument_vector->length;
 		      ++ i )
 		{
-		    if ( ! ::compile_expression
-				 ( argument_vector[i],
-				   0, 0, ::star,
-				   true ) )
+		    if ( ! ::compile_label
+				 ( argument_vector[i] ) )
 		    {
 			::pushi ( min::MISSING(),
 				  ppv[offset+i] );
@@ -2673,8 +2731,7 @@ min::uns32 static compile_bracketed_expression
 	        (const min::stub *) vp;
 	    min::gen exp = min::new_stub_gen ( stub );
 	    vp =  min::NULL_STUB;
-	    if ( ! ::compile_expression 
-	               ( exp, 0, 0, ::star, true ) ) 
+	    if ( ! ::compile_label ( exp ) ) 
 	        return 0;
 	    -- mexstack::run_stack_length;
 	    mexstack::push_instr
