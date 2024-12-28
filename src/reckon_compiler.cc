@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 07:06:24 PM EST 2024
+// Date:	Fri Dec 27 10:46:21 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -315,8 +315,6 @@ struct set_data {
     			// stack.
 };
 
-static ::set_data null_set_data = { 0 };
-
 // Scan a reference expression on the left side of '='.
 // and locate or create a var object for it.  Returns
 // the var object found or created, or returns NULL_STUB
@@ -361,7 +359,7 @@ static ::set_data null_set_data = { 0 };
 const min::uns32 NO_LOCATION = 0xFFFFFFFF;
 PRIM::var scan_var
 	( min::gen expression,
-	  ::set_data & set_data = null_set_data )
+	  ::set_data * data = NULL )
 {
     min::uns8 level = mexstack::lexical_level;
     min::uns32 depth = mexstack::depth[level];
@@ -384,9 +382,18 @@ PRIM::var scan_var
     min::locatable_gen var_name
 	( PRIM::scan_var_name ( vp, i ) );
 
-    set_data.nlabels = s - i;
     if ( i < s )
     {
+        if ( data == NULL )
+	{
+	    mexcom::compile_error
+		( ppv->position,
+		  "left side of `=' operator does not"
+		  " have the form"
+		  " `next? VARIABLE-NAME'" );
+	    return min::NULL_STUB;
+	}
+	data->nlabels = s - i;
 	while ( i < s )
 	{
 	    if (    min::get
@@ -412,8 +419,10 @@ PRIM::var scan_var
 		  " cannot begin with `next'" );
 	    return min::NULL_STUB;
 	}
-	set_data.refexp = expression;
+	data->refexp = expression;
     }
+    else if ( data != NULL )
+        data->nlabels = 0;
         
 
     min::locatable_var<PRIM::var> var
@@ -423,7 +432,7 @@ PRIM::var scan_var
 	        PAR::ALL_SELECTORS,
 	        reckon::symbol_table ) );
 
-    if ( set_data.nlabels > 0 )
+    if ( data != NULL && data->nlabels > 0 )
     {
 	if ( var->flags & PRIM::WRITABLE_VAR )
 	{
@@ -1271,19 +1280,20 @@ bool static compile_expression_assignment_statement
 
     min::locatable_var<PRIM::var> vars[left_n];
     min::gen exps[right_n];
+    ::set_data data[left_n];
     bool OK = true;
     if ( left_n == 1 )
     {
 	left_vp = min::NULL_STUB;
 	right_vp = min::NULL_STUB;
-	vars[0] = ::scan_var ( vp[0] );
+	vars[0] = ::scan_var ( vp[0], data + 0 );
 	if ( vars[0] == min::NULL_STUB )
 	    OK = false;
 	exps[0] = vp[2];
     }
     else for ( min::uns32 i = 0; i < left_n; ++ i )
     {
-	vars[i] = ::scan_var ( left_vp[i] );
+	vars[i] = ::scan_var ( left_vp[i], data + i );
 	if ( vars[i] == min::NULL_STUB )
 	    OK = false;
 	exps[i] = right_vp[i];
