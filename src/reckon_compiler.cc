@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 27 10:46:21 PM EST 2024
+// Date:	Mon Dec 30 03:34:14 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -304,6 +304,8 @@ struct set_data {
     min::uns32 nlabels;	// Number of labels at end of
     			// refexp.
     min::gen refexp;	// Reference expression.
+    min::phrase_position_vec refppv;
+    			// ppv of refexp.
     min::uns32 base;	// Location of base object
     			// in mexstack variable stack.
     min::uns32 label;	// Location of label in mexstack
@@ -332,10 +334,15 @@ struct set_data {
 //
 // If the variable name beginning the reference
 // expression is followed by [] bracketed label
-// expressions, set_data.nlabels is set to the number
-// of these label expressions and set_data.refexp is set
-// to expression.  Otherwise set_data.nlabels is set to
-// 0.
+// expressions, then if data == NULL compile_error is
+// called and NULL_STUB is returned.  Otherwise data->
+// nlabels is set to the number of these label
+// expressions, data->refexp is set to the expression,
+// and data->refppv is set to its .position.
+//
+// If there are no following [] bracketed label
+// expressions and data != NULL, data->nlabels is
+// set to 0.
 //
 // If nlabels > 0 and there is no error, the var
 // returned is for the readable variable whose value is
@@ -346,15 +353,16 @@ struct set_data {
 // function should compile an instruction to move the
 // appropriate runtime value to the var's location.
 //
-// But if nlabels == 0 and the var returned has no
-// WRITABLE_VAR flag, the var has been created, and
-// the caller of this function should assign the var's
-// location and push the var into symbol_table at the
-// appropriate time.  In this case, the returned var->
-// location is NO_LOCATION unless the variable is a
-// next variable, in which case it is the location of
-// the predecessor of the variable.  In either case
-// var->location must be overwritten by the caller.
+// But if data == NULL or data->nlabels == 0 and the var
+// returned has no WRITABLE_VAR flag, the var has been
+// created, and the caller of this function should
+// assign the var's location and push the var into
+// symbol_table at the appropriate time.  In this case,
+// the returned var->location is NO_LOCATION unless
+// the variable is a next variable, in which case it
+// is the location of the predecessor of the variable.
+// In either case var->location must be overwritten by
+// the caller.
 //
 const min::uns32 NO_LOCATION = 0xFFFFFFFF;
 PRIM::var scan_var
@@ -420,6 +428,8 @@ PRIM::var scan_var
 	    return min::NULL_STUB;
 	}
 	data->refexp = expression;
+	data->refppv = (min::phrase_position_vec)
+	    min::get ( expression, min::dot_position );
     }
     else if ( data != NULL )
         data->nlabels = 0;
@@ -760,11 +770,11 @@ bool static compile_continue_statement
 	( min::obj_vec_ptr & vp, min::uns32 s );
 
 // Compile set data base and label in preparation
-// for a SET instruction.  Data.base and data.label
+// for a SET instruction.  Data->base and data->label
 // are set after the appropriate subexpressions
-// are compiled.  All data.nlabel subexpressions
+// are compiled.  All data->nlabel subexpressions
 // are compiled.  It is up to the caller of this
-// function to set the data.value field after reserving
+// function to set the data->value field after reserving
 // a stack place for the value, or instead to compile
 // the value and execute the SET.
 //
@@ -1299,10 +1309,32 @@ bool static compile_expression_assignment_statement
 	exps[i] = right_vp[i];
     }
 
+    min::uns32 stack_length =
+        mexstack::run_stack_length;
+
+    for ( min::uns32 i = 0; i < left_n; ++ i )
+    {
+	if ( vars[i] == min::NULL_STUB ) continue;
+	::set_data * d = data +  i;
+        if ( d->nlabels == 0 ) continue;
+	if ( ! ::compile_set_data ( vars[i], d ) )
+	{
+	    OK = false;
+	    vars[i] = min::NULL_STUB;
+	    continue;
+	}
+	::pushi ( ::ZERO, d->refppv->position );
+	d->value = mexstack::run_stack_length - 1;
+    }
+    min::uns32 set_data_length =
+        mexstack::run_stack_length - stack_length;
+    stack_length = mexstack::run_stack_length;
+
     for ( min::uns32 i = 0; i < left_n; ++ i )
     {
         PRIM::var var = vars[i];
 	min::gen exp = exps[i];
+	::set_data & d = data[i];
 	min::locatable_gen var_name
 	    ( var != min::NULL_STUB ?
 	      ::full_var_name ( var ) :
@@ -1327,13 +1359,23 @@ bool static compile_expression_assignment_statement
 	    continue;
 	}
 
-	if ( var->flags & PRIM::WRITABLE_VAR )
+	if ( d.nlabels > 0 )
+	{
+	    mex::instr pop_instr = { mex::POPS };
+	    pop_instr.immedA =
+	        mexstack::run_stack_length
+		- d.value - 1;
+	    -- mexstack::run_stack_length;
+	    mexstack::push_instr
+		( pop_instr, d.refppv->position );
+	}
+	else if ( var->flags & PRIM::WRITABLE_VAR )
 	{
 	    min::gen labv[2] = { ::star, var_name };
 	    min::locatable_gen trace_info
 		( min::new_lab_gen ( labv, 2 ) );
 	    mex::instr instr =
-		{ mex::POPS, mex::T_POP, 0, 0,
+		{ mex::POPS, 0, 0, 0,
 		    mexstack::run_stack_length - 1
 		  - var->location };
 	    -- mexstack::run_stack_length;
@@ -1352,20 +1394,63 @@ bool static compile_expression_assignment_statement
 	    vars[i] = min::NULL_STUB;
 	    OK = false;
 	}
-	else
-	    var->location =
-	        mexstack::run_stack_length - 1;
+	// else: var->location assigned below.
+    }
+    min::uns32 allocated_var_length =
+        mexstack::run_stack_length - stack_length;
+
+    if ( set_data_length > 0 )
+    {
+	for ( min::uns32 i = 0; i < left_n; ++ i )
+	{
+	    if ( vars[i] == min::NULL_STUB ) continue;
+	    ::set_data & d = data[i];
+	    if ( d.nlabels == 0 ) continue;
+	    mex::instr push_instr = { mex::PUSHS };
+	    push_instr.immedA =
+	          mexstack::run_stack_length
+		- d.value - 1;
+	    ++ mexstack::run_stack_length;
+	    mexstack::push_instr
+		( push_instr, d.refppv->position );
+	    mex::instr set_instr = { mex::SET };
+	    set_instr.immedA =
+	          mexstack::run_stack_length
+		- d.base - 1;
+	    set_instr.immedC =
+	          mexstack::run_stack_length
+		- d.label - 1;
+	    -- mexstack::run_stack_length;
+	    mexstack::push_instr
+		( set_instr, d.refppv->position );
+	}
+
+	min::phrase_position_vec ppv =
+	    ::get_position ( right_vp );
+	mex::instr del_instr = { mex::DEL };
+	del_instr.immedA = allocated_var_length;
+	del_instr.immedC = set_data_length;
+	mexstack::run_stack_length -= set_data_length;
+	mexstack::push_instr
+	    ( del_instr, ppv->position );
     }
 
+    min::uns32 location = mexstack::run_stack_length
+                        - allocated_var_length;
     for ( min::uns32 i = 0; i < left_n; ++ i )
     {
         PRIM::var var = vars[i];
 	if ( var != min::NULL_STUB
 	     &&
+	     data[i].nlabels == 0
+	     &&
 	     ! is_restricted
 	     &&
 	     ! ( var->flags & PRIM::WRITABLE_VAR ) )
+	{
+	    var->location = location ++;
 	    ::push_var ( var );
+	}
     }
 
     return OK;
@@ -1614,8 +1699,7 @@ bool static compile_set_data
 {
     min::obj_vec_ptr vp = data->refexp;
     min::uns32 s = min::size_of ( vp );
-    min::phrase_position_vec ppv =
-        ::get_position ( vp );
+    min::phrase_position_vec ppv = data->refppv;
     min::uns32 i = s - data->nlabels;
     data->base = var->location;
     bool OK = true;
@@ -2252,7 +2336,7 @@ RETRY:
 		      ++ i )
 		{
 		    if ( ! ::compile_label
-				 ( argument_vector[i] ) )
+			       ( argument_vector[i] ) )
 		    {
 			::pushi ( min::MISSING(),
 				  ppv[offset+i] );
