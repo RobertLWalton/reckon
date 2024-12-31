@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Mon Dec 16 07:22:58 AM EST 2024
+// Date:        Tue Dec 31 12:33:49 AM EST 2024
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -37,3 +37,20 @@ Z10 = Y[10]
 Zfoo = Y["foo"]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Zfoo|} =
      {|Y ["foo"]|}|}
+
+X[1] = 20
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [1]|} =
+     {|20|}|}
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+X[0], X[2] = X[2], X[0]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|X [0]|}, {|X [2]|}|} = {|{|X [2]|}, {|X [0]|}|}|}
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+
+TOP, X[3] = X[3], *NONE*
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|TOP|}, {|X [3]|}|} = {|{|X [3]|}, {|*NONE*|}|}|}
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}

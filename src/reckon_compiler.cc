@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 30 03:34:14 AM EST 2024
+// Date:	Tue Dec 31 12:27:34 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,6 +44,7 @@ static min::locatable_gen lt;
 static min::locatable_gen leq;
 static min::locatable_gen TRUE;
 static min::locatable_gen FALSE;
+static min::locatable_gen NONE;
 static min::locatable_gen ZERO;
 static min::locatable_gen ONE;
 static min::locatable_gen IF;
@@ -84,6 +85,7 @@ static void initialize ( void )
     ::leq  = min::new_str_gen ( "<=" );
     ::TRUE  = min::new_str_gen ( "*TRUE*" );
     ::FALSE  = min::new_str_gen ( "*FALSE*" );
+    ::NONE  = min::new_str_gen ( "*NONE*" );
     ::ZERO  = min::new_num_gen ( 0 );
     ::ONE  = min::new_num_gen ( 1 );
     ::IF  = min::new_str_gen ( "if" );
@@ -428,8 +430,7 @@ PRIM::var scan_var
 	    return min::NULL_STUB;
 	}
 	data->refexp = expression;
-	data->refppv = (min::phrase_position_vec)
-	    min::get ( expression, min::dot_position );
+	data->refppv = ppv;
     }
     else if ( data != NULL )
         data->nlabels = 0;
@@ -966,6 +967,16 @@ void REC::init_compiler
           mexstack::run_stack_length - 1,
           min::new_stub_gen ( mexcom::output_module ) );
     ::push_var ( var );
+    ::pushi ( min::NONE(), PAR::top_level_position,
+              ::NONE, true );
+    var = PRIM::create_var
+        ( ::NONE,
+          PAR::ALL_SELECTORS,
+          PAR::top_level_position,
+          0, 0, 0,
+          mexstack::run_stack_length - 1,
+          min::new_stub_gen ( mexcom::output_module ) );
+    ::push_var ( var );
 
     ::block_stack = ::block_stack_type.new_stub ( 64 );
     ::block  = { min::MISSING(), 0, 0,
@@ -1336,9 +1347,9 @@ bool static compile_expression_assignment_statement
 	min::gen exp = exps[i];
 	::set_data & d = data[i];
 	min::locatable_gen var_name
-	    ( var != min::NULL_STUB ?
-	      ::full_var_name ( var ) :
-	      ::star );
+	    ( var == min::NULL_STUB ? ::star :
+	      d.nlabels > 0 ? ::star :
+	      ::full_var_name ( var ) );
 
 	if ( ! :: compile_expression
 		( exp, 0, 0, var_name ) )
@@ -1420,19 +1431,23 @@ bool static compile_expression_assignment_statement
 	    set_instr.immedC =
 	          mexstack::run_stack_length
 		- d.label - 1;
+	    min::gen labv[2] =
+	        { ::star, vars[i]->label };
+	    min::locatable_gen trace_info
+	        ( min::new_lab_gen ( labv, 2 ) );
 	    -- mexstack::run_stack_length;
 	    mexstack::push_instr
-		( set_instr, d.refppv->position );
+		( set_instr, d.refppv->position,
+		             trace_info );
 	}
 
 	min::phrase_position_vec ppv =
-	    ::get_position ( right_vp );
+	    ::get_position ( vp );
 	mex::instr del_instr = { mex::DEL };
 	del_instr.immedA = allocated_var_length;
 	del_instr.immedC = set_data_length;
 	mexstack::run_stack_length -= set_data_length;
-	mexstack::push_instr
-	    ( del_instr, ppv->position );
+	mexstack::push_instr ( del_instr, ppv[2] );
     }
 
     min::uns32 location = mexstack::run_stack_length
