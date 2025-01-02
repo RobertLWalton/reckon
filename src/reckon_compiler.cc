@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 31 12:27:34 AM EST 2024
+// Date:	Thu Jan  2 02:24:09 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -194,6 +194,19 @@ inline void pop ( const min::phrase_position pp )
 {
     mex::instr instr = { mex::POPS };
     -- mexstack::run_stack_length;
+    mexstack::push_instr ( instr, pp );
+}
+
+// Call mexstack::push_instr with a DEL instruction
+// to make mexstack::run_stack_length = stack_length.
+//
+inline void del ( min::uns32 stack_length,
+                  const min::phrase_position pp )
+{
+    mex::instr instr = { mex::DEL };
+    instr.immedC = mexstack::run_stack_length
+                 - stack_length;
+    mexstack::run_stack_length -= instr.immedC;
     mexstack::push_instr ( instr, pp );
 }
 
@@ -1474,9 +1487,14 @@ bool static compile_expression_assignment_statement
 bool static compile_modifying_statement
 	( min::obj_vec_ptr & vp, min::gen op )
 {
-    PRIM::var var = ::scan_var ( vp[0] );
+    ::set_data data[1];
+    PRIM::var var = ::scan_var ( vp[0], data );
     min::locatable_gen var_name;
-    if ( var != min::NULL_STUB )
+    min::uns32 stack_length =
+        mexstack::run_stack_length;
+    if ( var == min::NULL_STUB )
+        /* do nothing */;
+    else if ( data->nlabels == 0 )
     {
 	var_name = ::full_var_name ( var );
 	min::gen labv[2] = { var_name, ::star };
@@ -1489,6 +1507,31 @@ bool static compile_modifying_statement
 	++ mexstack::run_stack_length;
 	mexstack::push_instr
 	    ( instr, var->position, trace_info );
+    }
+    else // if data->nlabels > 0
+    {
+        if ( ! ::compile_set_data ( var, data ) )
+	{
+	    ::del ( stack_length,
+	            data->refppv->position );
+	    return false;
+	}
+	min::gen labv[2] =
+	    { data->nlabels == 1 ? var->label : ::star,
+	      ::star };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	mex::instr instr =
+	    { mex::GET, 0, 0, 0,
+		mexstack::run_stack_length - 1
+	      - data->base,
+	      0,
+		mexstack::run_stack_length - 1
+	      - data->label };
+	++ mexstack::run_stack_length;
+	mexstack::push_instr
+	    ( instr, data->refppv->position,
+	             trace_info );
     }
     if ( ! ::compile_expression ( vp[2] ) )
     {
@@ -1522,16 +1565,55 @@ bool static compile_modifying_statement
     mexstack::push_instr
         ( instr, ::get_position(vp)->position );
 
-    min::gen labv[2] = { ::star, var_name };
-    min::locatable_gen trace_info
-	( min::new_lab_gen ( labv, 2 ) );
-    instr =
-	{ mex::POPS, 0, 0, 0,
-	    mexstack::run_stack_length - 1
-	  - var->location };
-    -- mexstack::run_stack_length;
-    mexstack::push_instr
-	( instr, var->position, trace_info );
+    if ( data->nlabels == 0 )
+    {
+	min::gen labv[2] = { ::star, var_name };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	instr =
+	    { mex::POPS, 0, 0, 0,
+		mexstack::run_stack_length - 1
+	      - var->location };
+	-- mexstack::run_stack_length;
+	mexstack::push_instr
+	    ( instr, var->position, trace_info );
+    }
+    else // data->nlabels > 0
+    {
+	min::gen labv[2] =
+	    { ::star, data->nlabels == 1 ?
+	                  var->label : ::star };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	MIN_REQUIRE
+	    (    data->label
+	      == mexstack::run_stack_length - 2 );
+	mex::instr instr =
+	    { mex::SET, 0, 0, 0,
+		mexstack::run_stack_length - 1
+	      - data->base,
+	      1,
+		mexstack::run_stack_length - 1
+	      - data->label };
+	mexstack::run_stack_length -= 2;
+	mexstack::push_instr
+	    ( instr, data->refppv->position,
+	             trace_info );
+	switch (   mexstack::run_stack_length
+		 - stack_length )
+	{
+	case 0:
+	    /* do nothing */;
+	    break;
+	case 1:
+	    ::pop ( data->refppv->position );
+	    break;
+	default:
+	    ::del ( stack_length,
+	            data->refppv->position );
+	    break;
+	}
+    }
     return true;
 }
 
