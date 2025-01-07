@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 23 02:56:20 AM EST 2024
+// Date:	Tue Jan  7 03:05:46 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -103,10 +103,10 @@ static void remove_tokens
 	    mexcom::output_module->length;
 	TAB::root top =
 	    TAB::top ( reckon::symbol_table );
-	min::uns32 run_stack_length =
-	    mexstack::run_stack_length;
-	min::uns32 run_stack_limit =
-	    mexstack::run_stack_limit;
+	min::uns32 stack_length =
+	    mexstack::stack_length;
+	min::uns32 stack_limit =
+	    mexstack::stack_limit;
 	compile_OK = REC::compile_statement
 	    ( parser->first->next->value );
 	if ( ! compile_OK )
@@ -125,10 +125,10 @@ static void remove_tokens
 	    while (    TAB::top ( reckon::symbol_table )
 	            != top )
 	        TAB::pop ( reckon::symbol_table );
-	    mexstack::run_stack_limit =
-	        run_stack_limit;
-	    mexstack::run_stack_length =
-	        run_stack_length;
+	    mexstack::stack_limit =
+	        stack_limit;
+	    mexstack::stack_length =
+	        stack_length;
 	}
     }
 
