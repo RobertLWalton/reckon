@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 10 02:16:04 AM EST 2025
+// Date:	Fri Jan 10 08:01:39 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1793,11 +1793,21 @@ bool static compile_set_data
     min::obj_vec_ptr vp = data->refexp;
     min::uns32 s = min::size_of ( vp );
     min::phrase_position_vec ppv = data->refppv;
+    min::phrase_position pp = ppv->position;
     min::uns32 i = s - data->nlabels;
-    data->base = var->location;
+    if (    var->location
+         >= mexstack::fp[mexstack::lexical_level] )
+	data->base = var->location;
+    else
+    {
+	pp.end = (& ppv[i-1])->end;
+	data->base = mexstack::stack_length ++;
+        mexstack::push_push_instr
+	    ( var->label, var->label, var->location,
+	      pp );
+    }
     bool OK = true;
     min::gen from = var->label;
-    min::phrase_position pp = ppv->position;
     while ( i < s )
     {
         if ( ! ::compile_label ( vp[i] ) )
