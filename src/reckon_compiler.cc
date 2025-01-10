@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  7 03:06:01 AM EST 2025
+// Date:	Fri Jan 10 02:16:04 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1499,16 +1499,10 @@ bool static compile_modifying_statement
     else if ( data->nlabels == 0 )
     {
 	var_name = ::full_var_name ( var );
-	min::gen labv[2] = { var_name, ::star };
-	min::locatable_gen trace_info
-	    ( min::new_lab_gen ( labv, 2 ) );
-	mex::instr instr =
-	    { mex::PUSHS, 0, 0, 0,
-		mexstack::stack_length - 1
-	      - var->location };
 	++ mexstack::stack_length;
-	mexstack::push_instr
-	    ( instr, var->position, trace_info );
+	mexstack::push_push_instr
+	    ( ::star, var_name, var->location,
+	      var->position );
     }
     else // if data->nlabels > 0
     {
@@ -2388,17 +2382,10 @@ RETRY:
 
 	    if ( argument_vector->length == 0 )
 	    {
-		mex::instr instr =
-		    { mex::PUSHS, mex::T_PUSH, 0, 0,
-			mexstack::stack_length
-		      - var->location - 1 };
-		min::gen labv[2] = { var->label, name };
-		min::locatable_gen trace_info
-		    ( min::new_lab_gen ( labv, 2 ) );
 		++ mexstack::stack_length;
-		mexstack::push_instr
-		    ( instr, ppv->position,
-		      trace_info );
+		mexstack::push_push_instr
+		    ( name, var->label, var->location,
+		      ppv->position );
 	    }
 	    else
 	    {
