@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  7 03:05:46 AM EST 2025
+// Date:	Thu Jan 23 08:48:42 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -99,37 +99,18 @@ static void remove_tokens
 
     if ( parse_OK && ( compile || run ) )
     {
-	min::uns32 code_length =
-	    mexcom::output_module->length;
+        mexstack::compile_save_area area;
+	mexstack::save ( area );
 	TAB::root top =
 	    TAB::top ( reckon::symbol_table );
-	min::uns32 stack_length =
-	    mexstack::stack_length;
-	min::uns32 stack_limit =
-	    mexstack::stack_limit;
 	compile_OK = REC::compile_statement
 	    ( parser->first->next->value );
+	bool r = mexstack::restore ( area );
+	MIN_REQUIRE ( ! r == compile_OK );
 	if ( ! compile_OK )
-	{
-	    min::pop ( mexcom::output_module,
-	                 mexcom::output_module->length
-		       - code_length );
-	    min::phrase_position_vec_insptr ppv =
-	        (min::phrase_position_vec_insptr)
-	        mexcom::output_module->position;
-	    min::pop ( ppv, ppv->length - code_length );
-	    min::packed_vec_insptr<min::gen> tiv =
-	        ( min::packed_vec_insptr<min::gen>)
-	        mexcom::output_module->trace_info;
-	    min::pop ( tiv, tiv->length - code_length );
 	    while (    TAB::top ( reckon::symbol_table )
 	            != top )
 	        TAB::pop ( reckon::symbol_table );
-	    mexstack::stack_limit =
-	        stack_limit;
-	    mexstack::stack_length =
-	        stack_length;
-	}
     }
 
     if ( output_parse )
