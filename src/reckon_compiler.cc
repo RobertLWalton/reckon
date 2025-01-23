@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 10 08:01:39 AM EST 2025
+// Date:	Thu Jan 23 08:10:10 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1542,6 +1542,8 @@ bool static compile_modifying_statement
 	::pop ( ppv->position );
 	return false;
     }
+    else if ( data->nlabels > 0 )
+        /* do nothing */;
     else if ( (   var->flags
                 & PRIM::WRITABLE_VAR ) == 0 )
     {
