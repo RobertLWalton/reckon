@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 23 08:48:42 AM EST 2025
+// Date:	Fri Jan 24 01:48:47 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,13 +96,13 @@ static void remove_tokens
     }
 
     bool compile_OK = false;
+    mexstack::compile_save_area area;
+    TAB::root top;
 
     if ( parse_OK && ( compile || run ) )
     {
-        mexstack::compile_save_area area;
 	mexstack::save ( area );
-	TAB::root top =
-	    TAB::top ( reckon::symbol_table );
+	top = TAB::top ( reckon::symbol_table );
 	compile_OK = REC::compile_statement
 	    ( parser->first->next->value );
 	bool r = mexstack::restore ( area );
@@ -141,13 +141,20 @@ static void remove_tokens
 	mex::run_process ( ::process );
         if ( ::process->state != mex::MODULE_END )
 	{
+	    // Restore compiler and process state.
+	    //
+	    min::pop ( ::process,
+	               ::process->length - length );
+	    mexstack::restore ( area, true );
+	    while (    TAB::top ( reckon::symbol_table )
+	            != top )
+	        TAB::pop ( reckon::symbol_table );
+
 	    // Set pc to module end.
 	    //
 	    mex::pc pc = ::process->pc;
 	    pc.index = mexcom::output_module->length;
 	    mex::set_pc ( ::process, pc );
-	    length = ::process->length;
-	        // Suppresses folloiwng value printing.
 	    parser->printer
 		<< "[no output due to run-time error]"
 		<< min::eol;
