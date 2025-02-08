@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Dec 16 07:25:23 AM EST 2024
+# Date:		Sat Feb  8 04:08:06 AM EST 2025
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -128,4 +128,7 @@ SED = sed \
 	    < $*.trace | diff ${DIFFOPT} $*.trace_test -
 
 clean:
-	rm -f ${PARSER_TESTS:=.out} reckon *.o
+	rm -f ${RUN_TESTS:=.out} \
+	      ${RUN_TESTS:=.trace} \
+	      ${RUN_TESTS:=.mex} \
+	      ${RUN_TESTS:=.parse}

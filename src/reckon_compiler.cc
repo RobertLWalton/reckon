@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 23 08:10:10 AM EST 2025
+// Date:	Sat Feb  8 05:14:00 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2538,11 +2538,12 @@ RETRY:
 	    else if
 	        ( func->flags & PRIM::VALUE_OPERATOR )
 	    {
-	        i -= 2;
 		min::uns8 op_code_1 =
 		    (min::uns8) ( func->flags >> 24 );
 		min::uns8 op_code_2 =
 		    (min::uns8) ( func->flags >> 16 );
+
+	        i = 0;
 		min::gen op_1 = vp[1];
 		bool OK =
 		    ::compile_expression ( vp[i++] );
