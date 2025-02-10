@@ -5,7 +5,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Thu Jan 23 08:11:14 AM EST 2025
+// Date:        Sun Feb  9 09:07:42 PM EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -156,3 +156,48 @@ X[1] + = 5
 * {30:125,17,126} SET*: X[1] <= * = 25
 X
 * {31:126,18,127} PUSHS: * <= X = [3, 25, 1, *NONE*]
+
+next X = [ 1, 2, 3 ]
+* {33:127,19,128} PUSHOBJ: next X <= NEW OBJ ( 13, 2)
+* {33:128,20,129} PUSHI: * <= "["
+* {33:129,19,130} SETI: next X[".initiator"] <= * = "["
+* {33:130,20,131} PUSHI: * <= "]"
+* {33:131,19,132} SETI: next X[".terminator"] <= * = "]"
+* {33:132,20,133} PUSHI: * <= ","
+* {33:133,19,134} SETI: next X[".separator"] <= * = ","
+* {33:134,20,135} PUSHI: * <= 1
+* {33:135,19,136} VPUSH: PUSHED next X <= * = 1
+* {33:136,20,137} PUSHI: * <= 2
+* {33:137,19,138} VPUSH: PUSHED next X <= * = 2
+* {33:138,20,139} PUSHI: * <= 3
+* {33:139,19,140} VPUSH: PUSHED next X <= * = 3
+next Y = [ 10, 20, 30 ]
+* {34:140,20,141} PUSHOBJ: next Y <= NEW OBJ ( 13, 2)
+* {34:141,21,142} PUSHI: * <= "["
+* {34:142,20,143} SETI: next Y[".initiator"] <= * = "["
+* {34:143,21,144} PUSHI: * <= "]"
+* {34:144,20,145} SETI: next Y[".terminator"] <= * = "]"
+* {34:145,21,146} PUSHI: * <= ","
+* {34:146,20,147} SETI: next Y[".separator"] <= * = ","
+* {34:147,21,148} PUSHI: * <= 10
+* {34:148,20,149} VPUSH: PUSHED next Y <= * = 10
+* {34:149,21,150} PUSHI: * <= 20
+* {34:150,20,151} VPUSH: PUSHED next Y <= * = 20
+* {34:151,21,152} PUSHI: * <= 30
+* {34:152,20,153} VPUSH: PUSHED next Y <= * = 30
+Y[1] = X
+* {35:153,21,154} PUSHI: * <= 1
+* {35:154,22,155} PUSHI: * <= 0
+* {35:155,23,156} PUSHS: * <= X = [1, 2, 3]
+* {35:156,22,157} POPS: * <= * = [1, 2, 3]
+* {35:157,23,158} PUSHS: * <= * = [1, 2, 3]
+* {35:158,22,159} SET: Y[1] <= * = [1, 2, 3]
+* {35:159,20,160} DEL pop sp[-2..-1]
+Y
+* {36:160,21,161} PUSHS: * <= Y = [10, [1, 2, 3], 30]
+Y[1][2]
+* {37:161,22,162} PUSHI: * <= 1
+* {37:162,22,163} GET*: * <= Y[1] = [1, 2, 3]
+* {37:163,23,164} PUSHI: * <= 2
+* {37:164,23,165} GET*: * <= *[2] = 3
+* {37:165,22,166} DEL sp[-2..-2] <= sp[-1..-1]

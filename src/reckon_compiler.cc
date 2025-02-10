@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 05:14:00 AM EST 2025
+// Date:	Sun Feb  9 09:06:06 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1187,12 +1187,15 @@ bool REC::compile_statement ( min::gen statement )
 	    return
 	      ::compile_expression_assignment_statement
 	          ( vp );
-	min::gen op = min::get
-	    ( ::modifying_ops, vp[1] );
-	if ( op != min::NONE() )
-	    return
-	       ::compile_modifying_statement
-		   ( vp, op );
+	if ( min::is_name ( vp[1] ) )
+	{
+	    min::gen op = min::get
+		( ::modifying_ops, vp[1] );
+	    if ( op != min::NONE() )
+		return
+		   ::compile_modifying_statement
+		       ( vp, op );
+	}
     }
 
     if ( vp[0] == ::EXIT )
@@ -2401,15 +2404,31 @@ RETRY:
 	    }
 	    else
 	    {
+		min::uns32 stack_length =
+		    mexstack::stack_length;
+		min::uns32 offset =
+		      min::size_of ( vp )
+		    - argument_vector->length;
+		min::phrase_position pp = ppv->position;
+		min::uns32 location = var->location;
+
+		if (    var->location
+		     < mexstack::fp [mexstack::
+		                     lexical_level] )
+		{
+		    pp.end = (& ppv[offset-1])->end;
+		    location =
+		        mexstack::stack_length ++;
+		    mexstack::push_push_instr
+			( var->label, var->label,
+			  var->location, pp );
+		}
+
 	        bool OK = true;
 		min::gen from = var->label;
 		min::gen to =
 		    ( argument_vector->length == 1 ?
 		      name : ::star );
-		min::uns32 offset =
-		      min::size_of ( vp )
-		    - argument_vector->length;
-		min::phrase_position pp = ppv->position;
 		pp.end = (& ppv[offset+0])->end;
 		if ( ! ::compile_label
 		             ( argument_vector[0] ) )
@@ -2421,7 +2440,7 @@ RETRY:
 		mex::instr get_instr =
 		    { mex::GET, 0, 0, 0,
 		        mexstack::stack_length
-		      - var->location - 1,
+		      - location - 1,
 		      1, 0 };
 		min::gen labv[2] = { from, to };
 		min::locatable_gen trace_info
@@ -2451,17 +2470,20 @@ RETRY:
 		    pp.end = (& ppv[offset+i])->end;
 		    mexstack::push_instr
 			( get_instr, pp, trace_info );
-		    min::gen pop_labv[2] = { to, to };
-		    min::locatable_gen pop_trace_info
+		}
+		min::uns32 C = mexstack::stack_length
+		             - stack_length - 1;
+		if ( C > 0 )
+		{
+		    mex::instr del_instr =
+			{ mex::DEL, 0, 0, 0, 1, 0, C };
+		    min::gen labv[2] = { name, name };
+		    min::locatable_gen trace_info
 			( min::new_lab_gen
-			      ( pop_labv, 2 ) );
-
-		    mex::instr pop_instr =
-		        { mex::POPS };
-		    -- mexstack::stack_length;
+			      ( labv, 2 ) );
+		    mexstack::stack_length -= C;
 		    mexstack::push_instr
-			( pop_instr, pp,
-			             pop_trace_info );
+			( del_instr, pp, trace_info );
 		}
 		if ( ! OK ) return 0;
 	    }
