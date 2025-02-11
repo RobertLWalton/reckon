@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  9 10:19:28 PM EST 2025
+// Date:	Tue Feb 11 01:11:26 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -328,8 +328,9 @@ struct set_data {
     min::uns32 label;	// Location of label in mexstack
     			// variable stack, or
 			// NO_LOCATION if label is
-			// immedD.
-    min::gen immedD;    // Label if it is in immedD.
+			// immedD or operation is VPUSH.
+    min::gen immedD;    // Label if it is in immedD,
+    			// NONE if operation is VPUSH.
     min::uns32 value;	// Location of value in variable
     			// stack.
 };
@@ -877,7 +878,7 @@ min::uns32 static compile_expression
 	  min::gen name = ::star,
 	  bool ignore_initiator = false );
 
-min::uns32 static compile_label
+inline min::uns32 static compile_label
 	( min::gen expression )
 {
     return ::compile_expression
@@ -1430,33 +1431,48 @@ bool static compile_expression_assignment_statement
 
     if ( set_data_length > 0 )
     {
+	mex::instr push_instr = { mex::PUSHS };
+	mex::instr set_instr = { mex::SET };
+	mex::instr vpush_instr = { mex::VPUSH };
 	for ( min::uns32 i = 0; i < left_n; ++ i )
 	{
 	    if ( vars[i] == min::NULL_STUB ) continue;
 	    ::set_data & d = data[i];
 	    if ( d.nlabels == 0 ) continue;
-	    mex::instr push_instr = { mex::PUSHS };
 	    push_instr.immedA =
 	          mexstack::stack_length
 		- d.value - 1;
 	    ++ mexstack::stack_length;
 	    mexstack::push_instr
 		( push_instr, d.refppv->position );
-	    mex::instr set_instr = { mex::SET };
-	    set_instr.immedA =
-	          mexstack::stack_length
-		- d.base - 1;
-	    set_instr.immedC =
-	          mexstack::stack_length
-		- d.label - 1;
+
 	    min::gen labv[2] =
 	        { ::star, vars[i]->label };
 	    min::locatable_gen trace_info
 	        ( min::new_lab_gen ( labv, 2 ) );
-	    -- mexstack::stack_length;
-	    mexstack::push_instr
-		( set_instr, d.refppv->position,
-		             trace_info );
+	    if ( d.label != ::NO_LOCATION )
+	    {
+		set_instr.immedA =
+		      mexstack::stack_length
+		    - d.base - 1;
+		set_instr.immedC =
+		      mexstack::stack_length
+		    - d.label - 1;
+		-- mexstack::stack_length;
+		mexstack::push_instr
+		    ( set_instr, d.refppv->position,
+				 trace_info );
+	    }
+	    else
+	    {
+		vpush_instr.immedA =
+		      mexstack::stack_length
+		    - d.base - 1;
+		-- mexstack::stack_length;
+		mexstack::push_instr
+		    ( vpush_instr, d.refppv->position,
+				   trace_info );
+	    }
 	}
 
 	min::phrase_position_vec ppv =
@@ -1813,26 +1829,54 @@ bool static compile_set_data
     }
     bool OK = true;
     min::gen from = var->label;
+    mex::instr get_instr =
+	{ mex::GET, 0, 0, 0, 0, 1, 0 };
+    mex::instr vpop_instr =
+	{ mex::VPOP, 0, 0, 0, 0, 0, 0 };
     while ( i < s )
     {
-        if ( ! ::compile_label ( vp[i] ) )
+	min::obj_vec_ptr lvp = vp[i];
+        min::uns32 labsize = min::size_of ( lvp );
+	if ( labsize == 0 )
 	{
-	    OK = false;
-	    ::pushi ( ::ZERO, ppv[i] );
+	    if ( ++ i == s )
+	    {
+	        data->label = ::NO_LOCATION;
+		data->immedD = min::NONE();
+		break;
+	    }
 	}
-	if ( ++ i == s ) break;
-	
-	mex::instr get_instr =
-	    { mex::GET, 0, 0, 0,
-		mexstack::stack_length
-	      - data->base - 1,
-	      1, 0 };
+	else // if labsize > 0
+	{
+	    lvp = min::NULL_STUB;
+	    if ( ! ::compile_label ( vp[i] ) )
+	    {
+		OK = false;
+		::pushi ( ::ZERO, ppv[i] );
+	    }
+	    if ( ++ i == s ) break;
+	}
+
 	min::gen labv[2] = { from, ::star };
 	min::locatable_gen trace_info
 	    ( min::new_lab_gen ( labv, 2 ) );
-	pp.end = (& ppv[i])->end;
-	mexstack::push_instr
-	    ( get_instr, pp, trace_info );
+	pp.end = (& ppv[i-1])->end;
+	
+	if ( labsize == 0 )
+	{
+	    vpop_instr.immedA =
+		mexstack::stack_length - data->base - 1;
+	    mexstack::push_instr
+		( vpop_instr, pp, trace_info );
+	}
+	else // if labsize > 0
+	{
+	    get_instr.immedA =
+		mexstack::stack_length - data->base - 1;
+	    mexstack::push_instr
+		( get_instr, pp, trace_info );
+	}
+
 	data->base = mexstack::stack_length - 1;
 	from = ::star;
     }
