@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 11 01:11:26 AM EST 2025
+// Date:	Tue Feb 11 09:08:16 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1843,7 +1843,7 @@ bool static compile_set_data
 	    {
 	        data->label = ::NO_LOCATION;
 		data->immedD = min::NONE();
-		break;
+		return OK;
 	    }
 	}
 	else // if labsize > 0
