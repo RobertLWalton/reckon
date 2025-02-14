@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 24 01:48:47 AM EST 2025
+// Date:	Fri Feb 14 03:36:08 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -16,6 +16,7 @@
 # include <mexstack.h>
 # define REC reckon
 # define PAR ll::parser
+# define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
 # define PARSTD ll::parser::standard
 # define LEX ll::lexeme
@@ -64,6 +65,42 @@ bool detail_parse = false;
 bool warn = false;
 
 static min::locatable_var<mex::process> process;
+
+static min::printer computed_pgen
+    ( min::printer printer,
+      min::gen v, 
+      const min::gen_format * gen_format,
+      bool disable_mapping )
+{
+    if ( ! min::is_obj ( v )
+         ||
+	    min::get ( v, min::dot_initiator )
+	 != PARLEX::left_square )
+        gen_format = min::quote_gen_format;
+    return ( * min::quote_gen_format->pgen )
+        ( printer, v, gen_format, disable_mapping );
+}
+
+static min::gen_format computed_gen_format;
+    // Same as min::quote_gen_format except for:
+    // & ::computed_pgen           // pgen
+    // & ::computed_obj_format     // obj_format
+    //
+static min::obj_format computed_obj_format;
+    // Same as min::compact_obj_format except for:
+    // & ::computed_gen_format     // element_format
+    //
+static void init_computed_formats ( void )
+{
+    ::computed_gen_format = * min::quote_gen_format;
+    ::computed_gen_format.pgen = & ::computed_pgen;
+    ::computed_gen_format.obj_format =
+       & ::computed_obj_format;
+
+    ::computed_obj_format = * min::compact_obj_format;
+    ::computed_obj_format.element_format =
+        & ::computed_gen_format;
+}
 
 static min::phrase_position last_position =
     { { 0, 0 }, { 0, 0 } };
@@ -161,10 +198,13 @@ static void remove_tokens
 	}
 	if ( ! trace )
 	    while ( length < ::process->length )
-		parser->printer
-		    << min::pgen_quote
-		           ( ::process[length++] )
-		    << min::eol;
+	    {
+	        min::gen v = ::process[length++];
+		    // Discard min::ref.
+	        min::print_gen ( parser->printer, v,
+				 & ::computed_gen_format );
+		parser->printer << min::eol;
+	    }
     }
 
     PAR::remove ( parser,
@@ -176,6 +216,7 @@ static void remove_tokens
 int main ( int argc, const char * argv[] )
 {
     min::initialize();
+    ::init_computed_formats();
 
     bool found_error = false;
     for ( int i = 1; i < argc; ++ i )
