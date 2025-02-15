@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lists.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Fri Feb 14 20:06:34 EST 2025
+Date:	Sat Feb 15 02:31:48 EST 2025
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -88,11 +88,12 @@ Example:
 A list element can be read using an expression for the form:
 <div class='center vspace'><i>variable-name></i>
     <code>[</code><i>index-expression</i><code>]</code></div>
+<p>
 The named variable must evaluate to a list, and the <i>index-expression</i>
 must evaluate to an integer.  The integer is the index of the list
 element to be read, where the list element indices are 0, 1, 2, 3, etc.
 If the integer is not an index of an element in the list, the value of
-the expression is <code>*NONE*<code>.
+the expression is <code>*NONE*</code>.
 <p>
 More Examples:
 <pre class='example'>
@@ -101,6 +102,44 @@ More Examples:
 <div class='line'>Z6 = Y[3 + 3]</div>30
 <div class='line'>Z10 = Y[10]</div>*NONE*
 <div class='line'>Zm1 = Y[-1]</div>*NONE*
+</pre>
+</p>
+
+<h2 id='list-element-assignment'>
+    List Element Assignment</h2>
+
+<p>
+Example:
+<pre class='example'>
+<div class='line'>X</div>[1, 2, 3, 4]
+<div class='line'>X[1] = 20</div
+><div class='line'>X</div>[1, 20, 3, 4]
+</pre>
+<p>
+The same expression that can be used on the right side of an assignment
+statement to read a list element:
+<div class='center vspace'><i>variable-name></i>
+    <code>[</code><i>index-expression</i><code>]</code></div>
+<p>
+can be used on the left side of an assignment statement to write
+the element.  However, it is a program error to write an element that
+does not exist.
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>X</div>[1, 2, 3, 4]
+<div class='line'>X[1] = 20</div
+><div class='line'>X</div>[1, 20, 3, 4]
+<div class='line'>X[0], X[2] = X[2], X[0]</div
+><div class='line'>X</div>[3, 20, 1, 4]
+<div class='line'>TOP, X[3] = X[3], 400</div>4
+<div class='line'>X</div>[3, 20, 1, 400]
+<div class='line'>X[10] = "Bozo"</div
+>!!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
+    SET: vector element does not exist
+* {36:143,21,144} SET SET 16 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    ARGS = [3, 20, 1, 400] 10
+[no output due to run-time error]
 </pre>
 </p>
 
