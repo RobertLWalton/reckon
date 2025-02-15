@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 11 09:08:16 AM EST 2025
+// Date:	Sat Feb 15 13:04:14 EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2986,9 +2986,9 @@ min::uns32 static compile_bracketed_expression
         min::attr_ptr ap = vp;
 	min::locate ( ap, min::dot_separator );
 	min::gen separator = min::get ( ap );
-	min::uns32 n = 1;
-	if ( separator == PARLEX::comma )
-	    n = min::size_of ( vp );
+	min::uns32 n = min::size_of ( vp );
+	if ( n > 0 && separator != PARLEX::comma )
+	    n = 1;
 
 	// Create empty [] list with room for n vector
 	// elements and .initiator and .terminator.
@@ -3023,6 +3023,8 @@ min::uns32 static compile_bracketed_expression
 	-- mexstack::stack_length;
 	mexstack::push_instr
 	    ( i2, ppv->position, trace_info, true );
+
+	if ( n == 0 ) return 1;
 
 	mex::instr i3 =
 	    { mex::VPUSH, 0, 0, 0, 1, 0, 0,

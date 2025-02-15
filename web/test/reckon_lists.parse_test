@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Feb 15 03:21:30 EST 2025
+// Date:        Sat Feb 15 13:13:20 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -98,11 +98,42 @@ next Z = X[]
      {|X []|}|}
 X
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+sum = 0
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|sum|} = {|0|}|}
+repeat:
+    E = X[]
+    if E == *NONE*: exit
+    next sum + = E
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|repeat|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|E|} =
+               {|X []|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|if
+               {|{|E|} == {|*NONE*|}|} ":" {|exit|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next sum|} [< + = >] {|E|}|}|}|}
+L = []
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|L|} = []|}
+i = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|i|} = {|1|}|}
+while i <= 10:
+    L[] = i
+    next i + = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|while {|{|i|} <= {|10|}|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|L []|} = {|i|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next i|} [< + = >] {|1|}|}|}|}
+L
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|L|}
 
 // Cascaded List Labels
 //
-X
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+next X = [1, 2, 3]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
+     [{|1|}, {|2|}, {|3|}]|}
 next Y = [ 10, 20, 30 ]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Y|} =
      [{|10|}, {|20|}, {|30|}]|}
