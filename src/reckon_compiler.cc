@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 15 13:04:14 EST 2025
+// Date:	Sat Feb 15 07:33:51 PM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -335,7 +335,7 @@ struct set_data {
     			// stack.
 };
 
-// Scan a reference expression on the left side of '='.
+// Scan a primary on the left side of '='.
 // and locate or create a var object for it.  Returns
 // the var object found or created, or returns NULL_STUB
 // if compile_error called.  If no error, also returns
@@ -441,7 +441,7 @@ PRIM::var scan_var
 	{
 	    mexcom::compile_error
 		( ppv->position,
-		  "reference expression with labels"
+		  "primary with labels"
 		  " cannot begin with `next'" );
 	    return min::NULL_STUB;
 	}
@@ -461,6 +461,14 @@ PRIM::var scan_var
 
     if ( data != NULL && data->nlabels > 0 )
     {
+        if ( var == min::NULL_STUB )
+	{
+	    mexcom::compile_error
+		( ppv->position,
+		  "variable name in a primary with"
+		  " labels is undefined" );
+	    return min::NULL_STUB;
+	}
 	if ( var->flags & PRIM::WRITABLE_VAR )
 	{
 	    if ( var->flags & PRIM::NEXT_VAR )
