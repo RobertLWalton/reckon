@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 15 07:33:51 PM EST 2025
+// Date:	Sun Feb 16 04:23:53 EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1544,17 +1544,32 @@ bool static compile_modifying_statement
 	      ::star };
 	min::locatable_gen trace_info
 	    ( min::new_lab_gen ( labv, 2 ) );
-	mex::instr instr =
-	    { mex::GET, 0, 0, 0,
-		mexstack::stack_length - 1
-	      - data->base,
-	      0,
-		mexstack::stack_length - 1
-	      - data->label };
-	++ mexstack::stack_length;
-	mexstack::push_instr
-	    ( instr, data->refppv->position,
-	             trace_info );
+	if ( data->label != ::NO_LOCATION )
+	{
+	    mex::instr instr =
+		{ mex::GET, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data->base,
+		  0,
+		    mexstack::stack_length - 1
+		  - data->label };
+	    ++ mexstack::stack_length;
+	    mexstack::push_instr
+		( instr, data->refppv->position,
+			 trace_info );
+	}
+	else
+	{
+	    mex::instr instr =
+		{ mex::VPOP, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data->base };
+	    ++ mexstack::stack_length;
+	    mexstack::push_instr
+		( instr, data->refppv->position,
+			 trace_info );
+	}
+
     }
     if ( ! ::compile_expression ( vp[2] ) )
     {
@@ -1610,20 +1625,36 @@ bool static compile_modifying_statement
 	                  var->label : ::star };
 	min::locatable_gen trace_info
 	    ( min::new_lab_gen ( labv, 2 ) );
-	MIN_REQUIRE
-	    (    data->label
-	      == mexstack::stack_length - 2 );
-	mex::instr instr =
-	    { mex::SET, 0, 0, 0,
-		mexstack::stack_length - 1
-	      - data->base,
-	      1,
-		mexstack::stack_length - 1
-	      - data->label };
-	mexstack::stack_length -= 2;
-	mexstack::push_instr
-	    ( instr, data->refppv->position,
-	             trace_info );
+	if ( data->label != ::NO_LOCATION )
+	{
+	    MIN_REQUIRE
+		(    data->label
+		  == mexstack::stack_length - 2 );
+	    mex::instr instr =
+		{ mex::SET, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data->base,
+		  1,
+		    mexstack::stack_length - 1
+		  - data->label };
+	    mexstack::stack_length -= 2;
+	    mexstack::push_instr
+		( instr, data->refppv->position,
+			 trace_info );
+	}
+	else
+	{
+	    mex::instr instr =
+		{ mex::VPUSH, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data->base,
+                  0, 0, min::MISSING() };
+	    mexstack::stack_length -= 1;
+	    mexstack::push_instr
+		( instr, data->refppv->position,
+			 trace_info );
+	}
+
 	switch (   mexstack::stack_length
 		 - stack_length )
 	{

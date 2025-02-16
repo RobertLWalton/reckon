@@ -201,8 +201,9 @@ static void remove_tokens
 	    {
 	        min::gen v = ::process[length++];
 		    // Discard min::ref.
-	        min::print_gen ( parser->printer, v,
-				 & ::computed_gen_format );
+	        min::print_gen
+		    ( parser->printer, v,
+		      & ::computed_gen_format );
 		parser->printer << min::eol;
 	    }
     }

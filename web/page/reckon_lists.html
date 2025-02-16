@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lists.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sat Feb 15 03:18:05 EST 2025
+Date:	Sun Feb 16 04:39:51 EST 2025
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -174,6 +174,60 @@ More Examples:
 * {43:153,21,159} SET SET 16 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
     ARGS = [3000, 1020, 1, 400] 10
 [no output due to run-time error]
+</pre>
+</p>
+
+<h2 id='list-push-and-pop'>
+    List Push and Pop</h2>
+
+<p>
+Example:
+<pre class='example'>
+<div class='line'>X = [ 1, 2, 3 ]</div>[1, 2, 3]
+<div class='line'>X[] = 4</div
+><div class='line'>X</div>[1, 2, 3, 4]
+<div class='line'>Z = X[]</div>4
+<div class='line'>X</div>[1, 2, 3]
+</pre>
+<p>
+The expression `<i>variable-name</i><code>[]</code>' in which the
+<i>index-expression</i> has been <u>omitted</u> can be used to
+access and change the last element of a list.
+<p>
+When used on the right side of an assignment statement to read
+from the list, the last element is read and also <u>deleted</u>
+from the end of the list (if used on an empty list, <code>*NONE*</code>
+is simply returned).  The value read is said to be <b>popped</b> from the list.
+<p>
+When used on the left side of an assignment statement to write to the
+list, the value to be written is added to the end of the list.
+The value written is said to be <b>pushed</b> into the list.
+<p>
+When used on the left side of a modifying assignment statement, the last
+element of the list is modified.
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>X = [ 1, 2, 3 ]</div>[1, 2, 3]
+<div class='line'>X[] = 4</div
+><div class='line'>X</div>[1, 2, 3, 4]
+<div class='line'>Z = X[]</div>4
+<div class='line'>X</div>[1, 2, 3]
+<div class='line'>X[] + = 8</div
+><div class='line'>X</div>[1, 2, 11]
+<div class='line'>L = []</div>[]
+<div class='line'>L[]</div>*NONE*
+<div class='line'>i = 1</div>1
+<div class='line'>while i <= 10:
+    L[] = i
+    next i + = 1</div>11
+<div class='line'>L</div>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+<div class='line'>sum = 0</div>0
+<div class='line'>repeat:
+    E = L[]
+    if E == *NONE*: exit
+    next sum + = E</div>55
+<div class='line'>sum</div>55
 </pre>
 </p>
 
