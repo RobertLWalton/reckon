@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 16 04:23:53 EST 2025
+// Date:	Mon Feb 17 12:27:47 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1447,12 +1447,7 @@ bool static compile_expression_assignment_statement
 	    if ( vars[i] == min::NULL_STUB ) continue;
 	    ::set_data & d = data[i];
 	    if ( d.nlabels == 0 ) continue;
-	    push_instr.immedA =
-	          mexstack::stack_length
-		- d.value - 1;
-	    ++ mexstack::stack_length;
-	    mexstack::push_instr
-		( push_instr, d.refppv->position );
+
 
 	    min::gen labv[2] =
 	        { ::star, vars[i]->label };
@@ -1460,19 +1455,34 @@ bool static compile_expression_assignment_statement
 	        ( min::new_lab_gen ( labv, 2 ) );
 	    if ( d.label != ::NO_LOCATION )
 	    {
+		push_instr.immedA =
+		      mexstack::stack_length
+		    - d.label - 1;
+		++ mexstack::stack_length;
+		mexstack::push_instr
+		    ( push_instr, d.refppv->position );
+		push_instr.immedA =
+		      mexstack::stack_length
+		    - d.value - 1;
+		++ mexstack::stack_length;
+		mexstack::push_instr
+		    ( push_instr, d.refppv->position );
 		set_instr.immedA =
 		      mexstack::stack_length
 		    - d.base - 1;
-		set_instr.immedC =
-		      mexstack::stack_length
-		    - d.label - 1;
-		-- mexstack::stack_length;
+		mexstack::stack_length -= 2;
 		mexstack::push_instr
 		    ( set_instr, d.refppv->position,
 				 trace_info );
 	    }
 	    else
 	    {
+		push_instr.immedA =
+		      mexstack::stack_length
+		    - d.value - 1;
+		++ mexstack::stack_length;
+		mexstack::push_instr
+		( push_instr, d.refppv->position );
 		vpush_instr.immedA =
 		      mexstack::stack_length
 		    - d.base - 1;
@@ -1546,17 +1556,20 @@ bool static compile_modifying_statement
 	    ( min::new_lab_gen ( labv, 2 ) );
 	if ( data->label != ::NO_LOCATION )
 	{
-	    mex::instr instr =
-		{ mex::GET, 0, 0, 0,
-		    mexstack::stack_length - 1
-		  - data->base,
-		  0,
+	    mex::instr push_instr =
+		{ mex::PUSHS, 0, 0, 0,
 		    mexstack::stack_length - 1
 		  - data->label };
 	    ++ mexstack::stack_length;
 	    mexstack::push_instr
-		( instr, data->refppv->position,
-			 trace_info );
+		( push_instr, data->refppv->position );
+	    mex::instr get_instr =
+		{ mex::GET, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data->base };
+	    mexstack::push_instr
+		( get_instr, data->refppv->position,
+		             trace_info );
 	}
 	else
 	{
@@ -1630,17 +1643,14 @@ bool static compile_modifying_statement
 	    MIN_REQUIRE
 		(    data->label
 		  == mexstack::stack_length - 2 );
-	    mex::instr instr =
+	    mex::instr set_instr =
 		{ mex::SET, 0, 0, 0,
 		    mexstack::stack_length - 1
-		  - data->base,
-		  1,
-		    mexstack::stack_length - 1
-		  - data->label };
+		  - data->base };
 	    mexstack::stack_length -= 2;
 	    mexstack::push_instr
-		( instr, data->refppv->position,
-			 trace_info );
+		( set_instr, data->refppv->position,
+			     trace_info );
 	}
 	else
 	{
@@ -1868,10 +1878,8 @@ bool static compile_set_data
     }
     bool OK = true;
     min::gen from = var->label;
-    mex::instr get_instr =
-	{ mex::GET, 0, 0, 0, 0, 1, 0 };
-    mex::instr vpop_instr =
-	{ mex::VPOP, 0, 0, 0, 0, 0, 0 };
+    mex::instr get_instr = { mex::GET };
+    mex::instr vpop_instr = { mex::VPOP };
     while ( i < s )
     {
 	min::obj_vec_ptr lvp = vp[i];
@@ -2516,10 +2524,8 @@ RETRY:
 		min::locatable_gen trace_info
 		    ( min::new_lab_gen ( labv, 2 ) );
 		pp.end = (& ppv[offset+0])->end;
-		mex::instr get_instr =
-		    { mex::GET, 0, 0, 0, 0, 1, 0 };
-		mex::instr vpop_instr =
-		    { mex::VPOP, 0, 0, 0, 0, 1, 0 };
+		mex::instr get_instr = { mex::GET };
+		mex::instr vpop_instr = { mex::VPOP };
 		{
 		    min::obj_vec_ptr avp =
 		        (min::gen )
