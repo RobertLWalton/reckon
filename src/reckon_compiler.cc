@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 17 12:27:47 AM EST 2025
+// Date:	Wed Feb 19 03:39:13 AM EST 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1006,6 +1006,13 @@ void REC::init_compiler
     ::block  = { min::MISSING(), 0, 0,
                  min::MISSING_POSITION, 0 };
     ::block_name = ::block.name;
+
+    min::locatable_gen copy_name
+        ( min::new_str_gen ( "copy" ) );
+
+    PRIM::push_builtin_func
+        ( copy_name, reckon::symbol_table,
+	  mex::COPY );
 }
 
 
