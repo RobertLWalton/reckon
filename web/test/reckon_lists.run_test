@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Feb 19 03:38:23 AM EST 2025
+// Date:        Wed Feb 19 07:23:02 PM EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -29,9 +29,9 @@ Z3 = Y[3]
 2
 Z6 = Y[3 + 3]
 30
-Z10 = Y[10]
+Z10 = Y[10]     // Y[10] does not exist
 *NONE*
-Zm1 = Y[-1]
+Zm1 = Y[-1]     // Y[-1] does not exist
 *NONE*
 
 // List Element Assignment
@@ -61,7 +61,7 @@ X
 [3, 20, 1, 400]
 X[1] + = 1000
 X[0] * = 1000
-X[10] - = 5
+X[10] - = 5    // X[10] does not exist
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
 * {43:159,21,166} SUB: * = nan <= *NONE* - 5
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
@@ -86,9 +86,10 @@ X
 X[] + = 8
 X
 [1, 2, 11]
+// Compute L = [ 1, 2, 3, ..., 10 ]
 L = []
 []
-L[]
+L[]       // List is empty
 *NONE*
 i = 1
 1
@@ -98,6 +99,7 @@ while i <= 10:
 11
 L
 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+// Compute sum of elements of L
 sum = 0
 0
 repeat:
@@ -116,6 +118,8 @@ next Y = X
 [1, 2, 3]
 next Z = copy ( X )
 [1, 2, 3]
+// X and Y point at same list,
+// Z points at different list
 X[1] = 20
 Z[1] = -2
 X
@@ -124,6 +128,20 @@ Y
 [1, 20, 3]
 Z
 [1, -2, 3]
+W = [ 1, 2 ]
+[1, 2]
+next X = [ 1, 2, 3 ]
+[1, 2, 3]
+X[1] = W
+next Y = copy ( X )
+[1, [1, 2], 3]
+// X and Y point at different list,
+// but second element of BOTH X and Y points at W
+W[] = "B"
+X
+[1, [1, 2, "B"], 3]
+Y
+[1, [1, 2, "B"], 3]
 
 // Cascaded List Labels
 //
@@ -137,10 +155,12 @@ Y
 X[] = "Butch"
 Y
 [10, [1, 2, 3, "Butch"], 30]
-Y[1][0]
+Y[1][0]   // Y[1] and X point at same list
 1
 Y[1][]
 "Butch"
 Y[1][] = 5000
+X
+[1, 2, 3, 5000]
 Y
 [10, [1, 2, 3, 5000], 30]
