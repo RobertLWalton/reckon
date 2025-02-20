@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Feb 19 07:23:02 PM EST 2025
+// Date:        Thu Feb 20 01:29:36 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -10,23 +10,27 @@
 
 // List Construction
 //
-X = [1, 2, 3, 4]
+X = [1 + 0, 1 + 1, 1 + 2, 1 + 3]
 [1, 2, 3, 4]
-next X = [1 + 0, 1 + 1, 1 + 2, 1 + 3]
-[1, 2, 3, 4]
-Y = [10, 20, X, 30]
+Y = [10, 20, X, 30]  // Y is flattened
 [10, 20, 1, 2, 3, 4, 30]
-Z = [[1, 2, 3]]
+Z = [[1, 2, 3]]      // Z is flattened
 [1, 2, 3]
 next Z = [ "Baker", "Bill", "Bob", "Butch" ]
 ["Baker", "Bill", "Bob", "Butch"]
+W = []
+[]
+V = [ "Carol", "Clara" ]
+["Carol", "Clara"]
+next Y = [ 10, Z, 20, W, 30, V ]  // Y is flattened
+[10, "Baker", "Bill", "Bob", "Butch", 20, 30, "Carol", "Clara"]
 
 // List Element Access
 //
 Y
-[10, 20, 1, 2, 3, 4, 30]
+[10, "Baker", "Bill", "Bob", "Butch", 20, 30, "Carol", "Clara"]
 Z3 = Y[3]
-2
+"Bob"
 Z6 = Y[3 + 3]
 30
 Z10 = Y[10]     // Y[10] does not exist
@@ -48,10 +52,10 @@ TOP, X[3] = X[3], 400
 4
 X
 [3, 20, 1, 400]
-X[10] = "Bozo"
+X[10] = "Bozo"     // X[10] does not exist
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
     SET: vector element does not exist
-* {36:148,22,149} SET SET 17 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+* {38:170,24,171} SET SET 20 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     ARGS = [3, 20, 1, 400] 10
 [no output due to run-time error]
 
@@ -60,17 +64,22 @@ X[10] = "Bozo"
 X
 [3, 20, 1, 400]
 X[1] + = 1000
+X
+[3, 1020, 1, 400]
 X[0] * = 1000
+X[2] / = 10
+X
+[3000, 1020, 0.1, 400]
 X[10] - = 5    // X[10] does not exist
+               // It reads as *NONE* and causes
+               // FATAL PROGRAM ERROR when written
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-* {43:159,21,166} SUB: * = nan <= *NONE* - 5
+* {50:189,25,196} SUB: * = nan <= *NONE* - 5
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
     SET: vector element does not exist
-* {43:160,21,167} SET SET 16 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
-    ARGS = [3000, 1020, 1, 400] 10
+* {48:190,25,197} SET SET 21 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    ARGS = [3000, 1020, 0.1, 400] 10
 [no output due to run-time error]
-X
-[3000, 1020, 1, 400]
 
 // List Push and Pop
 //
@@ -128,7 +137,7 @@ Y
 [1, 20, 3]
 Z
 [1, -2, 3]
-W = [ 1, 2 ]
+next W = [ 1, 2 ]
 [1, 2]
 next X = [ 1, 2, 3 ]
 [1, 2, 3]

@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Feb 19 07:23:02 PM EST 2025
+// Date:        Thu Feb 20 01:29:36 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -10,22 +10,27 @@
 
 // List Construction
 //
-X = [1, 2, 3, 4]
+X = [1 + 0, 1 + 1, 1 + 2, 1 + 3]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X|} =
-     [{|1|}, {|2|}, {|3|}, {|4|}]|}
-next X = [1 + 0, 1 + 1, 1 + 2, 1 + 3]
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
      [{|{|1|} + {|0|}|}, {|{|1|} + {|1|}|}, {|{|1|} + {|2|}|},
       {|{|1|} + {|3|}|}]|}
-Y = [10, 20, X, 30]
+Y = [10, 20, X, 30]  // Y is flattened
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Y|} =
      [{|10|}, {|20|}, {|X|}, {|30|}]|}
-Z = [[1, 2, 3]]
+Z = [[1, 2, 3]]      // Z is flattened
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Z|} =
      [[{|1|}, {|2|}, {|3|}]]|}
 next Z = [ "Baker", "Bill", "Bob", "Butch" ]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
      [{|"Baker"|}, {|"Bill"|}, {|"Bob"|}, {|"Butch"|}]|}
+W = []
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|W|} = []|}
+V = [ "Carol", "Clara" ]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|V|} =
+     [{|"Carol"|}, {|"Clara"|}]|}
+next Y = [ 10, Z, 20, W, 30, V ]  // Y is flattened
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Y|} =
+     [{|10|}, {|Z|}, {|20|}, {|W|}, {|30|}, {|V|}]|}
 
 // List Element Access
 //
@@ -63,7 +68,7 @@ TOP, X[3] = X[3], 400
      {|{|TOP|}, {|X [3]|}|} = {|{|X [3]|}, {|400|}|}|}
 X
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
-X[10] = "Bozo"
+X[10] = "Bozo"     // X[10] does not exist
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [10]|} =
      {|"Bozo"|}|}
 
@@ -74,14 +79,21 @@ X
 X[1] + = 1000
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [1]|}
      [< + = >] {|1000|}|}
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
 X[0] * = 1000
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [0]|}
      [< * = >] {|1000|}|}
-X[10] - = 5    // X[10] does not exist
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [10]|}
-     [< - = >] {|5|}|}
+X[2] / = 10
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [2]|}
+     [< / = >] {|10|}|}
 X
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+X[10] - = 5    // X[10] does not exist
+               // It reads as *NONE* and causes
+               // FATAL PROGRAM ERROR when written
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [10]|}
+     [< - = >] {|5|}|}
 
 // List Push and Pop
 //
@@ -165,8 +177,8 @@ Y
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Y|}
 Z
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Z|}
-W = [ 1, 2 ]
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|W|} =
+next W = [ 1, 2 ]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next W|} =
      [{|1|}, {|2|}]|}
 next X = [ 1, 2, 3 ]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
