@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Thu Feb 20 01:29:36 EST 2025
+// Date:        Thu Feb 20 10:11:28 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -100,17 +100,17 @@ X[10] - = 5    // X[10] does not exist
 next X = [ 1, 2, 3 ]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
      [{|1|}, {|2|}, {|3|}]|}
-X[] = 4
+X[] = 4    // Push 4 to end of list
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X []|} =
      {|4|}|}
 X
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
-next Z = X[]
+next Z = X[]    // Pop 4 from end of list
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
      {|X []|}|}
 X
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
-X[] + = 8
+X[] + = 8    // Add 8 to last element of list
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X []|}
      [< + = >] {|8|}|}
 X
@@ -149,6 +149,8 @@ repeat:
                {|{|E|} == {|*NONE*|}|} ":" {|exit|}|}
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
                {|next sum|} [< + = >] {|E|}|}|}|}
+L
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|L|}
 sum
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum|}
 
