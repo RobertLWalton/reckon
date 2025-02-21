@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lists.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Feb 20 10:14:18 EST 2025
+Date:	Thu Feb 20 19:40:04 EST 2025
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -224,7 +224,7 @@ More Examples:
 <pre class='example'>
 <div class='line'>// Compute L = [ 1, 2, 3, ..., 10 ]
 L = []</div>[]
-<div class='line'>L[]       // List is empty</div>*NONE*
+<div class='line'>L[]       // Popping empty list</div>*NONE*
 <div class='line'>i = 1</div>1
 <div class='line'>while i &lt;= 10:
     L[] = i
@@ -238,6 +238,65 @@ sum = 0</div>0
     next sum + = E</div>55
 <div class='line'>L</div>[]
 <div class='line'>sum</div>55
+</pre>
+</p>
+
+<h2 id='list-assignment-and-copying'>
+    List Assignment and Copying</h2>
+
+<p>
+Example:
+<pre class='example'>
+<div class='line'>next X = [ 1, 2, 3 ]</div>[1, 2, 3]
+<div class='line'>next Y = X</div>[1, 2, 3]
+<div class='line'>next Z = copy ( X )</div>[1, 2, 3]
+<div class='line'>// X and Y point at same list,
+// Z points at different list
+X[1] = 20</div
+><div class='line'>Z[1] = -2</div
+><div class='line'>X</div>[1, 20, 3]
+<div class='line'>Y</div>[1, 20, 3]
+<div class='line'>Z</div>[1, -2, 3]
+</pre>
+<p>
+A statement like `<code>X = [ 1, 2, 3]</code>' creates a list and
+stores a pointer to that list in the variable <code>X</code>.
+Then the statement `<code>Y = X</code>' reads the pointer to the list
+from <code>X</code> and stores it in <code>Y</code>.  So now
+<code>X</code> and <code>Y</code> both contain pointers to the same list.
+<p>
+The function <code>copy</code> function takes as its argument a pointer
+to a list, makes a copy of that list, and returns a pointer to the copy.
+Thus '<code>Z = copy ( X )</code>' stores a pointer to the new copy into
+<code>Z</code>.
+<p>
+Printing <code>X</code>, <code>Y</code>, or <code>Z</code> does not
+print their pointer values.  Instead the lists pointed at are printed.
+<p>
+Using <code>X</code> to modify the list it points at changes the list
+printed by <code>Y</code> as well as the list printed by <code>X</code>,
+as these are the same list.  This list is <u>not</u> changed when
+<code>Z</code> is used to change the list <code>Z</code> points at,
+as that is a different list.
+<p>
+A list may have an element that points at another list.  Using the
+<code>copy</code> function to copy the list will copy the pointer
+in the element, and <u>not</u> the list it points at.  See
+`More Examples' below.
+<p>
+More Examples:
+<pre class='example'>
+<div class='line'>next W = [ 1, 2 ]</div>[1, 2]
+<div class='line'>next X = [ 1, 2, 3 ]</div>[1, 2, 3]
+<div class='line'>X[1] = W</div
+><div class='line'>next Y = copy ( X )</div>[1, [1, 2], 3]
+<div class='line'>// X and Y point at different lists,
+// but second element of BOTH lists points at W
+X[0] = 100</div
+><div class='line'>Y[0] = "A"</div
+><div class='line'>W[] = "B"</div
+><div class='line'>X</div>[100, [1, 2, "B"], 3]
+<div class='line'>Y</div>["A", [1, 2, "B"], 3]
 </pre>
 </p>
 
