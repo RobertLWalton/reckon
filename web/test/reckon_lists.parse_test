@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Thu Feb 20 20:18:49 EST 2025
+// Date:        Fri Feb 21 02:57:55 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -42,17 +42,44 @@ Z3 = Y[3]
 Z6 = Y[3 + 3]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Z6|} =
      {|Y [{|3|} + {|3|}]|}|}
-Z10 = Y[10]     // Y[10] does not exist
+Z10 = Y[10]         // Y[10] does not exist
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Z10|} =
      {|Y [10]|}|}
-Zm1 = Y[-1]     // Y[-1] does not exist
+Zm1 = Y[-1]         // Y[-1] does not exist
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Zm1|} =
      {|Y [-1]|}|}
+Zl = length ( Y )   // The number of elements in Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Zl|} =
+     {|length (Y)|}|}
+next X = [ 1, 5, 2, 8, 9 ]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
+     [{|1|}, {|5|}, {|2|}, {|8|}, {|9|}]|}
+Xl = length ( X )
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Xl|} =
+     {|length (X)|}|}
+sum = 0
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|sum|} = {|0|}|}
+i = 0
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|i|} = {|0|}|}
+while i < Xl:
+    next sum + = X[i]
+    next i + = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|while {|{|i|} < {|Xl|}|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next sum|} [< + = >] {|X [i]|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|next i|} [< + = >] {|1|}|}|}|}
+sum
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum|}
+
 
 // List Element Assignment
 //
-X
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+next X = [ 1, 2, 3, 4 ]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next X|} =
+     [{|1|}, {|2|}, {|3|}, {|4|}]|}
 X[1] = 20
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X [1]|} =
      {|20|}|}
@@ -120,8 +147,9 @@ L = []
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|L|} = []|}
 L[]       // Popping empty list
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|L []|}
-i = 1
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|i|} = {|1|}|}
+next i = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next i|} =
+     {|1|}|}
 while i <= 10:
     L[] = i
     next i + = 1
@@ -135,8 +163,9 @@ while i <= 10:
 L
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|L|}
 // Compute sum of elements of L
-sum = 0
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|sum|} = {|0|}|}
+next sum = 0
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next sum|} =
+     {|0|}|}
 repeat:
     E = L[]
     if E == *NONE*: exit

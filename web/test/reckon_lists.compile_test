@@ -220,397 +220,533 @@ Z6 = Y[3 + 3]
      ^^^^^^^^
     [25:120;13] GET T_GET 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 Y Z6 >]
-Z10 = Y[10]     // Y[10] does not exist
+Z10 = Y[10]         // Y[10] does not exist
         ^^
     [26:121;14] PUSHI T_PUSH 0 0 0 10; *
-Z10 = Y[10]     // Y[10] does not exist
+Z10 = Y[10]         // Y[10] does not exist
       ^^^^^
     [26:122;14] GET T_GET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 Y Z10 >]
-Zm1 = Y[-1]     // Y[-1] does not exist
+Zm1 = Y[-1]         // Y[-1] does not exist
         ^^
     [27:123;15] PUSHI T_PUSH 0 0 0 -1; *
-Zm1 = Y[-1]     // Y[-1] does not exist
+Zm1 = Y[-1]         // Y[-1] does not exist
       ^^^^^
     [27:124;15] GET T_GET 5 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 Y Zm1 >]
-X
-^
-    [31:125;16] PUSHS T_PUSH 11 0 0; [< X * >]
+Zl = length ( Y )   // The number of elements in Y
+            ^^^^^
+    [28:125;16] PUSHS T_PUSH 5 0 0; [< Y * >]
+Zl = length ( Y )   // The number of elements in Y
+     ^^^^^^^^^^^^
+    [28:126;16] VSIZE T_AOP 0 0 0 0; Zl
+next X = [ 1, 5, 2, 8, 9 ]
+         ^^^^^^^^^^^^^^^^^
+    [29:127;17] PUSHOBJ T_SET 15 0 2 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
+    [29:128;18] PUSHI T_PUSH 0 0 0 "["; *
+    [29:129;17] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
+    [29:130;18] PUSHI T_PUSH 0 0 0 "]"; *
+    [29:131;17] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
+    [29:132;18] PUSHI T_PUSH 0 0 0 ","; *
+    [29:133;17] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
+next X = [ 1, 5, 2, 8, 9 ]
+           ^
+    [29:134;18] PUSHI T_PUSH 0 0 0 1; *
+    [29:135;17] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 5, 2, 8, 9 ]
+              ^
+    [29:136;18] PUSHI T_PUSH 0 0 0 5; *
+    [29:137;17] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 5, 2, 8, 9 ]
+                 ^
+    [29:138;18] PUSHI T_PUSH 0 0 0 2; *
+    [29:139;17] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 5, 2, 8, 9 ]
+                    ^
+    [29:140;18] PUSHI T_PUSH 0 0 0 8; *
+    [29:141;17] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 5, 2, 8, 9 ]
+                       ^
+    [29:142;18] PUSHI T_PUSH 0 0 0 9; *
+    [29:143;17] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+Xl = length ( X )
+            ^^^^^
+    [30:144;18] PUSHS T_PUSH 0 0 0; [< X * >]
+Xl = length ( X )
+     ^^^^^^^^^^^^
+    [30:145;18] VSIZE T_AOP 0 0 0 0; Xl
+sum = 0
+      ^
+    [31:146;19] PUSHI T_PUSH 0 0 0 0; sum
+i = 0
+    ^
+    [32:147;20] PUSHI T_PUSH 0 0 0 0; i
+    next sum + = X[i]
+    ^^^^^^^^
+    [34:148;21] PUSHS T_PUSH 1 0 0; [< sum sum >]
+    next i + = 1
+    ^^^^^^
+    [35:149;22] PUSHS T_PUSH 1 0 0; [< i i >]
+while i < Xl:
+            ^
+    next sum + = X[i]
+^^^^^^^^^^^^^^^^^^^^^
+    next i + = 1
+^^^^^^^^^^^^^^^^
+    [35:150;24] BEGL T_BEGL 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+while i < Xl:
+      ^
+    [33:151;25] PUSHS T_PUSH 2 0 0; [< i * >]
+while i < Xl:
+          ^^
+    [33:152;26] PUSHS T_PUSH 7 0 0; [< Xl * >]
+while i < Xl:
+        ^
+    [33:153;24] JMPGEQ T_JMPS 0 0 0 0; 1
+    [154;24] LABEL 2
+    next sum + = X[i]
+    ^^^^^^^^
+    [34:154;25] PUSHS T_PUSH 1 0 0; [< [< next sum >] * >]
+    next sum + = X[i]
+                  ^^^
+    [34:155;26] PUSHS T_PUSH 3 0 0; [< i * >]
+    next sum + = X[i]
+                 ^^^^
+    [34:156;26] GET T_GET 9 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                X * >]
+    next sum + = X[i]
+    ^^^^^^^^^^^^^^^^^
+    [34:157;25] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    next sum + = X[i]
+    ^^^^^^^^
+    [34:158;24] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                * [< next sum >] >]
+    next i + = 1
+    ^^^^^^
+    [35:159;25] PUSHS T_PUSH 0 0 0; [< [< next i >] * >]
+    next i + = 1
+               ^
+    [35:160;26] PUSHI T_PUSH 0 0 0 1; *
+    next i + = 1
+    ^^^^^^^^^^^^
+    [35:161;25] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    next i + = 1
+    ^^^^^^
+    [35:162;24] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                * [< next i >] >]
+while i < Xl:
+            ^
+    next sum + = X[i]
+^^^^^^^^^^^^^^^^^^^^^
+    next i + = 1
+^^^^^^^^^^^^^^^^
+    [35:163;22] ENDL T_ENDL 0 2 12 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [164;22] LABEL 1
+    [33:153;22] JMPGEQ T_JMPS[1] 2 0 11 0; 1
+sum
+^^^
+    [36:164;23] PUSHS T_PUSH 1 0 0; [< sum * >]
+next X = [ 1, 2, 3, 4 ]
+         ^^^^^^^^^^^^^^
+    [41:165;24] PUSHOBJ T_SET 14 0 2 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
+    [41:166;25] PUSHI T_PUSH 0 0 0 "["; *
+    [41:167;24] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
+    [41:168;25] PUSHI T_PUSH 0 0 0 "]"; *
+    [41:169;24] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
+    [41:170;25] PUSHI T_PUSH 0 0 0 ","; *
+    [41:171;24] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
+next X = [ 1, 2, 3, 4 ]
+           ^
+    [41:172;25] PUSHI T_PUSH 0 0 0 1; *
+    [41:173;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 2, 3, 4 ]
+              ^
+    [41:174;25] PUSHI T_PUSH 0 0 0 2; *
+    [41:175;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 2, 3, 4 ]
+                 ^
+    [41:176;25] PUSHI T_PUSH 0 0 0 3; *
+    [41:177;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+next X = [ 1, 2, 3, 4 ]
+                    ^
+    [41:178;25] PUSHI T_PUSH 0 0 0 4; *
+    [41:179;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 X[1] = 20
   ^
-    [32:126;17] PUSHI T_PUSH 0 0 0 1; *
+    [42:180;25] PUSHI T_PUSH 0 0 0 1; *
 X[1] = 20
 ^^^^
-    [32:127;18] PUSHI T_PUSH 0 0 0 0; *
+    [42:181;26] PUSHI T_PUSH 0 0 0 0; *
 X[1] = 20
        ^^
-    [32:128;19] PUSHI T_PUSH 0 0 0 20; *
+    [42:182;27] PUSHI T_PUSH 0 0 0 20; *
 X[1] = 20
 ^^^^
-    [32:129;18] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [42:183;26] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = 20
 ^^^^
-    [32:130;19] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [42:184;27] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = 20
 ^^^^
-    [32:131;20] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [42:185;28] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = 20
 ^^^^
-    [32:132;18] SET T_SET 16 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [42:186;26] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X[1] = 20
        ^^
-    [32:133;16] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [42:187;24] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [33:134;17] PUSHS T_PUSH 12 0 0; [< X * >]
+    [43:188;25] PUSHS T_PUSH 0 0 0; [< X * >]
 X[0], X[2] = X[2], X[0]
   ^
-    [34:135;18] PUSHI T_PUSH 0 0 0 0; *
+    [44:189;26] PUSHI T_PUSH 0 0 0 0; *
 X[0], X[2] = X[2], X[0]
 ^^^^
-    [34:136;19] PUSHI T_PUSH 0 0 0 0; *
+    [44:190;27] PUSHI T_PUSH 0 0 0 0; *
 X[0], X[2] = X[2], X[0]
         ^
-    [34:137;20] PUSHI T_PUSH 0 0 0 2; *
+    [44:191;28] PUSHI T_PUSH 0 0 0 2; *
 X[0], X[2] = X[2], X[0]
       ^^^^
-    [34:138;21] PUSHI T_PUSH 0 0 0 0; *
+    [44:192;29] PUSHI T_PUSH 0 0 0 0; *
 X[0], X[2] = X[2], X[0]
                ^
-    [34:139;22] PUSHI T_PUSH 0 0 0 2; *
+    [44:193;30] PUSHI T_PUSH 0 0 0 2; *
 X[0], X[2] = X[2], X[0]
              ^^^^
-    [34:140;22] GET T_GET 18 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [44:194;30] GET T_GET 6 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[0], X[2] = X[2], X[0]
 ^^^^
-    [34:141;21] POPS T_POP 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:195;29] POPS T_POP 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0], X[2] = X[2], X[0]
                      ^
-    [34:142;22] PUSHI T_PUSH 0 0 0 0; *
+    [44:196;30] PUSHI T_PUSH 0 0 0 0; *
 X[0], X[2] = X[2], X[0]
                    ^^^^
-    [34:143;22] GET T_GET 18 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [44:197;30] GET T_GET 6 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[0], X[2] = X[2], X[0]
       ^^^^
-    [34:144;21] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:198;29] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0], X[2] = X[2], X[0]
 ^^^^
-    [34:145;22] PUSHS T_PUSH 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:199;30] PUSHS T_PUSH 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0], X[2] = X[2], X[0]
 ^^^^
-    [34:146;23] PUSHS T_PUSH 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:200;31] PUSHS T_PUSH 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0], X[2] = X[2], X[0]
 ^^^^
-    [34:147;21] SET T_SET 19 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [44:201;29] SET T_SET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X[0], X[2] = X[2], X[0]
       ^^^^
-    [34:148;22] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:202;30] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0], X[2] = X[2], X[0]
       ^^^^
-    [34:149;23] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:203;31] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0], X[2] = X[2], X[0]
       ^^^^
-    [34:150;21] SET T_SET 19 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [44:204;29] SET T_SET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X[0], X[2] = X[2], X[0]
              ^^^^^^^^^^
-    [34:151;17] DEL T_POP 0 0 4 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [44:205;25] DEL T_POP 0 0 4 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [35:152;18] PUSHS T_PUSH 13 0 0; [< X * >]
+    [45:206;26] PUSHS T_PUSH 1 0 0; [< X * >]
 TOP, X[3] = X[3], 400
        ^
-    [36:153;19] PUSHI T_PUSH 0 0 0 3; *
+    [46:207;27] PUSHI T_PUSH 0 0 0 3; *
 TOP, X[3] = X[3], 400
      ^^^^
-    [36:154;20] PUSHI T_PUSH 0 0 0 0; *
+    [46:208;28] PUSHI T_PUSH 0 0 0 0; *
 TOP, X[3] = X[3], 400
               ^
-    [36:155;21] PUSHI T_PUSH 0 0 0 3; *
+    [46:209;29] PUSHI T_PUSH 0 0 0 3; *
 TOP, X[3] = X[3], 400
             ^^^^
-    [36:156;21] GET T_GET 17 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [46:210;29] GET T_GET 5 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X TOP >]
 TOP, X[3] = X[3], 400
                   ^^^
-    [36:157;22] PUSHI T_PUSH 0 0 0 400; *
+    [46:211;30] PUSHI T_PUSH 0 0 0 400; *
 TOP, X[3] = X[3], 400
      ^^^^
-    [36:158;21] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [46:212;29] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 TOP, X[3] = X[3], 400
      ^^^^
-    [36:159;22] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [46:213;30] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 TOP, X[3] = X[3], 400
      ^^^^
-    [36:160;23] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [46:214;31] PUSHS T_PUSH 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 TOP, X[3] = X[3], 400
      ^^^^
-    [36:161;21] SET T_SET 19 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [46:215;29] SET T_SET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 TOP, X[3] = X[3], 400
             ^^^^^^^^^
-    [36:162;19] DEL T_POP 1 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [46:216;27] DEL T_POP 1 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [37:163;20] PUSHS T_PUSH 15 0 0; [< X * >]
+    [47:217;28] PUSHS T_PUSH 3 0 0; [< X * >]
 X[10] = "Bozo"     // X[10] does not exist
   ^^
-    [38:164;21] PUSHI T_PUSH 0 0 0 10; *
+    [48:218;29] PUSHI T_PUSH 0 0 0 10; *
 X[10] = "Bozo"     // X[10] does not exist
 ^^^^^
-    [38:165;22] PUSHI T_PUSH 0 0 0 0; *
+    [48:219;30] PUSHI T_PUSH 0 0 0 0; *
 X[10] = "Bozo"     // X[10] does not exist
         ^^^^^^
-    [38:166;23] PUSHI T_PUSH 0 0 0 "Bozo"; *
+    [48:220;31] PUSHI T_PUSH 0 0 0 "Bozo"; *
 X[10] = "Bozo"     // X[10] does not exist
 ^^^^^
-    [38:167;22] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [48:221;30] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[10] = "Bozo"     // X[10] does not exist
 ^^^^^
-    [38:168;23] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [48:222;31] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[10] = "Bozo"     // X[10] does not exist
 ^^^^^
-    [38:169;24] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [48:223;32] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[10] = "Bozo"     // X[10] does not exist
 ^^^^^
-    [38:170;22] SET T_SET 20 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [48:224;30] SET T_SET 8 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X[10] = "Bozo"     // X[10] does not exist
         ^^^^^^
-    [38:171;20] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [48:225;28] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [42:172;21] PUSHS T_PUSH 16 0 0; [< X * >]
+    [52:226;29] PUSHS T_PUSH 4 0 0; [< X * >]
 X[1] + = 1000
   ^
-    [43:173;22] PUSHI T_PUSH 0 0 0 1; *
+    [53:227;30] PUSHI T_PUSH 0 0 0 1; *
 X[1] + = 1000
 ^^^^
-    [43:174;23] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [53:228;31] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] + = 1000
 ^^^^
-    [43:175;23] GET T_GET 19 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [53:229;31] GET T_GET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[1] + = 1000
          ^^^^
-    [43:176;24] PUSHI T_PUSH 0 0 0 1000; *
+    [53:230;32] PUSHI T_PUSH 0 0 0 1000; *
 X[1] + = 1000
 ^^^^^^^^^^^^^
-    [43:177;23] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [53:231;31] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] + = 1000
 ^^^^
-    [43:178;21] SET T_SET 19 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [53:232;29] SET T_SET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X
 ^
-    [44:179;22] PUSHS T_PUSH 17 0 0; [< X * >]
+    [54:233;30] PUSHS T_PUSH 5 0 0; [< X * >]
 X[0] * = 1000
   ^
-    [45:180;23] PUSHI T_PUSH 0 0 0 0; *
+    [55:234;31] PUSHI T_PUSH 0 0 0 0; *
 X[0] * = 1000
 ^^^^
-    [45:181;24] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [55:235;32] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0] * = 1000
 ^^^^
-    [45:182;24] GET T_GET 20 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [55:236;32] GET T_GET 8 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[0] * = 1000
          ^^^^
-    [45:183;25] PUSHI T_PUSH 0 0 0 1000; *
+    [55:237;33] PUSHI T_PUSH 0 0 0 1000; *
 X[0] * = 1000
 ^^^^^^^^^^^^^
-    [45:184;24] MUL T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [55:238;32] MUL T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0] * = 1000
 ^^^^
-    [45:185;22] SET T_SET 20 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [55:239;30] SET T_SET 8 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X[2] / = 10
   ^
-    [46:186;23] PUSHI T_PUSH 0 0 0 2; *
+    [56:240;31] PUSHI T_PUSH 0 0 0 2; *
 X[2] / = 10
 ^^^^
-    [46:187;24] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [56:241;32] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[2] / = 10
 ^^^^
-    [46:188;24] GET T_GET 20 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [56:242;32] GET T_GET 8 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[2] / = 10
          ^^
-    [46:189;25] PUSHI T_PUSH 0 0 0 10; *
+    [56:243;33] PUSHI T_PUSH 0 0 0 10; *
 X[2] / = 10
 ^^^^^^^^^^^
-    [46:190;24] DIV T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [56:244;32] DIV T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[2] / = 10
 ^^^^
-    [46:191;22] SET T_SET 20 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [56:245;30] SET T_SET 8 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X
 ^
-    [47:192;23] PUSHS T_PUSH 18 0 0; [< X * >]
+    [57:246;31] PUSHS T_PUSH 6 0 0; [< X * >]
 X[10] - = 5    // X[10] does not exist
   ^^
-    [48:193;24] PUSHI T_PUSH 0 0 0 10; *
+    [58:247;32] PUSHI T_PUSH 0 0 0 10; *
 X[10] - = 5    // X[10] does not exist
 ^^^^^
-    [48:194;25] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [58:248;33] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[10] - = 5    // X[10] does not exist
 ^^^^^
-    [48:195;25] GET T_GET 21 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [58:249;33] GET T_GET 9 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[10] - = 5    // X[10] does not exist
           ^
-    [48:196;26] PUSHI T_PUSH 0 0 0 5; *
+    [58:250;34] PUSHI T_PUSH 0 0 0 5; *
 X[10] - = 5    // X[10] does not exist
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                // It reads as *NONE* and causes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                // FATAL PROGRAM ERROR when written
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [50:197;25] SUB T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [60:251;33] SUB T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[10] - = 5    // X[10] does not exist
 ^^^^^
-    [48:198;23] SET T_SET 21 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [58:252;31] SET T_SET 9 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 next X = [ 1, 2, 3 ]
          ^^^^^^^^^^^
-    [54:199;24] PUSHOBJ T_SET 13 0 2 *
+    [64:253;32] PUSHOBJ T_SET 13 0 2 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
-    [54:200;25] PUSHI T_PUSH 0 0 0 "["; *
-    [54:201;24] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
-    [54:202;25] PUSHI T_PUSH 0 0 0 "]"; *
-    [54:203;24] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
-    [54:204;25] PUSHI T_PUSH 0 0 0 ","; *
-    [54:205;24] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
+    [64:254;33] PUSHI T_PUSH 0 0 0 "["; *
+    [64:255;32] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
+    [64:256;33] PUSHI T_PUSH 0 0 0 "]"; *
+    [64:257;32] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
+    [64:258;33] PUSHI T_PUSH 0 0 0 ","; *
+    [64:259;32] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
            ^
-    [54:206;25] PUSHI T_PUSH 0 0 0 1; *
-    [54:207;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [64:260;33] PUSHI T_PUSH 0 0 0 1; *
+    [64:261;32] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
               ^
-    [54:208;25] PUSHI T_PUSH 0 0 0 2; *
-    [54:209;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [64:262;33] PUSHI T_PUSH 0 0 0 2; *
+    [64:263;32] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
                  ^
-    [54:210;25] PUSHI T_PUSH 0 0 0 3; *
-    [54:211;24] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [64:264;33] PUSHI T_PUSH 0 0 0 3; *
+    [64:265;32] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 X[] = 4    // Push 4 to end of list
 ^^^
-    [55:212;25] PUSHI T_PUSH 0 0 0 0; *
+    [65:266;33] PUSHI T_PUSH 0 0 0 0; *
 X[] = 4    // Push 4 to end of list
       ^
-    [55:213;26] PUSHI T_PUSH 0 0 0 4; *
+    [65:267;34] PUSHI T_PUSH 0 0 0 4; *
 X[] = 4    // Push 4 to end of list
 ^^^
-    [55:214;25] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [65:268;33] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[] = 4    // Push 4 to end of list
 ^^^
-    [55:215;26] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [65:269;34] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[] = 4    // Push 4 to end of list
 ^^^
-    [55:216;25] VPUSH T_SET 2 0 0 *
+    [65:270;33] VPUSH T_SET 2 0 0 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * X >]
 X[] = 4    // Push 4 to end of list
       ^
-    [55:217;24] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [65:271;32] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [56:218;25] PUSHS T_PUSH 0 0 0; [< X * >]
+    [66:272;33] PUSHS T_PUSH 0 0 0; [< X * >]
 next Z = X[]    // Pop 4 from end of list
          ^^^
-    [57:219;26] VPOP T_GET 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [67:273;34] VPOP T_GET 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X [< next Z >] >]
 X
 ^
-    [58:220;27] PUSHS T_PUSH 2 0 0; [< X * >]
+    [68:274;35] PUSHS T_PUSH 2 0 0; [< X * >]
 X[] + = 8    // Add 8 to last element of list
 ^^^
-    [59:221;28] VPOP T_GET 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [69:275;36] VPOP T_GET 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 X * >]
 X[] + = 8    // Add 8 to last element of list
         ^
-    [59:222;29] PUSHI T_PUSH 0 0 0 8; *
+    [69:276;37] PUSHI T_PUSH 0 0 0 8; *
 X[] + = 8    // Add 8 to last element of list
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [59:223;28] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [69:277;36] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[] + = 8    // Add 8 to last element of list
 ^^^
-    [59:224;27] VPUSH T_SET 4 0 0; [< * X >]
+    [69:278;35] VPUSH T_SET 4 0 0; [< * X >]
 X
 ^
-    [60:225;28] PUSHS T_PUSH 3 0 0; [< X * >]
+    [70:279;36] PUSHS T_PUSH 3 0 0; [< X * >]
 L = []
     ^^
-    [62:226;29] PUSHOBJ T_SET 10 0 2 *
+    [72:280;37] PUSHOBJ T_SET 10 0 2 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; L
-    [62:227;30] PUSHI T_PUSH 0 0 0 "["; *
-    [62:228;29] SETI T_SET 1 0 0 ".initiator"; [< * L >]
-    [62:229;30] PUSHI T_PUSH 0 0 0 "]"; *
-    [62:230;29] SETI T_SET 1 0 0 ".terminator"; [< * L >]
-    [62:231;30] PUSHI T_PUSH 0 0 0 ","; *
-    [62:232;29] SETI T_SET 1 0 0 ".separator"; [< * L >]
+    [72:281;38] PUSHI T_PUSH 0 0 0 "["; *
+    [72:282;37] SETI T_SET 1 0 0 ".initiator"; [< * L >]
+    [72:283;38] PUSHI T_PUSH 0 0 0 "]"; *
+    [72:284;37] SETI T_SET 1 0 0 ".terminator"; [< * L >]
+    [72:285;38] PUSHI T_PUSH 0 0 0 ","; *
+    [72:286;37] SETI T_SET 1 0 0 ".separator"; [< * L >]
 L[]       // Popping empty list
 ^^^
-    [63:233;30] VPOP T_GET 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [73:287;38] VPOP T_GET 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 L * >]
-i = 1
-    ^
-    [64:234;31] PUSHI T_PUSH 0 0 0 1; i
+next i = 1
+         ^
+    [74:288;39] PUSHI T_PUSH 0 0 0 1; [< next i >]
     next i + = 1
     ^^^^^^
-    [67:235;32] PUSHS T_PUSH 0 0 0; [< i i >]
+    [77:289;40] PUSHS T_PUSH 0 0 0; [< i i >]
 while i <= 10:
              ^
     L[] = i
 ^^^^^^^^^^^
     next i + = 1
 ^^^^^^^^^^^^^^^^
-    [67:236;33] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [77:290;41] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 while i <= 10:
       ^
-    [65:237;34] PUSHS T_PUSH 1 0 0; [< i * >]
+    [75:291;42] PUSHS T_PUSH 1 0 0; [< i * >]
 while i <= 10:
            ^^
-    [65:238;35] PUSHI T_PUSH 0 0 0 10; *
+    [75:292;43] PUSHI T_PUSH 0 0 0 10; *
 while i <= 10:
         ^^
-    [65:239;33] JMPGT T_JMPS 0 0 0 0; 1
-    [240;33] LABEL 2
+    [75:293;41] JMPGT T_JMPS 0 0 0 0; 3
+    [294;41] LABEL 4
     L[] = i
     ^^^
-    [66:240;34] PUSHI T_PUSH 0 0 0 0; *
+    [76:294;42] PUSHI T_PUSH 0 0 0 0; *
     L[] = i
           ^
-    [66:241;35] PUSHS T_PUSH 2 0 0; [< i * >]
+    [76:295;43] PUSHS T_PUSH 2 0 0; [< i * >]
     L[] = i
     ^^^
-    [66:242;34] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [76:296;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     L[] = i
     ^^^
-    [66:243;35] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [76:297;43] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     L[] = i
     ^^^
-    [66:244;34] VPUSH T_SET 6 0 0 *
+    [76:298;42] VPUSH T_SET 6 0 0 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * L >]
     L[] = i
           ^
-    [66:245;33] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [76:299;41] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
     next i + = 1
     ^^^^^^
-    [67:246;34] PUSHS T_PUSH 0 0 0; [< [< next i >] * >]
+    [77:300;42] PUSHS T_PUSH 0 0 0; [< [< next i >] * >]
     next i + = 1
                ^
-    [67:247;35] PUSHI T_PUSH 0 0 0 1; *
+    [77:301;43] PUSHI T_PUSH 0 0 0 1; *
     next i + = 1
     ^^^^^^^^^^^^
-    [67:248;34] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [77:302;42] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     next i + = 1
     ^^^^^^
-    [67:249;33] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [77:303;41] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next i >] >]
 while i <= 10:
              ^
@@ -618,18 +754,18 @@ while i <= 10:
 ^^^^^^^^^^^
     next i + = 1
 ^^^^^^^^^^^^^^^^
-    [67:250;32] ENDL T_ENDL 0 1 13 *UNDEFINED_GEN(0x7FF4170000000000)*
-    [251;32] LABEL 1
-    [65:239;32] JMPGT T_JMPS[1] 1 0 12 0; 1
+    [77:304;40] ENDL T_ENDL 0 1 13 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [305;40] LABEL 3
+    [75:293;40] JMPGT T_JMPS[1] 1 0 12 0; 3
 L
 ^
-    [68:251;33] PUSHS T_PUSH 3 0 0; [< L * >]
-sum = 0
-      ^
-    [70:252;34] PUSHI T_PUSH 0 0 0 0; sum
+    [78:305;41] PUSHS T_PUSH 3 0 0; [< L * >]
+next sum = 0
+           ^
+    [80:306;42] PUSHI T_PUSH 0 0 0 0; [< next sum >]
     next sum + = E
     ^^^^^^^^
-    [74:253;35] PUSHS T_PUSH 0 0 0; [< sum sum >]
+    [84:307;43] PUSHS T_PUSH 0 0 0; [< sum sum >]
 repeat:
       ^
     E = L[]
@@ -638,38 +774,38 @@ repeat:
 ^^^^^^^^^^^^^^^^^^^^^^^^
     next sum + = E
 ^^^^^^^^^^^^^^^^^^
-    [74:254;36] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [84:308;44] BEGL T_BEGL 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     E = L[]
         ^^^
-    [72:255;37] VPOP T_GET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [82:309;45] VPOP T_GET 7 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 L E >]
     if E == *NONE*: exit
        ^
-    [73:256;38] PUSHS T_PUSH 0 0 0; [< E * >]
+    [83:310;46] PUSHS T_PUSH 0 0 0; [< E * >]
     if E == *NONE*: exit
             ^^^^^^
-    [73:257;39] PUSHS T_PUSH 35 0 0; [< *NONE* * >]
+    [83:311;47] PUSHS T_PUSH 43 0 0; [< *NONE* * >]
     if E == *NONE*: exit
          ^^
-    [73:258;37] JMPNEQ T_JMPS 0 0 0 0; 4
-    [259;37] LABEL 5
+    [83:312;45] JMPNEQ T_JMPS 0 0 0 0; 6
+    [313;45] LABEL 7
     if E == *NONE*: exit
                     ^^^^
-    [73:259;37] JMP T_JMP 0 0 0 0; 3
-    [260;37] LABEL 4
-    [73:258;37] JMPNEQ T_JMPS 0 0 2 0; 4
+    [83:313;45] JMP T_JMP 0 0 0 0; 5
+    [314;45] LABEL 6
+    [83:312;45] JMPNEQ T_JMPS 0 0 2 0; 6
     next sum + = E
     ^^^^^^^^
-    [74:260;38] PUSHS T_PUSH 1 0 0; [< [< next sum >] * >]
+    [84:314;46] PUSHS T_PUSH 1 0 0; [< [< next sum >] * >]
     next sum + = E
                  ^
-    [74:261;39] PUSHS T_PUSH 1 0 0; [< E * >]
+    [84:315;47] PUSHS T_PUSH 1 0 0; [< E * >]
     next sum + = E
     ^^^^^^^^^^^^^^
-    [74:262;38] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [84:316;46] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     next sum + = E
     ^^^^^^^^
-    [74:263;37] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [84:317;45] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next sum >] >]
 repeat:
       ^
@@ -679,407 +815,407 @@ repeat:
 ^^^^^^^^^^^^^^^^^^^^^^^^
     next sum + = E
 ^^^^^^^^^^^^^^^^^^
-    [74:264;35] ENDL T_ENDL 1 1 9 *UNDEFINED_GEN(0x7FF4170000000000)*
-    [265;35] LABEL 3
-    [73:259;35] JMP T_JMP[1] 2 0 6 0; 3
+    [84:318;43] ENDL T_ENDL 1 1 9 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [319;43] LABEL 5
+    [83:313;43] JMP T_JMP[1] 2 0 6 0; 5
 L
 ^
-    [75:265;36] PUSHS T_PUSH 6 0 0; [< L * >]
+    [85:319;44] PUSHS T_PUSH 6 0 0; [< L * >]
 sum
 ^^^
-    [76:266;37] PUSHS T_PUSH 1 0 0; [< sum * >]
+    [86:320;45] PUSHS T_PUSH 1 0 0; [< sum * >]
 next X = [ 1, 2, 3 ]
          ^^^^^^^^^^^
-    [80:267;38] PUSHOBJ T_SET 13 0 2 *
+    [90:321;46] PUSHOBJ T_SET 13 0 2 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
-    [80:268;39] PUSHI T_PUSH 0 0 0 "["; *
-    [80:269;38] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
-    [80:270;39] PUSHI T_PUSH 0 0 0 "]"; *
-    [80:271;38] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
-    [80:272;39] PUSHI T_PUSH 0 0 0 ","; *
-    [80:273;38] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
+    [90:322;47] PUSHI T_PUSH 0 0 0 "["; *
+    [90:323;46] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
+    [90:324;47] PUSHI T_PUSH 0 0 0 "]"; *
+    [90:325;46] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
+    [90:326;47] PUSHI T_PUSH 0 0 0 ","; *
+    [90:327;46] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
            ^
-    [80:274;39] PUSHI T_PUSH 0 0 0 1; *
-    [80:275;38] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [90:328;47] PUSHI T_PUSH 0 0 0 1; *
+    [90:329;46] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
               ^
-    [80:276;39] PUSHI T_PUSH 0 0 0 2; *
-    [80:277;38] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [90:330;47] PUSHI T_PUSH 0 0 0 2; *
+    [90:331;46] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
                  ^
-    [80:278;39] PUSHI T_PUSH 0 0 0 3; *
-    [80:279;38] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [90:332;47] PUSHI T_PUSH 0 0 0 3; *
+    [90:333;46] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next Y = X
          ^
-    [81:280;39] PUSHS T_PUSH 0 0 0; [< X [< next Y >] >]
+    [91:334;47] PUSHS T_PUSH 0 0 0; [< X [< next Y >] >]
 next Z = copy ( X )
               ^^^^^
-    [82:281;40] PUSHS T_PUSH 1 0 0; [< X * >]
+    [92:335;48] PUSHS T_PUSH 1 0 0; [< X * >]
 next Z = copy ( X )
          ^^^^^^^^^^
-    [82:282;40] COPY T_AOP 0 0 0 0; [< next Z >]
+    [92:336;48] COPY T_AOP 0 0 0 0; [< next Z >]
 X[1] = 20
   ^
-    [85:283;41] PUSHI T_PUSH 0 0 0 1; *
+    [95:337;49] PUSHI T_PUSH 0 0 0 1; *
 X[1] = 20
 ^^^^
-    [85:284;42] PUSHI T_PUSH 0 0 0 0; *
+    [95:338;50] PUSHI T_PUSH 0 0 0 0; *
 X[1] = 20
        ^^
-    [85:285;43] PUSHI T_PUSH 0 0 0 20; *
+    [95:339;51] PUSHI T_PUSH 0 0 0 20; *
 X[1] = 20
 ^^^^
-    [85:286;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [95:340;50] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = 20
 ^^^^
-    [85:287;43] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [95:341;51] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = 20
 ^^^^
-    [85:288;44] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [95:342;52] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = 20
 ^^^^
-    [85:289;42] SET T_SET 6 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [95:343;50] SET T_SET 6 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * X >]
 X[1] = 20
        ^^
-    [85:290;40] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [95:344;48] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 Z[1] = -2
   ^
-    [86:291;41] PUSHI T_PUSH 0 0 0 1; *
+    [96:345;49] PUSHI T_PUSH 0 0 0 1; *
 Z[1] = -2
 ^^^^
-    [86:292;42] PUSHI T_PUSH 0 0 0 0; *
+    [96:346;50] PUSHI T_PUSH 0 0 0 0; *
 Z[1] = -2
        ^^
-    [86:293;43] PUSHI T_PUSH 0 0 0 -2; *
+    [96:347;51] PUSHI T_PUSH 0 0 0 -2; *
 Z[1] = -2
 ^^^^
-    [86:294;42] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [96:348;50] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Z[1] = -2
 ^^^^
-    [86:295;43] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [96:349;51] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Z[1] = -2
 ^^^^
-    [86:296;44] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [96:350;52] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Z[1] = -2
 ^^^^
-    [86:297;42] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [96:351;50] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * Z >]
 Z[1] = -2
        ^^
-    [86:298;40] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [96:352;48] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [87:299;41] PUSHS T_PUSH 2 0 0; [< X * >]
+    [97:353;49] PUSHS T_PUSH 2 0 0; [< X * >]
 Y
 ^
-    [88:300;42] PUSHS T_PUSH 2 0 0; [< Y * >]
+    [98:354;50] PUSHS T_PUSH 2 0 0; [< Y * >]
 Z
 ^
-    [89:301;43] PUSHS T_PUSH 2 0 0; [< Z * >]
+    [99:355;51] PUSHS T_PUSH 2 0 0; [< Z * >]
 next W = [ 1, 2 ]
          ^^^^^^^^
-    [90:302;44] PUSHOBJ T_SET 12 0 2 *
-                UNDEFINED_GEN(0x7FF4170000000000)*; [< next W >]
-    [90:303;45] PUSHI T_PUSH 0 0 0 "["; *
-    [90:304;44] SETI T_SET 1 0 0 ".initiator"; [< * [< next W >] >]
-    [90:305;45] PUSHI T_PUSH 0 0 0 "]"; *
-    [90:306;44] SETI T_SET 1 0 0 ".terminator"; [< * [< next W >] >]
-    [90:307;45] PUSHI T_PUSH 0 0 0 ","; *
-    [90:308;44] SETI T_SET 1 0 0 ".separator"; [< * [< next W >] >]
+    [100:356;52] PUSHOBJ T_SET 12 0 2 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< next W >]
+    [100:357;53] PUSHI T_PUSH 0 0 0 "["; *
+    [100:358;52] SETI T_SET 1 0 0 ".initiator"; [< * [< next W >] >]
+    [100:359;53] PUSHI T_PUSH 0 0 0 "]"; *
+    [100:360;52] SETI T_SET 1 0 0 ".terminator"; [< * [< next W >] >]
+    [100:361;53] PUSHI T_PUSH 0 0 0 ","; *
+    [100:362;52] SETI T_SET 1 0 0 ".separator"; [< * [< next W >] >]
 next W = [ 1, 2 ]
            ^
-    [90:309;45] PUSHI T_PUSH 0 0 0 1; *
-    [90:310;44] VPUSH T_SET 1 0 0 "["; [< * [< next W >] >]
+    [100:363;53] PUSHI T_PUSH 0 0 0 1; *
+    [100:364;52] VPUSH T_SET 1 0 0 "["; [< * [< next W >] >]
 next W = [ 1, 2 ]
               ^
-    [90:311;45] PUSHI T_PUSH 0 0 0 2; *
-    [90:312;44] VPUSH T_SET 1 0 0 "["; [< * [< next W >] >]
+    [100:365;53] PUSHI T_PUSH 0 0 0 2; *
+    [100:366;52] VPUSH T_SET 1 0 0 "["; [< * [< next W >] >]
 next X = [ 1, 2, 3 ]
          ^^^^^^^^^^^
-    [91:313;45] PUSHOBJ T_SET 13 0 2 *
-                UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
-    [91:314;46] PUSHI T_PUSH 0 0 0 "["; *
-    [91:315;45] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
-    [91:316;46] PUSHI T_PUSH 0 0 0 "]"; *
-    [91:317;45] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
-    [91:318;46] PUSHI T_PUSH 0 0 0 ","; *
-    [91:319;45] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
+    [101:367;53] PUSHOBJ T_SET 13 0 2 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
+    [101:368;54] PUSHI T_PUSH 0 0 0 "["; *
+    [101:369;53] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
+    [101:370;54] PUSHI T_PUSH 0 0 0 "]"; *
+    [101:371;53] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
+    [101:372;54] PUSHI T_PUSH 0 0 0 ","; *
+    [101:373;53] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
            ^
-    [91:320;46] PUSHI T_PUSH 0 0 0 1; *
-    [91:321;45] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [101:374;54] PUSHI T_PUSH 0 0 0 1; *
+    [101:375;53] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
               ^
-    [91:322;46] PUSHI T_PUSH 0 0 0 2; *
-    [91:323;45] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [101:376;54] PUSHI T_PUSH 0 0 0 2; *
+    [101:377;53] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [ 1, 2, 3 ]
                  ^
-    [91:324;46] PUSHI T_PUSH 0 0 0 3; *
-    [91:325;45] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [101:378;54] PUSHI T_PUSH 0 0 0 3; *
+    [101:379;53] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 X[1] = W
   ^
-    [92:326;46] PUSHI T_PUSH 0 0 0 1; *
+    [102:380;54] PUSHI T_PUSH 0 0 0 1; *
 X[1] = W
 ^^^^
-    [92:327;47] PUSHI T_PUSH 0 0 0 0; *
+    [102:381;55] PUSHI T_PUSH 0 0 0 0; *
 X[1] = W
        ^
-    [92:328;48] PUSHS T_PUSH 3 0 0; [< W * >]
+    [102:382;56] PUSHS T_PUSH 3 0 0; [< W * >]
 X[1] = W
 ^^^^
-    [92:329;47] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [102:383;55] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = W
 ^^^^
-    [92:330;48] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [102:384;56] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = W
 ^^^^
-    [92:331;49] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [102:385;57] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[1] = W
 ^^^^
-    [92:332;47] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
-                * X >]
+    [102:386;55] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                 * X >]
 X[1] = W
        ^
-    [92:333;45] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [102:387;53] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 next Y = copy ( X )
               ^^^^^
-    [93:334;46] PUSHS T_PUSH 0 0 0; [< X * >]
+    [103:388;54] PUSHS T_PUSH 0 0 0; [< X * >]
 next Y = copy ( X )
          ^^^^^^^^^^
-    [93:335;46] COPY T_AOP 0 0 0 0; [< next Y >]
+    [103:389;54] COPY T_AOP 0 0 0 0; [< next Y >]
 X[0] = 100
   ^
-    [96:336;47] PUSHI T_PUSH 0 0 0 0; *
+    [106:390;55] PUSHI T_PUSH 0 0 0 0; *
 X[0] = 100
 ^^^^
-    [96:337;48] PUSHI T_PUSH 0 0 0 0; *
+    [106:391;56] PUSHI T_PUSH 0 0 0 0; *
 X[0] = 100
        ^^^
-    [96:338;49] PUSHI T_PUSH 0 0 0 100; *
+    [106:392;57] PUSHI T_PUSH 0 0 0 100; *
 X[0] = 100
 ^^^^
-    [96:339;48] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [106:393;56] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0] = 100
 ^^^^
-    [96:340;49] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [106:394;57] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0] = 100
 ^^^^
-    [96:341;50] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [106:395;58] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[0] = 100
 ^^^^
-    [96:342;48] SET T_SET 5 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
-                * X >]
+    [106:396;56] SET T_SET 5 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                 * X >]
 X[0] = 100
        ^^^
-    [96:343;46] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [106:397;54] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[0] = "A"
   ^
-    [97:344;47] PUSHI T_PUSH 0 0 0 0; *
+    [107:398;55] PUSHI T_PUSH 0 0 0 0; *
 Y[0] = "A"
 ^^^^
-    [97:345;48] PUSHI T_PUSH 0 0 0 0; *
+    [107:399;56] PUSHI T_PUSH 0 0 0 0; *
 Y[0] = "A"
        ^^^
-    [97:346;49] PUSHI T_PUSH 0 0 0 "A"; *
+    [107:400;57] PUSHI T_PUSH 0 0 0 "A"; *
 Y[0] = "A"
 ^^^^
-    [97:347;48] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [107:401;56] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[0] = "A"
 ^^^^
-    [97:348;49] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [107:402;57] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[0] = "A"
 ^^^^
-    [97:349;50] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [107:403;58] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[0] = "A"
 ^^^^
-    [97:350;48] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
-                * Y >]
+    [107:404;56] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                 * Y >]
 Y[0] = "A"
        ^^^
-    [97:351;46] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [107:405;54] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 W[] = "B"
 ^^^
-    [98:352;47] PUSHI T_PUSH 0 0 0 0; *
+    [108:406;55] PUSHI T_PUSH 0 0 0 0; *
 W[] = "B"
       ^^^
-    [98:353;48] PUSHI T_PUSH 0 0 0 "B"; *
+    [108:407;56] PUSHI T_PUSH 0 0 0 "B"; *
 W[] = "B"
 ^^^
-    [98:354;47] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [108:408;55] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 W[] = "B"
 ^^^
-    [98:355;48] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [108:409;56] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 W[] = "B"
 ^^^
-    [98:356;47] VPUSH T_SET 4 0 0 *
-                UNDEFINED_GEN(0x7FF4170000000000)*; [< * W >]
+    [108:410;55] VPUSH T_SET 4 0 0 *
+                 UNDEFINED_GEN(0x7FF4170000000000)*; [< * W >]
 W[] = "B"
       ^^^
-    [98:357;46] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [108:411;54] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [99:358;47] PUSHS T_PUSH 1 0 0; [< X * >]
+    [109:412;55] PUSHS T_PUSH 1 0 0; [< X * >]
 Y
 ^
-    [100:359;48] PUSHS T_PUSH 1 0 0; [< Y * >]
+    [110:413;56] PUSHS T_PUSH 1 0 0; [< Y * >]
 next X = [1, 2, 3]
          ^^^^^^^^^
-    [104:360;49] PUSHOBJ T_SET 13 0 2 *
+    [114:414;57] PUSHOBJ T_SET 13 0 2 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< next X >]
-    [104:361;50] PUSHI T_PUSH 0 0 0 "["; *
-    [104:362;49] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
-    [104:363;50] PUSHI T_PUSH 0 0 0 "]"; *
-    [104:364;49] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
-    [104:365;50] PUSHI T_PUSH 0 0 0 ","; *
-    [104:366;49] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
+    [114:415;58] PUSHI T_PUSH 0 0 0 "["; *
+    [114:416;57] SETI T_SET 1 0 0 ".initiator"; [< * [< next X >] >]
+    [114:417;58] PUSHI T_PUSH 0 0 0 "]"; *
+    [114:418;57] SETI T_SET 1 0 0 ".terminator"; [< * [< next X >] >]
+    [114:419;58] PUSHI T_PUSH 0 0 0 ","; *
+    [114:420;57] SETI T_SET 1 0 0 ".separator"; [< * [< next X >] >]
 next X = [1, 2, 3]
           ^
-    [104:367;50] PUSHI T_PUSH 0 0 0 1; *
-    [104:368;49] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [114:421;58] PUSHI T_PUSH 0 0 0 1; *
+    [114:422;57] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [1, 2, 3]
              ^
-    [104:369;50] PUSHI T_PUSH 0 0 0 2; *
-    [104:370;49] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [114:423;58] PUSHI T_PUSH 0 0 0 2; *
+    [114:424;57] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next X = [1, 2, 3]
                 ^
-    [104:371;50] PUSHI T_PUSH 0 0 0 3; *
-    [104:372;49] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
+    [114:425;58] PUSHI T_PUSH 0 0 0 3; *
+    [114:426;57] VPUSH T_SET 1 0 0 "["; [< * [< next X >] >]
 next Y = [ 10, 20, 30 ]
          ^^^^^^^^^^^^^^
-    [105:373;50] PUSHOBJ T_SET 13 0 2 *
+    [115:427;58] PUSHOBJ T_SET 13 0 2 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< next Y >]
-    [105:374;51] PUSHI T_PUSH 0 0 0 "["; *
-    [105:375;50] SETI T_SET 1 0 0 ".initiator"; [< * [< next Y >] >]
-    [105:376;51] PUSHI T_PUSH 0 0 0 "]"; *
-    [105:377;50] SETI T_SET 1 0 0 ".terminator"; [< * [< next Y >] >]
-    [105:378;51] PUSHI T_PUSH 0 0 0 ","; *
-    [105:379;50] SETI T_SET 1 0 0 ".separator"; [< * [< next Y >] >]
+    [115:428;59] PUSHI T_PUSH 0 0 0 "["; *
+    [115:429;58] SETI T_SET 1 0 0 ".initiator"; [< * [< next Y >] >]
+    [115:430;59] PUSHI T_PUSH 0 0 0 "]"; *
+    [115:431;58] SETI T_SET 1 0 0 ".terminator"; [< * [< next Y >] >]
+    [115:432;59] PUSHI T_PUSH 0 0 0 ","; *
+    [115:433;58] SETI T_SET 1 0 0 ".separator"; [< * [< next Y >] >]
 next Y = [ 10, 20, 30 ]
            ^^
-    [105:380;51] PUSHI T_PUSH 0 0 0 10; *
-    [105:381;50] VPUSH T_SET 1 0 0 "["; [< * [< next Y >] >]
+    [115:434;59] PUSHI T_PUSH 0 0 0 10; *
+    [115:435;58] VPUSH T_SET 1 0 0 "["; [< * [< next Y >] >]
 next Y = [ 10, 20, 30 ]
                ^^
-    [105:382;51] PUSHI T_PUSH 0 0 0 20; *
-    [105:383;50] VPUSH T_SET 1 0 0 "["; [< * [< next Y >] >]
+    [115:436;59] PUSHI T_PUSH 0 0 0 20; *
+    [115:437;58] VPUSH T_SET 1 0 0 "["; [< * [< next Y >] >]
 next Y = [ 10, 20, 30 ]
                    ^^
-    [105:384;51] PUSHI T_PUSH 0 0 0 30; *
-    [105:385;50] VPUSH T_SET 1 0 0 "["; [< * [< next Y >] >]
+    [115:438;59] PUSHI T_PUSH 0 0 0 30; *
+    [115:439;58] VPUSH T_SET 1 0 0 "["; [< * [< next Y >] >]
 Y[1] = X
   ^
-    [106:386;51] PUSHI T_PUSH 0 0 0 1; *
+    [116:440;59] PUSHI T_PUSH 0 0 0 1; *
 Y[1] = X
 ^^^^
-    [106:387;52] PUSHI T_PUSH 0 0 0 0; *
+    [116:441;60] PUSHI T_PUSH 0 0 0 0; *
 Y[1] = X
        ^
-    [106:388;53] PUSHS T_PUSH 3 0 0; [< X * >]
+    [116:442;61] PUSHS T_PUSH 3 0 0; [< X * >]
 Y[1] = X
 ^^^^
-    [106:389;52] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [116:443;60] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[1] = X
 ^^^^
-    [106:390;53] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [116:444;61] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[1] = X
 ^^^^
-    [106:391;54] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [116:445;62] PUSHS T_PUSH 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[1] = X
 ^^^^
-    [106:392;52] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [116:446;60] SET T_SET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  * Y >]
 Y[1] = X
        ^
-    [106:393;50] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [116:447;58] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y
 ^
-    [107:394;51] PUSHS T_PUSH 0 0 0; [< Y * >]
+    [117:448;59] PUSHS T_PUSH 0 0 0; [< Y * >]
 X[] = "Butch"
 ^^^
-    [108:395;52] PUSHI T_PUSH 0 0 0 0; *
+    [118:449;60] PUSHI T_PUSH 0 0 0 0; *
 X[] = "Butch"
       ^^^^^^^
-    [108:396;53] PUSHI T_PUSH 0 0 0 "Butch"; *
+    [118:450;61] PUSHI T_PUSH 0 0 0 "Butch"; *
 X[] = "Butch"
 ^^^
-    [108:397;52] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [118:451;60] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[] = "Butch"
 ^^^
-    [108:398;53] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [118:452;61] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 X[] = "Butch"
 ^^^
-    [108:399;52] VPUSH T_SET 4 0 0 *
+    [118:453;60] VPUSH T_SET 4 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * X >]
 X[] = "Butch"
       ^^^^^^^
-    [108:400;51] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [118:454;59] DEL T_POP 0 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y
 ^
-    [109:401;52] PUSHS T_PUSH 1 0 0; [< Y * >]
+    [119:455;60] PUSHS T_PUSH 1 0 0; [< Y * >]
 Y[1][0]        // Y[1] and X point at same list
   ^
-    [110:402;53] PUSHI T_PUSH 0 0 0 1; *
+    [120:456;61] PUSHI T_PUSH 0 0 0 1; *
 Y[1][0]        // Y[1] and X point at same list
 ^^^^
-    [110:403;53] GET T_GET 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [120:457;61] GET T_GET 3 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  Y * >]
 Y[1][0]        // Y[1] and X point at same list
      ^
-    [110:404;54] PUSHI T_PUSH 0 0 0 0; *
+    [120:458;62] PUSHI T_PUSH 0 0 0 0; *
 Y[1][0]        // Y[1] and X point at same list
 ^^^^^^^
-    [110:405;54] GET T_GET 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [120:459;62] GET T_GET 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  * * >]
 Y[1][0]        // Y[1] and X point at same list
 ^^^^^^^
-    [110:406;53] DEL T_POP 1 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [120:460;61] DEL T_POP 1 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  * * >]
 Y[1][]         // Pops X
   ^
-    [111:407;54] PUSHI T_PUSH 0 0 0 1; *
+    [121:461;62] PUSHI T_PUSH 0 0 0 1; *
 Y[1][]         // Pops X
 ^^^^
-    [111:408;54] GET T_GET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [121:462;62] GET T_GET 4 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  Y * >]
 Y[1][]         // Pops X
 ^^^^^^
-    [111:409;55] VPOP T_GET 0 0 0 *
+    [121:463;63] VPOP T_GET 0 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * * >]
 Y[1][]         // Pops X
 ^^^^^^
-    [111:410;54] DEL T_POP 1 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [121:464;62] DEL T_POP 1 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  * * >]
 Y[1][] = 5000  // Pushes 5000 to X
   ^
-    [112:411;55] PUSHI T_PUSH 0 0 0 1; *
+    [122:465;63] PUSHI T_PUSH 0 0 0 1; *
 Y[1][] = 5000  // Pushes 5000 to X
 ^^^^
-    [112:412;55] GET T_GET 5 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [122:466;63] GET T_GET 5 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                  Y * >]
 Y[1][] = 5000  // Pushes 5000 to X
 ^^^^^^
-    [112:413;56] PUSHI T_PUSH 0 0 0 0; *
+    [122:467;64] PUSHI T_PUSH 0 0 0 0; *
 Y[1][] = 5000  // Pushes 5000 to X
          ^^^^
-    [112:414;57] PUSHI T_PUSH 0 0 0 5000; *
+    [122:468;65] PUSHI T_PUSH 0 0 0 5000; *
 Y[1][] = 5000  // Pushes 5000 to X
 ^^^^^^
-    [112:415;56] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [122:469;64] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[1][] = 5000  // Pushes 5000 to X
 ^^^^^^
-    [112:416;57] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [122:470;65] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
 Y[1][] = 5000  // Pushes 5000 to X
 ^^^^^^
-    [112:417;56] VPUSH T_SET 2 0 0 *
+    [122:471;64] VPUSH T_SET 2 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * Y >]
 Y[1][] = 5000  // Pushes 5000 to X
          ^^^^
-    [112:418;54] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [122:472;62] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
 X
 ^
-    [113:419;55] PUSHS T_PUSH 5 0 0; [< X * >]
+    [123:473;63] PUSHS T_PUSH 5 0 0; [< X * >]
 Y
 ^
-    [114:420;56] PUSHS T_PUSH 5 0 0; [< Y * >]
+    [124:474;64] PUSHS T_PUSH 5 0 0; [< Y * >]
