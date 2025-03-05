@@ -5,7 +5,7 @@
 //
 // File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Mar  4 08:09:45 PM EST 2025
+// Date:        Wed Mar  5 02:37:17 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -211,99 +211,135 @@ nan is number
 * {55:174,33,152} PUSHI: * <= 0
 -0
 * {56:175,34,153} PUSHI: * <= -0
-+0 == -0
-    // +0 and -0 are stored as different values,
-    // But they are equal.
-* {59:176,35,154} PUSHI: * <= *FALSE*
++0 == -0   // +0 and -0 are stored as different values,
+           // But they are equal.
+* {58:176,35,154} PUSHI: * <= *FALSE*
 * {57:177,36,155} PUSHI: * <= 0
 * {57:178,37,156} PUSHI: * <= -0
 * {57:179,35,157} JMPNEQ location 182 is UNsuccessful: false <= 0 != -0
-* {59:180,34,158} POPS: * <= * = *FALSE*
-* {59:181,35,159} PUSHI: * <= *TRUE*
+* {58:180,34,158} POPS: * <= * = *FALSE*
+* {58:181,35,159} PUSHI: * <= *TRUE*
+-0 < +0    // Ditto
+* {59:182,36,160} PUSHI: * <= *FALSE*
+* {59:183,37,161} PUSHI: * <= -0
+* {59:184,38,162} PUSHI: * <= 0
+* {59:185,36,163} JMPGEQ location 188 is successful: true <= -0 >= 0
 1e309 is finite
     // Outside the range of a finite number, i.e.,
     // outside (-1e308.+1e308).
-* {62:182,36,160} PUSHI: * <= *FALSE*
-* {60:183,37,161} PUSHI: * <= inf
-* {62:184,36,162} JMPFIN location 186 is UNsuccessful: false <= inf
-* {62:185,36,163} JMP location 188
+* {62:188,37,164} PUSHI: * <= *FALSE*
+* {60:189,38,165} PUSHI: * <= inf
+* {62:190,37,166} JMPFIN location 192 is UNsuccessful: false <= inf
+* {62:191,37,167} JMP location 194
 
 // Infinities
 //
 inf is infinite
-* {66:188,37,164} PUSHI: * <= *FALSE*
-* {66:189,38,165} PUSHI: * <= inf
-* {66:190,37,166} JMPINF location 192 is successful: true <= inf
-* {66:192,36,167} POPS: * <= * = *FALSE*
-* {66:193,37,168} PUSHI: * <= *TRUE*
+* {66:194,38,168} PUSHI: * <= *FALSE*
+* {66:195,39,169} PUSHI: * <= inf
+* {66:196,38,170} JMPINF location 198 is successful: true <= inf
+* {66:198,37,171} POPS: * <= * = *FALSE*
+* {66:199,38,172} PUSHI: * <= *TRUE*
 -Inf is infinite    // Letter case does not matter
-* {67:194,38,169} PUSHI: * <= *FALSE*
-* {67:195,39,170} PUSHI: * <= -inf
-* {67:196,38,171} JMPINF location 198 is successful: true <= -inf
-* {67:198,37,172} POPS: * <= * = *FALSE*
-* {67:199,38,173} PUSHI: * <= *TRUE*
+* {67:200,39,173} PUSHI: * <= *FALSE*
+* {67:201,40,174} PUSHI: * <= -inf
+* {67:202,39,175} JMPINF location 204 is successful: true <= -inf
+* {67:204,38,176} POPS: * <= * = *FALSE*
+* {67:205,39,177} PUSHI: * <= *TRUE*
 -1e500
     // If a number is too large to store, it is changed
     // to an infinity.
-* {68:200,39,174} PUSHI: * <= -inf
+* {68:206,40,178} PUSHI: * <= -inf
++1e308 is finite
+* {71:207,41,179} PUSHI: * <= *FALSE*
+* {71:208,42,180} PUSHI: * <= 1e+308
+* {71:209,41,181} JMPFIN location 211 is successful: true <= 1e+308
+* {71:211,40,182} POPS: * <= * = *FALSE*
+* {71:212,41,183} PUSHI: * <= *TRUE*
++1e309 is infinite
+* {72:213,42,184} PUSHI: * <= *FALSE*
+* {72:214,43,185} PUSHI: * <= inf
+* {72:215,42,186} JMPINF location 217 is successful: true <= inf
+* {72:217,41,187} POPS: * <= * = *FALSE*
+* {72:218,42,188} PUSHI: * <= *TRUE*
+-1e308 is finite
+* {73:219,43,189} PUSHI: * <= *FALSE*
+* {73:220,44,190} PUSHI: * <= -1e+308
+* {73:221,43,191} JMPFIN location 223 is successful: true <= -1e+308
+* {73:223,42,192} POPS: * <= * = *FALSE*
+* {73:224,43,193} PUSHI: * <= *TRUE*
+-1e309 is infinite
+* {74:225,44,194} PUSHI: * <= *FALSE*
+* {74:226,45,195} PUSHI: * <= -inf
+* {74:227,44,196} JMPINF location 229 is successful: true <= -inf
+* {74:229,43,197} POPS: * <= * = *FALSE*
+* {74:230,44,198} PUSHI: * <= *TRUE*
 +inf + +inf
     // Sum of two large unknown numbers is a large
     // unknown number
-* {71:201,40,175} PUSHI: * <= inf
-* {71:202,41,176} PUSHI: * <= inf
-* {73:203,40,177} ADD: * = inf <= inf + inf
+* {75:231,45,199} PUSHI: * <= inf
+* {75:232,46,200} PUSHI: * <= inf
+* {77:233,45,201} ADD: * = inf <= inf + inf
 +inf + -inf
     // Difference of two large unknown numbers is
     // unknown
-* {74:204,41,178} PUSHI: * <= inf
-* {74:205,42,179} PUSHI: * <= -inf
+* {78:234,46,202} PUSHI: * <= inf
+* {78:235,47,203} PUSHI: * <= -inf
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-* {76:206,41,180} ADD: * = -nan <= inf + -inf
+* {80:236,46,204} ADD: * = -nan <= inf + -inf
 +inf * -inf
     // Product of two large unknown numbers is a large
     // unknown number
-* {77:207,42,181} PUSHI: * <= inf
-* {77:208,43,182} PUSHI: * <= -inf
-* {79:209,42,183} MUL: * = -inf <= inf * -inf
+* {81:237,47,205} PUSHI: * <= inf
+* {81:238,48,206} PUSHI: * <= -inf
+* {83:239,47,207} MUL: * = -inf <= inf * -inf
 +inf / +inf
     // Ratio of two large unknown numbers is unknown
-* {80:210,43,184} PUSHI: * <= inf
-* {80:211,44,185} PUSHI: * <= inf
+* {84:240,48,208} PUSHI: * <= inf
+* {84:241,49,209} PUSHI: * <= inf
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-* {81:212,43,186} DIV: * = -nan <= inf / inf
+* {85:242,48,210} DIV: * = -nan <= inf / inf
 1 / +0
     // Positive finite number divided by very small but
     // unknown positive number is a large unknown
     // positive number
-* {82:213,44,187} PUSHI: * <= 1
-* {82:214,45,188} PUSHI: * <= 0
+* {86:243,49,211} PUSHI: * <= 1
+* {86:244,50,212} PUSHI: * <= 0
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: divide by zero
-* {85:215,44,189} DIV: * = inf <= 1 / 0
+* {89:245,49,213} DIV: * = inf <= 1 / 0
 1 / -0
     // Positive finite number divided by very small but
     // unknown negative number is a large unknown
     // negative number
-* {86:216,45,190} PUSHI: * <= 1
-* {86:217,46,191} PUSHI: * <= -0
+* {90:246,50,214} PUSHI: * <= 1
+* {90:247,51,215} PUSHI: * <= -0
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: divide by zero
-* {89:218,45,192} DIV: * = -inf <= 1 / -0
+* {93:248,50,216} DIV: * = -inf <= 1 / -0
 +inf == +inf
     // Equality of two large unknown numbers is unknown
-* {91:219,46,193} PUSHI: * <= *FALSE*
-* {90:220,47,194} PUSHI: * <= inf
-* {90:221,48,195} PUSHI: * <= inf
+* {95:249,51,217} PUSHI: * <= *FALSE*
+* {94:250,52,218} PUSHI: * <= inf
+* {94:251,53,219} PUSHI: * <= inf
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                   conditional jump instruction
-* {90:222,46,196} JMPNEQ location 225 with invalid operand(s)
+* {94:252,51,220} JMPNEQ location 255 with invalid operand(s)
                   ARGS = inf inf
 [no output due to run-time error]
 +inf == -inf
     // Two large unknown numbers of different signs are
     // not equal
-* {94:219,46,196} PUSHI: * <= *FALSE*
-* {92:220,47,197} PUSHI: * <= inf
-* {92:221,48,198} PUSHI: * <= -inf
-* {92:222,46,199} JMPNEQ location 225 is successful: true <= inf != -inf
+* {98:249,51,220} PUSHI: * <= *FALSE*
+* {96:250,52,221} PUSHI: * <= inf
+* {96:251,53,222} PUSHI: * <= -inf
+* {96:252,51,223} JMPNEQ location 255 is successful: true <= inf != -inf
+-inf < +inf        // Ditto
+* {99:255,52,224} PUSHI: * <= *FALSE*
+* {99:256,53,225} PUSHI: * <= -inf
+* {99:257,54,226} PUSHI: * <= inf
+* {99:258,52,227} JMPGEQ location 261 is UNsuccessful: false <= -inf
+                  >= inf
+* {99:259,51,228} POPS: * <= * = *FALSE*
+* {99:260,52,229} PUSHI: * <= *TRUE*
 
 // Not-A-Numbers (more properly, unknown or uncomputable
 //                numbers)
@@ -311,67 +347,67 @@ inf is infinite
 // Also see +inf + -inf and +inf / +inf above
 //
 nan is undefined number
-* {101:225,47,200} PUSHI: * <= *FALSE*
-* {101:226,48,201} PUSHI: * <= nan
-* {101:227,47,202} JMPNAN location 229 is successful: true <= nan
-* {101:229,46,203} POPS: * <= * = *FALSE*
-* {101:230,47,204} PUSHI: * <= *TRUE*
+* {106:261,53,230} PUSHI: * <= *FALSE*
+* {106:262,54,231} PUSHI: * <= nan
+* {106:263,53,232} JMPNAN location 265 is successful: true <= nan
+* {106:265,52,233} POPS: * <= * = *FALSE*
+* {106:266,53,234} PUSHI: * <= *TRUE*
 NaN is undefined number   // Letter case does not matter
-* {102:231,48,205} PUSHI: * <= *FALSE*
-* {102:232,49,206} PUSHI: * <= nan
-* {102:233,48,207} JMPNAN location 235 is successful: true <= nan
-* {102:235,47,208} POPS: * <= * = *FALSE*
-* {102:236,48,209} PUSHI: * <= *TRUE*
+* {107:267,54,235} PUSHI: * <= *FALSE*
+* {107:268,55,236} PUSHI: * <= nan
+* {107:269,54,237} JMPNAN location 271 is successful: true <= nan
+* {107:271,53,238} POPS: * <= * = *FALSE*
+* {107:272,54,239} PUSHI: * <= *TRUE*
 -Nan is undefined number
-* {103:237,49,210} PUSHI: * <= *FALSE*
-* {103:238,50,211} PUSHI: * <= -nan
-* {103:239,49,212} JMPNAN location 241 is successful: true <= -nan
-* {103:241,48,213} POPS: * <= * = *FALSE*
-* {103:242,49,214} PUSHI: * <= *TRUE*
+* {108:273,55,240} PUSHI: * <= *FALSE*
+* {108:274,56,241} PUSHI: * <= -nan
+* {108:275,55,242} JMPNAN location 277 is successful: true <= -nan
+* {108:277,54,243} POPS: * <= * = *FALSE*
+* {108:278,55,244} PUSHI: * <= *TRUE*
 1 + nan
-* {104:243,50,215} PUSHI: * <= 1
-* {104:244,51,216} PUSHI: * <= nan
-* {104:245,50,217} ADD: * = nan <= 1 + nan
+* {109:279,56,245} PUSHI: * <= 1
+* {109:280,57,246} PUSHI: * <= nan
+* {109:281,56,247} ADD: * = nan <= 1 + nan
 nan + 1
-* {105:246,51,218} PUSHI: * <= nan
-* {105:247,52,219} PUSHI: * <= 1
-* {105:248,51,220} ADD: * = nan <= nan + 1
+* {110:282,57,248} PUSHI: * <= nan
+* {110:283,58,249} PUSHI: * <= 1
+* {110:284,57,250} ADD: * = nan <= nan + 1
 5 * nan
-* {106:249,52,221} PUSHI: * <= 5
-* {106:250,53,222} PUSHI: * <= nan
-* {106:251,52,223} MUL: * = nan <= 5 * nan
+* {111:285,58,251} PUSHI: * <= 5
+* {111:286,59,252} PUSHI: * <= nan
+* {111:287,58,253} MUL: * = nan <= 5 * nan
 1 / nan
-* {107:252,53,224} PUSHI: * <= 1
-* {107:253,54,225} PUSHI: * <= nan
-* {107:254,53,226} DIV: * = nan <= 1 / nan
+* {112:288,59,254} PUSHI: * <= 1
+* {112:289,60,255} PUSHI: * <= nan
+* {112:290,59,256} DIV: * = nan <= 1 / nan
 nan / 5
-* {108:255,54,227} PUSHI: * <= nan
-* {108:256,55,228} PUSHI: * <= 5
-* {108:257,54,229} DIV: * = nan <= nan / 5
+* {113:291,60,257} PUSHI: * <= nan
+* {113:292,61,258} PUSHI: * <= 5
+* {113:293,60,259} DIV: * = nan <= nan / 5
 nan == 8
-* {109:258,55,230} PUSHI: * <= *FALSE*
-* {109:259,56,231} PUSHI: * <= nan
-* {109:260,57,232} PUSHI: * <= 8
+* {114:294,61,260} PUSHI: * <= *FALSE*
+* {114:295,62,261} PUSHI: * <= nan
+* {114:296,63,262} PUSHI: * <= 8
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                    conditional jump instruction
-* {109:261,55,233} JMPNEQ location 264 with invalid operand(s)
+* {114:297,61,263} JMPNEQ location 300 with invalid operand(s)
                    ARGS = nan 8
 [no output due to run-time error]
 2 < nan
-* {110:258,55,233} PUSHI: * <= *FALSE*
-* {110:259,56,234} PUSHI: * <= 2
-* {110:260,57,235} PUSHI: * <= nan
+* {115:294,61,263} PUSHI: * <= *FALSE*
+* {115:295,62,264} PUSHI: * <= 2
+* {115:296,63,265} PUSHI: * <= nan
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                    conditional jump instruction
-* {110:261,55,236} JMPGEQ location 264 with invalid operand(s)
+* {115:297,61,266} JMPGEQ location 300 with invalid operand(s)
                    ARGS = 2 nan
 [no output due to run-time error]
 nan == nan
-* {111:258,55,236} PUSHI: * <= *FALSE*
-* {111:259,56,237} PUSHI: * <= nan
-* {111:260,57,238} PUSHI: * <= nan
+* {116:294,61,266} PUSHI: * <= *FALSE*
+* {116:295,62,267} PUSHI: * <= nan
+* {116:296,63,268} PUSHI: * <= nan
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                    conditional jump instruction
-* {111:261,55,239} JMPNEQ location 264 with invalid operand(s)
+* {116:297,61,269} JMPNEQ location 300 with invalid operand(s)
                    ARGS = nan nan
 [no output due to run-time error]

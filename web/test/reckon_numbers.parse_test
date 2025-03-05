@@ -2,7 +2,7 @@
 //
 // File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Mar  4 08:09:45 PM EST 2025
+// Date:        Wed Mar  5 02:37:17 EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -112,10 +112,11 @@ nan is number
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|0|}
 -0
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|-0|}
-+0 == -0
-    // +0 and -0 are stored as different values,
-    // But they are equal.
++0 == -0   // +0 and -0 are stored as different values,
+           // But they are equal.
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|0|} == {|-0|}|}
+-0 < +0    // Ditto
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|-0|} < {|0|}|}
 1e309 is finite
     // Outside the range of a finite number, i.e.,
     // outside (-1e308.+1e308).
@@ -134,6 +135,18 @@ inf is infinite
     // If a number is too large to store, it is changed
     // to an infinity.
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|-inf|}
++1e308 is finite
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|1e+308|}
+     [< is finite >]|}
++1e309 is infinite
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|inf|}
+     [< is infinite >]|}
+-1e308 is finite
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|-1e+308|}
+     [< is finite >]|}
+-1e309 is infinite
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|-inf|}
+     [< is infinite >]|}
 +inf + +inf
     // Sum of two large unknown numbers is a large
     // unknown number
@@ -172,6 +185,9 @@ inf is infinite
     // not equal
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|inf|} ==
      {|-inf|}|}
+-inf < +inf        // Ditto
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|-inf|} <
+     {|inf|}|}
 
 // Not-A-Numbers (more properly, unknown or uncomputable
 //                numbers)
