@@ -2,7 +2,7 @@
 //
 // File:	reckon_numbers.rec
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  8 01:57:30 PM EST 2024
+// Date:	Tue Mar  4 08:09:45 PM EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -17,16 +17,14 @@ nan is number
 
 // Integers
 //
-456
 456 is integer
-4.56e2
 4.56e2 is integer
 456 == 4.56e2
     // x == y tests whether x equals y
 -456 == -45.6e1
 123 == 12300e-2
 1e20 is integer
-    // FALSE because value not in range (-1e15,+1e15)
+    // *FALSE* because value not in range (-1e15,+1e15)
 9 / 2 is integer
 4.5 is integer
 9 / 3 is integer
@@ -35,21 +33,19 @@ nan is number
 
 // Finites
 //
-3.14
 3.14 is finite
 -3.14 is finite
-314e-2 is finite
-3.14 == 314e-2
-3 is finite
-    // integers are also finite numbers
-5.7e-4
+1e10 is finite     // integers are also finite numbers
+5.7e-4 is finite
+5.7e-4 == 0.00057
 123 / 1000 == 0.123
 1 + 1e-16
-    // Sum differs from 1 in 17'th place which is not stored
+    // Sum differs from 1 in 17'th place which is not
+    // stored
 1 + 1e-16 == 1
 1 + 1e-15
-    // Sum differs from 1 in 16'th place which is stored in
-    // part but is not output
+    // Sum differs from 1 in 16'th place which is stored
+    // in part but is not output
 1 + 1e-15 == 1
 1 + 4e-15
 1 + 5e-15
@@ -62,42 +58,48 @@ nan is number
     // +0 and -0 are stored as different values,
     // But they are equal.
 1e309 is finite
-    // Outside the range of a finite number, i.e., outside
-    // (-1e308.+1e308).
+    // Outside the range of a finite number, i.e.,
+    // outside (-1e308.+1e308).
 
 // Infinities
 //
 inf is infinite
-Inf is infinite
--INF is infinite
+-Inf is infinite    // Letter case does not matter
 -1e500
     // If a number is too large to store, it is changed
     // to an infinity.
 +inf + +inf
-    // Sum of two large unknown numbers is a large unknown number
+    // Sum of two large unknown numbers is a large
+    // unknown number
 +inf + -inf
-    // Difference of two large unknown numbers is unknown
+    // Difference of two large unknown numbers is
+    // unknown
 +inf * -inf
-    // Product of two large unknown numbers is a large unknown number
+    // Product of two large unknown numbers is a large
+    // unknown number
 +inf / +inf
     // Ratio of two large unknown numbers is unknown
 1 / +0
-    // Positive finite number divided by very small but unknown
-    // positive number is a large unknown positive number
+    // Positive finite number divided by very small but
+    // unknown positive number is a large unknown
+    // positive number
 1 / -0
-    // Positive finite number divided by very small but unknown
-    // negative number is a large unknown negative number
+    // Positive finite number divided by very small but
+    // unknown negative number is a large unknown
+    // negative number
 +inf == +inf
     // Equality of two large unknown numbers is unknown
 +inf == -inf
-    // Two large unknown numbers of different signs are not equal
+    // Two large unknown numbers of different signs are
+    // not equal
 
-// Not-A-Numbers (more properly, unknown or uncomputable numbers)
+// Not-A-Numbers (more properly, unknown or uncomputable
+//                numbers)
 //
 // Also see +inf + -inf and +inf / +inf above
 //
 nan is undefined number
-NaN is undefined number
+NaN is undefined number   // Letter case does not matter
 -Nan is undefined number
 1 + nan
 nan + 1

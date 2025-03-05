@@ -2,7 +2,7 @@
 //
 // File:        reckon_numbers.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Fri Nov  8 01:57:30 PM EST 2024
+// Date:        Tue Mar  4 08:09:45 PM EST 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -21,12 +21,8 @@ nan is number
 
 // Integers
 //
-456
-456
 456 is integer
 *TRUE*
-4.56e2
-456
 4.56e2 is integer
 *TRUE*
 456 == 4.56e2
@@ -37,7 +33,7 @@ nan is number
 123 == 12300e-2
 *TRUE*
 1e20 is integer
-    // FALSE because value not in range (-1e15,+1e15)
+    // *FALSE* because value not in range (-1e15,+1e15)
 *FALSE*
 9 / 2 is integer
 *FALSE*
@@ -52,31 +48,27 @@ nan is number
 
 // Finites
 //
-3.14
-3.14
 3.14 is finite
 *TRUE*
 -3.14 is finite
 *TRUE*
-314e-2 is finite
+1e10 is finite     // integers are also finite numbers
 *TRUE*
-3.14 == 314e-2
+5.7e-4 is finite
 *TRUE*
-3 is finite
-    // integers are also finite numbers
+5.7e-4 == 0.00057
 *TRUE*
-5.7e-4
-0.00057
 123 / 1000 == 0.123
 *TRUE*
 1 + 1e-16
-    // Sum differs from 1 in 17'th place which is not stored
+    // Sum differs from 1 in 17'th place which is not
+    // stored
 1
 1 + 1e-16 == 1
 *TRUE*
 1 + 1e-15
-    // Sum differs from 1 in 16'th place which is stored in
-    // part but is not output
+    // Sum differs from 1 in 16'th place which is stored
+    // in part but is not output
 1
 1 + 1e-15 == 1
 *FALSE*
@@ -98,68 +90,73 @@ nan is number
     // But they are equal.
 *TRUE*
 1e309 is finite
-    // Outside the range of a finite number, i.e., outside
-    // (-1e308.+1e308).
+    // Outside the range of a finite number, i.e.,
+    // outside (-1e308.+1e308).
 *FALSE*
 
 // Infinities
 //
 inf is infinite
 *TRUE*
-Inf is infinite
-*TRUE*
--INF is infinite
+-Inf is infinite    // Letter case does not matter
 *TRUE*
 -1e500
     // If a number is too large to store, it is changed
     // to an infinity.
 -inf
 +inf + +inf
-    // Sum of two large unknown numbers is a large unknown number
+    // Sum of two large unknown numbers is a large
+    // unknown number
 inf
 +inf + -inf
-    // Difference of two large unknown numbers is unknown
+    // Difference of two large unknown numbers is
+    // unknown
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-* {79:216,46,189} ADD: * = -nan <= inf + -inf
+* {76:206,41,180} ADD: * = -nan <= inf + -inf
 -nan
 +inf * -inf
-    // Product of two large unknown numbers is a large unknown number
+    // Product of two large unknown numbers is a large
+    // unknown number
 -inf
 +inf / +inf
     // Ratio of two large unknown numbers is unknown
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-* {83:222,48,195} DIV: * = -nan <= inf / inf
+* {81:212,43,186} DIV: * = -nan <= inf / inf
 -nan
 1 / +0
-    // Positive finite number divided by very small but unknown
-    // positive number is a large unknown positive number
+    // Positive finite number divided by very small but
+    // unknown positive number is a large unknown
+    // positive number
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: divide by zero
-* {86:225,49,198} DIV: * = inf <= 1 / 0
+* {85:215,44,189} DIV: * = inf <= 1 / 0
 inf
 1 / -0
-    // Positive finite number divided by very small but unknown
-    // negative number is a large unknown negative number
+    // Positive finite number divided by very small but
+    // unknown negative number is a large unknown
+    // negative number
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: divide by zero
-* {89:228,50,201} DIV: * = -inf <= 1 / -0
+* {89:218,45,192} DIV: * = -inf <= 1 / -0
 -inf
 +inf == +inf
     // Equality of two large unknown numbers is unknown
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                   conditional jump instruction
-* {90:232,51,205} JMPNEQ location 235 with invalid operand(s)
+* {90:222,46,196} JMPNEQ location 225 with invalid operand(s)
                   ARGS = inf inf
 [no output due to run-time error]
 +inf == -inf
-    // Two large unknown numbers of different signs are not equal
+    // Two large unknown numbers of different signs are
+    // not equal
 *FALSE*
 
-// Not-A-Numbers (more properly, unknown or uncomputable numbers)
+// Not-A-Numbers (more properly, unknown or uncomputable
+//                numbers)
 //
 // Also see +inf + -inf and +inf / +inf above
 //
 nan is undefined number
 *TRUE*
-NaN is undefined number
+NaN is undefined number   // Letter case does not matter
 *TRUE*
 -Nan is undefined number
 *TRUE*
@@ -176,18 +173,18 @@ nan
 nan == 8
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                   conditional jump instruction
-* {107:271,60,242} JMPNEQ location 274 with invalid operand(s)
+* {109:261,55,233} JMPNEQ location 264 with invalid operand(s)
                    ARGS = nan 8
 [no output due to run-time error]
 2 < nan
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                   conditional jump instruction
-* {108:271,60,245} JMPGEQ location 274 with invalid operand(s)
+* {110:261,55,236} JMPGEQ location 264 with invalid operand(s)
                    ARGS = 2 nan
 [no output due to run-time error]
 nan == nan
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL ERROR:  invalid operands to a
                   conditional jump instruction
-* {109:271,60,248} JMPNEQ location 274 with invalid operand(s)
+* {111:261,55,239} JMPNEQ location 264 with invalid operand(s)
                    ARGS = nan nan
 [no output due to run-time error]
