@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 21 02:52:35 EST 2025
+// Date:	Sun Mar 16 03:12:26 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,9 @@ static min::locatable_gen TIMES;
 static min::locatable_gen iteration_ops;
 static min::locatable_gen HIDDEN_COUNTER;
 
+static min::locatable_gen A;
+static min::locatable_gen AN;
+
 static min::uns32 jmp_counter = 1;
 
 static min::locatable_var<PRIM::primary_pass>
@@ -99,9 +102,13 @@ static void initialize ( void )
     ::REPEAT   = min::new_str_gen ( "repeat" );
     ::WHILE    = min::new_str_gen ( "while" );
     ::UNTIL    = min::new_str_gen ( "until" );
-    ::EXACTLY   = min::new_str_gen ( "exactly" );
+    ::EXACTLY  = min::new_str_gen ( "exactly" );
     ::AT_MOST  = min::new_lab_gen ( "at", "most" );
-    ::TIMES  = min::new_str_gen ( "times" );
+    ::TIMES    = min::new_str_gen ( "times" );
+
+    ::A        = min::new_str_gen ( "a" );
+    ::AN       = min::new_str_gen ( "an" );
+
     min::gen labv[6] =
         { ::DO, ::REPEAT, ::WHILE, ::UNTIL,
 	        ::EXACTLY, ::AT_MOST };
@@ -839,6 +846,11 @@ bool static compile_block_assignment_statement
           min::gen right_side,
           min::gen block );
 
+bool static compile_description
+	( min::gen left_side,
+          min::gen right_side,
+          min::gen block );
+
 // If ::block.if_next_jmp == 0, compiles IF statement.
 // Otherwise if condition != NONE, compiles ELSE_IF
 // statement.  Otherwise if condition == NONE, compiles
@@ -1178,12 +1190,30 @@ bool REC::compile_statement ( min::gen statement )
 	if ( s0 >= 2 && vp0[1] == PARLEX::equal )
 	{
 	    MIN_REQUIRE ( s0 <= 3 );
-	    min::gen right_side =
-	        ( s0 == 3 ? vp0[2] : min::NONE() );
+	    min::gen right_side = min::NONE();
+	    if ( s0 == 3 )
+	    {
+	        right_side = vp0[2];
+		min::obj_vec_ptr right_vp = right_side;
+		if (    min::size_of ( right_vp ) >= 2
+		     && (    right_vp[0] == ::A
+		          || right_vp[0] == ::AN ) )
+		{
+		    right_vp = min::NULL_STUB;
+		    return ::compile_description
+			( vp0[0], right_side, vp[1] );
+		}
+	    }
 	    return ::compile_block_assignment_statement
 	        ( vp0[0], right_side, vp[1] );
 	}
 
+	if (  vp0[0] == ::A || vp0[0] == ::AN )
+	{
+	    vp0 = min::NULL_STUB;
+	    return ::compile_description
+	        ( min::NONE(), vp[0], vp[1] );
+	}
 	if (    min::labfind ( vp0[0], ::iteration_ops )
 	     != -1 )
 	{
@@ -2108,12 +2138,13 @@ bool static compile_block_assignment_statement
     //
     min::uns32 number_of_iterations = 0;
     min::obj_vec_ptr right_vp = min::NULL_STUB;
+    min::locatable_gen type ( min::NONE() );
     if ( right_side != min::NONE() )
     {
         right_vp = right_side;
-	number_of_iterations =
-	    min::size_of ( right_vp );
-		// Overestimate
+	min::uns32 right_s = min::size_of ( right_vp );
+	number_of_iterations = right_s;
+		    // Overestimate
     }
     iteration iter[number_of_iterations];
 
@@ -2344,6 +2375,78 @@ bool static compile_block_assignment_statement
 	var->flags &= ~ PRIM::WRITABLE_VAR;
 	r = TAB::previous ( r );
     }
+
+    return OK;
+}
+
+bool static compile_description
+	( min::gen left_side,
+          min::gen right_side,
+          min::gen block )
+{
+    bool OK = true;
+
+    min::obj_vec_ptr right_vp = right_side;
+    min::uns32 right_s = min::size_of ( right_vp );
+    min::phrase_position_vec right_ppv =
+	::get_position ( right_vp );
+    MIN_REQUIRE ( right_s >= 2 );
+    min::uns32 j = 1;
+    min::locatable_gen type
+	( PRIM::scan_var_name ( right_vp, j ) );
+    if ( type == min::NONE() || j < right_s )
+    {
+	mexcom::compile_error
+	    ( right_ppv->position,
+	      "",
+	      min::pgen_name ( right_vp[0] ),
+	      " not followed by description"
+	      " type name; statement ignored" );
+	OK = false;
+    }
+    ::set_data data;
+    min::locatable_var<PRIM::var> var
+        ( min::NULL_STUB );
+    min::locatable_gen var_name ( ::star );
+    if ( left_side != min::NONE() )
+    {
+	var = ::scan_var ( left_side, & data );
+	if ( var == min::NULL_STUB ) OK = false;
+	else if ( data.nlabels > 0 )
+	{
+	    if ( ! ::compile_set_data ( var, & data ) )
+	    {
+		OK = false;
+		var = min::NULL_STUB;
+	    }
+	    else
+		data.value = mexstack::stack_length;
+	}
+	else
+	    var_name = ::full_var_name ( var );
+    }
+
+    // TBD: compile block
+
+    if ( var == min::NULL_STUB )
+	::pop ( right_ppv->position );
+    else if ( data.nlabels > 0 )
+        /* TBD */;
+    else if ( var->flags & PRIM::WRITABLE_VAR )
+    {
+	min::gen labv[2] = { ::star, var_name };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	mex::instr instr =
+	    { mex::POPS, 0, 0, 0,
+		mexstack::stack_length - 1
+	      - var->location };
+	-- mexstack::stack_length;
+	mexstack::push_instr
+	    ( instr, var->position, trace_info );
+    }
+    else
+	var->location = mexstack::stack_length - 1;
 
     return OK;
 }
