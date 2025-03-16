@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 16 03:12:26 AM EDT 2025
+// Date:	Sun Mar 16 05:18:46 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2408,22 +2408,28 @@ bool static compile_description
     min::locatable_var<PRIM::var> var
         ( min::NULL_STUB );
     min::locatable_gen var_name ( ::star );
+    min::locatable_gen trace_info ( min::MISSING() );
+    min::uns32 stack_length = mexstack::stack_length;
     if ( left_side != min::NONE() )
     {
 	var = ::scan_var ( left_side, & data );
 	if ( var == min::NULL_STUB ) OK = false;
-	else if ( data.nlabels > 0 )
-	{
-	    if ( ! ::compile_set_data ( var, & data ) )
-	    {
-		OK = false;
-		var = min::NULL_STUB;
-	    }
-	    else
-		data.value = mexstack::stack_length;
-	}
 	else
+	{
 	    var_name = ::full_var_name ( var );
+	    min::gen labv[2] = { ::star, var_name };
+	    trace_info = min::new_lab_gen ( labv, 2 );
+	    if ( data.nlabels > 0 )
+	    {
+		if ( ! ::compile_set_data ( var, & data ) )
+		{
+		    OK = false;
+		    var = min::NULL_STUB;
+		}
+		else
+		    data.value = mexstack::stack_length;
+	    }
+	}
     }
 
     // TBD: compile block
@@ -2431,12 +2437,45 @@ bool static compile_description
     if ( var == min::NULL_STUB )
 	::pop ( right_ppv->position );
     else if ( data.nlabels > 0 )
-        /* TBD */;
+    {
+	if ( data.label != ::NO_LOCATION )
+	{
+	    MIN_REQUIRE
+		(    data.label
+		  == mexstack::stack_length - 2 );
+	    mex::instr set_instr =
+		{ mex::SET, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data.base };
+	    mexstack::stack_length -= 2;
+	    mexstack::push_instr
+		( set_instr, data.refppv->position,
+			     trace_info );
+	}
+	else
+	{
+	    mex::instr instr =
+		{ mex::VPUSH, 0, 0, 0,
+		    mexstack::stack_length - 1
+		  - data.base,
+                  0, 0, min::MISSING() };
+	    mexstack::stack_length -= 1;
+	    mexstack::push_instr
+		( instr, data.refppv->position,
+			 trace_info );
+	}
+
+	min::uns32 set_data_length =
+	    mexstack::stack_length - stack_length;
+
+	if ( set_data_length > 0 )
+	{
+	    MIN_REQUIRE ( set_data_length == 1 );
+	    ::pop ( data.refppv->position );
+	}
+    }
     else if ( var->flags & PRIM::WRITABLE_VAR )
     {
-	min::gen labv[2] = { ::star, var_name };
-	min::locatable_gen trace_info
-	    ( min::new_lab_gen ( labv, 2 ) );
 	mex::instr instr =
 	    { mex::POPS, 0, 0, 0,
 		mexstack::stack_length - 1
@@ -2446,7 +2485,10 @@ bool static compile_description
 	    ( instr, var->position, trace_info );
     }
     else
+    {
 	var->location = mexstack::stack_length - 1;
+	::push_var ( var );
+    }
 
     return OK;
 }
