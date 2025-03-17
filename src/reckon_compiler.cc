@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 16 05:18:46 PM EDT 2025
+// Date:	Mon Mar 17 02:06:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,6 +24,7 @@
 # include <mexcom.h>
 # include <mexstack.h>
 # define REC reckon
+# define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
 # define PARLEX ll::parser::lexeme
 # define TAB ll::parser::table
@@ -246,6 +247,30 @@ inline void label ( min::uns32 target )
         ( min::new_num_gen ( target ) );
     mexstack::print_label ( t );
     mexstack::jmp_target ( t );
+}
+
+static min::uns64 val_initial_types =
+	 LEXSTD::symbol_mask;
+static min::uns64 val_following_types =
+	 LEXSTD::symbol_mask;
+static min::uns64 val_outside_quotes_types =
+	  (1ull << LEXSTD::word_t )
+	+ (1ull << LEXSTD::numeric_t )
+	+ (1ull << LEXSTD::natural_t )
+	+ (1ull << LEXSTD::number_t );
+static min::uns64 val_inside_quotes_types =
+	  (1ull << LEXSTD::mark_t )
+	+ (1ull << LEXSTD::separator_t );
+
+static min::gen scan_attribute_value
+	( min::obj_vec_ptr & vp, min::uns32 & i )
+{
+    return PRIM::scan_name
+    	( vp, i,
+	  ::val_initial_types,
+	  ::val_following_types,
+	  ::val_outside_quotes_types,
+	  ::val_inside_quotes_types );
 }
 
 struct block_struct
@@ -849,6 +874,10 @@ bool static compile_block_assignment_statement
 bool static compile_description
 	( min::gen left_side,
           min::gen right_side,
+          min::gen block );
+
+bool static compile_object_block
+	( min::gen type,
           min::gen block );
 
 // If ::block.if_next_jmp == 0, compiles IF statement.
@@ -2432,7 +2461,13 @@ bool static compile_description
 	}
     }
 
-    // TBD: compile block
+    if ( ! ::compile_object_block ( type, block ) )
+    {
+	OK = false;
+	min::phrase_position_vec ppv =
+	    min::get ( block, min::dot_position );
+	::pushi ( ::ZERO, ppv->position );
+    }
 
     if ( var == min::NULL_STUB )
 	::pop ( right_ppv->position );
@@ -2465,13 +2500,19 @@ bool static compile_description
 			 trace_info );
 	}
 
-	min::uns32 set_data_length =
-	    mexstack::stack_length - stack_length;
-
-	if ( set_data_length > 0 )
+	switch (   mexstack::stack_length
+		 - stack_length )
 	{
-	    MIN_REQUIRE ( set_data_length == 1 );
+	case 0:
+	    /* do nothing */;
+	    break;
+	case 1:
 	    ::pop ( data.refppv->position );
+	    break;
+	default:
+	    ::del ( stack_length,
+	            data.refppv->position );
+	    break;
 	}
     }
     else if ( var->flags & PRIM::WRITABLE_VAR )
@@ -2489,6 +2530,93 @@ bool static compile_description
 	var->location = mexstack::stack_length - 1;
 	::push_var ( var );
     }
+
+    return OK;
+}
+
+bool static compile_object_block
+	( min::gen type,
+          min::gen block )
+{
+    bool OK = true;
+    min::obj_vec_ptr bvp = block;
+    min::uns32 bs = min::size_of ( bvp );
+    min::phrase_position_vec ppv =
+        ::get_position ( bvp );
+    min::locatable_gen obj
+        ( min::new_obj_gen ( 3 * bs, bs ) );
+    for ( min::uns32 pass = 1; pass <= 2; ++ pass )
+    {
+	for ( min::uns32 i = 0; i < bs; ++ i )
+	{
+	    min::obj_vec_ptr lvp = bvp[i];
+	    min::uns32 ls = min::size_of ( lvp );
+	    if ( ls != 3 || lvp[1] != ::equal_sign )
+	    {
+	        if ( pass == 1 )
+		{
+		    mexcom::compile_error
+			( ppv[i],
+			  "cannot understand;"
+			  " line ignored" );
+		    OK = false;
+		}
+		continue;
+	    }
+	    min::obj_vec_ptr labvp = lvp[0];
+	    min::uns32 li = 0;
+	    min::locatable_gen label
+	        ( PRIM::scan_var_name ( labvp, li ) );
+	    if ( label == min::NONE()
+	         ||
+		 li < min::size_of ( labvp ) )
+	    {
+	        if ( pass == 1 )
+		{
+		    min::phrase_position_vec labppv =
+		        ::get_position ( labvp );
+		    mexcom::compile_error
+			( labppv->position,
+			  "not a label name;"
+			  " line ignored" );
+		    OK = false;
+		}
+		continue;
+	    }
+	    min::gen initiator =
+	        min::get ( lvp[2], min::dot_initiator );
+	    if ( initiator == min::NONE() && pass == 1 )
+	    {
+	        min::obj_vec_ptr vvp = lvp[2];
+		min::uns32 vi = 0;
+		min::locatable_gen val
+		    ( ::scan_attribute_value
+		          ( vvp, vi ) );
+		if ( val == min::NONE()
+		     ||
+		     vi < min::size_of ( vvp ) )
+		{
+		    min::phrase_position_vec vppv =
+		        ::get_position ( vvp );
+		    mexcom::compile_error
+			( vppv->position,
+			  "not an attribute value;"
+			  " line ignored" );
+		    OK = false;
+		    continue;
+		}
+		min::set ( obj, label, val );
+
+	    }
+	    else if (    initiator != min::NONE()
+	              && pass == 2 )
+	    {
+	        // TBD
+	    }
+	}
+    }
+
+
 
     return OK;
 }
