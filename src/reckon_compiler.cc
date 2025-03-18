@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 17 02:06:32 AM EDT 2025
+// Date:	Tue Mar 18 04:01:26 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2450,7 +2450,8 @@ bool static compile_description
 	    trace_info = min::new_lab_gen ( labv, 2 );
 	    if ( data.nlabels > 0 )
 	    {
-		if ( ! ::compile_set_data ( var, & data ) )
+		if ( ! ::compile_set_data
+		           ( var, & data ) )
 		{
 		    OK = false;
 		    var = min::NULL_STUB;
@@ -2470,7 +2471,7 @@ bool static compile_description
     }
 
     if ( var == min::NULL_STUB )
-	::pop ( right_ppv->position );
+	/* Do Nothing */;
     else if ( data.nlabels > 0 )
     {
 	if ( data.label != ::NO_LOCATION )
@@ -2545,6 +2546,9 @@ bool static compile_object_block
         ::get_position ( bvp );
     min::locatable_gen obj
         ( min::new_obj_gen ( 3 * bs, bs ) );
+    if ( type != min::NONE() )
+        min::set ( obj, min::dot_type, type );
+    mex::instr seti_instr = { mex::SETI, 0, 0, 0, 1 };
     for ( min::uns32 pass = 1; pass <= 2; ++ pass )
     {
 	for ( min::uns32 i = 0; i < bs; ++ i )
@@ -2611,12 +2615,31 @@ bool static compile_object_block
 	    else if (    initiator != min::NONE()
 	              && pass == 2 )
 	    {
-	        // TBD
+	        if ( ! ::compile_expression
+			   ( lvp[2], 0, 0,
+			     ::star, true ) )
+		{
+		    ::pushi ( ::ZERO, ppv[i] );
+		    OK = false;
+		}
+	        seti_instr.immedD = label;
+		-- mexstack::stack_length;
+		mexstack::push_instr
+		    ( seti_instr, ppv[i] );
 	    }
 	}
+
+	if ( pass == 1 )
+	{
+	    min::obj_vec_insptr vp = obj;
+	    min::set_public_flag_of ( vp );
+	    mex::instr copyi_instr = { mex::COPYI };
+	    copyi_instr.immedD = obj;
+	    ++ mexstack::stack_length;
+	    mexstack::push_instr
+		( copyi_instr, ppv->position );
+	}
     }
-
-
 
     return OK;
 }
