@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 17 07:21:06 PM EST 2024
+// Date:	Sat Mar 29 02:18:39 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
 # include <reckon.h>
 # include <ll_parser_bracketed.h>
 # include <ll_parser_oper.h>
+# include <ll_parser_primary.h>
 # define REC reckon
 # define RLEX reckon::lexeme
 # define PAR ll::parser
@@ -27,6 +28,7 @@
 # define BRA ll::parser::bracketed
 # define TAB ll::parser::table
 # define OP ll::parser::oper
+# define PRIM ll::parser::primary
 
 
 // Reckon Parser
@@ -65,6 +67,16 @@ void REC::init_parser ( PAR::parser parser )
 	pass = pass->next;
     }
     MIN_REQUIRE ( oper_pass != min::NULL_STUB );
+
+    PRIM::primary_pass primary_pass = min::NULL_STUB;
+    pass = parser->pass_stack;
+    while (    primary_pass == min::NULL_STUB
+            && pass != min::NULL_STUB )
+    {
+        primary_pass = (PRIM::primary_pass) pass;
+	pass = pass->next;
+    }
+    MIN_REQUIRE ( primary_pass != min::NULL_STUB );
 
     min::locatable_gen label_name
         ( min::new_str_gen ( "label" ) );
@@ -128,6 +140,8 @@ void REC::init_parser ( PAR::parser parser )
 
     min::locatable_gen equal_number_sign
         ( min::new_str_gen ( "=#" ) );
+    min::locatable_gen is_a_name
+        ( min::new_lab_gen ( "is", "a" ) );
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
 
@@ -137,6 +151,17 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "on" ) );
     min::locatable_gen for_every
         ( min::new_lab_gen ( "for", "every" ) );
+
+    min::locatable_gen every_name
+        ( min::new_str_gen ( "every" ) );
+    min::locatable_gen in_name
+        ( min::new_str_gen ( "in" ) );
+    min::locatable_gen with_name
+        ( min::new_str_gen ( "with" ) );
+    min::locatable_gen the_name
+        ( min::new_str_gen ( "the" ) );
+    min::locatable_gen of_the_name
+        ( min::new_lab_gen ( "of", "the" ) );
 
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
@@ -165,6 +190,13 @@ void REC::init_parser ( PAR::parser parser )
         PAR::find_reformatter
 	    ( unary_prefix, OP::reformatter_stack );
 
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+
+    PAR::reformatter binary_reformatter =
+        PAR::find_reformatter
+	    ( binary, OP::reformatter_stack );
+
     OP::push_oper
         ( equal_number_sign,
 	  min::MISSING(),
@@ -172,6 +204,15 @@ void REC::init_parser ( PAR::parser parser )
 	  block_level, PAR::top_level_position,
 	  OP::LEFT + OP::LINE,
 	  1000, assignment_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+    OP::push_oper
+        ( is_a_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX,
+	  12000, binary_reformatter,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
@@ -214,6 +255,33 @@ void REC::init_parser ( PAR::parser parser )
 	  0, declare_reformatter,
 	  declare_arguments,
 	  oper_pass->oper_table );
+
+    min::gen in_buf[1] = { every_name };
+    min::locatable_gen in_following
+        ( min::new_lab_gen ( in_buf, 1 ) );
+    min::gen with_buf[3] =
+        { the_name, of_the_name, every_name };
+    min::locatable_gen with_following
+        ( min::new_lab_gen ( with_buf, 3 ) );
+
+    PRIM::push_separator
+        ( every_name,
+	  code,
+	  block_level, PAR::top_level_position,
+	  min::MISSING(),
+	  primary_pass->separator_table );
+    PRIM::push_separator
+        ( in_name,
+	  code,
+	  block_level, PAR::top_level_position,
+	  in_following,
+	  primary_pass->separator_table );
+    PRIM::push_separator
+        ( with_name,
+	  code,
+	  block_level, PAR::top_level_position,
+	  with_following,
+	  primary_pass->separator_table );
 }
 
 # ifdef TBD
