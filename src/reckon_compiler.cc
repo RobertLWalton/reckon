@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 18 04:01:26 AM EDT 2025
+// Date:	Tue Apr  1 01:03:26 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -873,7 +873,7 @@ bool static compile_block_assignment_statement
 
 bool static compile_description
 	( min::gen left_side,
-          min::gen right_side,
+          min::gen type_name,
           min::gen block );
 
 bool static compile_object_block
@@ -1224,13 +1224,12 @@ bool REC::compile_statement ( min::gen statement )
 	    {
 	        right_side = vp0[2];
 		min::obj_vec_ptr right_vp = right_side;
-		if (    min::size_of ( right_vp ) >= 2
+		if (    min::size_of ( right_vp ) == 2
 		     && (    right_vp[0] == ::A
 		          || right_vp[0] == ::AN ) )
 		{
-		    right_vp = min::NULL_STUB;
 		    return ::compile_description
-			( vp0[0], right_side, vp[1] );
+			( vp0[0], right_vp[1], vp[1] );
 		}
 	    }
 	    return ::compile_block_assignment_statement
@@ -1239,9 +1238,8 @@ bool REC::compile_statement ( min::gen statement )
 
 	if (  vp0[0] == ::A || vp0[0] == ::AN )
 	{
-	    vp0 = min::NULL_STUB;
 	    return ::compile_description
-	        ( min::NONE(), vp[0], vp[1] );
+	        ( min::NONE(), vp0[1], vp[1] );
 	}
 	if (    min::labfind ( vp0[0], ::iteration_ops )
 	     != -1 )
@@ -2410,27 +2408,25 @@ bool static compile_block_assignment_statement
 
 bool static compile_description
 	( min::gen left_side,
-          min::gen right_side,
+          min::gen type_name,
           min::gen block )
 {
     bool OK = true;
 
-    min::obj_vec_ptr right_vp = right_side;
-    min::uns32 right_s = min::size_of ( right_vp );
-    min::phrase_position_vec right_ppv =
-	::get_position ( right_vp );
-    MIN_REQUIRE ( right_s >= 2 );
-    min::uns32 j = 1;
+    min::obj_vec_ptr tvp = type_name;
+    min::uns32 ts = min::size_of ( tvp );
+    min::phrase_position_vec tppv =
+	::get_position ( tvp );
+    min::uns32 j = 0;
     min::locatable_gen type
-	( PRIM::scan_var_name ( right_vp, j ) );
-    if ( type == min::NONE() || j < right_s )
+	( PRIM::scan_var_name ( tvp, j ) );
+    if ( type == min::NONE() || j < ts )
     {
 	mexcom::compile_error
-	    ( right_ppv->position,
-	      "",
-	      min::pgen_name ( right_vp[0] ),
+	    ( tppv->position,
+	      "`a' or `an'"
 	      " not followed by description"
-	      " type name; statement ignored" );
+	      " type name; type name ignored" );
 	OK = false;
     }
     ::set_data data;

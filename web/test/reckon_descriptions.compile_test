@@ -9,3 +9,50 @@ a person:
 ^^^^^^^^^^^^^^^^^^^
     [15:3;4] COPYI T_SET 0 0 0
              {person: weight = [< 114 lb >], name = Jill}
+X = a person:
+            ^
+    name = Jack
+^^^^^^^^^^^^^^^
+    weight = 148 lb
+^^^^^^^^^^^^^^^^^^^
+    [19:4;5] COPYI T_SET 0 0 0
+             {person: weight = [< 148 lb >], name = Jack}
+X
+^
+    [21:5;6] PUSHS T_PUSH 0 0 0; [< X * >]
+Y = a marriage:
+              ^
+    husband = [X]
+^^^^^^^^^^^^^^^^^
+    [24:6;7] COPYI T_SET 0 0 0 {marriage}
+    husband = [X]
+              ^^^
+    [24:7;8] PUSHS T_PUSH 2 0 0; [< X * >]
+    husband = [X]
+    ^^^^^^^^^^^^^
+    [24:8;7] SETI T_SET 1 0 0 "husband"
+a person:
+        ^
+    name = Joe
+^^^^^^^^^^^^^^
+    weight = [100 * 2 + 75]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [28:9;8] COPYI T_SET 0 0 0 {person: name = Joe}
+    weight = [100 * 2 + 75]
+              ^^^
+    [28:10;9] PUSHI T_PUSH 0 0 0 100; *
+    weight = [100 * 2 + 75]
+                    ^
+    [28:11;10] PUSHI T_PUSH 0 0 0 2; *
+    weight = [100 * 2 + 75]
+              ^^^^^^^
+    [28:12;9] MUL T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+    weight = [100 * 2 + 75]
+                        ^^
+    [28:13;10] PUSHI T_PUSH 0 0 0 75; *
+    weight = [100 * 2 + 75]
+             ^^^^^^^^^^^^^^
+    [28:14;9] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+    weight = [100 * 2 + 75]
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    [28:15;8] SETI T_SET 1 0 0 "weight"

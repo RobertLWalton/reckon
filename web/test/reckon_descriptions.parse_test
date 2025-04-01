@@ -2,7 +2,7 @@
 //
 // File:        reckon_descriptions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Mar 18 04:06:45 AM EDT 2025
+// Date:        Wed Mar 19 03:36:35 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -13,9 +13,41 @@
 a person:
     name = Jill
     weight = 114 lb
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|a person|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|a {|person|}|}
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
                {|name|} = {|Jill|}|}
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
                {|weight|} = {|114 lb|}|}|}|}
+
+X = a person:
+    name = Jack
+    weight = 148 lb
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|X|} = {|a {|person|}|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|name|} = {|Jack|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|weight|} = {|148 lb|}|}|}|}
+
+X
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|X|}
+
+Y = a marriage:
+    husband = [X]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+     {|{|Y|} = {|a {|marriage|}|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|husband|} = [X]|}|}|}
+
+a person:
+    name = Joe
+    weight = [100 * 2 + 75]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|a {|person|}|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|name|} = {|Joe|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|weight|} = [{|{|100|} * {|2|}|} + {|75|}]|}|}|}

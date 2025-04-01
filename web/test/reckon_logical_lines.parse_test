@@ -2,11 +2,19 @@
 //
 // File:        reckon_logical_lines.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Fri May 10 02:51:34 EDT 2024
+// Date:        Sat Mar 29 04:08:45 PM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
+
+// This file is parsed as plain text without recognizing
+// operators or separators.  This file may only be
+// parsed; it CANNOT be compiled or run.
+//
+*PARSER*:
+    undefine pass operator
+    undefine pass primary
 
 This is a first logical line.
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|This is a first
@@ -30,10 +38,9 @@ WARNING: in line ##: lexeme indent 1 too near paragraph indent 0:
 This is the fifth logical line, but it will generate
  a warning message because this continuation line
   is insufficiently indented.
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*, .separator =
-     ","|{|This is the fifth logical line|}
-     {|but it will generate a warning message because this continuation
-       line is insufficiently indented "."|}|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|This is the fifth
+     logical line "," but it will generate a warning message because
+     this continuation line is insufficiently indented "."|}
 ERROR: in line ##: empty paragraph:
         and it ends with an empty subblock:
                                           ^
@@ -53,23 +60,23 @@ this is a top level logical line ending with a block:
         this is the only line of the second subblock
     this is the fifth line of the block
         and it ends with an empty subblock:
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|this is a top level logical line ending with a block|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is a top
+     level logical line ending with a block
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
                the first line of the block|}
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
                the second line of the block|}
-          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-               {|this is the third line of the block|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+               the third line of the block
                {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
                     ":"|
                     {"": .terminator = "<LF>", .initiator =
                          *LOGICAL_LINE*|this is the first line of a
                          subblock|}
                     {"": .terminator = "<LF>", .initiator =
-                         *LOGICAL_LINE*|
-                         {|this is the second line of the subblock|}
+                         *LOGICAL_LINE*|this is the second line of the
+                         subblock
                          {"": .terminator = *INDENTED_PARAGRAPH*,
                               .initiator = ":"|
                               {"": .terminator = "<LF>", .initiator =
@@ -78,16 +85,16 @@ this is a top level logical line ending with a block:
                     {"": .terminator = "<LF>", .initiator =
                          *LOGICAL_LINE*|this is the third line of the
                          subblock|}|}|}
-          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-               {|this is the fourth line of the block|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+               the fourth line of the block
                {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
                     ":"|
                     {"": .terminator = "<LF>", .initiator =
                          *LOGICAL_LINE*|this is the only line of the
                          second subblock|}|}|}
-          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-               {|this is the fifth line of the block and it ends with an
-                 empty subblock|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is
+               the fifth line of the block and it ends with an empty
+               subblock
                {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"}|}|}|}
 this is the second top level
     logical line
@@ -108,8 +115,8 @@ this is a logical line // with a comment
 this is a logical line ending with a block:
     First line of the block
     Second line of the block
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|this is a logical line ending with a block|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is a logical
+     line ending with a block
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|First
                line of the block|}
@@ -124,10 +131,13 @@ WARNING: in line ##: comment after indent that begins non-comment
     it begins a logical line that this continues
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|it begins a
      logical line that this continues|}
-ERROR: in line ##: missing operator; nofix error operator of precedence
-       -1000001 inserted:
-  but the block is in error because it is before
-  ^^^
+ERROR: in lines ##-##: paragraph inside (not at end) of logical line:
+this is a logical line with a block:
+                                   ^
+    First line of the block
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Second line of the block
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 this is a logical line with a block:
     First line of the block
@@ -135,15 +145,22 @@ this is a logical line with a block:
   but the block is in error because it is before
   this continuation of the logical line that contains
   the block
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|{|this is a logical line with a block|}
-       {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
-            {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|First
-                 line of the block|}
-            {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-                 Second line of the block|}|}|} ERROR'OPERATOR
-     {|but the block is in error because it is before this continuation
-       of the logical line that contains the block|}|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is a logical
+     line with a block
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|First
+               line of the block|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Second
+               line of the block|}|} but the block is in error because
+     it is before this continuation of the logical line that contains
+     the block|}
+ERROR: in lines ##-##: paragraph inside (not at end) of logical line:
+this is a logical line ending with a block:
+                                          ^
+    First line of the block
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Second line of the block
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 this is a logical line ending with a block:
     First line of the block
@@ -151,8 +168,8 @@ this is a logical line ending with a block:
   // comments that end the block, but are in error,
   // because they continue the logical line
   // containing the block
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|this is a logical line ending with a block|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|this is a logical
+     line ending with a block
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|First
                line of the block|}

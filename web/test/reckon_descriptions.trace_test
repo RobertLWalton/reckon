@@ -5,7 +5,7 @@
 //
 // File:        reckon_descriptions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Mar 18 04:06:45 AM EDT 2025
+// Date:        Wed Mar 19 03:36:35 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -17,3 +17,31 @@ a person:
     name = Jill
     weight = 114 lb
 * {15:3,4,4} COPYI: * <= {person: weight = [< 114 lb >], name = Jill}
+
+X = a person:
+    name = Jack
+    weight = 148 lb
+* {19:4,5,5} COPYI: * <= {person: weight = [< 148 lb >], name = Jack}
+
+X
+* {21:5,6,6} PUSHS: * <= X =
+             {person: weight = [< 148 lb >], name = Jack}
+
+Y = a marriage:
+    husband = [X]
+* {24:6,7,7} COPYI: * <= {marriage}
+* {24:7,8,8} PUSHS: * <= X =
+             {person: weight = [< 148 lb >], name = Jack}
+* {24:8,7,9} SETI: *["husband"] <= * =
+             {person: weight = [< 148 lb >], name = Jack}
+
+a person:
+    name = Joe
+    weight = [100 * 2 + 75]
+* {28:9,8,10} COPYI: * <= {person: name = Joe}
+* {28:10,9,11} PUSHI: * <= 100
+* {28:11,10,12} PUSHI: * <= 2
+* {28:12,9,13} MUL: * = 200 <= 100 * 2
+* {28:13,10,14} PUSHI: * <= 75
+* {28:14,9,15} ADD: * = 275 <= 200 + 75
+* {28:15,8,16} SETI: *["weight"] <= * = 275
