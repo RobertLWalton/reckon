@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  5 12:56:25 PM EDT 2025
+// Date:	Sat Apr  5 05:00:40 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -938,24 +938,26 @@ inline min::uns32 static compile_label
 // If an expression can be evaluated at compile time,
 // return its value.  Otherwise return min::FAILURE().
 //
+// An expression with a .type can be evaluated at
+// compile time if the .type is "<Q>" or if
+// publish_expression says so.  Similarly an expression
+// with an .initiator other than ( can be evaluated
+// at compile time if publish expression says so.
+//
 min::gen static evaluate_expression
 	( min::gen expression );
 
 // Does the work of evaluate_expression for an object
-// that is not a [...] object and if successful makes
-// the object public and returns it.  Otherwise returns
-// min::FAILURE.  Also returns failure if expression is
-// an [...] object.
+// if that object does not contain any [...] subobjects
+// anywhere within its elements or attributes.  For
+// such expressions, returns the expression.  Otherwise
+// returns min::FAILURE().  An expression is made public
+// if it is returned, and any subobjects not containing
+// any [...] subobjects are made public.
 //
 min::gen static publish_expression
 	( min::gen expression,
 	  min::uns32 max_attrs = 16 );
-
-min::uns32 static compile_constant
-	( min::gen expression,
-          min::phrase_position pp,
-          min::gen type = min::NONE(),
-	  min::gen name = min::NONE() );
 
 // The following does the work of compile_expression in
 // the case of a LOGICAL_OPERATOR with a logical value
@@ -3020,54 +3022,28 @@ RETRY:
 
     if ( s == 1 )
     {
-	bool OK = false;
-	if ( min::is_num ( vp[0] ) )
-	    OK = ::compile_constant
-		( vp[0], ppv[0],
-                  min::NONE(), name );
-	else if ( min::is_obj ( vp[0] ) )
-	{
-	    min::obj_vec_ptr vp0 = vp[0];
-	    min::attr_ptr ap0 = vp0;
-
-	    min::locate ( ap0, min::dot_type );
-	    min::gen type = min::get ( ap0 );
-	    if ( type != min::NONE() )
-	    {
-	        vp0 = min::NULL_STUB;
-		OK = ::compile_constant
-		    ( vp[0], ppv[0], type, name );
-	    }
-	    else
-	    {
-		min::locate ( ap0, min::dot_initiator );
-		min::gen initiator = min::get ( ap0 );
-		if ( initiator != min::NONE() )
-		{
-		    vp0 = min::NULL_STUB;
-		    OK = ::compile_expression
-			( vp[0], true_jmp, false_jmp,
-			         name );
-		}
-		else
-		{
-		    mexcom::compile_error
-			( ppv[0],
-			  "cannot understand"
-			  " expression" );
-		    return 0;
-		}
-	    }
-	}
+	min::gen v = ::evaluate_expression ( vp[0] );
+	if ( v != min::FAILURE() )
+	    ::pushi ( v, ppv[0], name );
+	else if ( min::is_obj ( vp[0] )
+	          &&
+	          ::compile_expression
+		      ( vp[0], true_jmp, false_jmp,
+			       name ) )
+	    /* Do nothing */;
 	else
 	{
+	    // We know from above that expression is not
+	    // a primary so vp[0] is not a variable
+	    // name.
+	    //
 	    mexcom::compile_error
 		( ppv[0],
 		  "cannot understand expression" );
 	    return 0;
 	}
-	if ( ! OK ) return 0;
-	else return ::return_value
+
+	return ::return_value
 	    ( ppv->position, true_jmp, false_jmp );
     }
 
@@ -3075,29 +3051,6 @@ RETRY:
 	( ppv->position,
           "cannot understand expression" );
     return 0;
-}
-
-min::uns32 static compile_constant
-	( min::gen value,
-          min::phrase_position pp,
-          min::gen type,
-	  min::gen name )
-{
-    if ( type == min::doublequote )
-    {
-	value =
-	    PAR::quoted_string_value ( value );
-        if ( value == min::NONE() )
-	{
-	    mexcom::compile_error
-		( pp,
-		  "cannot understand expression" );
-	    return 0;
-	}
-    }
-
-    ::pushi ( value, pp, name );
-    return 1;
 }
 
 
@@ -3128,6 +3081,8 @@ min::gen static publish_expression
     }
     for ( min::uns32 i = 0; i < n; ++ i )
     {
+	MIN_REQUIRE ( infos[i].value_count == 1 );
+	    // Because this is parser output.
         min::gen v = infos[i].value;
 	vp = v;
 	if ( vp == min::NULL_STUB ) continue;
@@ -3139,7 +3094,9 @@ min::gen static publish_expression
     vp = min::NULL_STUB;
 
     min::obj_vec_insptr ivp = expression;
-    min::set_public_flag_of ( ivp );
+    if ( ivp != min::NULL_STUB )
+        // Expression is not already public.
+	min::set_public_flag_of ( ivp );
 
     return expression;
 }
@@ -3164,7 +3121,11 @@ min::gen static evaluate_expression
         return vp[0];
     min::locate ( ap, min::dot_initiator );
     min::gen initiator = min::get ( ap );
-    if ( initiator == PARLEX::left_parenthesis )
+    if ( initiator == PARLEX::left_parenthesis
+         ||
+	 ( initiator == min::NONE()
+	   &&
+	   type == min::NONE() ) )
     {
         if ( s == 1 )
 	    return evaluate_expression ( vp[0] );
