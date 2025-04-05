@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  1 01:03:26 PM EDT 2025
+// Date:	Sat Apr  5 12:56:25 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -934,6 +934,23 @@ inline min::uns32 static compile_label
         ( expression, 0, 0, ::star, true );
 }
 
+
+// If an expression can be evaluated at compile time,
+// return its value.  Otherwise return min::FAILURE().
+//
+min::gen static evaluate_expression
+	( min::gen expression );
+
+// Does the work of evaluate_expression for an object
+// that is not a [...] object and if successful makes
+// the object public and returns it.  Otherwise returns
+// min::FAILURE.  Also returns failure if expression is
+// an [...] object.
+//
+min::gen static publish_expression
+	( min::gen expression,
+	  min::uns32 max_attrs = 16 );
+
 min::uns32 static compile_constant
 	( min::gen expression,
           min::phrase_position pp,
@@ -1067,32 +1084,6 @@ void REC::init_compiler
 // Compile Statement
 // ------- ---------
 
-bool static compile_statement_expression
-	( min::gen expression )
-{
-    min::phrase_position_vec ppv =
-	min::get ( expression, min::dot_position );
-    min::uns8 level = mexstack::lexical_level;
-    min::uns32 depth = mexstack::depth[level];
-    if ( ::compile_expression ( expression ) )
-    {
-	min::locatable_var<PRIM::var> var;
-	var = PRIM::create_var
-	    ( ::star,
-	      PAR::ALL_SELECTORS,
-	      ppv->position,
-	      level, depth,
-	      0,
-	      mexstack::stack_length - 1,
-	      min::new_stub_gen
-		( mexcom::output_module ) );
-	::push_var ( var );
-	return true;
-    }
-    else
-	return false;
-}
-
 bool REC::compile_statement ( min::gen statement )
 {
     min::obj_vec_ptr vp = statement;
@@ -1104,7 +1095,7 @@ bool REC::compile_statement ( min::gen statement )
 	bool OK = true;
         for ( min::uns32 i = 0; i < s; ++ i )
 	{
-	    if ( ! ::compile_statement_expression
+	    if ( ! ::compile_expression
 	               ( vp[i] ) )
 		OK = false;
 	}
@@ -1286,7 +1277,7 @@ bool REC::compile_statement ( min::gen statement )
         return ::compile_symbols_statement( vp, s );
 
     vp = min::NULL_STUB;
-    return compile_statement_expression ( statement );
+    return compile_expression ( statement );
 
 NOT_LEGAL_STATEMENT:
 
@@ -3109,6 +3100,84 @@ min::uns32 static compile_constant
     return 1;
 }
 
+
+min::gen static publish_expression
+	( min::gen expression, min::uns32 max_attrs )
+{
+    struct min::attr_info infos[max_attrs];
+
+    min::obj_vec_ptr vp = expression;
+    min::uns32 n = min::attr_info_of
+        ( infos, max_attrs, vp, false, true );
+    if ( n > max_attrs )
+    {
+        vp = min::NULL_STUB;
+	return ::publish_expression ( expression, n );
+    }
+
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+        // Do not recurse into [...] value.
+	//
+	if ( infos[i].name == min::dot_initiator )
+	{
+	    if ( infos[i].value == PARLEX::left_square )
+		return min::FAILURE();
+	    break;
+	}
+    }
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+        min::gen v = infos[i].value;
+	vp = v;
+	if ( vp == min::NULL_STUB ) continue;
+	if (    ::publish_expression ( v )
+	     == min::FAILURE() )
+	    return min::FAILURE();
+    }
+
+    vp = min::NULL_STUB;
+
+    min::obj_vec_insptr ivp = expression;
+    min::set_public_flag_of ( ivp );
+
+    return expression;
+}
+
+
+min::gen static evaluate_expression
+	( min::gen expression )
+{
+    min::obj_vec_ptr vp = expression;
+    if ( vp == min::NULL_STUB )
+    {
+        if ( min::is_num ( expression ) )
+	    return expression;
+	else
+	    return min::FAILURE();
+    }
+    min::uns32 s = min::size_of ( vp );
+    min::attr_ptr ap = vp;
+    min::locate ( ap, min::dot_type );
+    min::gen type = min::get ( ap );
+    if ( s == 1 && type == min::doublequote )
+        return vp[0];
+    min::locate ( ap, min::dot_initiator );
+    min::gen initiator = min::get ( ap );
+    if ( initiator == PARLEX::left_parenthesis )
+    {
+        if ( s == 1 )
+	    return evaluate_expression ( vp[0] );
+	else
+	    return min::FAILURE();
+    }
+    else
+    {
+        vp = min::NULL_STUB;
+        return publish_expression ( expression );
+    }
+}
+
 min::uns32 static compile_logical
 	( min::obj_vec_ptr vp,
 	  min::phrase_position_vec ppv,
@@ -3415,8 +3484,13 @@ min::uns32 static compile_bracketed_expression
 	}
 
     }
-    const min::stub * stub = (const min::stub *) vp;
-    ::pushi ( min::new_stub_gen ( stub ), ppv->position,
-    	      name );
+    min::locatable_gen immedD
+        ( min::new_stub_gen
+	      ( (const min::stub *) vp ) );
+    vp = min::NULL_STUB;
+    min::obj_vec_insptr ivp = immedD;
+    min::set_public_flag_of ( ivp );
+        // Sets ivp = min::NULL_STUB;
+    ::pushi ( immedD, ppv->position, name );
     return 1;
 }
