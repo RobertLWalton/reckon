@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  5 05:00:40 PM EDT 2025
+// Date:	Sat Apr  5 09:21:21 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -261,17 +261,6 @@ static min::uns64 val_outside_quotes_types =
 static min::uns64 val_inside_quotes_types =
 	  (1ull << LEXSTD::mark_t )
 	+ (1ull << LEXSTD::separator_t );
-
-static min::gen scan_attribute_value
-	( min::obj_vec_ptr & vp, min::uns32 & i )
-{
-    return PRIM::scan_name
-    	( vp, i,
-	  ::val_initial_types,
-	  ::val_following_types,
-	  ::val_outside_quotes_types,
-	  ::val_inside_quotes_types );
-}
 
 struct block_struct
 {
@@ -2538,96 +2527,76 @@ bool static compile_object_block
     if ( type != min::NONE() )
         min::set ( obj, min::dot_type, type );
     mex::instr seti_instr = { mex::SETI, 0, 0, 0, 1 };
-    for ( min::uns32 pass = 1; pass <= 2; ++ pass )
+    min::locatable_gen labels[bs];
+    min::gen exps[bs];
+    min::uns32 n = 0;
+
+    for ( min::uns32 i = 0; i < bs; ++ i )
     {
-	for ( min::uns32 i = 0; i < bs; ++ i )
+	min::obj_vec_ptr lvp = bvp[i];
+	min::uns32 ls = min::size_of ( lvp );
+	if ( ls != 3 || lvp[1] != ::equal_sign )
 	{
-	    min::obj_vec_ptr lvp = bvp[i];
-	    min::uns32 ls = min::size_of ( lvp );
-	    if ( ls != 3 || lvp[1] != ::equal_sign )
-	    {
-	        if ( pass == 1 )
-		{
-		    mexcom::compile_error
-			( ppv[i],
-			  "cannot understand;"
-			  " line ignored" );
-		    OK = false;
-		}
-		continue;
-	    }
-	    min::obj_vec_ptr labvp = lvp[0];
-	    min::uns32 li = 0;
-	    min::locatable_gen label
-	        ( PRIM::scan_var_name ( labvp, li ) );
-	    if ( label == min::NONE()
-	         ||
-		 li < min::size_of ( labvp ) )
-	    {
-	        if ( pass == 1 )
-		{
-		    min::phrase_position_vec labppv =
-		        ::get_position ( labvp );
-		    mexcom::compile_error
-			( labppv->position,
-			  "not a label name;"
-			  " line ignored" );
-		    OK = false;
-		}
-		continue;
-	    }
-	    min::gen initiator =
-	        min::get ( lvp[2], min::dot_initiator );
-	    if ( initiator == min::NONE() && pass == 1 )
-	    {
-	        min::obj_vec_ptr vvp = lvp[2];
-		min::uns32 vi = 0;
-		min::locatable_gen val
-		    ( ::scan_attribute_value
-		          ( vvp, vi ) );
-		if ( val == min::NONE()
-		     ||
-		     vi < min::size_of ( vvp ) )
-		{
-		    min::phrase_position_vec vppv =
-		        ::get_position ( vvp );
-		    mexcom::compile_error
-			( vppv->position,
-			  "not an attribute value;"
-			  " line ignored" );
-		    OK = false;
-		    continue;
-		}
-		min::set ( obj, label, val );
-
-	    }
-	    else if (    initiator != min::NONE()
-	              && pass == 2 )
-	    {
-	        if ( ! ::compile_expression
-			   ( lvp[2], 0, 0,
-			     ::star, true ) )
-		{
-		    ::pushi ( ::ZERO, ppv[i] );
-		    OK = false;
-		}
-	        seti_instr.immedD = label;
-		-- mexstack::stack_length;
-		mexstack::push_instr
-		    ( seti_instr, ppv[i] );
-	    }
+	    mexcom::compile_error
+		( ppv[i],
+		  "cannot understand;"
+		  " line ignored" );
+	    OK = false;
+	    continue;
+	}
+	min::obj_vec_ptr labvp = lvp[0];
+	min::uns32 li = 0;
+	min::locatable_gen label
+	    ( PRIM::scan_var_name ( labvp, li ) );
+	if ( label == min::NONE()
+	     ||
+	     li < min::size_of ( labvp ) )
+	{
+	    min::phrase_position_vec labppv =
+		::get_position ( labvp );
+	    mexcom::compile_error
+		( labppv->position,
+		  "not a label name;"
+		  " line ignored" );
+	    OK = false;
+	    continue;
 	}
 
-	if ( pass == 1 )
+	min::locatable_gen value
+	    ( ::evaluate_expression ( lvp[2] ) );
+	if  ( value == min::FAILURE() )
 	{
-	    min::obj_vec_insptr vp = obj;
-	    min::set_public_flag_of ( vp );
-	    mex::instr copyi_instr = { mex::COPYI };
-	    copyi_instr.immedD = obj;
-	    ++ mexstack::stack_length;
-	    mexstack::push_instr
-		( copyi_instr, ppv->position );
+	    labels[n] = label;
+	    exps[n] = lvp[2];
+	    ++ n;
+	    continue;
 	}
+
+	min::set ( obj, label, value );
+    }
+
+    min::obj_vec_insptr ivp = obj;
+    min::set_public_flag_of ( ivp );
+    mex::instr copyi_instr = { mex::COPYI };
+    copyi_instr.immedD = obj;
+    ++ mexstack::stack_length;
+    mexstack::push_instr
+	( copyi_instr, ppv->position );
+
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+
+	if ( ! ::compile_expression
+		   ( exps[i], 0, 0,
+		     ::star, true ) )
+	{
+	    ::pushi ( ::ZERO, ppv[i] );
+	    OK = false;
+	}
+	seti_instr.immedD = labels[i];
+	-- mexstack::stack_length;
+	mexstack::push_instr
+	    ( seti_instr, ppv[i] );
     }
 
     return OK;
