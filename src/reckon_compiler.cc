@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  5 09:21:21 PM EDT 2025
+// Date:	Mon Apr  7 05:02:49 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -248,19 +248,6 @@ inline void label ( min::uns32 target )
     mexstack::print_label ( t );
     mexstack::jmp_target ( t );
 }
-
-static min::uns64 val_initial_types =
-	 LEXSTD::symbol_mask;
-static min::uns64 val_following_types =
-	 LEXSTD::symbol_mask;
-static min::uns64 val_outside_quotes_types =
-	  (1ull << LEXSTD::word_t )
-	+ (1ull << LEXSTD::numeric_t )
-	+ (1ull << LEXSTD::natural_t )
-	+ (1ull << LEXSTD::number_t );
-static min::uns64 val_inside_quotes_types =
-	  (1ull << LEXSTD::mark_t )
-	+ (1ull << LEXSTD::separator_t );
 
 struct block_struct
 {
@@ -972,10 +959,22 @@ min::uns32 static compile_if_to_value
 // The following does the work of compile_expression in
 // the case that the expression has an initiator other
 // then NONE, "(", or LOGICAL_LINE.  Pushes a value into
-// the stack and returns 1, or outputs an error message
-// and returns 0.
+// the stack and returns true, or outputs an error
+// message and returns false.
 //
-min::uns32 static compile_bracketed_expression
+bool static compile_bracketed_expression
+	( min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppv,
+	  min::gen initiator,
+	  min::gen name = ::star );
+
+// The following does the work of compile_expression in
+// the case that the expression has initiator NONE and
+// a type NOT equal to NONE.  Pushes a value into the
+// stack and returns true, or outputs an error message
+// and returns false.
+//
+bool static compile_typed_expression
 	( min::obj_vec_ptr & vp,
 	  min::phrase_position_vec ppv,
 	  min::gen initiator,
@@ -2685,12 +2684,26 @@ min::uns32 static compile_expression
          &&
 	 initiator != min::LOGICAL_LINE() )
     {
-        min::uns32 OK = ::compile_bracketed_expression
+        bool OK = ::compile_bracketed_expression
 	    ( vp, ppv, initiator, name );
-	if ( OK == 0 ) return 0;
+	if ( ! OK ) return 0;
 	else return return_value
 	    ( ppv->position, true_jmp, false_jmp );
     }
+
+    min::locate ( ap, min::dot_type );
+    min::gen type = min::get ( ap );
+    if ( type != min::NONE() )
+    {
+        MIN_REQUIRE ( type != min::doublequote );
+	    // Quoted string has no .position.
+        bool OK = ::compile_typed_expression
+	    ( vp, ppv, type, name );
+	if ( ! OK ) return 0;
+	else return return_value
+	    ( ppv->position, true_jmp, false_jmp );
+    }
+        
 
     if ( s == 0 )
     {
@@ -2991,29 +3004,38 @@ RETRY:
 
     if ( s == 1 )
     {
-	min::gen v = ::evaluate_expression ( vp[0] );
-	if ( v != min::FAILURE() )
-	    ::pushi ( v, ppv[0], name );
-	else if ( min::is_obj ( vp[0] )
-	          &&
-	          ::compile_expression
-		      ( vp[0], true_jmp, false_jmp,
-			       name ) )
-	    /* Do nothing */;
+	min::obj_vec_ptr vp0 = vp[0];
+	if ( vp0 == min::NULL_STUB )
+	{
+	    if ( min::is_num ( vp[0] ) )
+		::pushi ( vp[0], ppv[0], name );
+	    else goto CANNOT_UNDERSTAND;
+	}
 	else
 	{
-	    // We know from above that expression is not
-	    // a primary so vp[0] is not a variable
-	    // name.
-	    //
-	    mexcom::compile_error
-		( ppv[0],
-		  "cannot understand expression" );
-	    return 0;
+	    min::attr_ptr ap0 = vp0;
+	    min::locate ( ap0, min::dot_type );
+	    if ( min::get ( ap0 ) == min::doublequote )
+		::pushi ( vp0[0], ppv[0], name );
+	    else
+	    {
+	        vp0 = min::NULL_STUB;
+		if ( ! ::compile_expression
+		           ( vp[0], true_jmp, false_jmp,
+			            name ) )
+		    goto CANNOT_UNDERSTAND;
+	    }
 	}
 
 	return ::return_value
 	    ( ppv->position, true_jmp, false_jmp );
+
+CANNOT_UNDERSTAND:
+
+	mexcom::compile_error
+	    ( ppv[0],
+	      "cannot understand expression" );
+	return 0;
     }
 
     mexcom::compile_error
@@ -3325,7 +3347,7 @@ min::uns32 static compile_if_to_value
     return OK;
 }
 
-min::uns32 static compile_bracketed_expression
+bool static compile_bracketed_expression
 	( min::obj_vec_ptr & vp,
 	  min::phrase_position_vec ppv,
 	  min::gen initiator,
@@ -3374,7 +3396,7 @@ min::uns32 static compile_bracketed_expression
 	mexstack::push_instr
 	    ( i2, ppv->position, trace_info, true );
 
-	if ( n == 0 ) return 1;
+	if ( n == 0 ) return true;
 
 	mex::instr i3 =
 	    { mex::VPUSH, 0, 0, 0, 1, 0, 0,
@@ -3387,21 +3409,21 @@ min::uns32 static compile_bracketed_expression
 	    min::gen exp = min::new_stub_gen ( stub );
 	    vp =  min::NULL_STUB;
 	    if ( ! ::compile_label ( exp ) ) 
-	        return 0;
+	        return false;
 	    -- mexstack::stack_length;
 	    mexstack::push_instr
 		( i3, ppv->position, trace_info, true );
 
-	    return 1;
+	    return true;
 	}
 	else
 	{
 	    min::uns32 s = min::size_of ( vp );
-	    min::uns32 OK = 1;
+	    bool OK = true;
 	    for ( min::uns32 i = 0; i < s; ++ i )
 	    {
 	        if ( ! ::compile_expression ( vp[i] ) )
-		    OK = 0;
+		    OK = false;
 		else
 		{
 		    -- mexstack::stack_length;
@@ -3422,5 +3444,22 @@ min::uns32 static compile_bracketed_expression
     min::set_public_flag_of ( ivp );
         // Sets ivp = min::NULL_STUB;
     ::pushi ( immedD, ppv->position, name );
-    return 1;
+    return true;
+}
+
+bool static compile_typed_expression
+	( min::obj_vec_ptr & vp,
+	  min::phrase_position_vec ppv,
+	  min::gen type,
+	  min::gen name )
+{
+    min::locatable_gen immedD
+        ( min::new_stub_gen
+	      ( (const min::stub *) vp ) );
+    vp = min::NULL_STUB;
+    min::obj_vec_insptr ivp = immedD;
+    min::set_public_flag_of ( ivp );
+        // Sets ivp = min::NULL_STUB;
+    ::pushi ( immedD, ppv->position, name );
+    return true;
 }
