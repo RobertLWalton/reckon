@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  7 05:02:49 AM EDT 2025
+// Date:	Mon Apr  7 03:01:36 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -916,9 +916,9 @@ inline min::uns32 static compile_label
 //
 // An expression with a .type can be evaluated at
 // compile time if the .type is "<Q>" or if
-// publish_expression says so.  Similarly an expression
+// publish_object says so.  Similarly an expression
 // with an .initiator other than ( can be evaluated
-// at compile time if publish expression says so.
+// at compile time if publish_object says so.
 //
 min::gen static evaluate_expression
 	( min::gen expression );
@@ -926,13 +926,13 @@ min::gen static evaluate_expression
 // Does the work of evaluate_expression for an object
 // if that object does not contain any [...] subobjects
 // anywhere within its elements or attributes.  For
-// such expressions, returns the expression.  Otherwise
-// returns min::FAILURE().  An expression is made public
+// such expressions, returns the object.  Otherwise
+// returns min::FAILURE().  An object is made public
 // if it is returned, and any subobjects not containing
 // any [...] subobjects are made public.
 //
-min::gen static publish_expression
-	( min::gen expression,
+min::gen static publish_object
+	( min::obj_vec_ptr vp,
 	  min::uns32 max_attrs = 16 );
 
 // The following does the work of compile_expression in
@@ -3045,19 +3045,17 @@ CANNOT_UNDERSTAND:
 }
 
 
-min::gen static publish_expression
-	( min::gen expression, min::uns32 max_attrs )
+min::gen static publish_object
+	( min::obj_vec_ptr vp, min::uns32 max_attrs )
 {
+    const min::stub * stub = (const min::stub *) vp;
+
     struct min::attr_info infos[max_attrs];
 
-    min::obj_vec_ptr vp = expression;
     min::uns32 n = min::attr_info_of
         ( infos, max_attrs, vp, false, true );
     if ( n > max_attrs )
-    {
-        vp = min::NULL_STUB;
-	return ::publish_expression ( expression, n );
-    }
+	return ::publish_object ( vp, n );
 
     for ( min::uns32 i = 0; i < n; ++ i )
     {
@@ -3077,19 +3075,19 @@ min::gen static publish_expression
         min::gen v = infos[i].value;
 	vp = v;
 	if ( vp == min::NULL_STUB ) continue;
-	if (    ::publish_expression ( v )
+	if (    ::publish_object ( vp )
 	     == min::FAILURE() )
 	    return min::FAILURE();
     }
 
     vp = min::NULL_STUB;
 
-    min::obj_vec_insptr ivp = expression;
+    min::obj_vec_insptr ivp = stub;
     if ( ivp != min::NULL_STUB )
         // Expression is not already public.
 	min::set_public_flag_of ( ivp );
 
-    return expression;
+    return min::new_stub_gen ( stub );
 }
 
 
@@ -3124,10 +3122,7 @@ min::gen static evaluate_expression
 	    return min::FAILURE();
     }
     else
-    {
-        vp = min::NULL_STUB;
-        return publish_expression ( expression );
-    }
+        return publish_object ( vp );
 }
 
 min::uns32 static compile_logical
