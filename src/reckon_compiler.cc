@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  7 03:01:36 PM EDT 2025
+// Date:	Mon Apr  7 04:09:29 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -892,22 +892,23 @@ bool static compile_if_statement
 // Note that the value of true/false_jmp is never 0, so
 // a returned value of 0 always indicates an error.
 //
-// If ignore_initiator is true, any .initiator of the
-// expression should be ignored as if it did not exist
-// (or was '(').
+// Any .initiator of the expression equal to initiator_
+// to_be_ignored is treated as '('.
 //
 min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp = 0,
 	  min::uns32 false_jmp = 0,
 	  min::gen name = ::star,
-	  bool ignore_initiator = false );
+	  min::gen initiator_to_be_ignored =
+	      min::MISSING() );
 
 inline min::uns32 static compile_label
 	( min::gen expression )
 {
     return ::compile_expression
-        ( expression, 0, 0, ::star, true );
+        ( expression, 0, 0, ::star,
+	  PARLEX::left_square );
 }
 
 
@@ -933,6 +934,16 @@ min::gen static evaluate_expression
 //
 min::gen static publish_object
 	( min::obj_vec_ptr vp,
+	  min::uns32 max_attrs = 16 );
+
+// Does the work of compute_for an object when that
+// or one of its subobjects contains [...].  Must NOT
+// be called when object's initiator is "<Q>".
+//
+bool static compile_object
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  min::gen name,
 	  min::uns32 max_attrs = 16 );
 
 // The following does the work of compile_expression in
@@ -2586,8 +2597,8 @@ bool static compile_object_block
     {
 
 	if ( ! ::compile_expression
-		   ( exps[i], 0, 0,
-		     ::star, true ) )
+		   ( exps[i], 0, 0, ::star,
+		     PARLEX::left_square ) )
 	{
 	    ::pushi ( ::ZERO, ppv[i] );
 	    OK = false;
@@ -2665,7 +2676,7 @@ min::uns32 static compile_expression
 	  min::uns32 true_jmp,
 	  min::uns32 false_jmp,
 	  min::gen name,
-	  bool ignore_initiator )
+	  min::gen initiator_to_be_ignored )
 {
     min::obj_vec_ptr vp = expression;
     min::phrase_position_vec ppv =
@@ -2676,7 +2687,7 @@ min::uns32 static compile_expression
     min::attr_ptr ap = vp;
     min::locate ( ap, min::dot_initiator );
     min::gen initiator = min::get ( ap );
-    if ( ! ignore_initiator
+    if ( initiator != initiator_to_be_ignored
          &&
 	 initiator != min::NONE()
          &&
@@ -3088,6 +3099,96 @@ min::gen static publish_object
 	min::set_public_flag_of ( ivp );
 
     return min::new_stub_gen ( stub );
+}
+
+bool static compile_object
+	( min::obj_vec_ptr vp,
+	  min::phrase_position_vec ppv,
+	  min::gen name,
+	  min::uns32 max_attrs )
+{
+    bool OK = true;
+
+    struct min::attr_info infos[max_attrs];
+
+    min::uns32 n = min::attr_info_of
+        ( infos, max_attrs, vp, false, true );
+    if ( n > max_attrs )
+	return ::compile_object ( vp, ppv, name, n );
+    min::uns32 s = min::size_of ( vp );
+
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+	if ( infos[i].name == min::dot_initiator )
+	{
+	    if ( infos[i].value == PARLEX::left_square )
+		return compile_bracketed_expression
+			( vp, ppv, PARLEX::left_square,
+			      name );
+	    else
+	        break;
+	}
+    }
+
+    min::locatable_gen obj
+        ( min::new_obj_gen ( s + 3 * n, n ) );
+
+    min::gen labels[n];
+    min::gen exps[n];
+    min::uns32 j = 0;
+    for ( min::uns32 i = 0; i < n; ++ i )
+    {
+        min::gen value =
+	    ::evaluate_expression ( infos[i].value );
+	if ( value == min::FAILURE() )
+	{
+	    labels[j] = infos[i].name;
+	    exps[j] = infos[i].value;
+	    ++ j;
+	}
+	else
+	    min::set ( obj, infos[i].name, value );
+    }
+
+    min::uns32 stack_length = mexstack::stack_length;
+    mex::instr copyi_instr = { mex::COPYI };
+
+    min::obj_vec_insptr ivp = obj;
+    for ( min::uns32 i = 0; i < s; ++ i )
+    {
+        min::gen value =
+	    ::evaluate_expression ( vp[i] );
+	if ( value == min::FAILURE() )
+	{
+	}
+	else
+	    min::attr_push ( ivp ) = value;
+    }
+    if ( mexstack::stack_length == stack_length )
+    {
+	++ mexstack::stack_length;
+	copyi_instr.immedD = obj;
+	mexstack::push_instr
+	    ( copyi_instr, ppv->position );
+    }
+
+    mex::instr seti_instr = { mex::SETI, 0, 0, 0, 1 };
+
+    for ( min::uns32 i = 0; i < j; ++ i )
+    {
+	if ( ! ::compile_expression
+		   ( exps[i], 0, 0, ::star,
+		     PARLEX::left_square ) )
+	{
+	    ::pushi ( ::ZERO, ppv[i] );
+	    OK = false;
+	}
+	seti_instr.immedD = labels[i];
+	-- mexstack::stack_length;
+	mexstack::push_instr ( seti_instr, ppv[i] );
+    }
+
+    return OK;
 }
 
 
