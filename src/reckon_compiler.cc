@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  7 08:45:19 PM EDT 2025
+// Date:	Tue Apr  8 02:42:11 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3150,30 +3150,52 @@ bool static compile_object
 	    min::set ( obj, infos[i].name, value );
     }
 
-    min::uns32 stack_length = mexstack::stack_length;
     mex::instr copyi_instr = { mex::COPYI };
-    mex::instr vpush_instr =
-	{ mex::VPUSH, 0, 0, 0, 1, 0, 0,
-	  PARLEX::left_square };
+    mex::instr vpush_instr = { mex::VPUSH, 0, 0, 0, 1 };
+    min::gen elements[s];
+    min::uns32 k = 0;
 
-    min::obj_vec_insptr ivp = obj;
     for ( min::uns32 i = 0; i < s; ++ i )
     {
         min::gen value =
 	    ::evaluate_expression ( vp[i] );
 	if ( value == min::FAILURE() )
 	{
-	    ++ mexstack::stack_length;
-	    copyi_instr.immedD = obj;
-	    mexstack::push_instr
-		( copyi_instr, ppv->position );
+	    if ( obj != min::NONE() )
+	    {
+		min::obj_vec_insptr ivp = obj;
+		for ( min::uns32 i = 0; i < k; ++ i )
+		    min::attr_push(ivp) = elements[i];
+		min::set_public_flag_of ( ivp );
+		k = 0;
+	    }
 
-	    if (    mexstack::stack_length
-	         == stack_length + 2 )
+	    if ( k > 1 )
+	    {
+		obj = min::new_obj_gen ( k, 0 );
+		min::obj_vec_insptr ivp = obj;
+		for ( min::uns32 i = 0; i < k; ++ i )
+		    min::attr_push(ivp) = elements[i];
+		min::set_public_flag_of ( ivp );
+		++ mexstack::stack_length;
+		copyi_instr.immedD = obj;
+		mexstack::push_instr
+		    ( copyi_instr, ppv->position );
+		obj = min::NONE();
+		vpush_instr.immedD = min::NONE();
+	    }
+	    else if ( k == 1 )
+	    {
+	        ::pushi ( elements[0], ppv->position );
+		vpush_instr.immedD = min::MISSING();
+	    }
+
+	    if ( k > 0 )
 	    {
 		-- mexstack::stack_length;
 		mexstack::push_instr
 		    ( vpush_instr, ppv->position );
+		k = 0;
 	    }
 
 	    min::obj_vec_ptr vpi = vp[i];
@@ -3186,17 +3208,28 @@ bool static compile_object
 		OK = false;
 	    }
 
+	    vpush_instr.immedD = PARLEX::left_square;
 	    -- mexstack::stack_length;
 	    mexstack::push_instr
 		( vpush_instr, ppv->position );
-
-            obj = min::new_obj_gen ( s - i + 5, 2 );
 	}
 	else
-	    min::attr_push ( ivp ) = value;
+	    elements[k++] = value;
     }
-    if ( mexstack::stack_length == stack_length )
+
+    if ( obj != min::NONE() )
     {
+        // All elements can be evaluated at compile
+	// time.
+
+        MIN_REQUIRE ( j > 0 );
+	     // Must have attribute that CANNOT be
+	     // evaluated at compile time.
+
+	min::obj_vec_insptr ivp = obj;
+	for ( min::uns32 i = 0; i < k; ++ i )
+	    min::attr_push(ivp) = elements[i];
+	min::set_public_flag_of ( ivp );
 	++ mexstack::stack_length;
 	copyi_instr.immedD = obj;
 	mexstack::push_instr
