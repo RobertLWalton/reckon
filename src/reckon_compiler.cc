@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr  7 04:09:29 PM EDT 2025
+// Date:	Mon Apr  7 08:45:19 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -943,7 +943,7 @@ min::gen static publish_object
 bool static compile_object
 	( min::obj_vec_ptr vp,
 	  min::phrase_position_vec ppv,
-	  min::gen name,
+	  min::gen name = ::star,
 	  min::uns32 max_attrs = 16 );
 
 // The following does the work of compile_expression in
@@ -3152,6 +3152,9 @@ bool static compile_object
 
     min::uns32 stack_length = mexstack::stack_length;
     mex::instr copyi_instr = { mex::COPYI };
+    mex::instr vpush_instr =
+	{ mex::VPUSH, 0, 0, 0, 1, 0, 0,
+	  PARLEX::left_square };
 
     min::obj_vec_insptr ivp = obj;
     for ( min::uns32 i = 0; i < s; ++ i )
@@ -3160,6 +3163,34 @@ bool static compile_object
 	    ::evaluate_expression ( vp[i] );
 	if ( value == min::FAILURE() )
 	{
+	    ++ mexstack::stack_length;
+	    copyi_instr.immedD = obj;
+	    mexstack::push_instr
+		( copyi_instr, ppv->position );
+
+	    if (    mexstack::stack_length
+	         == stack_length + 2 )
+	    {
+		-- mexstack::stack_length;
+		mexstack::push_instr
+		    ( vpush_instr, ppv->position );
+	    }
+
+	    min::obj_vec_ptr vpi = vp[i];
+	    min::phrase_position_vec ppvi =
+	        ::get_position ( vpi );
+
+	    if ( ! compile_object ( vpi, ppvi ) )
+	    {
+		::pushi ( ::ZERO, ppvi->position );
+		OK = false;
+	    }
+
+	    -- mexstack::stack_length;
+	    mexstack::push_instr
+		( vpush_instr, ppv->position );
+
+            obj = min::new_obj_gen ( s - i + 5, 2 );
 	}
 	else
 	    min::attr_push ( ivp ) = value;
