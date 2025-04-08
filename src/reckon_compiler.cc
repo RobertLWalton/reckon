@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  8 02:42:11 AM EDT 2025
+// Date:	Tue Apr  8 03:49:02 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3177,17 +3177,21 @@ bool static compile_object
 		for ( min::uns32 i = 0; i < k; ++ i )
 		    min::attr_push(ivp) = elements[i];
 		min::set_public_flag_of ( ivp );
-		++ mexstack::stack_length;
-		copyi_instr.immedD = obj;
-		mexstack::push_instr
-		    ( copyi_instr, ppv->position );
-		obj = min::NONE();
 		vpush_instr.immedD = min::NONE();
 	    }
 	    else if ( k == 1 )
 	    {
 	        ::pushi ( elements[0], ppv->position );
 		vpush_instr.immedD = min::MISSING();
+	    }
+
+	    if ( obj != min::NONE() )
+	    {
+		++ mexstack::stack_length;
+		copyi_instr.immedD = obj;
+		mexstack::push_instr
+		    ( copyi_instr, ppv->position );
+		obj = min::NONE();
 	    }
 
 	    if ( k > 0 )
