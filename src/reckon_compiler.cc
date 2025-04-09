@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  8 09:14:50 PM EDT 2025
+// Date:	Wed Apr  9 04:04:12 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -940,9 +940,9 @@ min::gen static publish_object
 	( min::obj_vec_ptr vp,
 	  min::uns32 max_attrs = 16 );
 
-// Does the work of compute_for an object when that
+// Does the work of computing an object when that
 // or one of its subobjects contains [...].  Must NOT
-// be called when object's initiator is "<Q>".
+// be called when object's type is "<Q>".
 //
 bool static compile_object
 	( min::obj_vec_ptr vp,
@@ -3606,15 +3606,18 @@ bool static compile_bracketed_expression
 	}
 
     }
-    min::locatable_gen immedD
-        ( min::new_stub_gen
-	      ( (const min::stub *) vp ) );
-    vp = min::NULL_STUB;
-    min::obj_vec_insptr ivp = immedD;
-    min::set_public_flag_of ( ivp );
-        // Sets ivp = min::NULL_STUB;
-    ::pushi ( immedD, ppv->position, name );
-    return true;
+
+    min::gen value = ::publish_object ( vp );
+    if ( value != min::FAILURE() )
+    {
+	min::locatable_gen immedD
+	    ( min::new_stub_gen
+		  ( (const min::stub *) vp ) );
+	vp = min::NULL_STUB;
+	::pushi ( immedD, ppv->position, name );
+	return true;
+    }
+    else return ::compile_object ( vp, ppv, name );
 }
 
 bool static compile_typed_expression
@@ -3623,13 +3626,15 @@ bool static compile_typed_expression
 	  min::gen type,
 	  min::gen name )
 {
-    min::locatable_gen immedD
-        ( min::new_stub_gen
-	      ( (const min::stub *) vp ) );
-    vp = min::NULL_STUB;
-    min::obj_vec_insptr ivp = immedD;
-    min::set_public_flag_of ( ivp );
-        // Sets ivp = min::NULL_STUB;
-    ::pushi ( immedD, ppv->position, name );
-    return true;
+    min::gen value = ::publish_object ( vp );
+    if ( value != min::FAILURE() )
+    {
+	min::locatable_gen immedD
+	    ( min::new_stub_gen
+		  ( (const min::stub *) vp ) );
+	vp = min::NULL_STUB;
+	::pushi ( immedD, ppv->position, name );
+	return true;
+    }
+    else return ::compile_object ( vp, ppv, name );
 }
