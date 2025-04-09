@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  8 03:49:02 AM EDT 2025
+// Date:	Tue Apr  8 09:14:50 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,6 +68,8 @@ static min::locatable_gen HIDDEN_COUNTER;
 static min::locatable_gen A;
 static min::locatable_gen AN;
 
+static min::locatable_gen left_quote;
+
 static min::uns32 jmp_counter = 1;
 
 static min::locatable_var<PRIM::primary_pass>
@@ -109,6 +111,8 @@ static void initialize ( void )
 
     ::A        = min::new_str_gen ( "a" );
     ::AN       = min::new_str_gen ( "an" );
+
+    ::left_quote = min::new_str_gen ( "`" );
 
     min::gen labv[6] =
         { ::DO, ::REPEAT, ::WHILE, ::UNTIL,
@@ -3122,9 +3126,13 @@ bool static compile_object
 	if ( infos[i].name == min::dot_initiator )
 	{
 	    if ( infos[i].value == PARLEX::left_square )
-		return compile_bracketed_expression
-			( vp, ppv, PARLEX::left_square,
-			      name );
+	    {
+		min::gen expression =
+		    min::new_stub_gen ( vp );
+	        vp = min::NULL_STUB;
+		return    compile_label ( expression )
+		       != 0;
+	    }
 	    else
 	        break;
 	}
@@ -3212,7 +3220,7 @@ bool static compile_object
 		OK = false;
 	    }
 
-	    vpush_instr.immedD = PARLEX::left_square;
+	    vpush_instr.immedD = ::left_quote;
 	    -- mexstack::stack_length;
 	    mexstack::push_instr
 		( vpush_instr, ppv->position );
@@ -3244,9 +3252,7 @@ bool static compile_object
 
     for ( min::uns32 i = 0; i < j; ++ i )
     {
-	if ( ! ::compile_expression
-		   ( exps[i], 0, 0, ::star,
-		     PARLEX::left_square ) )
+	if ( ! ::compile_label ( exps[i] ) )
 	{
 	    ::pushi ( ::ZERO, ppv[i] );
 	    OK = false;
