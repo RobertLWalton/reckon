@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  9 04:04:12 AM EDT 2025
+// Date:	Sat Apr 12 02:32:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2600,9 +2600,7 @@ bool static compile_object_block
     for ( min::uns32 i = 0; i < n; ++ i )
     {
 
-	if ( ! ::compile_expression
-		   ( exps[i], 0, 0, ::star,
-		     PARLEX::left_square ) )
+	if ( ! ::compile_label ( exps[i] ) )
 	{
 	    ::pushi ( ::ZERO, ppv[i] );
 	    OK = false;
@@ -3116,7 +3114,7 @@ bool static compile_object
     struct min::attr_info infos[max_attrs];
 
     min::uns32 n = min::attr_info_of
-        ( infos, max_attrs, vp, false, true );
+        ( infos, max_attrs, vp, false, false );
     if ( n > max_attrs )
 	return ::compile_object ( vp, ppv, name, n );
     min::uns32 s = min::size_of ( vp );
@@ -3146,8 +3144,9 @@ bool static compile_object
     min::uns32 j = 0;
     for ( min::uns32 i = 0; i < n; ++ i )
     {
-        min::gen value =
-	    ::evaluate_expression ( infos[i].value );
+        min::gen value = infos[i].value;
+	if ( min::is_obj ( value ) )
+	    value = ::evaluate_expression ( value );
 	if ( value == min::FAILURE() )
 	{
 	    labels[j] = infos[i].name;
@@ -3165,8 +3164,9 @@ bool static compile_object
 
     for ( min::uns32 i = 0; i < s; ++ i )
     {
-        min::gen value =
-	    ::evaluate_expression ( vp[i] );
+        min::gen value = vp[i];
+	if ( min::is_obj ( value ) )
+	    value = ::publish_object ( value );
 	if ( value == min::FAILURE() )
 	{
 	    if ( obj != min::NONE() )
@@ -3211,6 +3211,7 @@ bool static compile_object
 	    }
 
 	    min::obj_vec_ptr vpi = vp[i];
+
 	    min::phrase_position_vec ppvi =
 	        ::get_position ( vpi );
 
