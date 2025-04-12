@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 12 02:32:32 AM EDT 2025
+// Date:	Sat Apr 12 03:49:02 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3144,6 +3144,9 @@ bool static compile_object
     min::uns32 j = 0;
     for ( min::uns32 i = 0; i < n; ++ i )
     {
+	if ( infos[i].name == min::dot_position )
+	    continue;
+
         min::gen value = infos[i].value;
 	if ( min::is_obj ( value ) )
 	    value = ::evaluate_expression ( value );
