@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 29 02:18:39 AM EDT 2025
+// Date:	Fri Apr 18 09:38:05 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,18 +110,41 @@ void REC::init_parser ( PAR::parser parser )
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
-    min::locatable_gen text_colon
-        ( min::new_lab_gen ( "*TEXT*", ":" ) );
+    min::locatable_gen stars_colon
+        ( min::new_lab_gen ( "***", ":" ) );
+
+    min::locatable_var<min::phrase_position_vec_insptr>
+	pos;
+    min::init ( pos, parser->input_file,
+		PAR::top_level_position, 0 );
+
+    min::uns32 paragraph_check = PAR::MISSING_MASTER;
+    min::uns32 data_check = PAR::MISSING_MASTER;
+
+    min::locatable_gen implied_p_header
+	( min::new_obj_gen ( 10, 1 ) );
+    min::locatable_gen p
+	( min::new_str_gen ( "p" ) );
+    {
+	min::obj_vec_insptr vp ( implied_p_header );
+	min::attr_insptr ap ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, p );
+	min::locate ( ap, min::dot_position );
+	min::set ( ap, min::new_stub_gen ( pos ) );
+	min::set_flag
+	    ( ap, min::standard_attr_hide_flag );
+    }
 
     BRA::push_indentation_mark
-	( text_colon,
+	( stars_colon,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
 	  PAR::parsing_selectors ( text ),
-	  min::MISSING(),
-	  PAR::MISSING_MASTER,
-	  PAR::MISSING_MASTER,
+	  implied_p_header,
+	  paragraph_check,
+	  data_check,
 	  bracketed_pass->bracket_table );
 
     BRA::push_bracket_type

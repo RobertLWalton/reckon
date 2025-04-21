@@ -5,7 +5,7 @@
 //
 // File:        reckon_descriptions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat Apr 12 03:01:16 AM EDT 2025
+// Date:        Mon Apr 21 03:54:21 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -50,3 +50,28 @@ S = `Hello [ Z ]'
 * {31:17,10,18} COPYI: * <= `Hello'
 * {31:18,11,19} PUSHS: * <= Z = `John Doe'
 * {31:19,10,20} VPUSH: PUSHED * <= * = `John Doe'
+T = `Hello `[Z]'.'
+* {32:20,11,21} COPYI: * <= `Hello'
+* {32:21,12,22} COPYI: * <= `'
+* {32:22,13,23} PUSHS: * <= Z = `John Doe'
+* {32:23,12,24} VPUSH: PUSHED * <= * = `John Doe'
+* {32:24,11,25} VPUSH: PUSHED * <= * = `John Doe'
+`[Z]'
+* {33:25,12,26} COPYI: * <= `'
+* {33:26,13,27} PUSHS: * <= Z = `John Doe'
+* {33:27,12,28} VPUSH: PUSHED * <= * = `John Doe'
+
+Q ={s: first = `[Z[0]]', last = `[Z[1]]'| Hello [Z]|}
+* {35:28,13,29} COPYI: * <= {s|Hello|s}
+* {35:29,14,30} PUSHS: * <= Z = `John Doe'
+* {35:30,13,31} VPUSH: PUSHED * <= * = `John Doe'
+* {35:31,14,32} COPYI: * <= `'
+* {35:32,15,33} PUSHI: * <= 0
+* {35:33,15,34} GET: * <= Z[0] = "John"
+* {35:34,14,35} VPUSH: PUSHED * <= * = "John"
+* {35:35,13,36} SETI: *["first"] <= * = `John'
+* {35:36,14,37} COPYI: * <= `'
+* {35:37,15,38} PUSHI: * <= 1
+* {35:38,15,39} GET: * <= Z[1] = "Doe"
+* {35:39,14,40} VPUSH: PUSHED * <= * = "Doe"
+* {35:40,13,41} SETI: *["last"] <= * = `Doe'

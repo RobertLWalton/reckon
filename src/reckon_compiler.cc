@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 12 03:49:02 AM EDT 2025
+// Date:	Mon Apr 21 02:58:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -944,7 +944,11 @@ min::gen static publish_object
 // or one of its subobjects contains [...].  Must NOT
 // be called when object's type is "<Q>".
 //
-bool static compile_object
+// The .initiator of the object is returned on success.
+// This may be min::NONE().  On failure, min::FAILURE()
+// is returned.
+//
+min::gen static compile_object
 	( min::obj_vec_ptr vp,
 	  min::phrase_position_vec ppv,
 	  min::gen name = ::star,
@@ -3103,13 +3107,13 @@ min::gen static publish_object
     return min::new_stub_gen ( stub );
 }
 
-bool static compile_object
+min::gen static compile_object
 	( min::obj_vec_ptr vp,
 	  min::phrase_position_vec ppv,
 	  min::gen name,
 	  min::uns32 max_attrs )
 {
-    bool OK = true;
+    min::gen initiator = min::NONE();
 
     struct min::attr_info infos[max_attrs];
 
@@ -3122,18 +3126,17 @@ bool static compile_object
     for ( min::uns32 i = 0; i < n; ++ i )
     {
 	if ( infos[i].name == min::dot_initiator )
-	{
-	    if ( infos[i].value == PARLEX::left_square )
-	    {
-		min::gen expression =
-		    min::new_stub_gen ( vp );
-	        vp = min::NULL_STUB;
-		return    compile_label ( expression )
-		       != 0;
-	    }
-	    else
-	        break;
-	}
+	    initiator = infos[i].value;
+    }
+
+    if ( initiator == PARLEX::left_square )
+    {
+	min::gen expression = min::new_stub_gen ( vp );
+	vp = min::NULL_STUB;
+	if ( ! compile_label ( expression ) )
+	    return min::FAILURE();
+	else
+	    return initiator;
     }
 
     min::locatable_gen obj
@@ -3218,13 +3221,19 @@ bool static compile_object
 	    min::phrase_position_vec ppvi =
 	        ::get_position ( vpi );
 
-	    if ( ! compile_object ( vpi, ppvi ) )
+	    min::gen initiatori =
+	        ::compile_object ( vpi, ppvi );
+
+	    if ( initiatori == min::FAILURE() )
 	    {
 		::pushi ( ::ZERO, ppvi->position );
-		OK = false;
+		initiator = min::FAILURE();
 	    }
 
-	    vpush_instr.immedD = ::left_quote;
+	    vpush_instr.immedD =
+	        initiatori == ::left_quote ?
+		min::MISSING() :
+		::left_quote;
 	    -- mexstack::stack_length;
 	    mexstack::push_instr
 		( vpush_instr, ppv->position );
@@ -3259,14 +3268,14 @@ bool static compile_object
 	if ( ! ::compile_label ( exps[i] ) )
 	{
 	    ::pushi ( ::ZERO, ppv[i] );
-	    OK = false;
+	    initiator = min::FAILURE();
 	}
 	seti_instr.immedD = labels[i];
 	-- mexstack::stack_length;
 	mexstack::push_instr ( seti_instr, ppv[i] );
     }
 
-    return OK;
+    return initiator;
 }
 
 
@@ -3621,7 +3630,8 @@ bool static compile_bracketed_expression
 	::pushi ( immedD, ppv->position, name );
 	return true;
     }
-    else return ::compile_object ( vp, ppv, name );
+    else return ( ::compile_object ( vp, ppv, name )
+                  != min::FAILURE() );
 }
 
 bool static compile_typed_expression
@@ -3640,5 +3650,6 @@ bool static compile_typed_expression
 	::pushi ( immedD, ppv->position, name );
 	return true;
     }
-    else return ::compile_object ( vp, ppv, name );
+    else return ( ::compile_object ( vp, ppv, name )
+                  != min::FAILURE() );
 }

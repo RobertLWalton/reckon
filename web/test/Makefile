@@ -29,6 +29,7 @@ RUN_TESTS = reckon_numbers \
 	    reckon_errors
 PARSE_TESTS = reckon_lexemes \
 	      reckon_logical_lines \
+	      reckon_overview \
 	      ${RUN_TESTS}
 
 .SECONDARY:	${RUN_TESTS:=.trace} \
