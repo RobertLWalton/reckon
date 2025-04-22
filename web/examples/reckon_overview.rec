@@ -1,0 +1,287 @@
+// Reckon Snippet Test Data
+//
+// File:	reckon_overview_test.in
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Tue Apr 22 03:18:26 AM EDT 2025
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+9
+9 + 8
+x = 9
+y = 9 + 8
+x + y
+f (b, c, x) = b * x + c
+f (10, x, y)
+
+g = `hello'
+`[g] there'
+z = `I thought he said `[g]'.'
+
+`When you add [x] and [y] you get [x + y].'
+
+notice = ***:
+    This document is meant to be read.
+    Reading this document is good, but ...
+
+    A line with an insertion [z].
+
+***:
+    {section}
+    This is the
+    first section
+
+    This is the first paragraph of
+    the first section.
+
+    This is the second paragraph of
+    the first section.
+
+    {quote}
+    This is a quote in the first
+    section.
+
+    This is the third paragraph of the first
+    section.
+
+    {section}
+    This is the second
+    section
+
+    This is the first paragraph of the second section.
+
+    This is the
+    second paragraph
+    of the second
+    section.
+
+    ----------------
+    | this is a row in the first table |
+    ---
+    | another row | X |
+    ----------------
+    X : [Y + Z] // An equation for the table.
+
+    The third
+    paragraph.
+
+f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
+h = {{- 0.96 + 0.67 * x}}
+{{f + h}}
+solve {{f + h = 0}} for x
+[{{f + h}} for x = [3, 4, 5]]
+g = {{ integral (x ^ 2, dx) }}
+simplify g
+g from 1 to 5
+v = simplify ( g from 1 to 5 )
+out = ``The value of [g from 1 to 5] is [v].''
+
+V =# | 1 2 3 |
+M =#:
+   |  0   1   1 |
+   | -1   1   0 |
+   |  1   0  -1 |
+V ^ T
+M * V ^ T
+
+a person:
+    name = `Jack'
+    weight = 123 lb
+    height = 5 ft 9 in
+    age = 23 yr 2 mo
+a person:
+    name = `Jill'
+    weight = 110 lb
+    height = 5 ft 7 in
+    age = 21 yr 8 mo
+the height of the person with name Jack
+the weight of the person with name Jack
+
+for every person:
+    body mass index = 703.06958 * weight in lbs
+                    / height in inches ^ 2
+
+sum from (X) through (Y) <-- X is integer,
+                             Y is integer:
+    ``Sum of integers from X through Y.''
+    if X > Y:	  value = 0
+    else:	  value = X + sum (X + 1) through Y
+sum from 5 through 10
+every (sum from X through Y)
+sum from 1 through 2
+every (sum from X through Y)
+
+sum from (X) through (Y) <-- X is integer,
+                             Y is integer:
+    ``Sum of integers from X through Y.''
+    value = 0
+    while X <= Y:
+        next value = value + X
+	next X = X + 1
+sum from 5 through 10
+every (sum from X through Y)
+
+average weight of (X) <-- X is list,
+                          every Y in X is a person:
+    count = 0
+    sum = 0
+    while NOT X is empty:
+        next count = count + 1
+	next sum = sum + the weight of (first X)
+	next X = rest X
+    if count == 0:
+        value = error ``Cannot average 0 things.''
+    else:
+        value = sum / count
+average weight of (every person)
+z = 10 + average weight of
+	 (every person with name `Bill')
+
+raw (every person)
+really raw (every person)
+
+x = [1, [2, 3], 4]
+first x
+rest x
+rest (rest x)
+rest (rest (rest x))
+rest 4
+
+Y is wife of X <-- the wife of X == Y
+X is husband of Y <-- the husband of Y == X
+Y is wife of X <-- X is husband of Y
+(the person with name `Jack') is husband of
+    (the person with name `Jill')
+
+(a person with name `Jill') is wife of
+    (a person with name `Jack')?
+(a person with name `Jack') is wife of
+    (a person with name `Jill')?
+(a person with name X) is wife of
+    (a person with name `Jack')?
+X is wife of (a person with name `Jack')
+
+--------------------------------------------------------
+| header 1 | header 2 | header 3 | header 4 | header 5 |
+--------------------------------------------------------
+| entry 11 | entry 12 | entry 13 | entry 14 | entry 15 |
+| entry 21 | entry 22 | entry 23 | entry 24 | entry 25 |
+| entry 31 | entry 32 | entry 33 | entry 34 | entry 35 |
+--------------------------------------------------------
+
+------------------------------------
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+------------------------------------
+| E 11 | E 12 | E 13 | E 14 | E 15 |
+| E 21 | E 22 | E 23 | E 24 | E 25 |
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+------------------------------------
+H: header
+E: entry
+
+------------------------------------
+| H  1 | H  2 | H  3 | H  4 | H  5 |
+------------------------------------
+| E 11 | E 12 | ABOT | <    | E 15 |
+| E 21 | E 22 |    > | ^    | E 25 |
+| E 31 | E 32 | E 33 | E 34 | E 35 |
+------------------------------------
+H: header
+E: entry
+ABOT: a bit of text
+
+------------------------------------
+| H  1 | H  2 | H  3 | H  4 | H  5 | /ib/
+------------------------------------
+| /l/  | /r/  | c    | P    | cb   |
+|   11 |   12 |   13 | 5.4% | E 15 |
+| E 21 | E 22 | E23  | 0.8% | E 25 |
+| E 31 | E 32 | E 33 | 0.09 | E 35 | /!b/
+------------------------------------
+H: header
+E: entry
+E23: /b/ entry 23
+P: /.0u%r/
+
+---------------------------------
+| Value | Factor | Contribution |
+---------------------------------
+| <V>   | <F>    |              |
+| /u$/  | /u%/   | /u$.00/      |
+| 100   | 20     | C            |
+| 200   | 5      | C            |
+| 300   | 8      | C            |
+---------------------------------
+| /lb/ Total | < | T            |
+---------------------------------
+C: [(0,<V>) * (@,<F>)]
+T: [sum([<FIRST>, ..., @-1], @)]
+
+--------------------------------------------------------
+| Name   | Weight   | Height     | Age       | BMI  | /ib/
+--------------------------------------------------------
+| <name> | <weight> | <height>   | <age>     | B
+----------------------------------------------
+| /l/    | /U`lb'/  | /U`ft_in'/ | /u`yr'.0/ | /.2/
+----------------------------------------------
+| George | 205lb    | 6ft 3in    | 25        |
+| Mary   | 135lb    | 5ft 5in    | 26        |
+----------------------------------------------
+BMI: Body Mass Index
+B: <body mass index>
+ROW_TYPE: person
+SORT ROWS BY: name
+
+x = {{circle 0.4}}
+y = {{rectangle (0.4, 0.2)}}
+z = {{(circle 0.4) labeled `Jack'}}
+{{([x] right of [y]) above [z]}}
+{{row([x], [y], [z])}}
+p = {{column ( row([x], [y], [z]),
+               row([z], [y], [x]) )}}
+raw x
+raw p
+
+display ( P ) <-- person ( P ) has name ( X ):
+    value = {{oval (0.4, 0.2) labeled [X]}}
+a person named `Jack'
+``[a person named `Jill'] is the wife of
+  [a person named `Jack']''
+
+for every demo:
+    on a demo with angle X:
+        angle = X
+x = a demo with angle 30 degrees
+
+for every demo:
+    on update THIS to X:
+        next angle = X
+    on increment THIS by X:
+        next angle = angle + X
+update x to 40 degrees
+
+display D <-- D is a demo with angle X:
+    c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
+    x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
+    y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
+    line = {{line from (0.0, 0.0)
+                  to [(0.5 * cos X, 0.5 * sin X)]}}
+    arc = {{arc arrow from (0.3, 0.0)
+                  to [(0.3 * cos X, 0.3 * sin X)]}}
+    theta = {{Greek th}}
+    value = {{label (
+    		`Depiction of Angle [theta] = [X]',
+		overlap (
+		    [c],
+		    [x axis] labeled `X Axis',
+		    [y axis] labeled `Y Axis',
+		    [line],
+		    [arc] labeled `[theta]' ))}}
+show x
+
+increment x by -15 degrees
+
+x = y + z
+w = {|u|} + ( v )

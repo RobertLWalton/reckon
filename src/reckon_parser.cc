@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 18 09:38:05 PM EDT 2025
+// Date:	Mon Apr 21 09:32:27 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -119,7 +119,14 @@ void REC::init_parser ( PAR::parser parser )
 		PAR::top_level_position, 0 );
 
     min::uns32 paragraph_check = PAR::MISSING_MASTER;
-    min::uns32 data_check = PAR::MISSING_MASTER;
+    min::uns32 line_check = PAR::MISSING_MASTER;
+    {
+	min::locatable_gen table_check_name
+	    ( min::new_str_gen ( "TABLE-CHECK" ) );
+	paragraph_check =
+	    PAR::get_lexical_master
+		( table_check_name, parser );
+    }
 
     min::locatable_gen implied_p_header
 	( min::new_obj_gen ( 10, 1 ) );
@@ -144,7 +151,7 @@ void REC::init_parser ( PAR::parser parser )
 	  PAR::parsing_selectors ( text ),
 	  implied_p_header,
 	  paragraph_check,
-	  data_check,
+	  line_check,
 	  bracketed_pass->bracket_table );
 
     BRA::push_bracket_type
