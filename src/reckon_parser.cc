@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 09:32:27 PM EDT 2025
+// Date:	Wed Apr 23 02:01:05 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,6 +188,8 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "in" ) );
     min::locatable_gen with_name
         ( min::new_str_gen ( "with" ) );
+    min::locatable_gen and_name
+        ( min::new_str_gen ( "and" ) );
     min::locatable_gen the_name
         ( min::new_str_gen ( "the" ) );
     min::locatable_gen of_the_name
@@ -220,13 +222,6 @@ void REC::init_parser ( PAR::parser parser )
         PAR::find_reformatter
 	    ( unary_prefix, OP::reformatter_stack );
 
-    min::locatable_gen binary
-        ( min::new_str_gen ( "binary" ) );
-
-    PAR::reformatter binary_reformatter =
-        PAR::find_reformatter
-	    ( binary, OP::reformatter_stack );
-
     OP::push_oper
         ( equal_number_sign,
 	  min::MISSING(),
@@ -242,7 +237,25 @@ void REC::init_parser ( PAR::parser parser )
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::INFIX,
-	  12000, binary_reformatter,
+	  12000, min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+    OP::push_oper
+        ( with_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX +OP::AFIX,
+	  12000, min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+    OP::push_oper
+        ( and_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX +OP::AFIX,
+	  12000, min::NULL_STUB,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 
