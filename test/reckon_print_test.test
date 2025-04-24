@@ -11,7 +11,7 @@
     print pass
         top
         operator [code, math]
-        primary []
+        primary [code]
     print top level
         block reckon:  selectors [code]
                        options [end at le indent, end at line separator,
@@ -68,8 +68,6 @@
                         with parsing selectors [- code, - label, + text,
                                                 - math]
                         with parsing options [+ enable table prefix]
-                        with text reformatter ( "s", ".", "?", "!", ":",
-                        ";" )
         block TOP LEVEL: bracket "``" ... "''" [data]
         block standard: bracket [< "[" "<" >] ... [< ">" "]" >]
                         [code, label, text, math]
@@ -101,6 +99,9 @@
                         with parsing selectors [- code, - label, - text,
                                                 + math]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block standard: bracket [< "(" "*" >] ... [< "*" ")" >]
+                        [data, code, label, text, math]
+                        with parsing selectors [code]
         block standard: bracket [< "[" "$" >] ... [< "$" "]" >]
                         [code, label, text, math]
                         with parsing selectors [label]
@@ -136,8 +137,6 @@
                                               + end at outer closing]
                         with paragraph lexical master "PARAGRAPH-CHECK"
                         with line lexical master "DATA-CHECK"
-        block reckon: indentation mark [< "*TEXT*" ":" >] [code]
-                      with parsing selectors [text]
         block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
                          [TOP LEVEL]
         block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
@@ -170,6 +169,10 @@
                                                end at outer closing,
                                                enable indented paragraph,
                                                enable header]
+        block reckon: indentation mark [< "***" ":" >] [code]
+                      with parsing selectors [text]
+                      with implied header {p}
+                      with paragraph lexical master "TABLE-CHECK"
     print indentation offset
         block reckon: 2
         block standard: 2
@@ -202,11 +205,9 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + allow inside paragraph,
                                               + enable table prefix]
                         with group *PARAGRAPH*
-                        with implied subprefix {s}
-        block standard: bracket type "s" [text]
-                        with sentence reformatter ( ".", "?", "!" )
         block standard: bracket type "quote" [code, text]
                         with parsing selectors [- data, - code, + text,
                                                 - math]
@@ -216,9 +217,9 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + allow inside paragraph,
                                               + enable table prefix]
                         with group *PARAGRAPH*
-                        with implied subprefix {s}
         block standard: bracket type [< "*RAW*" "*DATA*" >]
                         [TOP LEVEL, data, code, text, math]
                         with parsing selectors [data, data paragraph]
@@ -237,9 +238,9 @@
                                               + end at paragraph break,
                                               - end at line separator,
                                               - end at outer closing,
+                                              + allow inside paragraph,
                                               + enable table prefix]
                         with group *PARAGRAPH*
-                        with implied subprefix {s}
         block standard: bracket type "***" [TOP LEVEL, code, text]
                         with group *RESET*
         block standard: bracket type "table" [code, text]
@@ -331,6 +332,9 @@
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
+        block reckon: operator [< "is" "a" >] [code]
+                      infix
+                      with precedence 12000
         block standard: operator "do" [code]
                         initial line
                         with precedence 3000
@@ -343,6 +347,10 @@
                         with precedence 0
                         with control reformatter ( ":",
                         [< "has" "condition" >] )
+        block reckon: operator "for" [code]
+                      prefix line
+                      with precedence 3000
+                      with unary prefix reformatter
         block standard: operator "exactly" [code]
                         right afix line
                         with precedence 3000
@@ -358,6 +366,9 @@
                       nofix line
                       with precedence 0
                       with declare reformatter ( ":" )
+        block reckon: operator "with" [code]
+                      infix afix
+                      with precedence 12000
         block standard: operator [< "is" "finite" >] [code]
                         postfix
                         with precedence 12000
@@ -462,14 +473,13 @@
                         with precedence 12000
                         with infix reformatter ( "==", "<=", ">=", "!=",
                         ">", "<" )
+        block reckon: operator "and" [code]
+                      infix afix
+                      with precedence 12000
         block standard: operator [< "is" "true" >] [code]
                         postfix
                         with precedence 12000
                         with unary postfix reformatter
-        block reckon: operator [< "for" "every" >] [code]
-                      prefix line
-                      with precedence 3000
-                      with unary prefix reformatter
         block standard: operator ">=" [code, math]
                         infix
                         with precedence 12000
@@ -478,6 +488,10 @@
         block standard: operator ">>" [code]
                         infix
                         with precedence 13300
+                        with binary reformatter
+        block standard: operator "?=" [code]
+                        infix
+                        with precedence 3000
                         with binary reformatter
         block reckon: operator "on" [code]
                       prefix line
@@ -496,40 +510,55 @@
         block standard: bracket ":" [code]
                         postfix line
                         with precedence 0
-    print primary variable ``''
+    print primary separator ""
+        block standard: primary separator "in" [code]
+                        following "every"
+        block standard: primary separator "an" [code]
+        block standard: primary separator "and" [code]
+                        following "with" "and"
+        block standard: primary separator "a" [code]
+        block standard: primary separator "the" [code]
+        block standard: primary separator [< "of" "the" >] [code]
+                        following "the" [< "of" "the" >]
+        block standard: primary separator "with" [code]
+                        following "a" "the" [< "of" "the" >] "every"
+        block standard: primary separator "of" [code]
+                        following "the" [< "of" "the" >]
+        block standard: primary separator "every" [code]
+    print primary variable (* *)
         nothing found
-    print primary function ``''
+    print primary function (* *)
         Modifying Ops: {"": "+" "=" = 1, ">>" "=" = 23, "/" "=" = 9,
                             "-" "=" = 5, "<<" "=" = 21, "*" "=" = 3}
-        block TOP LEVEL: function ``(X)"*"(Y)'' with flags  3000002
-        block TOP LEVEL: function ``(X)"=="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)">>"(Y)'' with flags 17000002
-        block TOP LEVEL: function ``(X)is true'' with flags  7390004
-        block TOP LEVEL: function ``(X)"-"(Y)'' with flags  5010002
-        block TOP LEVEL: function ``(X)OR(Y)'' with flags  3000004
-        block TOP LEVEL: function ``(X)is truth value''
+        block TOP LEVEL: function ((X)"*"(Y)) with flags  3000002
+        block TOP LEVEL: function ((X)"=="(Y)) with flags  1000004
+        block TOP LEVEL: function ((X)">>"(Y)) with flags 17000002
+        block TOP LEVEL: function ((X)is true) with flags  7390004
+        block TOP LEVEL: function ((X)"-"(Y)) with flags  5010002
+        block TOP LEVEL: function ((X)OR(Y)) with flags  3000004
+        block TOP LEVEL: function ((X)is truth value)
                          with flags  7410004
-        block TOP LEVEL: function ``(X)"<="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is string'' with flags  7420004
-        block TOP LEVEL: function ``(X)"+"(Y)'' with flags  1050002
-        block TOP LEVEL: function ``(X)is infinite'' with flags  73E0004
-        block TOP LEVEL: function ``"-"(A0)'' with flags 1D000001
-        block TOP LEVEL: function ``(X)">"(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)"^"(Y)'' with flags 11000002
-        block TOP LEVEL: function ``(X)BUT NOT(Y)'' with flags  5000004
-        block TOP LEVEL: function ``(X)is undefined number''
+        block TOP LEVEL: function ((X)"<="(Y)) with flags  1000004
+        block TOP LEVEL: function ((X)is string) with flags  7420004
+        block TOP LEVEL: function ((X)"+"(Y)) with flags  1050002
+        block TOP LEVEL: function ((X)is infinite) with flags  73E0004
+        block TOP LEVEL: function ("-"(A0)) with flags 1D000001
+        block TOP LEVEL: function ((X)">"(Y)) with flags  1000004
+        block TOP LEVEL: function ((X)"^"(Y)) with flags 11000002
+        block TOP LEVEL: function ((X)BUT NOT(Y)) with flags  5000004
+        block TOP LEVEL: function ((X)is undefined number)
                          with flags  73F0004
-        block TOP LEVEL: function ``(X)AND(Y)'' with flags  2000004
-        block TOP LEVEL: function ``(X)IF(Y)'' with flags  6000004
-        block TOP LEVEL: function ``(X)is finite'' with flags  73D0004
-        block TOP LEVEL: function ``"+"(A0)'' with flags  2000001
-        block TOP LEVEL: function ``(X)">="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)"<"(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)"!="(Y)'' with flags  1000004
-        block TOP LEVEL: function ``(X)is false'' with flags  73A0004
-        block TOP LEVEL: function ``(X)is integer'' with flags  73C0004
-        block TOP LEVEL: function ``(X)"/"(Y)'' with flags  9000002
-        block TOP LEVEL: function ``NOT(A0)'' with flags  4000004
-        block TOP LEVEL: function ``(X)is object'' with flags  7430004
-        block TOP LEVEL: function ``(X)"<<"(Y)'' with flags 15000002
-        block TOP LEVEL: function ``(X)is number'' with flags  7400004
+        block TOP LEVEL: function ((X)AND(Y)) with flags  2000004
+        block TOP LEVEL: function ((X)IF(Y)) with flags  6000004
+        block TOP LEVEL: function ((X)is finite) with flags  73D0004
+        block TOP LEVEL: function ("+"(A0)) with flags  2000001
+        block TOP LEVEL: function ((X)">="(Y)) with flags  1000004
+        block TOP LEVEL: function ((X)"<"(Y)) with flags  1000004
+        block TOP LEVEL: function ((X)"!="(Y)) with flags  1000004
+        block TOP LEVEL: function ((X)is false) with flags  73A0004
+        block TOP LEVEL: function ((X)is integer) with flags  73C0004
+        block TOP LEVEL: function ((X)"/"(Y)) with flags  9000002
+        block TOP LEVEL: function (NOT(A0)) with flags  4000004
+        block TOP LEVEL: function ((X)is object) with flags  7430004
+        block TOP LEVEL: function ((X)"<<"(Y)) with flags 15000002
+        block TOP LEVEL: function ((X)is number) with flags  7400004

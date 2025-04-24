@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 02:01:05 AM EDT 2025
+// Date:	Thu Apr 24 02:51:22 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -172,6 +172,10 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "=#" ) );
     min::locatable_gen is_a_name
         ( min::new_lab_gen ( "is", "a" ) );
+    min::locatable_gen and_name
+        ( min::new_str_gen ( "and" ) );
+    min::locatable_gen with_name
+        ( min::new_str_gen ( "with" ) );
     min::locatable_gen arrow
         ( min::new_str_gen ( "<--" ) );
 
@@ -179,21 +183,8 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "exit" ) );
     min::locatable_gen on_name
         ( min::new_str_gen ( "on" ) );
-    min::locatable_gen for_every
-        ( min::new_lab_gen ( "for", "every" ) );
-
-    min::locatable_gen every_name
-        ( min::new_str_gen ( "every" ) );
-    min::locatable_gen in_name
-        ( min::new_str_gen ( "in" ) );
-    min::locatable_gen with_name
-        ( min::new_str_gen ( "with" ) );
-    min::locatable_gen and_name
-        ( min::new_str_gen ( "and" ) );
-    min::locatable_gen the_name
-        ( min::new_str_gen ( "the" ) );
-    min::locatable_gen of_the_name
-        ( min::new_lab_gen ( "of", "the" ) );
+    min::locatable_gen for_name
+        ( min::new_str_gen ( "for" ) );
 
     min::locatable_gen declare
         ( min::new_str_gen ( "declare" ) );
@@ -260,7 +251,7 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( for_every,
+        ( for_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
@@ -298,33 +289,6 @@ void REC::init_parser ( PAR::parser parser )
 	  0, declare_reformatter,
 	  declare_arguments,
 	  oper_pass->oper_table );
-
-    min::gen in_buf[1] = { every_name };
-    min::locatable_gen in_following
-        ( min::new_lab_gen ( in_buf, 1 ) );
-    min::gen with_buf[3] =
-        { the_name, of_the_name, every_name };
-    min::locatable_gen with_following
-        ( min::new_lab_gen ( with_buf, 3 ) );
-
-    PRIM::push_separator
-        ( every_name,
-	  code,
-	  block_level, PAR::top_level_position,
-	  min::MISSING(),
-	  primary_pass->separator_table );
-    PRIM::push_separator
-        ( in_name,
-	  code,
-	  block_level, PAR::top_level_position,
-	  in_following,
-	  primary_pass->separator_table );
-    PRIM::push_separator
-        ( with_name,
-	  code,
-	  block_level, PAR::top_level_position,
-	  with_following,
-	  primary_pass->separator_table );
 }
 
 # ifdef TBD

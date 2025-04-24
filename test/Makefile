@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jul 23 16:27:27 EDT 2024
+# Date:		Thu Apr 24 02:18:30 AM EDT 2025
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -29,8 +29,6 @@ DIFFOPT ?= -u
 OPTIMIZE = -O3
 
 PARSER_TESTS = reckon_lexeme_test \
-	       reckon_overview_test \
-	       reckon_line_test \
 	       reckon_data_test \
 	       reckon_bracketed_test \
 	       reckon_typed_list_test \
@@ -38,11 +36,10 @@ PARSER_TESTS = reckon_lexeme_test \
 	       reckon_expression_test \
 	       reckon_print_test
 
-HTML_TESTS = reckon_overview_test
 
 .SECONDARY:	${PARSER_TESTS:=.out}
 
-all:		diff html
+all:		diff
 
 diff:		${PARSER_TESTS:=.diff}
 
@@ -50,20 +47,12 @@ out:		${PARSER_TESTS:=.out}
 
 test:		${PARSER_TESTS:=.test}
 
-html:		${HTML_TESTS:=.html}
-
 reckon_bracketed_test.out:	\
     TFLAGS = --subexpression-parse --detail-parse
 reckon_data_test.out:	\
     TFLAGS = --subexpression-parse
 reckon_expression_test.out:	\
     TFLAGS = --subexpression-parse --detail-parse
-reckon_line_test.out:	\
-    TFLAGS = --subexpression-parse
-reckon_overview_test.out:	\
-    TFLAGS = --subexpression-parse
-reckon_overview_test.html:	\
-    TFLAGS = --subexpression-parse
 reckon_prefix_test.out:	\
     TFLAGS = --subexpression-parse
 reckon_typed_list_test.out:	\
