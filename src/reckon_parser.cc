@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 24 02:51:22 AM EDT 2025
+// Date:	Tue May  6 07:10:03 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -186,17 +186,10 @@ void REC::init_parser ( PAR::parser parser )
     min::locatable_gen for_name
         ( min::new_str_gen ( "for" ) );
 
-    min::locatable_gen declare
-        ( min::new_str_gen ( "declare" ) );
-
-    PAR::reformatter declare_reformatter =
-        PAR::find_reformatter
-	    ( declare, OP::reformatter_stack );
-
-    min::locatable_gen declare_arguments
-	    ( min::new_obj_gen ( 1 ) );
-    min::obj_vec_insptr davp ( declare_arguments );
-    min::attr_push ( davp ) = PARLEX::colon;
+    min::locatable_gen function_name
+        ( min::new_str_gen ( "function" ) );
+    min::locatable_gen return_name
+        ( min::new_str_gen ( "return" ) );
 
     min::locatable_gen assignment
         ( min::new_str_gen ( "assignment" ) );
@@ -212,6 +205,27 @@ void REC::init_parser ( PAR::parser parser )
     PAR::reformatter unary_prefix_reformatter =
         PAR::find_reformatter
 	    ( unary_prefix, OP::reformatter_stack );
+
+    min::locatable_gen control
+        ( min::new_str_gen ( "control" ) );
+
+    PAR::reformatter control_reformatter =
+        PAR::find_reformatter
+	    ( control, OP::reformatter_stack );
+
+    min::locatable_gen function_arguments
+	    ( min::new_obj_gen ( 2 ) );
+    min::obj_vec_insptr cavp ( function_arguments );
+    min::attr_push ( cavp ) = min::TRUE();
+    min::attr_push ( cavp ) = arrow;
+    min::attr_push ( cavp ) = PARLEX::colon;
+
+    min::locatable_gen exit
+        ( min::new_str_gen ( "exit" ) );
+
+    PAR::reformatter exit_reformatter =
+        PAR::find_reformatter
+	    ( exit, OP::reformatter_stack );
 
     OP::push_oper
         ( equal_number_sign,
@@ -281,13 +295,33 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
+        ( function_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  0000, control_reformatter,
+	  function_arguments,
+	  oper_pass->oper_table );
+
+    OP::push_oper
         ( arrow,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  OP::NOFIX + OP::LINE,
-	  0, declare_reformatter,
-	  declare_arguments,
+	  OP::AFIX + OP::LINE,
+	  0000, min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( return_name,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::PREFIX + OP::LINE,
+	  1000, exit_reformatter,
+	  min::MISSING(),
 	  oper_pass->oper_table );
 }
 

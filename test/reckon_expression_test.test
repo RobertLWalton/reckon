@@ -19,34 +19,40 @@ x + y
            .initiator = *LOGICAL_LINE*
            .position[H] = PACKED_VEC
 === PURELIST EXPRESSION: line ##:
-min (X, Y) <--:
-     ^
+function min (X, Y):
+              ^
     {|X|}
 !@@ := X:
            .position[H] = PACKED_VEC
 === PURELIST EXPRESSION: line ##:
-min (X, Y) <--:
-        ^
+function min (X, Y):
+                 ^
     {|Y|}
 !@@ := Y:
            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
-min (X, Y) <--:
-    ^^^^^^
+function min (X, Y):
+             ^^^^^^
     ({|X|}, {|Y|})
 !@@ := @@ @@:
            .terminator = ")"
            .initiator = "("
            .separator = ","
            .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+        return Y
+               ^
+    {|Y|}
+!@@ := Y:
+           .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
         return Y
         ^^^^^^^^
-    return Y
-!@@ := return Y:
+    return {|Y|}
+!@@ := return @@:
            .terminator = "<LF>"
-           .position[H] = PACKED_VEC
            .initiator = *LOGICAL_LINE*
+           .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
     if X > Y:
             ^
@@ -54,7 +60,7 @@ min (X, Y) <--:
 ^^^^^^^^^^^^^^^^
     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|return
-              Y|}|}
+              {|Y|}|}|}
 !@@ := @@:
            .terminator = *INDENTED_PARAGRAPH*
            .position[H] = PACKED_VEC
@@ -63,8 +69,8 @@ min (X, Y) <--:
     if X > Y:
        ^
     {|X|}
-!@@ := X:
-           .position[H] = PACKED_VEC
+!@@@ := X:
+            .position[H] = PACKED_VEC
 === PURELIST EXPRESSION: line ##:
     if X > Y:
            ^
@@ -75,7 +81,7 @@ min (X, Y) <--:
     if X > Y:
        ^^^^^
     {|{|X|} > {|Y|}|}
-!@@@ := @@ ">" @@@:
+!@@@ := @@@ ">" @@@:
             .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
     if X > Y:
@@ -83,19 +89,25 @@ min (X, Y) <--:
         return Y
 ^^^^^^^^^^^^^^^^
     if {|{|X|} > {|Y|}|}:
-        return Y
+        return {|Y|}
 !@@@ := if @@@ @@:
             .terminator = "<LF>"
             .initiator = *LOGICAL_LINE*
             .position[H] = PACKED_VEC
+=== PURELIST EXPRESSION: line ##:
+        return X
+               ^
+    {|X|}
+!@@@ := X:
+            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: line ##:
         return X
         ^^^^^^^^
-    return X
-!@@@ := return X:
+    return {|X|}
+!@@@ := return @@@:
             .terminator = "<LF>"
-            .position[H] = PACKED_VEC
             .initiator = *LOGICAL_LINE*
+            .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
     else:
         ^
@@ -103,7 +115,7 @@ min (X, Y) <--:
 ^^^^^^^^^^^^^^^^
     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|return
-              X|}|}
+              {|X|}|}|}
 !@@@ := @@@:
             .terminator = *INDENTED_PARAGRAPH*
             .position[H] = PACKED_VEC
@@ -114,14 +126,14 @@ min (X, Y) <--:
         return X
 ^^^^^^^^^^^^^^^^
     else:
-        return X
+        return {|X|}
 !@@@ := else @@@:
             .terminator = "<LF>"
             .initiator = *LOGICAL_LINE*
             .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
-min (X, Y) <--:
-              ^
+function min (X, Y):
+                   ^
     if X > Y:
 ^^^^^^^^^^^^^
         return Y
@@ -135,24 +147,24 @@ min (X, Y) <--:
               {|{|X|} > {|Y|}|}
               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
                    {"": .terminator = "<LF>", .initiator =
-                        *LOGICAL_LINE*|return Y|}|}|}
+                        *LOGICAL_LINE*|return {|Y|}|}|}|}
          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|else
               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
                    {"": .terminator = "<LF>", .initiator =
-                        *LOGICAL_LINE*|return X|}|}|}|}
+                        *LOGICAL_LINE*|return {|X|}|}|}|}|}
 !@@@ := @@@ @@@:
             .terminator = *INDENTED_PARAGRAPH*
             .position[H] = PACKED_VEC
             .initiator = ":"
 === PURELIST EXPRESSION: line ##:
-min (X, Y) <--:
-^^^^^^^^^^
+function min (X, Y):
+         ^^^^^^^^^^
     {|min ({|X|}, {|Y|})|}
 !@@@ := min @@:
             .position[H] = PACKED_VEC
 === BRACKETED EXPRESSION: lines ##-##:
-min (X, Y) <--:
-^^^^^^^^^^^^^^^
+function min (X, Y):
+^^^^^^^^^^^^^^^^^^^^
     if X > Y:
 ^^^^^^^^^^^^^
         return Y
@@ -161,14 +173,12 @@ min (X, Y) <--:
 ^^^^^^^^^
         return X
 ^^^^^^^^^^^^^^^^
-    {|min ({|X|}, {|Y|})|} <-- {}:
+    function {|min ({|X|}, {|Y|})|}:
         if {|{|X|} > {|Y|}|}:
-            return Y
+            return {|Y|}
         else:
-            return X
-!@@@ := @@@ "<--" @@@ @@@:
+            return {|X|}
+!@@@ := function @@@ @@@:
             .terminator = "<LF>"
             .initiator = *LOGICAL_LINE*
-            .position[H] = PACKED_VEC
-!@@@ :=:
             .position[H] = PACKED_VEC

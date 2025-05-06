@@ -2,7 +2,7 @@
 //
 // File:        reckon_overview_test.in
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Apr 23 01:33:56 AM EDT 2025
+// Date:        Mon May  5 02:10:37 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -205,23 +205,22 @@ for every person:
                {|{|{|703.06958|} * {|weight in lbs|}|} /
                  {|{|height in inches|} ^ {|2|}|}|}|}|}|}
 
-sum from (X) through (Y) <-- X is integer,
-                             Y is integer:
+function sum from (X) through (Y) <-- X is integer,
+                                      Y is integer:
     ``Sum of integers from X through Y.''
-    if X > Y:     value = 0
-    else:         value = X + sum (X + 1) through Y
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+    if X > Y:     return 0
+    else:         return X + sum (X + 1) through Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
      {|sum from (X) through (Y)|} <--
      {|{|{|X|} [< is integer >]|}, {|{|Y|} [< is integer >]|}|}
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
                ``Sum of integers from X through Y "."''|}
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|if
-               {|{|X|} > {|Y|}|} ":" {|{|value|} = {|0|}|}|}
+               {|{|X|} > {|Y|}|} ":" {|return {|0|}|}|}
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|else
                ":"
-               {|{|value|} =
-                 {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}|}|}|}
+               {|return {|{|X|} + {|sum ({|X|} + {|1|}) through Y|}|}|}|}|}|}
 sum from 5 through 10
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum from 5
      through 10|}
@@ -235,14 +234,15 @@ every (sum from X through Y)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|every
      (sum from X through Y)|}
 
-sum from (X) through (Y) <-- X is integer,
-                             Y is integer:
+function sum from (X) through (Y) <-- X is integer,
+                                      Y is integer:
     ``Sum of integers from X through Y.''
     value = 0
     while X <= Y:
         next value = value + X
         next X = X + 1
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+    return value
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
      {|sum from (X) through (Y)|} <--
      {|{|{|X|} [< is integer >]|}, {|{|Y|} [< is integer >]|}|}
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
@@ -258,7 +258,9 @@ sum from (X) through (Y) <-- X is integer,
                          *LOGICAL_LINE*|{|next value|} =
                          {|{|value|} + {|X|}|}|}
                     {"": .terminator = "<LF>", .initiator =
-                         *LOGICAL_LINE*|{|next X|} = {|{|X|} + {|1|}|}|}|}|}|}|}
+                         *LOGICAL_LINE*|{|next X|} = {|{|X|} + {|1|}|}|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|return
+               {|value|}|}|}|}
 sum from 5 through 10
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum from 5
      through 10|}
@@ -266,8 +268,8 @@ every (sum from X through Y)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|every
      (sum from X through Y)|}
 
-average weight of (X) <-- X is list,
-                          every Y in X is a person:
+function average weight of (X) <--
+            X is list, every Y in X is a person:
     count = 0
     sum = 0
     while NOT X is empty:
@@ -275,10 +277,10 @@ average weight of (X) <-- X is list,
         next sum = sum + the weight of (first X)
         next X = rest X
     if count == 0:
-        value = error ``Cannot average 0 things.''
+        return error ``Cannot average 0 things.''
     else:
-        value = sum / count
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+        return sum / count
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
      {|average weight of (X)|} <--
      {|{|X is list|},
        {|{|every {|Y|} in {|X|}|} [< is a >] {|person|}|}|}
@@ -304,14 +306,13 @@ average weight of (X) <-- X is list,
                {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
                     ":"|
                     {"": .terminator = "<LF>", .initiator =
-                         *LOGICAL_LINE*|{|value|} =
+                         *LOGICAL_LINE*|return
                          {|error ``Cannot average 0 things "."''|}|}|}|}
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|else
                {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
                     ":"|
                     {"": .terminator = "<LF>", .initiator =
-                         *LOGICAL_LINE*|{|value|} =
-                         {|{|sum|} / {|count|}|}|}|}|}|}|}
+                         *LOGICAL_LINE*|return {|{|sum|} / {|count|}|}|}|}|}|}|}
 average weight of (every person)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|average weight of
      (every {|person|})|}
@@ -345,14 +346,13 @@ rest 4
 
 Y is wife of X <-- the wife of X == Y
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|Y is wife of X|} <-- {|{|the {|wife|} of {|X|}|} == {|Y|}|}|}
+     {|Y is wife of X <-- the wife of X|} == {|Y|}|}
 X is husband of Y <-- the husband of Y == X
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|X is husband of Y|} <--
-     {|{|the {|husband|} of {|Y|}|} == {|X|}|}|}
+     {|X is husband of Y <-- the husband of Y|} == {|X|}|}
 Y is wife of X <-- X is husband of Y
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     {|Y is wife of X|} <-- {|X is husband of Y|}|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|Y is wife of X
+     <-- X is husband of Y|}
 (the person with name `Jack') is husband of
     (the person with name `Jill')
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
@@ -558,13 +558,13 @@ raw x
 raw p
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|raw p|}
 
-display ( P ) <-- P is a person with name X:
-    value = {{oval (0.4, 0.2) labeled [X]}}
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|display (P)|}
-     <-- {|{|P|} [< is a >] {|person|} with {|name X|}|}
+function display ( P ) <-- P is a person with name X:
+    return {{oval (0.4, 0.2) labeled [X]}}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|display (P)|} <-- {|{|P|} [< is a >] {|person|} with {|name X|}|}
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
-          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-               {|value|} = {{oval ({|0.4|}, {|0.2|}) labeled [X]}}|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|return
+               {{oval ({|0.4|}, {|0.2|}) labeled [X]}}|}|}|}
 the person named `Jack'
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|the
      {|person named `Jack'|}|}
@@ -615,7 +615,7 @@ update x to ( 40 degrees )
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|update x to
      (40 degrees)|}
 
-display D <-- D is a demo with angle X:
+function display D <-- D is a demo with angle X:
     c = {{circle dotted diameter 1.0 center (0.0, 0.0)}}
     x axis = {{arrow from (-0.75, 0.0) to (0.75, 0.0)}}
     y axis = {{arrow from (0.0, -0.75) to (0.0, 0.75)}}
@@ -632,8 +632,8 @@ display D <-- D is a demo with angle X:
                     [y axis] labeled `Y Axis',
                     [line],
                     [arc] labeled `[theta]' ))}}
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|display D|} <--
-     {|{|D|} [< is a >] {|demo|} with {|angle X|}|}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|display D|} <-- {|{|D|} [< is a >] {|demo|} with {|angle X|}|}
      {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
           {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|c|} =
                {{circle dotted diameter 1 center ({|0|}, {|0|})}}|}

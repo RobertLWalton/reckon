@@ -345,8 +345,7 @@
         block standard: operator [< "else" "if" >] [code]
                         prefix line
                         with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
+                        with control reformatter ( *TRUE*, ":" )
         block reckon: operator "for" [code]
                       prefix line
                       with precedence 3000
@@ -363,9 +362,8 @@
                         with precedence 12000
                         with unary postfix reformatter
         block reckon: operator "<--" [code]
-                      nofix line
+                      nofix afix line
                       with precedence 0
-                      with declare reformatter ( ":" )
         block reckon: operator "with" [code]
                       infix afix
                       with precedence 12000
@@ -409,8 +407,7 @@
         block standard: operator "if" [code]
                         prefix line
                         with precedence 0
-                        with control reformatter ( ":",
-                        [< "has" "condition" >] )
+                        with control reformatter ( *TRUE*, ":" )
         block standard: operator "IF" [code, math]
                         infix
                         with precedence 10000
@@ -422,10 +419,14 @@
                         infix line
                         with precedence 1000
                         with binary reformatter
+        block reckon: operator "return" [code]
+                      prefix line
+                      with precedence 1000
+                      with exit reformatter
         block standard: operator "else" [code]
                         initial line
                         with precedence 0
-                        with control reformatter ( ":" )
+                        with control reformatter ( *FALSE*, ":" )
         block standard: operator "ELSE" [code, math]
                         infix afix
                         with precedence 10000
@@ -489,6 +490,10 @@
                         infix
                         with precedence 13300
                         with binary reformatter
+        block reckon: operator "function" [code]
+                      prefix line
+                      with precedence 0
+                      with control reformatter ( *TRUE*, "<--", ":" )
         block standard: operator "?=" [code]
                         infix
                         with precedence 3000
