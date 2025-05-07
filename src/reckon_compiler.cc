@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 02:58:32 AM EDT 2025
+// Date:	Tue May  6 05:57:43 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -53,6 +53,7 @@ static min::locatable_gen ELSE_IF;
 static min::locatable_gen ELSE;
 static min::locatable_gen EXIT;
 static min::locatable_gen CONTINUE;
+static min::locatable_gen FUNCTION;
 static min::locatable_gen VARIABLES;
 
 static min::locatable_gen DO;
@@ -99,6 +100,7 @@ static void initialize ( void )
     ::ELSE  = min::new_str_gen ( "else" );
     ::EXIT  = min::new_str_gen ( "exit" );
     ::CONTINUE  = min::new_str_gen ( "continue" );
+    ::FUNCTION  = min::new_str_gen ( "function" );
     ::VARIABLES  = min::new_str_gen ( "*VARIABLES*" );
 
     ::DO       = min::new_str_gen ( "do" );
@@ -870,6 +872,17 @@ bool static compile_if_statement
           min::gen block,
 	  bool is_restricted = false );
 
+// Compiles function declaration, given function,
+// guards, and either the function block (is_block is
+// true) or restricted statement (is_block is false)
+// that is the only statement in the function.
+//
+bool static compile_function_statement
+	( min::gen function,
+	  min::gen guards,
+          min::gen block,
+	  bool is_block );
+
 // Compile expression.  If true_jmp == 0, generate code
 // that pushes the value of the expression to the stack.
 // In this case, on success 1 is returned and run_stack_
@@ -1208,6 +1221,19 @@ bool REC::compile_statement ( min::gen statement )
 		( vp[1], vp[2] );
 	}
 
+	if ( s >= 3
+	     &&
+	     vp[0] == ::FUNCTION )
+	{
+	    if ( s == 5 )
+		return ::compile_function_statement
+		    ( vp[1], vp[3], vp[4], true );
+	    else if ( s == 3 )
+		return ::compile_function_statement
+		    ( vp[1], min::MISSING(), vp[2],
+		      true );
+	}
+
 	if ( s != 2 ) goto NOT_LEGAL_STATEMENT;
 
         min::obj_vec_ptr vp0 = vp[0];
@@ -1260,6 +1286,19 @@ bool REC::compile_statement ( min::gen statement )
 	 vp[2] == PARLEX::colon )
         return ::compile_if_statement
 	    ( vp[1], vp[3], true );
+
+    if ( s >= 4
+	 &&
+	 vp[0] == ::FUNCTION )
+    {
+	if ( s == 6 )
+	    return ::compile_function_statement
+		( vp[1], vp[3], vp[5], false );
+	else if ( s == 4 )
+	    return ::compile_function_statement
+		( vp[1], min::MISSING(), vp[3],
+		  false );
+    }
 
     if ( s == 3 )
     {
@@ -2659,6 +2698,18 @@ bool static compile_if_statement
 	return ::compile_restricted_statement ( block );
     else
         return ::compile_block ( block );
+}
+
+bool static compile_function_statement
+	( min::gen function,
+	  min::gen guards,
+          min::gen block,
+	  bool is_block )
+{
+    mexcom::compile_error
+	( PAR::top_level_position,
+	  "function statement not implemented" );
+    return false;
 }
 
 
