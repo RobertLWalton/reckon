@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  6 05:57:43 PM EDT 2025
+// Date:	Thu May  8 03:44:49 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2706,10 +2706,52 @@ bool static compile_function_statement
           min::gen block,
 	  bool is_block )
 {
-    mexcom::compile_error
-	( PAR::top_level_position,
-	  "function statement not implemented" );
-    return false;
+    bool OK = true;
+
+    min::obj_vec_ptr vp = function;
+    MIN_REQUIRE ( vp != min::NULL_STUB );
+    min::uns32 i = 0;
+    min::phrase_position_vec ppv =
+        ::get_position ( vp );
+    min::locatable_var<PRIM::func> func =
+        PRIM::scan_func_prototype
+	    ( vp, i, ppv, ::parser,
+	      PAR::ALL_SELECTORS,
+	      mexstack::lexical_level,
+	      mexstack::depth[mexstack::lexical_level],
+	      0,
+	      mexcom::output_module->length,
+	      min::new_stub_gen
+	          ( mexcom::output_module ) );
+    if ( func == min::NULL_STUB ) return false;
+    if ( i != min::size_of ( vp ) )
+    {
+	mexcom::compile_error
+	    ( ppv[i],
+	      "expected continuation of function"
+	      " prototype but found" );
+	return false;
+    }
+
+    // Cannot proceed without argument info.
+
+    if ( guards != min::MISSING() )
+    {
+	mexcom::compile_error
+	    ( PAR::top_level_position,
+	      "function statement guards not"
+	      " implemented" );
+	OK = false;
+    }
+
+    ppv = min::get ( block, min::dot_position );
+    mex::instr begf = { mex::BEGF };
+    mexstack::begx
+        ( begf, func->args->length, 0,
+	  min::MISSING(), ppv->position );
+
+
+    return OK;
 }
 
 
