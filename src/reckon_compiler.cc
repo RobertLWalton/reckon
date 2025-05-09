@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  8 03:44:49 AM EDT 2025
+// Date:	Fri May  9 04:14:50 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@ min::locatable_var<TAB::key_table>
 static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
 static min::locatable_gen next;
+static min::locatable_gen loop;
 static min::locatable_gen star;
 static min::locatable_gen eq;
 static min::locatable_gen neq;
@@ -83,6 +84,7 @@ static void initialize ( void )
     ::opening_quote = min::new_str_gen ( "`" );
     ::equal_sign = min::new_str_gen ( "=" );
     ::next = min::new_str_gen ( "next" );
+    ::loop = min::new_str_gen ( "loop" );
     ::star = min::new_str_gen ( "*" );
     ::eq   = min::new_str_gen ( "==" );
     ::neq  = min::new_str_gen ( "!=" );
@@ -2088,6 +2090,26 @@ bool static compile_block
 	  min::uns32 nnext,
 	  iteration * iterations )
 {
+    PRIM::var vars[iterations == NULL ? 0 : nnext];
+    min::locatable_gen trace_info ( min::MISSING() );
+
+    if ( iterations != NULL )
+    {
+        min::gen trace_buf[nnext+1];
+	trace_buf[0] = ::loop;
+	TAB::root r = TAB::top ( reckon::symbol_table );
+	for ( min::uns32 i = nnext; 0 < i; -- i )
+	{
+	    vars[i-1] = (PRIM::var) r;
+	    MIN_REQUIRE ( vars[i-1] != min::NULL_STUB );
+	    trace_buf[i] = vars[i-1]->label;
+	    r = TAB::previous ( r );
+	}
+
+	trace_info =
+	    min::new_lab_gen ( trace_buf, nnext + 1 );
+    }
+
     min::phrase_position_vec ppv =
         min::get ( block, min::dot_position );
     mex::instr beg =
@@ -2095,20 +2117,11 @@ bool static compile_block
 	  mex::BEG : mex::BEGL };
     mexstack::begx
         ( beg, nnext, 0,
-	  min::MISSING(), ppv->position );
+	  trace_info, ppv->position );
     push_block ( label, iterations != NULL );
 
     if ( iterations != NULL )
     {
-        PRIM::var vars[nnext];
-
-	TAB::root r = TAB::top ( reckon::symbol_table );
-	for ( min::uns32 i = nnext; 0 < i; -- i )
-	{
-	    vars[i-1] = (PRIM::var) r;
-	    MIN_REQUIRE ( vars[i-1] != min::NULL_STUB );
-	    r = TAB::previous ( r );
-	}
 	min::uns32 level = mexstack::lexical_level;
 	for ( min::uns32 i = 0; i < nnext; ++ i )
 	{
