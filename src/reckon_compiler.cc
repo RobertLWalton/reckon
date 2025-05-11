@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 10 10:03:06 PM EDT 2025
+// Date:	Sun May 11 04:39:44 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2760,19 +2760,32 @@ bool static compile_function_statement
     TAB::push ( reckon::symbol_table,
                 (TAB::root) func );
 
+    min::gen labbuf [ func->args->length ];
+    labbuf[0] = func->first_term_name;
+    for ( min::uns32 i = 0; i < func->args->length;
+                            ++ i )
+        labbuf[i+1] = (func->args + 1)->name;
+    min::locatable_gen trace_info
+        ( min::new_lab_gen
+	      ( labbuf, func->args->length + 1 ) );
+
     ppv = min::get ( block, min::dot_position );
+    min::phrase_position pp =
+        { ppv->position.begin, ppv->position.begin };
     mex::instr begf = { mex::BEGF };
     mexstack::begx
         ( begf, func->args->length, 0,
-	  min::MISSING(), ppv->position );
+	  trace_info, pp );
+    ::push_block ( min::MISSING() );
 
     min::uns32 level = mexstack::lexical_level;
-    for ( min::uns32 i = 0; i < func->args->length; ++ i )
+    for ( min::uns32 i = 0; i < func->args->length;
+                            ++ i )
     {
 	PRIM::var var = PRIM::create_var
 	    ( (func->args + i)->name,
 	      PAR::ALL_SELECTORS,
-	      ppv->position,
+	      (func->args + i)->pp,
 	      level,
 	      mexstack::depth[level],
 	      0,
@@ -2782,6 +2795,23 @@ bool static compile_function_statement
 	::push_var ( var );
     }
 
+    vp = block;
+    min::uns32 s = min::size_of ( vp );
+    for ( min::uns32 i = 0; i < s; ++ i )
+    {
+        if ( ! REC::compile_statement ( vp[i] ) )
+	    OK = false;
+    }
+
+    ::end_if_sequence();
+    if ( ::block.block_finish_jmp != 0 )
+        ::label ( ::block.block_finish_jmp );
+    pop_block();
+
+    pp = { ppv->position.end, ppv->position.end };
+
+    mex::instr end = { mex::ENDF };
+    mexstack::endx ( end, 0, min::MISSING(), pp );
 
     return OK;
 }
