@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  9 04:14:50 AM EDT 2025
+// Date:	Sat May 10 10:03:06 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2757,11 +2757,30 @@ bool static compile_function_statement
 	OK = false;
     }
 
+    TAB::push ( reckon::symbol_table,
+                (TAB::root) func );
+
     ppv = min::get ( block, min::dot_position );
     mex::instr begf = { mex::BEGF };
     mexstack::begx
         ( begf, func->args->length, 0,
 	  min::MISSING(), ppv->position );
+
+    min::uns32 level = mexstack::lexical_level;
+    for ( min::uns32 i = 0; i < func->args->length; ++ i )
+    {
+	PRIM::var var = PRIM::create_var
+	    ( (func->args + i)->name,
+	      PAR::ALL_SELECTORS,
+	      ppv->position,
+	      level,
+	      mexstack::depth[level],
+	      0,
+	      mexstack::stack_length ++,
+	      min::new_stub_gen
+		  ( mexcom:: output_module ) );
+	::push_var ( var );
+    }
 
 
     return OK;
