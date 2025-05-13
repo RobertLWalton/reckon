@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 11 04:39:44 AM EDT 2025
+// Date:	Mon May 12 09:28:16 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -140,9 +140,9 @@ void dump ( const char * header = NULL )
     if ( header != NULL )
         printer << " " << header ;
     printer << ": " << min::place_indent ( 0 )
-            << "RUN_STACK_LENGTH = "
+            << "MEXSTACK_STACK_LENGTH = "
 	    << mexstack::stack_length
-	    << " RUN_STACK_LIMIT = "
+	    << " MEXSTACK_STACK_LIMIT = "
 	    << mexstack::stack_limit
 	    << min::indent
 	    << "LEXICAL LEVEL = "
@@ -2750,8 +2750,9 @@ bool static compile_function_statement
 
     if ( guards != min::MISSING() )
     {
+        ppv = min::get ( guards, min::dot_position );
 	mexcom::compile_error
-	    ( PAR::top_level_position,
+	    ( ppv->position,
 	      "function statement guards not"
 	      " implemented" );
 	OK = false;
@@ -2760,11 +2761,11 @@ bool static compile_function_statement
     TAB::push ( reckon::symbol_table,
                 (TAB::root) func );
 
-    min::gen labbuf [ func->args->length ];
+    min::gen labbuf [ func->args->length + 1 ];
     labbuf[0] = func->first_term_name;
     for ( min::uns32 i = 0; i < func->args->length;
                             ++ i )
-        labbuf[i+1] = (func->args + 1)->name;
+        labbuf[i+1] = (func->args + i)->name;
     min::locatable_gen trace_info
         ( min::new_lab_gen
 	      ( labbuf, func->args->length + 1 ) );
@@ -2790,8 +2791,7 @@ bool static compile_function_statement
 	      mexstack::depth[level],
 	      0,
 	      mexstack::stack_length ++,
-	      min::new_stub_gen
-		  ( mexcom:: output_module ) );
+	      min::MISSING() );
 	::push_var ( var );
     }
 
