@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 12 09:28:16 PM EDT 2025
+// Date:	Tue May 13 04:20:18 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,7 @@ static min::locatable_gen ELSE;
 static min::locatable_gen EXIT;
 static min::locatable_gen CONTINUE;
 static min::locatable_gen FUNCTION;
+static min::locatable_gen RETURN;
 static min::locatable_gen VARIABLES;
 
 static min::locatable_gen DO;
@@ -103,6 +104,7 @@ static void initialize ( void )
     ::EXIT  = min::new_str_gen ( "exit" );
     ::CONTINUE  = min::new_str_gen ( "continue" );
     ::FUNCTION  = min::new_str_gen ( "function" );
+    ::RETURN  = min::new_str_gen ( "return" );
     ::VARIABLES  = min::new_str_gen ( "*VARIABLES*" );
 
     ::DO       = min::new_str_gen ( "do" );
@@ -810,6 +812,9 @@ bool static compile_exit_statement
 bool static compile_continue_statement
 	( min::obj_vec_ptr & vp, min::uns32 s );
 
+bool static compile_return_statement
+	( min::obj_vec_ptr & vp, min::uns32 s );
+
 // Compile set data base and label in preparation
 // for a SET instruction.  Data->base and data->label
 // are set after the appropriate subexpressions
@@ -1323,6 +1328,8 @@ bool REC::compile_statement ( min::gen statement )
         return ::compile_exit_statement( vp, s );
     if ( vp[0] == ::CONTINUE )
         return ::compile_continue_statement( vp, s );
+    if ( vp[0] == ::RETURN )
+        return ::compile_return_statement( vp, s );
     if ( vp[0] == ::VARIABLES )
         return ::compile_symbols_statement( vp, s );
 
@@ -1362,6 +1369,8 @@ bool static compile_restricted_statement
         return ::compile_exit_statement( vp, s );
     if ( vp[0] == ::CONTINUE )
         return ::compile_continue_statement( vp, s );
+    if ( vp[0] == ::RETURN )
+        return ::compile_return_statement( vp, s );
 
     mexcom::compile_error
 	( ::get_position(vp)->position,
@@ -1967,6 +1976,63 @@ bool static compile_continue_statement
 	( pp, message, min::pnop,
 	  "; statement ignored" );
     return false;
+}
+
+bool static compile_return_statement
+	( min::obj_vec_ptr & vp, min::uns32 s )
+{
+    min::phrase_position_vec ppv =
+        ::get_position ( vp );
+
+    if ( mexstack::lexical_level == 0 )
+    {
+	mexcom::compile_error
+	    ( ppv->position, "return statement not"
+	      " inside a function" );
+	return false;
+    }
+
+    min::uns32 number_of_values = 0;
+    bool OK = true;
+    if ( s == 2 )
+    {
+	min::obj_vec_ptr vvp = vp[1];
+	MIN_REQUIRE ( vvp != min::NULL_STUB );
+	min::gen separator;
+	{
+	    min::attr_ptr vap = vvp;
+	    min::locate ( vap, min::dot_separator );
+	    separator = min::get ( vap );
+	}
+
+	if ( separator == PARLEX::comma )
+	{
+	    number_of_values = min::size_of ( vvp );
+	    for ( min::uns32 i = 0;
+	          i < number_of_values; ++ i )
+	    {
+		if ( ! ::compile_expression ( vvp[i] ) )
+		    OK = false;
+	    }
+	}
+	else
+	{
+	    number_of_values = 1;
+	    vvp = min::NULL_STUB;
+	    if ( ! ::compile_expression ( vp[1] ) )
+	        OK = false;
+	}
+    }
+    else
+        MIN_REQUIRE ( s == 1 );
+
+    mex::instr ret = { mex::RET, 0, 0, 0,
+                       0, mexstack::lexical_level,
+		       number_of_values };
+    mexstack::stack_length -= number_of_values;
+    mexstack::push_instr ( ret, ppv->position );
+
+    return OK;
 }
 
 bool static compile_set_data
