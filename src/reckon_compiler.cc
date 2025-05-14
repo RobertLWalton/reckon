@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 14 03:16:35 AM EDT 2025
+// Date:	Wed May 14 04:11:47 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2843,7 +2843,6 @@ bool static compile_function_statement
     mexstack::begx
         ( begf, func->args->length, 0,
 	  trace_info, pp );
-    ::push_block ( min::MISSING() );
 
     min::uns32 level = mexstack::lexical_level;
     for ( min::uns32 i = 0; i < func->args->length;
@@ -2861,18 +2860,29 @@ bool static compile_function_statement
 	::push_var ( var );
     }
 
-    vp = block;
-    min::uns32 s = min::size_of ( vp );
-    for ( min::uns32 i = 0; i < s; ++ i )
+    if ( is_block )
     {
-        if ( ! REC::compile_statement ( vp[i] ) )
+	::push_block ( min::MISSING() );
+	vp = block;
+	min::uns32 s = min::size_of ( vp );
+	for ( min::uns32 i = 0; i < s; ++ i )
+	{
+	    if ( ! REC::compile_statement ( vp[i] ) )
+		OK = false;
+	}
+
+	::end_if_sequence();
+	if ( ::block.block_finish_jmp != 0 )
+	    ::label ( ::block.block_finish_jmp );
+	::pop_block();
+    }
+    else
+    {
+	if ( ! ::compile_restricted_statement
+	             ( block ) )
 	    OK = false;
     }
 
-    ::end_if_sequence();
-    if ( ::block.block_finish_jmp != 0 )
-        ::label ( ::block.block_finish_jmp );
-    pop_block();
 
     pp = { ppv->position.end, ppv->position.end };
 
@@ -3259,7 +3269,8 @@ RETRY:
 		mexstack::stack_length -= jend;
 		++ mexstack::stack_length;
 		mexstack::push_instr
-		    ( callg, ppv->position, trace_info );
+		    ( callg, ppv->position,
+		      trace_info );
 		return ::return_value
 		    ( ppv->position,
 		      true_jmp, false_jmp );
