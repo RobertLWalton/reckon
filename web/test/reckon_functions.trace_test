@@ -1,0 +1,40 @@
+* {0:0,1,1} PUSHI: *FALSE* <= *FALSE*
+* {0:1,2,2} PUSHI: *TRUE* <= *TRUE*
+* {0:2,3,3} PUSHI: *NONE* <= *NONE*
+// Reckon Language Function Test Data
+//
+// File:        reckon_functions.rec
+// Author:      Bob Walton (walton@acm.org)
+// Date:        Wed May 14 03:31:18 AM EDT 2025
+//
+// The authors have placed this data in the public
+// domain; they make no warranty and accept no liability
+// for this data.
+
+function add (X) (Y):
+    Z = X + Y
+    return Z
+* {11:3,3,4} BEGF
+
+Z = add (5) (7)
+* {15:10,4,5} PUSHI: * <= 5
+* {15:11,5,6} PUSHI: * <= 7
+* {15:12,5,7} CALLG to BEGF: add, X=5, Y=7
+*** {12:4,6,8} PUSHA: * <= X = 5
+*** {12:5,7,9} PUSHA: * <= Y = 7
+*** {12:6,6,10} ADD: Z = 12 <= 5 + 7
+*** {13:7,7,11} PUSHS: * <= Z = 12
+*** {13:8,4,12} RET to CALLG: add, Z=12
+
+function (X) sub (Y):
+    return X - Y;
+* {17:13,4,13} BEGF
+
+W = (5) sub (7)
+* {20:19,5,14} PUSHI: * <= 5
+* {20:20,6,15} PUSHI: * <= 7
+* {20:21,6,16} CALLG to BEGF: sub, X=5, Y=7
+*** {18:14,7,17} PUSHA: * <= X = 5
+*** {18:15,8,18} PUSHA: * <= Y = 7
+*** {18:16,7,19} SUB: * = -2 <= 5 - 7
+*** {18:17,5,20} RET to CALLG: sub, W=-2

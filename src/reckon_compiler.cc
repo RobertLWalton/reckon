@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 13 04:20:18 PM EDT 2025
+// Date:	Wed May 14 03:16:35 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2976,7 +2976,6 @@ RETRY:
         PRIM::var var = (PRIM::var) root;
 	if ( var != min::NULL_STUB )
 	{
-	    if ( i < s ) goto RETRY;
 	    if ( quoted_i < i ) goto RETRY;
 	    if ( ( var->block_level >> 16 ) != level )
 	        goto RETRY;
@@ -3233,6 +3232,34 @@ RETRY:
 			  i >= s ? name : ::star );
 		}
 		if ( ! OK ) return 0;
+		return ::return_value
+		    ( ppv->position,
+		      true_jmp, false_jmp );
+	    }
+	    else
+	    {
+	        min::uns32 jend =
+		    argument_vector->length;
+		bool OK = true;
+		for ( min::uns32 j = 0; j < jend; ++ j )
+		{
+		    if ( ! ::compile_expression
+		    		( argument_vector[j] ) )
+		        OK = false;
+		}
+		if ( ! OK ) return 0;
+
+		mex::instr callg =
+		    { mex::CALLG, 0, 0, 0, jend, 1,
+		      func->location, func->module };
+		min::gen labbuf[2] =
+		    { func->first_term_name, name };
+		min::locatable_gen trace_info
+		    ( min::new_lab_gen ( labbuf, 2 ) );
+		mexstack::stack_length -= jend;
+		++ mexstack::stack_length;
+		mexstack::push_instr
+		    ( callg, ppv->position, trace_info );
 		return ::return_value
 		    ( ppv->position,
 		      true_jmp, false_jmp );
