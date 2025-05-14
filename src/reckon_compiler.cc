@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 14 04:11:47 AM EDT 2025
+// Date:	Wed May 14 07:25:24 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,7 +56,7 @@ static min::locatable_gen EXIT;
 static min::locatable_gen CONTINUE;
 static min::locatable_gen FUNCTION;
 static min::locatable_gen RETURN;
-static min::locatable_gen VARIABLES;
+static min::locatable_gen SYMBOLS;
 
 static min::locatable_gen DO;
 static min::locatable_gen REPEAT;
@@ -105,7 +105,7 @@ static void initialize ( void )
     ::CONTINUE  = min::new_str_gen ( "continue" );
     ::FUNCTION  = min::new_str_gen ( "function" );
     ::RETURN  = min::new_str_gen ( "return" );
-    ::VARIABLES  = min::new_str_gen ( "*VARIABLES*" );
+    ::SYMBOLS  = min::new_str_gen ( "*SYMBOLS*" );
 
     ::DO       = min::new_str_gen ( "do" );
     ::REPEAT   = min::new_str_gen ( "repeat" );
@@ -827,7 +827,7 @@ bool static compile_return_statement
 bool static compile_set_data
 	( PRIM::var var, ::set_data * data );
 
-// Compile a *VARIABLES* or *FUNCTIONS* statement.
+// Compile a *SYMBOLS* statement.
 //
 bool static compile_symbols_statement
 	( min::obj_vec_ptr & vp, min::uns32 s );
@@ -1330,7 +1330,7 @@ bool REC::compile_statement ( min::gen statement )
         return ::compile_continue_statement( vp, s );
     if ( vp[0] == ::RETURN )
         return ::compile_return_statement( vp, s );
-    if ( vp[0] == ::VARIABLES )
+    if ( vp[0] == ::SYMBOLS )
         return ::compile_symbols_statement( vp, s );
 
     vp = min::NULL_STUB;
@@ -2114,7 +2114,7 @@ bool static compile_symbols_statement
 {
     min::printer printer = mex::default_printer;
     printer << min::bom
-            << "*VARIABLES*: "
+            << "*SYMBOLS*: "
 	    << min::place_indent ( 0 );
 
     for ( TAB::root symbol =
@@ -2124,25 +2124,45 @@ bool static compile_symbols_statement
     {
 	min::uns32 level_and_depth =
 	    symbol->block_level;
-	min::locatable_gen name;
+	min::locatable_gen name
 	    ( symbol->label );
 
-	PRIM::var var = (PRIM::var) symbol;
-	if ( var == min::NULL_STUB )
-	    continue;
+	const char * type;
+	const char * flags = "";
+	min::uns32 location;
 
-	name = ::full_var_name ( var );
+	PRIM::var var = (PRIM::var) symbol;
+	PRIM::func func = (PRIM::func) symbol;
+	if ( var != min::NULL_STUB )
+	{
+	    type = "variable";
+	    if ( var->flags & PRIM::WRITABLE_VAR )
+	        flags = " [WO]";
+	    name = ::full_var_name ( var );
+	    location = var->location;
+	}
+	else
+	if ( func != min::NULL_STUB )
+	{
+	    type = "function"; 
+	    location = func->location;
+	    if ( func->flags & PRIM::BUILTIN_FUNCTION )
+	        flags = " [BUILTIN]";
+	    else
+	    if ( func->flags & PRIM::VALUE_OPERATOR )
+	        flags = " [VALUE OP]";
+	    else
+	    if ( func->flags & PRIM::LOGICAL_OPERATOR )
+	        flags = " [LOGICAL OP]";
+	}
 
 	printer << min::indent
 	        << ( level_and_depth >> 16 )
 		<< "."
 		<< ( level_and_depth & 0xFFFF )
-		<< " "
-		<< name;
-	if ( var != min::NULL_STUB
-	     &&
-	     var->flags & PRIM::WRITABLE_VAR )
-	    printer << " [WO]";
+		<< " " << type << " "
+		<< min::pgen_name ( name ) << flags
+		<< " = " << location;
     }
 
     printer << min::eom;
