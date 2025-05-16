@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 18 02:25:00 AM EDT 2025
+// Date:	Fri May 16 05:07:23 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -141,7 +141,8 @@ static void remove_tokens
 	mexstack::save ( area );
 	top = TAB::top ( reckon::symbol_table );
 	compile_OK = REC::compile_statement
-	    ( parser->first->next->value );
+	    ( parser->first->next->value,
+	      mex::ALL_RESULTS );
 	bool r = mexstack::restore ( area );
 	MIN_REQUIRE ( ! r == compile_OK );
 	if ( ! compile_OK )

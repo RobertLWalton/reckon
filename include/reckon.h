@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 24 07:40:10 PM EST 2024
+// Date:	Thu May 15 02:43:33 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,7 +50,15 @@ namespace reckon {
     // no error, false if error (and print error
     // message including source lines).
     //
-    bool compile_statement ( min::gen statement );
+    // Nresults is the number of results expected by
+    // the call instruction that implements any
+    // statement that is nothing but a single call
+    // expression.  It is usually 0, but can be
+    // mex::ALL_RESULTS for a statement compiled and
+    // executed by the reckon program top level.
+    //
+    bool compile_statement ( min::gen statement,
+                             min::uns32 nresults = 0 );
 }
 
 # endif // RECKON_H

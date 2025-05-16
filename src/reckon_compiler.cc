@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 14 07:25:24 AM EDT 2025
+// Date:	Fri May 16 05:05:40 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -919,13 +919,20 @@ bool static compile_function_statement
 // Any .initiator of the expression equal to initiator_
 // to_be_ignored is treated as '('.
 //
+// For an expression that is a function call, the number
+// of results expected by the CALL instruction is
+// nresults.  This is 1 for most expressions, but for an
+// expression that is the entirity of a statement it is
+// 0 or mex::ALL_RESULTS.
+//
 min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp = 0,
 	  min::uns32 false_jmp = 0,
 	  min::gen name = ::star,
 	  min::gen initiator_to_be_ignored =
-	      min::MISSING() );
+	      min::MISSING(),
+	  min::uns32 nresults = 1 );
 
 inline min::uns32 static compile_label
 	( min::gen expression )
@@ -1113,7 +1120,8 @@ void REC::init_compiler
 // Compile Statement
 // ------- ---------
 
-bool REC::compile_statement ( min::gen statement )
+bool REC::compile_statement ( min::gen statement,
+			      min::uns32 nresults )
 {
     min::obj_vec_ptr vp = statement;
     min::uns32 s = min::size_of ( vp );
@@ -1334,7 +1342,9 @@ bool REC::compile_statement ( min::gen statement )
         return ::compile_symbols_statement( vp, s );
 
     vp = min::NULL_STUB;
-    return compile_expression ( statement );
+    return compile_expression
+        ( statement, 0, 0, ::star, min::MISSING(),
+	  nresults );
 
 NOT_LEGAL_STATEMENT:
 
@@ -2933,7 +2943,8 @@ min::uns32 static compile_expression
 	  min::uns32 true_jmp,
 	  min::uns32 false_jmp,
 	  min::gen name,
-	  min::gen initiator_to_be_ignored )
+	  min::gen initiator_to_be_ignored,
+	  min::uns32 nresults )
 {
     min::obj_vec_ptr vp = expression;
     min::phrase_position_vec ppv =
@@ -3192,9 +3203,7 @@ RETRY:
 		++ mexstack::stack_length;
 		mexstack::push_instr
 		    ( instr, ppv->position, name );
-		return ::return_value
-		    ( ppv->position,
-		      true_jmp, false_jmp );
+		goto RETURN_WARN;
 	    }
 	    else if
 	        ( func->flags & PRIM::LOGICAL_OPERATOR )
@@ -3262,9 +3271,7 @@ RETRY:
 			  i >= s ? name : ::star );
 		}
 		if ( ! OK ) return 0;
-		return ::return_value
-		    ( ppv->position,
-		      true_jmp, false_jmp );
+		goto RETURN_WARN;
 	    }
 	    else
 	    {
@@ -3280,7 +3287,8 @@ RETRY:
 		if ( ! OK ) return 0;
 
 		mex::instr callg =
-		    { mex::CALLG, 0, 0, 0, jend, 1,
+		    { mex::CALLG, 0, 0, 0,
+		      jend, nresults,
 		      func->location, func->module };
 		min::gen labbuf[2] =
 		    { func->first_term_name, name };
@@ -3291,10 +3299,23 @@ RETRY:
 		mexstack::push_instr
 		    ( callg, ppv->position,
 		      trace_info );
-		return ::return_value
-		    ( ppv->position,
-		      true_jmp, false_jmp );
+		goto RETURN_VALUE;
 	    }
+
+	RETURN_WARN:
+
+	    if ( nresults == 0 )
+		mexcom::compile_warn
+		    ( ppv->position,
+		      "statement only produces"
+		      " discarded result" );
+
+	RETURN_VALUE:
+
+	    return ::return_value
+		( ppv->position,
+		  true_jmp, false_jmp );
+
 	}
     }
 
