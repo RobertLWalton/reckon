@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat May 17 12:36:45 AM EDT 2025
+// Date:        Sat May 17 07:28:38 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -86,3 +86,53 @@ sum ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum
      ([{|1|}, {|2|}, {|3|}, {|4|}, {|5|}, {|6|}, {|7|}, {|8|}, {|9|},
        {|10|}])|}
+
+function multiplication table:
+    function part table ( Y, L ):
+        function part row ( Y, X, L ):
+            L[] = Y * X
+            if X == 9: return L
+            else: return part row ( Y, X + 1, L )
+        L[] = part row ( Y, 1, [] )
+        if Y == 9: return L
+        else: return part table ( Y + 1, L )
+    return part table ( 1, [] )
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|multiplication table|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               function {|part table ({|Y|}, {|L|})|}
+               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
+                    ":"|
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|function
+                         {|part row ({|Y|}, {|X|}, {|L|})|}
+                         {"": .terminator = *INDENTED_PARAGRAPH*,
+                              .initiator = ":"|
+                              {"": .terminator = "<LF>", .initiator =
+                                   *LOGICAL_LINE*|{|L []|} =
+                                   {|{|Y|} * {|X|}|}|}
+                              {"": .terminator = "<LF>", .initiator =
+                                   *LOGICAL_LINE*|if {|{|X|} == {|9|}|}
+                                   ":" {|return {|L|}|}|}
+                              {"": .terminator = "<LF>", .initiator =
+                                   *LOGICAL_LINE*|else ":"
+                                   {|return
+                                     {|part row
+                                       ... ... ... ... ... ... ...|}|}|}|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|{|L []|} =
+                         {|part row ({|Y|}, {|1|}, [])|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|if {|{|Y|} == {|9|}|} ":"
+                         {|return {|L|}|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|else ":"
+                         {|return
+                           {|part table ({|{|...|} + {|...|}|}, {|L|})|}|}|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|return
+               {|part table ({|1|}, [])|}|}|}|}
+
+multiplication table
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|multiplication
+     table|}

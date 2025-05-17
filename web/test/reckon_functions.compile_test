@@ -304,3 +304,214 @@ sum ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 sum ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     [38:96;7] CALLG T_CALLG 1 4294967295 45 PACKED_VEC; [< sum * >]
+function multiplication table:
+                             ^
+    [40:97;7] BEGF T_BEGF 0 1 0 *
+              UNDEFINED_GEN(0x7FF4170000000000)*; [< [< multiplication
+              table >] >]
+    function part table ( Y, L ):
+                                ^
+    [41:98;9] BEGF T_BEGF 2 2 0 *
+              UNDEFINED_GEN(0x7FF4170000000000)*; [< [< part table >] Y
+              L >]
+        function part row ( Y, X, L ):
+                                     ^
+    [42:99;12] BEGF T_BEGF 3 3 0 *
+               UNDEFINED_GEN(0x7FF4170000000000)*; [< [< part row >] Y X
+               L >]
+            L[] = Y * X
+            ^
+    [43:100;13] PUSHA T_PUSH 2 3 0; [< L L >]
+            L[] = Y * X
+            ^^^
+    [43:101;14] PUSHI T_PUSH 0 0 0 0; *
+            L[] = Y * X
+                  ^
+    [43:102;15] PUSHA T_PUSH 0 3 0; [< Y * >]
+            L[] = Y * X
+                      ^
+    [43:103;16] PUSHA T_PUSH 1 3 0; [< X * >]
+            L[] = Y * X
+                  ^^^^^
+    [43:104;15] MUL T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+            L[] = Y * X
+            ^^^
+    [43:105;14] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+            L[] = Y * X
+            ^^^
+    [43:106;15] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+            L[] = Y * X
+            ^^^
+    [43:107;14] VPUSH T_SET 2 0 0 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< * L >]
+            L[] = Y * X
+                  ^^^^^
+    [43:108;12] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+            if X == 9: return L
+               ^
+    [44:109;13] PUSHA T_PUSH 1 3 0; [< X * >]
+            if X == 9: return L
+                    ^
+    [44:110;14] PUSHI T_PUSH 0 0 0 9; *
+            if X == 9: return L
+                 ^^
+    [44:111;12] JMPNEQ T_JMPS 0 0 0 0; 11
+    [112;12] LABEL 12
+            if X == 9: return L
+                              ^
+    [44:112;13] PUSHA T_PUSH 2 3 0; [< L * >]
+            if X == 9: return L
+                       ^^^^^^^^
+    [44:113;12] RET T_RET 0 3 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+            if X == 9: return L
+               ^^^^^^
+    [44:114;12] JMP T_JMP 0 0 0 0; 13
+    [115;12] LABEL 11
+    [44:111;12] JMPNEQ T_JMPS 0 0 4 0; 11
+            else: return part row ( Y, X + 1, L )
+                                    ^
+    [45:115;13] PUSHA T_PUSH 0 3 0; [< Y * >]
+            else: return part row ( Y, X + 1, L )
+                                       ^
+    [45:116;14] PUSHA T_PUSH 1 3 0; [< X * >]
+            else: return part row ( Y, X + 1, L )
+                                           ^
+    [45:117;15] PUSHI T_PUSH 0 0 0 1; *
+            else: return part row ( Y, X + 1, L )
+                                       ^^^^^
+    [45:118;14] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+            else: return part row ( Y, X + 1, L )
+                                              ^
+    [45:119;15] PUSHA T_PUSH 2 3 0; [< L * >]
+            else: return part row ( Y, X + 1, L )
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+    [45:120;13] CALLG T_CALLG 3 1 99 PACKED_VEC; [< [< part row >] * >]
+            else: return part row ( Y, X + 1, L )
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [45:121;12] RET T_RET 0 3 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [122;12] LABEL 13
+    [44:114;12] JMP T_JMP 0 0 8 0; 13
+    [122;12] LABEL 10
+            else: return part row ( Y, X + 1, L )
+                                                 ^
+    [42:99;12] BEGF T_BEGF 3 3 24 *
+               UNDEFINED_GEN(0x7FF4170000000000)*; [< [< part row >] Y X
+               L >]
+    [45:122;9] ENDF T_ENDF 0 3 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        L[] = part row ( Y, 1, [] )
+        ^
+    [46:123;10] PUSHA T_PUSH 1 2 0; [< L L >]
+        L[] = part row ( Y, 1, [] )
+        ^^^
+    [46:124;11] PUSHI T_PUSH 0 0 0 0; *
+        L[] = part row ( Y, 1, [] )
+                         ^
+    [46:125;12] PUSHA T_PUSH 0 2 0; [< Y * >]
+        L[] = part row ( Y, 1, [] )
+                            ^
+    [46:126;13] PUSHI T_PUSH 0 0 0 1; *
+        L[] = part row ( Y, 1, [] )
+                               ^^
+    [46:127;14] PUSHOBJ T_SET 10 0 2 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; *
+    [46:128;15] PUSHI T_PUSH 0 0 0 "["; *
+    [46:129;14] SETI T_SET 1 0 0 ".initiator"; [< * * >]
+    [46:130;15] PUSHI T_PUSH 0 0 0 "]"; *
+    [46:131;14] SETI T_SET 1 0 0 ".terminator"; [< * * >]
+    [46:132;15] PUSHI T_PUSH 0 0 0 ","; *
+    [46:133;14] SETI T_SET 1 0 0 ".separator"; [< * * >]
+        L[] = part row ( Y, 1, [] )
+              ^^^^^^^^^^^^^^^^^^^^^
+    [46:134;12] CALLG T_CALLG 3 1 99 PACKED_VEC; [< [< part row >] * >]
+        L[] = part row ( Y, 1, [] )
+        ^^^
+    [46:135;11] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        L[] = part row ( Y, 1, [] )
+        ^^^
+    [46:136;12] PUSHS T_PUSH 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        L[] = part row ( Y, 1, [] )
+        ^^^
+    [46:137;11] VPUSH T_SET 2 0 0 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< * L >]
+        L[] = part row ( Y, 1, [] )
+              ^^^^^^^^^^^^^^^^^^^^^
+    [46:138;9] DEL T_POP 0 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+        if Y == 9: return L
+           ^
+    [47:139;10] PUSHA T_PUSH 0 2 0; [< Y * >]
+        if Y == 9: return L
+                ^
+    [47:140;11] PUSHI T_PUSH 0 0 0 9; *
+        if Y == 9: return L
+             ^^
+    [47:141;9] JMPNEQ T_JMPS 0 0 0 0; 14
+    [142;9] LABEL 15
+        if Y == 9: return L
+                          ^
+    [47:142;10] PUSHA T_PUSH 1 2 0; [< L * >]
+        if Y == 9: return L
+                   ^^^^^^^^
+    [47:143;9] RET T_RET 0 2 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+        if Y == 9: return L
+           ^^^^^^
+    [47:144;9] JMP T_JMP 0 0 0 0; 16
+    [145;9] LABEL 14
+    [47:141;9] JMPNEQ T_JMPS 0 0 4 0; 14
+        else: return part table ( Y + 1, L )
+                                  ^
+    [48:145;10] PUSHA T_PUSH 0 2 0; [< Y * >]
+        else: return part table ( Y + 1, L )
+                                      ^
+    [48:146;11] PUSHI T_PUSH 0 0 0 1; *
+        else: return part table ( Y + 1, L )
+                                  ^^^^^
+    [48:147;10] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+        else: return part table ( Y + 1, L )
+                                         ^
+    [48:148;11] PUSHA T_PUSH 1 2 0; [< L * >]
+        else: return part table ( Y + 1, L )
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+    [48:149;10] CALLG T_CALLG 2 1 98 PACKED_VEC; [< [< part table >]
+                * >]
+        else: return part table ( Y + 1, L )
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [48:150;9] RET T_RET 0 2 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [151;9] LABEL 16
+    [47:144;9] JMP T_JMP 0 0 7 0; 16
+    [151;9] LABEL 9
+        else: return part table ( Y + 1, L )
+                                            ^
+    [41:98;9] BEGF T_BEGF 2 2 54 *
+              UNDEFINED_GEN(0x7FF4170000000000)*; [< [< part table >] Y
+              L >]
+    [48:151;7] ENDF T_ENDF 0 2 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    return part table ( 1, [] )
+                        ^
+    [49:152;8] PUSHI T_PUSH 0 0 0 1; *
+    return part table ( 1, [] )
+                           ^^
+    [49:153;9] PUSHOBJ T_SET 10 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*;
+               *
+    [49:154;10] PUSHI T_PUSH 0 0 0 "["; *
+    [49:155;9] SETI T_SET 1 0 0 ".initiator"; [< * * >]
+    [49:156;10] PUSHI T_PUSH 0 0 0 "]"; *
+    [49:157;9] SETI T_SET 1 0 0 ".terminator"; [< * * >]
+    [49:158;10] PUSHI T_PUSH 0 0 0 ","; *
+    [49:159;9] SETI T_SET 1 0 0 ".separator"; [< * * >]
+    return part table ( 1, [] )
+           ^^^^^^^^^^^^^^^^^^^^
+    [49:160;8] CALLG T_CALLG 2 1 98 PACKED_VEC; [< [< part table >] * >]
+    return part table ( 1, [] )
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [49:161;7] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [162;7] LABEL 8
+    return part table ( 1, [] )
+                               ^
+    [40:97;7] BEGF T_BEGF 0 1 66 *
+              UNDEFINED_GEN(0x7FF4170000000000)*; [< [< multiplication
+              table >] >]
+    [49:162;7] ENDF T_ENDF 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+multiplication table
+^^^^^^^^^^^^^^^^^^^^
+    [51:163;8] CALLG T_CALLG 0 4294967295 97 PACKED_VEC; [< [<
+               multiplication table >] * >]
