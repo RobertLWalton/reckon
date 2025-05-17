@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 16 05:05:40 AM EDT 2025
+// Date:	Sat May 17 12:24:11 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3018,8 +3018,6 @@ RETRY:
 	if ( var != min::NULL_STUB )
 	{
 	    if ( quoted_i < i ) goto RETRY;
-	    if ( ( var->block_level >> 16 ) != level )
-	        goto RETRY;
 
 	    if ( var->flags & PRIM::WRITABLE_VAR )
 	    {
@@ -3063,8 +3061,7 @@ RETRY:
 		min::uns32 location = var->location;
 
 		if (    var->location
-		     < mexstack::fp [mexstack::
-		                     lexical_level] )
+		     < mexstack::fp [level] )
 		{
 		    pp.end = (& ppv[offset-1])->end;
 		    location =
