@@ -3,7 +3,7 @@
 <!--
 File:	reckon_lists.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Sat Feb 22 02:38:23 EST 2025
+Date:	Sun May 18 02:30:04 EDT 2025
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -63,7 +63,7 @@ element of the list.  However, if an element subexpression evaluates
 to another list, the elements of that list are <u>spliced</u> into the
 containing list.  So you <u>cannot</u> use a list construction expression
 to create a list that contains another list as an element.  This is
-referred to as a `<b>list flattening</b>' strategy.
+referred to as a `<b id="list-flattening">list flattening</b>' strategy.
 <p>
 More Examples:
 <pre class='example'>
@@ -121,6 +121,8 @@ Example:
 <div class='line'>X</div>[1, 2, 3, 4]
 <div class='line'>X[1] = 20</div
 ><div class='line'>X</div>[1, 20, 3, 4]
+<div class='line'>X[1] = ["A", "B", "C"]    // X[1] is NOT flattened</div
+><div class='line'>X</div>[1, ["A", "B", "C"], 3, 4]
 </pre>
 <p>
 The same expression that can be used on the right side of an assignment
@@ -129,11 +131,15 @@ statement to read a list element:
     <code>[</code><i>index-expression</i><code>]</code></div>
 <p>
 can be used on the left side of an assignment statement to write
-the element.  However, it is a program error to write an element that
+the element.  <a href="#list-flattening">List flattening</a> does
+NOT occur when list elements are assigned (it only occurs during
+list construction).
+It is a program error to write an element that
 does not exist.
 <p>
 More Examples:
 <pre class='example'>
+X[1] = 20
 ><div class='line'>X</div>[1, 20, 3, 4]
 <div class='line'>X[0], X[2] = X[2], X[0]</div
 ><div class='line'>X</div>[3, 20, 1, 4]
@@ -142,7 +148,10 @@ More Examples:
 <div class='line'>X[10] = "Bozo"     // X[10] does not exist</div
 >!!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
     SET: vector element does not exist
-* {36:143,21,144} SET SET 16 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
+    line 53:
+<div class='line'><div class='error-highlight'>X[10]</div
+     > = "Bozo"     // X[10] does not exist</div
+>* {36:143,21,144} SET SET 16 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*
     ARGS = [3, 20, 1, 400] 10
 [no output due to run-time error]
 </pre>
@@ -180,7 +189,10 @@ More Examples:
 * {50:189,25,196} SUB: * = nan &lt;= *NONE* - 5
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
     SET: vector element does not exist
-* {48:190,25,197} SET SET 21 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    line 76:
+<div class='line'><div class='error-highlight'>X[10]</div
+     > - = 5    // X[10] does not exist</div
+>* {48:190,25,197} SET SET 21 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     ARGS = [3000, 1020, 0.1, 400] 10
 [no output due to run-time error]
 </pre>
@@ -199,6 +211,8 @@ Example:
 <div class='line'>X</div>[1, 2, 3]
 <div class='line'>X[] + = 8    // Add 8 to last element of list</div
 ><div class='line'>X</div>[1, 2, 11]
+<div class='line'>X[] = ["A", "B", "C"]   // Push does NOT flatten.</div
+><div class='line'>X</div>[1, 2, 11, ["A", "B", "C"]]
 </pre>
 <p>
 The expression `<i>variable-name</i><code>[]</code>' in which the
@@ -213,6 +227,11 @@ is simply returned).  The value read is said to be <b>popped</b> from the list.
 When used on the left side of an assignment statement to write to the
 list, the value to be written is added to the end of the list.
 The value written is said to be <b>pushed</b> into the list.
+<p>
+<a href="#list-flattening">List flattening</a> does
+NOT occur when list elements are pushed to the end of a list
+(it only occurs during
+list construction).
 <p>
 When used on the left side of a
 <a href="reckon_assignments.html#modifying-assignments">
