@@ -2,7 +2,7 @@
 //
 // File:        reckon_lists.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Sat May 17 07:28:16 AM EDT 2025
+// Date:        Sun May 18 02:37:16 EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,12 @@ next X = [ 1, 2, 3, 4 ]
 X[1] = 20
 X
 [1, 20, 3, 4]
+X[1] = ["A", "B", "C"]    // X[1] is NOT flattened
+X
+[1, ["A", "B", "C"], 3, 4]
+X[1] = 20
+X
+[1, 20, 3, 4]
 X[0], X[2] = X[2], X[0]
 X
 [3, 20, 1, 4]
@@ -73,11 +79,11 @@ X
 [3, 20, 1, 400]
 X[10] = "Bozo"     // X[10] does not exist
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
-    line ##:
     SET: vector element does not exist
+    line ##:
 X[10] = "Bozo"     // X[10] does not exist
 ^^^^^
-* {49:224,32,280} SET SET 8 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+* {53:254,34,310} SET SET 10 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     ARGS = [3, 20, 1, 400] 10
 [no output due to run-time error]
 
@@ -116,13 +122,13 @@ X[10] - = 5    // X[10] does not exist
                // It reads as *NONE* and causes
                // FATAL PROGRAM ERROR when written
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-* {74:298,34,1862} SUB: * = nan <= *NONE* - 5
+* {78:328,36,1892} SUB: * = nan <= *NONE* - 5
 !!!!!!!!!!!!!!!!!!!!!!!!! FATAL PROGRAM ERROR:
-    line ##:
     SET: vector element does not exist
+    line ##:
 X[10] - = 5    // X[10] does not exist
 ^^^^^
-* {72:299,34,1863} SET SET 10 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+* {76:329,36,1893} SET SET 12 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     ARGS = [3000, 1020, 0.1, 400] 10
 [no output due to run-time error]
 
