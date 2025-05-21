@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 16 05:07:23 AM EDT 2025
+// Date:	Wed May 21 04:02:42 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,6 +64,9 @@ bool subexpression_parse = false;
 bool detail_parse = false;
 bool warn = false;
 
+bool load = false;
+bool load_OK = false;
+
 static min::locatable_var<mex::process> process;
 
 static min::printer computed_pgen
@@ -117,7 +120,7 @@ static void remove_tokens
         ( parse_error_count == parser->error_count );
     parse_error_count = parser->error_count;
 
-    if ( ! compile )
+    if ( ! compile && ! load )
     {
 	last_position.begin = last_position.end;
 	last_position.end =
@@ -136,7 +139,11 @@ static void remove_tokens
     mexstack::compile_save_area area;
     TAB::root top;
 
-    if ( parse_OK && ( compile || run ) )
+    if ( ! parse_OK )
+        /* do nothing */;
+    else if ( load && ! load_OK )
+        /* do nothing */;
+    else if ( compile || run || load )
     {
 	mexstack::save ( area );
 	top = TAB::top ( reckon::symbol_table );
@@ -151,7 +158,14 @@ static void remove_tokens
 	        TAB::pop ( reckon::symbol_table );
     }
 
-    if ( output_parse )
+    if ( load )
+    {
+	// Do nothing but note errors.
+	//
+        if ( ! parse_OK || ! compile_OK )
+	    load_OK = false;
+    }
+    else if ( output_parse )
 	 parser->printer
 	    << parser->first->next->value
 	    << min::eol;
