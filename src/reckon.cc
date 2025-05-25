@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 25 04:44:23 AM EDT 2025
+// Date:	Sun May 25 05:29:56 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,7 +235,8 @@ int main ( int argc, const char * argv[] )
     ::init_computed_formats();
 
     bool found_error = false;
-    for ( int i = 1; i < argc; ++ i )
+    int i = 1;
+    for ( ; i < argc; ++ i )
     {
 #	define TEST(x,y) \
 	    if ( strcmp ( argv[i], x ) == 0 ) \
@@ -254,14 +255,21 @@ int main ( int argc, const char * argv[] )
 	       subexpression_parse )
 	TEST ( "--detail-parse", detail_parse )
 	TEST ( "--warn", warn )
+	    // ends with `else'
+#	undef TEST
 
+	if ( strcmp ( argv[i], "-" ) == 0 )
+	    break;
+	else
+	if ( strncmp ( argv[i], "-", 1 ) != 0 )
+	    break;
+	else
 	{
 	    std::cerr
 	        << "ERROR: unrecognized argument "
 	        << argv[i] << std::endl;
 	    found_error = true;
 	}
-#	undef TEST
     }
     if ( found_error ) exit ( 1 );
 
@@ -331,9 +339,6 @@ int main ( int argc, const char * argv[] )
     REC::init_parser ( PAR::default_parser );
     PAR::init_printer_ostream
         ( PAR::default_parser, std::cout );
-    PAR::init_input_stream
-        ( PAR::default_parser, std::cin,
-	  min::marked_line_format );
 
     if ( output_html )
     {
@@ -400,8 +405,6 @@ int main ( int argc, const char * argv[] )
 	    PAR::default_parser->trace_flags |=
 		PAR::TRACE_SUBEXPRESSION_DETAILS;
 
-	PAR::parse();
-
     }
     else
     {
@@ -424,7 +427,23 @@ int main ( int argc, const char * argv[] )
 	PAR::output_ref ( PAR::default_parser ) =
 	    output;
 
+    }
+
+    if ( i == argc )
+    {
+	PAR::init_input_stream
+	    ( PAR::default_parser, std::cin,
+	      min::marked_line_format );
 	PAR::parse();
+    }
+    else
+    {
+        // TBD: Loop to load files goes here.
+	//
+	std::cerr
+	    << "ERROR: unrecognized argument "
+	    << argv[i] << std::endl;
+	found_error = true;
     }
 
     if ( output_html )
