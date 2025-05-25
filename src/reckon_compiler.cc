@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 17 12:24:11 AM EDT 2025
+// Date:	Thu May 22 02:23:37 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1055,9 +1055,10 @@ void REC::init_compiler
     mexcom::error_count = 0;
     mexcom::warning_count = 0;
     mexstack::init();
-
-    mexstack::init();
     mexstack::print_switch = print_switch;
+
+    if ( ::primary_pass != min::NULL_STUB )
+        return;
 
     ::primary_pass = PRIM::init_primary ( parser );
     reckon::symbol_table =
