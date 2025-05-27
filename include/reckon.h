@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 15 02:43:33 PM EDT 2025
+// Date:	Tue May 27 05:23:45 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,6 +33,41 @@ namespace reckon {
     //
     void init_parser ( ll::parser::parser parser );
 
+    // Create a module containing builtin variables and
+    // operators, load definitions of these into the
+    // symbol_table below, and return the module.  Call
+    // execute below to run and finish the module.
+    //
+    // This function must be called before any other
+    // modules are compiled.
+    //
+    mex::module load_builtins
+        ( ll::parser::parser parser );
+
+    // Read file, create a module for that file, compile
+    // the file, and return the module.  Call execute
+    // below to run and finish the module.
+    //
+    // Definitions of global variables and functions
+    // defined by the file are loaded into the
+    // symbol_table below.
+    //
+    // If the load is successful, nothing is printed
+    // and the module is returned.  Otherwise error or
+    // warning messages are printed and NULL_STUB is
+    // returned.
+    //
+    mex::module load_file ( ll::parser::parser parse,
+                            const char * file_name );
+
+    // Execute and finish a module that was loaded by
+    // a load_... function.  Return true if no errors,
+    // in which case nothing is printed.  Return false
+    // if there were errors, in which case error
+    // messages are printed.
+    //
+    bool execute ( mex::module m );
+
     // Call to init compiler.  Parser->input_file must
     // be set before this function is called.
     //
@@ -40,7 +75,7 @@ namespace reckon {
 	( ll::parser::parser parser,
           mexstack::print print_switch );
 
-    // Set by init_complier to symbol table.
+    // Set by any load_builtins to the symbol table.
     //
     extern min::locatable_var
            <ll::parser::table::key_table>

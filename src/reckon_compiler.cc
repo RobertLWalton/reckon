@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 22 02:23:37 AM EDT 2025
+// Date:	Tue May 27 05:47:11 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,6 +23,7 @@
 # include <mex.h>
 # include <mexcom.h>
 # include <mexstack.h>
+# define LEX ll::lexeme
 # define REC reckon
 # define LEXSTD ll::lexeme::standard
 # define PAR ll::parser
@@ -1025,6 +1026,40 @@ bool static compile_typed_expression
 	  min::phrase_position_vec ppv,
 	  min::gen initiator,
 	  min::gen name = ::star );
+
+// Load
+// ----
+
+mex::module REC::load_file ( PAR::parser parser,
+                             const char * file_name )
+{
+    PAR::input_file_ref(parser) = min::NULL_STUB;
+    LEX::input_file_ref(parser->scanner) =
+        min::NULL_STUB;
+    min::locatable_gen fname
+        ( min::new_str_gen ( file_name ) );
+    if ( ! PAR::init_input_named_file
+               ( parser, fname ) )
+    {
+        mexcom::printer << min::error_message;
+        return min::NULL_STUB;
+    }
+    mexcom::input_file = parser->input_file;
+    mexcom::output_module = (mex::module_ins)
+	mex::create_module ( mexcom::input_file );
+
+    mexcom::error_count = 0;
+    mexcom::warning_count = 0;
+    mexstack::init();
+    mexstack::print_switch = mexstack::NO_PRINT;
+
+    // TBD load switch etc.
+    PAR::parse ( parser );
+    // TBD error check.
+    return mexcom::output_module;
+}
+
+
 
 // Init Compiler
 // ---- --------

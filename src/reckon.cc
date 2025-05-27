@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 25 05:29:56 AM EDT 2025
+// Date:	Tue May 27 05:46:53 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -336,10 +336,13 @@ int main ( int argc, const char * argv[] )
                   PARSTD::ALL
 		- PARSTD::SENTENCE
 		- PARSTD::BITWISE_OPERATORS );
+
     REC::init_parser ( PAR::default_parser );
     PAR::init_printer_ostream
         ( PAR::default_parser, std::cout );
-
+    mexcom::printer = PAR::default_parser->printer;
+    min::init ( PAR::input_file_ref
+                    ( PAR::default_parser ) );
     if ( output_html )
     {
 	min::printer printer =
