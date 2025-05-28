@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 28 04:48:22 AM EDT 2025
+// Date:	Wed May 28 05:07:29 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1080,6 +1080,43 @@ mex::module REC::load_file ( PAR::parser parser,
     }
 
     return mexcom::output_module;
+}
+
+bool REC::execute ( mex::module m )
+{
+    mex::process process = mex::create_process
+        ( mexcom::printer );
+    mex::init_process ( m, process );
+    bool OK = mex::run_process ( process );
+    const char * what = NULL;
+    if ( process->state ==  mex::COUNTER_LIMIT_STOP )
+        what = "counter limit";
+    if ( process->state ==  mex::STACK_LIMIT_STOP )
+        what = "stack limit";
+    if (     process->state
+         ==  mex::RETURN_STACK_LIMIT_STOP )
+        what = "return stack limit";
+    if ( what != NULL )
+    {
+        mexcom::printer
+	    << min::bol
+	    << "ERROR: " << what << " reached running "
+	    << m->name << min::eol;
+	OK = false;
+    }
+    else if ( OK )
+        OK = mex::excepts_check ( process );
+    if  ( ! OK )
+    {
+        parser->printer
+	    << min::bol
+	    << "Program terminated because of "
+	    << " errors/warnings running "
+	    << m->name
+	    << min::eol;
+	exit ( 1 );
+    }
+    return true;
 }
 
 
