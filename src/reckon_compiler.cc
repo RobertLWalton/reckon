@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 27 05:47:11 PM EDT 2025
+// Date:	Wed May 28 04:48:22 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1030,6 +1030,7 @@ bool static compile_typed_expression
 // Load
 // ----
 
+bool REC::loading = false;
 mex::module REC::load_file ( PAR::parser parser,
                              const char * file_name )
 {
@@ -1053,9 +1054,31 @@ mex::module REC::load_file ( PAR::parser parser,
     mexstack::init();
     mexstack::print_switch = mexstack::NO_PRINT;
 
-    // TBD load switch etc.
+    parser->error_count = 0;
+    parser->warning_count = 0;
+    mexcom::error_count = 0;
+    mexcom::warning_count = 0;
+    REC::loading = true;
+
     PAR::parse ( parser );
-    // TBD error check.
+
+    min::uns32 errors = parser->error_count
+                      + mexcom::error_count;
+    min::uns32 warnings = parser->warning_count
+                        + mexcom::warning_count;
+    const char * what = ( errors != 0 ? "errors" :
+                          warnings != 0 ? "warnings" :
+			  NULL );
+    if ( what != NULL )
+    {
+        parser->printer
+	    << min::bol
+	    << "Program terminated because of "
+	    << what << " loading " << file_name
+	    << min::eol;
+	exit ( 1 );
+    }
+
     return mexcom::output_module;
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 27 05:23:45 PM EDT 2025
+// Date:	Wed May 28 04:50:17 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,6 +59,16 @@ namespace reckon {
     //
     mex::module load_file ( ll::parser::parser parse,
                             const char * file_name );
+
+    // The load_file routine sets loading to true, and
+    // then calls the parse function to parse and
+    // compile (see remove_tokens in reckon.cc).  Errors
+    // are detected by setting parser->error/warning_
+    // count and mexcom::error/warning_count to zero
+    // before calling parse and examining them after
+    // the call to parse.
+    // 
+    extern bool loading;
 
     // Execute and finish a module that was loaded by
     // a load_... function.  Return true if no errors,

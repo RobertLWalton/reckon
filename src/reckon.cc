@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 27 05:46:53 PM EDT 2025
+// Date:	Wed May 28 04:49:03 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,9 +64,6 @@ bool subexpression_parse = false;
 bool detail_parse = false;
 bool warn = false;
 
-bool load = false;
-bool load_OK = false;
-
 static min::locatable_var<mex::process> process;
 
 static min::printer computed_pgen
@@ -120,7 +117,7 @@ static void remove_tokens
         ( parse_error_count == parser->error_count );
     parse_error_count = parser->error_count;
 
-    if ( ! compile && ! load )
+    if ( ! compile && ! REC::loading )
     {
 	last_position.begin = last_position.end;
 	last_position.end =
@@ -141,15 +138,13 @@ static void remove_tokens
 
     if ( ! parse_OK )
         /* do nothing */;
-    else if ( load && ! load_OK )
-        /* do nothing */;
-    else if ( compile || run || load )
+    else if ( compile || run || REC::loading )
     {
 	mexstack::save ( area );
 	top = TAB::top ( reckon::symbol_table );
 	compile_OK = REC::compile_statement
 	    ( parser->first->next->value,
-	      mex::ALL_RESULTS );
+	      REC::loading ? 0 : mex::ALL_RESULTS );
 	bool r = mexstack::restore ( area );
 	MIN_REQUIRE ( ! r == compile_OK );
 	if ( ! compile_OK )
@@ -158,13 +153,8 @@ static void remove_tokens
 	        TAB::pop ( reckon::symbol_table );
     }
 
-    if ( load )
-    {
-	// Do nothing but note errors.
-	//
-        if ( ! parse_OK || ! compile_OK )
-	    load_OK = false;
-    }
+    if ( REC::loading )
+        /* Do nothing. */;
     else if ( output_parse )
 	 parser->printer
 	    << parser->first->next->value
@@ -176,7 +166,7 @@ static void remove_tokens
 	    << ( compile && run ?
                     "compilation or run output" :
                  compile ?
-                    "compilation" :
+                    "compilation output" :
 		    "output" )
 	    << " due to above parse errors]"
 	    << min::eol;
