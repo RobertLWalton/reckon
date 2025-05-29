@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 28 04:49:03 AM EDT 2025
+// Date:	Thu May 29 02:47:57 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -269,10 +269,7 @@ int main ( int argc, const char * argv[] )
         parser_test = true;
     }
     if ( trace )
-    {
 	run = true;
-	mex::run_trace_flags = 0xFFFFFFFF;
-    }
     if ( output_parse && ( compile || run ) )
     {
 	std::cerr
@@ -331,8 +328,6 @@ int main ( int argc, const char * argv[] )
     PAR::init_printer_ostream
         ( PAR::default_parser, std::cout );
     mexcom::printer = PAR::default_parser->printer;
-    min::init ( PAR::input_file_ref
-                    ( PAR::default_parser ) );
     if ( output_html )
     {
 	min::printer printer =
@@ -401,18 +396,24 @@ int main ( int argc, const char * argv[] )
     }
     else
     {
+	min::locatable_var<mex::module> m;
+	bool OK = true;
 	if ( compile || run )
-	    REC::init_compiler
-		( PAR::default_parser,
-		  compile ? mexstack::PRINT_WITH_SOURCE
-			  : mexstack::NO_PRINT );
-	if ( run )
 	{
-	    ::process = mex::init_process
-		( mexcom::output_module );
-	    mex::run_process ( ::process );
-	        // Creates builtin variables, e.g.,
-		// TRUE and FALSE.
+	    m = REC::load_builtins
+	            ( PAR::default_parser );
+	    if ( m == min::NULL_STUB ) OK = false;
+	}
+	if ( OK && run )
+	    OK = REC::execute ( m );
+	if ( ! OK )
+	{
+	    PAR::default_parser->printer
+	        << min::bol
+		<< "TERMINATING PROGRAM DUE TO ERRORS/"
+		   "WARNINGS WHILE COMPILING OR LOADING"
+		   " BUILTINS" << min::eol;
+	    exit ( 1 );
 	}
 
         min::locatable_var<PAR::output> output;
@@ -424,9 +425,28 @@ int main ( int argc, const char * argv[] )
 
     if ( i == argc )
     {
+	mexstack::print_switch =
+	    ( compile ? mexstack::PRINT_WITH_SOURCE
+		      : mexstack::NO_PRINT );
+
 	PAR::init_input_stream
 	    ( PAR::default_parser, std::cin,
 	      min::marked_line_format );
+	mexcom::input_file =
+	    PAR::default_parser->input_file;
+
+	mexcom::output_module =
+	    (mex::module_ins)
+	    mex::create_module
+	        ( PAR::default_parser->input_file );
+	if ( trace )
+	    mex::run_trace_flags = 0xFFFFFFFF;
+	::process = mex::create_process
+	    ( mexcom::printer );
+	mex::init_process ( mexcom::output_module,
+	                    ::process );
+
+	REC::loading = false;
 	PAR::parse();
     }
     else

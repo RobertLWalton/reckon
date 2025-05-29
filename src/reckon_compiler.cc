@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 28 05:07:29 AM EDT 2025
+// Date:	Thu May 29 02:56:22 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,8 @@
 # define PRIM ll::parser::primary
 
 min::locatable_var<TAB::key_table>
-    reckon::symbol_table;
+    REC::symbol_table;
+min::locatable_gen REC::modifying_ops;
 
 static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
@@ -76,10 +77,7 @@ static min::locatable_gen left_quote;
 
 static min::uns32 jmp_counter = 1;
 
-static min::locatable_var<PRIM::primary_pass>
-	primary_pass;
 static min::locatable_var<PAR::parser> parser;
-static min::gen modifying_ops;
 
 static void initialize ( void )
 {
@@ -170,7 +168,7 @@ inline min::phrase_position_vec
 //
 inline void push_var ( PRIM::var var )
 {
-    PRIM::push_var ( reckon::symbol_table, var );
+    PRIM::push_var ( REC::symbol_table, var );
 }
 
 void mexstack::pop_stacks ( void )
@@ -183,11 +181,11 @@ void mexstack::pop_stacks ( void )
     while ( true )
     {
         TAB::root r =
-	    TAB::top ( reckon::symbol_table );
+	    TAB::top ( REC::symbol_table );
 	if ( r == min::NULL_STUB ) break;
 	if ( r->block_level <= level_and_depth )
 	    break;
-        TAB::pop ( reckon::symbol_table );
+        TAB::pop ( REC::symbol_table );
     }
 }
 
@@ -204,6 +202,31 @@ inline void pushi ( min::gen value,
 	{ mex::PUSHI, 0, 0, 0, 0, 0, 0, value };
     ++ mexstack::stack_length;
     mexstack::push_instr ( instr, pp, name, no_source );
+}
+
+//
+//
+inline void push_push_instr
+    ( PRIM::var var, min::gen new_name,
+      const min::phrase_position & pp )
+{
+    mex::module m = var->module;
+    if ( m == mexcom::output_module )
+        mexstack::push_push_instr
+	    ( new_name, var->label, var->location,
+	      pp );
+    else
+    {
+        MIN_REQUIRE ( m->length > var->location );
+	min::gen labbuf[2] = { new_name, var->label };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labbuf, 2 ) );
+	mex::instr pushg_instr =
+	    { mex::PUSHG, mex::T_PUSH, 0, 0,
+	      var->location, 0, 0, var->module };
+	mexstack::push_instr
+	    ( pushg_instr, pp, trace_info );
+    }
 }
 
 // Call mexstack::push_instr with a POPS instruction
@@ -288,6 +311,15 @@ struct block_struct
         // True for loop block, false for non-loop
 	// block.
 };
+
+static min::uns32 block_stack_gen_disp[] = {
+    min::DISP ( & ::block_struct::name ),
+    min::DISP_END };
+
+static min::packed_vec<::block_struct>
+    block_stack_type
+        ( "block_stack_type",
+	  ::block_stack_gen_disp );
 
 typedef min::packed_vec_insptr<block_struct>
     block_stack_vec;
@@ -476,7 +508,7 @@ PRIM::var scan_var
 	      ( var_name,
 	        PRIM::VAR,
 	        PAR::ALL_SELECTORS,
-	        reckon::symbol_table ) );
+	        REC::symbol_table ) );
 
     if ( data != NULL && data->nlabels > 0 )
     {
@@ -636,7 +668,7 @@ inline void add_next_variable
 	      ( var_name,
 	        PRIM::VAR,
 	        PAR::ALL_SELECTORS,
-	        reckon::symbol_table ) );
+	        REC::symbol_table ) );
 
     min::uns8 level = mexstack::lexical_level;
     min::uns32 depth = mexstack::depth[level];
@@ -662,9 +694,7 @@ inline void add_next_variable
 	          ( mexcom:: output_module ) );
 
     ++ mexstack::stack_length;
-    mexstack::push_push_instr
-	( next_var->label, var->label,
-	  var->location, pp );
+    ::push_push_instr ( var, next_var->label, pp );
     ::push_var ( next_var );
 
     if ( REC::warn_next_variable_promotion )
@@ -724,7 +754,7 @@ static void search_statement
     	      &&
 	      min::is_name ( vp[1] )
               &&
-	         min::get ( ::modifying_ops, vp[1] )
+	         min::get ( REC::modifying_ops, vp[1] )
 	      != min::NONE() )
     {
 	min::obj_vec_ptr vp0 = vp[0];
@@ -1034,6 +1064,8 @@ bool REC::loading = false;
 mex::module REC::load_file ( PAR::parser parser,
                              const char * file_name )
 {
+    REC::init_compiler ( parser );
+
     PAR::input_file_ref(parser) = min::NULL_STUB;
     LEX::input_file_ref(parser->scanner) =
         min::NULL_STUB;
@@ -1062,24 +1094,16 @@ mex::module REC::load_file ( PAR::parser parser,
 
     PAR::parse ( parser );
 
-    min::uns32 errors = parser->error_count
-                      + mexcom::error_count;
-    min::uns32 warnings = parser->warning_count
-                        + mexcom::warning_count;
-    const char * what = ( errors != 0 ? "errors" :
-                          warnings != 0 ? "warnings" :
-			  NULL );
-    if ( what != NULL )
-    {
-        parser->printer
-	    << min::bol
-	    << "Program terminated because of "
-	    << what << " loading " << file_name
-	    << min::eol;
-	exit ( 1 );
-    }
-
-    return mexcom::output_module;
+    if ( parser->error_count != 0
+         ||
+	 parser->warning_count != 0
+	 ||
+	 mexcom::error_count != 0
+	 ||
+	 mexcom::warning_count != 0 )
+        return min::NULL_STUB;
+    else
+	return mexcom::output_module;
 }
 
 bool REC::execute ( mex::module m )
@@ -1104,19 +1128,124 @@ bool REC::execute ( mex::module m )
 	    << m->name << min::eol;
 	OK = false;
     }
-    else if ( OK )
-        OK = mex::excepts_check ( process );
-    if  ( ! OK )
+
+    OK = OK && mex::excepts_check ( process );
+
+    if ( OK )
     {
-        parser->printer
-	    << min::bol
-	    << "Program terminated because of "
-	    << " errors/warnings running "
-	    << m->name
-	    << min::eol;
-	exit ( 1 );
+	min::locatable_var
+		<min::packed_vec_insptr<min::gen> >
+	    globals
+		( min::gen_packed_vec_type.new_stub
+		    ( process->length ) );
+	for ( min::uns32 i = 0; i < process->length;
+	                        ++ i )
+	    min::push(globals) = process[i];
+	mex::globals_ref((mex::module_ins) m) = globals;
     }
-    return true;
+
+    return OK;
+}
+
+void REC::init_compiler ( PAR::parser parser )
+{
+    mex::default_printer = parser->printer;
+    mexcom::printer = mex::default_printer;
+
+    mexcom::error_count = 0;
+    mexcom::warning_count = 0;
+    mexstack::init();
+
+    if ( REC::symbol_table == min::NULL_STUB )
+    {
+	PRIM::primary_pass primary_pass =
+	    PRIM::init_primary ( parser );
+	REC::symbol_table =
+	    primary_pass->primary_table;
+	REC::modifying_ops =
+	    primary_pass->modifying_ops;
+	::block_stack =
+	    ::block_stack_type.new_stub ( 64 );
+    }
+    else
+        min::pop ( ::block_stack,
+	           ::block_stack->length );
+
+    ::block  = { min::MISSING(), 0, 0,
+                 min::MISSING_POSITION, 0 };
+    ::block_name = ::block.name;
+}
+
+mex::module REC::load_builtins ( PAR::parser parser )
+{
+    REC::init_compiler ( parser);
+
+    mex::module_ins m = (mex::module_ins)
+	mex::create_module();
+    mexcom::output_module = m;
+
+    min::locatable_var<PRIM::var> var;
+    mex::instr pushi_instr = { mex::PUSHI, mex::T_PUSH };
+
+    pushi_instr.immedD = min::FALSE();
+    mex::push_instr ( m, pushi_instr );
+    mex::push_trace_info ( m, ::FALSE );
+    ++ mexstack::stack_length;
+    var = PRIM::create_var
+        ( ::FALSE,
+          PAR::ALL_SELECTORS,
+          PAR::top_level_position,
+          0, 0, 0,
+          mexstack::stack_length - 1,
+          min::new_stub_gen ( mexcom::output_module ) );
+    ::push_var ( var );
+
+    pushi_instr.immedD = min::TRUE();
+    mex::push_instr ( m, pushi_instr );
+    mex::push_trace_info ( m, ::TRUE );
+    ++ mexstack::stack_length;
+    var = PRIM::create_var
+        ( ::TRUE,
+          PAR::ALL_SELECTORS,
+          PAR::top_level_position,
+          0, 0, 0,
+          mexstack::stack_length - 1,
+          min::new_stub_gen ( mexcom::output_module ) );
+    ::push_var ( var );
+
+    pushi_instr.immedD = min::NONE();
+    mex::push_instr ( m, pushi_instr );
+    mex::push_trace_info ( m, ::NONE );
+    ++ mexstack::stack_length;
+    var = PRIM::create_var
+        ( ::NONE,
+          PAR::ALL_SELECTORS,
+          PAR::top_level_position,
+          0, 0, 0,
+          mexstack::stack_length - 1,
+          min::new_stub_gen ( mexcom::output_module ) );
+    ::push_var ( var );
+
+    ::block_stack = ::block_stack_type.new_stub ( 64 );
+    ::block  = { min::MISSING(), 0, 0,
+                 min::MISSING_POSITION, 0 };
+    ::block_name = ::block.name;
+
+    min::locatable_gen length_name
+        ( min::new_str_gen ( "length" ) );
+
+    PRIM::push_builtin_func
+        ( length_name, REC::symbol_table,
+	  mex::VSIZE );
+
+    min::locatable_gen copy_name
+        ( min::new_str_gen ( "copy" ) );
+
+    PRIM::push_builtin_func
+        ( copy_name, REC::symbol_table,
+	  mex::COPY );
+
+    return m;
 }
 
 
@@ -1124,14 +1253,7 @@ bool REC::execute ( mex::module m )
 // Init Compiler
 // ---- --------
 
-static min::uns32 block_stack_gen_disp[] = {
-    min::DISP ( & ::block_struct::name ),
-    min::DISP_END };
-
-static min::packed_vec<::block_struct>
-    block_stack_type
-        ( "block_stack_type",
-	  ::block_stack_gen_disp );
+#ifdef OBS
 
 void REC::init_compiler
 	( PAR::parser parser,
@@ -1156,9 +1278,9 @@ void REC::init_compiler
         return;
 
     ::primary_pass = PRIM::init_primary ( parser );
-    reckon::symbol_table =
+    REC::symbol_table =
         ::primary_pass->primary_table;
-    ::modifying_ops = ::primary_pass->modifying_ops;
+    REC::modifying_ops = ::primary_pass->modifying_ops;
 
     min::locatable_var<PRIM::var> var;
     ::pushi ( mex::FALSE, PAR::top_level_position,
@@ -1192,25 +1314,22 @@ void REC::init_compiler
           min::new_stub_gen ( mexcom::output_module ) );
     ::push_var ( var );
 
-    ::block_stack = ::block_stack_type.new_stub ( 64 );
-    ::block  = { min::MISSING(), 0, 0,
-                 min::MISSING_POSITION, 0 };
-    ::block_name = ::block.name;
-
     min::locatable_gen length_name
         ( min::new_str_gen ( "length" ) );
 
     PRIM::push_builtin_func
-        ( length_name, reckon::symbol_table,
+        ( length_name, REC::symbol_table,
 	  mex::VSIZE );
 
     min::locatable_gen copy_name
         ( min::new_str_gen ( "copy" ) );
 
     PRIM::push_builtin_func
-        ( copy_name, reckon::symbol_table,
+        ( copy_name, REC::symbol_table,
 	  mex::COPY );
 }
+
+#endif // OBS
 
 
 // Compile Statement
@@ -1420,7 +1539,7 @@ bool REC::compile_statement ( min::gen statement,
 	if ( min::is_name ( vp[1] ) )
 	{
 	    min::gen op = min::get
-		( ::modifying_ops, vp[1] );
+		( REC::modifying_ops, vp[1] );
 	    if ( op != min::NONE() )
 		return
 		   ::compile_modifying_statement
@@ -1464,7 +1583,7 @@ bool static compile_restricted_statement
 	      ::compile_expression_assignment_statement
 	          ( vp, true );
 	min::gen op =
-	    min::get ( ::modifying_ops, vp[1] );
+	    min::get ( REC::modifying_ops, vp[1] );
 	if ( op != min::NONE() )
 	    return
 	       ::compile_modifying_statement
@@ -1764,9 +1883,8 @@ bool static compile_modifying_statement
     {
 	var_name = ::full_var_name ( var );
 	++ mexstack::stack_length;
-	mexstack::push_push_instr
-	    ( ::star, var_name, var->location,
-	      var->position );
+	::push_push_instr
+	    ( var, var->label, var->position );
     }
     else // if data->nlabels > 0
     {
@@ -2156,9 +2274,7 @@ bool static compile_set_data
     {
 	pp.end = (& ppv[i-1])->end;
 	data->base = mexstack::stack_length ++;
-        mexstack::push_push_instr
-	    ( var->label, var->label, var->location,
-	      pp );
+        ::push_push_instr ( var, var->label, pp );
     }
     bool OK = true;
     min::gen from = var->label;
@@ -2224,7 +2340,7 @@ bool static compile_symbols_statement
 	    << min::place_indent ( 0 );
 
     for ( TAB::root symbol =
-	      TAB::top ( reckon::symbol_table );
+	      TAB::top ( REC::symbol_table );
           symbol != min::NULL_STUB;
 	  symbol = TAB::previous ( symbol ) )
     {
@@ -2289,7 +2405,7 @@ bool static compile_block
     {
         min::gen trace_buf[nnext+1];
 	trace_buf[0] = ::loop;
-	TAB::root r = TAB::top ( reckon::symbol_table );
+	TAB::root r = TAB::top ( REC::symbol_table );
 	for ( min::uns32 i = nnext; 0 < i; -- i )
 	{
 	    vars[i-1] = (PRIM::var) r;
@@ -2616,9 +2732,8 @@ bool static compile_block_assignment_statement
 		continue;
 
 	    ++ mexstack::stack_length;
-	    mexstack::push_push_instr
-		( var->label, var->label,
-		  var->location, var->position );
+	    ::push_push_instr
+		( var, var->label, var->position );
 	    var->location =
 	        mexstack::stack_length - 1;
 	    var->flags |= PRIM::WRITABLE_VAR;
@@ -2638,7 +2753,7 @@ bool static compile_block_assignment_statement
     OK = ::compile_block
         ( block, label, nnext, iterations );
 
-    TAB::root r = TAB::top ( reckon::symbol_table );
+    TAB::root r = TAB::top ( REC::symbol_table );
     for ( min::uns32 i = 0; i < number_of_vars; ++ i )
     {
         PRIM::var var = (PRIM::var) r;
@@ -2950,7 +3065,7 @@ bool static compile_function_statement
 	OK = false;
     }
 
-    TAB::push ( reckon::symbol_table,
+    TAB::push ( REC::symbol_table,
                 (TAB::root) func );
 
     min::gen labbuf [ func->args->length + 1 ];
@@ -2982,7 +3097,8 @@ bool static compile_function_statement
 	      mexstack::depth[level],
 	      0,
 	      mexstack::stack_length ++,
-	      min::MISSING() );
+	      min::new_stub_gen
+		  ( mexcom:: output_module ) );
 	::push_var ( var );
     }
 
@@ -3108,7 +3224,7 @@ RETRY:
 	    ( vp, i, ppv, ::parser, PAR::ALL_SELECTORS,
 	      key_prefix, root, quoted_i,
 	      argument_vector,
-	      reckon::symbol_table ) )
+	      REC::symbol_table ) )
     {
         PRIM::var var = (PRIM::var) root;
 	if ( var != min::NULL_STUB )
@@ -3142,9 +3258,8 @@ RETRY:
 	    if ( argument_vector->length == 0 )
 	    {
 		++ mexstack::stack_length;
-		mexstack::push_push_instr
-		    ( name, var->label, var->location,
-		      ppv->position );
+		::push_push_instr
+		    ( var, name, ppv->position );
 	    }
 	    else
 	    {
@@ -3162,9 +3277,8 @@ RETRY:
 		    pp.end = (& ppv[offset-1])->end;
 		    location =
 		        mexstack::stack_length ++;
-		    mexstack::push_push_instr
-			( var->label, var->label,
-			  var->location, pp );
+		    ::push_push_instr
+			( var, var->label, pp );
 		}
 
 	        bool OK = true;

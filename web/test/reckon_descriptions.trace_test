@@ -1,6 +1,3 @@
-* {0:0,1,1} PUSHI: *FALSE* <= *FALSE*
-* {0:1,2,2} PUSHI: *TRUE* <= *TRUE*
-* {0:2,3,3} PUSHI: *NONE* <= *NONE*
 // Reckon Language Descriptions Test Data
 //
 // File:        reckon_descriptions.rec
@@ -16,62 +13,62 @@
 a person:
     name = `Jill'
     weight = 114
-* {15:3,4,4} COPYI: * <= {person: weight = 114, name = `Jill'}
+* {15:0,1,1} COPYI: * <= {person: weight = 114, name = `Jill'}
 
 X = a person:
     name = `Jack'
     weight = 148
-* {19:4,5,5} COPYI: * <= {person: weight = 148, name = `Jack'}
+* {19:1,2,2} COPYI: * <= {person: weight = 148, name = `Jack'}
 
 X
-* {21:5,6,6} PUSHS: * <= X = {person: weight = 148, name = `Jack'}
+* {21:2,3,3} PUSHS: * <= X = {person: weight = 148, name = `Jack'}
 
 Y = a marriage:
     husband = [X]
-* {24:6,7,7} COPYI: * <= {marriage}
-* {24:7,8,8} PUSHS: * <= X = {person: weight = 148, name = `Jack'}
-* {24:8,7,9} SETI: *["husband"] <= * =
+* {24:3,4,4} COPYI: * <= {marriage}
+* {24:4,5,5} PUSHS: * <= X = {person: weight = 148, name = `Jack'}
+* {24:5,4,6} SETI: *["husband"] <= * =
              {person: weight = 148, name = `Jack'}
 
 a person:
     name = `Joe'
     weight = [100 * 2 + 75]
-* {28:9,8,10} COPYI: * <= {person: name = `Joe'}
-* {28:10,9,11} PUSHI: * <= 100
-* {28:11,10,12} PUSHI: * <= 2
-* {28:12,9,13} MUL: * = 200 <= 100 * 2
-* {28:13,10,14} PUSHI: * <= 75
-* {28:14,9,15} ADD: * = 275 <= 200 + 75
-* {27:15,8,16} SETI: *["weight"] <= * = 275
+* {28:6,5,7} COPYI: * <= {person: name = `Joe'}
+* {28:7,6,8} PUSHI: * <= 100
+* {28:8,7,9} PUSHI: * <= 2
+* {28:9,6,10} MUL: * = 200 <= 100 * 2
+* {28:10,7,11} PUSHI: * <= 75
+* {28:11,6,12} ADD: * = 275 <= 200 + 75
+* {27:12,5,13} SETI: *["weight"] <= * = 275
 
 Z = `John Doe'
-* {30:16,9,17} PUSHI: Z <= `John Doe'
+* {30:13,6,14} PUSHI: Z <= `John Doe'
 S = `Hello [ Z ]'
-* {31:17,10,18} COPYI: * <= `Hello'
-* {31:18,11,19} PUSHS: * <= Z = `John Doe'
-* {31:19,10,20} VPUSH: PUSHED * <= * = `John Doe'
+* {31:14,7,15} COPYI: * <= `Hello'
+* {31:15,8,16} PUSHS: * <= Z = `John Doe'
+* {31:16,7,17} VPUSH: PUSHED * <= * = `John Doe'
 T = `Hello `[Z]'.'
-* {32:20,11,21} COPYI: * <= `Hello'
-* {32:21,12,22} COPYI: * <= `'
-* {32:22,13,23} PUSHS: * <= Z = `John Doe'
-* {32:23,12,24} VPUSH: PUSHED * <= * = `John Doe'
-* {32:24,11,25} VPUSH: PUSHED * <= * = `John Doe'
+* {32:17,8,18} COPYI: * <= `Hello'
+* {32:18,9,19} COPYI: * <= `'
+* {32:19,10,20} PUSHS: * <= Z = `John Doe'
+* {32:20,9,21} VPUSH: PUSHED * <= * = `John Doe'
+* {32:21,8,22} VPUSH: PUSHED * <= * = `John Doe'
 `[Z]'
-* {33:25,12,26} COPYI: * <= `'
-* {33:26,13,27} PUSHS: * <= Z = `John Doe'
-* {33:27,12,28} VPUSH: PUSHED * <= * = `John Doe'
+* {33:22,9,23} COPYI: * <= `'
+* {33:23,10,24} PUSHS: * <= Z = `John Doe'
+* {33:24,9,25} VPUSH: PUSHED * <= * = `John Doe'
 
 Q ={s: first = `[Z[0]]', last = `[Z[1]]'| Hello [Z]|}
-* {35:28,13,29} COPYI: * <= {s|Hello|s}
-* {35:29,14,30} PUSHS: * <= Z = `John Doe'
-* {35:30,13,31} VPUSH: PUSHED * <= * = `John Doe'
-* {35:31,14,32} COPYI: * <= `'
-* {35:32,15,33} PUSHI: * <= 0
-* {35:33,15,34} GET: * <= Z[0] = "John"
-* {35:34,14,35} VPUSH: PUSHED * <= * = "John"
-* {35:35,13,36} SETI: *["first"] <= * = `John'
-* {35:36,14,37} COPYI: * <= `'
-* {35:37,15,38} PUSHI: * <= 1
-* {35:38,15,39} GET: * <= Z[1] = "Doe"
-* {35:39,14,40} VPUSH: PUSHED * <= * = "Doe"
-* {35:40,13,41} SETI: *["last"] <= * = `Doe'
+* {35:25,10,26} COPYI: * <= {s|Hello|s}
+* {35:26,11,27} PUSHS: * <= Z = `John Doe'
+* {35:27,10,28} VPUSH: PUSHED * <= * = `John Doe'
+* {35:28,11,29} COPYI: * <= `'
+* {35:29,12,30} PUSHI: * <= 0
+* {35:30,12,31} GET: * <= Z[0] = "John"
+* {35:31,11,32} VPUSH: PUSHED * <= * = "John"
+* {35:32,10,33} SETI: *["first"] <= * = `John'
+* {35:33,11,34} COPYI: * <= `'
+* {35:34,12,35} PUSHI: * <= 1
+* {35:35,12,36} GET: * <= Z[1] = "Doe"
+* {35:36,11,37} VPUSH: PUSHED * <= * = "Doe"
+* {35:37,10,38} SETI: *["last"] <= * = `Doe'
