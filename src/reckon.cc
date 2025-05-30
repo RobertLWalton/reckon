@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 30 04:00:14 AM EDT 2025
+// Date:	Fri May 30 08:23:43 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -348,11 +348,10 @@ int main ( int argc, const char * argv[] )
 	    +
 	    PAR::TRACE_SUBEXPRESSION_LINES;
 
-	if ( output_parse )
-	    PAR::default_parser->trace_flags |=
-		PAR::TRACE_PARSER_OUTPUT
-		+
-		PAR::TRACE_SUBEXPRESSION_ELEMENTS;
+	PAR::default_parser->trace_flags |=
+	    PAR::TRACE_PARSER_OUTPUT
+	    +
+	    PAR::TRACE_SUBEXPRESSION_ELEMENTS;
 
 	int trace_index;
 	min::locatable_gen bracketed_subexpressions_name
@@ -394,16 +393,23 @@ int main ( int argc, const char * argv[] )
     }
     else
     {
+        min::locatable_var<PAR::output> output;
+	PAR::init ( output, ::remove_tokens, NULL );
+	PAR::output_ref ( PAR::default_parser ) =
+	    output;
+    }
+
+    if ( compile || run )
+    {
 	min::locatable_var<mex::module> m;
 	bool OK = true;
-	if ( compile || run )
-	{
-	    m = REC::load_builtins
-	            ( PAR::default_parser );
-	    if ( m == min::NULL_STUB ) OK = false;
-	}
-	if ( OK && run )
-	    OK = REC::execute ( m );
+
+	m = REC::load_builtins
+		( PAR::default_parser );
+	if ( m == min::NULL_STUB ) OK = false;
+
+	if ( OK && run ) OK = REC::execute ( m );
+
 	if ( ! OK )
 	{
 	    PAR::default_parser->printer
@@ -413,51 +419,56 @@ int main ( int argc, const char * argv[] )
 		   " BUILTINS" << min::eol;
 	    exit ( 1 );
 	}
-
-        min::locatable_var<PAR::output> output;
-	PAR::init ( output, ::remove_tokens, NULL );
-	PAR::output_ref ( PAR::default_parser ) =
-	    output;
-
     }
 
-    if ( i == argc )
+    while ( i < argc )
+    {
+	min::locatable_var<mex::module> m;
+	bool OK = true;
+
+	m = REC::load_file
+		( PAR::default_parser, argv[i] );
+	if ( m == min::NULL_STUB ) OK = false;
+
+	if ( OK && run ) OK = REC::execute ( m );
+
+	if ( ! OK )
+	{
+	    PAR::default_parser->printer
+	        << min::bol
+		<< "TERMINATING PROGRAM DUE TO ERRORS/"
+		   "WARNINGS WHILE COMPILING OR LOADING"
+		   " " << argv[i] << min::eol;
+	    exit ( 1 );
+	}
+	++ i;
+    }
+
+    PAR::init_input_stream
+	( PAR::default_parser, std::cin,
+	  min::marked_line_format );
+    mexcom::input_file =
+	PAR::default_parser->input_file;
+
+    if ( compile || run )
     {
 	mexstack::print_switch =
 	    ( compile ? mexstack::PRINT_WITH_SOURCE
 		      : mexstack::NO_PRINT );
-
-	PAR::init_input_stream
-	    ( PAR::default_parser, std::cin,
-	      min::marked_line_format );
-	mexcom::input_file =
-	    PAR::default_parser->input_file;
-
 	mexcom::output_module =
 	    (mex::module_ins)
 	    mex::create_module
-	        ( PAR::default_parser->input_file );
-	if ( compile || run )
-	{
-	    REC::init_compiler ( PAR::default_parser );
-	    if ( trace )
-		REC::process->trace_flags = 0xFFFFFFFF;
-	    mex::init_process ( mexcom::output_module,
-				REC::process );
-	}
+		( PAR::default_parser->input_file );
 
-	REC::loading = false;
-	PAR::parse();
+	REC::init_compiler ( PAR::default_parser );
+	if ( trace )
+	    REC::process->trace_flags = 0xFFFFFFFF;
+	mex::init_process ( mexcom::output_module,
+			    REC::process );
     }
-    else
-    {
-        // TBD: Loop to load files goes here.
-	//
-	std::cerr
-	    << "ERROR: unrecognized argument "
-	    << argv[i] << std::endl;
-	found_error = true;
-    }
+
+    REC::loading = false;
+    PAR::parse();
 
     if ( output_html )
     {
