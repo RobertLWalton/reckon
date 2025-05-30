@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 29 02:56:22 AM EDT 2025
+// Date:	Fri May 30 03:26:52 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,8 @@
 min::locatable_var<TAB::key_table>
     REC::symbol_table;
 min::locatable_gen REC::modifying_ops;
+min::locatable_var<mex::process>
+    REC::process;
 
 static min::locatable_gen opening_quote;
 static min::locatable_gen equal_sign;
@@ -1083,16 +1085,17 @@ mex::module REC::load_file ( PAR::parser parser,
 
     mexcom::error_count = 0;
     mexcom::warning_count = 0;
+    parser->error_count = 0;
+    parser->warning_count = 0;
     mexstack::init();
     mexstack::print_switch = mexstack::NO_PRINT;
 
-    parser->error_count = 0;
-    parser->warning_count = 0;
-    mexcom::error_count = 0;
-    mexcom::warning_count = 0;
     REC::loading = true;
 
     PAR::parse ( parser );
+
+    ::end_if_sequence();
+    mexstack::jmp_clear();
 
     if ( parser->error_count != 0
          ||
@@ -1108,16 +1111,15 @@ mex::module REC::load_file ( PAR::parser parser,
 
 bool REC::execute ( mex::module m )
 {
-    mex::process process = mex::create_process
-        ( mexcom::printer );
-    mex::init_process ( m, process );
-    bool OK = mex::run_process ( process );
+    mex::init_process ( m, REC::process );
+    bool OK = mex::run_process ( REC::process );
     const char * what = NULL;
-    if ( process->state ==  mex::COUNTER_LIMIT_STOP )
+    if (    REC::process->state
+         == mex::COUNTER_LIMIT_STOP )
         what = "counter limit";
-    if ( process->state ==  mex::STACK_LIMIT_STOP )
+    if ( REC::process->state == mex::STACK_LIMIT_STOP )
         what = "stack limit";
-    if (     process->state
+    if (     REC::process->state
          ==  mex::RETURN_STACK_LIMIT_STOP )
         what = "return stack limit";
     if ( what != NULL )
@@ -1129,7 +1131,7 @@ bool REC::execute ( mex::module m )
 	OK = false;
     }
 
-    OK = OK && mex::excepts_check ( process );
+    OK = OK && mex::excepts_check ( REC::process );
 
     if ( OK )
     {
@@ -1137,10 +1139,10 @@ bool REC::execute ( mex::module m )
 		<min::packed_vec_insptr<min::gen> >
 	    globals
 		( min::gen_packed_vec_type.new_stub
-		    ( process->length ) );
-	for ( min::uns32 i = 0; i < process->length;
-	                        ++ i )
-	    min::push(globals) = process[i];
+		    ( REC::process->length ) );
+	for ( min::uns32 i = 0;
+	      i < REC::process->length; ++ i )
+	    min::push(globals) = REC::process[i];
 	mex::globals_ref((mex::module_ins) m) = globals;
     }
 
@@ -1166,6 +1168,8 @@ void REC::init_compiler ( PAR::parser parser )
 	    primary_pass->modifying_ops;
 	::block_stack =
 	    ::block_stack_type.new_stub ( 64 );
+	REC::process =
+	    mex::create_process ( mexcom::printer );
     }
     else
         min::pop ( ::block_stack,
@@ -1185,7 +1189,8 @@ mex::module REC::load_builtins ( PAR::parser parser )
     mexcom::output_module = m;
 
     min::locatable_var<PRIM::var> var;
-    mex::instr pushi_instr = { mex::PUSHI, mex::T_PUSH };
+    mex::instr pushi_instr =
+        { mex::PUSHI, mex::T_PUSH };
 
     pushi_instr.immedD = min::FALSE();
     mex::push_instr ( m, pushi_instr );

@@ -2,7 +2,7 @@
 //
 // File:	reckon.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 29 02:47:57 AM EDT 2025
+// Date:	Fri May 30 04:00:14 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,8 +63,6 @@ bool output_parse = false;
 bool subexpression_parse = false;
 bool detail_parse = false;
 bool warn = false;
-
-static min::locatable_var<mex::process> process;
 
 static min::printer computed_pgen
     ( min::printer printer,
@@ -179,14 +177,14 @@ static void remove_tokens
     }
     else if ( run )
     {
-	min::uns32 length = ::process->length;
-	mex::run_process ( ::process );
-        if ( ::process->state != mex::MODULE_END )
+	min::uns32 length = REC::process->length;
+	mex::run_process ( REC::process );
+        if ( REC::process->state != mex::MODULE_END )
 	{
 	    // Restore compiler and process state.
 	    //
-	    min::pop ( ::process,
-	               ::process->length - length );
+	    min::pop ( REC::process,
+	               REC::process->length - length );
 	    mexstack::restore ( area, true );
 	    while (    TAB::top ( reckon::symbol_table )
 	            != top )
@@ -194,17 +192,17 @@ static void remove_tokens
 
 	    // Set pc to module end.
 	    //
-	    mex::pc pc = ::process->pc;
+	    mex::pc pc = REC::process->pc;
 	    pc.index = mexcom::output_module->length;
-	    mex::set_pc ( ::process, pc );
+	    mex::set_pc ( REC::process, pc );
 	    parser->printer
 		<< "[no output due to run-time error]"
 		<< min::eol;
 	}
 	if ( ! trace )
-	    while ( length < ::process->length )
+	    while ( length < REC::process->length )
 	    {
-	        min::gen v = ::process[length++];
+	        min::gen v = REC::process[length++];
 		    // Discard min::ref.
 	        min::print_gen
 		    ( parser->printer, v,
@@ -439,12 +437,14 @@ int main ( int argc, const char * argv[] )
 	    (mex::module_ins)
 	    mex::create_module
 	        ( PAR::default_parser->input_file );
-	if ( trace )
-	    mex::run_trace_flags = 0xFFFFFFFF;
-	::process = mex::create_process
-	    ( mexcom::printer );
-	mex::init_process ( mexcom::output_module,
-	                    ::process );
+	if ( compile || run )
+	{
+	    REC::init_compiler ( PAR::default_parser );
+	    if ( trace )
+		REC::process->trace_flags = 0xFFFFFFFF;
+	    mex::init_process ( mexcom::output_module,
+				REC::process );
+	}
 
 	REC::loading = false;
 	PAR::parse();

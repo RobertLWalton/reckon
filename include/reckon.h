@@ -2,7 +2,7 @@
 //
 // File:	reckon.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 29 02:29:34 AM EDT 2025
+// Date:	Fri May 30 03:38:17 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,13 +28,19 @@ namespace reckon {
     extern bool warn_next_variable_promotion;
 
     // Compiler symbol table and modifying_ops table
-    // taken from parser primary pass.
+    // taken from parser primary pass.  Initialized
+    // by first call to init_compiler.
     //
     extern min::locatable_var
            <ll::parser::table::key_table>
 	   symbol_table;
     extern min::locatable_gen
            modifying_ops;
+
+    // Process used to run modules.  Initialized by
+    // first call to init_compiler.
+    //
+    extern min::locatable_var<mex::process> process;
 
     // Initialize parser by adding RECKON special parser
     // table entries.  Call after ll::parser::init is
