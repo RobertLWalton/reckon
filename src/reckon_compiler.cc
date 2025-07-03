@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 30 03:26:52 AM EDT 2025
+// Date:	Wed Jul  2 09:16:35 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3220,22 +3220,17 @@ min::uns32 static compile_expression
     TAB::key_prefix key_prefix = min::NULL_STUB;
 
     min::uns32 i = 0;
-    min::uns32 quoted_i;
     TAB::root root;
-
-RETRY:
 
     if ( PRIM::scan_primary
 	    ( vp, i, ppv, ::parser, PAR::ALL_SELECTORS,
-	      key_prefix, root, quoted_i,
+	      key_prefix, root,
 	      argument_vector,
 	      REC::symbol_table ) )
     {
         PRIM::var var = (PRIM::var) root;
 	if ( var != min::NULL_STUB )
 	{
-	    if ( quoted_i < i ) goto RETRY;
-
 	    if ( var->flags & PRIM::WRITABLE_VAR )
 	    {
 		if ( var->flags & PRIM::NEXT_VAR )
