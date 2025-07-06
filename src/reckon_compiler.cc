@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 09:16:35 PM EDT 2025
+// Date:	Sun Jul  6 06:11:09 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3217,6 +3217,8 @@ min::uns32 static compile_expression
     }
     min::locatable_var<PRIM::argument_vector>
         argument_vector ( min::NULL_STUB );
+    min::locatable_var<PRIM::argument_list_vector>
+        argument_list_vector ( min::NULL_STUB );
     TAB::key_prefix key_prefix = min::NULL_STUB;
 
     min::uns32 i = 0;
@@ -3226,6 +3228,7 @@ min::uns32 static compile_expression
 	    ( vp, i, ppv, ::parser, PAR::ALL_SELECTORS,
 	      key_prefix, root,
 	      argument_vector,
+	      argument_list_vector,
 	      REC::symbol_table ) )
     {
         PRIM::var var = (PRIM::var) root;
