@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 06:11:09 AM EDT 2025
+// Date:	Sun Jul  6 05:29:22 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -958,6 +958,10 @@ bool static compile_function_statement
 // expression that is the entirity of a statement it is
 // 0 or mex::ALL_RESULTS.
 //
+// Only expressions that are objects with a .position
+// attribute are accepted.  For other expressions, see
+// below.
+//
 min::uns32 static compile_expression
 	( min::gen expression,
 	  min::uns32 true_jmp = 0,
@@ -966,6 +970,19 @@ min::uns32 static compile_expression
 	  min::gen initiator_to_be_ignored =
 	      min::MISSING(),
 	  min::uns32 nresults = 1 );
+
+// Same as above but allows expressions that are not
+// objects or strings and quoted strings that are
+// objects without a .position attribute.
+// Uses the pos argument for position.  If expression
+// is an object with .position, calls above with
+// defaults for aguments not given here.  In this
+// case .position overrides the pos argument.
+//
+min::uns32 static compile_expression
+	( min::gen expression,
+	  const min::phrase_position & pos,
+	  min::gen name = ::star );
 
 inline min::uns32 static compile_label
 	( min::gen expression )
@@ -3531,38 +3548,12 @@ min::uns32 static compile_expression
 
     if ( s == 1 )
     {
-	min::obj_vec_ptr vp0 = vp[0];
-	if ( vp0 == min::NULL_STUB )
-	{
-	    if ( min::is_num ( vp[0] ) )
-		::pushi ( vp[0], ppv[0], name );
-	    else goto CANNOT_UNDERSTAND;
-	}
-	else
-	{
-	    min::attr_ptr ap0 = vp0;
-	    min::locate ( ap0, min::dot_type );
-	    if ( min::get ( ap0 ) == min::doublequote )
-		::pushi ( vp0[0], ppv[0], name );
-	    else
-	    {
-	        vp0 = min::NULL_STUB;
-		if ( ! ::compile_expression
-		           ( vp[0], true_jmp, false_jmp,
-			            name ) )
-		    goto CANNOT_UNDERSTAND;
-	    }
-	}
+        if ( ! ::compile_expression
+	           ( vp[0], ppv[0], name ) )
+	    return 0;
 
 	return ::return_value
 	    ( ppv->position, true_jmp, false_jmp );
-
-CANNOT_UNDERSTAND:
-
-	mexcom::compile_error
-	    ( ppv[0],
-	      "cannot understand expression" );
-	return 0;
     }
 
     mexcom::compile_error
@@ -3571,6 +3562,42 @@ CANNOT_UNDERSTAND:
     return 0;
 }
 
+min::uns32 static compile_expression
+	( min::gen expression,
+	  const min::phrase_position & pos,
+	  min::gen name )
+{
+    min::obj_vec_ptr vp = expression;
+    if ( vp == min::NULL_STUB )
+    {
+	if ( min::is_str ( expression ) )
+	{
+	    // Naked variable name not allowed (must
+	    // be quoted or bracketed to be allowed).
+	    //
+	    mexcom::compile_error
+		( pos,
+		  "cannot understand expression" );
+	    return 0;
+	}
+	::pushi ( expression, pos, name );
+    }
+    else
+    {
+	min::attr_ptr ap = vp;
+	min::locate ( ap, min::dot_type );
+	if ( min::get ( ap ) == min::doublequote )
+	    ::pushi ( vp[0], pos, name );
+	else
+	{
+	    vp = min::NULL_STUB;
+	    return ::compile_expression
+	        ( expression, 0, 0, name );
+	}
+    }
+
+    return 1;
+}
 
 min::gen static publish_object
 	( min::obj_vec_ptr vp, min::uns32 max_attrs )
