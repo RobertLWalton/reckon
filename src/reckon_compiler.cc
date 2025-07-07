@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 05:29:22 PM EDT 2025
+// Date:	Mon Jul  7 03:01:15 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3415,8 +3415,12 @@ min::uns32 static compile_expression
 		bool OK = true;
 		for ( min::uns32 j = 0; j < jend; ++ j )
 		{
+		    min::uns32 k = ( func->args + j )
+		        ->arg_list_index;
+		    k = argument_list_vector[k];
 		    if ( ! ::compile_expression
-		    		( argument_vector[j] ) )
+		    		( argument_vector[j],
+			          ppv[k] ) )
 		        OK = false;
 		}
 		if ( ! OK ) return 0;
@@ -3507,8 +3511,12 @@ min::uns32 static compile_expression
 		bool OK = true;
 		for ( min::uns32 j = 0; j < jend; ++ j )
 		{
+		    min::uns32 k = ( func->args + j )
+		        ->arg_list_index;
+		    k = argument_list_vector[k];
 		    if ( ! ::compile_expression
-		    		( argument_vector[j] ) )
+		    		( argument_vector[j],
+			          ppv[k] ) )
 		        OK = false;
 		}
 		if ( ! OK ) return 0;
