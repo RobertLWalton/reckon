@@ -2,7 +2,7 @@
 //
 // File:        reckon_overview_test.in
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Mon May  5 02:10:37 AM EDT 2025
+// Date:        Mon Jul  7 05:40:57 PM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -116,25 +116,27 @@ h = {{- 0.96 + 0.67 * x}}
 {{f + h}}
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
      {{{|f|} + {|h|}}}|}
-solve {{f + h = 0}} for x
+solve {{f + h = 0}} for {{x}}
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|solve
-     {{{|{|f|} + {|h|}|} = {|0|}}} for x|}
-[{{f + h}} for x = [3, 4, 5]]
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
-     [{{{|f|} + {|h|}}} for x = [{|3|}, {|4|}, {|5|}]]|}
+     {{{|{|f|} + {|h|}|} = {|0|}}} for {{x}}|}
+value {{f + h}} for {{x = [3, 4, 5]}}
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|value
+     {{{|f|} + {|h|}}} for {{{|x|} = [{|3|}, {|4|}, {|5|}]}}|}
 g = {{ integral (x ^ 2, dx) }}
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|g|} =
      {{integral ({|{|x|} ^ {|2|}|}, {|dx|})}}|}
-simplify g
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|simplify g|}
-g from 1 to 5
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|g from 1 to 5|}
-v = simplify ( g from 1 to 5 )
+simplify (g)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|simplify (g)|}
+integral (g) from 1 to 5
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|integral (g) from
+     1 to 5|}
+v = simplify ( integral (g) from 1 to 5 )
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|v|} =
-     {|simplify (g from 1 to 5)|}|}
-out = ``The value of [g from 1 to 5] is [v].''
+     {|simplify (integral (g) from 1 to 5)|}|}
+out = ``The value of [integral (g) from 1 to 5]
+        is [v].''
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|out|} =
-     ``The value of [g from 1 to 5] is [v] "."''|}
+     ``The value of [integral (g) from 1 to 5] is [v] "."''|}
 
 V =# | 1 2 3 |
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|V|} =#
@@ -224,15 +226,9 @@ function sum from (X) through (Y) <-- X is integer,
 sum from 5 through 10
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum from 5
      through 10|}
-every (sum from X through Y)
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|every
-     (sum from X through Y)|}
-sum from 1 through 2
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum from 1
-     through 2|}
-every (sum from X through Y)
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|every
-     (sum from X through Y)|}
+trace (sum from 5 through 10)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|trace
+     (sum from 5 through 10)|}
 
 function sum from (X) through (Y) <-- X is integer,
                                       Y is integer:
@@ -264,9 +260,9 @@ function sum from (X) through (Y) <-- X is integer,
 sum from 5 through 10
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum from 5
      through 10|}
-every (sum from X through Y)
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|every
-     (sum from X through Y)|}
+trace (sum from 5 through 10)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|trace
+     (sum from 5 through 10)|}
 
 function average weight of (X) <--
             X is list, every Y in X is a person:
@@ -317,10 +313,10 @@ average weight of (every person)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|average weight of
      (every {|person|})|}
 z = 10 + average weight of
-         (every person with name `Bill')
+         (the person with name `Bill')
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|z|} =
      {|{|10|} +
-       {|average weight of (every {|person|} with {|name `Bill'|})|}|}|}
+       {|average weight of (the {|person|} with {|name `Bill'|})|}|}|}
 
 raw (every person)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|raw
@@ -332,15 +328,15 @@ really raw (every person)
 x = [1, [2, 3], 4]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|x|} =
      [{|1|}, [{|2|}, {|3|}], {|4|}]|}
-first x
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|first x|}
-rest x
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|rest x|}
-rest (rest x)
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|rest (rest x)|}
-rest (rest (rest x))
+first (x)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|first (x)|}
+rest (x)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|rest (x)|}
+rest (rest (x))
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|rest (rest (x))|}
+rest (rest (rest (x)))
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|rest
-     (rest (rest x))|}
+     (rest (rest (x)))|}
 rest 4
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|rest 4|}
 

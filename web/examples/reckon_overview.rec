@@ -2,7 +2,7 @@
 //
 // File:	reckon_overview_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  5 02:10:37 AM EDT 2025
+// Date:	Mon Jul  7 05:40:57 PM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -70,13 +70,14 @@ notice = ***:
 f = {{ 10 * x ^ 2 - 3.67 * x - 0.04 }}
 h = {{- 0.96 + 0.67 * x}}
 {{f + h}}
-solve {{f + h = 0}} for x
-[{{f + h}} for x = [3, 4, 5]]
+solve {{f + h = 0}} for {{x}}
+value {{f + h}} for {{x = [3, 4, 5]}}
 g = {{ integral (x ^ 2, dx) }}
-simplify g
-g from 1 to 5
-v = simplify ( g from 1 to 5 )
-out = ``The value of [g from 1 to 5] is [v].''
+simplify (g)
+integral (g) from 1 to 5
+v = simplify ( integral (g) from 1 to 5 )
+out = ``The value of [integral (g) from 1 to 5]
+        is [v].''
 
 V =# | 1 2 3 |
 M =#:
@@ -109,9 +110,7 @@ function sum from (X) through (Y) <-- X is integer,
     if X > Y:	  return 0
     else:	  return X + sum (X + 1) through Y
 sum from 5 through 10
-every (sum from X through Y)
-sum from 1 through 2
-every (sum from X through Y)
+trace (sum from 5 through 10)
 
 function sum from (X) through (Y) <-- X is integer,
                                       Y is integer:
@@ -122,7 +121,7 @@ function sum from (X) through (Y) <-- X is integer,
 	next X = X + 1
     return value
 sum from 5 through 10
-every (sum from X through Y)
+trace (sum from 5 through 10)
 
 function average weight of (X) <--
             X is list, every Y in X is a person:
@@ -138,16 +137,16 @@ function average weight of (X) <--
         return sum / count
 average weight of (every person)
 z = 10 + average weight of
-	 (every person with name `Bill')
+	 (the person with name `Bill')
 
 raw (every person)
 really raw (every person)
 
 x = [1, [2, 3], 4]
-first x
-rest x
-rest (rest x)
-rest (rest (rest x))
+first (x)
+rest (x)
+rest (rest (x))
+rest (rest (rest (x)))
 rest 4
 
 Y is wife of X <-- the wife of X == Y
