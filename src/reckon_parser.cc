@@ -2,7 +2,7 @@
 //
 // File:	reckon_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  6 07:10:03 AM EDT 2025
+// Date:	Fri Jul 25 05:22:07 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -176,8 +176,6 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "and" ) );
     min::locatable_gen with_name
         ( min::new_str_gen ( "with" ) );
-    min::locatable_gen arrow
-        ( min::new_str_gen ( "<--" ) );
 
     min::locatable_gen exit_name
         ( min::new_str_gen ( "exit" ) );
@@ -190,6 +188,13 @@ void REC::init_parser ( PAR::parser parser )
         ( min::new_str_gen ( "function" ) );
     min::locatable_gen return_name
         ( min::new_str_gen ( "return" ) );
+
+    min::locatable_gen arrow
+        ( min::new_str_gen ( "<--" ) );
+    min::locatable_gen exclamation
+        ( min::new_str_gen ( "!" ) );
+    min::locatable_gen question
+        ( min::new_str_gen ( "?" ) );
 
     min::locatable_gen assignment
         ( min::new_str_gen ( "assignment" ) );
@@ -305,22 +310,42 @@ void REC::init_parser ( PAR::parser parser )
 	  oper_pass->oper_table );
 
     OP::push_oper
-        ( arrow,
-	  min::MISSING(),
-	  code,
-	  block_level, PAR::top_level_position,
-	  OP::AFIX + OP::LINE,
-	  0000, min::NULL_STUB,
-	  min::MISSING(),
-	  oper_pass->oper_table );
-
-    OP::push_oper
         ( return_name,
 	  min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
 	  OP::PREFIX + OP::LINE,
 	  1000, exit_reformatter,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( arrow,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::INFIX + OP::LINE,
+	  0000, min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( exclamation,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX + OP::LINE,
+	  0000, min::NULL_STUB,
+	  min::MISSING(),
+	  oper_pass->oper_table );
+
+    OP::push_oper
+        ( question,
+	  min::MISSING(),
+	  code,
+	  block_level, PAR::top_level_position,
+	  OP::POSTFIX + OP::LINE,
+	  0000, min::NULL_STUB,
 	  min::MISSING(),
 	  oper_pass->oper_table );
 }
