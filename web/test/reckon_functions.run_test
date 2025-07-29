@@ -2,29 +2,25 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Mon Jul  7 03:09:58 PM EDT 2025
+// Date:        Tue Jul 29 06:30:10 EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
+// Function Declarations:
+//
 function add (X) (Y):
     Z = X + Y
     return Z
 
 Z = add (5) (7)
 12
-next Z = add 2 3
-5
-next Z = add 2 "HI"
-!!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-*** {12:3,5,23} ADD: Z = nan <= 2 + "HI"
-nan
 
-function (X) sub (Y): return X - Y;
+function (X) add (Y): return X + Y
 
-W = (5) sub (7)
--2
+next Z = (5) add (7)
+12
 
 function sum from (X) to (Y):
     S = 0
@@ -66,3 +62,18 @@ multiplication table
  [7, 14, 21, 28, 35, 42, 49, 56, 63],
  [8, 16, 24, 32, 40, 48, 56, 64, 72],
  [9, 18, 27, 36, 45, 54, 63, 72, 81]]
+
+// Naked Arguments
+//
+X = 10
+10
+add (X) 1      // Instead of `add (X) (1)'
+11
+(X) add 2      // Instead of `(X) add (2)'
+12
+add 2 "HI"     // Instead of `add (2) ("HI")'
+!!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
+*** {14:3,11,2071} ADD: Z = nan <= 2 + "HI"
+nan
+sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
+6

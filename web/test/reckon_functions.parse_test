@@ -2,12 +2,14 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Mon Jul  7 03:09:58 PM EDT 2025
+// Date:        Tue Jul 29 06:30:10 EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
 // for this data.
 
+// Function Declarations:
+//
 function add (X) (Y):
     Z = X + Y
     return Z
@@ -22,20 +24,14 @@ function add (X) (Y):
 Z = add (5) (7)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|Z|} =
      {|add (5) (7)|}|}
-next Z = add 2 3
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
-     {|add 2 3|}|}
-next Z = add 2 "HI"
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
-     {|add 2 "HI"|}|}
 
-function (X) sub (Y): return X - Y;
-{"": .terminator = ";", .initiator = *LOGICAL_LINE*|function
-     {|(X) sub (Y)|} ":" {|return {|{|X|} - {|Y|}|}|}|}
+function (X) add (Y): return X + Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|(X) add (Y)|} ":" {|return {|{|X|} + {|Y|}|}|}|}
 
-W = (5) sub (7)
-{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|W|} =
-     {|(5) sub (7)|}|}
+next Z = (5) add (7)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|next Z|} =
+     {|(5) add (7)|}|}
 
 function sum from (X) to (Y):
     S = 0
@@ -142,3 +138,17 @@ function multiplication table:
 multiplication table
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|multiplication
      table|}
+
+// Naked Arguments
+//
+X = 10
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|X|} = {|10|}|}
+add (X) 1      // Instead of `add (X) (1)'
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|add (X) 1|}
+(X) add 2      // Instead of `(X) add (2)'
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|(X) add 2|}
+add 2 "HI"     // Instead of `add (2) ("HI")'
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|add 2 "HI"|}
+sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum
+     [{|1|}, {|2|}, {|3|}]|}
