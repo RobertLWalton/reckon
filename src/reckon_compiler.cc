@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 03:01:15 PM EDT 2025
+// Date:	Wed Jul 30 05:11:56 EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3092,6 +3092,8 @@ bool static compile_function_statement
 
     min::gen labbuf [ func->args->length + 1 ];
     labbuf[0] = func->first_term_name;
+    if ( labbuf[0] == min::NONE() )
+	labbuf[0] = ::NONE;
     for ( min::uns32 i = 0; i < func->args->length;
                             ++ i )
         labbuf[i+1] = (func->args + i)->name;
@@ -3527,6 +3529,8 @@ min::uns32 static compile_expression
 		      func->location, func->module };
 		min::gen labbuf[2] =
 		    { func->first_term_name, name };
+		if ( labbuf[0] == min::NONE() )
+		    labbuf[0] = ::NONE;
 		min::locatable_gen trace_info
 		    ( min::new_lab_gen ( labbuf, 2 ) );
 		mexstack::stack_length -= jend;

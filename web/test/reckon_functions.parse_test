@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Jul 29 21:02:57 EDT 2025
+// Date:        Wed Jul 30 04:18:39 EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -146,6 +146,90 @@ function multiplication table:
 multiplication table
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|multiplication
      table|}
+
+// Function Terms
+//
+function (X) "**" (Y): return X ^ Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|(X) "**" (Y)|} ":" {|return {|{|X|} ^ {|Y|}|}|}|}
+(2)**(6)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|(2) ** (6)|}
+
+function "AND" (L):
+    i = 0
+    repeat:
+        E = L[i]
+        if E == *NONE*: return *TRUE*
+        else if NOT E: return *FALSE*
+        next i + = 1
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|"AND" (L)|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|i|} =
+               {|0|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               {|repeat|}
+               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
+                    ":"|
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|{|E|} = {|L [i]|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|if {|{|E|} == {|*NONE*|}|} ":"
+                         {|return {|*TRUE*|}|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|[< else if >] {|NOT {|E|}|} ":"
+                         {|return {|*FALSE*|}|}|}
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|{|next i|} [< + = >] {|1|}|}|}|}|}|}
+AND ([*TRUE*, *TRUE*, *TRUE*])
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|AND
+     ([{|*TRUE*|}, {|*TRUE*|}, {|*TRUE*|}])|}
+AND ([*TRUE*, *FALSE*, *TRUE*])
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|AND
+     ([{|*TRUE*|}, {|*FALSE*|}, {|*TRUE*|}])|}
+
+function sum incrementing by (X) from (Y) to (Z):
+    if X > 0 AND Y > Z: return 0
+    else if X < 0 AND Y < Z: return 0
+    else:
+        return Y + sum incrementing by (X)
+                       from ( Y + X ) to (Z)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|sum incrementing by (X) from (Y) to (Z)|}
+     {"": .terminator = *INDENTED_PARAGRAPH*, .initiator = ":"|
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|if
+               {|{|{|X|} > {|0|}|} AND {|{|Y|} > {|Z|}|}|} ":"
+               {|return {|0|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|
+               [< else if >] {|{|{|X|} < {|0|}|} AND {|{|Y|} < {|Z|}|}|}
+               ":" {|return {|0|}|}|}
+          {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|else
+               {"": .terminator = *INDENTED_PARAGRAPH*, .initiator =
+                    ":"|
+                    {"": .terminator = "<LF>", .initiator =
+                         *LOGICAL_LINE*|return
+                         {|{|Y|} +
+                           {|sum incrementing by (X) from
+                             ({|Y|} + {|X|}) to (Z)|}|}|}|}|}|}|}
+sum incrementing by (1) from (1) to (100)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum incrementing
+     by (1) from (1) to (100)|}
+sum incrementing by (1) to (100) from (1)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum incrementing
+     by (1) to (100) from (1)|}
+sum incrementing by (-1) to (1) from (100)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|sum incrementing
+     by (-1) to (1) from (100)|}
+
+function (X) (Y): return X[Y]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|(X) (Y)|} ":" {|return {|X [Y]|}|}|}
+L = [1, 2, 3, 4, 5]
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|L|} =
+     [{|1|}, {|2|}, {|3|}, {|4|}, {|5|}]|}
+(L)(3)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|(L) (3)|}
+
 
 // Naked Arguments
 //

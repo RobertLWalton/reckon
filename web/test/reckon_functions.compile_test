@@ -543,58 +543,480 @@ multiplication table
 ^^^^^^^^^^^^^^^^^^^^
     [57:169;6] CALLG T_CALLG 0 4294967295 103 PACKED_VEC; [< [<
                multiplication table >] * >]
+function (X) "**" (Y): return X ^ Y
+                       ^
+    [61:170;8] BEGF T_BEGF 2 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               ** X Y >]
+function (X) "**" (Y): return X ^ Y
+                              ^
+    [61:171;9] PUSHA T_PUSH 0 1 0; [< X * >]
+function (X) "**" (Y): return X ^ Y
+                                  ^
+    [61:172;10] PUSHA T_PUSH 1 1 0; [< Y * >]
+function (X) "**" (Y): return X ^ Y
+                              ^^^^^
+    [61:173;9] POW T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+function (X) "**" (Y): return X ^ Y
+                       ^^^^^^^^^^^^
+    [61:174;8] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+function (X) "**" (Y): return X ^ Y
+                                   ^
+    [61:170;8] BEGF T_BEGF 2 1 6 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               ** X Y >]
+    [61:175;6] ENDF T_ENDF 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+(2)**(6)
+ ^
+    [62:176;7] PUSHI T_PUSH 0 0 0 2; *
+(2)**(6)
+      ^
+    [62:177;8] PUSHI T_PUSH 0 0 0 6; *
+(2)**(6)
+^^^^^^^^
+    [62:178;7] CALLG T_CALLG 2 4294967295 170 PACKED_VEC; [< ** * >]
+function "AND" (L):
+                  ^
+    [64:179;8] BEGF T_BEGF 1 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+               AND L >]
+    i = 0
+        ^
+    [65:180;9] PUSHI T_PUSH 0 0 0 0; i
+        next i + = 1
+        ^^^^^^
+    [70:181;10] PUSHS T_PUSH 0 0 0; [< i i >]
+    repeat:
+          ^
+        E = L[i]
+^^^^^^^^^^^^^^^^
+        if E == *NONE*: return *TRUE*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        else if NOT E: return *FALSE*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next i + = 1
+^^^^^^^^^^^^^^^^^^^^
+    [70:182;11] BEGL T_BEGL 0 1 0 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< loop i >]
+        E = L[i]
+            ^
+    [67:183;12] PUSHA T_PUSH 0 1 0; [< L L >]
+        E = L[i]
+             ^^^
+    [67:184;13] PUSHS T_PUSH 2 0 0; [< i * >]
+        E = L[i]
+            ^^^^
+    [67:185;13] GET T_GET 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                L E >]
+        E = L[i]
+            ^^^^
+    [67:186;12] DEL T_POP 1 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                E E >]
+        if E == *NONE*: return *TRUE*
+           ^
+    [68:187;13] PUSHS T_PUSH 0 0 0; [< E * >]
+        if E == *NONE*: return *TRUE*
+                ^^^^^^
+    [68:188;14] PUSHG T_PUSH 2 0 0 PACKED_VEC; [< * *NONE* >]
+        if E == *NONE*: return *TRUE*
+             ^^
+    [68:189;12] JMPNEQ T_JMPS 0 0 0 0; 19
+    [190;12] LABEL 20
+        if E == *NONE*: return *TRUE*
+                               ^^^^^^
+    [68:190;13] PUSHG T_PUSH 1 0 0 PACKED_VEC; [< * *TRUE* >]
+        if E == *NONE*: return *TRUE*
+                        ^^^^^^^^^^^^^
+    [68:191;12] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+        if E == *NONE*: return *TRUE*
+           ^^^^^^^^^^^
+    [68:192;12] JMP T_JMP 0 0 0 0; 21
+    [193;12] LABEL 19
+    [68:189;12] JMPNEQ T_JMPS 0 0 4 0; 19
+        else if NOT E: return *FALSE*
+                    ^
+    [69:193;13] PUSHS T_PUSH 0 0 0; [< E * >]
+        else if NOT E: return *FALSE*
+                    ^
+    [69:194;12] JMPFALSE T_JMPS 0 0 0 0; 23
+        else if NOT E: return *FALSE*
+                ^^^^^
+    [69:195;12] JMP T_JMP 0 0 0 0; 22
+    [196;12] LABEL 23
+    [69:194;12] JMPFALSE T_JMPS 0 0 2 0; 23
+        else if NOT E: return *FALSE*
+                              ^^^^^^^
+    [69:196;13] PUSHG T_PUSH 0 0 0 PACKED_VEC; [< * *FALSE* >]
+        else if NOT E: return *FALSE*
+                       ^^^^^^^^^^^^^^
+    [69:197;12] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [198;12] LABEL 22
+    [69:195;12] JMP T_JMP 0 0 3 0; 22
+    [198;12] LABEL 21
+    [68:192;12] JMP T_JMP 0 0 6 0; 21
+        next i + = 1
+        ^^^^^^
+    [70:198;13] PUSHS T_PUSH 1 0 0; [< i i >]
+        next i + = 1
+                   ^
+    [70:199;14] PUSHI T_PUSH 0 0 0 1; *
+        next i + = 1
+        ^^^^^^^^^^^^
+    [70:200;13] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        next i + = 1
+        ^^^^^^
+    [70:201;12] POPS T_POP 2 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                * [< next i >] >]
+    repeat:
+          ^
+        E = L[i]
+^^^^^^^^^^^^^^^^
+        if E == *NONE*: return *TRUE*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        else if NOT E: return *FALSE*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        next i + = 1
+^^^^^^^^^^^^^^^^^^^^
+    [70:202;10] ENDL T_ENDL 1 1 19 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [203;10] LABEL 18
+    [203;10] LABEL 17
+        next i + = 1
+                    ^
+    [64:179;10] BEGF T_BEGF 1 1 25 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< AND L >]
+    [70:203;7] ENDF T_ENDF 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+AND ([*TRUE*, *TRUE*, *TRUE*])
+     ^^^^^^^^^^^^^^^^^^^^^^^^
+    [71:204;8] PUSHOBJ T_SET 13 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*;
+               *
+    [71:205;9] PUSHI T_PUSH 0 0 0 "["; *
+    [71:206;8] SETI T_SET 1 0 0 ".initiator"; [< * * >]
+    [71:207;9] PUSHI T_PUSH 0 0 0 "]"; *
+    [71:208;8] SETI T_SET 1 0 0 ".terminator"; [< * * >]
+    [71:209;9] PUSHI T_PUSH 0 0 0 ","; *
+    [71:210;8] SETI T_SET 1 0 0 ".separator"; [< * * >]
+AND ([*TRUE*, *TRUE*, *TRUE*])
+      ^^^^^^
+    [71:211;9] PUSHG T_PUSH 1 0 0 PACKED_VEC; [< * *TRUE* >]
+    [71:212;8] VPUSH T_SET 1 0 0 "["; [< * * >]
+AND ([*TRUE*, *TRUE*, *TRUE*])
+              ^^^^^^
+    [71:213;9] PUSHG T_PUSH 1 0 0 PACKED_VEC; [< * *TRUE* >]
+    [71:214;8] VPUSH T_SET 1 0 0 "["; [< * * >]
+AND ([*TRUE*, *TRUE*, *TRUE*])
+                      ^^^^^^
+    [71:215;9] PUSHG T_PUSH 1 0 0 PACKED_VEC; [< * *TRUE* >]
+    [71:216;8] VPUSH T_SET 1 0 0 "["; [< * * >]
+AND ([*TRUE*, *TRUE*, *TRUE*])
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [71:217;8] CALLG T_CALLG 1 4294967295 179 PACKED_VEC; [< AND * >]
+AND ([*TRUE*, *FALSE*, *TRUE*])
+     ^^^^^^^^^^^^^^^^^^^^^^^^^
+    [72:218;9] PUSHOBJ T_SET 13 0 2 *UNDEFINED_GEN(0x7FF4170000000000)*;
+               *
+    [72:219;10] PUSHI T_PUSH 0 0 0 "["; *
+    [72:220;9] SETI T_SET 1 0 0 ".initiator"; [< * * >]
+    [72:221;10] PUSHI T_PUSH 0 0 0 "]"; *
+    [72:222;9] SETI T_SET 1 0 0 ".terminator"; [< * * >]
+    [72:223;10] PUSHI T_PUSH 0 0 0 ","; *
+    [72:224;9] SETI T_SET 1 0 0 ".separator"; [< * * >]
+AND ([*TRUE*, *FALSE*, *TRUE*])
+      ^^^^^^
+    [72:225;10] PUSHG T_PUSH 1 0 0 PACKED_VEC; [< * *TRUE* >]
+    [72:226;9] VPUSH T_SET 1 0 0 "["; [< * * >]
+AND ([*TRUE*, *FALSE*, *TRUE*])
+              ^^^^^^^
+    [72:227;10] PUSHG T_PUSH 0 0 0 PACKED_VEC; [< * *FALSE* >]
+    [72:228;9] VPUSH T_SET 1 0 0 "["; [< * * >]
+AND ([*TRUE*, *FALSE*, *TRUE*])
+                       ^^^^^^
+    [72:229;10] PUSHG T_PUSH 1 0 0 PACKED_VEC; [< * *TRUE* >]
+    [72:230;9] VPUSH T_SET 1 0 0 "["; [< * * >]
+AND ([*TRUE*, *FALSE*, *TRUE*])
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [72:231;9] CALLG T_CALLG 1 4294967295 179 PACKED_VEC; [< AND * >]
+function sum incrementing by (X) from (Y) to (Z):
+                                                ^
+    [74:232;12] BEGF T_BEGF 3 1 0 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< [< sum
+                incrementing by >] X Y Z >]
+    if X > 0 AND Y > Z: return 0
+       ^
+    [75:233;13] PUSHA T_PUSH 0 1 0; [< X * >]
+    if X > 0 AND Y > Z: return 0
+           ^
+    [75:234;14] PUSHI T_PUSH 0 0 0 0; *
+    if X > 0 AND Y > Z: return 0
+         ^
+    [75:235;12] JMPLEQ T_JMPS 0 0 0 0; 25
+    [236;12] LABEL 27
+    if X > 0 AND Y > Z: return 0
+                 ^
+    [75:236;13] PUSHA T_PUSH 1 1 0; [< Y * >]
+    if X > 0 AND Y > Z: return 0
+                     ^
+    [75:237;14] PUSHA T_PUSH 2 1 0; [< Z * >]
+    if X > 0 AND Y > Z: return 0
+                   ^
+    [75:238;12] JMPLEQ T_JMPS 0 0 0 0; 25
+    [239;12] LABEL 26
+    if X > 0 AND Y > Z: return 0
+                               ^
+    [75:239;13] PUSHI T_PUSH 0 0 0 0; *
+    if X > 0 AND Y > Z: return 0
+                        ^^^^^^^^
+    [75:240;12] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    if X > 0 AND Y > Z: return 0
+       ^^^^^^^^^^^^^^^
+    [75:241;12] JMP T_JMP 0 0 0 0; 28
+    [242;12] LABEL 25
+    [75:238;12] JMPLEQ T_JMPS 0 0 4 0; 25
+    [75:235;12] JMPLEQ T_JMPS 0 0 7 0; 25
+    else if X < 0 AND Y < Z: return 0
+            ^
+    [76:242;13] PUSHA T_PUSH 0 1 0; [< X * >]
+    else if X < 0 AND Y < Z: return 0
+                ^
+    [76:243;14] PUSHI T_PUSH 0 0 0 0; *
+    else if X < 0 AND Y < Z: return 0
+              ^
+    [76:244;12] JMPGEQ T_JMPS 0 0 0 0; 29
+    [245;12] LABEL 31
+    else if X < 0 AND Y < Z: return 0
+                      ^
+    [76:245;13] PUSHA T_PUSH 1 1 0; [< Y * >]
+    else if X < 0 AND Y < Z: return 0
+                          ^
+    [76:246;14] PUSHA T_PUSH 2 1 0; [< Z * >]
+    else if X < 0 AND Y < Z: return 0
+                        ^
+    [76:247;12] JMPGEQ T_JMPS 0 0 0 0; 29
+    [248;12] LABEL 30
+    else if X < 0 AND Y < Z: return 0
+                                    ^
+    [76:248;13] PUSHI T_PUSH 0 0 0 0; *
+    else if X < 0 AND Y < Z: return 0
+                             ^^^^^^^^
+    [76:249;12] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    else if X < 0 AND Y < Z: return 0
+            ^^^^^^^^^^^^^^^
+    [76:250;12] JMP T_JMP 0 0 0 0; 28
+    [251;12] LABEL 29
+    [76:247;12] JMPGEQ T_JMPS 0 0 4 0; 29
+    [76:244;12] JMPGEQ T_JMPS 0 0 7 0; 29
+    else:
+        ^
+        return Y + sum incrementing by (X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       from ( Y + X ) to (Z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:251;12] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+        return Y + sum incrementing by (X)
+               ^
+    [78:252;13] PUSHA T_PUSH 1 1 0; [< Y * >]
+        return Y + sum incrementing by (X)
+                                       ^^^
+    [78:253;14] PUSHA T_PUSH 0 1 0; [< X * >]
+                       from ( Y + X ) to (Z)
+                              ^
+    [79:254;15] PUSHA T_PUSH 1 1 0; [< Y * >]
+                       from ( Y + X ) to (Z)
+                                  ^
+    [79:255;16] PUSHA T_PUSH 0 1 0; [< X * >]
+                       from ( Y + X ) to (Z)
+                            ^^^^^^^^^
+    [79:256;15] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+                       from ( Y + X ) to (Z)
+                                         ^^^
+    [79:257;16] PUSHA T_PUSH 2 1 0; [< Z * >]
+        return Y + sum incrementing by (X)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+                       from ( Y + X ) to (Z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:258;14] CALLG T_CALLG 3 1 232 PACKED_VEC; [< [< sum incrementing
+                by >] * >]
+        return Y + sum incrementing by (X)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       from ( Y + X ) to (Z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:259;13] ADD T_AOP 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; *
+        return Y + sum incrementing by (X)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       from ( Y + X ) to (Z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:260;12] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+    else:
+        ^
+        return Y + sum incrementing by (X)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       from ( Y + X ) to (Z)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [79:261;12] END T_END 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+    [262;12] LABEL 32
+    [262;12] LABEL 28
+    [76:250;12] JMP T_JMP 0 0 12 0; 28
+    [75:241;12] JMP T_JMP 0 0 21 0; 28
+    [262;12] LABEL 24
+                       from ( Y + X ) to (Z)
+                                            ^
+    [74:232;12] BEGF T_BEGF 3 1 31 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< [< sum
+                incrementing by >] X Y Z >]
+    [79:262;9] ENDF T_ENDF 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+sum incrementing by (1) from (1) to (100)
+                     ^
+    [80:263;10] PUSHI T_PUSH 0 0 0 1; *
+sum incrementing by (1) from (1) to (100)
+                              ^
+    [80:264;11] PUSHI T_PUSH 0 0 0 1; *
+sum incrementing by (1) from (1) to (100)
+                                     ^^^
+    [80:265;12] PUSHI T_PUSH 0 0 0 100; *
+sum incrementing by (1) from (1) to (100)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [80:266;10] CALLG T_CALLG 3 4294967295 232 PACKED_VEC; [< [< sum
+                incrementing by >] * >]
+sum incrementing by (1) to (100) from (1)
+                     ^
+    [81:267;11] PUSHI T_PUSH 0 0 0 1; *
+sum incrementing by (1) to (100) from (1)
+                                       ^
+    [81:268;12] PUSHI T_PUSH 0 0 0 1; *
+sum incrementing by (1) to (100) from (1)
+                            ^^^
+    [81:269;13] PUSHI T_PUSH 0 0 0 100; *
+sum incrementing by (1) to (100) from (1)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [81:270;11] CALLG T_CALLG 3 4294967295 232 PACKED_VEC; [< [< sum
+                incrementing by >] * >]
+sum incrementing by (-1) to (1) from (100)
+                     ^^
+    [82:271;12] PUSHI T_PUSH 0 0 0 -1; *
+sum incrementing by (-1) to (1) from (100)
+                                      ^^^
+    [82:272;13] PUSHI T_PUSH 0 0 0 100; *
+sum incrementing by (-1) to (1) from (100)
+                             ^
+    [82:273;14] PUSHI T_PUSH 0 0 0 1; *
+sum incrementing by (-1) to (1) from (100)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [82:274;12] CALLG T_CALLG 3 4294967295 232 PACKED_VEC; [< [< sum
+                incrementing by >] * >]
+function (X) (Y): return X[Y]
+                  ^
+    [84:275;14] BEGF T_BEGF 2 1 0 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< *NONE* X Y >]
+function (X) (Y): return X[Y]
+                         ^
+    [84:276;15] PUSHA T_PUSH 0 1 0; [< X X >]
+function (X) (Y): return X[Y]
+                          ^^^
+    [84:277;16] PUSHA T_PUSH 1 1 0; [< Y * >]
+function (X) (Y): return X[Y]
+                         ^^^^
+    [84:278;16] GET T_GET 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                X * >]
+function (X) (Y): return X[Y]
+                         ^^^^
+    [84:279;15] DEL T_POP 1 0 1 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+                * * >]
+function (X) (Y): return X[Y]
+                  ^^^^^^^^^^^
+    [84:280;14] RET T_RET 0 1 1 *UNDEFINED_GEN(0x7FF4170000000000)*
+function (X) (Y): return X[Y]
+                             ^
+    [84:275;14] BEGF T_BEGF 2 1 7 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; [< *NONE* X Y >]
+    [84:281;12] ENDF T_ENDF 0 1 0 *UNDEFINED_GEN(0x7FF4170000000000)*
+L = [1, 2, 3, 4, 5]
+    ^^^^^^^^^^^^^^^
+    [85:282;13] PUSHOBJ T_SET 15 0 2 *
+                UNDEFINED_GEN(0x7FF4170000000000)*; L
+    [85:283;14] PUSHI T_PUSH 0 0 0 "["; *
+    [85:284;13] SETI T_SET 1 0 0 ".initiator"; [< * L >]
+    [85:285;14] PUSHI T_PUSH 0 0 0 "]"; *
+    [85:286;13] SETI T_SET 1 0 0 ".terminator"; [< * L >]
+    [85:287;14] PUSHI T_PUSH 0 0 0 ","; *
+    [85:288;13] SETI T_SET 1 0 0 ".separator"; [< * L >]
+L = [1, 2, 3, 4, 5]
+     ^
+    [85:289;14] PUSHI T_PUSH 0 0 0 1; *
+    [85:290;13] VPUSH T_SET 1 0 0 "["; [< * L >]
+L = [1, 2, 3, 4, 5]
+        ^
+    [85:291;14] PUSHI T_PUSH 0 0 0 2; *
+    [85:292;13] VPUSH T_SET 1 0 0 "["; [< * L >]
+L = [1, 2, 3, 4, 5]
+           ^
+    [85:293;14] PUSHI T_PUSH 0 0 0 3; *
+    [85:294;13] VPUSH T_SET 1 0 0 "["; [< * L >]
+L = [1, 2, 3, 4, 5]
+              ^
+    [85:295;14] PUSHI T_PUSH 0 0 0 4; *
+    [85:296;13] VPUSH T_SET 1 0 0 "["; [< * L >]
+L = [1, 2, 3, 4, 5]
+                 ^
+    [85:297;14] PUSHI T_PUSH 0 0 0 5; *
+    [85:298;13] VPUSH T_SET 1 0 0 "["; [< * L >]
+(L)(3)
+^^^
+    [86:299;14] PUSHS T_PUSH 0 0 0; [< L * >]
+(L)(3)
+    ^
+    [86:300;15] PUSHI T_PUSH 0 0 0 3; *
+(L)(3)
+^^^^^^
+    [86:301;14] CALLG T_CALLG 2 4294967295 275 PACKED_VEC; [< *NONE*
+                * >]
 X = 10
     ^^
-    [61:170;7] PUSHI T_PUSH 0 0 0 10; X
+    [91:302;15] PUSHI T_PUSH 0 0 0 10; X
 add (X) 1      // Instead of `add (X) (1)'
     ^^^
-    [62:171;8] PUSHS T_PUSH 0 0 0; [< X * >]
+    [92:303;16] PUSHS T_PUSH 0 0 0; [< X * >]
 add (X) 1      // Instead of `add (X) (1)'
         ^
-    [62:172;9] PUSHI T_PUSH 0 0 0 1; *
+    [92:304;17] PUSHI T_PUSH 0 0 0 1; *
 add (X) 1      // Instead of `add (X) (1)'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [62:173;8] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
+    [92:305;16] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
 (X) add 2      // Instead of `(X) add (2)'
 ^^^
-    [63:174;9] PUSHS T_PUSH 1 0 0; [< X * >]
+    [93:306;17] PUSHS T_PUSH 1 0 0; [< X * >]
 (X) add 2      // Instead of `(X) add (2)'
         ^
-    [63:175;10] PUSHI T_PUSH 0 0 0 2; *
+    [93:307;18] PUSHI T_PUSH 0 0 0 2; *
 (X) add 2      // Instead of `(X) add (2)'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [63:176;9] CALLG T_CALLG 2 4294967295 10 PACKED_VEC; [< add * >]
+    [93:308;17] CALLG T_CALLG 2 4294967295 10 PACKED_VEC; [< add * >]
 add 2 "HI"     // Instead of `add (2) ("HI")'
     ^
-    [64:177;10] PUSHI T_PUSH 0 0 0 2; *
+    [94:309;18] PUSHI T_PUSH 0 0 0 2; *
 add 2 "HI"     // Instead of `add (2) ("HI")'
       ^^^^
-    [64:178;11] PUSHI T_PUSH 0 0 0 "HI"; *
+    [94:310;19] PUSHI T_PUSH 0 0 0 "HI"; *
 add 2 "HI"     // Instead of `add (2) ("HI")'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [64:179;10] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
+    [94:311;18] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
     ^^^^^^^^^
-    [65:180;11] PUSHOBJ T_SET 13 0 2 *
+    [95:312;19] PUSHOBJ T_SET 13 0 2 *
                 UNDEFINED_GEN(0x7FF4170000000000)*; *
-    [65:181;12] PUSHI T_PUSH 0 0 0 "["; *
-    [65:182;11] SETI T_SET 1 0 0 ".initiator"; [< * * >]
-    [65:183;12] PUSHI T_PUSH 0 0 0 "]"; *
-    [65:184;11] SETI T_SET 1 0 0 ".terminator"; [< * * >]
-    [65:185;12] PUSHI T_PUSH 0 0 0 ","; *
-    [65:186;11] SETI T_SET 1 0 0 ".separator"; [< * * >]
+    [95:313;20] PUSHI T_PUSH 0 0 0 "["; *
+    [95:314;19] SETI T_SET 1 0 0 ".initiator"; [< * * >]
+    [95:315;20] PUSHI T_PUSH 0 0 0 "]"; *
+    [95:316;19] SETI T_SET 1 0 0 ".terminator"; [< * * >]
+    [95:317;20] PUSHI T_PUSH 0 0 0 ","; *
+    [95:318;19] SETI T_SET 1 0 0 ".separator"; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
      ^
-    [65:187;12] PUSHI T_PUSH 0 0 0 1; *
-    [65:188;11] VPUSH T_SET 1 0 0 "["; [< * * >]
+    [95:319;20] PUSHI T_PUSH 0 0 0 1; *
+    [95:320;19] VPUSH T_SET 1 0 0 "["; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
         ^
-    [65:189;12] PUSHI T_PUSH 0 0 0 2; *
-    [65:190;11] VPUSH T_SET 1 0 0 "["; [< * * >]
+    [95:321;20] PUSHI T_PUSH 0 0 0 2; *
+    [95:322;19] VPUSH T_SET 1 0 0 "["; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
            ^
-    [65:191;12] PUSHI T_PUSH 0 0 0 3; *
-    [65:192;11] VPUSH T_SET 1 0 0 "["; [< * * >]
+    [95:323;20] PUSHI T_PUSH 0 0 0 3; *
+    [95:324;19] VPUSH T_SET 1 0 0 "["; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [65:193;11] CALLG T_CALLG 1 4294967295 51 PACKED_VEC; [< sum * >]
+    [95:325;19] CALLG T_CALLG 1 4294967295 51 PACKED_VEC; [< sum * >]
