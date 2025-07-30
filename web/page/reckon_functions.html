@@ -58,14 +58,84 @@ A complete set of all the examples for this page is in
 <p>
 Examples:
 <pre class='example'>
-<div class='line'>X = 25</div>25
+<div class='line'>function add (X) (Y):
+    Z = X + Y
+    return Z
+
+Z = add (5) (7)</div>12
+<div class='line'>function (X) add (Y): return X + Y
+
+next Z = (5) add (7)</div>12
+<div class='line'>function add (X, Y): return X + Y
+
+next Z = add ( 5, 7 )</div>12
 </pre>
 
 <p>
 Functions are defined by
 <b id='function-declaration'>function declarations</b>
-that have one of two forms.
-have the form:
+that consist of the word `<code>function</code>'
+followed by a <b id='function-prototype'>function prototype</b>
+followed by a colon `<code>:</code>' followed by
+either a 
+<a href='reckon_assignments.html#restricted-statement'>restricted statement</a>
+or a <a href='reckon_logical_lines.html#blocks'>block</a>.
+The restricted statement or block is executed when the function is called.
+A <code/>return</code> statement in a function block returns a value
+to a call of the function.  A function restricted statement may be
+a return statement that returns a value to a call.
+<p>
+A call to the function typically looks like the function prototype,
+except that arguments in the prototype are variable names
+called <b id='argument-names'>argument names</b>, while arguments
+in the call are expressions which are evaluated to produce argument
+values passed by the call to the restricted statement or block executed
+by the function.  In the restricted statement or block an argument name
+can be used to access the associated argument value passed by the call.
+<p>
+Calls to a function must occur after the declaration of the function.
+A function F2 may be declared <u>inside</u> the code block of a function
+F1, in which case calls to F2 must be inside this code block
+and after the declaration of F2.
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>function sum from (X) to (Y):
+    S = 0
+    while X &lt;= Y:
+        next S + = X
+        next X + = 1
+    return S
+sum from (1) to (10)</div>55
+
+<div class='line'>function sum (L):
+    S = 0
+    E = L[]
+    until E == *NONE*:
+        next S + = E
+        next E = L[]
+    return S
+sum ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])</div>55
+
+<div class='line'>function multiplication table:
+    function part table ( Y, L ):
+        function part row ( Y, X, L ):
+            L[] = Y * X
+            if X == 9: return L
+            else: return part row ( Y, X + 1, L )
+        L[] = part row ( Y, 1, [] )
+        if Y == 9: return L
+        else: return part table ( Y + 1, L )
+    return part table ( 1, [] )
+multiplication table</div
+>[[1, 2, 3, 4, 5, 6, 7, 8, 9], [2, 4, 6, 8, 10, 12, 14, 16, 18],
+ [3, 6, 9, 12, 15, 18, 21, 24, 27], [4, 8, 12, 16, 20, 24, 28, 32, 36],
+ [5, 10, 15, 20, 25, 30, 35, 40, 45],
+ [6, 12, 18, 24, 30, 36, 42, 48, 54],
+ [7, 14, 21, 28, 35, 42, 49, 56, 63],
+ [8, 16, 24, 32, 40, 48, 56, 64, 72],
+ [9, 18, 27, 36, 45, 54, 63, 72, 81]]
+</pre>
 
 </p>
 
