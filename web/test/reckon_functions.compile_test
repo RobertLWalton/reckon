@@ -1069,58 +1069,62 @@ ERROR: in line ###: argument list before first term must have argument
        with NO default:
 function (X ?= 1) adjust (Y): return X + Y
          ^^^^^^^^
+ERROR: in line ###: argument with NO default found AFTER argument with
+       default:
+function adjust ( X ?= 1, Y ): return X + Y
+                          ^
 X = 10
     ^^
-    [104:332;21] PUSHI T_PUSH 0 0 0 10; X
+    [106:332;21] PUSHI T_PUSH 0 0 0 10; X
 add (X) 1      // Instead of `add (X) (1)'
     ^^^
-    [105:333;22] PUSHS T_PUSH 0 0 0; [< X * >]
+    [107:333;22] PUSHS T_PUSH 0 0 0; [< X * >]
 add (X) 1      // Instead of `add (X) (1)'
         ^
-    [105:334;23] PUSHI T_PUSH 0 0 0 1; *
+    [107:334;23] PUSHI T_PUSH 0 0 0 1; *
 add (X) 1      // Instead of `add (X) (1)'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [105:335;22] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
+    [107:335;22] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
 (X) add 2      // Instead of `(X) add (2)'
 ^^^
-    [106:336;23] PUSHS T_PUSH 1 0 0; [< X * >]
+    [108:336;23] PUSHS T_PUSH 1 0 0; [< X * >]
 (X) add 2      // Instead of `(X) add (2)'
         ^
-    [106:337;24] PUSHI T_PUSH 0 0 0 2; *
+    [108:337;24] PUSHI T_PUSH 0 0 0 2; *
 (X) add 2      // Instead of `(X) add (2)'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [106:338;23] CALLG T_CALLG 2 4294967295 10 PACKED_VEC; [< add * >]
+    [108:338;23] CALLG T_CALLG 2 4294967295 10 PACKED_VEC; [< add * >]
 add 2 "HI"     // Instead of `add (2) ("HI")'
     ^
-    [107:339;24] PUSHI T_PUSH 0 0 0 2; *
+    [109:339;24] PUSHI T_PUSH 0 0 0 2; *
 add 2 "HI"     // Instead of `add (2) ("HI")'
       ^^^^
-    [107:340;25] PUSHI T_PUSH 0 0 0 "HI"; *
+    [109:340;25] PUSHI T_PUSH 0 0 0 "HI"; *
 add 2 "HI"     // Instead of `add (2) ("HI")'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [107:341;24] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
+    [109:341;24] CALLG T_CALLG 2 4294967295 0 PACKED_VEC; [< add * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
     ^^^^^^^^^
-    [108:342;25] PUSHOBJ T_SET 13 0 2 *
+    [110:342;25] PUSHOBJ T_SET 13 0 2 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; *
-    [108:343;26] PUSHI T_PUSH 0 0 0 "["; *
-    [108:344;25] SETI T_SET 1 0 0 ".initiator"; [< * * >]
-    [108:345;26] PUSHI T_PUSH 0 0 0 "]"; *
-    [108:346;25] SETI T_SET 1 0 0 ".terminator"; [< * * >]
-    [108:347;26] PUSHI T_PUSH 0 0 0 ","; *
-    [108:348;25] SETI T_SET 1 0 0 ".separator"; [< * * >]
+    [110:343;26] PUSHI T_PUSH 0 0 0 "["; *
+    [110:344;25] SETI T_SET 1 0 0 ".initiator"; [< * * >]
+    [110:345;26] PUSHI T_PUSH 0 0 0 "]"; *
+    [110:346;25] SETI T_SET 1 0 0 ".terminator"; [< * * >]
+    [110:347;26] PUSHI T_PUSH 0 0 0 ","; *
+    [110:348;25] SETI T_SET 1 0 0 ".separator"; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
      ^
-    [108:349;26] PUSHI T_PUSH 0 0 0 1; *
-    [108:350;25] VPUSH T_SET 1 0 0 "["; [< * * >]
+    [110:349;26] PUSHI T_PUSH 0 0 0 1; *
+    [110:350;25] VPUSH T_SET 1 0 0 "["; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
         ^
-    [108:351;26] PUSHI T_PUSH 0 0 0 2; *
-    [108:352;25] VPUSH T_SET 1 0 0 "["; [< * * >]
+    [110:351;26] PUSHI T_PUSH 0 0 0 2; *
+    [110:352;25] VPUSH T_SET 1 0 0 "["; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
            ^
-    [108:353;26] PUSHI T_PUSH 0 0 0 3; *
-    [108:354;25] VPUSH T_SET 1 0 0 "["; [< * * >]
+    [110:353;26] PUSHI T_PUSH 0 0 0 3; *
+    [110:354;25] VPUSH T_SET 1 0 0 "["; [< * * >]
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    [108:355;25] CALLG T_CALLG 1 4294967295 51 PACKED_VEC; [< sum * >]
+    [110:355;25] CALLG T_CALLG 1 4294967295 51 PACKED_VEC; [< sum * >]
