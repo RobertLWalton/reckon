@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Aug  6 06:00:15 AM EDT 2025
+// Date:        Wed Aug  6 19:34:07 EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -9877,13 +9877,6 @@ add to (4)
 *** {96:323,22,7991} ADD: * = 5 <= 1 + 4
 * {96:324,20,7992} RET to CALLG: add, *=5
 
-function (X ?= 1) adjust (Y): return X + Y
-ERROR: in line ###: argument list before first term must have argument
-       with NO default:
-function (X ?= 1) adjust (Y): return X + Y
-         ^^^^^^^^
-[no output due to compile error]
-
 function adjust ( X ?= 1, Y ): return X + Y
 ERROR: in line ###: argument with NO default found AFTER argument with
        default:
@@ -9891,102 +9884,131 @@ function adjust ( X ?= 1, Y ): return X + Y
                           ^
 [no output due to compile error]
 
+function (X ?= 1) adjust (Y): return X + Y
+ERROR: in line ###: argument list before first term must have argument
+       with NO default:
+function (X ?= 1) adjust (Y): return X + Y
+         ^^^^^^^^
+[no output due to compile error]
+
+function look ( X ?= Q ): return X
+* {104:332,20,7993} BEGF
+look ( 0 )
+* {105:336,21,7994} PUSHI: * <= 0
+* {105:337,21,7995} CALLG to BEGF: look, X=0
+*** {104:333,22,7996} PUSHA: * <= X = 0
+* {104:334,21,7997} RET to CALLG: look, *=0
+Q = 100
+* {106:338,22,7998} PUSHI: Q <= 100
+look
+* {104:339,23,7999} PUSHS: * <= Q = 100
+* {107:340,23,8000} CALLG to BEGF: look, X=100
+*** {104:333,24,8001} PUSHA: * <= X = 100
+* {104:334,23,8002} RET to CALLG: look, *=100
+next Q = 200
+* {108:341,24,8003} PUSHI: next Q <= 200
+look
+* {104:342,25,8004} PUSHS: * <= Q = 200
+* {109:343,25,8005} CALLG to BEGF: look, X=200
+*** {104:333,26,8006} PUSHA: * <= X = 200
+* {104:334,25,8007} RET to CALLG: look, *=200
+
 // Naked Arguments
 //
 X = 10
-* {106:332,21,7993} PUSHI: X <= 10
+* {113:344,26,8008} PUSHI: X <= 10
 add (X) 1      // Instead of `add (X) (1)'
-* {107:333,22,7994} PUSHS: * <= X = 10
-* {107:334,23,7995} PUSHI: * <= 1
-* {107:335,23,7996} CALLG to BEGF: add, X=10, Y=1
-*** {14:1,24,7997} PUSHA: * <= X = 10
-*** {14:2,25,7998} PUSHA: * <= Y = 1
-*** {14:3,24,7999} ADD: Z = 11 <= 10 + 1
-*** {15:4,25,8000} PUSHS: * <= Z = 11
-* {15:5,22,8001} RET to CALLG: add, *=11
+* {114:345,27,8009} PUSHS: * <= X = 10
+* {114:346,28,8010} PUSHI: * <= 1
+* {114:347,28,8011} CALLG to BEGF: add, X=10, Y=1
+*** {14:1,29,8012} PUSHA: * <= X = 10
+*** {14:2,30,8013} PUSHA: * <= Y = 1
+*** {14:3,29,8014} ADD: Z = 11 <= 10 + 1
+*** {15:4,30,8015} PUSHS: * <= Z = 11
+* {15:5,27,8016} RET to CALLG: add, *=11
 (X) add 2      // Instead of `(X) add (2)'
-* {108:336,23,8002} PUSHS: * <= X = 10
-* {108:337,24,8003} PUSHI: * <= 2
-* {108:338,24,8004} CALLG to BEGF: add, X=10, Y=2
-*** {19:11,25,8005} PUSHA: * <= X = 10
-*** {19:12,26,8006} PUSHA: * <= Y = 2
-*** {19:13,25,8007} ADD: * = 12 <= 10 + 2
-* {19:14,23,8008} RET to CALLG: add, *=12
+* {115:348,28,8017} PUSHS: * <= X = 10
+* {115:349,29,8018} PUSHI: * <= 2
+* {115:350,29,8019} CALLG to BEGF: add, X=10, Y=2
+*** {19:11,30,8020} PUSHA: * <= X = 10
+*** {19:12,31,8021} PUSHA: * <= Y = 2
+*** {19:13,30,8022} ADD: * = 12 <= 10 + 2
+* {19:14,28,8023} RET to CALLG: add, *=12
 add 2 "HI"     // Instead of `add (2) ("HI")'
-* {109:339,24,8009} PUSHI: * <= 2
-* {109:340,25,8010} PUSHI: * <= "HI"
-* {109:341,25,8011} CALLG to BEGF: add, X=2, Y="HI"
-*** {14:1,26,8012} PUSHA: * <= X = 2
-*** {14:2,27,8013} PUSHA: * <= Y = "HI"
+* {116:351,29,8024} PUSHI: * <= 2
+* {116:352,30,8025} PUSHI: * <= "HI"
+* {116:353,30,8026} CALLG to BEGF: add, X=2, Y="HI"
+*** {14:1,31,8027} PUSHA: * <= X = 2
+*** {14:2,32,8028} PUSHA: * <= Y = "HI"
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
-*** {14:3,26,8014} ADD: Z = nan <= 2 + "HI"
-*** {15:4,27,8015} PUSHS: * <= Z = nan
-* {15:5,24,8016} RET to CALLG: add, *=nan
+*** {14:3,31,8029} ADD: Z = nan <= 2 + "HI"
+*** {15:4,32,8030} PUSHS: * <= Z = nan
+* {15:5,29,8031} RET to CALLG: add, *=nan
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
-* {110:342,25,8017} PUSHOBJ: * <= NEW OBJ ( 13, 2)
-* {110:343,26,8018} PUSHI: * <= "["
-* {110:344,25,8019} SETI: *[".initiator"] <= * = "["
-* {110:345,26,8020} PUSHI: * <= "]"
-* {110:346,25,8021} SETI: *[".terminator"] <= * = "]"
-* {110:347,26,8022} PUSHI: * <= ","
-* {110:348,25,8023} SETI: *[".separator"] <= * = ","
-* {110:349,26,8024} PUSHI: * <= 1
-* {110:350,25,8025} VPUSH: PUSHED * <= * = 1
-* {110:351,26,8026} PUSHI: * <= 2
-* {110:352,25,8027} VPUSH: PUSHED * <= * = 2
-* {110:353,26,8028} PUSHI: * <= 3
-* {110:354,25,8029} VPUSH: PUSHED * <= * = 3
-* {110:355,25,8030} CALLG to BEGF: sum, L=[1, 2, 3]
-*** {37:52,26,8031} PUSHI: S <= 0
-*** {38:53,27,8032} PUSHA: L <= L = [1, 2, 3]
-*** {38:54,28,8033} VPOP: E <= POPPED L = 3
-*** {38:55,27,8034} DEL sp[-2..-2] <= sp[-1..-1]
-*** {40:56,28,8035} PUSHS: S <= S = 0
-*** {41:57,29,8036} PUSHS: E <= E = 3
-*** {41:58,31,8037} BEGL: loop, S=0, E=3
-***** {39:59,32,8038} PUSHS: * <= E = 3
-***** {39:60,33,8039} PUSHG: * <= * = *NONE*
-***** {39:61,31,8040} JMPNEQ location 63 is successful: true <= 3
+* {117:354,30,8032} PUSHOBJ: * <= NEW OBJ ( 13, 2)
+* {117:355,31,8033} PUSHI: * <= "["
+* {117:356,30,8034} SETI: *[".initiator"] <= * = "["
+* {117:357,31,8035} PUSHI: * <= "]"
+* {117:358,30,8036} SETI: *[".terminator"] <= * = "]"
+* {117:359,31,8037} PUSHI: * <= ","
+* {117:360,30,8038} SETI: *[".separator"] <= * = ","
+* {117:361,31,8039} PUSHI: * <= 1
+* {117:362,30,8040} VPUSH: PUSHED * <= * = 1
+* {117:363,31,8041} PUSHI: * <= 2
+* {117:364,30,8042} VPUSH: PUSHED * <= * = 2
+* {117:365,31,8043} PUSHI: * <= 3
+* {117:366,30,8044} VPUSH: PUSHED * <= * = 3
+* {117:367,30,8045} CALLG to BEGF: sum, L=[1, 2, 3]
+*** {37:52,31,8046} PUSHI: S <= 0
+*** {38:53,32,8047} PUSHA: L <= L = [1, 2, 3]
+*** {38:54,33,8048} VPOP: E <= POPPED L = 3
+*** {38:55,32,8049} DEL sp[-2..-2] <= sp[-1..-1]
+*** {40:56,33,8050} PUSHS: S <= S = 0
+*** {41:57,34,8051} PUSHS: E <= E = 3
+*** {41:58,36,8052} BEGL: loop, S=0, E=3
+***** {39:59,37,8053} PUSHS: * <= E = 3
+***** {39:60,38,8054} PUSHG: * <= * = *NONE*
+***** {39:61,36,8055} JMPNEQ location 63 is successful: true <= 3
                       != *NONE*
-***** {40:63,32,8041} PUSHS: S <= S = 0
-***** {40:64,33,8042} PUSHS: * <= E = 3
-***** {40:65,32,8043} ADD: * = 3 <= 0 + 3
-***** {40:66,31,8044} POPS: next S <= * = 3
-***** {41:67,32,8045} PUSHA: L <= L = [1, 2]
-***** {41:68,33,8046} VPOP: next E <= POPPED L = 2
-***** {41:69,32,8047} DEL sp[-2..-2] <= sp[-1..-1]
-***** {41:70,31,8048} POPS: next E <= * = 2
-***** {41:71,31,8049} ENDL: loop, S=3, E=2
-***** {39:59,32,8050} PUSHS: * <= E = 2
-***** {39:60,33,8051} PUSHG: * <= * = *NONE*
-***** {39:61,31,8052} JMPNEQ location 63 is successful: true <= 2
+***** {40:63,37,8056} PUSHS: S <= S = 0
+***** {40:64,38,8057} PUSHS: * <= E = 3
+***** {40:65,37,8058} ADD: * = 3 <= 0 + 3
+***** {40:66,36,8059} POPS: next S <= * = 3
+***** {41:67,37,8060} PUSHA: L <= L = [1, 2]
+***** {41:68,38,8061} VPOP: next E <= POPPED L = 2
+***** {41:69,37,8062} DEL sp[-2..-2] <= sp[-1..-1]
+***** {41:70,36,8063} POPS: next E <= * = 2
+***** {41:71,36,8064} ENDL: loop, S=3, E=2
+***** {39:59,37,8065} PUSHS: * <= E = 2
+***** {39:60,38,8066} PUSHG: * <= * = *NONE*
+***** {39:61,36,8067} JMPNEQ location 63 is successful: true <= 2
                       != *NONE*
-***** {40:63,32,8053} PUSHS: S <= S = 3
-***** {40:64,33,8054} PUSHS: * <= E = 2
-***** {40:65,32,8055} ADD: * = 5 <= 3 + 2
-***** {40:66,31,8056} POPS: next S <= * = 5
-***** {41:67,32,8057} PUSHA: L <= L = [1]
-***** {41:68,33,8058} VPOP: next E <= POPPED L = 1
-***** {41:69,32,8059} DEL sp[-2..-2] <= sp[-1..-1]
-***** {41:70,31,8060} POPS: next E <= * = 1
-***** {41:71,31,8061} ENDL: loop, S=5, E=1
-***** {39:59,32,8062} PUSHS: * <= E = 1
-***** {39:60,33,8063} PUSHG: * <= * = *NONE*
-***** {39:61,31,8064} JMPNEQ location 63 is successful: true <= 1
+***** {40:63,37,8068} PUSHS: S <= S = 3
+***** {40:64,38,8069} PUSHS: * <= E = 2
+***** {40:65,37,8070} ADD: * = 5 <= 3 + 2
+***** {40:66,36,8071} POPS: next S <= * = 5
+***** {41:67,37,8072} PUSHA: L <= L = [1]
+***** {41:68,38,8073} VPOP: next E <= POPPED L = 1
+***** {41:69,37,8074} DEL sp[-2..-2] <= sp[-1..-1]
+***** {41:70,36,8075} POPS: next E <= * = 1
+***** {41:71,36,8076} ENDL: loop, S=5, E=1
+***** {39:59,37,8077} PUSHS: * <= E = 1
+***** {39:60,38,8078} PUSHG: * <= * = *NONE*
+***** {39:61,36,8079} JMPNEQ location 63 is successful: true <= 1
                       != *NONE*
-***** {40:63,32,8065} PUSHS: S <= S = 5
-***** {40:64,33,8066} PUSHS: * <= E = 1
-***** {40:65,32,8067} ADD: * = 6 <= 5 + 1
-***** {40:66,31,8068} POPS: next S <= * = 6
-***** {41:67,32,8069} PUSHA: L <= L = []
-***** {41:68,33,8070} VPOP: next E <= POPPED L = *NONE*
-***** {41:69,32,8071} DEL sp[-2..-2] <= sp[-1..-1]
-***** {41:70,31,8072} POPS: next E <= * = *NONE*
-***** {41:71,31,8073} ENDL: loop, S=6, E=*NONE*
-***** {39:59,32,8074} PUSHS: * <= E = *NONE*
-***** {39:60,33,8075} PUSHG: * <= * = *NONE*
-***** {39:61,31,8076} JMPNEQ location 63 is UNsuccessful: false
+***** {40:63,37,8080} PUSHS: S <= S = 5
+***** {40:64,38,8081} PUSHS: * <= E = 1
+***** {40:65,37,8082} ADD: * = 6 <= 5 + 1
+***** {40:66,36,8083} POPS: next S <= * = 6
+***** {41:67,37,8084} PUSHA: L <= L = []
+***** {41:68,38,8085} VPOP: next E <= POPPED L = *NONE*
+***** {41:69,37,8086} DEL sp[-2..-2] <= sp[-1..-1]
+***** {41:70,36,8087} POPS: next E <= * = *NONE*
+***** {41:71,36,8088} ENDL: loop, S=6, E=*NONE*
+***** {39:59,37,8089} PUSHS: * <= E = *NONE*
+***** {39:60,38,8090} PUSHG: * <= * = *NONE*
+***** {39:61,36,8091} JMPNEQ location 63 is UNsuccessful: false
                       <= *NONE* != *NONE*
-***** {39:62,29,8077} JMP location 72
-*** {42:72,30,8078} PUSHS: * <= S = 6
-* {42:73,25,8079} RET to CALLG: sum, *=6
+***** {39:62,34,8092} JMP location 72
+*** {42:72,35,8093} PUSHS: * <= S = 6
+* {42:73,30,8094} RET to CALLG: sum, *=6
