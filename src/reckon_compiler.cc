@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 10:58:12 PM EDT 2025
+// Date:	Wed Aug  6 04:05:07 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1168,6 +1168,7 @@ bool REC::execute ( mex::module m )
 
 void REC::init_compiler ( PAR::parser parser )
 {
+    ::parser = parser;
     mex::default_printer = parser->printer;
     mexcom::printer = mex::default_printer;
 

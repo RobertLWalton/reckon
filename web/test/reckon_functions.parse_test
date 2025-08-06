@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Tue Aug  5 10:59:11 PM EDT 2025
+// Date:        Wed Aug  6 04:33:53 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -246,8 +246,17 @@ increment (4) by (5)
 increment (4)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|increment (4)|}
 
+function add (X ?= 1) to (Y): return X + Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|add ({|X|} ?= {|1|}) to (Y)|} ":" {|return {|{|X|} + {|Y|}|}|}|}
+add (3) to (4)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|add (3) to (4)|}
+add to (4)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|add to (4)|}
 
-
+function (X ?= 1) adjust (Y): return X + Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|({|X|} ?= {|1|}) adjust (Y)|} ":" {|return {|{|X|} + {|Y|}|}|}|}
 
 // Naked Arguments
 //
