@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 30 05:11:56 EDT 2025
+// Date:	Tue Aug  5 10:58:12 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3422,7 +3422,10 @@ min::uns32 static compile_expression
 		    k = argument_list_vector[k];
 		    if ( ! ::compile_expression
 		    		( argument_vector[j],
-			          ppv[k] ) )
+			          k == PRIM::
+				         NO_ARG_LIST ?
+				  ppv->position :
+				  ppv[k] ) )
 		        OK = false;
 		}
 		if ( ! OK ) return 0;
@@ -3518,7 +3521,10 @@ min::uns32 static compile_expression
 		    k = argument_list_vector[k];
 		    if ( ! ::compile_expression
 		    		( argument_vector[j],
-			          ppv[k] ) )
+			          k == PRIM::
+				         NO_ARG_LIST ?
+				  ppv->position :
+				  ppv[k] ) )
 		        OK = false;
 		}
 		if ( ! OK ) return 0;

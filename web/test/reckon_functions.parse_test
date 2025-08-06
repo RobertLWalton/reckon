@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Jul 30 04:18:39 EDT 2025
+// Date:        Tue Aug  5 10:59:11 PM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -227,8 +227,26 @@ function (X) (Y): return X[Y]
 L = [1, 2, 3, 4, 5]
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|{|L|} =
      [{|1|}, {|2|}, {|3|}, {|4|}, {|5|}]|}
+(L)(0)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|(L) (0)|}
 (L)(3)
 {"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|(L) (3)|}
+(L)(5)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|(L) (5)|}
+
+// Default Arguments
+//
+function increment (X) by (Y ?= 1): return X + Y
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|function
+     {|increment (X) by ({|Y|} ?= {|1|})|} ":"
+     {|return {|{|X|} + {|Y|}|}|}|}
+increment (4) by (5)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|increment (4) by
+     (5)|}
+increment (4)
+{"": .terminator = "<LF>", .initiator = *LOGICAL_LINE*|increment (4)|}
+
+
 
 
 // Naked Arguments
