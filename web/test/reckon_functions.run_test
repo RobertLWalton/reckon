@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Aug  6 20:34:32 EDT 2025
+// Date:        Thu Aug 14 06:22:33 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -123,6 +123,18 @@ add (3) to (4)
 add to (4)
 5
 
+function look ( X ?= Q ): return X
+look ( 0 )
+0
+Q = 100
+100
+look
+100
+next Q = 200
+200
+look
+200
+
 function adjust ( X ?= 1, Y ): return X + Y
 ERROR: in line ###: argument with NO default found AFTER argument with
        default:
@@ -137,17 +149,20 @@ function (X ?= 1) adjust (Y): return X + Y
          ^^^^^^^^
 [no output due to compile error]
 
-function look ( X ?= Q ): return X
-look ( 0 )
-0
-Q = 100
-100
-look
-100
-next Q = 200
-200
-look
-200
+function my adder (X ?= 1) (Y): return X + Y
+ERROR: in line ###: omitable argument list SHADOWS following
+       non-omittable argument list with the same kind of brackets:
+function my adder (X ?= 1) (Y): return X + Y
+                  ^^^^^^^^
+[no output due to compile error]
+
+function my adder 2 (X ?= 1) [Y ?= 2]: return X + Y
+ERROR: in line ###: omitable argument list SHADOWS following omittable
+       argument list with different brackets:
+function my adder 2 (X ?= 1) [Y ?= 2]: return X + Y
+                    ^^^^^^^^
+[no output due to compile error]
+
 
 // Boolean Terms
 //

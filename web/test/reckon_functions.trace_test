@@ -2,7 +2,7 @@
 //
 // File:        reckon_functions.rec
 // Author:      Bob Walton (walton@acm.org)
-// Date:        Wed Aug  6 20:34:32 EDT 2025
+// Date:        Thu Aug 14 06:22:33 AM EDT 2025
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -9877,6 +9877,28 @@ add to (4)
 *** {96:323,22,7991} ADD: * = 5 <= 1 + 4
 * {96:324,20,7992} RET to CALLG: add, *=5
 
+function look ( X ?= Q ): return X
+* {100:332,20,7993} BEGF
+look ( 0 )
+* {101:336,21,7994} PUSHI: * <= 0
+* {101:337,21,7995} CALLG to BEGF: look, X=0
+*** {100:333,22,7996} PUSHA: * <= X = 0
+* {100:334,21,7997} RET to CALLG: look, *=0
+Q = 100
+* {102:338,22,7998} PUSHI: Q <= 100
+look
+* {100:339,23,7999} PUSHS: * <= Q = 100
+* {103:340,23,8000} CALLG to BEGF: look, X=100
+*** {100:333,24,8001} PUSHA: * <= X = 100
+* {100:334,23,8002} RET to CALLG: look, *=100
+next Q = 200
+* {104:341,24,8003} PUSHI: next Q <= 200
+look
+* {100:342,25,8004} PUSHS: * <= Q = 200
+* {105:343,25,8005} CALLG to BEGF: look, X=200
+*** {100:333,26,8006} PUSHA: * <= X = 200
+* {100:334,25,8007} RET to CALLG: look, *=200
+
 function adjust ( X ?= 1, Y ): return X + Y
 ERROR: in line ###: argument with NO default found AFTER argument with
        default:
@@ -9891,86 +9913,79 @@ function (X ?= 1) adjust (Y): return X + Y
          ^^^^^^^^
 [no output due to compile error]
 
-function look ( X ?= Q ): return X
-* {104:332,20,7993} BEGF
-look ( 0 )
-* {105:336,21,7994} PUSHI: * <= 0
-* {105:337,21,7995} CALLG to BEGF: look, X=0
-*** {104:333,22,7996} PUSHA: * <= X = 0
-* {104:334,21,7997} RET to CALLG: look, *=0
-Q = 100
-* {106:338,22,7998} PUSHI: Q <= 100
-look
-* {104:339,23,7999} PUSHS: * <= Q = 100
-* {107:340,23,8000} CALLG to BEGF: look, X=100
-*** {104:333,24,8001} PUSHA: * <= X = 100
-* {104:334,23,8002} RET to CALLG: look, *=100
-next Q = 200
-* {108:341,24,8003} PUSHI: next Q <= 200
-look
-* {104:342,25,8004} PUSHS: * <= Q = 200
-* {109:343,25,8005} CALLG to BEGF: look, X=200
-*** {104:333,26,8006} PUSHA: * <= X = 200
-* {104:334,25,8007} RET to CALLG: look, *=200
+function my adder (X ?= 1) (Y): return X + Y
+ERROR: in line ###: omitable argument list SHADOWS following
+       non-omittable argument list with the same kind of brackets:
+function my adder (X ?= 1) (Y): return X + Y
+                  ^^^^^^^^
+[no output due to compile error]
+
+function my adder 2 (X ?= 1) [Y ?= 2]: return X + Y
+ERROR: in line ###: omitable argument list SHADOWS following omittable
+       argument list with different brackets:
+function my adder 2 (X ?= 1) [Y ?= 2]: return X + Y
+                    ^^^^^^^^
+[no output due to compile error]
+
 
 // Boolean Terms
 //
 function test (X) option ( Y ?= *TRUE* ): return X, Y
-* {113:344,25,8008} BEGF
+* {118:344,25,8008} BEGF
 test (3)
-* {114:349,26,8009} PUSHI: * <= 3
-* {113:350,27,8010} PUSHG: * <= * = *TRUE*
-* {114:351,27,8011} CALLG to BEGF: test, X=3, Y=*TRUE*
-*** {113:345,28,8012} PUSHA: * <= X = 3
-*** {113:346,29,8013} PUSHA: * <= Y = *TRUE*
-* {113:347,27,8014} RET to CALLG: test, *=*TRUE*
+* {119:349,26,8009} PUSHI: * <= 3
+* {118:350,27,8010} PUSHG: * <= * = *TRUE*
+* {119:351,27,8011} CALLG to BEGF: test, X=3, Y=*TRUE*
+*** {118:345,28,8012} PUSHA: * <= X = 3
+*** {118:346,29,8013} PUSHA: * <= Y = *TRUE*
+* {118:347,27,8014} RET to CALLG: test, *=*TRUE*
 test (3) no option
-* {115:352,28,8015} PUSHI: * <= 3
+* {120:352,28,8015} PUSHI: * <= 3
 * {0:353,29,8016} PUSHG: * <= * = *FALSE*
-* {115:354,29,8017} CALLG to BEGF: test, X=3, Y=*FALSE*
-*** {113:345,30,8018} PUSHA: * <= X = 3
-*** {113:346,31,8019} PUSHA: * <= Y = *FALSE*
-* {113:347,29,8020} RET to CALLG: test, *=*FALSE*
+* {120:354,29,8017} CALLG to BEGF: test, X=3, Y=*FALSE*
+*** {118:345,30,8018} PUSHA: * <= X = 3
+*** {118:346,31,8019} PUSHA: * <= Y = *FALSE*
+* {118:347,29,8020} RET to CALLG: test, *=*FALSE*
 test (3) option
-* {116:355,30,8021} PUSHI: * <= 3
+* {121:355,30,8021} PUSHI: * <= 3
 * {0:356,31,8022} PUSHG: * <= * = *TRUE*
-* {116:357,31,8023} CALLG to BEGF: test, X=3, Y=*TRUE*
-*** {113:345,32,8024} PUSHA: * <= X = 3
-*** {113:346,33,8025} PUSHA: * <= Y = *TRUE*
-* {113:347,31,8026} RET to CALLG: test, *=*TRUE*
+* {121:357,31,8023} CALLG to BEGF: test, X=3, Y=*TRUE*
+*** {118:345,32,8024} PUSHA: * <= X = 3
+*** {118:346,33,8025} PUSHA: * <= Y = *TRUE*
+* {118:347,31,8026} RET to CALLG: test, *=*TRUE*
 test (3) option ( *FALSE* )
-* {117:358,32,8027} PUSHI: * <= 3
-* {117:359,33,8028} PUSHG: * <= * = *FALSE*
-* {117:360,33,8029} CALLG to BEGF: test, X=3, Y=*FALSE*
-*** {113:345,34,8030} PUSHA: * <= X = 3
-*** {113:346,35,8031} PUSHA: * <= Y = *FALSE*
-* {113:347,33,8032} RET to CALLG: test, *=*FALSE*
+* {122:358,32,8027} PUSHI: * <= 3
+* {122:359,33,8028} PUSHG: * <= * = *FALSE*
+* {122:360,33,8029} CALLG to BEGF: test, X=3, Y=*FALSE*
+*** {118:345,34,8030} PUSHA: * <= X = 3
+*** {118:346,35,8031} PUSHA: * <= Y = *FALSE*
+* {118:347,33,8032} RET to CALLG: test, *=*FALSE*
 
 // Naked Arguments
 //
 X = 10
-* {121:361,34,8033} PUSHI: X <= 10
+* {126:361,34,8033} PUSHI: X <= 10
 add (X) 1      // Instead of `add (X) (1)'
-* {122:362,35,8034} PUSHS: * <= X = 10
-* {122:363,36,8035} PUSHI: * <= 1
-* {122:364,36,8036} CALLG to BEGF: add, X=10, Y=1
+* {127:362,35,8034} PUSHS: * <= X = 10
+* {127:363,36,8035} PUSHI: * <= 1
+* {127:364,36,8036} CALLG to BEGF: add, X=10, Y=1
 *** {14:1,37,8037} PUSHA: * <= X = 10
 *** {14:2,38,8038} PUSHA: * <= Y = 1
 *** {14:3,37,8039} ADD: Z = 11 <= 10 + 1
 *** {15:4,38,8040} PUSHS: * <= Z = 11
 * {15:5,35,8041} RET to CALLG: add, *=11
 (X) add 2      // Instead of `(X) add (2)'
-* {123:365,36,8042} PUSHS: * <= X = 10
-* {123:366,37,8043} PUSHI: * <= 2
-* {123:367,37,8044} CALLG to BEGF: add, X=10, Y=2
+* {128:365,36,8042} PUSHS: * <= X = 10
+* {128:366,37,8043} PUSHI: * <= 2
+* {128:367,37,8044} CALLG to BEGF: add, X=10, Y=2
 *** {19:11,38,8045} PUSHA: * <= X = 10
 *** {19:12,39,8046} PUSHA: * <= Y = 2
 *** {19:13,38,8047} ADD: * = 12 <= 10 + 2
 * {19:14,36,8048} RET to CALLG: add, *=12
 add 2 "HI"     // Instead of `add (2) ("HI")'
-* {124:368,37,8049} PUSHI: * <= 2
-* {124:369,38,8050} PUSHI: * <= "HI"
-* {124:370,38,8051} CALLG to BEGF: add, X=2, Y="HI"
+* {129:368,37,8049} PUSHI: * <= 2
+* {129:369,38,8050} PUSHI: * <= "HI"
+* {129:370,38,8051} CALLG to BEGF: add, X=2, Y="HI"
 *** {14:1,39,8052} PUSHA: * <= X = 2
 *** {14:2,40,8053} PUSHA: * <= Y = "HI"
 !!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
@@ -9978,20 +9993,20 @@ add 2 "HI"     // Instead of `add (2) ("HI")'
 *** {15:4,40,8055} PUSHS: * <= Z = nan
 * {15:5,37,8056} RET to CALLG: add, *=nan
 sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'
-* {125:371,38,8057} PUSHOBJ: * <= NEW OBJ ( 13, 2)
-* {125:372,39,8058} PUSHI: * <= "["
-* {125:373,38,8059} SETI: *[".initiator"] <= * = "["
-* {125:374,39,8060} PUSHI: * <= "]"
-* {125:375,38,8061} SETI: *[".terminator"] <= * = "]"
-* {125:376,39,8062} PUSHI: * <= ","
-* {125:377,38,8063} SETI: *[".separator"] <= * = ","
-* {125:378,39,8064} PUSHI: * <= 1
-* {125:379,38,8065} VPUSH: PUSHED * <= * = 1
-* {125:380,39,8066} PUSHI: * <= 2
-* {125:381,38,8067} VPUSH: PUSHED * <= * = 2
-* {125:382,39,8068} PUSHI: * <= 3
-* {125:383,38,8069} VPUSH: PUSHED * <= * = 3
-* {125:384,38,8070} CALLG to BEGF: sum, L=[1, 2, 3]
+* {130:371,38,8057} PUSHOBJ: * <= NEW OBJ ( 13, 2)
+* {130:372,39,8058} PUSHI: * <= "["
+* {130:373,38,8059} SETI: *[".initiator"] <= * = "["
+* {130:374,39,8060} PUSHI: * <= "]"
+* {130:375,38,8061} SETI: *[".terminator"] <= * = "]"
+* {130:376,39,8062} PUSHI: * <= ","
+* {130:377,38,8063} SETI: *[".separator"] <= * = ","
+* {130:378,39,8064} PUSHI: * <= 1
+* {130:379,38,8065} VPUSH: PUSHED * <= * = 1
+* {130:380,39,8066} PUSHI: * <= 2
+* {130:381,38,8067} VPUSH: PUSHED * <= * = 2
+* {130:382,39,8068} PUSHI: * <= 3
+* {130:383,38,8069} VPUSH: PUSHED * <= * = 3
+* {130:384,38,8070} CALLG to BEGF: sum, L=[1, 2, 3]
 *** {37:52,39,8071} PUSHI: S <= 0
 *** {38:53,40,8072} PUSHA: L <= L = [1, 2, 3]
 *** {38:54,41,8073} VPOP: E <= POPPED L = 3
