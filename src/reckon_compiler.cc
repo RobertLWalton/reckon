@@ -1681,7 +1681,7 @@ bool static compile_expression_assignment_statement
 	      " than 2 elements" );
     }
 
-    if ( left_n != right_n )
+    if ( left_n != right_n && right_n != 1 )
     {
         mexcom::compile_error
 	    ( ::get_position(vp)->position,
@@ -1699,22 +1699,61 @@ bool static compile_expression_assignment_statement
     min::gen exps[right_n];
     ::set_data data[left_n];
     bool OK = true;
+    min::uns32 allocate = 0;
+        // Number of variables to allocate.  Excludes
+	// variables with vars[] == NULL,
+	// data[].nlabels == 0,
+	// vars[]->flags & PRIM::WRITABLE_VAR ).
     if ( left_n == 1 )
     {
 	left_vp = min::NULL_STUB;
 	right_vp = min::NULL_STUB;
-	vars[0] = ::scan_var ( vp[0], data + 0 );
+	::set_data * d = data + 0;
+	vars[0] = ::scan_var ( vp[0], d );
 	if ( vars[0] == min::NULL_STUB )
 	    OK = false;
-	exps[0] = vp[2];
+	else if ( d->nlabels > 0 )
+	    /* Do Nothing */;
+	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
+	    /* Do Nothing */;
+	else
+	    ++ allocate;
     }
     else for ( min::uns32 i = 0; i < left_n; ++ i )
     {
-	vars[i] = ::scan_var ( left_vp[i], data + i );
+	::set_data * d = data + i;
+	vars[i] = ::scan_var ( left_vp[i], d );
 	if ( vars[i] == min::NULL_STUB )
 	    OK = false;
-	exps[i] = right_vp[i];
+	else if ( d->nlabels > 0 )
+	    continue;
+	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
+	    continue;
+	else
+	    ++ allocate;
     }
+
+    if ( left_n > 1 && allocate != left_n )
+	for ( min::uns32 i = 0; i < left_n; ++ i )
+    {
+        min::phrase_position_vec left_ppv =
+	    ::get_position ( left_vp );
+	::set_data * d = data + i;
+	if ( vars[i] == min::NULL_STUB )
+	    continue;
+	else if ( d->nlabels > 0 )
+	    continue;
+	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
+	    continue;
+	::pushi ( ::ZERO, left_ppv[i] );
+	vars[i]->location = mexstack::stack_length - 1;
+    }
+
+
+    if ( right_n == 1 )
+	exps[0] = vp[2];
+    else for ( min::uns32 i = 0; i < right_n; ++ i )
+	exps[i] = right_vp[i];
 
     min::uns32 stack_length =
         mexstack::stack_length;
@@ -1722,7 +1761,7 @@ bool static compile_expression_assignment_statement
     for ( min::uns32 i = 0; i < left_n; ++ i )
     {
 	if ( vars[i] == min::NULL_STUB ) continue;
-	::set_data * d = data +  i;
+	::set_data * d = data + i;
         if ( d->nlabels == 0 ) continue;
 	if ( ! ::compile_set_data ( vars[i], d ) )
 	{
@@ -1737,7 +1776,10 @@ bool static compile_expression_assignment_statement
         mexstack::stack_length - stack_length;
     stack_length = mexstack::stack_length;
 
-    for ( min::uns32 i = 0; i < left_n; ++ i )
+    if ( left_n > 1 && right_n == 1 )
+    {
+    }
+    else for ( min::uns32 i = 0; i < left_n; ++ i )
     {
         PRIM::var var = vars[i];
 	min::gen exp = exps[i];
