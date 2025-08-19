@@ -164,7 +164,7 @@ repeat:
                loop j >]
     next j = 0
              ^
-    [29:39;12] PUSHI T_PUSH 0 0 0 0; [< next j >]
+    [29:39;12] PUSHI T_PUSH 0 0 0 0; *
     next j = 0
     ^^^^^^
     [29:40;11] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
@@ -200,7 +200,7 @@ do:
     [38:45;12] BEG T_BEG 0 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*
     next j = 0
              ^
-    [36:46;13] PUSHI T_PUSH 0 0 0 0; [< next j >]
+    [36:46;13] PUSHI T_PUSH 0 0 0 0; *
     next j = 0
     ^^^^^^
     [36:47;12] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
@@ -678,10 +678,10 @@ while i < 6:
     [88:169;43] CONT T_CONT 0 1 7 *UNDEFINED_GEN(0x7FF4170000000000)*
     next i = 0  // This is never executed.
              ^
-    [89:170;44] PUSHI T_PUSH 0 0 0 0; [< next i >]
-    next i + = 1
+    [89:170;44] PUSHI T_PUSH 0 0 0 0; *
+    next i = 0  // This is never executed.
     ^^^^^^
-    [87:171;43] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [89:171;43] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next i >] >]
 while i < 6:
            ^
@@ -749,10 +749,10 @@ while i < 6:
     [95:184;45] CONT T_CONT[1] 0 1 8 *UNDEFINED_GEN(0x7FF4170000000000)*
         next i = 0  // This is never executed.
                  ^
-    [96:185;46] PUSHI T_PUSH 0 0 0 0; [< next i >]
-    next i + = 1
-    ^^^^^^
-    [93:186;45] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [96:185;46] PUSHI T_PUSH 0 0 0 0; *
+        next i = 0  // This is never executed.
+        ^^^^^^
+    [96:186;45] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next i >] >]
     do:             // This is NOT a loop block.
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -764,10 +764,10 @@ while i < 6:
     [188;45] LABEL 25
     next i = 0  // This is never executed.
              ^
-    [97:188;46] PUSHI T_PUSH 0 0 0 0; [< next i >]
-    next i + = 1
+    [97:188;46] PUSHI T_PUSH 0 0 0 0; *
+    next i = 0  // This is never executed.
     ^^^^^^
-    [93:189;45] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
+    [97:189;45] POPS T_POP 1 0 0 *UNDEFINED_GEN(0x7FF4170000000000)*; [<
                 * [< next i >] >]
 while i < 6:
            ^
@@ -842,10 +842,10 @@ do OUTER LOOP while i < 6:
                  UNDEFINED_GEN(0x7FF4170000000000)*
         next i = 0  // This is never executed.
                  ^
-    [104:203;48] PUSHI T_PUSH 0 0 0 0; [< next i >]
-    next i + = 1
-    ^^^^^^
-    [101:204;47] POPS T_POP 1 0 0 *
+    [104:203;48] PUSHI T_PUSH 0 0 0 0; *
+        next i = 0  // This is never executed.
+        ^^^^^^
+    [104:204;47] POPS T_POP 1 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
                  i >] >]
     repeat INNER LOOP:
@@ -858,10 +858,10 @@ do OUTER LOOP while i < 6:
     [206;47] LABEL 28
     next i = 0  // This is never executed.
              ^
-    [105:206;48] PUSHI T_PUSH 0 0 0 0; [< next i >]
-    next i + = 1
+    [105:206;48] PUSHI T_PUSH 0 0 0 0; *
+    next i = 0  // This is never executed.
     ^^^^^^
-    [101:207;47] POPS T_POP 1 0 0 *
+    [105:207;47] POPS T_POP 1 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
                  i >] >]
 do OUTER LOOP while i < 6:
@@ -923,10 +923,10 @@ next Q = do:
     [110:215;50] JMPCNT T_JMPS[1] 0 0 3 1; 30
     next Q = 6666
              ^^^^
-    [112:218;51] PUSHI T_PUSH 0 0 0 6666; [< next Q >]
-next Q = do:
-^^^^^^
-    [108:219;50] POPS T_POP 3 0 0 *
+    [112:218;51] PUSHI T_PUSH 0 0 0 6666; *
+    next Q = 6666
+    ^^^^^^
+    [112:219;50] POPS T_POP 3 0 0 *
                  UNDEFINED_GEN(0x7FF4170000000000)*; [< * [< next
                  Q >] >]
 next Q = do:

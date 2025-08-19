@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 19 08:54:37 AM EDT 2025
+// Date:	Tue Aug 19 09:24:56 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1724,9 +1724,9 @@ bool static compile_expression_assignment_statement
     //
     bool OK = true;
     min::uns32 allocate = 0;
-        // Number of variables to allocate.  Includes
-	// variables with vars[] == NULL.  Excludes
-	// variables with data[].nlabels == 0 or
+        // Number of variables to allocate.  Excludes
+	// variables with vars[] == NULL,
+	// data[].nlabels == 0, or
 	// vars[]->flags & PRIM::WRITABLE_VAR.
     for ( min::uns32 i = 0; i < left_n; ++ i )
     {
@@ -1735,30 +1735,24 @@ bool static compile_expression_assignment_statement
 	    ( vars[i] == min::NULL_STUB ? ::star :
 	      ::full_var_name ( vars[i] ) );
 	if ( vars[i] == min::NULL_STUB )
-	{
 	    OK = false;
-	    ++ allocate;
-	}
 	else if ( d->nlabels > 0 )
 	    continue;
 	else if ( vars[i]->flags & PRIM::WRITABLE_VAR )
 	    continue;
-	else
+	else if ( is_restricted )
 	{
-	    ++ allocate;
-
-	    if ( is_restricted )
-	    {
-		OK = false;
-		mexcom::compile_error
-		    ( var_pps[i],
-		      "cannot allocate variable (",
-		      min::pgen_name ( var_names[i] ),
-		      ") in a RESTRICTED statement;"
-		      " variable ignored" );
-		vars[i] = min::NULL_STUB;
-	    }
+	    OK = false;
+	    mexcom::compile_error
+		( var_pps[i],
+		  "cannot allocate variable (",
+		  min::pgen_name ( var_names[i] ),
+		  ") in a RESTRICTED statement;"
+		  " variable ignored" );
+	    vars[i] = min::NULL_STUB;
 	}
+	else
+	    ++ allocate;
     }
 
     // If necessary allocate variables counted in
@@ -1862,11 +1856,11 @@ bool static compile_expression_assignment_statement
     {
         // Set variable locations to computed values
 	// in the case that all variables are
-	// allocated.
+	// allocated and all vars[] are NOT NULL_STUB.
 	//
         PRIM::var var = vars[i];
-        if ( var != min::NULL_STUB)
-            var->location = stack_length;
+        MIN_REQUIRE ( var != min::NULL_STUB);
+	var->location = stack_length;
         ++ stack_length;
 	::push_var ( var );
     }
@@ -1874,7 +1868,7 @@ bool static compile_expression_assignment_statement
     {
         // Pop variable values from stack and put them
 	// into appropriate locations, in case some
-	// variable are not to be allocated.
+	// variables are not to be allocated.
 	//
 	-- i;
 	PRIM::var var = vars[i];
@@ -1955,9 +1949,12 @@ bool static compile_expression_assignment_statement
 	del_instr.immedA = 0;
 	del_instr.immedC = mexstack::stack_length
 	                 - stack_length;
-	mexstack::stack_length -= del_instr.immedC;
-	mexstack::push_instr
-	    ( del_instr, left_ppv->position );
+	if ( del_instr.immedC != 0 )
+	{
+	    mexstack::stack_length -= del_instr.immedC;
+	    mexstack::push_instr
+		( del_instr, left_ppv->position );
+	}
     }
 
     return OK;
