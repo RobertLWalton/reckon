@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 19 09:24:56 AM EDT 2025
+// Date:	Tue Aug 19 10:03:46 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1874,7 +1874,9 @@ bool static compile_expression_assignment_statement
 	PRIM::var var = vars[i];
 	::set_data * d = data + i;
 	mex::instr pop_instr = { mex::POPS };
-	min::gen labv[2] = { ::star, var_names[i] };
+	min::gen labv[2] =
+	    { ::star, d->nlabels == 0 ?
+	              var_names[i] : var->label };
 	min::locatable_gen trace_info
 	    ( min::new_lab_gen ( labv, 2 ) );
 	pop_instr.immedA =
@@ -1902,7 +1904,7 @@ bool static compile_expression_assignment_statement
 
 
 	    min::gen labv[2] =
-	        { ::star, var_names[i] };
+	        { ::star, vars[i]->label };
 	    min::locatable_gen trace_info
 	        ( min::new_lab_gen ( labv, 2 ) );
 	    if ( d->label != ::NO_LOCATION )
