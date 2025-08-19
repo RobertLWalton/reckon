@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 04:05:07 AM EDT 2025
+// Date:	Mon Aug 18 05:51:18 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1696,35 +1696,45 @@ bool static compile_expression_assignment_statement
     }
 
     min::locatable_var<PRIM::var> vars[left_n];
+    min::locatable_gen var_names[left_n];
     min::gen exps[right_n];
     ::set_data data[left_n];
-    bool OK = true;
-    min::uns32 allocate = 0;
-        // Number of variables to allocate.  Excludes
-	// variables with vars[] == NULL,
-	// data[].nlabels == 0,
-	// vars[]->flags & PRIM::WRITABLE_VAR ).
+
+    // Scan Variables
+    //
     if ( left_n == 1 )
     {
 	left_vp = min::NULL_STUB;
 	right_vp = min::NULL_STUB;
 	::set_data * d = data + 0;
 	vars[0] = ::scan_var ( vp[0], d );
-	if ( vars[0] == min::NULL_STUB )
-	    OK = false;
-	else if ( d->nlabels > 0 )
-	    /* Do Nothing */;
-	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
-	    /* Do Nothing */;
-	else
-	    ++ allocate;
     }
     else for ( min::uns32 i = 0; i < left_n; ++ i )
     {
 	::set_data * d = data + i;
 	vars[i] = ::scan_var ( left_vp[i], d );
+    }
+
+    // Compute OK and allocate.
+    //
+    bool OK = true;
+    min::uns32 allocate = 0;
+        // Number of variables to allocate.  Includes
+	// variables with vars[] == NULL.  Excludes
+	// variables with data[].nlabels == 0 or
+	// vars[]->flags & PRIM::WRITABLE_VAR.
+    for ( min::uns32 i = 0; i < left_n; ++ i )
+    {
+	::set_data * d = data + i;
+	var_names[i] =
+	    ( vars[i] == min::NULL_STUB ? ::star :
+	      d->nlabels > 0 ? ::star :
+	      ::full_var_name ( vars[i] ) );
 	if ( vars[i] == min::NULL_STUB )
+	{
 	    OK = false;
+	    ++ allocate;
+	}
 	else if ( d->nlabels > 0 )
 	    continue;
 	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
@@ -1733,6 +1743,9 @@ bool static compile_expression_assignment_statement
 	    ++ allocate;
     }
 
+    // If necessary allocate variables counted in
+    // `allocate' for which var[] != NULL_STUB.
+    //
     if ( left_n > 1 && allocate != left_n )
 	for ( min::uns32 i = 0; i < left_n; ++ i )
     {
@@ -1745,20 +1758,15 @@ bool static compile_expression_assignment_statement
 	    continue;
 	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
 	    continue;
-	::pushi ( ::ZERO, left_ppv[i] );
+	::pushi ( min::UNDEFINED(), left_ppv[i] );
 	vars[i]->location = mexstack::stack_length - 1;
     }
-
-
-    if ( right_n == 1 )
-	exps[0] = vp[2];
-    else for ( min::uns32 i = 0; i < right_n; ++ i )
-	exps[i] = right_vp[i];
 
     min::uns32 stack_length =
         mexstack::stack_length;
 
-    for ( min::uns32 i = 0; i < left_n; ++ i )
+    if ( allocate != left_n )
+        for ( min::uns32 i = 0; i < left_n; ++ i )
     {
 	if ( vars[i] == min::NULL_STUB ) continue;
 	::set_data * d = data + i;
@@ -1769,12 +1777,18 @@ bool static compile_expression_assignment_statement
 	    vars[i] = min::NULL_STUB;
 	    continue;
 	}
-	::pushi ( ::ZERO, d->refppv->position );
+	::pushi ( min::UNDEFINED(),
+	          d->refppv->position );
 	d->value = mexstack::stack_length - 1;
     }
     min::uns32 set_data_length =
         mexstack::stack_length - stack_length;
     stack_length = mexstack::stack_length;
+
+    if ( right_n == 1 )
+	exps[0] = vp[2];
+    else for ( min::uns32 i = 0; i < right_n; ++ i )
+	exps[i] = right_vp[i];
 
     if ( left_n > 1 && right_n == 1 )
     {
@@ -1784,20 +1798,16 @@ bool static compile_expression_assignment_statement
         PRIM::var var = vars[i];
 	min::gen exp = exps[i];
 	::set_data & d = data[i];
-	min::locatable_gen var_name
-	    ( var == min::NULL_STUB ? ::star :
-	      d.nlabels > 0 ? ::star :
-	      ::full_var_name ( var ) );
 
 	if ( ! :: compile_expression
-		( exp, 0, 0, var_name ) )
+		( exp, 0, 0, var_names[i] ) )
 	{
 	    OK = false;
 	    min::phrase_position_vec ppv = min::get
 		( exp, min::dot_position );
 	    pushi ( min::UNDEFINED(),
 		    ppv->position,
-		    var_name );
+		    var_names[i] );
 	}
 
 	if ( var == min::NULL_STUB )
@@ -1820,7 +1830,7 @@ bool static compile_expression_assignment_statement
 	}
 	else if ( var->flags & PRIM::WRITABLE_VAR )
 	{
-	    min::gen labv[2] = { ::star, var_name };
+	    min::gen labv[2] = { ::star, var_names[i] };
 	    min::locatable_gen trace_info
 		( min::new_lab_gen ( labv, 2 ) );
 	    mex::instr instr =
@@ -1836,7 +1846,7 @@ bool static compile_expression_assignment_statement
 	    mexcom::compile_error
 		( var->position,
 		  "cannot allocate variable (",
-		  min::pgen_name ( var_name ),
+		  min::pgen_name ( var_names[i] ),
 		  ") in a RESTRICTED statement;"
 		  " variable ignored" );
 	    ::pop ( var->position );
