@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 18 05:51:18 AM EDT 2025
+// Date:	Tue Aug 19 08:54:37 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1764,18 +1764,20 @@ bool static compile_expression_assignment_statement
     // If necessary allocate variables counted in
     // `allocate' for which var[] != NULL_STUB.
     //
-    if ( left_n > 1 && allocate != left_n )
+    if ( allocate != left_n )
 	for ( min::uns32 i = 0; i < left_n; ++ i )
     {
 	::set_data * d = data + i;
-	if ( vars[i] == min::NULL_STUB )
+        PRIM::var var = vars[i];
+	if ( var == min::NULL_STUB )
 	    continue;
 	else if ( d->nlabels > 0 )
 	    continue;
-	else if ( vars[i]->flags & PRIM::WRITABLE_VAR )
+	else if ( var->flags & PRIM::WRITABLE_VAR )
 	    continue;
 	::pushi ( min::UNDEFINED(), var_pps[i] );
-	vars[i]->location = mexstack::stack_length - 1;
+	var->location = mexstack::stack_length - 1;
+	::push_var ( var );
     }
 
     min::uns32 stack_length =
@@ -1814,6 +1816,7 @@ bool static compile_expression_assignment_statement
     min::phrase_position exp_pps[right_n];
     if ( right_n == 1 )
     {
+	right_vp = min::NULL_STUB;
         exps[0] = vp[2];
 	exp_pps[0] = right_ppv->position;
     }
@@ -1842,6 +1845,8 @@ bool static compile_expression_assignment_statement
         // Compile expressions that produce 1 value
 	// each.
 	//
+	MIN_REQUIRE ( left_n == right_n );
+
 	if ( ! :: compile_expression
 		( exps[i], 0, 0,
 		  allocate == left_n ? var_names[i]
@@ -1863,11 +1868,12 @@ bool static compile_expression_assignment_statement
         if ( var != min::NULL_STUB)
             var->location = stack_length;
         ++ stack_length;
+	::push_var ( var );
     }
     else for ( min::uns32 i = left_n; 0 < i;  )
     {
         // Pop variable values from stack and put them
-	// into appropriate location, in case some
+	// into appropriate locations, in case some
 	// variable are not to be allocated.
 	//
 	-- i;
