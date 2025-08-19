@@ -1638,10 +1638,11 @@ bool static compile_expression_assignment_statement
     min::gen left_initiator = min::get ( left_ap );
     min::locate ( left_ap, min::dot_separator );
     min::gen left_separator = min::get ( left_ap );
+    min::locate ( left_ap, min::dot_position );
+    min::phrase_position_vec left_ppv =
+        min::get ( left_ap );
     if ( left_initiator != min::NONE() )
     {
-        min::phrase_position_vec left_ppv =
-	    ::get_position ( left_vp );
 	mexcom::compile_error
 	    ( left_ppv->position,
 	      "cannot understand left side of =;"
@@ -1665,6 +1666,9 @@ bool static compile_expression_assignment_statement
     min::gen right_initiator = min::get ( right_ap );
     min::locate ( right_ap, min::dot_separator );
     min::gen right_separator = min::get ( right_ap );
+    min::locate ( right_ap, min::dot_position );
+    min::phrase_position_vec right_ppv =
+        min::get ( right_ap );
 
     bool right_is_list =
         ( right_initiator == min::NONE()
@@ -1697,22 +1701,23 @@ bool static compile_expression_assignment_statement
 
     min::locatable_var<PRIM::var> vars[left_n];
     min::locatable_gen var_names[left_n];
-    min::gen exps[right_n];
+    min::phrase_position var_pps[left_n];
     ::set_data data[left_n];
 
-    // Scan Variables
+    // Scan Variables, set vars, data, and var_pps.
     //
     if ( left_n == 1 )
     {
 	left_vp = min::NULL_STUB;
-	right_vp = min::NULL_STUB;
 	::set_data * d = data + 0;
 	vars[0] = ::scan_var ( vp[0], d );
+	var_pps[0] = left_ppv->position;
     }
     else for ( min::uns32 i = 0; i < left_n; ++ i )
     {
 	::set_data * d = data + i;
 	vars[i] = ::scan_var ( left_vp[i], d );
+	var_pps[i] = left_ppv[i];
     }
 
     // Compute OK and allocate.
@@ -1728,7 +1733,6 @@ bool static compile_expression_assignment_statement
 	::set_data * d = data + i;
 	var_names[i] =
 	    ( vars[i] == min::NULL_STUB ? ::star :
-	      d->nlabels > 0 ? ::star :
 	      ::full_var_name ( vars[i] ) );
 	if ( vars[i] == min::NULL_STUB )
 	{
@@ -1737,10 +1741,24 @@ bool static compile_expression_assignment_statement
 	}
 	else if ( d->nlabels > 0 )
 	    continue;
-	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
+	else if ( vars[i]->flags & PRIM::WRITABLE_VAR )
 	    continue;
 	else
+	{
 	    ++ allocate;
+
+	    if ( is_restricted )
+	    {
+		OK = false;
+		mexcom::compile_error
+		    ( var_pps[i],
+		      "cannot allocate variable (",
+		      min::pgen_name ( var_names[i] ),
+		      ") in a RESTRICTED statement;"
+		      " variable ignored" );
+		vars[i] = min::NULL_STUB;
+	    }
+	}
     }
 
     // If necessary allocate variables counted in
@@ -1749,22 +1767,27 @@ bool static compile_expression_assignment_statement
     if ( left_n > 1 && allocate != left_n )
 	for ( min::uns32 i = 0; i < left_n; ++ i )
     {
-        min::phrase_position_vec left_ppv =
-	    ::get_position ( left_vp );
 	::set_data * d = data + i;
 	if ( vars[i] == min::NULL_STUB )
 	    continue;
 	else if ( d->nlabels > 0 )
 	    continue;
-	else if ( vars[0]->flags & PRIM::WRITABLE_VAR )
+	else if ( vars[i]->flags & PRIM::WRITABLE_VAR )
 	    continue;
-	::pushi ( min::UNDEFINED(), left_ppv[i] );
+	::pushi ( min::UNDEFINED(), var_pps[i] );
 	vars[i]->location = mexstack::stack_length - 1;
     }
 
     min::uns32 stack_length =
         mexstack::stack_length;
+	// This is the location just after any variables
+	// located above and just before any set_data
+	// variables allocated next.
 
+    // Compile set_data's and allocate their value
+    // locations.  On failure for var[i], set
+    // var[i] = NULL_STUB.
+    //
     if ( allocate != left_n )
         for ( min::uns32 i = 0; i < left_n; ++ i )
     {
@@ -1781,164 +1804,154 @@ bool static compile_expression_assignment_statement
 	          d->refppv->position );
 	d->value = mexstack::stack_length - 1;
     }
-    min::uns32 set_data_length =
-        mexstack::stack_length - stack_length;
-    stack_length = mexstack::stack_length;
 
+    // Compute the expressions that match the variables,
+    // except in the case that left_n > 1 and right_n
+    // == 1, in which case compute exp[0] as the right
+    // side.
+    //
+    min::gen exps[right_n];
+    min::phrase_position exp_pps[right_n];
     if ( right_n == 1 )
-	exps[0] = vp[2];
+    {
+        exps[0] = vp[2];
+	exp_pps[0] = right_ppv->position;
+    }
     else for ( min::uns32 i = 0; i < right_n; ++ i )
-	exps[i] = right_vp[i];
+    {
+        exps[i] = right_vp[i];
+	exp_pps[i] = right_ppv[i];
+    }
 
     if ( left_n > 1 && right_n == 1 )
     {
+        // Compile call that produces more than one
+	// value.
+	//
+	if ( ! ::compile_expression
+	           ( exps[0], 0, 0, ::star,
+		     min::MISSING(), left_n ) )
+	{
+	    OK = false;
+	    for ( min::uns32 i = 0; i < left_n; ++ i )
+		pushi ( min::UNDEFINED(), exp_pps[0] );
+	}
     }
     else for ( min::uns32 i = 0; i < left_n; ++ i )
     {
-        PRIM::var var = vars[i];
-	min::gen exp = exps[i];
-	::set_data & d = data[i];
-
+        // Compile expressions that produce 1 value
+	// each.
+	//
 	if ( ! :: compile_expression
-		( exp, 0, 0, var_names[i] ) )
+		( exps[i], 0, 0,
+		  allocate == left_n ? var_names[i]
+		  		     : star ) )
 	{
 	    OK = false;
-	    min::phrase_position_vec ppv = min::get
-		( exp, min::dot_position );
-	    pushi ( min::UNDEFINED(),
-		    ppv->position,
-		    var_names[i] );
+	    pushi ( min::UNDEFINED(), exp_pps[i] );
 	}
-
-	if ( var == min::NULL_STUB )
-	{
-	    min::phrase_position_vec ppv = min::get
-		( exp, min::dot_position );
-	    ::pop ( ppv->position );
-	    continue;
-	}
-
-	if ( d.nlabels > 0 )
-	{
-	    mex::instr pop_instr = { mex::POPS };
-	    pop_instr.immedA =
-	        mexstack::stack_length
-		- d.value - 1;
-	    -- mexstack::stack_length;
-	    mexstack::push_instr
-		( pop_instr, d.refppv->position );
-	}
-	else if ( var->flags & PRIM::WRITABLE_VAR )
-	{
-	    min::gen labv[2] = { ::star, var_names[i] };
-	    min::locatable_gen trace_info
-		( min::new_lab_gen ( labv, 2 ) );
-	    mex::instr instr =
-		{ mex::POPS, 0, 0, 0,
-		    mexstack::stack_length - 1
-		  - var->location };
-	    -- mexstack::stack_length;
-	    mexstack::push_instr
-		( instr, var->position, trace_info );
-	}
-	else if ( is_restricted )
-	{
-	    mexcom::compile_error
-		( var->position,
-		  "cannot allocate variable (",
-		  min::pgen_name ( var_names[i] ),
-		  ") in a RESTRICTED statement;"
-		  " variable ignored" );
-	    ::pop ( var->position );
-	    vars[i] = min::NULL_STUB;
-	    OK = false;
-	}
-	// else: var->location assigned below.
     }
-    min::uns32 allocated_var_length =
-        mexstack::stack_length - stack_length;
 
-    if ( set_data_length > 0 )
+    if ( allocate == left_n )
+	for ( min::uns32 i = 0; i < left_n; ++ i )
     {
+        // Set variable locations to computed values
+	// in the case that all variables are
+	// allocated.
+	//
+        PRIM::var var = vars[i];
+        if ( var != min::NULL_STUB)
+            var->location = stack_length;
+        ++ stack_length;
+    }
+    else for ( min::uns32 i = left_n; 0 < i;  )
+    {
+        // Pop variable values from stack and put them
+	// into appropriate location, in case some
+	// variable are not to be allocated.
+	//
+	-- i;
+	PRIM::var var = vars[i];
+	::set_data * d = data + i;
+	mex::instr pop_instr = { mex::POPS };
+	min::gen labv[2] = { ::star, var_names[i] };
+	min::locatable_gen trace_info
+	    ( min::new_lab_gen ( labv, 2 ) );
+	pop_instr.immedA =
+	    var == min::NULL_STUB ? 0 :
+	    mexstack::stack_length - 1
+	        - ( d->nlabels > 0 ? d->value :
+				     var->location );
+	-- mexstack::stack_length;
+	mexstack::push_instr
+	    ( pop_instr, var_pps[i], trace_info );
+    }
+
+    if ( allocate != left_n )
+    {
+        // Process set data computed above.
+	//
 	mex::instr push_instr = { mex::PUSHS };
 	mex::instr set_instr = { mex::SET };
 	mex::instr vpush_instr = { mex::VPUSH };
 	for ( min::uns32 i = 0; i < left_n; ++ i )
 	{
 	    if ( vars[i] == min::NULL_STUB ) continue;
-	    ::set_data & d = data[i];
-	    if ( d.nlabels == 0 ) continue;
+	    ::set_data * d = data + i;
+	    if ( d->nlabels == 0 ) continue;
 
 
 	    min::gen labv[2] =
-	        { ::star, vars[i]->label };
+	        { ::star, var_names[i] };
 	    min::locatable_gen trace_info
 	        ( min::new_lab_gen ( labv, 2 ) );
-	    if ( d.label != ::NO_LOCATION )
+	    if ( d->label != ::NO_LOCATION )
 	    {
 		push_instr.immedA =
 		      mexstack::stack_length
-		    - d.label - 1;
+		    - d->label - 1;
 		++ mexstack::stack_length;
 		mexstack::push_instr
-		    ( push_instr, d.refppv->position );
+		    ( push_instr, d->refppv->position );
 		push_instr.immedA =
 		      mexstack::stack_length
-		    - d.value - 1;
+		    - d->value - 1;
 		++ mexstack::stack_length;
 		mexstack::push_instr
-		    ( push_instr, d.refppv->position );
+		    ( push_instr, d->refppv->position );
 		set_instr.immedA =
 		      mexstack::stack_length
-		    - d.base - 1;
+		    - d->base - 1;
 		mexstack::stack_length -= 2;
 		mexstack::push_instr
-		    ( set_instr, d.refppv->position,
+		    ( set_instr, d->refppv->position,
 				 trace_info );
 	    }
 	    else
 	    {
 		push_instr.immedA =
 		      mexstack::stack_length
-		    - d.value - 1;
+		    - d->value - 1;
 		++ mexstack::stack_length;
 		mexstack::push_instr
-		( push_instr, d.refppv->position );
+		    ( push_instr, d->refppv->position );
 		vpush_instr.immedA =
 		      mexstack::stack_length
-		    - d.base - 1;
+		    - d->base - 1;
 		-- mexstack::stack_length;
 		mexstack::push_instr
-		    ( vpush_instr, d.refppv->position,
+		    ( vpush_instr, d->refppv->position,
 				   trace_info );
 	    }
 	}
 
-	min::phrase_position_vec ppv =
-	    ::get_position ( vp );
 	mex::instr del_instr = { mex::DEL };
-	del_instr.immedA = allocated_var_length;
-	del_instr.immedC = set_data_length;
-	mexstack::stack_length -= set_data_length;
-	mexstack::push_instr ( del_instr, ppv[2] );
-    }
-
-    min::uns32 location = mexstack::stack_length
-                        - allocated_var_length;
-    for ( min::uns32 i = 0; i < left_n; ++ i )
-    {
-        PRIM::var var = vars[i];
-	if ( var != min::NULL_STUB
-	     &&
-	     data[i].nlabels == 0
-	     &&
-	     ! is_restricted
-	     &&
-	     ! ( var->flags & PRIM::WRITABLE_VAR ) )
-	{
-	    var->location = location ++;
-	    ::push_var ( var );
-	}
+	del_instr.immedA = 0;
+	del_instr.immedC = mexstack::stack_length
+	                 - stack_length;
+	mexstack::stack_length -= del_instr.immedC;
+	mexstack::push_instr
+	    ( del_instr, left_ppv->position );
     }
 
     return OK;
