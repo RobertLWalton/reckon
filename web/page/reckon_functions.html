@@ -3,7 +3,7 @@
 <!--
 File:	reckon_functions.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Tue Aug 19 21:47:18 EDT 2025
+Date:	Thu Aug 21 04:52:04 EDT 2025
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -210,8 +210,86 @@ L = [1, 2, 3, 4, 5]</div>[1, 2, 3, 4, 5]
 
 </p>
 
+<h2 id='default-values'>Default Values</h2>
+
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>function increment (X) by (Y ?= 1): return X + Y
+increment (4) by (5)</div>9
+<div class='line'>increment (4)</div>5
+<div class='line'>function add (X ?= 1) to (Y): return X + Y
+add (3) to (4)</div>7
+<div class='line'>add to (4)</div>5
+</pre>
+
+<p>
+A function prototype can supply a default value for an argument.
+Then if a call to the function does <u>not</u> supply a value
+for the argument, the default value will be used.
+<p>
+To provide a default value for a prototype argument
+replace in the prototype the <em>argument-name</em> by:
+<div class='center'><em>argument-name</em>&nbsp;<b>?=</b>&nbsp;
+                    <em>default-value</em></div>
+<p>
+Here <em>default-value</em> is any expression, and <b>?=</b>
+is an operator with precedence just a bit higher than that
+of the comma operator.
+<p>
+Default value expressions are evaluated in the context of
+the call (not, like C++, the context of the function prototytpe).
+<p>
+In a prorotype argument list an argument with a default value
+cannot be before an argument without any default value.
+<p>
+An argument list is called <b id='omittable'>omittable</b>
+if all its arguments have default values.
+An omittable
+argument list may not immediately precede:
+<ul class='itemize'>
+<li>the first prototype term name, or
+<li>a non-omittable argument list with the same kind of
+brackets (e.g., both are `<code>()</code>'), or
+<li>an omittable argument list with a different
+kind of brackets (.e.g, one is `<code>()</code>' and one is
+`<code>[]</code>').
+</ul>
+
+
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>function look ( X ?= Q ): return X
+look ( 0 )</div>0
+<div class='line'>Q = 100</div>100
+<div class='line'>look</div>100
+<div class='line'>next Q = 200</div>200
+<div class='line'>look</div>200
+<div class='line'>function adjust ( X ?= 1, Y ): return X + Y</div
+><div class='error-line'>ERROR: in line 114: argument with NO default found AFTER argument with
+       default:</div
+>function adjust ( X ?= 1,<div class='error-highlight'> </div>Y ): return X + Y
+[no output due to compile error]
+<div class='line'>function (X ?= 1) adjust (Y): return X + Y</div
+><div class='error-line'>ERROR: in line 116: argument list before first term must have argument
+       with NO default:</div
+>function <div class='error-highlight'>(X ?= 1)</div> adjust (Y): return X + Y
+[no output due to compile error]
+<div class='line'>function my adder (X ?= 1) (Y): return X + Y</div
+><div class='error-line'>ERROR: in line 118: omitable argument list SHADOWS following
+       non-omittable argument list with the same kind of brackets:</div
+>function my adder <div class='error-highlight'>(X ?= 1)</div> (Y): return X + Y
+[no output due to compile error]
+<div class='line'>function my adder 2 (X ?= 1) [Y ?= 2]: return X + Y</div
+><div class='error-line'>ERROR: in line 120: omitable argument list SHADOWS following omittable
+       argument list with different brackets:</div
+>function my adder 2 <div class='error-highlight'>(X ?= 1)</div> [Y ?= 2]: return X + Y
+[no output due to compile error]
+</pre>
 
 </p>
+
 
 </div>
 
