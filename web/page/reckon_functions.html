@@ -3,7 +3,7 @@
 <!--
 File:	reckon_functions.html
 Author:	Robert L Walton <walton@acm.org>
-Date:	Thu Aug 21 07:55:01 EDT 2025
+Date:	Thu Aug 21 21:48:47 EDT 2025
 
 The authors have placed RECKON (its files and the
 content of these files) in the public domain; they
@@ -289,6 +289,45 @@ look ( 0 )</div>0
 >function my adder 2 <div class='error-highlight'>(X ?= 1)</div> [Y ?= 2]: return X + Y
 [no output due to compile error]
 </pre>
+
+</p>
+
+<h2 id='boolean-terms'>Boolean Terms</h2>
+
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>function test (X) option ( Y ?= *TRUE* ): return X, Y
+test (3)</div>3
+*TRUE*
+<div class='line'>test (3) no option</div>3
+*FALSE*
+<div class='line'>test (3) option</div>3
+*TRUE*
+<div class='line'>test (3) option ( *FALSE* )</div>3
+*FALSE*
+</pre>
+
+<p>
+
+</p>
+
+<h2 id='naked-arguments'>Naked Arguments</h2>
+
+<p>
+Examples:
+<pre class='example'>
+<div class='line'>X = 10</div>10
+<div class='line'>add (X) 1      // Instead of `add (X) (1)'</div>11
+<div class='line'>(X) add 2      // Instead of `(X) add (2)'</div>12
+<div class='line'>add 2 "HI"     // Instead of `add (2) ("HI")'</div
+>!!!!!!!!!!!!!!!!!!!!!!!!! ERROR: invalid operand(s)
+*** {14:3,42,3515} ADD: Z = nan &lt;= 2 + "HI"
+nan
+<div class='line'>sum [1, 2, 3]  // Instead of `sum ([1, 2, 3])'</div>6
+</pre>
+
+<p>
 
 </p>
 
