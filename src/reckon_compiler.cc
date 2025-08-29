@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 19 10:03:46 AM EDT 2025
+// Date:	Fri Aug 29 07:52:01 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3891,14 +3891,17 @@ min::gen static compile_object
 
     for ( min::uns32 i = 0; i < j; ++ i )
     {
+	min::phrase_position_vec eppv =
+	    min::get ( exps[i], min::dot_position );
 	if ( ! ::compile_label ( exps[i] ) )
 	{
-	    ::pushi ( ::ZERO, ppv[i] );
+	    ::pushi ( ::ZERO, eppv->position );
 	    initiator = min::FAILURE();
 	}
 	seti_instr.immedD = labels[i];
 	-- mexstack::stack_length;
-	mexstack::push_instr ( seti_instr, ppv[i] );
+	mexstack::push_instr
+	    ( seti_instr, eppv->position );
     }
 
     return initiator;
