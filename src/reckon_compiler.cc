@@ -2,7 +2,7 @@
 //
 // File:	reckon_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 29 07:52:01 AM EDT 2025
+// Date:	Sat Aug 30 02:47:59 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2999,6 +2999,7 @@ bool static compile_object_block
     mex::instr seti_instr = { mex::SETI, 0, 0, 0, 1 };
     min::locatable_gen labels[bs];
     min::gen exps[bs];
+    min::uns32 indices[bs];
     min::uns32 n = 0;
 
     for ( min::uns32 i = 0; i < bs; ++ i )
@@ -3038,6 +3039,7 @@ bool static compile_object_block
 	{
 	    labels[n] = label;
 	    exps[n] = lvp[2];
+	    indices[n] = i;
 	    ++ n;
 	    continue;
 	}
@@ -3056,15 +3058,17 @@ bool static compile_object_block
     for ( min::uns32 i = 0; i < n; ++ i )
     {
 
-	if ( ! ::compile_label ( exps[i] ) )
+	if ( ! ::compile_expression ( exps[i] ) )
 	{
-	    ::pushi ( ::ZERO, ppv[i] );
+	    min::phrase_position_vec eppv =
+	        min::get ( exps[i], min::dot_position );
+	    ::pushi ( ::ZERO, eppv->position );
 	    OK = false;
 	}
 	seti_instr.immedD = labels[i];
 	-- mexstack::stack_length;
 	mexstack::push_instr
-	    ( seti_instr, ppv[i] );
+	    ( seti_instr, ppv[indices[i]] );
     }
 
     return OK;
